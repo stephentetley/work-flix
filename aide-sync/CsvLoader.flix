@@ -82,12 +82,13 @@ namespace CsvLoader {
     /// Assets
 
     def readAiAsset1[r](row: CsvRow): CsvResult[#{ AiAsset | r }] = 
-        Validation.pipeV4(
+        Validation.pipeV5(
             CsvImport.getStringByIndex(row, 5),
+            CsvImport.getStringByIndex(row, 6),
             CsvImport.getStringByIndex(row, 8),
             CsvImport.getStringByIndex(row, 9),
             CsvImport.getStringByIndex(row, 10),
-            (x,y,z, z2) -> AiAsset(x, y, z, z2).
+            (x,y,z, z2, z3) -> AiAsset(x, y, z, z2, z3).
         )
 
     pub def importAiAssets[r](path: String): Result[#{ AiAsset| r }, String] =    
@@ -98,12 +99,13 @@ namespace CsvLoader {
 
     /// TODO - change to byLabel once it is fixed...
     def readAideAsset1[r](row: CsvRow): CsvResult[#{ AideAsset | r }] = 
-        Validation.pipeV4(
+        Validation.pipeV5(
             CsvImport.getStringByIndex(row, 5),
+            CsvImport.getStringByIndex(row, 6),
             CsvImport.getStringByIndex(row, 9),
             CsvImport.getStringByIndex(row, 10),
             CsvImport.getStringByIndex(row, 11),
-            (x,y,z, z2) -> AideAsset(x, y, z, z2).
+            (x,y,z, z2, z3) -> AideAsset(x, y, z, z2, z3).
         )
 
     pub def importAideAssets[r](path: String): Result[#{ AideAsset | r }, String] =    

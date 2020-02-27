@@ -12,9 +12,9 @@ def test01[r](): #{ AiRepeatedAttribute, AideRepeatedAttribute, RepeatedAttribut
     solve r1 <+> r2 <+> AideSync.repeatedAttibuteDiff()
 
 
-// This blows the heap - to investigate later...
+// This blows the heap if we have multiple schemes...
 @test
-def testBomb01[r](): #{ AttributeDiff | r } =
+def test02[r](): #{ AttributeDiff | r } =
     let src1 = "G:\work\Projects\assets\aide_sync\CTE\KEV002\cte_ai_attr_vals_structure.csv";
     let r1 = CsvLoader.importAiAttributes(src1) |> checkLoaded;
     let src2 = "G:\work\Projects\assets\aide_sync\CTE\KEV002\cte_aide_attr_vals_structure.csv";
@@ -24,7 +24,7 @@ def testBomb01[r](): #{ AttributeDiff | r } =
 
 
 @test
-def test02[r](): #{ AssetDiff, AssetNotInAide, AssetNotInAi | r } =
+def test03[r](): #{ AssetDiff, AssetNotInAide, AssetNotInAi | r } =
     let src1 = "G:\work\Projects\assets\aide_sync\CTE\KEV002\cte_ai_asset_structure.csv";
     let r1 = CsvLoader.importAiAssets(src1) |> checkLoaded;
     let src2 = "G:\work\Projects\assets\aide_sync\CTE\KEV002\cte_aide_asset_structure.csv";

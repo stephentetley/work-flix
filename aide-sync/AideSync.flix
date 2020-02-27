@@ -22,12 +22,12 @@ rel AiAttribute(reference: String, attributeName: String, attributeValue: String
 rel AideAttribute(reference: String, attributeName: String, attributeValue: String)
 rel AttributeDiff(reference: String, attributeName: String, aiValue: String, aideValue: String)
 
-rel AiAsset(reference: String, hkey: String, locationRef: String, installedDate: String)
-rel AideAsset(reference: String, hkey: String, locationRef: String, installedDate: String)
+rel AiAsset(reference: String, commonName: String, hkey: String, locationRef: String, installedDate: String)
+rel AideAsset(reference: String, commonName: String, hkey: String, locationRef: String, installedDate: String)
 rel AssetDiff(reference: String, propertyName: String, aiValue: String, aideValue: String)
 
-rel AssetNotInAide(reference: String)
-rel AssetNotInAi(reference: String)
+rel AssetNotInAide(reference: String, commonName: String)
+rel AssetNotInAi(reference: String, commonName: String)
 
 namespace AideSync {
 
@@ -45,23 +45,26 @@ namespace AideSync {
     /// Note - there might be more properties we need to look at...
     ///
     pub def assetDiff[r](): #{ AiAsset, AideAsset, AssetDiff | r } = #{
+        AssetDiff(sai, "CommonName", aiCoName, aideCoName) :- 
+            AiAsset(sai, aiCoName, _, _, _), AideAsset(sai, aideCoName, _, _, _), if aiCoName != aideCoName.
+
         AssetDiff(sai, "HKey", aiHkey, aideHkey) :- 
-            AiAsset(sai, aiHkey, _, _), AideAsset(sai, aideHkey, _, _), if aiHkey != aideHkey.
+            AiAsset(sai, _, aiHkey, _, _), AideAsset(sai, _, aideHkey, _, _), if aiHkey != aideHkey.
 
         AssetDiff(sai, "LocationRef", aiLocRef, aideLocRef) :- 
-            AiAsset(sai, _, aiLocRef, _), AideAsset(sai, _, aideLocRef, _), if aiLocRef != aideLocRef.
+            AiAsset(sai, _, _, aiLocRef, _), AideAsset(sai, _, aideLocRef, _, _), if aiLocRef != aideLocRef.
 
         AssetDiff(sai, "InstalledFromDate", aiDate, aideDate) :- 
-            AiAsset(sai, _, _, aiDate), AideAsset(sai, _, _, aideDate), if aiDate != aideDate.
+            AiAsset(sai, _, _, _, aiDate), AideAsset(sai, _, _, _, aideDate), if aiDate != aideDate.
 
     }
 
     pub def assetNotInAide[r](): #{ AiAsset, AideAsset, AssetNotInAide | r } = #{        
-        AssetNotInAide(sai) :- AiAsset(sai, _, _, _), not AideAsset(sai, _, _, _).
+        AssetNotInAide(sai, coName) :- AiAsset(sai, coName, _, _, _), not AideAsset(sai, _, _, _, _).
     }
 
     pub def assetNotInAi[r](): #{ AiAsset, AideAsset, AssetNotInAide | r } = #{        
-        AssetNotInAi(sai) :- AideAsset(sai, _, _, _), not AiAsset(sai, _, _, _).
+        AssetNotInAi(sai, coName) :- AideAsset(sai, coName, _, _, _), not AiAsset(sai, _,  _, _, _).
     }
 
 
