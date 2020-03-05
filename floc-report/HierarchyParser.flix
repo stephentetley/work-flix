@@ -45,13 +45,13 @@ namespace HierarchyParser {
 
 
     pub def indenting(): TextParser.Parser[String] = 
-        TextParser.manyChars(TextParser.oneOf([' ', '-', '|']))
+        TextParser.manyChars(TextParser.oneOf(' ' :: '-' :: '|' :: Nil))
 
     pub def funcLoc(): TextParser.Parser[String] = 
         TextParser.manyChars2(
             TextParser.upper(),
             TextParser.choice(
-                [TextParser.upper(), TextParser.char('-'), TextParser.digit()]
+                TextParser.upper() :: TextParser.char('-') :: TextParser.digit() :: Nil
             )
         )
 
@@ -77,13 +77,13 @@ namespace HierarchyParser {
     pub def descriptionHeaderLine(): TextParser.Parser[String] = 
         TextParser.seqRight(
             TextParser.symbol("Description"),
-            TextParser.restOfLine()
+            TextParser.restOfLine(true)
         )
 
     pub def flocRootLine(): TextParser.Parser[FlocRoot] = 
         TextParser.pipe2(
             TextParser.seqRight(TextParser.string("  "), TextParser.bounded(funcLoc(), 41)),
-            TextParser.restOfLine(),
+            TextParser.restOfLine(true),
             (floc, descr) -> { floc = floc, description = descr }
         )
 

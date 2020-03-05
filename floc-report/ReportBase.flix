@@ -16,12 +16,8 @@
 
 namespace ReportBase {
 
-    pub def foreach(f: a -> Unit, xs: List[a]): Unit = match xs {
-        case Nil => ()
-        case x :: rs => { f(x); foreach(f, rs) }
-    }
 
-    pub def foldLines(f: ac -> TextParser.Parser[ac], ac: ac, path: Path): Result[ac, String] = 
+    pub def foldLines(f: ac -> TextParser.Parser[ac], ac: ac, path: Path): Result[ac, String] & Impure = 
         match Path.readLines(path) {
             case Err(_) => Err("io error")
             case Ok(xs) => foldLinesHelper(f, ac, xs)    
@@ -37,19 +33,19 @@ namespace ReportBase {
                 }
         }
 
-    pub def foreachLines(f: TextParser.Parser[Unit], path: Path): Result[Unit, String] = 
+    pub def foreachLines(p: TextParser.Parser[a], fn: a -> Unit & Impure, path: Path): Result[Unit, String] & Impure = 
         match Path.readLines(path) {
             case Err(_) => Err("io error")
-            case Ok(xs) => foreachLinesHelper(f, xs)    
+            case Ok(xs) => foreachLinesHelper(p, fn, xs)    
         }
 
-    def foreachLinesHelper(f: TextParser.Parser[Unit], xs: List[String]): Result[Unit, String] = 
+    def foreachLinesHelper(p: TextParser.Parser[a], fn: a -> Unit & Impure, xs: List[String]): Result[Unit, String] & Impure = 
         match xs { 
             case Nil => Ok()
             case x :: rs => 
-                match TextParser.run(f, x) {
+                match TextParser.run(p, x) {
                     case Err(msg) => Err(msg)
-                    case Ok() => foreachLinesHelper(f, rs)
+                    case Ok(a) => { fn(a); foreachLinesHelper(p, fn, rs) }
                 }
         }
 

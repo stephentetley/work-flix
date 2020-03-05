@@ -16,60 +16,67 @@
 
 namespace FlocReport {
 
-    def csvHeaders(): Array[String] = 
+    type alias Cells = Option[List[String]]
+
+    def csvHeaders(): Array[String] & Impure = 
         [ "Site", "Function", "Process Group", "Process", "System", "Assembly", "Item", "Component", 
             "Functional Location", "Equipment", "Parent", "Description"
         ]
 
-    def mkFlocRootCells(x: FlocRoot): Array[String] = 
-        [ x.floc, "", "", "", "", "", "", "", x.floc, "", "", x.description ]
+    def mkFlocRootCells(x: FlocRoot): Cells = 
+        Some(x.floc :: "" :: "" :: "" :: "" :: "" :: "" :: "" :: x.floc :: "" :: "" :: x.description  :: Nil)
 
 
-    def flocRootParser(writer: CsvWriter) : TextParser.Parser[Unit] = 
+    def flocRootParser() : TextParser.Parser[Cells] = 
         TextParser.fmap(
-            x -> mkFlocRootCells(x) |> CsvExport.writeRow(writer), 
+            mkFlocRootCells, 
             HierarchyParser.flocRootLine()
         )
 
-    def mkFlocRowCells(x: FlocRow): Array[String] = 
-        let arr = [ "", "", "", "", "", "", "", "", x.floc, "", "", x.description ];
-        let ix = FuncLoc.new(x.floc) |> FuncLoc.level |> i -> i - 1;
-        arr[ix] = x.floc;
-        arr
+    def mkFlocRowCells(x1: FlocRow): Cells = 
+        let zs = "" :: "" :: "" :: "" :: "" :: "" :: "" :: "" :: x1.floc :: "" :: "" :: x1.description :: Nil;
+        let ix = FuncLoc.new(x1.floc) |> FuncLoc.level |> i -> i - 1;
+        List.update(ix, x1.floc, zs) |> Some
     
-    def flocRowParser(writer: CsvWriter) : TextParser.Parser[Unit] = 
+    def flocRowParser() : TextParser.Parser[Cells] = 
         TextParser.fmap(
-            x -> mkFlocRowCells(x) |> CsvExport.writeRow(writer), 
+            mkFlocRowCells, 
             HierarchyParser.flocLine()
         )
 
-    def mkEquiRowCells(x: EquiRow): Array[String] = 
+    def mkEquiRowCells(x: EquiRow): Cells = 
         let parent = Option.getWithDefault(x.superordinate, "");
-        [ "", "", "", "", "", "", "", "", x.floc, x.equiId, parent, x.description ]
+        Some("" :: "" :: "" :: "" :: "" :: "" :: "" :: "" :: x.floc :: x.equiId :: parent :: x.description :: Nil)
 
-    def equiRowParser(writer: CsvWriter) : TextParser.Parser[Unit] = 
+    def equiRowParser() : TextParser.Parser[Cells] = 
         TextParser.fmap(
-            x -> mkEquiRowCells(x) |> CsvExport.writeRow(writer), 
+            mkEquiRowCells,
             HierarchyParser.equiLine()
         )
     
-    def ignoreRow() : TextParser.Parser[Unit] = 
+    def ignoreRow() : TextParser.Parser[Cells] = 
         TextParser.fmap(
-            _ -> (), 
+            _ -> None, 
             TextParser.restOfInput()
         )
 
-    pub def generateReport(inputfile: String, destfile: String): Result[Unit, String] = 
+    // |> CsvExport.writeRow(writer)
+    pub def generateReport(inputfile: String, destfile: String): Result[Unit, String] & Impure = 
         let path = Path.new(inputfile);
         let writer = CsvExport.new(destfile, csvHeaders());
+        let fn = ans -> match ans { 
+            case None => () as & Impure 
+            case Some(xs) => { let arr = List.toArray(xs); CsvExport.writeRow(writer, arr) }
+        };
         let p1 = 
-            TextParser.choice([
-                flocRootParser(writer),
-                flocRowParser(writer),
-                equiRowParser(writer),
-                ignoreRow()
-            ]);
-        ReportBase.foreachLines(p1, path);
+            TextParser.choice(
+                flocRootParser()  ::
+                flocRowParser()   ::
+                equiRowParser()   ::
+                ignoreRow()             :: 
+                Nil
+            );
+        ReportBase.foreachLines(p1, fn, path);
         CsvExport.close(writer) |> Ok
 
 }
