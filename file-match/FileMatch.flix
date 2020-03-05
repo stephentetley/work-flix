@@ -49,7 +49,7 @@ namespace FileMatch {
 
     pub def isPrefixOf(sub: String, s: String): Bool = sub == commonPrefix(sub, s)
 
-    def fail1(msg: String): reln = { Console.printLine(msg);  #{ } }
+    def fail1(msg: String): reln & Impure = { Console.printLine(msg);  #{ } }
 
     pub def applyParser(p: TextParser.Parser[a], line: TextLine): LineResult[a] = 
         LinesImport.applyRes(TextParser.run(p), line)
@@ -72,7 +72,7 @@ namespace FileMatch {
         applyParser(parseSWS(), line) 
 
 
-    pub def importSWS[r](path: String, cs: Charset): #{ SWS | r } =
+    pub def importSWS[r](path: String, cs: Charset): #{ SWS | r } & Impure =
         match LinesImport.newLinesSource(path, cs) {
             case Err(msg) => fail1(msg)
             case Ok(src) => 
@@ -91,7 +91,7 @@ namespace FileMatch {
     def getExistingLine[r](batchName: String, line: TextLine): LineResult[Option[ #{ Existing | r } ]] = 
         applyParser(parseExisting(batchName), line) 
 
-    pub def importBatch[r](path: String, cs: Charset, batchName: String ): #{ Existing | r } =
+    pub def importBatch[r](path: String, cs: Charset, batchName: String ): #{ Existing | r } & Impure =
         match LinesImport.newLinesSource(path, cs) {
             case Err(msg) => fail1(msg)
             case Ok(src) => 
@@ -101,6 +101,12 @@ namespace FileMatch {
                 }
         }
 
-    
+    pub def fileMatchRules[r](): #{ SWS, Existing, Done, Todo | r } =
+        let isPrefix = (x,y)  -> FileMatch.isPrefixOf(x, y);
+        #{ 
+            Done(x) :- SWS(x), if isPrefix(x,y), Existing(y, _).
+            Todo(x) :- SWS(x), not Done(x).
+        }
+        
 
 }

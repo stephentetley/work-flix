@@ -7,7 +7,7 @@ pub def src() : Str = "G:\work\Projects\rtu\mk5-mmims\diffs\temp.txt"
 
 
 @test
-def exists01(): Result[Bool, String] = 
+def exists01(): Result[Bool, String] & Impure = 
     match Path.exists(Path.new(src())) {
         case Err(_) => Err("IOError")
         case Ok(a) => Ok(a)
@@ -15,8 +15,8 @@ def exists01(): Result[Bool, String] =
 
 
 @test
-def readLines01(): Result[Bool, String] = 
-    match Path.readLinesX(Path.new(src())) {
+def readLines01(): Result[Bool, String] & Impure = 
+    match File.readFile(FilePath.new(src()), Charset.utf_16le()) {
         case Err(_) => Err("IOError")
         case Ok(_) => Ok(true)
     }
@@ -58,27 +58,22 @@ def ignore01(): Result[Option[String], String] =
     TextParser.run(DirListing.ignoreLine(), inp) 
         
 @test
-def sws01[r](): #{ SWS | r } = 
+def sws01[r](): #{ SWS | r } & Impure = 
     FileMatch.importSWS(src(), Charset.utf_16le())
 
         
 @test
-def sws02[r](): #{ SWS | r } = 
+def sws02[r](): #{ SWS | r } & Impure = 
     FileMatch.importSWS("G:\work\Projects\rtu\mk5-mmims\diffs\sws.txt", Charset.utf_16le())
 
 
 
 
-pub def main1() : #{ Todo | r } = 
+pub def main1() : #{ Todo | r } & Impure = 
     let sws = FileMatch.importSWS("G:\work\Projects\rtu\mk5-mmims\diffs\sws.txt", Charset.utf_16le());
     let b1 = FileMatch.importBatch("G:\work\Projects\rtu\mk5-mmims\diffs\batch1.txt", Charset.utf_16le(), "batch1");
     let b2 = FileMatch.importBatch("G:\work\Projects\rtu\mk5-mmims\diffs\batch2.txt", Charset.utf_16le(), "batch2");
     let b3 = FileMatch.importBatch("G:\work\Projects\rtu\mk5-mmims\diffs\batch3.txt", Charset.utf_16le(), "batch3");
-    let isPrefix = (x,y)  -> FileMatch.isPrefixOf(x, y);
 
-    let rules = #{ 
-        Done(x) :- SWS(x), isPrefix(x,y), Existing(y, _).
-        Todo(x) :- SWS(x), not Done(x).
-    };
-    project Todo (solve sws <+> b1 <+> b2 <+> b3 <+> rules)
+    project Todo (solve sws <+> b1 <+> b2 <+> b3 <+> FileMatch.fileMatchRules())
 

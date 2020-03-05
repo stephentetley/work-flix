@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/// Parser for Windows `dir` output 
+/// Simple parser for Windows `dir` output - only parses a single folder
 /// Note files are expected to be encodes as UTF16_LE
 
 type alias TimeStamp = { day: Int32, month: Int32, year: Int32, hour: Int32, minute: Int32 }
