@@ -19,38 +19,40 @@ namespace CsvLoader {
 
     /// Repeated attributes
 
-    def readAiRepeatedAttribute1[r](row: CsvRow): CsvResult[#{ AiRepeatedAttribute | r }] = 
-        Validation.pipeV3(
+    def readCteAiRepeatedAttribute1[r](row: CsvRow): CsvResult[#{ AiRepeatedAttribute | r }] = 
+        Validation.pipeV4(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 7),
             CsvImport.getStringByIndex(row, 8),
-            (x,y,z) -> AiRepeatedAttribute(x, y, z).
+            CsvImport.getStringByIndex(row, 9),
+            (x,y,z1, z2) -> AiRepeatedAttribute(x, y, z1, z2).
         )
 
-    pub def importAiRepeatedAttributes[r](path: String): Result[#{ AiRepeatedAttribute | r }, String] =    
+    pub def importCteAiRepeatedAttributes[r](path: String): Result[#{ AiRepeatedAttribute | r }, String] & Impure =
         Result.flatMap(
-            csv -> CsvImport.collect(readAiRepeatedAttribute1, csv),
+            csv -> CsvImport.collect(readCteAiRepeatedAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
         
     /// TODO - change to byLabel once it is fixed...
-    def readAideRepeatedAttribute1[r](row: CsvRow): CsvResult[#{ AideRepeatedAttribute | r }] = 
-        Validation.pipeV3(
+    def readCteAideRepeatedAttribute1[r](row: CsvRow): CsvResult[#{ AideRepeatedAttribute | r }] = 
+        Validation.pipeV4(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 8),
             CsvImport.getStringByIndex(row, 9),
-            (x,y,z) -> AideRepeatedAttribute(x, y, z).
+            CsvImport.getStringByIndex(row, 10),
+            (x,y,z1,z2) -> AideRepeatedAttribute(x, y, z1, z2).
         )
 
-    pub def importAideRepeatedAttributes[r](path: String): Result[#{ AideRepeatedAttribute | r }, String] =    
+    pub def importCteAideRepeatedAttributes[r](path: String): Result[#{ AideRepeatedAttribute | r }, String] & Impure =    
         Result.flatMap(
-            csv -> CsvImport.collect(readAideRepeatedAttribute1, csv),
+            csv -> CsvImport.collect(readCteAideRepeatedAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// Attributes
 
-    def readAiAttribute1[r](row: CsvRow): CsvResult[#{ AiAttribute | r }] = 
+    def readCteAiAttribute1[r](row: CsvRow): CsvResult[#{ AiAttribute | r }] = 
         Validation.pipeV3(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 7),
@@ -58,14 +60,14 @@ namespace CsvLoader {
             (x,y,z) -> AiAttribute(x, y, z).
         )
 
-    pub def importAiAttributes[r](path: String): Result[#{ AiAttribute | r }, String] =    
+    pub def importCteAiAttributes[r](path: String): Result[#{ AiAttribute | r }, String] & Impure =    
         Result.flatMap(
-            csv -> CsvImport.collect(readAiAttribute1, csv),
+            csv -> CsvImport.collect(readCteAiAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// TODO - change to byLabel once it is fixed...
-    def readAideAttribute1[r](row: CsvRow): CsvResult[#{ AideAttribute | r }] = 
+    def readCteAideAttribute1[r](row: CsvRow): CsvResult[#{ AideAttribute | r }] = 
         Validation.pipeV3(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 8),
@@ -73,44 +75,44 @@ namespace CsvLoader {
             (x,y,z) -> AideAttribute(x, y, z).
         )
 
-    pub def importAideAttributes[r](path: String): Result[#{ AideAttribute | r }, String] =    
+    pub def importCteAideAttributes[r](path: String): Result[#{ AideAttribute | r }, String] & Impure =
         Result.flatMap(
-            csv -> CsvImport.collect(readAideAttribute1, csv),
+            csv -> CsvImport.collect(readCteAideAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// Assets
 
-    def readAiAsset1[r](row: CsvRow): CsvResult[#{ AiAsset | r }] = 
+    def readCteAiAsset1[r](row: CsvRow): CsvResult[#{ AiAsset | r }] = 
         Validation.pipeV5(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 6),
             CsvImport.getStringByIndex(row, 8),
             CsvImport.getStringByIndex(row, 9),
             CsvImport.getStringByIndex(row, 10),
-            (x,y,z, z2, z3) -> AiAsset(x, y, z, z2, z3).
+            (x,y,z1,z2,z3) -> AiAsset(x, y, z1, z2, z3).
         )
 
-    pub def importAiAssets[r](path: String): Result[#{ AiAsset| r }, String] =    
+    pub def importCteAiAssets[r](path: String): Result[#{ AiAsset| r }, String] & Impure =
         Result.flatMap(
-            csv -> CsvImport.collect(readAiAsset1, csv),
+            csv -> CsvImport.collect(readCteAiAsset1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// TODO - change to byLabel once it is fixed...
-    def readAideAsset1[r](row: CsvRow): CsvResult[#{ AideAsset | r }] = 
+    def readCteAideAsset1[r](row: CsvRow): CsvResult[#{ AideAsset | r }] = 
         Validation.pipeV5(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 6),
             CsvImport.getStringByIndex(row, 9),
             CsvImport.getStringByIndex(row, 10),
             CsvImport.getStringByIndex(row, 11),
-            (x,y,z, z2, z3) -> AideAsset(x, y, z, z2, z3).
+            (x,y,z1,z2,z3) -> AideAsset(x, y, z1, z2, z3).
         )
 
-    pub def importAideAssets[r](path: String): Result[#{ AideAsset | r }, String] =    
+    pub def importCteAideAssets[r](path: String): Result[#{ AideAsset | r }, String] & Impure =    
         Result.flatMap(
-            csv -> CsvImport.collect(readAideAsset1, csv),
+            csv -> CsvImport.collect(readCteAideAsset1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 

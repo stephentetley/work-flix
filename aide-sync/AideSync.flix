@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-rel AiRepeatedAttribute(reference: String, attributeName: String, attributeValue: String)
-rel AideRepeatedAttribute(reference: String, attributeName: String, attributeValue: String)
-rel RepeatedAttributeDiff(reference: String, attributeName: String, aiValue: String, aideValue: String)
+rel AiRepeatedAttribute(reference: String, pageName: String, attributeName: String, attributeValue: String)
+rel AideRepeatedAttribute(reference: String, pageName: String, attributeName: String, attributeValue: String)
+rel RepeatedAttributeDiff(reference: String, pageName: String, attributeName: String, aiValue: String, aideValue: String)
 
 rel AiAttribute(reference: String, attributeName: String, attributeValue: String)
 rel AideAttribute(reference: String, attributeName: String, attributeValue: String)
@@ -32,8 +32,8 @@ rel AssetNotInAi(reference: String, commonName: String)
 namespace AideSync {
 
     pub def repeatedAttibuteDiff[r](): #{ AiRepeatedAttribute, AideRepeatedAttribute, RepeatedAttributeDiff | r } = #{
-        RepeatedAttributeDiff(sai, name, ai, aide) :- 
-            AiRepeatedAttribute(sai, name, ai), AideRepeatedAttribute(sai, name, aide), if ai != aide.
+        RepeatedAttributeDiff(sai, page, name, ai, aide) :- 
+            AiRepeatedAttribute(sai, page, name, ai), AideRepeatedAttribute(sai, page, name, aide), if ai != aide.
     }
 
     pub def attibuteDiff[r](): #{ AiAttribute, AideAttribute, AttributeDiff | r } = #{
