@@ -1,7 +1,7 @@
 def runOrError(p: TextParser.Parser[a], f: a -> String, inp: String): String = 
     match TextParser.run(p, inp) { 
         case Ok(a) => f(a)
-        case Err(msg) => "*** ERROR:" + msg
+        case Err(e) => "*** ERROR:" + TextParser.showParserError(e)
     }
 
 
@@ -9,13 +9,20 @@ def runOrError(p: TextParser.Parser[a], f: a -> String, inp: String): String =
 def test01(): Result[S4DownloadParser.DownloadHeader, String] & Impure = 
     let src = 
         "G:\work\Projects\assets\asset_patch\file_download_edm\car36_outstation_valuaequi.txt" |> FilePath.new;
-    TextParser.parseFile(S4DownloadParser.pHeader(), src, Charset.utf_8() )
+    match TextParser.parseFile(S4DownloadParser.pHeader(), src, Charset.utf_8() ) { 
+        case Err(e) => Err(TextParser.showParserError(e))
+        case Ok(a) => Ok(a)
+    }
+        
 
 @test
 def test02(): Result[S4DownloadParser.DownloadFile, String] & Impure = 
     let src = 
         "G:\work\Projects\assets\asset_patch\file_download_edm\car36_outstation_valuaequi.txt" |> FilePath.new;
-    TextParser.parseFile(S4DownloadParser.pDownload(), src, Charset.utf_8() )
+    match TextParser.parseFile(S4DownloadParser.pDownload(), src, Charset.utf_8() ) { 
+        case Err(e) => Err(TextParser.showParserError(e))
+        case Ok(a) => Ok(a)
+    }
 
 
 

@@ -94,25 +94,27 @@ namespace S4DownloadParser {
         TextParser.seqRight(
             singleLine(selectionHeader()),
             TextParser.many(singleLine(selectionLine()))
-        )
+        ) |> TextParser.swapError("selection")
 
     def columnName(): TextParser.Parser[String] = 
         TextParser.manyChars2(
             TextParser.upper(),
-            TextParser.alt(TextParser.upper(), TextParser.char('_'))
-        )
+            TextParser.choice(TextParser.upper() :: TextParser.char('_') :: TextParser.digit() :: Nil)
+        ) |> TextParser.swapError("columnName")
 
     pub def columnHeaders(): TextParser.Parser[List[String]] = 
         TextParser.seqRight(
             asterisk(),
-            TextParser.endBy(columnName(), TextParser.tab())
-        )
+            TextParser.sepBy(columnName(), TextParser.tab())
+        ) |> TextParser.nestError("columnHeaders") 
 
     def cellValue(): TextParser.Parser[String] = 
         TextParser.manyChars(TextParser.noneOf('\t' :: '\r' :: '\n' :: Nil))
+            |> TextParser.swapError("cellValue")
 
     pub def valueRow(): TextParser.Parser[List[String]] = 
         TextParser.endBy(cellValue(), TextParser.tab())
+            |> TextParser.swapError("valueRow")
 
     pub opaque type DownloadHeader = 
         { datamodel: String
@@ -150,12 +152,11 @@ namespace S4DownloadParser {
             pHeader(),
             selection(),
             singleLine(columnHeaders()),
-            TextParser.return(Nil),
-            // singleLine(valueRow()),
-            // TextParser.manyTill(singleLine(valueRow()), TextParser.endOfInput()),
+            TextParser.manyTill(singleLine(valueRow()), TextParser.endOfInput()),
             (a1,a2,a3,a4) -> {
                 DownloadFile({ header = a1, selections = a2,
                                 columnheaders = a3, rows = a4 })
             }
         )
+
 }
