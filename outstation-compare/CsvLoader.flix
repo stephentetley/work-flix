@@ -102,8 +102,8 @@ namespace CsvLoader {
     def readSiteMapping1[r](row: CsvRow): CsvResult[#{ SiteMapping | r }] & Impure = 
         Validation.pipeV3(
             CsvImport.getStringByIndex(row, 0),     // Workaround from not handling BOM
-            CsvImport.getStringByLabel(row, "L1 code"),
-            CsvImport.getStringByLabel(row, "S4 Hana Floc Description"),
+            CsvImport.getStringByLabel(row, "S/4 Hana Floc Lvl1_Code"),
+            CsvImport.getStringByLabel(row, "S/4 Hana Floc Description"),
             (x1, x2, x3) -> { 
                 let r1 = SiteMapping(x1, x2, x3). ;
                 let r2 = SiteMapping(renameHLR(x1), x2, x3). ;

@@ -16,7 +16,7 @@
 
 rel Telemetry(ai: String, s4: String)
 
-rel NoS4(ai: String)
+rel NoS4(ai: String, s4: String)
 
 rel InS4(ai: String)
 
@@ -43,8 +43,13 @@ namespace Compare {
                 if isPrefix(sfloc, scode), 
                 S4EquiInfo(sfloc, _, _, _).
 
-            NoS4(xsite) :- 
+            NoS4(xsite, "No code") :- 
                 AI2OutstationInfo(xsite, _, _, _, "OPERATIONAL"), 
+                not SiteMapping(xsite, _, _).
+
+            NoS4(xsite, scode) :- 
+                AI2OutstationInfo(xsite, _, _, _, "OPERATIONAL"), 
+                SiteMapping(xsite, scode, _),
                 not InS4(xsite).    
         }     
 

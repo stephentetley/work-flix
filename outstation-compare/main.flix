@@ -56,17 +56,28 @@ def telemetryMatches01[r](): #{ Telemetry, SiteMapping, S4EquiInfo, AI2Outstatio
         project Telemetry (solve relns <+> Compare.telemetryMatch())
     }
 
+/// A "cell printer" for the body of NoS4.
+def noS4Cells(src: (String,String)): Array[String] & Impure = 
+    let (x,y) = src;
+    [x,y]
+
 
 @test
-def noS4[r](): #{ NoS4 | r } & Impure = 
+def noS4(): Unit & Impure = 
     let paths = 
         { s4Equipment   = "G:\work\Projects\assets\asset_patch\file_download_edm\equi_download_objtype=NETW.csv"
         , aiOutstations = "G:\work\Projects\assets\asset_patch\file_download_edm\ai2_outstations.csv"
         , siteMapping   = "G:\work\Projects\assets\asset_patch\file_download_edm\ai_to_s4_sites.csv"
         };
+    let dest = "G:\work\Projects\assets\asset_patch\file_download_edm\results_nos4.csv";
+    let headers = ["ai_name", "s4_code"];
+    let buildStep = CsvExport.makeBuildStep(noS4Cells); 
     match CsvLoader.loadAll(paths) { 
-        case Err(msg) => { Console.printLine(msg); #{ } }
-        case Ok(relns) => 
-        project NoS4 (solve relns <+> Compare.noS4())
+        case Err(msg) => Console.printLine(msg)
+        case Ok(relns) => {
+            { fold NoS4 CsvExport.emptyCsvBuilder() buildStep (solve relns <+> Compare.noS4()) }
+                |> CsvExport.outputCsv(dest, headers);
+            Console.printLine("Wrote: " + dest)
+        }
     }
 
