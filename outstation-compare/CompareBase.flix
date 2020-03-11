@@ -1,0 +1,47 @@
+/*
+ * Copyright 2020 Stephen Tetley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+namespace CompareBase {
+
+    pub def apR(rf: Result[a -> b & f, e], r: Result[a, e]) : Result[b, e] & f = 
+        match rf { 
+            case Err(x) => Err(x)
+            case Ok(f) => match r {
+                case Err(x) => Err(x)
+                case Ok(a) => Ok(f(a))
+            }
+        }
+
+    pub def liftR2(fn: (t1,t2) -> t3 & f, r1: Result[t1, e], r2: Result[t2, e]): Result[t3, e] & f =
+        apR(Result.map(fn, r1), r2)
+
+    pub def liftR3(fn: (t1,t2,t3) -> t4 & f, r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e]): Result[t4, e] & f =
+        apR(liftR2(fn, r1, r2), r3)
+
+    pub def liftR4(f: (t1,t2,t3,t4) -> t5 & f, r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e]): Result[t5, e] & f=
+        apR(liftR3(f, r1, r2, r3), r4)
+
+    pub def pipeR2(r1: Result[t1, e], r2: Result[t2, e], fn: (t1,t2) -> t3 & f): Result[t3, e] & f =
+        liftR2(fn, r1, r2)
+
+    pub def pipeR3(r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], f: (t1,t2,t3) -> t4 & f): Result[t4, e] & f=
+        liftR3(f, r1, r2, r3)
+
+    pub def pipeR4(r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], f: (t1,t2,t3,t4) -> t5 & f): Result[t5, e] & f=
+        liftR4(f, r1, r2, r3, r4)
+
+}
