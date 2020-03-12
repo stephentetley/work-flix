@@ -52,7 +52,7 @@ namespace FileMatch {
     def fail1(msg: String): reln & Impure = { Console.printLine(msg);  #{ } }
 
     pub def applyParser(p: TextParser.Parser[a], line: TextLine): LineResult[a] = 
-        LinesImport.applyRes(TextParser.run(p), line)
+        LinesImport.applyRes(TextParser.runs(p), line)
 
     def parseFolder(): TextParser.Parser[Option[Folder]] = 
         TextParser.alt( 
@@ -63,12 +63,15 @@ namespace FileMatch {
 
 
     /// Exposed for testing
-    pub def parseSWS[r](): TextParser.Parser[Option[#{ SWS | r }]] = 
-        let mk = { d -> SWS(d.name). };
-        TextParser.fmap(Option.map(mk), parseFolder())
+    pub def parseSWS[r](): TextParser.Parser[ #{ SWS | r }] = 
+        let mk = x -> match x { 
+                case Some(d) => { SWS(d.name). }
+                case None => #{ }
+        };
+        TextParser.fmap(mk, parseFolder())
         
 
-    def getSWSLine[r](line: TextLine): LineResult[Option[ #{ SWS | r } ]] = 
+    def getSWSLine[r](line: TextLine): LineResult[ #{ SWS | r } ] = 
         applyParser(parseSWS(), line) 
 
 
@@ -76,26 +79,29 @@ namespace FileMatch {
         match LinesImport.newLinesSource(path, cs) {
             case Err(msg) => fail1(msg)
             case Ok(src) => 
-                match LinesImport.choose(getSWSLine, src) {
+                match LinesImport.iterate(getSWSLine, src) {
                     case Err(msg) => fail1(msg)
                     case Ok(relns) => solve relns
                 }
         }
 
     /// Exposed for testing
-    pub def parseExisting[r](batchName: String): TextParser.Parser[Option[ #{ Existing | r } ]] = 
-        let mk = { d -> Existing(d.name, batchName). };
-        TextParser.fmap(Option.map(mk), parseFolder())
+    pub def parseExisting[r](batchName: String): TextParser.Parser[#{ Existing | r }] = 
+        let mk = x -> match x { 
+            case Some(d) => { Existing(d.name, batchName). }
+            case None => #{ }
+        };
+        TextParser.fmap(mk, parseFolder())
         
 
-    def getExistingLine[r](batchName: String, line: TextLine): LineResult[Option[ #{ Existing | r } ]] = 
+    def getExistingLine[r](batchName: String, line: TextLine): LineResult[ #{ Existing | r } ] = 
         applyParser(parseExisting(batchName), line) 
 
     pub def importBatch[r](path: String, cs: Charset, batchName: String ): #{ Existing | r } & Impure =
         match LinesImport.newLinesSource(path, cs) {
             case Err(msg) => fail1(msg)
             case Ok(src) => 
-                match LinesImport.choose(getExistingLine(batchName), src) {
+                match LinesImport.iterate(getExistingLine(batchName), src) {
                     case Err(msg) => fail1(msg)
                     case Ok(relns) => solve relns
                 }

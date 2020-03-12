@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-
 namespace CsvLoader {
 
     /// Repeated attributes
 
     def readCteAiRepeatedAttribute1[r](row: CsvRow): CsvResult[#{ AiRepeatedAttribute | r }] = 
-        Validation.pipeV4(
+        ValidationExtras.pipeV4(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 7),
             CsvImport.getStringByIndex(row, 8),
@@ -30,13 +29,13 @@ namespace CsvLoader {
 
     pub def importCteAiRepeatedAttributes[r](path: String): Result[#{ AiRepeatedAttribute | r }, String] & Impure =
         Result.flatMap(
-            csv -> CsvImport.collect(readCteAiRepeatedAttribute1, csv),
+            csv -> CsvImport.iterate(readCteAiRepeatedAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
         
     /// TODO - change to byLabel once it is fixed...
     def readCteAideRepeatedAttribute1[r](row: CsvRow): CsvResult[#{ AideRepeatedAttribute | r }] = 
-        Validation.pipeV4(
+        ValidationExtras.pipeV4(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 8),
             CsvImport.getStringByIndex(row, 9),
@@ -46,14 +45,14 @@ namespace CsvLoader {
 
     pub def importCteAideRepeatedAttributes[r](path: String): Result[#{ AideRepeatedAttribute | r }, String] & Impure =    
         Result.flatMap(
-            csv -> CsvImport.collect(readCteAideRepeatedAttribute1, csv),
+            csv -> CsvImport.iterate(readCteAideRepeatedAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// Attributes
 
     def readCteAiAttribute1[r](row: CsvRow): CsvResult[#{ AiAttribute | r }] = 
-        Validation.pipeV3(
+        ValidationExtras.pipeV3(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 7),
             CsvImport.getStringByIndex(row, 8),
@@ -62,13 +61,13 @@ namespace CsvLoader {
 
     pub def importCteAiAttributes[r](path: String): Result[#{ AiAttribute | r }, String] & Impure =    
         Result.flatMap(
-            csv -> CsvImport.collect(readCteAiAttribute1, csv),
+            csv -> CsvImport.iterate(readCteAiAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// TODO - change to byLabel once it is fixed...
     def readCteAideAttribute1[r](row: CsvRow): CsvResult[#{ AideAttribute | r }] = 
-        Validation.pipeV3(
+        ValidationExtras.pipeV3(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 8),
             CsvImport.getStringByIndex(row, 9),
@@ -77,14 +76,14 @@ namespace CsvLoader {
 
     pub def importCteAideAttributes[r](path: String): Result[#{ AideAttribute | r }, String] & Impure =
         Result.flatMap(
-            csv -> CsvImport.collect(readCteAideAttribute1, csv),
+            csv -> CsvImport.iterate(readCteAideAttribute1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// Assets
 
     def readCteAiAsset1[r](row: CsvRow): CsvResult[#{ AiAsset | r }] = 
-        Validation.pipeV5(
+        ValidationExtras.pipeV5(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 6),
             CsvImport.getStringByIndex(row, 8),
@@ -95,13 +94,13 @@ namespace CsvLoader {
 
     pub def importCteAiAssets[r](path: String): Result[#{ AiAsset| r }, String] & Impure =
         Result.flatMap(
-            csv -> CsvImport.collect(readCteAiAsset1, csv),
+            csv -> CsvImport.iterate(readCteAiAsset1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 
     /// TODO - change to byLabel once it is fixed...
     def readCteAideAsset1[r](row: CsvRow): CsvResult[#{ AideAsset | r }] = 
-        Validation.pipeV5(
+        ValidationExtras.pipeV5(
             CsvImport.getStringByIndex(row, 5),
             CsvImport.getStringByIndex(row, 6),
             CsvImport.getStringByIndex(row, 9),
@@ -112,7 +111,7 @@ namespace CsvLoader {
 
     pub def importCteAideAssets[r](path: String): Result[#{ AideAsset | r }, String] & Impure =    
         Result.flatMap(
-            csv -> CsvImport.collect(readCteAideAsset1, csv),
+            csv -> CsvImport.iterate(readCteAideAsset1, csv),
             CsvImport.newCsvSource(path, CsvFormat.Default, true)
         )
 

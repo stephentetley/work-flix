@@ -159,4 +159,13 @@ namespace S4DownloadParser {
             }
         )
 
+    /// TODO - full build parsing too slow, need to stream.
+    pub def extractColumnHeadings(): TextParser.Parser[List[String]] = 
+        TextParser.pipe3(
+            pHeader(),
+            selection(),
+            singleLine(columnHeaders()),
+            (_,_,a1) -> a1
+        )
+
 }

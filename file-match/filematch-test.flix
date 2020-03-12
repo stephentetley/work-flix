@@ -24,7 +24,7 @@ def readLines01(): Result[Bool, String] & Impure =
 @test
 def pFolder01(): Result[String, String] = 
     let inp = "d-----       13/02/2020     08:49                ABBEY LANE HULL_SPS                                                                                                                                                       ";
-    TextParser.run(DirListing.pFolder(), inp) 
+    TextParser.runs(DirListing.pFolder(), inp) 
         |> Result.map(x -> x.name)
 
 
@@ -32,22 +32,21 @@ def pFolder01(): Result[String, String] =
 @test
 def parse01(): Result[String, String] = 
     let inp = "d-----       13/02/2020     08:49                ABBEY LANE HULL_SPS                                                                                                                                                       ";
-    TextParser.run(TextParser.horizon(13), inp) 
+    TextParser.runs(TextParser.horizon(13), inp) 
 
 @test
-def parse02[r](): Result[ Option[#{ SWS | r }] , String] = 
+def parse02[r](): Result[ #{ SWS | r }, String] = 
     let inp = "d-----       13/02/2020     08:49                ABBEY LANE HULL_SPS                     ";
-    TextParser.run(FileMatch.parseSWS(), inp) 
+    TextParser.runs(FileMatch.parseSWS(), inp) 
         
 
 
 @test
 def parse03[r](): #{ SWS | r } = 
     let inp = "d-----       13/02/2020     08:49                ABBEY LANE HULL_SPS                     ";
-    match TextParser.run(FileMatch.parseSWS(), inp) { 
+    match TextParser.runs(FileMatch.parseSWS(), inp) { 
         case Err(msg) => Err(msg)
-        case Ok(None) => Err("returned None")
-        case Ok(Some(reln)) => Ok(solve reln)
+        case Ok(reln) => Ok(solve reln)
     } |> result1 
         
 
@@ -55,7 +54,7 @@ def parse03[r](): #{ SWS | r } =
 @test
 def ignore01(): Result[Option[String], String] = 
     let inp = "";
-    TextParser.run(DirListing.ignoreLine(), inp) 
+    TextParser.runs(DirListing.ignoreLine(), inp) 
         
 @test
 def sws01[r](): #{ SWS | r } & Impure = 

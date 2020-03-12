@@ -32,7 +32,7 @@ namespace CsvLoader {
     /// Read a S4 download file converted to Csv for speed
 
     def readS4EquiInfo1[r](row: CsvRow): CsvResult[#{ S4EquiInfo | r }] & Impure = 
-        Validation.pipeV4(
+        ValidationExtras.pipeV4(
             CsvImport.getStringByLabel(row, "Functional Location (TPLN_EILO)"),
             CsvImport.getStringByLabel(row, "Description (medium text) (TXTMI)"),
             CsvImport.getStringByLabel(row, "Manufacturer (HERST)"),
@@ -44,7 +44,7 @@ namespace CsvLoader {
         match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
             case Err(msg) => Err(msg)
             case Ok(src) => 
-                match CsvImport.eachrow(readS4EquiInfo1, src) {
+                match CsvImport.iterate(readS4EquiInfo1, src) {
                     case Err(msg) => Err(msg)
                     case Ok(relns) => Ok(relns)
                 }
@@ -74,7 +74,7 @@ namespace CsvLoader {
         } else s
 
     def readAI2OutstationInfo1[r](row: CsvRow): CsvResult[#{ AI2OutstationInfo | r }] & Impure = 
-        Validation.pipeV4(
+        ValidationExtras.pipeV4(
             CsvImport.getStringByLabel(row, "Common Name"),
             CsvImport.getStringByLabel(row, "Manufacturer"),
             CsvImport.getStringByLabel(row, "Model"),
@@ -90,7 +90,7 @@ namespace CsvLoader {
         match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
             case Err(msg) => Err(msg)
             case Ok(src) => 
-                match CsvImport.eachrow(readAI2OutstationInfo1, src) { 
+                match CsvImport.iterate(readAI2OutstationInfo1, src) { 
                     case Err(msg) => Err(msg)
                     case Ok(relns) => Ok(relns)
                 }
@@ -100,7 +100,7 @@ namespace CsvLoader {
     
     /// Read site mapping (ai2 to s4)
     def readSiteMapping1[r](row: CsvRow): CsvResult[#{ SiteMapping | r }] & Impure = 
-        Validation.pipeV3(
+        ValidationExtras.pipeV3(
             CsvImport.getStringByIndex(row, 0),     // Workaround from not handling BOM
             CsvImport.getStringByLabel(row, "S/4 Hana Floc Lvl1_Code"),
             CsvImport.getStringByLabel(row, "S/4 Hana Floc Description"),
@@ -115,7 +115,7 @@ namespace CsvLoader {
         match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
             case Err(msg) => Err(msg)
             case Ok(src) => 
-                match CsvImport.eachrow(readSiteMapping1, src) {
+                match CsvImport.iterate(readSiteMapping1, src) {
                     case Err(msg) => Err(msg)
                     case Ok(relns) => Ok(relns)
                 }

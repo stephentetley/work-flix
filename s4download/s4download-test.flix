@@ -28,12 +28,24 @@ def test02(): Result[S4DownloadParser.DownloadFile, String] & Impure =
 @test
 def test03(): Unit & Impure = 
     let src = 
-        "G:\work\Projects\assets\asset_patch\file_download_edm\car36_outstation_valuaequi.txt" |> FilePath.new;
+        "G:\work\Projects\assets\asset_patch\file_download_edm\LSTN_RELAY_1_FUNCTION_valuaequi.txt" |> FilePath.new;
     match TextParser.parseFile(S4DownloadParser.pDownload(), src, Charset.utf_8() ) { 
         case Err(e) => Console.printLine(TextParser.showParserError(e))
         case Ok(a) => {
             let rows = S4Download.makeRows(a);
             List.foreach(S4Download.getValue("CHARID") >> Console.printLine, rows)
+        }
+    }
+
+
+@test
+def test04(): Unit & Impure = 
+    let src = 
+        "G:\work\Projects\assets\asset_patch\file_download_edm\LSTN_RELAY_1_FUNCTION_valuaequi.txt" |> FilePath.new;
+    match TextParser.parseFile(S4DownloadParser.extractColumnHeadings(), src, Charset.utf_8() ) { 
+        case Err(e) => Console.printLine(TextParser.showParserError(e))
+        case Ok(xs) => {
+            List.foreach(Console.printLine, xs)
         }
     }
 
