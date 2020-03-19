@@ -1,0 +1,90 @@
+/*
+ * Copyright 2020 Stephen Tetley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use CsvImport.CsvFormat;
+
+
+rel EquipmentInfo(plicode: String, commonname: String, manufacturer: String, model:String, status: String)
+
+rel MemoLine(plicode: String, index: Int32, memotext:String)
+
+namespace CsvLoader {
+    
+    /// Read an AI2 file (saved as to Csv from Xlsx)
+
+    def readEquipmentInfo1[r](row: CsvRow): CsvResult[#{ EquipmentInfo | r }] & Impure = 
+        ValidationExtras.pipeV5(
+            CsvImport.getStringByLabel(row, "Reference"),
+            CsvImport.getStringByLabel(row, "Common Name"),
+            CsvImport.getStringByLabel(row, "Manufacturer"),
+            CsvImport.getStringByLabel(row, "Model"),            
+            CsvImport.getStringByLabel(row, "AssetStatus"),
+            (x1, x2, x3, x4, x5) -> EquipmentInfo(x1, x2, x3, x4, x5).
+        )
+
+    pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, String] & Impure =    
+        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+            case Err(msg) => Err(msg)
+            case Ok(src) => 
+                match CsvImport.iterate(readEquipmentInfo1, src) {
+                    case Err(msg) => Err(msg)
+                    case Ok(relns) => Ok(relns)
+                }
+        }
+
+    /// Read an AI2 file (saved as to Csv from Xlsx) for memo lines
+
+    def addIfNotBlank[r](plicode: String, ix: Int32, memo: String, relns: #{ MemoLine | r }): #{ MemoLine | r } = 
+        if (memo == "") 
+            relns
+        else 
+            relns <+> MemoLine(plicode, ix, memo).
+
+    def readMemoLines1[r](row: CsvRow): CsvResult[#{ MemoLine | r }] & Impure = 
+        ValidationExtras.pipeV6(
+            CsvImport.getStringByLabel(row, "Reference"),
+            CsvImport.getStringByLabel(row, "Memo Line 1"),
+            CsvImport.getStringByLabel(row, "Memo Line 2"),
+            CsvImport.getStringByLabel(row, "Memo Line 3"),            
+            CsvImport.getStringByLabel(row, "Memo Line 4"),
+            CsvImport.getStringByLabel(row, "Memo Line 5"),
+            (pli, m1, m2, m3, m4, m5) -> 
+                #{ } 
+                    |> addIfNotBlank(pli, 1, m1)
+                    |> addIfNotBlank(pli, 2, m2)
+                    |> addIfNotBlank(pli, 1, m3)
+                    |> addIfNotBlank(pli, 1, m4)
+                    |> addIfNotBlank(pli, 1, m5)
+        )
+
+    pub def importMemoLines[r](path: String): Result[#{ MemoLine | r }, String] & Impure =    
+        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+            case Err(msg) => Err(msg)
+            case Ok(src) => 
+                match CsvImport.iterate(readMemoLines1, src) {
+                    case Err(msg) => Err(msg)
+                    case Ok(relns) => Ok(relns)
+                }
+        }
+
+    pub def loadAll[r](src: String): Result[ #{ EquipmentInfo, MemoLine | r }, String] & Impure =
+        use Common/Utils.pipeR2;
+        pipeR2(
+            importEquipmentInfo(src),
+            importMemoLines(src),
+            (r1, r2) -> r1 <+> r2
+        )   
+}

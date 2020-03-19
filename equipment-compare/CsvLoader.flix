@@ -18,7 +18,7 @@ use CsvImport.CsvFormat;
 
 rel S4EquiInfo(floc: String, description: String, manufacturer: String, model:String)
 
-rel AI2OutstationInfo(site: String, name: String, manufacturer: String, model:String, status: String)
+rel AI2EquipmentInfo(site: String, name: String, manufacturer: String, model:String, status: String)
 
 rel SiteMapping(ainame: String, s4code: String, s4name: String)
 
@@ -74,7 +74,7 @@ namespace CsvLoader {
             arr[ix]
         } else s
 
-    def readAI2OutstationInfo1[r](row: CsvRow): CsvResult[#{ AI2OutstationInfo | r }] & Impure = 
+    def readAI2EquipmentInfo1[r](row: CsvRow): CsvResult[#{ AI2EquipmentInfo | r }] & Impure = 
         ValidationExtras.pipeV4(
             CsvImport.getStringByLabel(row, "Common Name"),
             CsvImport.getStringByLabel(row, "Manufacturer"),
@@ -83,15 +83,15 @@ namespace CsvLoader {
             (x1, x2, x3, x4) -> { 
                 let site = siteFromCommonName(x1);
                 let desc = descriptionFromCommonName(x1);
-                AI2OutstationInfo(site, desc, x2, x3, x4).                
+                AI2EquipmentInfo(site, desc, x2, x3, x4).                
             }
         )
 
-    pub def importAI2OutstationInfo[r](path: String): Result[#{ AI2OutstationInfo | r }, String] & Impure =    
+    pub def importAI2EquipmentInfo[r](path: String): Result[#{ AI2EquipmentInfo | r }, String] & Impure =    
         match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
             case Err(msg) => Err(msg)
             case Ok(src) => 
-                match CsvImport.iterate(readAI2OutstationInfo1, src) { 
+                match CsvImport.iterate(readAI2EquipmentInfo1, src) { 
                     case Err(msg) => Err(msg)
                     case Ok(relns) => Ok(relns)
                 }
@@ -122,10 +122,11 @@ namespace CsvLoader {
                 }
         }
 
-    pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteMapping, S4EquiInfo, AI2OutstationInfo | r }, String] & Impure =
-        CompareBase.pipeR3(
+    pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteMapping, S4EquiInfo, AI2EquipmentInfo | r }, String] & Impure =
+        use Common/Utils.pipeR3;
+        pipeR3(
             importS4EquiInfo(paths.s4Equipment),
-            importAI2OutstationInfo(paths.aiOutstations),
+            importAI2EquipmentInfo(paths.aiOutstations),
             importSiteMapping(paths.siteMapping),
             (r1, r2, r3) -> r1 <+> r2 <+> r3
         )

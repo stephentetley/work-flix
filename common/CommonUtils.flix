@@ -15,7 +15,7 @@
  */
 
 
-namespace CompareBase {
+namespace Common/Utils {
 
     pub def apR(rf: Result[a -> b & f, e], r: Result[a, e]) : Result[b, e] & f = 
         match rf { 

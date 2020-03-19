@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-rel Telemetry(ai: String, s4: String)
+rel Equipment(ai: String, s4: String)
 
 rel NoS4(ai: String, s4: String)
 
@@ -24,31 +24,31 @@ rel SiteMapAnswer(ainame: String, s4code: String, s4name: String)
 
 namespace Compare {
 
-    pub def telemetryMatch[r](): #{ Telemetry, SiteMapping, S4EquiInfo, AI2OutstationInfo | r } =
+    pub def equipmentMatch[r](): #{ Equipment, SiteMapping, S4EquiInfo, AI2EquipmentInfo | r } =
         let isPrefix = (x,y)  -> String.startsWith(x, y);
         #{ 
-            Telemetry(xsite, sfloc) :- 
-                AI2OutstationInfo(xsite, _, _, _, "OPERATIONAL"), 
+            Equipment(xsite, sfloc) :- 
+                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
                 SiteMapping(xsite, scode, _),
                 S4EquiInfo(sfloc, _, _, _),
                 if isPrefix(sfloc, scode).
         }
 
-    pub def noS4[r](): #{ NoS4, InS4, SiteMapping, S4EquiInfo, AI2OutstationInfo | r } =
+    pub def noS4[r](): #{ NoS4, InS4, SiteMapping, S4EquiInfo, AI2EquipmentInfo | r } =
         let isPrefix = (x,y)  -> String.startsWith(x, y);
         #{ 
             InS4(xsite) :- 
-                AI2OutstationInfo(xsite, _, _, _, "OPERATIONAL"), 
+                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
                 SiteMapping(xsite, scode, _),
                 if isPrefix(sfloc, scode), 
                 S4EquiInfo(sfloc, _, _, _).
 
             NoS4(xsite, "No code") :- 
-                AI2OutstationInfo(xsite, _, _, _, "OPERATIONAL"), 
+                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
                 not SiteMapping(xsite, _, _).
 
             NoS4(xsite, scode) :- 
-                AI2OutstationInfo(xsite, _, _, _, "OPERATIONAL"), 
+                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
                 SiteMapping(xsite, scode, _),
                 not InS4(xsite).    
         }     

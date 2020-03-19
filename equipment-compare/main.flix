@@ -9,9 +9,9 @@ def s4EquiLoad01[r](): #{ S4EquiInfo | r } & Impure =
     }
 
 @test
-def ai2OutstationLoad01[r](): #{ AI2OutstationInfo | r } & Impure =
+def ai2EquipmentLoad01[r](): #{ AI2EquipmentInfo | r } & Impure =
     let src1 = "G:\work\Projects\assets\asset_patch\file_download_edm\ai2_outstations.csv";
-    let r1 = CsvLoader.importAI2OutstationInfo(src1);
+    let r1 = CsvLoader.importAI2EquipmentInfo(src1);
     match r1 { 
         case Err(msg) => { Console.printLine(msg); #{ } }
         case Ok(relns) => solve relns
@@ -44,7 +44,7 @@ pub def siteMap[r](name: String): #{ SiteMapAnswer | r } & Impure =
 
 
 @test
-def telemetryMatches01[r](): #{ Telemetry, SiteMapping, S4EquiInfo, AI2OutstationInfo | r } & Impure = 
+def equipmentMatches01[r](): #{ Equipment, SiteMapping, S4EquiInfo, AI2EquipmentInfo | r } & Impure = 
     let paths = 
         { s4Equipment   = "G:\work\Projects\assets\asset_patch\file_download_edm\equi_download_objtype=NETW.csv"
         , aiOutstations = "G:\work\Projects\assets\asset_patch\file_download_edm\ai2_outstations.csv"
@@ -53,7 +53,7 @@ def telemetryMatches01[r](): #{ Telemetry, SiteMapping, S4EquiInfo, AI2Outstatio
     match CsvLoader.loadAll(paths) { 
         case Err(msg) => { Console.printLine(msg); #{ } }
         case Ok(relns) => 
-        project Telemetry (solve relns <+> Compare.telemetryMatch())
+        project Equipment (solve relns <+> Compare.equipmentMatch())
     }
 
 /// A "cell printer" for the body of NoS4.
