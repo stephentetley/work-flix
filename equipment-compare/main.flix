@@ -62,22 +62,47 @@ def noS4Cells(src: (String,String)): Array[String] & Impure =
     [x,y]
 
 
-@test
-def noS4(): Unit & Impure = 
-    let paths = 
-        { s4Equipment   = "G:\work\Projects\assets\asset_patch\file_download_edm\equi_download_objtype=NETW.csv"
-        , aiOutstations = "G:\work\Projects\assets\asset_patch\file_download_edm\ai2_outstations.csv"
-        , siteMapping   = "G:\work\Projects\assets\asset_patch\file_download_edm\ai_to_s4_sites.csv"
-        };
-    let dest = "G:\work\Projects\assets\asset_patch\file_download_edm\results_nos4.csv";
+
+
+pub def noS4(paths: SourceFiles, outfile: String): Unit & Impure = 
     let headers = ["ai_name", "s4_code"];
     let buildStep = CsvExport.makeBuildStep(noS4Cells); 
     match CsvLoader.loadAll(paths) { 
         case Err(msg) => Console.printLine(msg)
         case Ok(relns) => {
             { fold NoS4 CsvExport.emptyCsvBuilder() buildStep (solve relns <+> Compare.noS4()) }
-                |> CsvExport.outputCsv(dest, headers);
-            Console.printLine("Wrote: " + dest)
+                |> CsvExport.outputCsv(outfile, headers);
+            Console.printLine("Wrote: " + outfile)
         }
     }
 
+@test
+def noS4_001() : Unit & Impure = 
+    let srcfiles = 
+        { s4Equipment   = "G:\work\Projects\assets\asset_patch\file_download_edm\equi_download_objtype=NETW.csv"
+        , aiOutstations = "G:\work\Projects\assets\asset_patch\file_download_edm\ai2_outstations.csv"
+        , siteMapping   = "G:\work\Projects\assets\asset_patch\file_download_edm\ai_to_s4_sites.csv"
+        };
+    let dest = "G:\work\Projects\assets\asset_patch\file_download_edm\results_nos4_001.csv";
+    noS4(srcfiles, dest)
+
+@test
+def noS4_002() : Unit & Impure = 
+    let srcfiles = 
+        { s4Equipment   = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\file_download-prod-objtype=NETW.csv"
+        , aiOutstations = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\ai2_outstations_dump_2020_03_19.csv"
+        , siteMapping   = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\ai_to_s4_sites.csv"
+        };
+    let dest = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\results_nos4_002_prod_netw.csv";
+    noS4(srcfiles, dest)
+
+
+@test
+def noS4_003() : Unit & Impure = 
+    let srcfiles = 
+        { s4Equipment   = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\file_download-prod-objtype=LSTN.csv"
+        , aiOutstations = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\ai2_ultrasonics_dump_2020_03_19.csv"
+        , siteMapping   = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\ai_to_s4_sites.csv"
+        };
+    let dest = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\results_nos4_002_prod_lstn.csv";
+    noS4(srcfiles, dest)

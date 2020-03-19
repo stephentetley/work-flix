@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+use CsvImport.CsvFormat;
 
 rel S4EquiInfo(floc: String, description: String, manufacturer: String, model:String)
 
@@ -33,10 +34,10 @@ namespace CsvLoader {
 
     def readS4EquiInfo1[r](row: CsvRow): CsvResult[#{ S4EquiInfo | r }] & Impure = 
         ValidationExtras.pipeV4(
-            CsvImport.getStringByLabel(row, "Functional Location (TPLN_EILO)"),
-            CsvImport.getStringByLabel(row, "Description (medium text) (TXTMI)"),
-            CsvImport.getStringByLabel(row, "Manufacturer (HERST)"),
-            CsvImport.getStringByLabel(row, "Model number (TYPBZ)"),
+            CsvImport.getStringByLabel(row, "Functional Location [TPLN_EILO]"),
+            CsvImport.getStringByLabel(row, "Description (medium text) [TXTMI]"),
+            CsvImport.getStringByLabel(row, "Manufacturer [HERST]"),
+            CsvImport.getStringByLabel(row, "Model number [TYPBZ]"),
             (x1, x2, x3, x4) -> S4EquiInfo(x1, x2, x3, x4).
         )
 
