@@ -17,6 +17,25 @@
 
 namespace Common/Utils {
 
+    /// 
+    /// Get a year from a date string that includes "YYYY".
+    ///
+    /// The year "YYYY" must be the only four digit sequence in the input.
+    ///
+    pub def getYear(s: String): Result[Int32, String] = 
+        getYearHelper(s) as & Pure
+
+    /// 
+    /// Helper function for `getYear`.
+    ///
+    def getYearHelper(s: String): Result[Int32, String] & Impure = 
+        let patt = Regex.compile("(?<year>\d{4})");
+        let m = Regex.matcher(patt, s);
+        if (Regex.find(m)) {
+            Regex.namedGroup(m, "year") |> Int32.fromString
+        } else Err("read year")
+
+
     pub def apR(rf: Result[a -> b & f, e], r: Result[a, e]) : Result[b, e] & f = 
         match rf { 
             case Err(x) => Err(x)

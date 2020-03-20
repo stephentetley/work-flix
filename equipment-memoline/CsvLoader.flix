@@ -17,7 +17,7 @@
 use CsvImport.CsvFormat;
 
 
-rel EquipmentInfo(plicode: String, commonname: String, manufacturer: String, model:String, status: String)
+rel EquipmentInfo(plicode: String, commonname: String, manufacturer: String, model:String, status: String, installedyear: Int32)
 
 rel MemoLine(plicode: String, index: Int32, memotext:String)
 
@@ -26,13 +26,18 @@ namespace CsvLoader {
     /// Read an AI2 file (saved as to Csv from Xlsx)
 
     def readEquipmentInfo1[r](row: CsvRow): CsvResult[#{ EquipmentInfo | r }] & Impure = 
-        ValidationExtras.pipeV5(
+        use Common/Utils.getYear;
+        ValidationExtras.pipeV6(
             CsvImport.getStringByLabel(row, "Reference"),
             CsvImport.getStringByLabel(row, "Common Name"),
             CsvImport.getStringByLabel(row, "Manufacturer"),
-            CsvImport.getStringByLabel(row, "Model"),            
+            CsvImport.getStringByLabel(row, "Model"),
             CsvImport.getStringByLabel(row, "AssetStatus"),
-            (x1, x2, x3, x4, x5) -> EquipmentInfo(x1, x2, x3, x4, x5).
+            CsvImport.getStringByLabel(row, "Installed From"),
+            (x1, x2, x3, x4, x5, x6) -> { 
+                let instyear = getYear(x6) |> x -> Result.getWithDefault(x, 0);
+                EquipmentInfo(x1, x2, x3, x4, x5, instyear).
+            }
         )
 
     pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, String] & Impure =    

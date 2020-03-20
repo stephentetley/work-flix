@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-rel Answer(plicode: String, commonname: String, memotext: String)
+rel Answer(plicode: String, commonname: String, memotext: String, installedyear: Int32)
 
 namespace MemoLine {
+
+    // def getYear(s: String): Int32 = 
+    //     let patt = 
+    //     if String.matches(src, patt);
 
     pub def memoMatch[r](patt: String): #{ Answer, EquipmentInfo, MemoLine | r } =
         let rmatches = src -> String.matches(src, patt);
         #{             
-            Answer(pli, longname, text) :- 
-                EquipmentInfo(pli, longname, _, _, "OPERATIONAL"), 
+            Answer(pli, longname, text, instyear) :- 
+                EquipmentInfo(pli, longname, _, _, "OPERATIONAL", instyear), 
                 MemoLine(pli, _, text),
                 if rmatches(text).
         }
