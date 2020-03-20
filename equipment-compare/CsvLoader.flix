@@ -16,9 +16,9 @@
 
 use CsvImport.CsvFormat;
 
-rel S4EquiInfo(floc: String, description: String, manufacturer: String, model:String)
+rel S4EquiInfo(floc: String, description: String, manufacturer: String, model:String, serialnumber: String)
 
-rel AI2EquipmentInfo(site: String, name: String, manufacturer: String, model:String, status: String)
+rel AI2EquipmentInfo(site: String, name: String, manufacturer: String, model:String, serialnumber: String, status: String)
 
 rel SiteMapping(ainame: String, s4code: String, s4name: String)
 
@@ -33,12 +33,13 @@ namespace CsvLoader {
     /// Read a S4 download file converted to Csv for speed
 
     def readS4EquiInfo1[r](row: CsvRow): CsvResult[#{ S4EquiInfo | r }] & Impure = 
-        ValidationExtras.pipeV4(
+        ValidationExtras.pipeV5(
             CsvImport.getStringByLabel(row, "Functional Location [TPLN_EILO]"),
             CsvImport.getStringByLabel(row, "Description (medium text) [TXTMI]"),
             CsvImport.getStringByLabel(row, "Manufacturer [HERST]"),
             CsvImport.getStringByLabel(row, "Model number [TYPBZ]"),
-            (x1, x2, x3, x4) -> S4EquiInfo(x1, x2, x3, x4).
+            CsvImport.getStringByLabel(row, "ManufSerialNumber [SERGE]"),
+            (x1, x2, x3, x4, x5) -> S4EquiInfo(x1, x2, x3, x4, x5).
         )
 
     pub def importS4EquiInfo[r](path: String): Result[#{ S4EquiInfo | r }, String] & Impure =    
@@ -75,15 +76,16 @@ namespace CsvLoader {
         } else s
 
     def readAI2EquipmentInfo1[r](row: CsvRow): CsvResult[#{ AI2EquipmentInfo | r }] & Impure = 
-        ValidationExtras.pipeV4(
+        ValidationExtras.pipeV5(
             CsvImport.getStringByLabel(row, "Common Name"),
             CsvImport.getStringByLabel(row, "Manufacturer"),
-            CsvImport.getStringByLabel(row, "Model"),
-            CsvImport.getStringByLabel(row, "AssetStatus"),
-            (x1, x2, x3, x4) -> { 
+            CsvImport.getStringByLabel(row, "Model"),           
+            CsvImport.getStringByLabel(row, "Serial No"),
+            CsvImport.getStringByLabel(row, "AssetStatus"), 
+            (x1, x2, x3, x4, x5) -> { 
                 let site = siteFromCommonName(x1);
                 let desc = descriptionFromCommonName(x1);
-                AI2EquipmentInfo(site, desc, x2, x3, x4).                
+                AI2EquipmentInfo(site, desc, x2, x3, x4, x5).                
             }
         )
 

@@ -24,13 +24,18 @@ rel SiteMapAnswer(ainame: String, s4code: String, s4name: String)
 
 namespace Compare {
 
+    /// This isn't a very good compare, it works on the assumption
+    /// we have already filtered down to one equipment per site.
+    /// That is mostly fine for Outstations but not so for Ultrasonics etc.
+
+
     pub def equipmentMatch[r](): #{ Equipment, SiteMapping, S4EquiInfo, AI2EquipmentInfo | r } =
         let isPrefix = (x,y)  -> String.startsWith(x, y);
         #{ 
             Equipment(xsite, sfloc) :- 
-                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
+                AI2EquipmentInfo(xsite, _, _, _, _, "OPERATIONAL"), 
                 SiteMapping(xsite, scode, _),
-                S4EquiInfo(sfloc, _, _, _),
+                S4EquiInfo(sfloc, _, _, _, _),
                 if isPrefix(sfloc, scode).
         }
 
@@ -38,17 +43,17 @@ namespace Compare {
         let isPrefix = (x,y)  -> String.startsWith(x, y);
         #{ 
             InS4(xsite) :- 
-                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
+                AI2EquipmentInfo(xsite, _, _, _, _, "OPERATIONAL"), 
                 SiteMapping(xsite, scode, _),
                 if isPrefix(sfloc, scode), 
-                S4EquiInfo(sfloc, _, _, _).
+                S4EquiInfo(sfloc, _, _, _, _).
 
             NoS4(xsite, "No code") :- 
-                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
+                AI2EquipmentInfo(xsite, _, _, _, _, "OPERATIONAL"), 
                 not SiteMapping(xsite, _, _).
 
             NoS4(xsite, scode) :- 
-                AI2EquipmentInfo(xsite, _, _, _, "OPERATIONAL"), 
+                AI2EquipmentInfo(xsite, _, _, _, _, "OPERATIONAL"), 
                 SiteMapping(xsite, scode, _),
                 not InS4(xsite).    
         }     
