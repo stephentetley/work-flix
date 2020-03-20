@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-rel Equipment(ai: String, s4: String)
+rel Equipment(ai: String, s4: String, serialnumber: String)
 
 rel NoS4(ai: String, s4: String)
 
@@ -24,18 +24,24 @@ rel SiteMapAnswer(ainame: String, s4code: String, s4name: String)
 
 namespace Compare {
 
-    /// This isn't a very good compare, it works on the assumption
-    /// we have already filtered down to one equipment per site.
-    /// That is mostly fine for Outstations but not so for Ultrasonics etc.
+    /// A "cell printer" for the body of NoS4.
+    def equipmentCells(src: (String, String, String)): Array[String] & Impure = 
+        let (x1, x2, x3) = src;
+        [x1, x2, x3]
 
+    pub def csvWriteEquipment[r](outpath: String, relns: #{ Equipment | r }): Unit & Impure = 
+        let headers = ["AI Name", "S4 Code", "Serial Number"];
+        let buildStep = CsvExport.makeBuildStep(equipmentCells);
+        { fold Equipment CsvExport.emptyCsvBuilder() buildStep relns }
+                |> CsvExport.outputCsv(outpath, headers)
 
     pub def equipmentMatch[r](): #{ Equipment, SiteMapping, S4EquiInfo, AI2EquipmentInfo | r } =
         let isPrefix = (x,y)  -> String.startsWith(x, y);
         #{ 
-            Equipment(xsite, sfloc) :- 
-                AI2EquipmentInfo(xsite, _, _, _, _, "OPERATIONAL"), 
+            Equipment(xsite, sfloc, serialnum) :- 
+                AI2EquipmentInfo(xsite, _, _, _, serialnum, "OPERATIONAL"), 
                 SiteMapping(xsite, scode, _),
-                S4EquiInfo(sfloc, _, _, _, _),
+                S4EquiInfo(sfloc, _, _, _, serialnum),
                 if isPrefix(sfloc, scode).
         }
 

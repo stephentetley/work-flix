@@ -44,16 +44,19 @@ pub def siteMap[r](name: String): #{ SiteMapAnswer | r } & Impure =
 
 
 @test
-def equipmentMatches01[r](): #{ Equipment, SiteMapping, S4EquiInfo, AI2EquipmentInfo | r } & Impure = 
+def equipmentMatches01(): Unit & Impure = 
     let paths = 
         { s4Equipment   = "G:\work\Projects\assets\asset_patch\file_download_edm\equi_download_objtype=NETW.csv"
         , aiOutstations = "G:\work\Projects\assets\asset_patch\file_download_edm\ai2_outstations.csv"
         , siteMapping   = "G:\work\Projects\assets\asset_patch\file_download_edm\ai_to_s4_sites.csv"
         };
+    let dest = "G:\work\Projects\assets\asset_patch\file_download_edm\results_equi_matches_001.csv";
     match CsvLoader.loadAll(paths) { 
-        case Err(msg) => { Console.printLine(msg); #{ } }
+        case Err(msg) => Console.printLine(msg)
         case Ok(relns) => 
-        project Equipment (solve relns <+> Compare.equipmentMatch())
+            let ans = solve relns <+> Compare.equipmentMatch() ;
+            Compare.csvWriteEquipment(dest, ans);
+            ()
     }
 
 /// A "cell printer" for the body of NoS4.
