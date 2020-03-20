@@ -8,13 +8,13 @@ def memoLine01[r](): #{ MemoLine | r } & Impure =
     }
 
 /// A "cell printer" for the body of Answer.
-def answerCells(src: (String, String, String, Int32)): Array[String] & Impure = 
-    let (x1,x2,x3,x4) = src;
-    [x1, x2, x3, Int32.toString(x4)]
+def answerCells(src: (String, String, String, Int32, String)): Array[String] & Impure = 
+    let (x1,x2,x3,x4,x5) = src;
+    [x1, x2, x3, Int32.toString(x4), x5]
 
 
 def memoQuery(srcpath: String, patt: String, outpath: String): Unit & Impure = 
-    let headers = ["PLI Code", "Common Name", "Memo Text", "Year Installed"];
+    let headers = ["PLI Code", "Common Name", "Memo Text", "Year Installed", "Serial No"];
     let buildStep = CsvExport.makeBuildStep(answerCells); 
     match CsvLoader.loadAll(srcpath) { 
         case Err(msg) => Console.printLine(msg)
@@ -36,6 +36,14 @@ def main02(): Unit & Impure =
     let src = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\ai2_outstations_dump_2020_03_20.csv";
     let patt = ".*RTU.*";
     let dest = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\results_rtu_outstations_RTU_2020_03_20.csv";
+    memoQuery(src, patt, dest)
+
+
+@test
+def main03(): Unit & Impure = 
+    let src = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\ai2_ultrasonics_dump_2020_03_20.csv";
+    let patt = ".*T0975.*";
+    let dest = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\results_ultrasonics_EDM2_2020_03_20.csv";
     memoQuery(src, patt, dest)
 
 
