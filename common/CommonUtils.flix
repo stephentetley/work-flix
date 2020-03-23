@@ -17,6 +17,8 @@
 
 namespace Common/Utils {
 
+
+
     /// 
     /// Get a year from a date string that includes "YYYY".
     ///
@@ -54,6 +56,9 @@ namespace Common/Utils {
     pub def liftR4(f: (t1,t2,t3,t4) -> t5 & f, r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e]): Result[t5, e] & f=
         apR(liftR3(f, r1, r2, r3), r4)
 
+    pub def liftR5(f: (t1,t2,t3,t4,t5) -> t6 & f, r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], r5: Result[t5, e]): Result[t6, e] & f=
+        apR(liftR4(f, r1, r2, r3, r4), r5)
+
     pub def pipeR2(r1: Result[t1, e], r2: Result[t2, e], fn: (t1,t2) -> t3 & f): Result[t3, e] & f =
         liftR2(fn, r1, r2)
 
@@ -62,5 +67,8 @@ namespace Common/Utils {
 
     pub def pipeR4(r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], f: (t1,t2,t3,t4) -> t5 & f): Result[t5, e] & f=
         liftR4(f, r1, r2, r3, r4)
+    
+    pub def pipeR5(r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], r5: Result[t5, e], f: (t1,t2,t3,t4,t5) -> t6 & f): Result[t6, e] & f=
+        liftR5(f, r1, r2, r3, r4, r5)
 
 }
