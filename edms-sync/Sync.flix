@@ -17,6 +17,10 @@
 rel Synced(name: String)
 rel Syncable(name: String)
 
+
+rel NoSiteWork(name: String)
+rel NoSurvey(name: String)
+
 namespace Sync {
 
     pub def synced[r](): #{ Synced, EdmsInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
@@ -35,14 +39,22 @@ namespace Sync {
             not EdmsInfo(name).
     }
 
+    pub def noSiteWork[r](): #{ NoSiteWork, SurveyInfo, SiteWorkInfo | r } = #{ 
+        NoSiteWork(name) :- 
+            SurveyInfo(name, _),
+            not SiteWorkInfo(name, _).
+    }
 
-    /// A "cell printer" for the body of Syncable.
-    def syncableCells(src: String): Array[String] & Impure = 
-        [src]
+    pub def noSurvey[r](): #{ NoSurvey, SurveyInfo, SiteWorkInfo | r } = #{ 
+        NoSurvey(name) :- 
+            SiteWorkInfo(name, _),
+            not SurveyInfo(name, _).
+    }
+
 
     pub def syncableQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["Syncable"];
-        let buildStep = CsvExport.makeBuildStep(syncableCells); 
+        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
         let start = CsvExport.emptyCsvBuilder();
         match CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
@@ -52,6 +64,27 @@ namespace Sync {
             }
         }
 
+    pub def noSurveyQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
+        let headers = ["No Survey"];
+        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
+        let start = CsvExport.emptyCsvBuilder();
+        match CsvLoader.loadAll(sources) { 
+            case Err(msg) => Console.printLine(msg)
+            case Ok(relns) => {
+                { fold NoSurvey start buildStep (solve relns <+> noSurvey()) } |> CsvExport.outputCsv(outpath, headers);
+                Console.printLine("Wrote: " + outpath)
+            }
+        }
 
-
+    pub def noSiteWorkQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
+        let headers = ["No Site Work"];
+        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
+        let start = CsvExport.emptyCsvBuilder();
+        match CsvLoader.loadAll(sources) { 
+            case Err(msg) => Console.printLine(msg)
+            case Ok(relns) => {
+                { fold NoSiteWork start buildStep (solve relns <+> noSiteWork()) } |> CsvExport.outputCsv(outpath, headers);
+                Console.printLine("Wrote: " + outpath)
+            }
+        }
 }
