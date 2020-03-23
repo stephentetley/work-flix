@@ -24,12 +24,15 @@ rel SurveyInfo(site: String, document: String)
 
 rel SiteWorkInfo(site: String, document: String)
 
+rel SiteListInfo(sai: String, name: String, name2: String)
+
 type alias SourceFiles = 
     { edmExport: String
     , csoSpsSurveys: String
     , stwSurveys: String
     , csoSpsSiteWork: String
     , stwSiteWork: String
+    , siteList: String
     }
 
 
@@ -94,15 +97,34 @@ namespace CsvLoader {
                 }
         }
 
-    pub def loadAll[r](paths: SourceFiles): Result[ #{ EdmsInfo, SurveyInfo, SiteWorkInfo | r }, String] & Impure =
-        use Common/Utils.pipeR5;
-        pipeR5(
+    // Site List
+    def readSiteListInfo1[r](row: CsvRow): CsvResult[#{ SiteListInfo | r }] & Impure = 
+        ValidationExtras.pipeV2(
+            CsvImport.getStringByIndex(row, 0),
+            CsvImport.getStringByIndex(row, 1),
+            (x1, x2) -> SiteListInfo(x1, x2, String.replace("/", " ", x2)).
+        )
+
+    pub def importSiteListInfo[r](path: String): Result[#{ SiteListInfo | r }, String] & Impure =    
+        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+            case Err(msg) => Err(msg)
+            case Ok(src) => 
+                match CsvImport.iterate(readSiteListInfo1, src) {
+                    case Err(msg) => Err(msg)
+                    case Ok(relns) => Ok(relns)
+                }
+        }
+
+    pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteListInfo, EdmsInfo, SurveyInfo, SiteWorkInfo | r }, String] & Impure =
+        use Common/Utils.pipeR6;
+        pipeR6(
             importEdmsInfo(paths.edmExport),
             importSurveyInfo(paths.csoSpsSurveys),
             importSurveyInfo(paths.stwSurveys),
             importSiteWorkInfo(paths.csoSpsSiteWork),
-            importSiteWorkInfo(paths.stwSiteWork),
-            (r1, r2, r3, r4, r5) -> r1 <+> r2 <+> r3 <+> r4 <+> r5
+            importSiteWorkInfo(paths.stwSiteWork),            
+            importSiteListInfo(paths.siteList),
+            (r1, r2, r3, r4, r5, r6) -> r1 <+> r2 <+> r3 <+> r4 <+> r5 <+> r6
         )
 
 }

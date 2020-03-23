@@ -6,6 +6,7 @@ def paths1(): SourceFiles =
     , stwSurveys        = "G:\work\Projects\edm2\march-2020-sync\facts-stw-surveys.csv"
     , csoSpsSiteWork    = "G:\work\Projects\edm2\march-2020-sync\facts-cso-sps-sitework.csv"
     , stwSiteWork       = "G:\work\Projects\edm2\march-2020-sync\facts-stw-sitework.csv"
+    , siteList          = "G:\work\Projects\edm2\march-2020-sync\site_list_names.csv"
     }
 
 @test
@@ -26,3 +27,7 @@ def noSurvey01(): Unit & Impure =
 @test
 def noSiteWork01(): Unit & Impure =
     Sync.noSiteWorkQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\no_site_work.csv") 
+
+@test
+def siteListStatus01(): Unit & Impure =
+    Sync.siteListStatusQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\site_list_status.csv") 

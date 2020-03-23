@@ -21,6 +21,8 @@ rel Syncable(name: String)
 rel NoSiteWork(name: String)
 rel NoSurvey(name: String)
 
+rel SiteListStatus(name: String, status: String)
+
 namespace Sync {
 
     pub def synced[r](): #{ Synced, EdmsInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
@@ -49,6 +51,23 @@ namespace Sync {
         NoSurvey(name) :- 
             SiteWorkInfo(name, _),
             not SurveyInfo(name, _).
+    }
+
+    pub def siteListStatus[r](): #{ SiteListStatus, SiteListInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
+        SiteListStatus(name1, "Both Missing") :- 
+            SiteListInfo(_, name1, name2),
+            not SurveyInfo(name2, _), 
+            not SiteWorkInfo(name2, _).
+        
+        SiteListStatus(name1, "Survey Missing") :- 
+            SiteListInfo(_, name1, name2),
+            SiteWorkInfo(name2, _),
+            not SurveyInfo(name2, _).
+
+        SiteListStatus(name1, "Site Work Missing") :- 
+            SiteListInfo(_, name1, name2),
+            SurveyInfo(name2, _),
+            not SiteWorkInfo(name2, _).
     }
 
 
@@ -84,6 +103,22 @@ namespace Sync {
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
                 { fold NoSiteWork start buildStep (solve relns <+> noSiteWork()) } |> CsvExport.outputCsv(outpath, headers);
+                Console.printLine("Wrote: " + outpath)
+            }
+        }
+
+    def makeCells2(src: (String,String)): Array[String] & Impure = 
+        let (x1,x2) = src;
+        [x1, x2]
+
+    pub def siteListStatusQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
+        let headers = ["Site", "Status"];
+        let buildStep = CsvExport.makeBuildStep(makeCells2); 
+        let start = CsvExport.emptyCsvBuilder();
+        match CsvLoader.loadAll(sources) { 
+            case Err(msg) => Console.printLine(msg)
+            case Ok(relns) => {
+                { fold SiteListStatus start buildStep (solve relns <+> siteListStatus()) } |> CsvExport.outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }
