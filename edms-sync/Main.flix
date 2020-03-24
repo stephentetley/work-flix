@@ -1,12 +1,12 @@
 
 
 def paths1(): SourceFiles = 
-    { edmExport         = "G:\work\Projects\edm2\march-2020-sync\edms-edm2-export.csv"
+    { edmExport         = "G:\work\Projects\edm2\march-2020-sync\all-sites-on-edms-2020-03-24.csv"
     , csoSpsSurveys     = "G:\work\Projects\edm2\march-2020-sync\facts-cso-sps-surveys.csv"
     , stwSurveys        = "G:\work\Projects\edm2\march-2020-sync\facts-stw-surveys.csv"
     , csoSpsSiteWork    = "G:\work\Projects\edm2\march-2020-sync\facts-cso-sps-sitework.csv"
     , stwSiteWork       = "G:\work\Projects\edm2\march-2020-sync\facts-stw-sitework.csv"
-    , siteList          = "G:\work\Projects\edm2\march-2020-sync\site_list_names.csv"
+    , siteList          = "G:\work\Projects\edm2\march-2020-sync\all_sites_in_order.csv"
     }
 
 @test
@@ -31,3 +31,7 @@ def noSiteWork01(): Unit & Impure =
 @test
 def siteListStatus01(): Unit & Impure =
     Sync.siteListStatusQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\site_list_status.csv") 
+
+@test
+def edmsStatus01(): Unit & Impure =
+    Sync.edmsStatusQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\edms_status_all_sites.csv") 

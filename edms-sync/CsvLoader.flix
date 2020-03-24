@@ -24,7 +24,7 @@ rel SurveyInfo(site: String, document: String)
 
 rel SiteWorkInfo(site: String, document: String)
 
-rel SiteListInfo(sai: String, name: String, name2: String)
+rel SiteListInfo(index: Int32, sai: String, name: String, name2: String)
 
 type alias SourceFiles = 
     { edmExport: String
@@ -98,18 +98,18 @@ namespace CsvLoader {
         }
 
     // Site List
-    def readSiteListInfo1[r](row: CsvRow): CsvResult[#{ SiteListInfo | r }] & Impure = 
+    def readSiteListInfo1[r](row: CsvRow, ix: Int32): CsvResult[#{ SiteListInfo | r }] & Impure = 
         ValidationExtras.pipeV2(
             CsvImport.getStringByIndex(row, 0),
             CsvImport.getStringByIndex(row, 1),
-            (x1, x2) -> SiteListInfo(x1, x2, String.replace("/", " ", x2)).
+            (x1, x2) -> SiteListInfo(ix+1, x1, x2, String.replace("/", " ", x2)).
         )
 
     pub def importSiteListInfo[r](path: String): Result[#{ SiteListInfo | r }, String] & Impure =    
         match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
             case Err(msg) => Err(msg)
             case Ok(src) => 
-                match CsvImport.iterate(readSiteListInfo1, src) {
+                match CsvImport.iterateWithCount(readSiteListInfo1, src) {
                     case Err(msg) => Err(msg)
                     case Ok(relns) => Ok(relns)
                 }

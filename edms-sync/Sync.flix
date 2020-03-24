@@ -23,6 +23,8 @@ rel NoSurvey(name: String)
 
 rel SiteListStatus(name: String, status: String)
 
+rel EdmsStatus(ix: Int32, sai: String, name: String, status: String)
+
 namespace Sync {
 
     pub def synced[r](): #{ Synced, EdmsInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
@@ -32,7 +34,7 @@ namespace Sync {
             SiteWorkInfo(name, _).
     }
 
-
+    /// Synacable
 
     pub def syncable[r](): #{ Syncable, EdmsInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
         Syncable(name) :- 
@@ -40,36 +42,6 @@ namespace Sync {
             SiteWorkInfo(name, _),        
             not EdmsInfo(name).
     }
-
-    pub def noSiteWork[r](): #{ NoSiteWork, SurveyInfo, SiteWorkInfo | r } = #{ 
-        NoSiteWork(name) :- 
-            SurveyInfo(name, _),
-            not SiteWorkInfo(name, _).
-    }
-
-    pub def noSurvey[r](): #{ NoSurvey, SurveyInfo, SiteWorkInfo | r } = #{ 
-        NoSurvey(name) :- 
-            SiteWorkInfo(name, _),
-            not SurveyInfo(name, _).
-    }
-
-    pub def siteListStatus[r](): #{ SiteListStatus, SiteListInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
-        SiteListStatus(name1, "Both Missing") :- 
-            SiteListInfo(_, name1, name2),
-            not SurveyInfo(name2, _), 
-            not SiteWorkInfo(name2, _).
-        
-        SiteListStatus(name1, "Survey Missing") :- 
-            SiteListInfo(_, name1, name2),
-            SiteWorkInfo(name2, _),
-            not SurveyInfo(name2, _).
-
-        SiteListStatus(name1, "Site Work Missing") :- 
-            SiteListInfo(_, name1, name2),
-            SurveyInfo(name2, _),
-            not SiteWorkInfo(name2, _).
-    }
-
 
     pub def syncableQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["Syncable"];
@@ -83,17 +55,14 @@ namespace Sync {
             }
         }
 
-    pub def noSurveyQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
-        let headers = ["No Survey"];
-        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
-        let start = CsvExport.emptyCsvBuilder();
-        match CsvLoader.loadAll(sources) { 
-            case Err(msg) => Console.printLine(msg)
-            case Ok(relns) => {
-                { fold NoSurvey start buildStep (solve relns <+> noSurvey()) } |> CsvExport.outputCsv(outpath, headers);
-                Console.printLine("Wrote: " + outpath)
-            }
-        }
+    /// No Site work
+
+    pub def noSiteWork[r](): #{ NoSiteWork, SurveyInfo, SiteWorkInfo | r } = #{ 
+        NoSiteWork(name) :- 
+            SurveyInfo(name, _),
+            not SiteWorkInfo(name, _).
+    }
+
 
     pub def noSiteWorkQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["No Site Work"];
@@ -107,6 +76,45 @@ namespace Sync {
             }
         }
 
+    /// No Survey
+
+    pub def noSurvey[r](): #{ NoSurvey, SurveyInfo, SiteWorkInfo | r } = #{ 
+        NoSurvey(name) :- 
+            SiteWorkInfo(name, _),
+            not SurveyInfo(name, _).
+    }
+
+    pub def noSurveyQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
+        let headers = ["No Survey"];
+        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
+        let start = CsvExport.emptyCsvBuilder();
+        match CsvLoader.loadAll(sources) { 
+            case Err(msg) => Console.printLine(msg)
+            case Ok(relns) => {
+                { fold NoSurvey start buildStep (solve relns <+> noSurvey()) } |> CsvExport.outputCsv(outpath, headers);
+                Console.printLine("Wrote: " + outpath)
+            }
+        }
+
+    /// Site List Status
+
+    pub def siteListStatus[r](): #{ SiteListStatus, SiteListInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
+        SiteListStatus(name1, "Both Missing") :- 
+            SiteListInfo(_, _, name1, name2),
+            not SurveyInfo(name2, _), 
+            not SiteWorkInfo(name2, _).
+        
+        SiteListStatus(name1, "Survey Missing") :- 
+            SiteListInfo(_, _, name1, name2),
+            SiteWorkInfo(name2, _),
+            not SurveyInfo(name2, _).
+
+        SiteListStatus(name1, "Site Work Missing") :- 
+            SiteListInfo(_, _, name1, name2),
+            SurveyInfo(name2, _),
+            not SiteWorkInfo(name2, _).
+    }
+
     def makeCells2(src: (String,String)): Array[String] & Impure = 
         let (x1,x2) = src;
         [x1, x2]
@@ -119,6 +127,34 @@ namespace Sync {
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
                 { fold SiteListStatus start buildStep (solve relns <+> siteListStatus()) } |> CsvExport.outputCsv(outpath, headers);
+                Console.printLine("Wrote: " + outpath)
+            }
+        }
+
+    /// Edms Status
+    pub def edmsStatus[r](): #{ EdmsStatus, SiteListInfo, EdmsInfo | r } = #{ 
+        EdmsStatus(ix, sai, name1, "On Edms") :- 
+            SiteListInfo(ix, sai, name1, name2),
+            EdmsInfo(name2).
+            
+        
+        EdmsStatus(ix, sai, name1, "") :- 
+            SiteListInfo(ix, sai, name1, name2),
+            not EdmsInfo(name2).
+    }
+
+    def makeEdmsStatusCells(src: (Int32, String, String, String)): Array[String] & Impure = 
+        let (x1,x2,x3,x4) = src;
+        [Int32.toString(x1), x2, x3, x4]
+
+    pub def edmsStatusQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
+        let headers = ["Index", "Sai", "Name", "Status"];
+        let buildStep = CsvExport.makeBuildStep(makeEdmsStatusCells); 
+        let start = CsvExport.emptyCsvBuilder();
+        match CsvLoader.loadAll(sources) { 
+            case Err(msg) => Console.printLine(msg)
+            case Ok(relns) => {
+                { fold EdmsStatus start buildStep (solve relns <+> edmsStatus()) } |> CsvExport.outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }
