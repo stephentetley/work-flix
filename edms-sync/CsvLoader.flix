@@ -27,7 +27,8 @@ rel SiteWorkInfo(site: String, document: String)
 rel SiteListInfo(index: Int32, sai: String, name: String, name2: String)
 
 type alias SourceFiles = 
-    { edmExport: String
+    { edmsExport: String
+    , edmsPending: String
     , csoSpsSurveys: String
     , stwSurveys: String
     , csoSpsSiteWork: String
@@ -40,6 +41,7 @@ namespace CsvLoader {
 
     // EDMS
 
+    
     def getEdmsName(s: String): String = match String.indexOfLeft(s, " T0975") {
         case None => s
         case Some(n) => String.slice(0, n, s)
@@ -60,6 +62,23 @@ namespace CsvLoader {
                     case Ok(relns) => Ok(relns)
                 }
         }
+
+    def readEdmsPending1[r](row: CsvRow): CsvResult[#{ EdmsInfo | r }] & Impure = 
+        Validation.map(
+            x1 -> { EdmsInfo(x1). },
+            CsvImport.getStringByIndex(row, 0)            
+        )
+
+    pub def importEdmsPending[r](path: String): Result[#{ EdmsInfo | r }, String] & Impure =    
+        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+            case Err(msg) => Err(msg)
+            case Ok(src) => 
+                match CsvImport.iterate(readEdmsPending1, src) {
+                    case Err(msg) => Err(msg)
+                    case Ok(relns) => Ok(relns)
+                }
+        }
+
 
     // Survey
     def readSurveyInfo1[r](row: CsvRow): CsvResult[#{ SurveyInfo | r }] & Impure = 
@@ -116,15 +135,16 @@ namespace CsvLoader {
         }
 
     pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteListInfo, EdmsInfo, SurveyInfo, SiteWorkInfo | r }, String] & Impure =
-        use Common/Utils.pipeR6;
-        pipeR6(
-            importEdmsInfo(paths.edmExport),
+        use Common/Utils.pipeR7;
+        pipeR7(
+            importEdmsInfo(paths.edmsExport),
+            importEdmsInfo(paths.edmsPending),
             importSurveyInfo(paths.csoSpsSurveys),
             importSurveyInfo(paths.stwSurveys),
             importSiteWorkInfo(paths.csoSpsSiteWork),
             importSiteWorkInfo(paths.stwSiteWork),            
             importSiteListInfo(paths.siteList),
-            (r1, r2, r3, r4, r5, r6) -> r1 <+> r2 <+> r3 <+> r4 <+> r5 <+> r6
+            (r1, r2, r3, r4, r5, r6, r7) -> r1 <+> r2 <+> r3 <+> r4 <+> r5 <+> r6 <+> r7
         )
 
 }

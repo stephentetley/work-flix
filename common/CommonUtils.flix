@@ -62,6 +62,9 @@ namespace Common/Utils {
     pub def liftR6(f: (t1,t2,t3,t4,t5,t6) -> t7 & f, r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], r5: Result[t5, e], r6: Result[t6, e]): Result[t7, e] & f=
         apR(liftR5(f, r1, r2, r3, r4, r5), r6)
 
+    pub def liftR7(f: (t1,t2,t3,t4,t5,t6,t7) -> t8 & f, r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], r5: Result[t5, e], r6: Result[t6, e], r7: Result[t7, e]): Result[t8, e] & f=
+        apR(liftR6(f, r1, r2, r3, r4, r5, r6), r7)
+
     pub def pipeR2(r1: Result[t1, e], r2: Result[t2, e], fn: (t1,t2) -> t3 & f): Result[t3, e] & f =
         liftR2(fn, r1, r2)
 
@@ -76,5 +79,8 @@ namespace Common/Utils {
     
     pub def pipeR6(r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], r5: Result[t5, e], r6: Result[t6, e], f: (t1,t2,t3,t4,t5,t6) -> t7 & f): Result[t7, e] & f=
         liftR6(f, r1, r2, r3, r4, r5, r6)
+
+    pub def pipeR7(r1: Result[t1, e], r2: Result[t2, e], r3: Result[t3, e], r4: Result[t4, e], r5: Result[t5, e], r6: Result[t6, e], r7: Result[t7, e], f: (t1,t2,t3,t4,t5,t6,t7) -> t8 & f): Result[t8, e] & f=
+        liftR7(f, r1, r2, r3, r4, r5, r6, r7)
 
 }

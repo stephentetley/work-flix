@@ -1,7 +1,8 @@
 
 
 def paths1(): SourceFiles = 
-    { edmExport         = "G:\work\Projects\edm2\march-2020-sync\all-sites-on-edms-2020-03-24.csv"
+    { edmsExport        = "G:\work\Projects\edm2\march-2020-sync\edms-edm2-export-2020-03-26.csv"
+    , edmsPending       = "G:\work\Projects\edm2\march-2020-sync\facts-edms-pending.csv"
     , csoSpsSurveys     = "G:\work\Projects\edm2\march-2020-sync\facts-cso-sps-surveys.csv"
     , stwSurveys        = "G:\work\Projects\edm2\march-2020-sync\facts-stw-surveys.csv"
     , csoSpsSiteWork    = "G:\work\Projects\edm2\march-2020-sync\facts-cso-sps-sitework.csv"
@@ -18,11 +19,11 @@ def edms01[r](): #{ Synced | r } & Impure =
 
 @test
 def syncable01(): Unit & Impure =
-    Sync.syncableQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\syncable.csv") 
+    Sync.syncableQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\syncable_2020_03_27.csv") 
 
 @test
 def noSurvey01(): Unit & Impure =
-    Sync.noSurveyQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\no_survey.csv") 
+    Sync.noSurveyQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\no_survey_2020_03_26.csv") 
 
 @test
 def noSiteWork01(): Unit & Impure =
