@@ -2,7 +2,7 @@
 @test
 def s4EquiLoad01[r](): #{ S4EquiInfo | r } & Impure =
     let src1 = "G:\work\Projects\assets\asset_patch\file_download_edm\equi_download_objtype=NETW.csv";
-    let r1 = CsvLoader.importS4EquiInfo(src1);
+    let r1 = EquipmentCompare/CsvLoader.importS4EquiInfo(src1);
     match r1 { 
         case Err(msg) => { Console.printLine(msg); #{ } }
         case Ok(relns) => solve relns
@@ -11,7 +11,7 @@ def s4EquiLoad01[r](): #{ S4EquiInfo | r } & Impure =
 @test
 def ai2EquipmentLoad01[r](): #{ AI2EquipmentInfo | r } & Impure =
     let src1 = "G:\work\Projects\assets\asset_patch\file_download_edm\ai2_outstations.csv";
-    let r1 = CsvLoader.importAI2EquipmentInfo(src1);
+    let r1 = EquipmentCompare/CsvLoader.importAI2EquipmentInfo(src1);
     match r1 { 
         case Err(msg) => { Console.printLine(msg); #{ } }
         case Ok(relns) => solve relns
@@ -20,7 +20,7 @@ def ai2EquipmentLoad01[r](): #{ AI2EquipmentInfo | r } & Impure =
 @test
 def siteMappingLoad01[r](): #{ SiteMapping | r } & Impure =
     let src1 = "G:\work\Projects\assets\asset_patch\file_download_edm\ai_to_s4_sites.csv";
-    let r1 = CsvLoader.importSiteMapping(src1);
+    let r1 = EquipmentCompare/CsvLoader.importSiteMapping(src1);
     match r1 { 
         case Err(msg) => { Console.printLine(msg); #{ } }
         case Ok(relns) => solve relns
@@ -36,11 +36,11 @@ def siteMappingLoad02(): Int32 & Impure =
 @test
 def siteMapping01[r](): #{ SiteMapAnswer | r } & Impure =
     let relns = siteMappingLoad01();
-    Compare.siteMap("MANCHESTER ROAD/CSO", relns)
+    EquipmentCompare.siteMap("MANCHESTER ROAD/CSO", relns)
 
 pub def siteMap[r](name: String): #{ SiteMapAnswer | r } & Impure =
     let relns = siteMappingLoad01();
-    Compare.siteMap(name, relns)
+    EquipmentCompare.siteMap(name, relns)
 
 
 @test
@@ -51,11 +51,11 @@ def equipmentMatches01(): Unit & Impure =
         , siteMapping   = "G:\work\Projects\assets\asset_patch\file_download_edm\ai_to_s4_sites.csv"
         };
     let dest = "G:\work\Projects\assets\asset_patch\file_download_edm\results_equi_matches_001.csv";
-    match CsvLoader.loadAll(paths) { 
+    match EquipmentCompare/CsvLoader.loadAll(paths) { 
         case Err(msg) => Console.printLine(msg)
         case Ok(relns) => 
-            let ans = solve relns <+> Compare.equipmentMatch() ;
-            Compare.csvWriteEquipment(dest, ans);
+            let ans = solve relns <+> EquipmentCompare.equipmentMatch() ;
+            EquipmentCompare.csvWriteEquipment(dest, ans);
             ()
     }
 
@@ -70,10 +70,10 @@ def noS4Cells(src: (String,String)): Array[String] & Impure =
 pub def noS4(paths: SourceFiles, outfile: String): Unit & Impure = 
     let headers = ["ai_name", "s4_code"];
     let buildStep = CsvExport.makeBuildStep(noS4Cells); 
-    match CsvLoader.loadAll(paths) { 
+    match EquipmentCompare/CsvLoader.loadAll(paths) { 
         case Err(msg) => Console.printLine(msg)
         case Ok(relns) => {
-            { fold NoS4 CsvExport.emptyCsvBuilder() buildStep (solve relns <+> Compare.noS4()) }
+            { fold NoS4 CsvExport.emptyCsvBuilder() buildStep (solve relns <+> EquipmentCompare.noS4()) }
                 |> CsvExport.outputCsv(outfile, headers);
             Console.printLine("Wrote: " + outfile)
         }

@@ -22,7 +22,7 @@ rel InS4(ai: String)
 
 rel SiteMapAnswer(ainame: String, s4code: String, s4name: String)
 
-namespace Compare {
+namespace EquipmentCompare {
 
     /// A "cell printer" for the body of NoS4.
     def equipmentCells(src: (String, String, String)): Array[String] & Impure = 

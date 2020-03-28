@@ -28,7 +28,7 @@ type alias SourceFiles =
     , siteMapping: String
     }
 
-namespace CsvLoader {
+namespace EquipmentCompare/CsvLoader {
 
     /// Read a S4 download file converted to Csv for speed
 
@@ -43,14 +43,10 @@ namespace CsvLoader {
         )
 
     pub def importS4EquiInfo[r](path: String): Result[#{ S4EquiInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readS4EquiInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;  
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readS4EquiInfo1, src)
+        
 
     /// Read an AI2 export file (xlsx saved as csv)
 
@@ -90,14 +86,10 @@ namespace CsvLoader {
         )
 
     pub def importAI2EquipmentInfo[r](path: String): Result[#{ AI2EquipmentInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readAI2EquipmentInfo1, src) { 
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;  
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readAI2EquipmentInfo1, src)
+        
 
     def renameHLR(s: String): String = String.replaceAll("HLR", "CSO", s)
     
@@ -115,23 +107,16 @@ namespace CsvLoader {
         )
 
     pub def importSiteMapping[r](path: String): Result[#{ SiteMapping | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readSiteMapping1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;  
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readSiteMapping1, src) 
 
     pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteMapping, S4EquiInfo, AI2EquipmentInfo | r }, String] & Impure =
-        use Common/Utils.pipeR3;
-        pipeR3(
-            importS4EquiInfo(paths.s4Equipment),
-            importAI2EquipmentInfo(paths.aiOutstations),
-            importSiteMapping(paths.siteMapping),
-            (r1, r2, r3) -> r1 <+> r2 <+> r3
-        )
+        use Result.flatMap;
+        let* r1 = importS4EquiInfo(paths.s4Equipment);
+        let* r2 = importAI2EquipmentInfo(paths.aiOutstations);
+        let* r3 = importSiteMapping(paths.siteMapping);
+        Ok(r1 <+> r2 <+> r3)
 
 
 }
