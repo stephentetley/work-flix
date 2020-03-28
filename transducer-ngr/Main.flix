@@ -8,7 +8,7 @@ def paths1(): SourceFiles =
 
 @test
 def main01[r](): #{ SiteListInfo, EquipmentInfo | r } & Impure = 
-    match CsvLoader.loadAll(paths1()) {
+    match TransducerNgr/CsvLoader.loadAll(paths1()) {
         case Err(_) => #{ }
         case Ok(relns) => relns
     }
@@ -16,7 +16,7 @@ def main01[r](): #{ SiteListInfo, EquipmentInfo | r } & Impure =
 @test
 def test01[r](): #{ SiteListInfo | r } & Impure = 
     let siteList          = "G:\work\Projects\edm2\march-2020-sync\all_sites_in_order.csv";
-    match CsvLoader.importSiteListInfo(siteList) {
+    match TransducerNgr/CsvLoader.importSiteListInfo(siteList) {
         case Err(_) => #{ }
         case Ok(relns) => solve relns
     }

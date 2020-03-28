@@ -24,7 +24,7 @@ type alias SourceFiles =
     , siteList: String
     }
 
-namespace CsvLoader {
+namespace TransducerNgr/CsvLoader {
 
     /// Read an AI2 file (saved as to Csv from Xlsx)
 
@@ -49,15 +49,12 @@ namespace CsvLoader {
                 }
         )
 
-    pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readEquipmentInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+    pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, String] & Impure =  
+        use Result.flatMap;  
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readEquipmentInfo1, src)
+
+
 
     // Site List
     def readSiteListInfo1[r](row: CsvRow, ix: Int32): CsvResult[#{ SiteListInfo | r }] & Impure = 
@@ -69,21 +66,14 @@ namespace CsvLoader {
         )
 
     pub def importSiteListInfo[r](path: String): Result[#{ SiteListInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterateWithCount(readSiteListInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;  
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterateWithCount(readSiteListInfo1, src) 
 
     pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteListInfo, EquipmentInfo | r }, String] & Impure =
-        use Common/Utils.pipeR2;
-        pipeR2(
-            importEquipmentInfo(paths.equipmentList),                        
-            importSiteListInfo(paths.siteList),
-            (r1, r2) -> r1 <+> r2
-        )
+        use Result.flatMap;
+        let* r1 = importEquipmentInfo(paths.equipmentList);
+        let* r2 = importSiteListInfo(paths.siteList);
+        Ok(r1 <+> r2)
 
 }
