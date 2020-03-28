@@ -1,7 +1,7 @@
 @test
 def memoLine01[r](): #{ MemoLine | r } & Impure =
     let src = "G:\work\Projects\assets\asset_patch\equipment-compare-march2020\ai2_outstations_dump_2020_03_19.csv";
-    let r1 = CsvLoader.importMemoLines(src);
+    let r1 = EquipmentMemoline/CsvLoader.importMemoLines(src);
     match r1 { 
         case Err(msg) => { Console.printLine(msg); #{ } }
         case Ok(relns) => solve relns
@@ -16,10 +16,10 @@ def answerCells(src: (String, String, String, Int32, String)): Array[String] & I
 def memoQuery(srcpath: String, patt: String, outpath: String): Unit & Impure = 
     let headers = ["PLI Code", "Common Name", "Memo Text", "Year Installed", "Serial No"];
     let buildStep = CsvExport.makeBuildStep(answerCells); 
-    match CsvLoader.loadAll(srcpath) { 
+    match EquipmentMemoline/CsvLoader.loadAll(srcpath) { 
         case Err(msg) => Console.printLine(msg)
         case Ok(relns) => 
-            { fold Answer CsvExport.emptyCsvBuilder() buildStep (solve relns <+> MemoLine.memoMatch(patt)) }
+            { fold Answer CsvExport.emptyCsvBuilder() buildStep (solve relns <+> EquipmentMemoline.memoMatch(patt)) }
                 |> CsvExport.outputCsv(outpath, headers);
             Console.printLine("Wrote: " + outpath)
     }

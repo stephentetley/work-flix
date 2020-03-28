@@ -16,7 +16,7 @@
 
 rel Answer(plicode: String, commonname: String, memotext: String, installedyear: Int32, serialnumber: String)
 
-namespace MemoLine {
+namespace EquipmentMemoline {
 
     pub def memoMatch[r](patt: String): #{ Answer, EquipmentInfo, MemoLine | r } =
         let rmatches = src -> String.matches(src, patt);

@@ -21,7 +21,7 @@ rel EquipmentInfo(plicode: String, commonname: String, manufacturer: String, mod
 
 rel MemoLine(plicode: String, index: Int32, memotext:String)
 
-namespace CsvLoader {
+namespace EquipmentMemoline/CsvLoader {
     
     /// Read an AI2 file (saved as to Csv from Xlsx)
 
@@ -42,14 +42,9 @@ namespace CsvLoader {
         )
 
     pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readEquipmentInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readEquipmentInfo1, src)
 
     /// Read an AI2 file (saved as to Csv from Xlsx) for memo lines
 
@@ -77,20 +72,14 @@ namespace CsvLoader {
         )
 
     pub def importMemoLines[r](path: String): Result[#{ MemoLine | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readMemoLines1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readMemoLines1, src)
 
     pub def loadAll[r](src: String): Result[ #{ EquipmentInfo, MemoLine | r }, String] & Impure =
-        use Common/Utils.pipeR2;
-        pipeR2(
-            importEquipmentInfo(src),
-            importMemoLines(src),
-            (r1, r2) -> r1 <+> r2
-        )   
+        use Result.flatMap;
+        let* r1 = importEquipmentInfo(src);
+        let* r2 = importMemoLines(src);
+        Ok(r1 <+> r2)
+        
 }
