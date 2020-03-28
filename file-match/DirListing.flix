@@ -25,7 +25,7 @@ type alias File = { name: String, size: Int64, modified: TimeStamp }
 type alias Folder = { name: String, modified: TimeStamp }
 
 
-namespace DirListing {
+namespace FileMatch/DirListing {
 
     
     pub def printTimeStamp(ts: TimeStamp): String = 
@@ -49,7 +49,7 @@ namespace DirListing {
     
     /// Note - Windows Dir Listing can run to muliple lines - not handled yet...
     pub def fileName(): TextParser.Parser[String] = 
-        TextParser.fmap(String.trim, TextParser.restOfInput())
+        TextParser.map(String.trim, TextParser.restOfInput())
 
     pub def pFile(): TextParser.Parser[File] = 
         TextParser.pipe3(
@@ -70,6 +70,6 @@ namespace DirListing {
         )
 
     pub def ignoreLine(): TextParser.Parser[Option[a]] = 
-        TextParser.fmap(_ -> None, TextParser.restOfInput())
+        TextParser.map(_ -> None, TextParser.restOfInput())
 
 }

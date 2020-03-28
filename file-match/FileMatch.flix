@@ -56,8 +56,8 @@ namespace FileMatch {
 
     def parseFolder(): TextParser.Parser[Option[Folder]] = 
         TextParser.alt( 
-            TextParser.fmap(Some, DirListing.pFolder()),
-            TextParser.fmap(_ -> None, DirListing.ignoreLine())
+            TextParser.map(Some, FileMatch/DirListing.pFolder()),
+            TextParser.map(_ -> None, FileMatch/DirListing.ignoreLine())
         )
 
 
@@ -68,7 +68,7 @@ namespace FileMatch {
                 case Some(d) => { SWS(d.name). }
                 case None => #{ }
         };
-        TextParser.fmap(mk, parseFolder())
+        TextParser.map(mk, parseFolder())
         
 
     def getSWSLine[r](line: TextLine): LineResult[ #{ SWS | r } ] = 
@@ -91,7 +91,7 @@ namespace FileMatch {
             case Some(d) => { Existing(d.name, batchName). }
             case None => #{ }
         };
-        TextParser.fmap(mk, parseFolder())
+        TextParser.map(mk, parseFolder())
         
 
     def getExistingLine[r](batchName: String, line: TextLine): LineResult[ #{ Existing | r } ] = 

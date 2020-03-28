@@ -24,7 +24,7 @@ def readLines01(): Result[Bool, String] & Impure =
 @test
 def pFolder01(): Result[String, String] = 
     let inp = "d-----       13/02/2020     08:49                ABBEY LANE HULL_SPS                                                                                                                                                       ";
-    TextParser.runs(DirListing.pFolder(), inp) 
+    TextParser.runs(FileMatch/DirListing.pFolder(), inp) 
         |> Result.map(x -> x.name)
 
 
@@ -54,7 +54,7 @@ def parse03[r](): #{ SWS | r } =
 @test
 def ignore01(): Result[Option[String], String] = 
     let inp = "";
-    TextParser.runs(DirListing.ignoreLine(), inp) 
+    TextParser.runs(FileMatch/DirListing.ignoreLine(), inp) 
         
 @test
 def sws01[r](): #{ SWS | r } & Impure = 
