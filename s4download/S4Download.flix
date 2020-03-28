@@ -23,8 +23,8 @@ namespace S4Download {
         DownloadRow(ans)
 
 
-    pub def makeRows(x: S4DownloadParser.DownloadFile): List[DownloadRow] = 
-        let DownloadFile(body) = x;
+    pub def makeRows(x: S4Download/Parser.DownloadFile): List[DownloadRow] = 
+        let S4Download/Parser/DownloadFile.DownloadFile(body) = x;
         let colnames = body.columnheaders;
         let rows = body.rows;
         List.map(makeRow(colnames), rows)
@@ -33,8 +33,5 @@ namespace S4Download {
     pub def getValue(key: String, x: DownloadRow): String = 
         let DownloadRow(body) = x;
         Map.get(key, body) |> x -> Option.getWithDefault(x, "MISSING")
-
-
-
 
 }

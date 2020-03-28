@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace S4DownloadParser {
+namespace S4Download/Parser {
 
     pub def makeIso8601DateTime(ts: String, ds: String): String = 
         String.slice(0,4,ts) + "-" + String.slice(4,6,ts) + "-" + String.slice(6,8,ts) 
