@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace ReportBase {
+namespace FlocReport/Base {
 
 
     pub def foldLines(f: ac -> TextParser.Parser[ac], ac: ac, path: Path): Result[ac, String] & Impure = 
@@ -27,7 +27,7 @@ namespace ReportBase {
         match xs { 
             case Nil => Ok(ac)
             case x :: rs => 
-                match TextParser.run(f(ac), x) {
+                match TextParser.runs(f(ac), x) {
                     case Err(msg) => Err(msg)
                     case Ok(ac1) => foldLinesHelper(f, ac1, rs)
                 }
@@ -43,7 +43,7 @@ namespace ReportBase {
         match xs { 
             case Nil => Ok()
             case x :: rs => 
-                match TextParser.run(p, x) {
+                match TextParser.runs(p, x) {
                     case Err(msg) => Err(msg)
                     case Ok(a) => { fn(a); foreachLinesHelper(p, fn, rs) }
                 }

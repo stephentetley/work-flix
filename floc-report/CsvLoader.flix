@@ -19,7 +19,7 @@ rel FlocInfo(floc: String, objType: String)
 rel EquiInfo(floc: String, objType: String, manufacturer: String, model:String)
 
 
-namespace CsvLoader {
+namespace FlocReport/CsvLoader {
 
     def readEquiCsv1[r](row: CsvRow): CsvResult[#{ EquiAib | r }] = 
         Validation.pipeV2(
@@ -29,14 +29,9 @@ namespace CsvLoader {
         )
 
     pub def importEquiAibs[r](path: String): Result[#{ EquiAib | r }, String] =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.collect(readEquiCsv1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.collect(readEquiCsv1, src)
 
 
 }

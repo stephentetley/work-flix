@@ -14,7 +14,7 @@ def readTree01(): Unit & Impure =
 @test 
 def readTree02(): Unit & Impure  = 
     let path = Path.new(treeSrc());
-    match ReportBase.foldLines(_ -> TextParser.restOfInput(), "", path) {
+    match FlocReport/Base.foldLines(_ -> TextParser.restOfInput(), "", path) {
         case Err(_) => Console.printLine("io error")
         case Ok(lastline) => Console.printLine(lastline)
     }

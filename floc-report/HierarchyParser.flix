@@ -20,7 +20,7 @@ type alias FlocRow = { floc: String, description: String, parent: String }
 type alias EquiRow = { equiId: String, description: String, floc: String, superordinate: Option[String] }
 
 
-namespace HierarchyParser {
+namespace FlocReport/HierarchyParser {
 
 
     def taggedFunctionalLocation(): TextParser.Parser[String] = 
@@ -107,14 +107,14 @@ namespace HierarchyParser {
         let p1 = 
             TextParser.tuple2(
                 TextParser.bounded(funcLoc(), 41), 
-                TextParser.fmap(x -> Some(x), equipmentId())
+                TextParser.map(x -> Some(x), equipmentId())
             );
         let p2 = 
             TextParser.tuple2(
                 funcLoc(), 
                 TextParser.return(None) 
             );
-        TextParser.fmap(
+        TextParser.map(
             { pair ->
                 let (floc1, super1) = pair;
                 { equiId = equiId, description = descr, floc = floc1, superordinate = super1 }

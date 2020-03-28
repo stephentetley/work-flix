@@ -16,7 +16,7 @@
 
 opaque type FuncLoc = String
 
-namespace FuncLoc {
+namespace FlocReport/FuncLoc {
 
     pub def new(path: String): FuncLoc = FuncLoc(path)
 

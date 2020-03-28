@@ -28,20 +28,20 @@ namespace FlocReport {
 
 
     def flocRootParser() : TextParser.Parser[Cells] = 
-        TextParser.fmap(
+        TextParser.map(
             mkFlocRootCells, 
-            HierarchyParser.flocRootLine()
+            FlocReport/HierarchyParser.flocRootLine()
         )
 
     def mkFlocRowCells(x1: FlocRow): Cells = 
         let zs = "" :: "" :: "" :: "" :: "" :: "" :: "" :: "" :: x1.floc :: "" :: "" :: x1.description :: Nil;
-        let ix = FuncLoc.new(x1.floc) |> FuncLoc.level |> i -> i - 1;
+        let ix = FlocReport/FuncLoc.new(x1.floc) |> FlocReport/FuncLoc.level |> i -> i - 1;
         List.update(ix, x1.floc, zs) |> Some
     
     def flocRowParser() : TextParser.Parser[Cells] = 
-        TextParser.fmap(
+        TextParser.map(
             mkFlocRowCells, 
-            HierarchyParser.flocLine()
+            FlocReport/HierarchyParser.flocLine()
         )
 
     def mkEquiRowCells(x: EquiRow): Cells = 
@@ -49,13 +49,13 @@ namespace FlocReport {
         Some("" :: "" :: "" :: "" :: "" :: "" :: "" :: "" :: x.floc :: x.equiId :: parent :: x.description :: Nil)
 
     def equiRowParser() : TextParser.Parser[Cells] = 
-        TextParser.fmap(
+        TextParser.map(
             mkEquiRowCells,
-            HierarchyParser.equiLine()
+            FlocReport/HierarchyParser.equiLine()
         )
     
     def ignoreRow() : TextParser.Parser[Cells] = 
-        TextParser.fmap(
+        TextParser.map(
             _ -> None, 
             TextParser.restOfInput()
         )
@@ -76,7 +76,7 @@ namespace FlocReport {
                 ignoreRow()             :: 
                 Nil
             );
-        ReportBase.foreachLines(p1, fn, path);
+        FlocReport/Base.foreachLines(p1, fn, path);
         CsvExport.close(writer) |> Ok
 
 }
