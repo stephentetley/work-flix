@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace CsvLoader {
+namespace AideSync/CsvLoader {
 
     /// Repeated attributes
 
@@ -28,10 +28,9 @@ namespace CsvLoader {
         )
 
     pub def importCteAiRepeatedAttributes[r](path: String): Result[#{ AiRepeatedAttribute | r }, String] & Impure =
-        Result.flatMap(
-            csv -> CsvImport.iterate(readCteAiRepeatedAttribute1, csv),
-            CsvImport.newCsvSource(path, CsvFormat.Default, true)
-        )
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvImport/CsvFormat.Default, true);
+        CsvImport.iterate(readCteAiRepeatedAttribute1, src)
         
     /// TODO - change to byLabel once it is fixed...
     def readCteAideRepeatedAttribute1[r](row: CsvRow): CsvResult[#{ AideRepeatedAttribute | r }] = 
@@ -44,10 +43,10 @@ namespace CsvLoader {
         )
 
     pub def importCteAideRepeatedAttributes[r](path: String): Result[#{ AideRepeatedAttribute | r }, String] & Impure =    
-        Result.flatMap(
-            csv -> CsvImport.iterate(readCteAideRepeatedAttribute1, csv),
-            CsvImport.newCsvSource(path, CsvFormat.Default, true)
-        )
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvImport/CsvFormat.Default, true);
+        CsvImport.iterate(readCteAideRepeatedAttribute1, src)
+        
 
     /// Attributes
 
@@ -60,10 +59,10 @@ namespace CsvLoader {
         )
 
     pub def importCteAiAttributes[r](path: String): Result[#{ AiAttribute | r }, String] & Impure =    
-        Result.flatMap(
-            csv -> CsvImport.iterate(readCteAiAttribute1, csv),
-            CsvImport.newCsvSource(path, CsvFormat.Default, true)
-        )
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvImport/CsvFormat.Default, true);
+        CsvImport.iterate(readCteAiAttribute1, src)
+
 
     /// TODO - change to byLabel once it is fixed...
     def readCteAideAttribute1[r](row: CsvRow): CsvResult[#{ AideAttribute | r }] = 
@@ -75,10 +74,10 @@ namespace CsvLoader {
         )
 
     pub def importCteAideAttributes[r](path: String): Result[#{ AideAttribute | r }, String] & Impure =
-        Result.flatMap(
-            csv -> CsvImport.iterate(readCteAideAttribute1, csv),
-            CsvImport.newCsvSource(path, CsvFormat.Default, true)
-        )
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvImport/CsvFormat.Default, true);
+        CsvImport.iterate(readCteAideAttribute1, src)
+        
 
     /// Assets
 
@@ -93,10 +92,10 @@ namespace CsvLoader {
         )
 
     pub def importCteAiAssets[r](path: String): Result[#{ AiAsset| r }, String] & Impure =
-        Result.flatMap(
-            csv -> CsvImport.iterate(readCteAiAsset1, csv),
-            CsvImport.newCsvSource(path, CsvFormat.Default, true)
-        )
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvImport/CsvFormat.Default, true);
+        CsvImport.iterate(readCteAiAsset1, src)
+
 
     /// TODO - change to byLabel once it is fixed...
     def readCteAideAsset1[r](row: CsvRow): CsvResult[#{ AideAsset | r }] = 
@@ -110,9 +109,8 @@ namespace CsvLoader {
         )
 
     pub def importCteAideAssets[r](path: String): Result[#{ AideAsset | r }, String] & Impure =    
-        Result.flatMap(
-            csv -> CsvImport.iterate(readCteAideAsset1, csv),
-            CsvImport.newCsvSource(path, CsvFormat.Default, true)
-        )
+        use Result.flatMap;            
+        let* src = CsvImport.newCsvSource(path, CsvImport/CsvFormat.Default, true);
+        CsvImport.iterate(readCteAideAsset1, src)
 
 }
