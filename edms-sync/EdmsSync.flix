@@ -25,7 +25,7 @@ rel SiteListStatus(name: String, status: String)
 
 rel EdmsStatus(ix: Int32, sai: String, name: String, status: String)
 
-namespace Sync {
+namespace EdmsSync {
 
     pub def synced[r](): #{ Synced, EdmsInfo, SurveyInfo, SiteWorkInfo | r } = #{ 
         Synced(name) :- 
@@ -47,7 +47,7 @@ namespace Sync {
         let headers = ["Syncable"];
         let buildStep = CsvExport.makeBuildStep(x -> [x]); 
         let start = CsvExport.emptyCsvBuilder();
-        match CsvLoader.loadAll(sources) { 
+        match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
                 { fold Syncable start buildStep (solve relns <+> syncable()) } |> CsvExport.outputCsv(outpath, headers);
@@ -68,7 +68,7 @@ namespace Sync {
         let headers = ["No Site Work"];
         let buildStep = CsvExport.makeBuildStep(x -> [x]); 
         let start = CsvExport.emptyCsvBuilder();
-        match CsvLoader.loadAll(sources) { 
+        match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
                 { fold NoSiteWork start buildStep (solve relns <+> noSiteWork()) } |> CsvExport.outputCsv(outpath, headers);
@@ -88,7 +88,7 @@ namespace Sync {
         let headers = ["No Survey"];
         let buildStep = CsvExport.makeBuildStep(x -> [x]); 
         let start = CsvExport.emptyCsvBuilder();
-        match CsvLoader.loadAll(sources) { 
+        match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
                 { fold NoSurvey start buildStep (solve relns <+> noSurvey()) } |> CsvExport.outputCsv(outpath, headers);
@@ -123,7 +123,7 @@ namespace Sync {
         let headers = ["Site", "Status"];
         let buildStep = CsvExport.makeBuildStep(makeCells2); 
         let start = CsvExport.emptyCsvBuilder();
-        match CsvLoader.loadAll(sources) { 
+        match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
                 { fold SiteListStatus start buildStep (solve relns <+> siteListStatus()) } |> CsvExport.outputCsv(outpath, headers);
@@ -151,7 +151,7 @@ namespace Sync {
         let headers = ["Index", "Sai", "Name", "Status"];
         let buildStep = CsvExport.makeBuildStep(makeEdmsStatusCells); 
         let start = CsvExport.emptyCsvBuilder();
-        match CsvLoader.loadAll(sources) { 
+        match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
                 { fold EdmsStatus start buildStep (solve relns <+> edmsStatus()) } |> CsvExport.outputCsv(outpath, headers);

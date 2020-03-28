@@ -12,27 +12,27 @@ def paths1(): SourceFiles =
 
 @test
 def edms01[r](): #{ Synced | r } & Impure =
-    match CsvLoader.loadAll(paths1()) { 
+    match EdmsSync/CsvLoader.loadAll(paths1()) { 
         case Err(msg) => { Console.printLine(msg); #{ } }
-        case Ok(relns) => project Synced (solve relns <+> Sync.synced())
+        case Ok(relns) => project Synced (solve relns <+> EdmsSync.synced())
     }
 
 @test
 def syncable01(): Unit & Impure =
-    Sync.syncableQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\syncable_2020_03_27.csv") 
+    EdmsSync.syncableQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\syncable_2020_03_27.csv") 
 
 @test
 def noSurvey01(): Unit & Impure =
-    Sync.noSurveyQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\no_survey_2020_03_26.csv") 
+    EdmsSync.noSurveyQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\no_survey_2020_03_26.csv") 
 
 @test
 def noSiteWork01(): Unit & Impure =
-    Sync.noSiteWorkQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\no_site_work.csv") 
+    EdmsSync.noSiteWorkQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\no_site_work.csv") 
 
 @test
 def siteListStatus01(): Unit & Impure =
-    Sync.siteListStatusQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\site_list_status.csv") 
+    EdmsSync.siteListStatusQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\site_list_status.csv") 
 
 @test
 def edmsStatus01(): Unit & Impure =
-    Sync.edmsStatusQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\edms_status_all_sites.csv") 
+    EdmsSync.edmsStatusQuery(paths1(), "G:\work\Projects\edm2\march-2020-sync\edms_status_all_sites.csv") 

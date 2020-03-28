@@ -37,7 +37,7 @@ type alias SourceFiles =
     }
 
 
-namespace CsvLoader {
+namespace EdmsSync/CsvLoader {
 
     // EDMS
 
@@ -54,14 +54,9 @@ namespace CsvLoader {
         )
 
     pub def importEdmsInfo[r](path: String): Result[#{ EdmsInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readEdmsInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readEdmsInfo1, src)
 
     def readEdmsPending1[r](row: CsvRow): CsvResult[#{ EdmsInfo | r }] & Impure = 
         Validation.map(
@@ -70,14 +65,9 @@ namespace CsvLoader {
         )
 
     pub def importEdmsPending[r](path: String): Result[#{ EdmsInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readEdmsPending1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readEdmsPending1, src)
 
 
     // Survey
@@ -88,16 +78,11 @@ namespace CsvLoader {
             (x1, x2) -> SurveyInfo(x1, x2).
         )
 
-    pub def importSurveyInfo[r](path: String): Result[#{ SurveyInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readSurveyInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
-
+    pub def importSurveyInfo[r](path: String): Result[#{ SurveyInfo | r }, String] & Impure =
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readSurveyInfo1, src)
+        
     // Site Work
     def readSiteWorkInfo1[r](row: CsvRow): CsvResult[#{ SiteWorkInfo | r }] & Impure = 
         ValidationExtras.pipeV2(
@@ -106,15 +91,10 @@ namespace CsvLoader {
             (x1, x2) -> SiteWorkInfo(x1, x2).
         )
 
-    pub def importSiteWorkInfo[r](path: String): Result[#{ SiteWorkInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterate(readSiteWorkInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+    pub def importSiteWorkInfo[r](path: String): Result[#{ SiteWorkInfo | r }, String] & Impure =
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterate(readSiteWorkInfo1, src)
 
     // Site List
     def readSiteListInfo1[r](row: CsvRow, ix: Int32): CsvResult[#{ SiteListInfo | r }] & Impure = 
@@ -125,26 +105,19 @@ namespace CsvLoader {
         )
 
     pub def importSiteListInfo[r](path: String): Result[#{ SiteListInfo | r }, String] & Impure =    
-        match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
-            case Err(msg) => Err(msg)
-            case Ok(src) => 
-                match CsvImport.iterateWithCount(readSiteListInfo1, src) {
-                    case Err(msg) => Err(msg)
-                    case Ok(relns) => Ok(relns)
-                }
-        }
+        use Result.flatMap;
+        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        CsvImport.iterateWithCount(readSiteListInfo1, src)
 
     pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteListInfo, EdmsInfo, SurveyInfo, SiteWorkInfo | r }, String] & Impure =
-        use Common/Utils.pipeR7;
-        pipeR7(
-            importEdmsInfo(paths.edmsExport),
-            importEdmsInfo(paths.edmsPending),
-            importSurveyInfo(paths.csoSpsSurveys),
-            importSurveyInfo(paths.stwSurveys),
-            importSiteWorkInfo(paths.csoSpsSiteWork),
-            importSiteWorkInfo(paths.stwSiteWork),            
-            importSiteListInfo(paths.siteList),
-            (r1, r2, r3, r4, r5, r6, r7) -> r1 <+> r2 <+> r3 <+> r4 <+> r5 <+> r6 <+> r7
-        )
+        use Result.flatMap;
+        let* r1 = importEdmsInfo(paths.edmsExport);
+        let* r2 = importEdmsInfo(paths.edmsPending);
+        let* r3 = importSurveyInfo(paths.csoSpsSurveys);
+        let* r4 = importSurveyInfo(paths.stwSurveys);
+        let* r5 = importSiteWorkInfo(paths.csoSpsSiteWork);
+        let* r6 = importSiteWorkInfo(paths.stwSiteWork);
+        let* r7 = importSiteListInfo(paths.siteList);
+        Ok(r1 <+> r2 <+> r3 <+> r4 <+> r5 <+> r6 <+> r7)
 
 }
