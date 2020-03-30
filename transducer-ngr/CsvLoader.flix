@@ -16,8 +16,9 @@
 
 use CsvImport.CsvFormat;
 
-rel EquipmentInfo(plicode: String, commonname: String, locref: String, transducerNgr: String, memo: String)
-rel SiteListInfo(index: Int32, sai: String, name: String)
+rel EquipmentInfo(plicode: String, siteName: String, commonName: String, locref: String, transducerNgr: String, memo: String)
+
+rel SiteListInfo(index: Int32, sai: String, name: String, discharge: String, sensorNgr: String, pli: String, commonName: String)
 
 type alias SourceFiles = 
     { equipmentList: String
@@ -43,9 +44,10 @@ namespace TransducerNgr/CsvLoader {
             CsvImport.getStringByLabel(row, "Memo Line 4"),
             CsvImport.getStringByLabel(row, "Memo Line 5"),
             (x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
+                let site = Work/CommonUtils.siteFromCommonName(x2);
                 match t0975Memo(x5 :: x6 :: x7 :: x8 :: x9 :: Nil) {
                     case None => #{ }
-                    case Some(memo) => EquipmentInfo(x1, x2, x3, x4, memo).
+                    case Some(memo) => EquipmentInfo(x1, site, x2, x3, x4, memo).
                 }
         )
 
@@ -58,10 +60,14 @@ namespace TransducerNgr/CsvLoader {
 
     // Site List
     def readSiteListInfo1[r](row: CsvRow, ix: Int32): CsvResult[#{ SiteListInfo | r }] & Impure = 
-        ValidationExtras.pipeV2(
+        ValidationExtras.pipeV6(
             CsvImport.getStringByIndex(row, 0),
             CsvImport.getStringByIndex(row, 1),
-            (x1, x2) -> SiteListInfo(ix + 1, x1, x2).
+            CsvImport.getStringByIndex(row, 2),
+            CsvImport.getStringByIndex(row, 3),
+            CsvImport.getStringByIndex(row, 4),
+            CsvImport.getStringByIndex(row, 5),
+            (sai, sname, dname, sensorNgr, pli, ename) -> SiteListInfo(ix + 1, sai, sname, dname, sensorNgr, pli, ename).
             
         )
 

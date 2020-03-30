@@ -50,26 +50,6 @@ namespace EquipmentCompare/CsvLoader {
 
     /// Read an AI2 export file (xlsx saved as csv)
 
-    def siteFromCommonName(s: String): String & Impure = 
-        let arr = String.split(s, "/");
-        if (String.matches(s, ".*/SEWER MAINTENANCE/.*") && Array.length(arr) == 5) {
-            let s1 = arr[2];
-            let s2 = arr[3];
-            s1 + "/" + s2
-        } else if (Array.length(arr) > 2) {
-            let s1 = arr[0];
-            let s2 = arr[1];
-            s1 + "/" + s2
-        } else s
-
-    def descriptionFromCommonName(s: String): String & Impure = 
-        let arr = String.split(s, "/");
-        if (String.matches(s, ".*/SEWER MAINTENANCE/.*") && Array.length(arr) == 5) {
-            "LEVEL MONITORING POINT"
-        } else if (Array.length(arr) > 2) {
-            let ix = Array.length(arr) - 2;
-            arr[ix]
-        } else s
 
     def readAI2EquipmentInfo1[r](row: CsvRow): CsvResult[#{ AI2EquipmentInfo | r }] & Impure = 
         ValidationExtras.pipeV5(
@@ -79,8 +59,8 @@ namespace EquipmentCompare/CsvLoader {
             CsvImport.getStringByLabel(row, "Serial No"),
             CsvImport.getStringByLabel(row, "AssetStatus"), 
             (x1, x2, x3, x4, x5) -> { 
-                let site = siteFromCommonName(x1);
-                let desc = descriptionFromCommonName(x1);
+                let site = Work/CommonUtils.siteFromCommonName(x1);
+                let desc = Work/CommonUtils.descriptionFromCommonName(x1);
                 AI2EquipmentInfo(site, desc, x2, x3, x4, x5).                
             }
         )
