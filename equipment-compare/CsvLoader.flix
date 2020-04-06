@@ -71,7 +71,7 @@ namespace EquipmentCompare/CsvLoader {
         CsvImport.iterate(readAI2EquipmentInfo1, src)
         
 
-    def renameHLR(s: String): String = String.replaceAll("HLR", "CSO", s)
+    def renameHLR(s: String): String = String.replace("HLR", "CSO", s)
     
     /// Read site mapping (ai2 to s4)
     def readSiteMapping1[r](row: CsvRow): CsvResult[#{ SiteMapping | r }] & Impure = 
@@ -82,7 +82,7 @@ namespace EquipmentCompare/CsvLoader {
             (x1, x2, x3) -> { 
                 let r1 = SiteMapping(x1, x2, x3). ;
                 let r2 = SiteMapping(renameHLR(x1), x2, x3). ;
-                if (String.contains(x1, "HLR")) (r1 <+> r2) else r1                
+                if (String.isSubstringOf("HLR", x1)) (r1 <+> r2) else r1                
             }
         )
 

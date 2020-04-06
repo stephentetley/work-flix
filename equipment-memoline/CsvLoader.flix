@@ -26,7 +26,7 @@ namespace EquipmentMemoline/CsvLoader {
     /// Read an AI2 file (saved as to Csv from Xlsx)
 
     def readEquipmentInfo1[r](row: CsvRow): CsvResult[#{ EquipmentInfo | r }] & Impure = 
-        use Common/Utils.getYear;
+        use Work/CommonUtils.getYear;
         ValidationExtras.pipeV7(
             CsvImport.getStringByLabel(row, "Reference"),
             CsvImport.getStringByLabel(row, "Common Name"),

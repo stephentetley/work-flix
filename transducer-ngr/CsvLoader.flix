@@ -30,7 +30,7 @@ namespace TransducerNgr/CsvLoader {
     /// Read an AI2 file (saved as to Csv from Xlsx)
 
     def t0975Memo(xs: List[String]): Option[String] = 
-        List.findLeft(s -> String.contains(s, "T0975"), xs)
+        List.findLeft(s -> String.isSubstringOf("T0975", s), xs)
 
     def readEquipmentInfo1[r](row: CsvRow): CsvResult[#{ EquipmentInfo | r }] & Impure = 
         ValidationExtras.pipeV9(

@@ -19,7 +19,7 @@ rel Answer(plicode: String, commonname: String, memotext: String, installedyear:
 namespace EquipmentMemoline {
 
     pub def memoMatch[r](patt: String): #{ Answer, EquipmentInfo, MemoLine | r } =
-        let rmatches = src -> String.matches(src, patt);
+        let rmatches = src -> String.isMatch(patt, src);
         let yearmatch = yr -> yr == 2019 || yr == 2020;
         #{             
             Answer(pli, longname, text, instyear, serialnum) :- 
