@@ -31,9 +31,9 @@ namespace EquipmentCompare {
 
     pub def csvWriteEquipment[r](outpath: String, relns: #{ Equipment | r }): Unit & Impure = 
         let headers = ["AI Name", "S4 Code", "Serial Number"];
-        let buildStep = CsvExport.makeBuildStep(equipmentCells);
-        { fold Equipment CsvExport.emptyCsvBuilder() buildStep relns }
-                |> CsvExport.outputCsv(outpath, headers)
+        let buildStep = FactIO/CsvExport.makeBuildStep(equipmentCells);
+        { fold Equipment FactIO/CsvExport.emptyCsvBuilder() buildStep relns }
+                |> FactIO/CsvExport.outputCsv(outpath, headers)
 
     pub def equipmentMatch[r](): #{ Equipment, SiteMapping, S4EquiInfo, AI2EquipmentInfo | r } =
         let isPrefix = (x,y)  -> String.startsWith(x, y);

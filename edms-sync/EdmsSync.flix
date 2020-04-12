@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+use FactIO/CsvExport.{makeBuildStep, emptyCsvBuilder, outputCsv};
+
 rel Synced(name: String)
 rel Syncable(name: String)
 
@@ -45,12 +47,12 @@ namespace EdmsSync {
 
     pub def syncableQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["Syncable"];
-        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
-        let start = CsvExport.emptyCsvBuilder();
+        let buildStep = makeBuildStep(x -> [x]); 
+        let start = emptyCsvBuilder();
         match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
-                { fold Syncable start buildStep (solve relns <+> syncable()) } |> CsvExport.outputCsv(outpath, headers);
+                { fold Syncable start buildStep (solve relns <+> syncable()) } |> outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }
@@ -66,12 +68,12 @@ namespace EdmsSync {
 
     pub def noSiteWorkQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["No Site Work"];
-        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
-        let start = CsvExport.emptyCsvBuilder();
+        let buildStep = makeBuildStep(x -> [x]); 
+        let start = emptyCsvBuilder();
         match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
-                { fold NoSiteWork start buildStep (solve relns <+> noSiteWork()) } |> CsvExport.outputCsv(outpath, headers);
+                { fold NoSiteWork start buildStep (solve relns <+> noSiteWork()) } |> outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }
@@ -86,12 +88,12 @@ namespace EdmsSync {
 
     pub def noSurveyQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["No Survey"];
-        let buildStep = CsvExport.makeBuildStep(x -> [x]); 
-        let start = CsvExport.emptyCsvBuilder();
+        let buildStep = makeBuildStep(x -> [x]); 
+        let start = emptyCsvBuilder();
         match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
-                { fold NoSurvey start buildStep (solve relns <+> noSurvey()) } |> CsvExport.outputCsv(outpath, headers);
+                { fold NoSurvey start buildStep (solve relns <+> noSurvey()) } |> outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }
@@ -121,12 +123,12 @@ namespace EdmsSync {
 
     pub def siteListStatusQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["Site", "Status"];
-        let buildStep = CsvExport.makeBuildStep(makeCells2); 
-        let start = CsvExport.emptyCsvBuilder();
+        let buildStep = makeBuildStep(makeCells2); 
+        let start = emptyCsvBuilder();
         match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
-                { fold SiteListStatus start buildStep (solve relns <+> siteListStatus()) } |> CsvExport.outputCsv(outpath, headers);
+                { fold SiteListStatus start buildStep (solve relns <+> siteListStatus()) } |> outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }
@@ -149,12 +151,12 @@ namespace EdmsSync {
 
     pub def edmsStatusQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["Index", "Sai", "Name", "Status"];
-        let buildStep = CsvExport.makeBuildStep(makeEdmsStatusCells); 
-        let start = CsvExport.emptyCsvBuilder();
+        let buildStep = makeBuildStep(makeEdmsStatusCells); 
+        let start = emptyCsvBuilder();
         match EdmsSync/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
-                { fold EdmsStatus start buildStep (solve relns <+> edmsStatus()) } |> CsvExport.outputCsv(outpath, headers);
+                { fold EdmsStatus start buildStep (solve relns <+> edmsStatus()) } |> outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }

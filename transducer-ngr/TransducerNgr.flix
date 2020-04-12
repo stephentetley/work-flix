@@ -36,12 +36,12 @@ namespace TransducerNgr {
 
     pub def answerQuery(sources: SourceFiles, outpath: String): Unit & Impure = 
         let headers = ["Index", "SAI", "Site Name", "Discharge Name", "Sensor NGR (Sitr List)", "PLI (Site List)", "PLI (AI2)", "NGR (AI2)", "Common Name (AI2)"];
-        let buildStep = CsvExport.makeBuildStep(answerCells); 
-        let start = CsvExport.emptyCsvBuilder();
+        let buildStep = FactIO/CsvExport.makeBuildStep(answerCells); 
+        let start = FactIO/CsvExport.emptyCsvBuilder();
         match TransducerNgr/CsvLoader.loadAll(sources) { 
             case Err(msg) => Console.printLine(msg)
             case Ok(relns) => {
-                { fold Answer start buildStep (solve relns <+> getAnswer()) } |> CsvExport.outputCsv(outpath, headers);
+                { fold Answer start buildStep (solve relns <+> getAnswer()) } |> FactIO/CsvExport.outputCsv(outpath, headers);
                 Console.printLine("Wrote: " + outpath)
             }
         }

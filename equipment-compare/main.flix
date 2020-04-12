@@ -69,12 +69,12 @@ def noS4Cells(src: (String,String)): Array[String] & Impure =
 
 pub def noS4(paths: SourceFiles, outfile: String): Unit & Impure = 
     let headers = ["ai_name", "s4_code"];
-    let buildStep = CsvExport.makeBuildStep(noS4Cells); 
+    let buildStep = FactIO/CsvExport.makeBuildStep(noS4Cells); 
     match EquipmentCompare/CsvLoader.loadAll(paths) { 
         case Err(msg) => Console.printLine(msg)
         case Ok(relns) => {
-            { fold NoS4 CsvExport.emptyCsvBuilder() buildStep (solve relns <+> EquipmentCompare.noS4()) }
-                |> CsvExport.outputCsv(outfile, headers);
+            { fold NoS4 FactIO/CsvExport.emptyCsvBuilder() buildStep (solve relns <+> EquipmentCompare.noS4()) }
+                |> FactIO/CsvExport.outputCsv(outfile, headers);
             Console.printLine("Wrote: " + outfile)
         }
     }

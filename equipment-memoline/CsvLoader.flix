@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-use CsvImport.CsvFormat;
+use FactIO.CsvFormat;
+use FactIO/CsvImport.{CsvRow, CsvResult};
 
 
 rel EquipmentInfo(plicode: String, commonname: String, manufacturer: String, model:String, serialnumber: String, status: String, installedyear: Int32)
@@ -27,24 +28,25 @@ namespace EquipmentMemoline/CsvLoader {
 
     def readEquipmentInfo1[r](row: CsvRow): CsvResult[#{ EquipmentInfo | r }] & Impure = 
         use Work/CommonUtils.getYear;
-        ValidationExtras.pipeV7(
-            CsvImport.getStringByLabel(row, "Reference"),
-            CsvImport.getStringByLabel(row, "Common Name"),
-            CsvImport.getStringByLabel(row, "Manufacturer"),
-            CsvImport.getStringByLabel(row, "Model"),
-            CsvImport.getStringByLabel(row, "Serial No"),
-            CsvImport.getStringByLabel(row, "AssetStatus"),
-            CsvImport.getStringByLabel(row, "Installed From"),
+        use Validation.lift7;
+        lift7(
             (x1, x2, x3, x4, x5, x6, x7) -> { 
                 let instyear = getYear(x7) |> x -> Result.getWithDefault(x, 0);
                 EquipmentInfo(x1, x2, x3, x4, x5, x6, instyear).
-            }
+            },
+            FactIO/CsvImport.getStringByLabel(row, "Reference"),
+            FactIO/CsvImport.getStringByLabel(row, "Common Name"),
+            FactIO/CsvImport.getStringByLabel(row, "Manufacturer"),
+            FactIO/CsvImport.getStringByLabel(row, "Model"),
+            FactIO/CsvImport.getStringByLabel(row, "Serial No"),
+            FactIO/CsvImport.getStringByLabel(row, "AssetStatus"),
+            FactIO/CsvImport.getStringByLabel(row, "Installed From")           
         )
 
     pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, String] & Impure =    
         use Result.flatMap;
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readEquipmentInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readEquipmentInfo1, src)
 
     /// Read an AI2 file (saved as to Csv from Xlsx) for memo lines
 
@@ -55,26 +57,27 @@ namespace EquipmentMemoline/CsvLoader {
             relns <+> MemoLine(plicode, ix, memo).
 
     def readMemoLines1[r](row: CsvRow): CsvResult[#{ MemoLine | r }] & Impure = 
-        ValidationExtras.pipeV6(
-            CsvImport.getStringByLabel(row, "Reference"),
-            CsvImport.getStringByLabel(row, "Memo Line 1"),
-            CsvImport.getStringByLabel(row, "Memo Line 2"),
-            CsvImport.getStringByLabel(row, "Memo Line 3"),            
-            CsvImport.getStringByLabel(row, "Memo Line 4"),
-            CsvImport.getStringByLabel(row, "Memo Line 5"),
-            (pli, m1, m2, m3, m4, m5) -> 
+        Validation.lift6(
+            (pli, m1, m2, m3, m4, m5) -> {
                 #{ } 
                     |> addIfNotBlank(pli, 1, m1)
                     |> addIfNotBlank(pli, 2, m2)
                     |> addIfNotBlank(pli, 1, m3)
                     |> addIfNotBlank(pli, 1, m4)
                     |> addIfNotBlank(pli, 1, m5)
+            },
+            FactIO/CsvImport.getStringByLabel(row, "Reference"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 1"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 2"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 3"),            
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 4"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 5")            
         )
 
     pub def importMemoLines[r](path: String): Result[#{ MemoLine | r }, String] & Impure =    
         use Result.flatMap;
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readMemoLines1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readMemoLines1, src)
 
     pub def loadAll[r](src: String): Result[ #{ EquipmentInfo, MemoLine | r }, String] & Impure =
         use Result.flatMap;

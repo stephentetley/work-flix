@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-use CsvImport.CsvFormat;
+use FactIO.CsvFormat;
+use FactIO/CsvImport.{CsvRow, CsvResult};
+
 
 rel EquipmentInfo(plicode: String, siteName: String, commonName: String, locref: String, transducerNgr: String, memo: String)
 
@@ -33,48 +35,52 @@ namespace TransducerNgr/CsvLoader {
         List.findLeft(s -> String.isSubstringOf("T0975", s), xs)
 
     def readEquipmentInfo1[r](row: CsvRow): CsvResult[#{ EquipmentInfo | r }] & Impure = 
-        ValidationExtras.pipeV9(
-            CsvImport.getStringByLabel(row, "Reference"),
-            CsvImport.getStringByLabel(row, "Common Name"),
-            CsvImport.getStringByLabel(row, "Loc.Ref."),
-            CsvImport.getStringByLabel(row, "Transducer NGR"),
-            CsvImport.getStringByLabel(row, "Memo Line 1"),
-            CsvImport.getStringByLabel(row, "Memo Line 2"),
-            CsvImport.getStringByLabel(row, "Memo Line 3"),
-            CsvImport.getStringByLabel(row, "Memo Line 4"),
-            CsvImport.getStringByLabel(row, "Memo Line 5"),
+        Validation.lift9(
             (x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
                 let site = Work/CommonUtils.siteFromCommonName(x2);
                 match t0975Memo(x5 :: x6 :: x7 :: x8 :: x9 :: Nil) {
                     case None => #{ }
                     case Some(memo) => EquipmentInfo(x1, site, x2, x3, x4, memo).
-                }
+                },
+            FactIO/CsvImport.getStringByLabel(row, "Reference"),
+            FactIO/CsvImport.getStringByLabel(row, "Common Name"),
+            FactIO/CsvImport.getStringByLabel(row, "Loc.Ref."),
+            FactIO/CsvImport.getStringByLabel(row, "Transducer NGR"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 1"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 2"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 3"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 4"),
+            FactIO/CsvImport.getStringByLabel(row, "Memo Line 5")            
         )
 
     pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, String] & Impure =  
         use Result.flatMap;  
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readEquipmentInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readEquipmentInfo1, src)
 
 
 
     // Site List
     def readSiteListInfo1[r](row: CsvRow, ix: Int32): CsvResult[#{ SiteListInfo | r }] & Impure = 
-        ValidationExtras.pipeV6(
-            CsvImport.getStringByIndex(row, 0),
-            CsvImport.getStringByIndex(row, 1),
-            CsvImport.getStringByIndex(row, 2),
-            CsvImport.getStringByIndex(row, 3),
-            CsvImport.getStringByIndex(row, 4),
-            CsvImport.getStringByIndex(row, 5),
-            (sai, sname, dname, sensorNgr, pli, ename) -> SiteListInfo(ix + 1, sai, sname, dname, sensorNgr, pli, ename).
+        Validation.lift6(
+            (sai, sname, dname, sensorNgr, pli, ename) -> {
+                let index = ix + 1;
+                SiteListInfo(index, sai, sname, dname, sensorNgr, pli, ename). 
+            },
+            FactIO/CsvImport.getStringByIndex(row, 0),
+            FactIO/CsvImport.getStringByIndex(row, 1),
+            FactIO/CsvImport.getStringByIndex(row, 2),
+            FactIO/CsvImport.getStringByIndex(row, 3),
+            FactIO/CsvImport.getStringByIndex(row, 4),
+            FactIO/CsvImport.getStringByIndex(row, 5)
+            
             
         )
 
     pub def importSiteListInfo[r](path: String): Result[#{ SiteListInfo | r }, String] & Impure =    
         use Result.flatMap;  
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterateWithCount(readSiteListInfo1, src) 
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterateWithCount(readSiteListInfo1, src) 
 
     pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteListInfo, EquipmentInfo | r }, String] & Impure =
         use Result.flatMap;

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-use CsvImport.CsvFormat;
+use FactIO.CsvFormat;
+use FactIO/CsvImport.{CsvRow, CsvResult};
 
 rel S4EquiInfo(floc: String, description: String, manufacturer: String, model:String, serialnumber: String)
 
@@ -33,63 +34,63 @@ namespace EquipmentCompare/CsvLoader {
     /// Read a S4 download file converted to Csv for speed
 
     def readS4EquiInfo1[r](row: CsvRow): CsvResult[#{ S4EquiInfo | r }] & Impure = 
-        ValidationExtras.pipeV5(
-            CsvImport.getStringByLabel(row, "Functional Location [TPLN_EILO]"),
-            CsvImport.getStringByLabel(row, "Description (medium text) [TXTMI]"),
-            CsvImport.getStringByLabel(row, "Manufacturer [HERST]"),
-            CsvImport.getStringByLabel(row, "Model number [TYPBZ]"),
-            CsvImport.getStringByLabel(row, "ManufSerialNumber [SERGE]"),
-            (x1, x2, x3, x4, x5) -> S4EquiInfo(x1, x2, x3, x4, x5).
+        Validation.lift5(
+            (x1, x2, x3, x4, x5) -> { S4EquiInfo(x1, x2, x3, x4, x5). },
+            FactIO/CsvImport.getStringByLabel(row, "Functional Location [TPLN_EILO]"),
+            FactIO/CsvImport.getStringByLabel(row, "Description (medium text) [TXTMI]"),
+            FactIO/CsvImport.getStringByLabel(row, "Manufacturer [HERST]"),
+            FactIO/CsvImport.getStringByLabel(row, "Model number [TYPBZ]"),
+            FactIO/CsvImport.getStringByLabel(row, "ManufSerialNumber [SERGE]")            
         )
 
     pub def importS4EquiInfo[r](path: String): Result[#{ S4EquiInfo | r }, String] & Impure =    
         use Result.flatMap;  
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readS4EquiInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readS4EquiInfo1, src)
         
 
     /// Read an AI2 export file (xlsx saved as csv)
 
 
     def readAI2EquipmentInfo1[r](row: CsvRow): CsvResult[#{ AI2EquipmentInfo | r }] & Impure = 
-        ValidationExtras.pipeV5(
-            CsvImport.getStringByLabel(row, "Common Name"),
-            CsvImport.getStringByLabel(row, "Manufacturer"),
-            CsvImport.getStringByLabel(row, "Model"),           
-            CsvImport.getStringByLabel(row, "Serial No"),
-            CsvImport.getStringByLabel(row, "AssetStatus"), 
+        Validation.lift5(
             (x1, x2, x3, x4, x5) -> { 
                 let site = Work/CommonUtils.siteFromCommonName(x1);
                 let desc = Work/CommonUtils.descriptionFromCommonName(x1);
                 AI2EquipmentInfo(site, desc, x2, x3, x4, x5).                
-            }
+            },
+            FactIO/CsvImport.getStringByLabel(row, "Common Name"),
+            FactIO/CsvImport.getStringByLabel(row, "Manufacturer"),
+            FactIO/CsvImport.getStringByLabel(row, "Model"),           
+            FactIO/CsvImport.getStringByLabel(row, "Serial No"),
+            FactIO/CsvImport.getStringByLabel(row, "AssetStatus")            
         )
 
     pub def importAI2EquipmentInfo[r](path: String): Result[#{ AI2EquipmentInfo | r }, String] & Impure =    
         use Result.flatMap;  
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readAI2EquipmentInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readAI2EquipmentInfo1, src)
         
 
     def renameHLR(s: String): String = String.replace("HLR", "CSO", s)
     
     /// Read site mapping (ai2 to s4)
     def readSiteMapping1[r](row: CsvRow): CsvResult[#{ SiteMapping | r }] & Impure = 
-        ValidationExtras.pipeV3(
-            CsvImport.getStringByIndex(row, 0),     // Workaround from not handling BOM
-            CsvImport.getStringByLabel(row, "S/4 Hana Floc Lvl1_Code"),
-            CsvImport.getStringByLabel(row, "S/4 Hana Floc Description"),
+        Validation.lift3(
             (x1, x2, x3) -> { 
                 let r1 = SiteMapping(x1, x2, x3). ;
                 let r2 = SiteMapping(renameHLR(x1), x2, x3). ;
                 if (String.isSubstringOf("HLR", x1)) (r1 <+> r2) else r1                
-            }
+            },
+            FactIO/CsvImport.getStringByIndex(row, 0),     // Workaround from not handling BOM
+            FactIO/CsvImport.getStringByLabel(row, "S/4 Hana Floc Lvl1_Code"),
+            FactIO/CsvImport.getStringByLabel(row, "S/4 Hana Floc Description")            
         )
 
     pub def importSiteMapping[r](path: String): Result[#{ SiteMapping | r }, String] & Impure =    
         use Result.flatMap;  
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readSiteMapping1, src) 
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readSiteMapping1, src) 
 
     pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteMapping, S4EquiInfo, AI2EquipmentInfo | r }, String] & Impure =
         use Result.flatMap;

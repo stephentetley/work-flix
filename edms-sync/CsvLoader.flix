@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-use CsvImport.CsvFormat;
+use FactIO.CsvFormat;
+use FactIO/CsvImport.{CsvRow, CsvResult};
+
 
 // TODO add date as a YYYYMMDD Int32
 
@@ -44,70 +46,70 @@ namespace EdmsSync/CsvLoader {
     
     def getEdmsName(s: String): String = match String.indexOfLeft(s, " T0975") {
         case None => s
-        case Some(n) => String.slice(0, n, s)
+        case Some(n) => String.slice(s, 0, n)
     }
 
     def readEdmsInfo1[r](row: CsvRow): CsvResult[#{ EdmsInfo | r }] & Impure = 
         Validation.map(
             x1 -> { EdmsInfo(getEdmsName(x1)). },
-            CsvImport.getStringByIndex(row, 0)            
+            FactIO/CsvImport.getStringByIndex(row, 0)            
         )
 
     pub def importEdmsInfo[r](path: String): Result[#{ EdmsInfo | r }, String] & Impure =    
         use Result.flatMap;
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readEdmsInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readEdmsInfo1, src)
 
     def readEdmsPending1[r](row: CsvRow): CsvResult[#{ EdmsInfo | r }] & Impure = 
         Validation.map(
             x1 -> { EdmsInfo(x1). },
-            CsvImport.getStringByIndex(row, 0)            
+            FactIO/CsvImport.getStringByIndex(row, 0)            
         )
 
     pub def importEdmsPending[r](path: String): Result[#{ EdmsInfo | r }, String] & Impure =    
         use Result.flatMap;
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readEdmsPending1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readEdmsPending1, src)
 
 
     // Survey
     def readSurveyInfo1[r](row: CsvRow): CsvResult[#{ SurveyInfo | r }] & Impure = 
-        ValidationExtras.pipeV2(
-            CsvImport.getStringByIndex(row, 0),
-            CsvImport.getStringByIndex(row, 1),
-            (x1, x2) -> SurveyInfo(x1, x2).
+        Validation.lift2(
+            (x1, x2) -> { SurveyInfo(x1, x2). },
+            FactIO/CsvImport.getStringByIndex(row, 0),
+            FactIO/CsvImport.getStringByIndex(row, 1)            
         )
 
     pub def importSurveyInfo[r](path: String): Result[#{ SurveyInfo | r }, String] & Impure =
         use Result.flatMap;
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readSurveyInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readSurveyInfo1, src)
         
     // Site Work
     def readSiteWorkInfo1[r](row: CsvRow): CsvResult[#{ SiteWorkInfo | r }] & Impure = 
-        ValidationExtras.pipeV2(
-            CsvImport.getStringByIndex(row, 0),
-            CsvImport.getStringByIndex(row, 1),
-            (x1, x2) -> SiteWorkInfo(x1, x2).
+        Validation.lift2(
+            (x1, x2) -> {SiteWorkInfo(x1, x2). },
+            FactIO/CsvImport.getStringByIndex(row, 0),
+            FactIO/CsvImport.getStringByIndex(row, 1)            
         )
 
     pub def importSiteWorkInfo[r](path: String): Result[#{ SiteWorkInfo | r }, String] & Impure =
         use Result.flatMap;
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterate(readSiteWorkInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterate(readSiteWorkInfo1, src)
 
     // Site List
     def readSiteListInfo1[r](row: CsvRow, ix: Int32): CsvResult[#{ SiteListInfo | r }] & Impure = 
-        ValidationExtras.pipeV2(
-            CsvImport.getStringByIndex(row, 0),
-            CsvImport.getStringByIndex(row, 1),
-            (x1, x2) -> SiteListInfo(ix+1, x1, x2, String.replace("/", " ", x2)).
+        Validation.lift2(
+            (x1, x2) -> { SiteListInfo(ix+1, x1, x2, String.replace("/", " ", x2)). },
+            FactIO/CsvImport.getStringByIndex(row, 0),
+            FactIO/CsvImport.getStringByIndex(row, 1)            
         )
 
     pub def importSiteListInfo[r](path: String): Result[#{ SiteListInfo | r }, String] & Impure =    
         use Result.flatMap;
-        let* src = CsvImport.newCsvSource(path, CsvFormat.Default, true);
-        CsvImport.iterateWithCount(readSiteListInfo1, src)
+        let* src = FactIO/CsvImport.newCsvSource(path, CsvFormat.Default, true);
+        FactIO/CsvImport.iterateWithCount(readSiteListInfo1, src)
 
     pub def loadAll[r](paths: SourceFiles): Result[ #{ SiteListInfo, EdmsInfo, SurveyInfo, SiteWorkInfo | r }, String] & Impure =
         use Result.flatMap;

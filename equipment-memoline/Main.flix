@@ -15,12 +15,12 @@ def answerCells(src: (String, String, String, Int32, String)): Array[String] & I
 
 def memoQuery(srcpath: String, patt: String, outpath: String): Unit & Impure = 
     let headers = ["PLI Code", "Common Name", "Memo Text", "Year Installed", "Serial No"];
-    let buildStep = CsvExport.makeBuildStep(answerCells); 
+    let buildStep = FactIO/CsvExport.makeBuildStep(answerCells); 
     match EquipmentMemoline/CsvLoader.loadAll(srcpath) { 
         case Err(msg) => Console.printLine(msg)
         case Ok(relns) => 
-            { fold Answer CsvExport.emptyCsvBuilder() buildStep (solve relns <+> EquipmentMemoline.memoMatch(patt)) }
-                |> CsvExport.outputCsv(outpath, headers);
+            { fold Answer FactIO/CsvExport.emptyCsvBuilder() buildStep (solve relns <+> EquipmentMemoline.memoMatch(patt)) }
+                |> FactIO/CsvExport.outputCsv(outpath, headers);
             Console.printLine("Wrote: " + outpath)
     }
 
