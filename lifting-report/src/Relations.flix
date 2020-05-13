@@ -16,7 +16,7 @@
 
 use Time.LocalDate;
 
-namespace EquipmentReport/Relations {
+namespace LiftingReport/Relations {
 
     pub enum FixedOrPortable {
         case Fixed,

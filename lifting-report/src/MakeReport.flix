@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-use EquipmentReport/Relations.{EquiMatch, FixedOrPortable, EquiProps};
-use EquipmentReport/Relations.FixedOrPortable.{Fixed, Portable};
+use LiftingReport/Relations.{EquiMatch, FixedOrPortable, EquiProps};
+use LiftingReport/Relations.FixedOrPortable.{Fixed, Portable};
 
-namespace EquipmentReport/MakeReport {
+namespace LiftingReport/MakeReport {
 
 
     pub def tempFacts[r](): #{ EquiMatch | r} = 
@@ -34,7 +34,7 @@ namespace EquipmentReport/MakeReport {
             case _ => List.exists(y -> String.isInfixOf(y, x), xs)
         };
         
-        let a1EquiName = EquipmentReport/Common.getEquipmentName(commonName) ;
+        let a1EquiName = LiftingReport/Common.getEquipmentName(commonName) ;
 
         let rules = #{
             EquiProps(s4type, s4class, fop) :- 

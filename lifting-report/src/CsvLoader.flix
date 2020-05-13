@@ -17,12 +17,10 @@
 use FactIO.CsvFormat;
 use FactIO/CsvImport.{CsvRow, CsvResult};
 
-use EquipmentReport/Relations.{EquiMatch, MemoLine, EquipmentInfo};
-use EquipmentReport/Common.{parseAI2Date, getQuotedNames};
+use LiftingReport/Relations.{EquiMatch, MemoLine, EquipmentInfo};
+use LiftingReport/Common.{parseAI2Date, getQuotedNames};
 
-// rel MemoLine(plicode: String, text:String)
-
-namespace EquipmentReport/CsvLoader {
+namespace LiftingReport/CsvLoader {
     
 
     /// ## Equipment `rules`
@@ -36,7 +34,7 @@ namespace EquipmentReport/CsvLoader {
         let* s4ObjType      = getStringByLabel(row, "Object Type");
         let* s4Class        = getStringByLabel(row, "Classification");
         let* s1             = getStringByLabel(row, "Fixed or Portable");
-        let* fop            = EquipmentReport/Relations.readFixedOrPortable(s1);
+        let* fop            = LiftingReport/Relations.readFixedOrPortable(s1);
         Ok( EquiMatch(aiName, containsList, s4ObjType, s4Class, fop). )
 
 

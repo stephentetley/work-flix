@@ -15,7 +15,7 @@
  */
 
 
-namespace EquipmentReport/Common {
+namespace LiftingReport/Common {
 
     pub def stripQuotes(input: String): String = 
         use Regex/Pattern.{quote, compile};
