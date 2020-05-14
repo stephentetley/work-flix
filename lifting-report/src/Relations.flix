@@ -39,17 +39,17 @@ namespace LiftingReport/Relations {
             serialNumber: String, locationOnSite: String, workLoad: Int32, 
             worlLoadUnits: String, ywRef: String, testCert: String)
 
-    rel EquiProps(s4Type: String, s4Class: String, fop: FixedOrPortable)
 
-    rel Answer(pliCode: String, s4Name: String, category: String)
+
+    rel Answer(pliCode: String, s4Name: String, category: String, memo: String)
 
     /// A "cell printer" for the body of Answer.
-    pub def answerCells(src: (String, String, String)): Array[String] & Impure = 
-        let (pliCode, s4Name, category) = src;
-        [pliCode, s4Name, category]
+    pub def answerCells(src: (String, String, String, String)): Array[String] & Impure = 
+        let (pliCode, s4Name, category, memoline) = src;
+        [pliCode, s4Name, category, memoline]
 
     pub def answerHeaders(): Array[String] & Impure = 
-        [ "PLI Code", "EQuipment Name", "Category" ] 
+        [ "PLI Code", "EQuipment Name", "Category", "Memo Line"] 
 
     pub def writeReport(relns: #{ Answer}, dest: String): Result[Unit, String] & Impure =  
         let buildStep = FactIO/CsvExport.makeBuildStep(answerCells); 

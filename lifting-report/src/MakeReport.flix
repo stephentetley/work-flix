@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-use LiftingReport/Relations.{EquiMatch, FixedOrPortable, EquiProps};
+use LiftingReport/Relations.{EquiMatch, FixedOrPortable, EquipmentInfo, MemoLine, Answer};
 use LiftingReport/Relations.FixedOrPortable.{Fixed, Portable};
 
 namespace LiftingReport/MakeReport {
 
-
-    pub def tempFacts[r](): #{ EquiMatch | r} = 
-        #{ 
-            EquiMatch("EQUIPMENT: BEAM CLAMP", Nil, "LIAC", "LIACBC", Portable).
-            EquiMatch("EQUIPMENT: BEAM TROLLEY", Nil , "CRHT", "CRHTBT", Fixed).
-            EquiMatch("EQUIPMENT: BEAMS - LIFTING AND SPREADING", "SPREAD" :: Nil, "CRHT", "CRHTLS", Fixed).
-            EquiMatch("EQUIPMENT: BEAMS - LIFTING AND SPREADING", "FRAME" :: Nil, "LIAC", "LIACLF", Fixed).
-        }
+    rel EquiProps(s4Type: String, s4Class: String, fop: FixedOrPortable)
 
     pub def equipmentMatch[r](commonName: String, facts: #{ EquiMatch }): #{ EquiProps | r } =
         let contains = (x, xs) -> match xs {
@@ -44,5 +37,22 @@ namespace LiftingReport/MakeReport {
             };
         
         project EquiProps solve facts <+> rules
+
+    pub def rule1[r](): #{ Answer, MemoLine, EquipmentInfo | r } = #{
+        Answer(pliCode, "s4Name", "H", memoline) :-
+            EquipmentInfo(pliCode, commonName, _, _, _, _, _, _, _, _, _, _),
+            MemoLine(pliCode, memoline).
+    }
+
+    type alias ReportSources = { aiMemoLinesCsv: String, aiInfosCsv: String }
+
+    pub def makeReport[r](x: ReportSources): Result[#{ Answer | r }, FactIO.Error] & Impure = 
+        use Result.flatMap;
+        let* aiMemos = LiftingReport/CsvLoader.importMemoLines(x.aiMemoLinesCsv);
+        let* aiInfos = LiftingReport/CsvLoader.importEquipmentInfo(x.aiInfosCsv);
+        let ans = project Answer solve (rule1() <+> aiMemos <+> aiInfos);
+        Ok(ans)
+
+ 
 
 }

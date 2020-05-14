@@ -1,24 +1,20 @@
 
-use FactIO/CsvStream.newCsvStreamWithBOM;
+use LiftingReport/Relations.{Answer};
+use LiftingReport/MakeReport.{makeReport};
 
-type alias ExtractRow = { assetId: String }
-
-def ofCsv(x: FactIO/CsvImport.CsvRow): ExtractRow & Impure =
-    use FactIO/CsvImport.getStringByIndex;
-    { assetId = Validation.getWithDefault(x.getStringByIndex(0), "_ERROR_")
-
+def runResult(r1: Result[reln, FactIO.Error]): reln & Impure = match r1 {
+    case Ok(reln) => reln
+    case Err(e) => {
+        Console.printLine(FactIO/Error.toString(e));
+        #{ }
     }
+}
 
-def toString (x: ExtractRow): String = 
-    "{ assetId = " + x.assetId + "}"
 
 @test
-def test01(): Result[Unit, String] & Impure =
-    use Result.flatMap;
-    let path = 
-        "G:/work/Projects/assets/flix_asset_patch/equipment-report/Equipment_PLI_extract.csv";
-    let* src = newCsvStreamWithBOM(path, System/Charset.utf_8(), true);
-    let _ = src |> Stream.map!(ofCsv)
-                |> Stream.foreach(x -> Console.printLine(toString(x)));
-    Ok()
-
+def test01[r](): #{ Answer | r } & Impure =
+    let config = 
+        { aiMemoLinesCsv = "G:/work/Projects/assets/lifting-equipment-reports/acomb-ai2-source1-memolines.csv"
+        , aiInfosCsv = "G:/work/Projects/assets/lifting-equipment-reports/acomb-ai2-source2-serial-num-etc.csv"
+        };
+    makeReport(config) |> runResult 
