@@ -38,11 +38,13 @@ namespace LiftingReport/MakeReport {
         
         project EquiProps solve facts <+> rules
 
-    pub def rule1[r](): #{ Answer, MemoLine, EquipmentInfo | r } = #{
-        Answer(pliCode, "s4Name", "H", memoline) :-
-            EquipmentInfo(pliCode, commonName, _, _, _, _, _, _, _, _, _, _),
-            MemoLine(pliCode, memoline).
-    }
+    pub def rule1[r](): #{ Answer, MemoLine, EquipmentInfo | r } = 
+        use LiftingReport/Common.{getEquipmentName, toProperCase};
+        #{
+            Answer(pliCode, toProperCase(getEquipmentName(commonName)), "H", "2100", memoline) :-
+                EquipmentInfo(pliCode, commonName, _, _, _, _, _, _, _, _, _, _),
+                MemoLine(pliCode, memoline).
+            }
 
     type alias ReportSources = { aiMemoLinesCsv: String, aiInfosCsv: String }
 
