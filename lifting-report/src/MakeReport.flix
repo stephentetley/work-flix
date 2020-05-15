@@ -21,38 +21,51 @@ namespace LiftingReport/MakeReport {
 
     rel EquiProps(s4Type: String, s4Class: String, fop: FixedOrPortable)
 
-    pub def equipmentMatch[r](commonName: String, facts: #{ EquiMatch }): #{ EquiProps | r } =
+    // pub def equipmentMatch[r](commonName: String, facts: #{ EquiMatch }): #{ EquiProps | r } =
+    //     let contains = (x, xs) -> match xs {
+    //         case Nil => true
+    //         case _ => List.exists(y -> String.isInfixOf(y, x), xs)
+    //     };
+        
+    //     let a1EquiName = LiftingReport/Common.getEquipmentName(commonName) ;
+
+    //     let rules = #{
+    //         EquiProps(s4type, s4class, fop) :- 
+    //             EquiMatch(equiName, keywords, s4type, s4class, fop),                 
+    //             if String.isSuffixOf(equiName, commonName), 
+    //             if contains(a1EquiName, keywords).
+    //         };
+        
+    //     project EquiProps solve facts <+> rules
+
+    pub def rules[r](): #{ Answer, EquiProps, MemoLine, EquiMatch, EquipmentInfo | r } = 
+        use LiftingReport/Common.{getEquipmentName, toProperCase};
+        use String.{isSuffixOf};
+
         let contains = (x, xs) -> match xs {
             case Nil => true
             case _ => List.exists(y -> String.isInfixOf(y, x), xs)
         };
-        
-        let a1EquiName = LiftingReport/Common.getEquipmentName(commonName) ;
 
-        let rules = #{
-            EquiProps(s4type, s4class, fop) :- 
-                EquiMatch(equiName, keywords, s4type, s4class, fop),                 
-                if String.isSuffixOf(equiName, commonName), 
-                if contains(a1EquiName, keywords).
-            };
-        
-        project EquiProps solve facts <+> rules
+        let getEquiName = cname -> toProperCase(getEquipmentName(cname));
 
-    pub def rule1[r](): #{ Answer, MemoLine, EquipmentInfo | r } = 
-        use LiftingReport/Common.{getEquipmentName, toProperCase};
         #{
-            Answer(pliCode, toProperCase(getEquipmentName(commonName)), "H", "2100", memoline) :-
+            Answer(pliCode, getEquiName(commonName), "H", "2100", s4type, s4class, memoline) :-
                 EquipmentInfo(pliCode, commonName, _, _, _, _, _, _, _, _, _, _),
-                MemoLine(pliCode, memoline).
-            }
+                MemoLine(pliCode, memoline), 
+                EquiMatch(equiType, keywords, s4type, s4class, fop),
+                if contains(getEquiName(commonName), keywords),
+                if equiType `isSuffixOf` commonName.
+        }
 
-    type alias ReportSources = { aiMemoLinesCsv: String, aiInfosCsv: String }
+    type alias ReportSources = { aiMemoLinesCsv: String, aiInfosCsv: String, equiMatchesCsv: String }
 
     pub def makeReport[r](x: ReportSources): Result[#{ Answer | r }, FactIO.Error] & Impure = 
         use Result.flatMap;
         let* aiMemos = LiftingReport/CsvLoader.importMemoLines(x.aiMemoLinesCsv);
         let* aiInfos = LiftingReport/CsvLoader.importEquipmentInfo(x.aiInfosCsv);
-        let ans = project Answer solve (rule1() <+> aiMemos <+> aiInfos);
+        let* equiMatches = LiftingReport/CsvLoader.importEquiMatches(x.equiMatchesCsv);
+        let ans = project Answer solve (rules() <+> aiMemos <+> aiInfos <+> equiMatches);
         Ok(ans)
 
  
