@@ -14,3 +14,9 @@ def test01(): Result[ChangeFile, String] & Impure =
     parseChangeFile(src)
         
 
+@test
+def test02(): Result[Time.LocalDateTime, String] = 
+    use S4Lib/ChangeFile/Parser.{pDateTime};
+    use TextParser.{runs};
+    let input = "* Date: 20191028 / Time: 085647" + String.lineSeparator();
+    runs(pDateTime(), input)

@@ -19,7 +19,7 @@ use Time.LocalDateTime;
 use TextParser.Parser;
 use TextParser.{return, map, parseError, endOfInput};
 use TextParser/Combinators.{seqRight, ignore, choice, liftResult, many, manyTill};
-use TextParser/Text.{many1UpperCase, restOfLine, lookingAts};
+use TextParser/Text.{many1UpperCase, restOfLine, lookingAts, string};
 use TextParser/Token.{symbol, lexeme};
 
 use S4Lib/ChangeFile/Datatypes.{FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
@@ -38,11 +38,7 @@ namespace S4Lib/ChangeFile/Parser {
     def asterisk(): Parser[Unit] =  
         symbol("*") |> ignore
     
-    /// Parses asterisk        
-    def commentNameValue(name: String, sc: Parser[a]): Parser[a] = 
-        use TextParser.flatMap;
-        let* _ = symbol("* " + name + ":");
-        sc
+
 
     def pFileType(): Parser[FileType] = 
         use TextParser.flatMap;
@@ -58,8 +54,10 @@ namespace S4Lib/ChangeFile/Parser {
         
 
     def pDataModel(): Parser[DataModel] = 
-        let u1 = symbol("U1") `seqRight` return(U1);
-        commentNameValue("Data Model",  u1)
+        use TextParser.flatMap;
+        let body = () -> symbol("U1") `seqRight` return(U1);
+        let* _ = symbol("* Data Model:"); 
+        body()
         
 
     def pEntityType(): Parser[EntityType] =
@@ -78,19 +76,25 @@ namespace S4Lib/ChangeFile/Parser {
                 case _              => parseError("EntityType")
             }
         };
-        commentNameValue("Entity Type", body())
+        let* _ = symbol("* Entity Type:");
+        body()
 
     def pVariant(): Parser[String] = 
-        commentNameValue("Variant", restOfLine(true) |> map(String.trim))
-    
-    def pUser(): Parser[String] = 
-        commentNameValue("User", restOfLine(true) |> map(String.trim))
-
-    def pDateTime(): Parser[LocalDateTime] = 
         use TextParser.flatMap;
-        let* d = symbol("Date:") `seqRight` lexeme(lookingAts("\d+"));
-        let* _ = symbol("/");
-        let* t = symbol("Time:")  `seqRight` lexeme(lookingAts("\d+"));
+        let* _ = string("* Variant:");      // use `string` so we don't consume newline
+        let* ans = restOfLine(true);
+        return(String.trim(ans))
+    
+    def pUser(): Parser[String] =
+        use TextParser.flatMap;
+        let* _ = symbol("* User:");
+        let* ans = restOfLine(true);
+        return(String.trim(ans))
+
+    pub def pDateTime(): Parser[LocalDateTime] = 
+        use TextParser.flatMap;
+        let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\d{8}"));
+        let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\d{6}"));
         let* fmt = liftResult(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"));
         let* ans = liftResult(Time/LocalDateTime.parse(d + " " + t, fmt));
         return(ans)
@@ -108,7 +112,9 @@ namespace S4Lib/ChangeFile/Parser {
                     variant = v, user = u, dateTime = dt })
 
     def pSelectionHeader(): Parser[Unit] = 
-        commentNameValue("Selection", restOfLine(true)) |> ignore
+        symbol("* Selection:") |> ignore         // blank header, consumes newline
+        
+
 
     def pSelectionLines(): Parser[List[String]] = 
         use TextParser.flatMap;
