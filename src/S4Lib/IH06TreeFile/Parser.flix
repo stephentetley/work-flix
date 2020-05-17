@@ -27,11 +27,8 @@ use S4Lib/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
 namespace S4Lib/IH06Tree/Parser {
 
-    
     pub def funcloc(): Parser[String] = 
         lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme
-    
-        
 
     def dateStamp(): Parser[LocalDate] = 
         use TextParser.flatMap;
@@ -43,34 +40,24 @@ namespace S4Lib/IH06Tree/Parser {
     def validFrom(): Parser[LocalDate] = 
         symbol("Valid From") `seqRight` lexeme(dateStamp())
 
-
-    // pub def indenting(): Parser[Unit] = 
-    //     skip1OneOf(' ' :: '-' :: '|' :: Nil)
-
-    pub def indenting(): Parser[Unit] = 
+    def indenting(): Parser[Unit] = 
         lookingAts("(\||\-|\s)+") |> ignore
-
     
-    pub def equipmentId(): Parser[String] = 
+    def equipmentId(): Parser[String] = 
         lookingAts("\$?\d+")
 
-    // /// Description is always bounded 
-    // def description(): Parser[String] = content(41)
-
-
-    
-    pub def funcLocHeaderLine(): Parser[(String, LocalDate)] = 
+    def funcLocHeaderLine(): Parser[(String, LocalDate)] = 
         use TextParser.flatMap;
         let* _ = symbol("Functional Location");
         let* floc = funcloc();
         let* dt = validFrom();
         return((floc, dt))
 
-    pub def descriptionHeaderLine(): Parser[String] = 
+    def descriptionHeaderLine(): Parser[String] = 
         symbol("Description") `seqRight` map(String.trim, restOfLine(true))
 
 
-    pub def header(): Parser[Header] = 
+    def header(): Parser[Header] = 
         use TextParser.flatMap;
         let* (floc, date) = funcLocHeaderLine();
         let* desc = descriptionHeaderLine();
@@ -78,7 +65,7 @@ namespace S4Lib/IH06Tree/Parser {
         return({ floc = floc, description = desc, validForm = date })
 
     /// May or may not contain a parent floc
-    pub def flocLine(): Parser[FlocRow] = 
+    def flocLine(): Parser[FlocRow] = 
         use TextParser.flatMap;
         let* _ = indenting();        
         let* floc = bounded(41, funcloc());
@@ -89,19 +76,19 @@ namespace S4Lib/IH06Tree/Parser {
             flocLine3(floc)
 
 
-    pub def flocLine2(floc: String): Parser[FlocRow] = 
+    def flocLine2(floc: String): Parser[FlocRow] = 
         use TextParser.flatMap;
         let* desc = restOfLine(true) |> map(String.trim);
         return({ floc = floc, description = desc, parent = None })
         
 
-    pub def flocLine3(floc: String): Parser[FlocRow] = 
+    def flocLine3(floc: String): Parser[FlocRow] = 
         use TextParser.flatMap;
         let* desc = content(41);
         let* parent = restOfLine(true) |> map(String.trim);
         return({ floc = floc, description = desc, parent = Some(parent) })
     
-    pub def equiLine(): Parser[EquiRow] = 
+    def equiLine(): Parser[EquiRow] = 
         use TextParser.flatMap;
         let* _ = indenting();   
         let* equiId = bounded(19, equipmentId());
@@ -113,28 +100,19 @@ namespace S4Lib/IH06Tree/Parser {
             equiLine4(equiId, desc)
 
 
-    pub def equiLine3(equiId: String, desc: String): Parser[EquiRow] = 
+    def equiLine3(equiId: String, desc: String): Parser[EquiRow] = 
         use TextParser.flatMap;
         let* floc = restOfLine(true) |> map(String.trim);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = None })
 
 
-    pub def equiLine4(equiId: String, desc: String): Parser[EquiRow] = 
+    def equiLine4(equiId: String, desc: String): Parser[EquiRow] = 
         use TextParser.flatMap;
         let* floc = content(41);
         let* supero = restOfLine(true) |> map(String.trim);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = Some(supero) })
 
-    // pub def blankLine(): Parser[Unit] = 
-    //     use TextParser.flatMap;
-    //     let* _ = indenting();
-    //     let* rest = peekRestOfLine() |> map(String.length);
-    //     if (rest == 0)
-    //         return()
-    //     else
-    //         parseError("blankRow")
-
-    pub def ih06Row(): Parser[IH06Row] = 
+    def ih06Row(): Parser[IH06Row] = 
         choice(    (equiLine() |> map(EquiRow))
                 :: (flocLine() |> map(FlocRow))
                 :: Nil
@@ -148,7 +126,7 @@ namespace S4Lib/IH06Tree/Parser {
         return({ header = h1, rows = rows })
 
     /// Always UTF-8?
-    pub def parseIH06File(path: String) : Result[IH06File, String] & Impure = 
+    pub def parseFile(path: String) : Result[IH06File, String] & Impure = 
         let path1 = System/FilePath.new(path);
         match TextParser.parseFile(ih06FileParser(), path1, Text/Charset.utf_8() ) { 
             case Err(e) => Err(TextParser/Error.showParserError(e))

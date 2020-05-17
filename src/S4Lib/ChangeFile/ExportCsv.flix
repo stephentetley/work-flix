@@ -47,7 +47,6 @@ namespace S4Lib/ChangeFile/ExportCsv {
         use Result.flatMap;
         let headers = x.getHeaderArray();
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
-        let _ = Console.printLine("wrote Header...");
         let* _ = writeRows(writer, x.dataRows);
         let _ = writer.close();
         Ok()

@@ -156,7 +156,7 @@ namespace S4Lib/ChangeFile/Parser {
 
 
     /// Always UTF-8?
-    pub def parseChangeFile(path: String) : Result[ChangeFile, String] & Impure = 
+    pub def parseFile(path: String) : Result[ChangeFile, String] & Impure = 
         let path1 = System/FilePath.new(path);
         match TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8() ) { 
             case Err(e) => Err(TextParser/Error.showParserError(e))
