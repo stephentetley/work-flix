@@ -22,16 +22,16 @@ use TextParser/Combinators.{seqRight, ignore, choice, liftResult, many, manyTill
 use TextParser/Text.{many1UpperCase, restOfLine, lookingAts};
 use TextParser/Token.{symbol, lexeme};
 
-use S4ChangeFile/Datatypes.{FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
-use S4ChangeFile/Datatypes.FileType.{Download, Upload};
-use S4ChangeFile/Datatypes.DataModel.{U1};
-use S4ChangeFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-use S4ChangeFile/Datatypes.Headers.{Headers};
-use S4ChangeFile/Datatypes.Selection.{Selection};
-use S4ChangeFile/Datatypes.DataRow.{DataRow};
+use S4Lib/ChangeFile/Datatypes.{FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
+use S4Lib/ChangeFile/Datatypes.FileType.{Download, Upload};
+use S4Lib/ChangeFile/Datatypes.DataModel.{U1};
+use S4Lib/ChangeFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+use S4Lib/ChangeFile/Datatypes.Headers.{Headers};
+use S4Lib/ChangeFile/Datatypes.Selection.{Selection};
+use S4Lib/ChangeFile/Datatypes.DataRow.{DataRow};
 
 
-namespace S4ChangeFile/Parser {
+namespace S4Lib/ChangeFile/Parser {
 
     
 
@@ -91,8 +91,8 @@ namespace S4ChangeFile/Parser {
         let* d = symbol("Date:") `seqRight` lexeme(lookingAts("\d+"));
         let* _ = symbol("/");
         let* t = symbol("Time:")  `seqRight` lexeme(lookingAts("\d+"));
-        let* patt = liftResult(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"));
-        let* ans = liftResult(Time/LocalDateTime.parse(d + " " + t, patt));
+        let* fmt = liftResult(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"));
+        let* ans = liftResult(Time/LocalDateTime.parse(d + " " + t, fmt));
         return(ans)
         
 
@@ -140,7 +140,7 @@ namespace S4ChangeFile/Parser {
         return(DataRow(String.splitOn(String.trimRight(str), Char.toString('\u0009'))))
 
 
-    pub def s4ChangeFileParser(): Parser[ChangeFile] = 
+    pub def changeFileParser(): Parser[ChangeFile] = 
         use TextParser.flatMap;
         let* hdr = pHeader();
         let* sel = pSelection();        
@@ -148,5 +148,13 @@ namespace S4ChangeFile/Parser {
         let* rows = manyTill(pDataRow(), endOfInput());
         return({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows })
 
+
+    /// Always UTF-8?
+    pub def parseChangeFile(path: String) : Result[ChangeFile, String] & Impure = 
+        let path1 = System/FilePath.new(path);
+        match TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8() ) { 
+            case Err(e) => Err(TextParser/Error.showParserError(e))
+            case Ok(a) => Ok(a)
+        }
 
 }
