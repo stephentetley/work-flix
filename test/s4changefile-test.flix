@@ -15,8 +15,12 @@ def test01(): Result[ChangeFile, String] & Impure =
         
 
 @test
-def test02(): Result[Time.LocalDateTime, String] = 
-    use S4Lib/ChangeFile/Parser.{pDateTime};
-    use TextParser.{runs};
-    let input = "* Date: 20191028 / Time: 085647" + String.lineSeparator();
-    runs(pDateTime(), input)
+def test02(): Result[Unit, String] & Impure = 
+    use Result.flatMap;
+    use S4Lib/ChangeFile/Parser.{parseChangeFile};
+    use S4Lib/ChangeFile/ExportCsv.{exportCsv};
+    let src = "G:/work/Projects/assets/asset_patch/file_download_edm/car36_outstation_valuaequi.txt";
+    let dest = "G:/work/Projects/assets/asset_patch/file_download_edm/car36_outstation_valuaequi_output.csv";
+    let* x = parseChangeFile(src);
+    exportCsv(x, dest)
+

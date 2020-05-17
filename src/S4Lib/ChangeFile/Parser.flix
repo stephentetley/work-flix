@@ -91,7 +91,7 @@ namespace S4Lib/ChangeFile/Parser {
         let* ans = restOfLine(true);
         return(String.trim(ans))
 
-    pub def pDateTime(): Parser[LocalDateTime] = 
+    def pDateTime(): Parser[LocalDateTime] = 
         use TextParser.flatMap;
         let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\d{8}"));
         let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\d{6}"));
