@@ -17,7 +17,7 @@
 use Time.LocalDateTime;
 
 use TextParser.Parser;
-use TextParser.{return, map, parseError, endOfInput};
+use TextParser.{return, map, parseError, endOfInput, liftAction};
 use TextParser/Combinators.{seqRight, ignore, choice, liftResult, many, manyTill};
 use TextParser/Text.{many1UpperCase, restOfLine, lookingAts, string};
 use TextParser/Token.{symbol, lexeme};
@@ -137,13 +137,15 @@ namespace S4Lib/ChangeFile/Parser {
         use TextParser.flatMap;
         let* _ = asterisk();
         let* str = restOfLine(true);
-        return(Headers(String.splitOn(String.trim(str), Char.toString('\u0009'))))
+        let* arr = liftAction(_ -> String.split(String.trim(str), Char.toString('\u0009')));
+        return(Headers(arr))
 
     
     def pDataRow(): Parser[DataRow] = 
         use TextParser.flatMap;
         let* str = restOfLine(true);
-        return(DataRow(String.splitOn(String.trimRight(str), Char.toString('\u0009'))))
+        let* arr = liftAction(_ -> String.split(String.trimRight(str), Char.toString('\u0009')));
+        return(DataRow(arr))
 
 
     pub def changeFileParser(): Parser[ChangeFile] = 

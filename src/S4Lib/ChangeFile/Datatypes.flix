@@ -56,9 +56,9 @@ namespace S4Lib/ChangeFile/Datatypes {
 
     pub def emptySelection(): Selection = Selection(Nil)
 
-    pub opaque type Headers = List[String]
+    pub opaque type Headers = Array[String]
     
-    pub opaque type DataRow = List[String]
+    pub opaque type DataRow = Array[String]
 
     pub type alias FileHeader = { fileType: FileType, dataModel : DataModel, entityType: EntityType, 
                                     variant: String, user: String, dateTime: LocalDateTime } 

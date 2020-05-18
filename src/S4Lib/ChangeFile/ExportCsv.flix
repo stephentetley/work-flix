@@ -24,13 +24,13 @@ use S4Lib/ChangeFile/Datatypes.DataRow.{DataRow};
 
 namespace S4Lib/ChangeFile/ExportCsv {
 
-    def getHeaderArray(x: ChangeFile): Array[String] & Impure = 
-        let Headers(xs) = x.headers;
-        List.toArray(xs)
+    def getHeaderArray(x: ChangeFile): Array[String] = 
+        let Headers(arr) = x.headers;
+        arr
 
-    def getRowArray(x: DataRow): Array[String] & Impure = 
-        let DataRow(xs) = x;
-        List.toArray(xs)
+    def getRowArray(x: DataRow): Array[String] = 
+        let DataRow(arr) = x;
+        arr
 
     def writeRows(writer: CsvWriter, rows: List[DataRow]): Result[Unit, String] & Impure = 
         use Result.flatMap;
