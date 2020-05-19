@@ -16,6 +16,7 @@
 
 use LiftingReport/Relations.{EquiMatch, FixedOrPortable, EquipmentInfo, MemoLine, Answer};
 use LiftingReport/Relations.FixedOrPortable.{Fixed, Portable};
+use LiftingReport/Relations.{writeReport};
 
 namespace LiftingReport/MakeReport {
 
@@ -50,23 +51,24 @@ namespace LiftingReport/MakeReport {
         let getEquiName = cname -> toProperCase(getEquipmentName(cname));
 
         #{
-            Answer(pliCode, getEquiName(commonName), "H", "2100", s4type, s4class, memoline) :-
-                EquipmentInfo(pliCode, commonName, _, _, _, _, _, _, _, _, _, _),
+            Answer(ix, pliCode, getEquiName(commonName), "H", "2100", s4type, s4class, memoline) :-
+                EquipmentInfo(ix, pliCode, commonName, _, _, _, _, _, _, _, _, _, _),
                 MemoLine(pliCode, memoline), 
                 EquiMatch(equiType, keywords, s4type, s4class, fop),
                 if contains(getEquiName(commonName), keywords),
                 if equiType `isSuffixOf` commonName.
         }
 
-    type alias ReportSources = { aiMemoLinesCsv: String, aiInfosCsv: String, equiMatchesCsv: String }
+    type alias ReportSources = { aiMemoLinesCsv: String, aiInfosCsv: String, equiMatchesCsv: String, outputCsv: String }
 
-    pub def makeReport[r](x: ReportSources): Result[#{ Answer | r }, FactIO.Error] & Impure = 
+    pub def makeReport(x: ReportSources): Result[Unit, FactIO.Error] & Impure = 
         use Result.flatMap;
         let* aiMemos = LiftingReport/CsvLoader.importMemoLines(x.aiMemoLinesCsv);
         let* aiInfos = LiftingReport/CsvLoader.importEquipmentInfo(x.aiInfosCsv);
         let* equiMatches = LiftingReport/CsvLoader.importEquiMatches(x.equiMatchesCsv);
         let ans = project Answer solve (rules() <+> aiMemos <+> aiInfos <+> equiMatches);
-        Ok(ans)
+        let* _ = writeReport(ans, x.outputCsv);
+        Ok()
 
  
 

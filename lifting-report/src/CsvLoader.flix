@@ -47,7 +47,7 @@ namespace LiftingReport/CsvLoader {
 
     /// Read an AI2 file (saved as to Csv from Xlsx)
 
-    def readEquipmentInfo1[r](row: CsvRow): CsvResult[#{ EquipmentInfo | r }] & Impure =
+    def readEquipmentInfo1[r](row: CsvRow, ix: Int32): CsvResult[#{ EquipmentInfo | r }] & Impure =
         use Result.flatMap;
         use FactIO/CsvImport.{getStringByLabel, getInt32ByLabel};
         let* pli            = getStringByLabel(row, "Reference");
@@ -63,13 +63,13 @@ namespace LiftingReport/CsvLoader {
         let* workLoadU      = getStringByLabel(row, "Work Load Units");
         let* ywref          = getStringByLabel(row, "YWRef");
         let* testCert       = getStringByLabel(row, "Test Cert No");
-        Ok( EquipmentInfo(pli, name, date, manuf, model, specificModel, serialNum, locnOnSite, 
+        Ok( EquipmentInfo(ix+ 1, pli, name, date, manuf, model, specificModel, serialNum, locnOnSite, 
                             workLoad, workLoadU, ywref, testCert). )
 
     pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, FactIO.Error] & Impure =    
         use Result.flatMap;
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, Text/Charset.utf_8(), true);
-        FactIO/CsvImport.importRows(readEquipmentInfo1, src)
+        FactIO/CsvImport.importRowsWithCount(readEquipmentInfo1, src)
 
     /// ## Memo Lines
 

@@ -34,24 +34,24 @@ namespace LiftingReport/Relations {
 
     rel MemoLine(pliCode: String, text:String)
 
-    rel EquipmentInfo(pliCode: String, commonName: String, installedDate: LocalDate,                        
+    rel EquipmentInfo(index: Int32, pliCode: String, commonName: String, installedDate: LocalDate,                        
             manufacturer: String, model:String, specificModel: String, 
             serialNumber: String, locationOnSite: String, workLoad: Int32, 
             worlLoadUnits: String, ywRef: String, testCert: String)
 
 
 
-    rel Answer(pliCode: String, s4Name: String, category: String, maint: String, objType: String, classification: String, memo: String)
+    rel Answer(index: Int32, pliCode: String, s4Name: String, category: String, maint: String, objType: String, classification: String, memo: String)
 
     /// A "cell printer" for the body of Answer.
-    pub def answerCells(src: (String, String, String, String, String, String, String)): Array[String] & Impure = 
-        let (pliCode, s4Name, category, maint, objType, classification, memoline) = src;
-        [pliCode, s4Name, category, maint, objType, classification, memoline]
+    pub def answerCells(src: (Int32, String, String, String, String, String, String, String)): Array[String] & Impure = 
+        let (index, pliCode, s4Name, category, maint, objType, classification, memoline) = src;
+        [ Int32.toString(index), pliCode, s4Name, category, maint, objType, classification, memoline ]
 
     pub def answerHeaders(): Array[String] & Impure = 
-        [ "PLI Code", "EQuipment Name", "Category", "Maint", "Obj Type", "Classification", "Memo Line"] 
+        [ "Index", "PLI Code", "EQuipment Name", "Category", "Maint", "Obj Type", "Classification", "Memo Line"] 
 
-    pub def writeReport(relns: #{ Answer}, dest: String): Result[Unit, String] & Impure =  
+    pub def writeReport(relns: #{ Answer}, dest: String): Result[Unit, FactIO.Error] & Impure =  
         let buildStep = FactIO/CsvExport.makeBuildStep(answerCells); 
         let builder: FactIO.CsvBuilder = fold Answer FactIO/CsvExport.emptyCsvBuilder() buildStep relns;
         FactIO/CsvExport.outputCsv(dest, Text/Charset.utf_8(), answerHeaders(), builder)
