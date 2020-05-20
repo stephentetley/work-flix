@@ -15,6 +15,7 @@
  */
     
 use Time.LocalDate;
+use System.Error.{Generic};
 
 use TextParser.Parser;
 use TextParser.{return, map, bounded, parseError, tryparse, endOfInput};
@@ -126,10 +127,10 @@ namespace S4Lib/IH06Tree/Parser {
         return({ header = h1, rows = rows })
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[IH06File, String] & Impure = 
+    pub def parseFile(path: String) : Result[IH06File, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
         match TextParser.parseFile(ih06FileParser(), path1, Text/Charset.utf_8() ) { 
-            case Err(e) => Err(TextParser/Error.showParserError(e))
+            case Err(e) => Err(Generic(TextParser/Error.showParserError(e)))
             case Ok(a) => Ok(a)
         }
 
