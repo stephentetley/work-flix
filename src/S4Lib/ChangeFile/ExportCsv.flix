@@ -32,7 +32,7 @@ namespace S4Lib/ChangeFile/ExportCsv {
         let DataRow(arr) = x;
         arr
 
-    def writeRows(writer: CsvWriter, rows: List[DataRow]): Result[Unit, String] & Impure = 
+    def writeRows(writer: CsvWriter, rows: List[DataRow]): Result[Unit, FactIO.Error] & Impure = 
         use Result.flatMap;
         match rows {
             case Nil => Ok()
@@ -43,7 +43,7 @@ namespace S4Lib/ChangeFile/ExportCsv {
             }
         }
         
-    pub def exportCsv(x: ChangeFile, path: String): Result[Unit, String] & Impure =
+    pub def exportCsv(x: ChangeFile, path: String): Result[Unit, FactIO.Error] & Impure =
         use Result.flatMap;
         let headers = x.getHeaderArray();
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);

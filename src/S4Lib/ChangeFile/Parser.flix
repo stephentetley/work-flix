@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+use System.Error.{Generic};
+
 use Time.LocalDateTime;
 
 use TextParser.Parser;
@@ -158,10 +160,10 @@ namespace S4Lib/ChangeFile/Parser {
 
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[ChangeFile, String] & Impure = 
+    pub def parseFile(path: String) : Result[ChangeFile, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
         match TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8() ) { 
-            case Err(e) => Err(TextParser/Error.showParserError(e))
+            case Err(e) => Err(Generic(TextParser/Error.showParserError(e)))
             case Ok(a) => Ok(a)
         }
 

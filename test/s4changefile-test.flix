@@ -1,3 +1,4 @@
+use System.Error.{Generic};
 use S4Lib/ChangeFile/Datatypes.{ChangeFile};
 
 // def runOrError(p: TextParser.Parser[a], f: a -> String, inp: String): String = 
@@ -8,24 +9,25 @@ use S4Lib/ChangeFile/Datatypes.{ChangeFile};
 
 
 @test
-def test01(): Result[ChangeFile, String] & Impure = 
+def test01(): Result[ChangeFile, System.Error] & Impure = 
     use S4Lib/ChangeFile/Parser.{parseFile};
     let src = "G:/work/Projects/assets/asset_patch/file_download_edm/car36_outstation_valuaequi.txt";
     parseFile(src)
         
 
 @test
-def test02(): Result[Unit, String] & Impure = 
+def test02(): Result[Unit, System.Error] & Impure = 
     use Result.flatMap;
     use S4Lib/ChangeFile/Parser.{parseFile};
     use S4Lib/ChangeFile/ExportCsv.{exportCsv};
     let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
     let dest = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download_export.csv";
     let* x = parseFile(src);
-    exportCsv(x, dest)
+    let* _ = exportCsv(x, dest) |> Result.mapErr(_ -> Generic("ExportCsv Error"));
+    Ok()
 
 @test
-def tree01(): Result[ChangeFile, String] & Impure = 
+def tree01(): Result[ChangeFile, System.Error] & Impure = 
     use S4Lib/ChangeFile/Parser.{parseFile};
     let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
     parseFile(src)
