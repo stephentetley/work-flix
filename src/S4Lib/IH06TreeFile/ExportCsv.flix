@@ -38,7 +38,7 @@ namespace S4Lib/IH06Tree/ExportCsv {
             case EquiRow(b) => getEquiRowCells(b)
         }
 
-    def writeRows(writer: CsvWriter, rows: List[IH06Row]): Result[Unit, FactIO.Error] & Impure = 
+    def writeRows(writer: CsvWriter, rows: List[IH06Row]): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         match rows {
             case Nil => Ok()
@@ -49,7 +49,7 @@ namespace S4Lib/IH06Tree/ExportCsv {
             }
         }
         
-    pub def exportCsv(x: IH06File, path: String): Result[Unit, FactIO.Error] & Impure =
+    pub def exportCsv(x: IH06File, path: String): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers());
         let* _ = writeRows(writer, x.rows);

@@ -23,7 +23,7 @@ def test02(): Result[Unit, System.Error] & Impure =
     let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
     let dest = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download_export.csv";
     let* x = parseFile(src);
-    let* _ = exportCsv(x, dest) |> Result.mapErr(_ -> Generic("ExportCsv Error"));
+    let* _ = exportCsv(x, dest);
     Ok()
 
 @test

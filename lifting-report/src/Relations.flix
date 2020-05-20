@@ -23,11 +23,11 @@ namespace LiftingReport/Relations {
         case Portable
     }
 
-    pub def readFixedOrPortable(s: String): Result[FixedOrPortable, FactIO.Error] = 
+    pub def readFixedOrPortable(s: String): Result[FixedOrPortable, System.Error] = 
         match String.trim(String.toLowerCase(s)) {
             case "fixed" => Ok(Fixed)
             case "portable" => Ok(Portable)
-            case _ => Err(FactIO/Error.Generic("FixedOrPortable"))
+            case _ => Err(System/Error.Generic("FixedOrPortable"))
         }
 
     rel EquiMatch(aiName: String, containsList: List[String], s4ObjType: String, s4Class: String, fop: FixedOrPortable)
@@ -51,7 +51,7 @@ namespace LiftingReport/Relations {
     pub def answerHeaders(): Array[String] & Impure = 
         [ "Index", "PLI Code", "EQuipment Name", "Category", "Maint", "Obj Type", "Classification", "Memo Line"] 
 
-    pub def writeReport(relns: #{ Answer}, dest: String): Result[Unit, FactIO.Error] & Impure =  
+    pub def writeReport(relns: #{ Answer}, dest: String): Result[Unit, System.Error] & Impure =  
         let buildStep = FactIO/CsvExport.makeBuildStep(answerCells); 
         let builder: FactIO.CsvBuilder = fold Answer FactIO/CsvExport.emptyCsvBuilder() buildStep relns;
         FactIO/CsvExport.outputCsv(dest, Text/Charset.utf_8(), answerHeaders(), builder)

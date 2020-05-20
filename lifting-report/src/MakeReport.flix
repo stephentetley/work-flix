@@ -61,7 +61,7 @@ namespace LiftingReport/MakeReport {
 
     type alias ReportSources = { aiMemoLinesCsv: String, aiInfosCsv: String, equiMatchesCsv: String, outputCsv: String }
 
-    pub def makeReport(x: ReportSources): Result[Unit, FactIO.Error] & Impure = 
+    pub def makeReport(x: ReportSources): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         let* aiMemos = LiftingReport/CsvLoader.importMemoLines(x.aiMemoLinesCsv);
         let* aiInfos = LiftingReport/CsvLoader.importEquipmentInfo(x.aiInfosCsv);

@@ -15,5 +15,5 @@ def test02(): Result[Unit, System.Error] & Impure =
     let src = "G:/work/Projects/assets/ih06_trees/stab2-ih06.txt";    
     let dest = "G:/work/Projects/assets/ih06_trees/stab2_ih06_export.csv";
     let* x = parseFile(src);
-    let* _ = exportCsv(x, dest) |> Result.mapErr(_ -> Generic("ExportCsv Error"));
+    let* _ = exportCsv(x, dest);
     Ok()

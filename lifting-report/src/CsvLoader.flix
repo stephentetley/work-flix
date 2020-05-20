@@ -38,7 +38,7 @@ namespace LiftingReport/CsvLoader {
         Ok( EquiMatch(aiName, containsList, s4ObjType, s4Class, fop). )
 
 
-    pub def importEquiMatches[r](path: String): Result[#{ EquiMatch | r }, FactIO.Error] & Impure =    
+    pub def importEquiMatches[r](path: String): Result[#{ EquiMatch | r }, System.Error] & Impure =    
         use Result.flatMap;
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, Text/Charset.utf_8(), true);
         FactIO/CsvImport.importRows(readEquiMatch1, src)
@@ -53,7 +53,7 @@ namespace LiftingReport/CsvLoader {
         let* pli            = getStringByLabel(row, "Reference");
         let* name           = getStringByLabel(row, "Common Name");
         let* sdate          = getStringByLabel(row, "Installed From");
-        let* date           = parseAI2Date(sdate) |> Result.mapErr(_ -> FactIO/Error.Generic("parseDate"));        
+        let* date           = parseAI2Date(sdate) |> Result.mapErr(_ -> System/Error.Generic("parseDate"));        
         let* manuf          = getStringByLabel(row, "Manufacturer");
         let* model          = getStringByLabel(row, "Model");
         let* specificModel  = getStringByLabel(row, "Specific Model/Frame");
@@ -66,7 +66,7 @@ namespace LiftingReport/CsvLoader {
         Ok( EquipmentInfo(ix+ 1, pli, name, date, manuf, model, specificModel, serialNum, locnOnSite, 
                             workLoad, workLoadU, ywref, testCert). )
 
-    pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, FactIO.Error] & Impure =    
+    pub def importEquipmentInfo[r](path: String): Result[#{ EquipmentInfo | r }, System.Error] & Impure =    
         use Result.flatMap;
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, Text/Charset.utf_8(), true);
         FactIO/CsvImport.importRowsWithCount(readEquipmentInfo1, src)
@@ -92,7 +92,7 @@ namespace LiftingReport/CsvLoader {
         let ans     = makeMemoLine(pli, m1 :: m2 :: m3 :: m4 :: m5 :: Nil);
         Ok(ans)
 
-    pub def importMemoLines[r](path: String): Result[#{ MemoLine | r }, FactIO.Error] & Impure =    
+    pub def importMemoLines[r](path: String): Result[#{ MemoLine | r }, System.Error] & Impure =    
         use Result.flatMap;
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, Text/Charset.utf_8(), true);
         FactIO/CsvImport.importRows(readMemoLine1, src)
