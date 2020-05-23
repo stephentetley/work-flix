@@ -18,32 +18,32 @@
 namespace LiftingReport/Common {
 
     pub def stripQuotes(input: String): String = 
-        use Regex/Pattern.{quote, compile};
+        use Text/Regex/Pattern.{quote, compile};
         use Result.flatMap;
         let step = () -> {
             let* patt = compile(quote(Char.toString('\u0022')));
-            let ans = Regex.replace(patt, "", input);
+            let ans = Text/Regex.replace(patt, "", input);
             Ok(ans)
         }; 
         Result.getWithDefault(step() as & Pure, input)
 
     // Input is a list of names in double quotes separated with semi.
     pub def getQuotedNames(input: String): List[String] = 
-        use Regex/Pattern.{quote, compile};
+        use Text/Regex/Pattern.{quote, compile};
         use Result.flatMap;
         let step = () -> {
             let* patt = compile(quote(";"));
-            let xs = Regex.split(patt, input) |> Array.toList |> List.map(stripQuotes) |> List.filter(x -> x != "");
+            let xs = Text/Regex.split(patt, input) |> Array.toList |> List.map(stripQuotes) |> List.filter(x -> x != "");
             Ok(xs)
         };
         Result.getWithDefault(step() as & Pure, Nil)
 
     pub def getEquipmentName(commonName: String): String = 
-        use Regex/Match.{findMatch, evaluate};
-        use Regex/MatchEvaluator.{getCaptureByName};
+        use Text/Regex/Match.{findMatch, evaluate};
+        use Text/Regex/MatchEvaluator.{getCaptureByName};
         use Result.flatMap;
         let step = () -> {
-            let* patt = Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
+            let* patt = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
             let m1 = findMatch(patt, commonName);
             m1.evaluate(getCaptureByName("name"))
         };
@@ -54,14 +54,14 @@ namespace LiftingReport/Common {
     /// 
     pub def toProperCase(s: String): String = 
         use Result.flatMap;        
-        use Regex/MatchEvaluator.{lift2, getCaptureByName};
+        use Text/Regex/MatchEvaluator.{lift2, getCaptureByName};
         let step = () -> {
-            let* patt = Regex/Pattern.compile("\b(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)\b");
+            let* patt = Text/Regex/Pattern.compile("\b(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)\b");
             let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                             , getCaptureByName("first")
                             , getCaptureByName("rest")
                             );
-            Regex.replaceWith(patt, eval, s)
+            Text/Regex.replaceWith(patt, eval, s)
         };
         Result.getWithDefault(step() as & Pure, s)
 

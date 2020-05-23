@@ -146,11 +146,10 @@ namespace S4Lib/ChangeFile/FactImport {
     def importRowsWithCountAndAccumHelper(eval1: (Int32, st, DataRow) ~> Result[(reln, st), System.Error], rows: List[DataRow], n: Int32, s: st, ac: reln): Result[(reln, st), System.Error] & Impure = 
         match rows { 
             case Nil => Ok((ac, s))
-            case r1 :: rs => 
-                match eval1(n, s, r1) {
-                    case Ok((a1, s1)) => importRowsWithCountAndAccumHelper(eval1, rs, n + 1, s1, ac <+> a1)
-                    case Err(e) => Err(e)
-                }
+            case r1 :: rs => match eval1(n, s, r1) {
+                case Ok((a1, s1)) => importRowsWithCountAndAccumHelper(eval1, rs, n + 1, s1, ac <+> a1)
+                case Err(e) => Err(e)
+            }
         }
 
     // Cell readers, by label only
