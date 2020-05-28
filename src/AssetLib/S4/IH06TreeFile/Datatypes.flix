@@ -14,16 +14,19 @@
  * limitations under the License.
  */
     
+use Time.LocalDate;
 
-namespace S4Lib/IH06Tree/Relations {
+namespace AssetLib/S4/IH06Tree/Datatypes {
 
-    rel Root(flocCode: String, description: String)
+    type alias Header =  { floc: String, description: String, validForm: LocalDate }
 
-    rel Floc3(flocCode: String, description: String, parentFloc: String)
+    type alias FlocRow = { floc: String, description: String, parent: Option[String] }
+    type alias EquiRow = { equiId: String, description: String, floc: String, superordinate: Option[String] }
 
-    rel Equi3(equiId: String, description: String, parentfloc: String)
+    pub enum IH06Row {
+        case FlocRow(FlocRow),
+        case EquiRow(EquiRow)
+    }
 
-    rel Equi4(equiId: String, description: String, parentfloc: String, superordinateEqui: String)
-
-
+    type alias IH06File = { header: Header, rows: List[IH06Row] }
 }

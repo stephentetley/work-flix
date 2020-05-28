@@ -17,16 +17,14 @@
 use System.Error.{InputMismatchException, Generic};
 
 
-use S4Lib/IH06Tree/Relations.{Root, Floc3, Equi3, Equi4};
-
 use FactIO.LineEvaluator;
 use FactIO.LineEvaluator.{LineEvaluator};
 use FactIO/LineEvaluator.{findRegex, matchRegex};
 use FactIO.LinesImporter;
 
+use AssetLib/S4/IH06Tree/Relations.{Root, Floc3, Equi3, Equi4};
 
-
-namespace S4Lib/IH06Tree/RelLoader {
+namespace AssetLib/S4/IH06Tree/RelLoader {
 
 
     def floc2[r](): LineEvaluator[#{ Root, Floc3, Equi3, Equi4 | r }] = 

@@ -23,10 +23,10 @@ use TextParser/Combinators.{liftResult, seqRight, tuple2, choice, many1Till, ign
 use TextParser/Text.{whiteSpace, lookingAts, skip1OneOf, content, restOfLine, peekRestOfLine};
 use TextParser/Token.{symbol, lexeme};
 
-use S4Lib/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
-use S4Lib/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
+use AssetLib/S4/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
+use AssetLib/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
-namespace S4Lib/IH06Tree/Parser {
+namespace AssetLib/S4/IH06Tree/Parser {
 
     pub def funcloc(): Parser[String] = 
         lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme

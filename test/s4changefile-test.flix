@@ -1,5 +1,6 @@
 use System.Error.{Generic};
-use S4Lib/ChangeFile/Datatypes.{ChangeFile};
+
+use AssetLib/S4/ChangeFile/Datatypes.{ChangeFile};
 
 // def runOrError(p: TextParser.Parser[a], f: a -> String, inp: String): String = 
 //     match TextParser.run(p, inp) { 
@@ -10,16 +11,16 @@ use S4Lib/ChangeFile/Datatypes.{ChangeFile};
 
 @test
 def test01(): Result[ChangeFile, System.Error] & Impure = 
-    use S4Lib/ChangeFile/Parser.{parseFile};
+    use AssetLib/S4/ChangeFile/Parser.{parseFile};
     let src = "G:/work/Projects/assets/asset_patch/file_download_edm/car36_outstation_valuaequi.txt";
     parseFile(src)
         
 
 @test
-def test02(): Result[Unit, System.Error] & Impure = 
+def main(): Result[Unit, System.Error] & Impure = 
     use Result.flatMap;
-    use S4Lib/ChangeFile/Parser.{parseFile};
-    use S4Lib/ChangeFile/ExportCsv.{exportCsv};
+    use AssetLib/S4/ChangeFile/Parser.{parseFile};
+    use AssetLib/S4/ChangeFile/ExportCsv.{exportCsv};
     let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
     let dest = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download_export.csv";
     let* x = parseFile(src);
@@ -28,7 +29,7 @@ def test02(): Result[Unit, System.Error] & Impure =
 
 @test
 def tree01(): Result[ChangeFile, System.Error] & Impure = 
-    use S4Lib/ChangeFile/Parser.{parseFile};
+    use AssetLib/S4/ChangeFile/Parser.{parseFile};
     let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
     parseFile(src)
 

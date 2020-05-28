@@ -16,10 +16,9 @@
 
 use System.Error.{IllegalArgumentException, Generic};
 
-namespace S4Lib/Osgb36 {
+namespace AssetLib/Common/Osgb36 {
 
- 
- 
+
     /// Two letters and 10 digits
     pub opaque type NGR = String
 

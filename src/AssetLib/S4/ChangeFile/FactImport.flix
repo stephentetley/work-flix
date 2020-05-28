@@ -19,10 +19,10 @@
 use FactIO.LineEvaluator;
 use FactIO.LinesImporter;
 
-use S4Lib/ChangeFile.DataRowEvaluator;
-use S4Lib/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
+use AssetLib/S4/ChangeFile.DataRowEvaluator;
+use AssetLib/S4/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
 
-namespace S4Lib/ChangeFile/FactImport {
+namespace AssetLib/S4/ChangeFile/FactImport {
 
 
 

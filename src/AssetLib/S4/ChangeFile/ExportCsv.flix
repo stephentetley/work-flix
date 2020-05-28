@@ -17,12 +17,12 @@
 use FactIO.{CsvWriter};
 use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use S4Lib/ChangeFile/Datatypes.{Headers, DataRow, ChangeFile};
-use S4Lib/ChangeFile/Datatypes.Headers.{Headers};
-use S4Lib/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/ChangeFile/Datatypes.{Headers, DataRow, ChangeFile};
+use AssetLib/S4/ChangeFile/Datatypes.Headers.{Headers};
+use AssetLib/S4/ChangeFile/Datatypes.DataRow.{DataRow};
 
 
-namespace S4Lib/ChangeFile/ExportCsv {
+namespace AssetLib/S4/ChangeFile/ExportCsv {
 
     def getHeaderArray(x: ChangeFile): Array[String] = 
         let Headers(arr) = x.headers;

@@ -16,15 +16,15 @@
 
 use System.Error.{IllegalArgumentException, InputMismatchException};
 
-use S4Lib/ChangeFile.DataRowEvaluator;
+use AssetLib/S4/ChangeFile.DataRowEvaluator;
 use S4Lib/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
 
-namespace S4Lib/ChangeFile {
+namespace AssetLib/S4/ChangeFile {
 
     pub opaque type DataRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, System.Error]
 }
 
-namespace S4Lib/ChangeFile/DataRowEvaluator {
+namespace AssetLib/S4/ChangeFile/DataRowEvaluator {
 
 pub opaque type DataRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, System.Error]
     
