@@ -17,7 +17,7 @@
 use System.Error.{IllegalArgumentException, InputMismatchException};
 
 use AssetLib/S4/ChangeFile.DataRowEvaluator;
-use S4Lib/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
+use AssetLib/S4/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
 
 namespace AssetLib/S4/ChangeFile {
 
