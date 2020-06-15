@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-use System.Error.{IllegalArgumentException, Generic};
 
-use AssetLib/S4/ChangeFile.DataRowEvaluator;
-use AssetLib/S4/Hierarchy/Relations.{Node, Root, Child};
+namespace AssetLib/S4/Hierarchy/Relations {
 
-namespace AssetLib/S4/Hierarchy/BuildHierarchy {
+    rel Node(id: String, description: String, parent: String)
+
+    // Root has the same fields as Node but it's parent is just for "display" as the 
+    // element it points to is not in the database.
+    rel Root(id: String, description: String, parent: String)
+
+    rel Child(id: String, description: String)
 
 
-    pub def getRoot[r](): #{ Root, Node | r } = #{
-        Root(id, desc, parent) :- Node(id, desc, parent), not Node(parent, _, _).
-    }
-
-    
-    pub def children[r](start: String): #{ Child, Node | r } = #{
-        Child(id, desc) :- Node(id, desc, parent), Node(parent, _, _), if parent == start.
-    }
 
 }
