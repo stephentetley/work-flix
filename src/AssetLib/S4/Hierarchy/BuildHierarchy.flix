@@ -14,28 +14,80 @@
  * limitations under the License.
  */
 
+use Data.{RoseTree, RoseForest};
+use Data.RoseTree.{RoseTree};
 use System.Error.{IllegalArgumentException, Generic};
+
+use Text/HtmlDoc.{Html};
+use Text/HtmlDoc.{writeHtml, concat, html, head, meta, title, body, text, toString, lang_, charset_, pHtml};
+use Text/HtmlDoc.{<&>};
+use Text/HtmlDoc/Tree.{collapsibleTree};
 
 use AssetLib/S4/ChangeFile.DataRowEvaluator;
 use AssetLib/S4/Hierarchy/Relations.{Node, Root, Child};
 
 namespace AssetLib/S4/Hierarchy/BuildHierarchy {
 
+    pub type alias Label = {name: String, description: String}
 
     def getRoot[r](): #{ Root, Node | r } = #{
         Root(id, desc, parent) :- Node(id, desc, parent), not Node(parent, _, _).
     }
 
-    def rootName(src: (String, String, String)): String= 
-        let (name, _, _) = src;
-        name
+    def rootToLabel(src: (String, String, String)): Label = 
+        let (name, descr, _) = src;
+        { name = name, description = descr }
 
-    pub def getRoots[r](db: #{ Root, Node | r }): List[String] = 
-        fold Root Nil ((x,ac) -> rootName(x) :: ac) (solve getRoot() <+> db)
+    def childToLabel(src: (String, String)): Label = 
+        let (name, descr) = src;
+        { name = name, description = descr }
+
+    pub def getRoots[r](db: #{ Root, Node | r }): List[Label] = 
+        fold Root Nil ((x,ac) -> rootToLabel(x) :: ac) (solve getRoot() <+> db)
 
     
-    pub def children[r](start: String): #{ Child, Node | r } = #{
+    def children[r](start: String): #{ Child, Node | r } = #{
         Child(id, desc) :- Node(id, desc, parent), Node(parent, _, _), if parent == start.
     }
+
+    pub def getChildLabels[r](start: String, db: #{ Child, Node | r }): List[Label] = 
+        fold Child Nil ((x,ac) -> childToLabel(x) :: ac) (solve children(start) <+> db)
+
+    pub def buildTree[r](root: Label, db: #{ Child, Node | r}): RoseTree[Label] = 
+        buildTreeHelper(root, db, identity)
+
+    def buildTreeHelper[r](root: Label, db: #{ Child, Node | r}, k: RoseTree[Label] -> RoseTree[Label]): RoseTree[Label] = 
+        let start = root.name;
+        let kids = getChildLabels(start, db);
+        buildForest(kids, db, ks -> k(RoseTree(root, ks)))
+
+    def buildForest[r](nodes: List[Label], db: #{ Child, Node | r}, k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
+        match nodes { 
+            case Nil => k(Nil)
+            case x :: rs => buildTreeHelper(x, db, v1 -> buildForest(rs, db, vs -> k(v1 :: vs)))
+        }
+        
+
+    pub def allTrees[r](db: #{ Child, Root, Node | r}): RoseForest[Label] = 
+        let xs = getRoots(db);
+        List.map(x -> buildTree(x, db), xs)
+
+
+    def makeDoc(content: Html): Html = 
+        html(lang_("en") :: Nil, 
+                head(Nil, 
+                        meta(charset_("utf-8") :: Nil)
+                    <&> title(Nil, text("Tree Demo"))
+                )
+            <&> body(Nil, content)
+        )
+
+    /// Note for HtmlDoc - `paragraph` for <p> looks a lot nicer than `pHtml`...
+    pub def writeHtmlForest(path: String, xs: RoseForest[Label]): Result[Unit, System.Error] & Impure =
+        let printer = { makeAttrs = _ -> Nil, printNode = s -> text(s.name + " " + s.description) };
+        let htmltrees = List.map(x -> pHtml(Nil, collapsibleTree(printer, x)), xs) |> concat;
+        let doc = makeDoc(htmltrees);
+        writeHtml(160, path, Text/Charset.utf_8(), doc)
+
 
 }
