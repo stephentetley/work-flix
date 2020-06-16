@@ -22,9 +22,16 @@ use AssetLib/S4/Hierarchy/Relations.{Node, Root, Child};
 namespace AssetLib/S4/Hierarchy/BuildHierarchy {
 
 
-    pub def getRoot[r](): #{ Root, Node | r } = #{
+    def getRoot[r](): #{ Root, Node | r } = #{
         Root(id, desc, parent) :- Node(id, desc, parent), not Node(parent, _, _).
     }
+
+    def rootName(src: (String, String, String)): String= 
+        let (name, _, _) = src;
+        name
+
+    pub def getRoots[r](db: #{ Root, Node | r }): List[String] = 
+        fold Root Nil ((x,ac) -> rootName(x) :: ac) (solve getRoot() <+> db)
 
     
     pub def children[r](start: String): #{ Child, Node | r } = #{

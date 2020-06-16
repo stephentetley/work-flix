@@ -9,10 +9,8 @@ def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     }
 }
 
-/// A "cell printer" for the body of Dummy.
-def rootName(src: (String, String, String)): String= 
-    let (name, _, _) = src;
-    name
+
+
 
 
 def loadDB[r](): Result[#{ Node | r }, System.Error] & Impure =
@@ -23,12 +21,14 @@ def loadDB[r](): Result[#{ Node | r }, System.Error] & Impure =
     let* r3 = loadFloc("G:/work/Projects/assets/otl07/wat43_floc_FUNCLOC_file_download.txt");
     Ok(r1 <+> r2 <+> r3)
     
+
+
 def main(): List[String] & Impure =
     use Result.flatMap;
-    use AssetLib/S4/Hierarchy/BuildHierarchy.{getRoot};
+    use AssetLib/S4/Hierarchy/BuildHierarchy.{getRoots};
     let step = () -> {
         let* db = loadDB();
-        let xs = fold Root Nil ((x,ac) -> rootName(x) :: ac) (solve getRoot() <+> db);
+        let xs = getRoots(db);
         Ok(xs)
     };
     step() |> runResult
