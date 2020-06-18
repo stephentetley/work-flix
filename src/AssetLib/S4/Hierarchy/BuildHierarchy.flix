@@ -19,9 +19,10 @@ use Data.RoseTree.{RoseTree};
 use System.Error.{IllegalArgumentException, Generic};
 
 use Text/HtmlDoc.{Html};
-use Text/HtmlDoc.{writeHtml, concat, html, head, meta, title, body, text, toString, lang_, charset_, pHtml};
+use Text/HtmlDoc.{writeHtml, concat, html, head, meta, title, body, paragraph, text, link, div, toString, 
+    lang_, charset_, class_, rel_, href_, type_, media_};
 use Text/HtmlDoc.{<&>};
-use Text/HtmlDoc/Tree.{collapsibleTree};
+use Text/HtmlDoc/Tree.{LabelPrinter, collapsibleTree2};
 
 use AssetLib/S4/ChangeFile.DataRowEvaluator;
 use AssetLib/S4/Hierarchy/Relations.{Node, Root, Child};
@@ -78,14 +79,24 @@ namespace AssetLib/S4/Hierarchy/BuildHierarchy {
                 head(Nil, 
                         meta(charset_("utf-8") :: Nil)
                     <&> title(Nil, text("Tree Demo"))
+                    <&> link(rel_("stylesheet") :: href_("tree.css") :: type_("text/css") :: media_("all") :: Nil)
                 )
             <&> body(Nil, content)
         )
 
+    def leafPrinter(): LabelPrinter[Label] = 
+        { makeAttrs = _ -> class_("treeleaf") :: Nil
+        , printNode = s -> div(class_("box") :: Nil, div(Nil, text(s.name)) <&> div(Nil, text(s.description)))
+        }
+    
+    def nodePrinter(): LabelPrinter[Label] = 
+        { makeAttrs = _ -> Nil
+        , printNode = s -> div(class_("box") :: Nil, div(Nil, text(s.name)) <&> div(Nil, text(s.description) ))
+        }
+    
     /// Note for HtmlDoc - `paragraph` for <p> looks a lot nicer than `pHtml`...
     pub def writeHtmlForest(path: String, xs: RoseForest[Label]): Result[Unit, System.Error] & Impure =
-        let printer = { makeAttrs = _ -> Nil, printNode = s -> text(s.name + " " + s.description) };
-        let htmltrees = List.map(x -> pHtml(Nil, collapsibleTree(printer, x)), xs) |> concat;
+        let htmltrees = List.map(x -> paragraph(Nil, collapsibleTree2(nodePrinter(), leafPrinter(), x)), xs) |> concat;
         let doc = makeDoc(htmltrees);
         writeHtml(160, path, Text/Charset.utf_8(), doc)
 
