@@ -17,48 +17,49 @@
 use Time.LocalDate;
 use System.Error.{Generic};
 
-use TextParser.Parser;
-use TextParser.{return, map, bounded, parseError, tryparse, endOfInput};
-use TextParser/Combinators.{liftResult, seqRight, tuple2, choice, many1Till, ignore};
-use TextParser/Text.{whiteSpace, lookingAts, skip1OneOf, content, restOfLine, peekRestOfLine};
-use TextParser/Token.{symbol, lexeme};
+use TextParser.TextParser;
+use TextParser.{return, map, bounded, parseError, tryparse, endOfInput, lookingAts, liftResult};
+use TextParser.{<!!>};
+use TextParser/Combinators.{seqRight, tuple2, choice, many1Till, ignore};
+use TextParser/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
+use TextParser/Token1.{symbol, lexeme};
 
 use AssetLib/S4/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
 use AssetLib/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
 namespace AssetLib/S4/IH06Tree/Parser {
 
-    pub def funcloc(): Parser[String] = 
+    pub def funcloc(): TextParser[String, t] = 
         lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme
 
-    def dateStamp(): Parser[LocalDate] = 
+    def dateStamp(): TextParser[LocalDate, t] = 
         use TextParser.flatMap;
         let* s = lookingAts("\d{2}\.\d{2}\.\d{2}");
         let* fmt = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yy"));
         let* ans = liftResult(Time/LocalDate.parse(s, fmt));
         return(ans)
 
-    def validFrom(): Parser[LocalDate] = 
+    def validFrom(): TextParser[LocalDate, t] = 
         symbol("Valid From") `seqRight` lexeme(dateStamp())
 
-    def indenting(): Parser[Unit] = 
+    def indenting(): TextParser[Unit, t] = 
         lookingAts("(\||\-|\s)+") |> ignore
     
-    def equipmentId(): Parser[String] = 
+    def equipmentId(): TextParser[String, t] = 
         lookingAts("\$?\d+")
 
-    def funcLocHeaderLine(): Parser[(String, LocalDate)] = 
+    pub def funcLocHeaderLine(): TextParser[(String, LocalDate), t] = 
         use TextParser.flatMap;
         let* _ = symbol("Functional Location");
         let* floc = funcloc();
         let* dt = validFrom();
         return((floc, dt))
 
-    def descriptionHeaderLine(): Parser[String] = 
+    def descriptionHeaderLine(): TextParser[String, t] = 
         symbol("Description") `seqRight` map(String.trim, restOfLine(true))
 
 
-    def header(): Parser[Header] = 
+    pub def header(): TextParser[Header, t] = 
         use TextParser.flatMap;
         let* (floc, date) = funcLocHeaderLine();
         let* desc = descriptionHeaderLine();
@@ -66,7 +67,7 @@ namespace AssetLib/S4/IH06Tree/Parser {
         return({ floc = floc, description = desc, validForm = date })
 
     /// May or may not contain a parent floc
-    def flocLine(): Parser[FlocRow] = 
+    pub def flocLine(): TextParser[FlocRow, t] = 
         use TextParser.flatMap;
         let* _ = indenting();        
         let* floc = bounded(41, funcloc());
@@ -77,19 +78,19 @@ namespace AssetLib/S4/IH06Tree/Parser {
             flocLine3(floc)
 
 
-    def flocLine2(floc: String): Parser[FlocRow] = 
+    def flocLine2(floc: String): TextParser[FlocRow, t] = 
         use TextParser.flatMap;
         let* desc = restOfLine(true) |> map(String.trim);
         return({ floc = floc, description = desc, parent = None })
         
 
-    def flocLine3(floc: String): Parser[FlocRow] = 
+    def flocLine3(floc: String): TextParser[FlocRow, t] = 
         use TextParser.flatMap;
         let* desc = content(41);
         let* parent = restOfLine(true) |> map(String.trim);
         return({ floc = floc, description = desc, parent = Some(parent) })
     
-    def equiLine(): Parser[EquiRow] = 
+    def equiLine(): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
         let* _ = indenting();   
         let* equiId = bounded(19, equipmentId());
@@ -101,26 +102,26 @@ namespace AssetLib/S4/IH06Tree/Parser {
             equiLine4(equiId, desc)
 
 
-    def equiLine3(equiId: String, desc: String): Parser[EquiRow] = 
+    def equiLine3(equiId: String, desc: String): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
         let* floc = restOfLine(true) |> map(String.trim);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = None })
 
 
-    def equiLine4(equiId: String, desc: String): Parser[EquiRow] = 
+    def equiLine4(equiId: String, desc: String): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
         let* floc = content(41);
         let* supero = restOfLine(true) |> map(String.trim);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = Some(supero) })
 
-    def ih06Row(): Parser[IH06Row] = 
+    def ih06Row(): TextParser[IH06Row, t] = 
         choice(    (equiLine() |> map(EquiRow))
                 :: (flocLine() |> map(FlocRow))
                 :: Nil
-            )
+            ) <!!> "ih06Row"
 
     
-    pub def ih06FileParser(): Parser[IH06File] = 
+    pub def ih06FileParser(): TextParser[IH06File, the] = 
         use TextParser.flatMap;
         let* h1 = header();
         let* rows = many1Till(ih06Row(), endOfInput());
@@ -129,10 +130,7 @@ namespace AssetLib/S4/IH06Tree/Parser {
     /// Always UTF-8?
     pub def parseFile(path: String) : Result[IH06File, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
-        match TextParser.parseFile(ih06FileParser(), path1, Text/Charset.utf_8() ) { 
-            case Err(e) => Err(Generic(TextParser/Error.showParserError(e)))
-            case Ok(a) => Ok(a)
-        }
+        TextParser.parseFile(ih06FileParser(), path1, Text/Charset.utf_8()) 
 
 
  }
