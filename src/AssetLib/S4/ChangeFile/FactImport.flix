@@ -31,10 +31,10 @@ namespace AssetLib/S4/ChangeFile/FactImport {
 
 
     def headerRow(): LineEvaluator[Map[String, Int32]] = 
-        use Text/Regex/MatchEvaluator.{getCaptureByName, map};
+        use Text/Regex/MatchEvaluator.{getNamedCapture, map};
         use FactIO/LineEvaluator.{matchRegex};
         let pattern = "^\*(?<rest>[A-Z]+.*)";
-        let eval = getCaptureByName("rest") |> map(s -> makeIndices(String.split(s, "\t")));
+        let eval = getNamedCapture("rest") |> map(s -> makeIndices(String.split(s, "\t")));
         matchRegex(pattern, eval)
 
     def makeLineEvaluator(ixs: Map[String, Int32], eval: DataRowEvaluator[reln]): LineEvaluator[reln] = 

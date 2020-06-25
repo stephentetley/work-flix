@@ -18,9 +18,8 @@ use Time.LocalDate;
 use System.Error.{Generic};
 
 use TextParser.TextParser;
-use TextParser.{return, map, bounded, parseError, tryparse, endOfInput, lookingAts, liftResult};
-use TextParser.{<!!>};
-use TextParser/Combinators.{seqRight, tuple2, choice, many1Till, ignore};
+use TextParser.{return, map, swapError, bounded, parseError, seqRight, tryparse, endOfInput, lookingAts, liftResult};
+use TextParser/Combinators.{tuple2, choice, many1Till, ignore};
 use TextParser/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
 use TextParser/Token1.{symbol, lexeme};
 
@@ -30,7 +29,7 @@ use AssetLib/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 namespace AssetLib/S4/IH06Tree/Parser {
 
     pub def funcloc(): TextParser[String, t] = 
-        lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme
+        (lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme) `swapError` "funcloc"
 
     def dateStamp(): TextParser[LocalDate, t] = 
         use TextParser.flatMap;
@@ -43,10 +42,10 @@ namespace AssetLib/S4/IH06Tree/Parser {
         symbol("Valid From") `seqRight` lexeme(dateStamp())
 
     def indenting(): TextParser[Unit, t] = 
-        lookingAts("(\||\-|\s)+") |> ignore
+        ignore(lookingAts("(\||\-|\s)+")) `swapError` "indenting"
     
     def equipmentId(): TextParser[String, t] = 
-        lookingAts("\$?\d+")
+        lookingAts("\$?\d+") `swapError` "equipmentId"
 
     pub def funcLocHeaderLine(): TextParser[(String, LocalDate), t] = 
         use TextParser.flatMap;
@@ -59,7 +58,7 @@ namespace AssetLib/S4/IH06Tree/Parser {
         symbol("Description") `seqRight` map(String.trim, restOfLine(true))
 
 
-    pub def header(): TextParser[Header, t] = 
+    def header(): TextParser[Header, t] = 
         use TextParser.flatMap;
         let* (floc, date) = funcLocHeaderLine();
         let* desc = descriptionHeaderLine();
@@ -67,9 +66,8 @@ namespace AssetLib/S4/IH06Tree/Parser {
         return({ floc = floc, description = desc, validForm = date })
 
     /// May or may not contain a parent floc
-    pub def flocLine(): TextParser[FlocRow, t] = 
-        use TextParser.flatMap;
-        let* _ = indenting();        
+    def flocLine(): TextParser[FlocRow, t] = 
+        use TextParser.flatMap;       
         let* floc = bounded(41, funcloc());
         let* rest = peekRestOfLine() |> map(String.length);
         if (rest <= 41)
@@ -92,7 +90,6 @@ namespace AssetLib/S4/IH06Tree/Parser {
     
     def equiLine(): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
-        let* _ = indenting();   
         let* equiId = bounded(19, equipmentId());
         let* desc = content(41);
         let* rest = peekRestOfLine() |> map(String.length);
@@ -115,15 +112,18 @@ namespace AssetLib/S4/IH06Tree/Parser {
         return({ equiId = equiId, description = desc, floc = floc, superordinate = Some(supero) })
 
     def ih06Row(): TextParser[IH06Row, t] = 
+        use TextParser.flatMap;
+        let* _ = indenting(); 
         choice(    (equiLine() |> map(EquiRow))
                 :: (flocLine() |> map(FlocRow))
                 :: Nil
-            ) <!!> "ih06Row"
+            ) // `swapError` "ih06Row"
 
     
     pub def ih06FileParser(): TextParser[IH06File, the] = 
         use TextParser.flatMap;
-        let* h1 = header();
+        use TextParser/Trace.{trace};        
+        let* h1 = trace("header", header());
         let* rows = many1Till(ih06Row(), endOfInput());
         return({ header = h1, rows = rows })
 
