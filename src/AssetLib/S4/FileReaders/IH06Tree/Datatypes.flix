@@ -16,7 +16,7 @@
     
 use Time.LocalDate;
 
-namespace AssetLib/S4/IH06Tree/Datatypes {
+namespace AssetLib/S4/FileReaders/IH06Tree/Datatypes {
 
     type alias Header =  { floc: String, description: String, validForm: LocalDate }
 
@@ -29,4 +29,7 @@ namespace AssetLib/S4/IH06Tree/Datatypes {
     }
 
     type alias IH06File = { header: Header, rows: List[IH06Row] }
+
+
+
 }

@@ -15,7 +15,7 @@
  */
     
 
-namespace AssetLib/S4/IH06Tree/Relations {
+namespace AssetLib/S4/FileReaders/IH06Tree/Relations {
 
     rel Root(flocCode: String, description: String)
 

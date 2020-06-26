@@ -24,16 +24,16 @@ use TextParser/Combinators.{seqRight, ignore, choice, liftResult, many, manyTill
 use TextParser/Text.{many1UpperCase, restOfLine, lookingAts, string};
 use TextParser/Token.{symbol, lexeme};
 
-use AssetLib/S4/ChangeFile/Datatypes.{FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
-use AssetLib/S4/ChangeFile/Datatypes.FileType.{Download, Upload};
-use AssetLib/S4/ChangeFile/Datatypes.DataModel.{U1};
-use AssetLib/S4/ChangeFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-use AssetLib/S4/ChangeFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/ChangeFile/Datatypes.Selection.{Selection};
-use AssetLib/S4/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileReaders/ChangeFile/Datatypes.{FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
+use AssetLib/S4/FileReaders/ChangeFile/Datatypes.FileType.{Download, Upload};
+use AssetLib/S4/FileReaders/ChangeFile/Datatypes.DataModel.{U1};
+use AssetLib/S4/FileReaders/ChangeFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+use AssetLib/S4/FileReaders/ChangeFile/Datatypes.Headers.{Headers};
+use AssetLib/S4/FileReaders/ChangeFile/Datatypes.Selection.{Selection};
+use AssetLib/S4/FileReaders/ChangeFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/ChangeFile/Parser {
+namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
 
     
 

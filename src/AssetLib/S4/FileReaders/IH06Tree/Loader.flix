@@ -22,9 +22,9 @@ use FactIO.LineEvaluator.{LineEvaluator};
 use FactIO/LineEvaluator.{findRegex, matchRegex};
 use FactIO.LinesImporter;
 
-use AssetLib/S4/IH06Tree/Relations.{Root, Floc3, Equi3, Equi4};
+use AssetLib/S4/FileReaders/IH06Tree/Relations.{Root, Floc3, Equi3, Equi4};
 
-namespace AssetLib/S4/IH06Tree/RelLoader {
+namespace AssetLib/S4/IH06Tree/Loader {
 
 
     def floc2[r](): LineEvaluator[#{ Root, Floc3, Equi3, Equi4 | r }] = 

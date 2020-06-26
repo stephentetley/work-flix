@@ -19,10 +19,13 @@
 use FactIO.LineEvaluator;
 use FactIO.LinesImporter;
 
-use AssetLib/S4/ChangeFile.DataRowEvaluator;
-use AssetLib/S4/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
+use AssetLib/S4/FileReaders/ChangeFile.DataRowEvaluator;
+use AssetLib/S4/FileReaders/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
 
-namespace AssetLib/S4/ChangeFile/FactImport {
+/// This is a generic library for making ChangeFile loaders and
+/// not an actual change file loader.
+
+namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
 
 
 

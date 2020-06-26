@@ -17,11 +17,11 @@
 use FactIO.{CsvWriter};
 use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/S4/IH06Tree/Datatypes.{IH06File, IH06Row, FlocRow, EquiRow};
-use AssetLib/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
+use AssetLib/S4/FileReaders/IH06Tree/Datatypes.{IH06File, IH06Row, FlocRow, EquiRow};
+use AssetLib/S4/FileReaders/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
 
-namespace AssetLib/S4/IH06Tree/ExportCsv {
+namespace AssetLib/S4/FileReaders/IH06Tree/ExportCsv {
 
     def headers(): Array[String] & Impure = 
         ["Type", "Floc or EquiId", "Description", "Parent Floc", "Superordinate EquiId"]

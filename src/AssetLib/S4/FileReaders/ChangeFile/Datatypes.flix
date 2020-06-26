@@ -16,7 +16,7 @@
 
 use Time.LocalDateTime;
 
-namespace AssetLib/S4/ChangeFile/Datatypes {
+namespace AssetLib/S4/FileReaders/ChangeFile/Datatypes {
 
 
     pub enum FileType {
