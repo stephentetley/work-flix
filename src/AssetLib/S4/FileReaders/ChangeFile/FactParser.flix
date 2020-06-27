@@ -24,7 +24,7 @@ use FactIO/FlatFile.RowWithHeadersEvaluator.{RowWithHeadersEvaluator};
 /// This is a generic library for making ChangeFile loaders and
 /// not an actual change file loader.
 
-namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
+namespace AssetLib/S4/FileReaders/ChangeFile/FactParser {
 
     def makeIndices(x: Array[String]): Map[String, Int32] & Impure = 
         Array.foldLeft((st, s) -> { let (ac,i) = st; (Map.insert(s, i, ac), i+1) }, (Map.empty(), 0), x) |> fst
@@ -37,7 +37,6 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
         let eval = getNamedCapture("rest") |> map(s -> makeIndices(String.split(s, "\t")));
         matchRegex(pattern, eval)
 
-    /// TODO - use `toLineEvaluator`
     def makeLineEvaluator(columnHeadings: Map[String, Int32], eval: RowWithHeadersEvaluator[reln]): LineEvaluator[reln] = 
         use FactIO/FlatFile/RowWithHeadersEvaluator.{toLineEvaluator};
         toLineEvaluator(s -> String.split(s, "\t"), columnHeadings, eval)
@@ -55,29 +54,6 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
         let* relns = FactIO/FlatFile/Parser.runParser(importRowsHelper(eval), (), path, Text/Charset.utf_8());
         Ok(solve relns)
 
-    // ///
-    // /// Process all rows of the input.
-    // ///
-    // /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
-    // ///
-    // pub def importRows(eval: RowEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
-    //     let Headers(arr) = x.headers;
-    //     let ixs = makeIndices(arr);
-    //     let RowEvaluator(f1) = eval;
-    //     let f2 = f1(ixs);
-    //     importRowsHelper(f2, x.dataRows, #{ })
-
-
-
-
-    // def importRowsHelper(eval1: DataRow ~> Result[reln, System.Error], rows: List[DataRow], ac: reln): Result[reln, System.Error] & Impure = 
-    //     match rows { 
-    //         case Nil => Ok(ac)
-    //         case r1 :: rs => match eval1(r1) {
-    //             case Ok(a1) => importRowsHelper(eval1, rs, ac <+> a1)
-    //             case Err(e) => Err(e)
-    //         }
-    //     }
 
     // ///
     // /// Process all rows of the input with a zero indexed row count.

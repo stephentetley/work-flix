@@ -19,7 +19,7 @@ use FactIO/FlatFile.RowWithHeadersEvaluator;
 
 use AssetLib/S4/Hierarchy/Relations.{Node};
 
-namespace AssetLib/S4/Hierarchy/ChangeFileLoader {
+namespace AssetLib/S4/Hierarchy/HierarchyLoader {
 
 
     def equiEval[r](): RowWithHeadersEvaluator[#{ Node | r }] = 
@@ -33,7 +33,7 @@ namespace AssetLib/S4/Hierarchy/ChangeFileLoader {
 
 
     pub def loadEqui[r](path: String): Result[#{ Node | r }, System.Error] & Impure =
-        use AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter.{importRows};
+        use AssetLib/S4/FileReaders/ChangeFile/FactParser.{importRows};
         importRows(equiEval(), path)   
 
     def flocEval[r](): RowWithHeadersEvaluator[#{ Node | r }] = 
@@ -46,7 +46,7 @@ namespace AssetLib/S4/Hierarchy/ChangeFileLoader {
         return( Node(id, desc, parent). )
 
     pub def loadFloc[r](path: String): Result[#{ Node | r }, System.Error] & Impure =
-        use AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter.{importRows};
+        use AssetLib/S4/FileReaders/ChangeFile/FactParser.{importRows};
         importRows(flocEval(), path)  
 
 }
