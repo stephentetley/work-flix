@@ -20,7 +20,7 @@ use System.Error.{InputMismatchException, Generic};
 use FactIO.LineEvaluator;
 use FactIO.LineEvaluator.{LineEvaluator};
 use FactIO/LineEvaluator.{findRegex, matchRegex};
-use FactIO.LinesImporter;
+use FactIO.LinesParser;
 
 use AssetLib/S4/FileReaders/IH06Tree/Relations.{Root, Floc3, Equi3, Equi4};
 
@@ -74,13 +74,13 @@ namespace AssetLib/S4/IH06Tree/Loader {
 
 
     def spacer[r](): LineEvaluator[#{ Root, Floc3, Equi3, Equi4 | r }] = 
-        use FactIO/LineEvaluator.{map};
         use Text/Regex/MatchEvaluator.{return};
+        use FactIO/LineEvaluator.{map};
         matchRegex("(\||\s)+", return(#{ }))
 
     
     pub def ih06Loader[r](): LinesImporter[#{ Root, Floc3, Equi3, Equi4 | r }] = 
-        use FactIO/LinesImporter.{flatMap, return, skipLines, line, lines};
+        use FactIO/LinesParser.{flatMap, return, skipLines, line, lines};
         use FactIO/LineEvaluator.{choice};
         let* _ = skipLines(3);
         let* root = line(floc2());
@@ -90,7 +90,7 @@ namespace AssetLib/S4/IH06Tree/Loader {
     /// Always UTF-8?
     pub def importLines[r](path: String) : Result[#{ Root, Floc3, Equi3, Equi4 | r }, System.Error] & Impure = 
         use Result.flatMap;
-        let* relns = FactIO/LinesImporter.runLinesImporter(ih06Loader(), path, Text/Charset.utf_8());
+        let* relns = FactIO/LinesParser.runLinesParser(ih06Loader(), (), path, Text/Charset.utf_8());
         Ok(solve relns)
 
 

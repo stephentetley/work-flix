@@ -16,27 +16,26 @@
 
 use System.Error.{IllegalArgumentException, InputMismatchException};
 
-use AssetLib/S4/FileReaders/ChangeFile.DataRowEvaluator;
-use AssetLib/S4/FileReaders/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
+use AssetLib/Common.TableRowEvaluator;
+use AssetLib/Common.TableRowEvaluator.{TableRowEvaluator};
 
-namespace AssetLib/S4/FileReaders/ChangeFile {
+namespace AssetLib/Common {
 
-    pub opaque type DataRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, System.Error]
+    pub opaque type TableRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, System.Error]
 }
 
-namespace AssetLib/S4/FileReaders/ChangeFile/DataRowEvaluator {
+namespace AssetLib/Common/TableRowEvaluator {
 
-pub opaque type DataRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, System.Error]
     
-    pub def return(x: a): DataRowEvaluator[a] = 
-        DataRowEvaluator((_,_) -> Ok(x) as & Impure)
+    pub def return(x: a): TableRowEvaluator[a] = 
+        TableRowEvaluator((_,_) -> Ok(x) as & Impure)
 
-    def apply1(x: DataRowEvaluator[a], indices: Map[String, Int32], row: Array[String]): Result[a, System.Error] & Impure =
-        let DataRowEvaluator(f) = x;
+    def apply1(x: TableRowEvaluator[a], indices: Map[String, Int32], row: Array[String]): Result[a, System.Error] & Impure =
+        let TableRowEvaluator(f) = x;
         f(indices, row)
 
-    pub def map(f: a -> b & e, x: DataRowEvaluator[a]): DataRowEvaluator[b] =
-        DataRowEvaluator((ixs, row) -> 
+    pub def map(f: a -> b & e, x: TableRowEvaluator[a]): TableRowEvaluator[b] =
+        TableRowEvaluator((ixs, row) -> 
             match apply1(x, ixs, row) {
                 case Ok(a) => {
                     let ans = f(a) as & Impure;
@@ -46,8 +45,8 @@ pub opaque type DataRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Resu
             }
         )        
 
-    pub def ap(mf: DataRowEvaluator[a -> b], ma: DataRowEvaluator[a]): DataRowEvaluator[b] =
-        DataRowEvaluator((ixs, row) -> 
+    pub def ap(mf: TableRowEvaluator[a -> b], ma: TableRowEvaluator[a]): TableRowEvaluator[b] =
+        TableRowEvaluator((ixs, row) -> 
             match apply1(mf, ixs, row) {
                 case Ok(f) => { 
                     match apply1(ma, ixs, row) {
@@ -59,23 +58,23 @@ pub opaque type DataRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Resu
             }
         )
 
-    pub def bind(x: DataRowEvaluator[a], k: a -> DataRowEvaluator[b]): DataRowEvaluator[b] = 
-        DataRowEvaluator((ixs, row) -> 
+    pub def bind(x: TableRowEvaluator[a], k: a -> TableRowEvaluator[b]): TableRowEvaluator[b] = 
+        TableRowEvaluator((ixs, row) -> 
             match apply1(x, ixs, row) { 
                 case Ok(a) => apply1(k(a), ixs, row)
                 case Err(e) => Err(e)
             }
         )
 
-    pub def flatMap(k: a -> DataRowEvaluator[b], x: DataRowEvaluator[a]): DataRowEvaluator[b] = bind(x, k)
+    pub def flatMap(k: a -> TableRowEvaluator[b], x: TableRowEvaluator[a]): TableRowEvaluator[b] = bind(x, k)
 
-    def liftResult(x: Result[a, System.Error]): DataRowEvaluator[a] = 
-        DataRowEvaluator((_,_) -> x as & Impure)
+    def liftResult(x: Result[a, System.Error]): TableRowEvaluator[a] = 
+        TableRowEvaluator((_,_) -> x as & Impure)
 
      // Cell readers, by label only
 
-    pub def getString(label: String): DataRowEvaluator[String] = 
-        DataRowEvaluator((ixs, row) -> match Map.get(label, ixs) { 
+    pub def getString(label: String): TableRowEvaluator[String] = 
+        TableRowEvaluator((ixs, row) -> match Map.get(label, ixs) { 
             case None => Err(IllegalArgumentException)
             case Some(ix) => {
                 if (ix >= 0 && ix < Array.length(row)) {
@@ -87,27 +86,27 @@ pub opaque type DataRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Resu
             }
         })
 
-    pub def getInt8(label: String): DataRowEvaluator[Int8] = 
+    pub def getInt8(label: String): TableRowEvaluator[Int8] = 
         let* s = getString(label);
         liftResult(Int8.fromString(s) |> Result.mapErr(_ -> IllegalArgumentException))
         
-    pub def getInt16(label: String): DataRowEvaluator[Int16] = 
+    pub def getInt16(label: String): TableRowEvaluator[Int16] = 
         let* s = getString(label);
         liftResult(Int16.fromString(s) |> Result.mapErr(_ -> IllegalArgumentException))
     
-    pub def getInt32(label: String): DataRowEvaluator[Int32] =
+    pub def getInt32(label: String): TableRowEvaluator[Int32] =
         let* s = getString(label);
         liftResult(Int32.fromString(s) |> Result.mapErr(_ -> IllegalArgumentException))
     
-    pub def getInt64(label: String): DataRowEvaluator[Int64] =
+    pub def getInt64(label: String): TableRowEvaluator[Int64] =
         let* s = getString(label);
         liftResult(Int64.fromString(s) |> Result.mapErr(_ -> IllegalArgumentException))
 
-    pub def getFloat32(label: String): DataRowEvaluator[Float32] =
+    pub def getFloat32(label: String): TableRowEvaluator[Float32] =
         let* s = getString(label);
         liftResult(Float32.fromString(s) |> Result.mapErr(_ -> IllegalArgumentException))
 
-    pub def getFloat64(label: String): DataRowEvaluator[Float64] =
+    pub def getFloat64(label: String): TableRowEvaluator[Float64] =
         let* s = getString(label);
         liftResult(Float64.fromString(s) |> Result.mapErr(_ -> IllegalArgumentException))
 

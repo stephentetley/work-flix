@@ -16,14 +16,14 @@
 
 use System.Error.{IllegalArgumentException, Generic};
 
-use AssetLib/S4/FileReaders/ChangeFile.DataRowEvaluator;
+use AssetLib/Common.TableRowEvaluator;
 use AssetLib/S4/Hierarchy/Relations.{Node};
 
 namespace AssetLib/S4/Hierarchy/ChangeFileLoader {
 
 
-    def equiEval[r](): DataRowEvaluator[#{ Node | r }] = 
-        use AssetLib/S4/FileReaders/ChangeFile/DataRowEvaluator.{flatMap, return, getString};
+    def equiEval[r](): TableRowEvaluator[#{ Node | r }] = 
+        use AssetLib/Common/TableRowEvaluator.{flatMap, return, getString};
         let* id         = getString("EQUI");
         let* desc       = getString("TXTMI");
         let* parent1    = getString("HEQU_EEQZ");
@@ -36,8 +36,8 @@ namespace AssetLib/S4/Hierarchy/ChangeFileLoader {
         use AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter.{importRows};
         importRows(equiEval(), path)   
 
-    def flocEval[r](): DataRowEvaluator[#{ Node | r }] = 
-        use AssetLib/S4/FileReaders/ChangeFile/DataRowEvaluator.{flatMap, return, getString};
+    def flocEval[r](): TableRowEvaluator[#{ Node | r }] = 
+        use AssetLib/Common/TableRowEvaluator.{flatMap, return, getString};
         let* id1        = getString("FUNCLOC");
         let* id2        = getString("FLOC_REF");
         let id          = if (String.isMatch("\$\d+", id1)) id2 else id1;

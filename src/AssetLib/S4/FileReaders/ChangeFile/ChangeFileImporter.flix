@@ -17,17 +17,15 @@
 
 
 use FactIO.LineEvaluator;
-use FactIO.LinesImporter;
+use FactIO.LinesParser;
 
-use AssetLib/S4/FileReaders/ChangeFile.DataRowEvaluator;
-use AssetLib/S4/FileReaders/ChangeFile.DataRowEvaluator.{DataRowEvaluator};
+use AssetLib/Common.TableRowEvaluator;
+use AssetLib/Common.TableRowEvaluator.{TableRowEvaluator};
 
 /// This is a generic library for making ChangeFile loaders and
 /// not an actual change file loader.
 
 namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
-
-
 
     def makeIndices(x: Array[String]): Map[String, Int32] & Impure = 
         Array.foldLeft((st, s) -> { let (ac,i) = st; (Map.insert(s, i, ac), i+1) }, (Map.empty(), 0), x) |> fst
@@ -40,24 +38,24 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
         let eval = getNamedCapture("rest") |> map(s -> makeIndices(String.split(s, "\t")));
         matchRegex(pattern, eval)
 
-    def makeLineEvaluator(ixs: Map[String, Int32], eval: DataRowEvaluator[reln]): LineEvaluator[reln] = 
+    def makeLineEvaluator(ixs: Map[String, Int32], eval: TableRowEvaluator[reln]): LineEvaluator[reln] = 
         use FactIO/LineEvaluator.{flatMap, map, content, return, liftAction};
-        let DataRowEvaluator(f1) = eval;
+        let TableRowEvaluator(f1) = eval;
         let* cells = content() |> map(s -> String.split(s, "\t"));        
         let* ans = liftAction(_ -> f1(ixs, cells));
         return(ans)
 
-    def importRowsHelper(eval: DataRowEvaluator[reln]): LinesImporter[reln] = 
-        use FactIO/LinesImporter.{flatMap, return, skipTill, lines};
+    def importRowsHelper(eval: TableRowEvaluator[reln]): LinesParser[reln, Unit] = 
+        use FactIO/LinesParser.{flatMap, return, skipTill, lines};
         use FactIO/LineEvaluator.{choice};
         let* headers = skipTill(headerRow());
         let eval1 = makeLineEvaluator(headers, eval);
         let* rows = lines(eval1);
         return(solve rows)
 
-    pub def importRows(eval: DataRowEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
+    pub def importRows(eval: TableRowEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
         use Result.flatMap;
-        let* relns = FactIO/LinesImporter.runLinesImporter(importRowsHelper(eval), path, Text/Charset.utf_8());
+        let* relns = FactIO/LinesParser.runLinesParser(importRowsHelper(eval), (), path, Text/Charset.utf_8());
         Ok(solve relns)
 
     // ///
@@ -65,10 +63,10 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
     // ///
     // /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
     // ///
-    // pub def importRows(eval: DataRowEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
+    // pub def importRows(eval: RowEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
     //     let Headers(arr) = x.headers;
     //     let ixs = makeIndices(arr);
-    //     let DataRowEvaluator(f1) = eval;
+    //     let RowEvaluator(f1) = eval;
     //     let f2 = f1(ixs);
     //     importRowsHelper(f2, x.dataRows, #{ })
 
@@ -89,10 +87,10 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
     // ///
     // /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     // ///
-    // pub def importRowsWithCount(eval: Int32 -> DataRowEvaluator[reln], x: ChangeFile): Result[reln, System.Error] & Impure = 
+    // pub def importRowsWithCount(eval: Int32 -> RowEvaluator[reln], x: ChangeFile): Result[reln, System.Error] & Impure = 
     //     let Headers(arr) = x.headers;
     //     let ixs = makeIndices(arr);
-    //     let eval1 = (n,r) -> { let eval2 = eval(n); let DataRowEvaluator(f) = eval2; f(ixs, r) };
+    //     let eval1 = (n,r) -> { let eval2 = eval(n); let RowEvaluator(f) = eval2; f(ixs, r) };
     //     importRowsWithCountHelper(eval1, x.dataRows, 0, #{ })
 
     // def importRowsWithCountHelper(eval1: (Int32, DataRow) ~> Result[reln, System.Error], rows: List[DataRow], n: Int32, ac: reln): Result[reln, System.Error] & Impure = 
@@ -109,10 +107,10 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
     // ///
     // /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     // ///
-    // pub def importRowsWithAccum(eval: st -> DataRowEvaluator[(reln, st)], s: st, x: ChangeFile): Result[(reln, st), System.Error] & Impure = 
+    // pub def importRowsWithAccum(eval: st -> RowEvaluator[(reln, st)], s: st, x: ChangeFile): Result[(reln, st), System.Error] & Impure = 
     //     let Headers(arr) = x.headers;
     //     let ixs = makeIndices(arr);
-    //     let eval1 = (st,r) -> { let eval2 = eval(st); let DataRowEvaluator(f) = eval2; f(ixs, r) };
+    //     let eval1 = (st,r) -> { let eval2 = eval(st); let RowEvaluator(f) = eval2; f(ixs, r) };
     //     importRowsWithAccumHelper(eval1, x.dataRows, s, #{ })
 
     // def importRowsWithAccumHelper(eval1: (st, DataRow) ~> Result[(reln, st), System.Error], rows: List[DataRow], s: st, ac: reln): Result[(reln, st), System.Error] & Impure = 
@@ -129,10 +127,10 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
     // ///
     // /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     // ///
-    // pub def importRowsWithCountAndAccum(eval: (Int32, st) -> DataRowEvaluator[(reln, st)], s: st, x: ChangeFile): Result[(reln, st), System.Error] & Impure = 
+    // pub def importRowsWithCountAndAccum(eval: (Int32, st) -> RowEvaluator[(reln, st)], s: st, x: ChangeFile): Result[(reln, st), System.Error] & Impure = 
     //     let Headers(arr) = x.headers;
     //     let ixs = makeIndices(arr);
-    //     let eval1 = (n, st, r) -> { let eval2 = eval(n, st); let DataRowEvaluator(f) = eval2; f(ixs, r) };
+    //     let eval1 = (n, st, r) -> { let eval2 = eval(n, st); let RowEvaluator(f) = eval2; f(ixs, r) };
     //     importRowsWithCountAndAccumHelper(eval1, x.dataRows, 0, s, #{ })
 
     // def importRowsWithCountAndAccumHelper(eval1: (Int32, st, DataRow) ~> Result[(reln, st), System.Error], rows: List[DataRow], n: Int32, s: st, ac: reln): Result[(reln, st), System.Error] & Impure = 
