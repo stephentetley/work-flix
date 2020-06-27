@@ -16,8 +16,8 @@
 
 
 
-use FactIO.LineEvaluator;
-use FactIO.LinesParser;
+use FactIO/FlatFile.LineEvaluator;
+use FactIO/FlatFile.Parser;
 
 use AssetLib/Common.TableRowEvaluator;
 use AssetLib/Common.TableRowEvaluator.{TableRowEvaluator};
@@ -33,21 +33,21 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
 
     def headerRow(): LineEvaluator[Map[String, Int32]] = 
         use Text/Regex/MatchEvaluator.{getNamedCapture, map};
-        use FactIO/LineEvaluator.{matchRegex};
+        use FactIO/FlatFile/LineEvaluator.{matchRegex};
         let pattern = "^\*(?<rest>[A-Z]+.*)";
         let eval = getNamedCapture("rest") |> map(s -> makeIndices(String.split(s, "\t")));
         matchRegex(pattern, eval)
 
     def makeLineEvaluator(ixs: Map[String, Int32], eval: TableRowEvaluator[reln]): LineEvaluator[reln] = 
-        use FactIO/LineEvaluator.{flatMap, map, content, return, liftAction};
+        use FactIO/FlatFile/LineEvaluator.{flatMap, map, content, return, liftAction};
         let TableRowEvaluator(f1) = eval;
         let* cells = content() |> map(s -> String.split(s, "\t"));        
         let* ans = liftAction(_ -> f1(ixs, cells));
         return(ans)
 
-    def importRowsHelper(eval: TableRowEvaluator[reln]): LinesParser[reln, Unit] = 
-        use FactIO/LinesParser.{flatMap, return, skipTill, lines};
-        use FactIO/LineEvaluator.{choice};
+    def importRowsHelper(eval: TableRowEvaluator[reln]): Parser[reln, Unit] = 
+        use FactIO/FlatFile/Parser.{flatMap, return, skipTill, lines};
+        use FactIO/FlatFile/LineEvaluator.{choice};
         let* headers = skipTill(headerRow());
         let eval1 = makeLineEvaluator(headers, eval);
         let* rows = lines(eval1);
@@ -55,7 +55,7 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ChangeFileImporter {
 
     pub def importRows(eval: TableRowEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
         use Result.flatMap;
-        let* relns = FactIO/LinesParser.runLinesParser(importRowsHelper(eval), (), path, Text/Charset.utf_8());
+        let* relns = FactIO/FlatFile/Parser.runParser(importRowsHelper(eval), (), path, Text/Charset.utf_8());
         Ok(solve relns)
 
     // ///

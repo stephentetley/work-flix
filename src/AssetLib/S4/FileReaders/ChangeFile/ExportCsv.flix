@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO.{CsvWriter};
-use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
+use FactIO/Csv.CsvWriter;
+use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
 use AssetLib/S4/FileReaders/ChangeFile/Datatypes.{Headers, DataRow, ChangeFile};
 use AssetLib/S4/FileReaders/ChangeFile/Datatypes.Headers.{Headers};
