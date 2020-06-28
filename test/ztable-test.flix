@@ -14,7 +14,7 @@ def loadDB[r](): Result[#{ ManufacturerModel, ObjectTypeManufacturer | r }, Syst
     use Result.flatMap;
     use AssetLib/S4/FileReaders/ZTable/BuiltinLoaders.{loadManufacturerModel, loadObjectTypeManufacturer};
     let* r1 = loadManufacturerModel("G:/work/Projects/assets/facts/ztable-manufacturer-model.txt");
-    let* r2 = loadObjectTypeManufacturer("G:/work/Projects/assets/facts/ztable-objecttype-manufacturer.txt");
+    let* r2 = loadObjectTypeManufacturer("G:/work/Projects/assets/facts/ztable-objtype-manufacturer.txt");
     Ok(r1 <+> r2)
     
 

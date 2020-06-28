@@ -15,7 +15,7 @@
  */
 
 use FactIO/FlatFile.LineEvaluator;
-use FactIO/FlatFile.Parser;    
+use FactIO/FlatFile.SimpleParser;    
 use FactIO/FlatFile.RowEvaluator;
 
 
@@ -25,17 +25,17 @@ namespace AssetLib/S4/FileReaders/ZTable/FactParser {
 
     pub def importRows(eval: RowEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
         use Result.flatMap;
-        let* relns = FactIO/FlatFile/Parser.runParser(importRowsParser(eval), (), path, Text/Charset.utf_8());
+        let* relns = FactIO/FlatFile/SimpleParser.runSimpleParser(importRowsParser(eval), path, Text/Charset.utf_8());
         Ok(solve relns)
 
 
-    def importRowsParser(eval: RowEvaluator[reln]): Parser[reln, Unit] = 
-        use FactIO/FlatFile/Parser.{flatMap, return, skipTill, skipLines, lines};
+    def importRowsParser(eval: RowEvaluator[reln]): SimpleParser[reln] = 
+        use FactIO/FlatFile/SimpleParser.{flatMap, return, skipLinesTill, skipLines, linesTill};
         use FactIO/FlatFile/LineEvaluator.{choice};
-        let* _  = skipTill(separatingLine());
+        let* _  = skipLinesTill(separatingLine());
         let* _ = skipLines(2);
         let eval1 = makeLineEvaluator(eval);
-        let* rows = lines(eval1);
+        let* rows = linesTill(eval1, separatingLine());        
         return(solve rows)
 
     /// Line of many '-'

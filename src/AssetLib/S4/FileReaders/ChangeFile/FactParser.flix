@@ -17,7 +17,7 @@
 
 
 use FactIO/FlatFile.LineEvaluator;
-use FactIO/FlatFile.Parser;
+use FactIO/FlatFile.SimpleParser;
 use FactIO/FlatFile.RowWithHeadersEvaluator;
 use FactIO/FlatFile.RowWithHeadersEvaluator.{RowWithHeadersEvaluator};
 
@@ -29,16 +29,16 @@ namespace AssetLib/S4/FileReaders/ChangeFile/FactParser {
 
     pub def importRows(eval: RowWithHeadersEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
         use Result.flatMap;
-        let* relns = FactIO/FlatFile/Parser.runParser(importRowsParser(eval), (), path, Text/Charset.utf_8());
+        let* relns = FactIO/FlatFile/SimpleParser.runSimpleParser(importRowsParser(eval), path, Text/Charset.utf_8());
         Ok(solve relns)
 
 
-    def importRowsParser(eval: RowWithHeadersEvaluator[reln]): Parser[reln, Unit] = 
-        use FactIO/FlatFile/Parser.{flatMap, return, skipTill, lines};
+    def importRowsParser(eval: RowWithHeadersEvaluator[reln]): SimpleParser[reln] = 
+        use FactIO/FlatFile/SimpleParser.{flatMap, return, skipLinesTill, linesTillEnd};
         use FactIO/FlatFile/LineEvaluator.{choice};
-        let* headers = skipTill(headerRow());
+        let* headers = skipLinesTill(headerRow());
         let eval1 = makeLineEvaluator(headers, eval);
-        let* rows = lines(eval1);
+        let* rows = linesTillEnd(eval1);
         return(solve rows)
 
     def headerRow(): LineEvaluator[Map[String, Int32]] = 
