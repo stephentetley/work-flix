@@ -26,22 +26,14 @@ use FactIO/FlatFile.RowWithHeadersEvaluator.{RowWithHeadersEvaluator};
 
 namespace AssetLib/S4/FileReaders/ChangeFile/FactParser {
 
-    def makeIndices(x: Array[String]): Map[String, Int32] & Impure = 
-        Array.foldLeft((st, s) -> { let (ac,i) = st; (Map.insert(s, i, ac), i+1) }, (Map.empty(), 0), x) |> fst
+
+    pub def importRows(eval: RowWithHeadersEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
+        use Result.flatMap;
+        let* relns = FactIO/FlatFile/Parser.runParser(importRowsParser(eval), (), path, Text/Charset.utf_8());
+        Ok(solve relns)
 
 
-    def headerRow(): LineEvaluator[Map[String, Int32]] = 
-        use Text/Regex/MatchEvaluator.{getNamedCapture, map};
-        use FactIO/FlatFile/LineEvaluator.{matchRegex};
-        let pattern = "^\*(?<rest>[A-Z]+.*)";
-        let eval = getNamedCapture("rest") |> map(s -> makeIndices(String.split(s, "\t")));
-        matchRegex(pattern, eval)
-
-    def makeLineEvaluator(columnHeadings: Map[String, Int32], eval: RowWithHeadersEvaluator[reln]): LineEvaluator[reln] = 
-        use FactIO/FlatFile/RowWithHeadersEvaluator.{toLineEvaluator};
-        toLineEvaluator(s -> String.split(s, "\t"), columnHeadings, eval)
-
-    def importRowsHelper(eval: RowWithHeadersEvaluator[reln]): Parser[reln, Unit] = 
+    def importRowsParser(eval: RowWithHeadersEvaluator[reln]): Parser[reln, Unit] = 
         use FactIO/FlatFile/Parser.{flatMap, return, skipTill, lines};
         use FactIO/FlatFile/LineEvaluator.{choice};
         let* headers = skipTill(headerRow());
@@ -49,10 +41,18 @@ namespace AssetLib/S4/FileReaders/ChangeFile/FactParser {
         let* rows = lines(eval1);
         return(solve rows)
 
-    pub def importRows(eval: RowWithHeadersEvaluator[reln], path: String): Result[reln, System.Error] & Impure = 
-        use Result.flatMap;
-        let* relns = FactIO/FlatFile/Parser.runParser(importRowsHelper(eval), (), path, Text/Charset.utf_8());
-        Ok(solve relns)
+    def headerRow(): LineEvaluator[Map[String, Int32]] = 
+        use Text/Regex/MatchEvaluator.{getNamedCapture, map};
+        use FactIO/FlatFile/RowWithHeadersEvaluator.{makeHeaders};
+        use FactIO/FlatFile/LineEvaluator.{matchesRegex};
+        let regex = "^\*(?<rest>[A-Z]+.*)";
+        let eval = getNamedCapture("rest") |> map(s -> makeHeaders(String.split(s, "\t")));
+        matchesRegex(regex, eval)
+
+    def makeLineEvaluator(columnHeadings: Map[String, Int32], eval: RowWithHeadersEvaluator[reln]): LineEvaluator[reln] = 
+        use FactIO/FlatFile/RowWithHeadersEvaluator.{toLineEvaluator};
+        toLineEvaluator(s -> String.split(s, "\t"), columnHeadings, eval)
+
 
 
     // ///
