@@ -18,11 +18,11 @@ use System.Error.{Generic};
 
 use Time.LocalDateTime;
 
-use TextParser.Parser;
-use TextParser.{return, map, parseError, endOfInput, liftAction};
-use TextParser/Combinators.{seqRight, ignore, choice, liftResult, many, manyTill};
-use TextParser/Text.{many1UpperCase, restOfLine, lookingAts, string};
-use TextParser/Token.{symbol, lexeme};
+use TextParser.TextParser;
+use TextParser.{return, map, failure, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
+use TextParser/Combinators.{ignore, choice, many, manyTill};
+use TextParser/Text.{many1UpperCase, restOfLine};
+use TextParser/Token1.{symbol, lexeme};
 
 use AssetLib/S4/FileReaders/ChangeFile/Datatypes.{FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
 use AssetLib/S4/FileReaders/ChangeFile/Datatypes.FileType.{Download, Upload};
@@ -37,12 +37,12 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
 
     
 
-    def asterisk(): Parser[Unit] =  
+    def asterisk(): TextParser[Unit, t] =  
         symbol("*") |> ignore
     
 
 
-    def pFileType(): Parser[FileType] = 
+    def pFileType(): TextParser[FileType, t] = 
         use TextParser.flatMap;
         let body = () -> {
             choice( 
@@ -55,17 +55,17 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
         body()
         
 
-    def pDataModel(): Parser[DataModel] = 
+    def pDataModel(): TextParser[DataModel, t] = 
         use TextParser.flatMap;
         let body = () -> symbol("U1") `seqRight` return(U1);
         let* _ = symbol("* Data Model:"); 
         body()
         
 
-    def pEntityType(): Parser[EntityType] =
+    def pEntityType(): TextParser[EntityType, t] =
         use TextParser.flatMap;
         let body = () -> {
-            let* s = lexeme(many1UpperCase());
+            let* s = lexeme(lookingAts("\p{Upper}+"));
             match s {
                 case "FUNCLOC"      => return(FuncLoc)
                 case "CLASSFLOC"    => return(ClassFloc)
@@ -75,25 +75,25 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
                 case "CLASSEQUI"    => return(ClassEqui)
                 case "VALUAEQUI"    => return(ValuaEqui)
                 case "EQMLTXT"      => return(Eqmltxt)
-                case _              => parseError("EntityType")
+                case _              => failure("EntityType")
             }
         };
         let* _ = symbol("* Entity Type:");
         body()
 
-    def pVariant(): Parser[String] = 
+    def pVariant(): TextParser[String, t] = 
         use TextParser.flatMap;
         let* _ = string("* Variant:");      // use `string` so we don't consume newline
         let* ans = restOfLine(true);
         return(String.trim(ans))
     
-    def pUser(): Parser[String] =
+    def pUser(): TextParser[String, t] =
         use TextParser.flatMap;
         let* _ = symbol("* User:");
         let* ans = restOfLine(true);
         return(String.trim(ans))
 
-    def pDateTime(): Parser[LocalDateTime] = 
+    def pDateTime(): TextParser[LocalDateTime, t] = 
         use TextParser.flatMap;
         let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\d{8}"));
         let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\d{6}"));
@@ -102,7 +102,7 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
         return(ans)
         
 
-    def pHeader(): Parser[FileHeader] = 
+    def pHeader(): TextParser[FileHeader, t] = 
         use TextParser.flatMap;
         let* ft = pFileType();
         let* dm = pDataModel();
@@ -113,12 +113,12 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
         return({ fileType = ft, dataModel = dm, entityType = et, 
                     variant = v, user = u, dateTime = dt })
 
-    def pSelectionHeader(): Parser[Unit] = 
+    def pSelectionHeader(): TextParser[Unit, t] = 
         symbol("* Selection:") |> ignore         // blank header, consumes newline
         
 
 
-    def pSelectionLines(): Parser[List[String]] = 
+    def pSelectionLines(): TextParser[List[String], t] = 
         use TextParser.flatMap;
         let selection1  = () -> {
             let* _ = symbol("* ");
@@ -127,7 +127,7 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
         };
         many(selection1())
 
-    def pSelection(): Parser[Selection] = 
+    def pSelection(): TextParser[Selection, t] = 
         use TextParser.flatMap;
         let* _ = pSelectionHeader();
         let* xs = pSelectionLines();
@@ -135,7 +135,7 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
     
     /// Note - the first header is prefixed by an asterisk, we can't use `asterisk` to find this 
     /// because `asterisk` can only see a token and there is no whitespace.
-    def pColumnHeaders(): Parser[Headers] = 
+    def pColumnHeaders(): TextParser[Headers, t] = 
         use TextParser.flatMap;
         let* _ = asterisk();
         let* str = restOfLine(true);
@@ -143,14 +143,14 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
         return(Headers(arr))
 
     
-    def pDataRow(): Parser[DataRow] = 
+    def pDataRow(): TextParser[DataRow, t] = 
         use TextParser.flatMap;
         let* str = restOfLine(true);
         let* arr = liftAction(_ -> String.split(String.trimRight(str), Char.toString('\u0009')));
         return(DataRow(arr))
 
 
-    pub def changeFileParser(): Parser[ChangeFile] = 
+    pub def changeFileParser(): TextParser[ChangeFile, t] = 
         use TextParser.flatMap;
         let* hdr = pHeader();
         let* sel = pSelection();        
@@ -162,9 +162,6 @@ namespace AssetLib/S4/FileReaders/ChangeFile/Parser {
     /// Always UTF-8?
     pub def parseFile(path: String) : Result[ChangeFile, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
-        match TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8() ) { 
-            case Err(e) => Err(Generic(TextParser/Error.showParserError(e)))
-            case Ok(a) => Ok(a)
-        }
+        TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8())
 
 }
