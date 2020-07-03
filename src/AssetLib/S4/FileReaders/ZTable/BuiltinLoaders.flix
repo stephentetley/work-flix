@@ -16,30 +16,81 @@
 
 use FactIO/FlatFile.RowEvaluator;
 
-use AssetLib/S4/FileReaders/ZTable/Relations.{ManufacturerModel, ObjectTypeManufacturer};
+use AssetLib/S4/FileReaders/ZTable/Relations.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
 
 namespace AssetLib/S4/FileReaders/ZTable/BuiltinLoaders {
 
+    def evalEqobjl[r](): RowEvaluator[#{ Eqobjl | r }] = 
+        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
+        let* supertype  = getString(0);
+        let* subtype    = getString(1);
+        let* category   = getString(1);
+        return( Eqobjl(supertype, subtype, category). )
 
-    def manufacturerModelEval[r](): RowEvaluator[#{ ManufacturerModel | r }] = 
+    pub def loadEqobjl[r](path: String): Result[#{ Eqobjl | r }, System.Error] & Impure =
+        use AssetLib/S4/FileReaders/ZTable/FactParser.{importRows};
+        importRows(evalEqobjl(), path)  
+
+
+    def evalFlocdes[r](): RowEvaluator[#{ Flocdes | r }] = 
+        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
+        let* objtype    = getString(0);
+        let* desc       = getString(1);
+        return( Flocdes(objtype, desc). )
+
+    pub def loadFlocdes[r](path: String): Result[#{ Flocdes | r }, System.Error] & Impure =
+        use AssetLib/S4/FileReaders/ZTable/FactParser.{importRows};
+        importRows(evalFlocdes(), path)           
+
+
+    def evalFloobjl[r](): RowEvaluator[#{ Floobjl | r }] = 
+        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString, liftOperation, evalContains};
+        let* structure  = getString(0);
+        let* supertype  = getString(1);
+        let* subtype    = getString(2);
+        return( Floobjl(structure, supertype, subtype). )
+
+    pub def loadFloobjl[r](path: String): Result[#{ Floobjl | r }, System.Error] & Impure =
+        use AssetLib/S4/FileReaders/ZTable/FactParser.{importRows};
+        importRows(evalFloobjl(), path)  
+
+
+    def evalManuf[r](): RowEvaluator[#{ Manuf | r }] = 
         use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
         let* manuf      = getString(0);
         let* model      = getString(1);
-        return( ManufacturerModel(manuf, model). )
+        return( Manuf(manuf, model). )
 
 
-    pub def loadManufacturerModel[r](path: String): Result[#{ ManufacturerModel | r }, System.Error] & Impure =
+    pub def loadManuf[r](path: String): Result[#{ Manuf | r }, System.Error] & Impure =
         use AssetLib/S4/FileReaders/ZTable/FactParser.{importRows};
-        importRows(manufacturerModelEval(), path)   
+        importRows(evalManuf(), path)   
 
-    def objectTypeManufacturerEval[r](): RowEvaluator[#{ ObjectTypeManufacturer | r }] = 
+    def evalObj[r](): RowEvaluator[#{ Obj | r }] = 
         use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
         let* objtype    = getString(0);
         let* manuf      = getString(1);       
-        return( ObjectTypeManufacturer(objtype, manuf). )
+        return( Obj(objtype, manuf). )
 
-    pub def loadObjectTypeManufacturer[r](path: String): Result[#{ ObjectTypeManufacturer | r }, System.Error] & Impure =
+    pub def loadObj[r](path: String): Result[#{ Obj | r }, System.Error] & Impure =
         use AssetLib/S4/FileReaders/ZTable/FactParser.{importRows};
-        importRows(objectTypeManufacturerEval(), path)  
+        importRows(evalObj(), path)  
+
+
+    type alias DbPaths = { pathOfEqobjl: String
+                        , pathOfFlocdes: String
+                        , pathOfFloobjl: String
+                        , pathOfManuf: String
+                        , pathOfObj: String
+                        }
+
+    pub def loadDb[r](paths: DbPaths): Result[#{ Eqobjl, Flocdes, Floobjl, Manuf, Obj | r }, System.Error] & Impure =
+        use Result.flatMap;
+        let* r1 = loadEqobjl(paths.pathOfEqobjl);
+        let* r2 = loadFlocdes(paths.pathOfFlocdes);        
+        let* r3 = loadFloobjl(paths.pathOfFloobjl);        
+        let* r4 = loadManuf(paths.pathOfManuf);
+        let* r5 = loadObj(paths.pathOfObj);
+        Ok(solve r1 <+> r2 <+> r3 <+> r4 <+> r5)
 
 }

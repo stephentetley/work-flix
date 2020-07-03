@@ -17,9 +17,14 @@
 
 namespace AssetLib/S4/FileReaders/ZTable/Relations {
 
-    rel ManufacturerModel(manufacturer: String, model: String)
+    rel Eqobjl(superObject: String, subObject: String, category: String)
 
-    rel ObjectTypeManufacturer(objectType: String, manufacturer: String)
+    rel Flocdes(objectType: String, description: String)
 
+    rel Floobjl(structure: String, superObject: String, subObject: String)
+
+    rel Manuf(manufacturer: String, model: String)
+
+    rel Obj(objectType: String, manufacturer: String)
 
 }
