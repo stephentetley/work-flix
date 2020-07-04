@@ -52,23 +52,25 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
 
     def getClassDescSize(x: SourceType): Int32 = match x {
         case FlocClasses => 36
-        case EquiClasses => 50
+        case EquiClasses => 10
     }
 
     def getCharacteristicDescSize(x: SourceType): Int32 = match x {
         case FlocClasses => 47
-        case EquiClasses => 50
+        case EquiClasses => 51
     }
 
-    /// Always UTF-8?
-    pub def parseFile(path: String, srctype: SourceType) : Result[ClassListFile, System.Error] & Impure = 
+    /// Always UTF-8? no if parsing fails try iso_8859_1()
+    pub def parseFile(path: String, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
-        TextParser.parseFile(classListParser(srctype), path1, Text/Charset.utf_8()) 
+        TextParser.parseFile(classListParser(srctype), path1, cs) 
 
 
     def classListParser(srctype: SourceType): TextParser[ClassListFile, t] = 
         use TextParser.flatMap;
+        use TextParser/Trace.{tell};
         use Data/Transient/DList.{empty, toList};
+        let* _ = tell("Parser Start");
         let* _  = symbol("Class List");
         let* d  = pDateStamp();
         let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
