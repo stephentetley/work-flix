@@ -80,15 +80,15 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
     def classLine(): TextParser[ClassRow, t] =
         use TextParser.{flatMap};
         let* ctype  = content(4);
-        let* name   = content(35);
-        let* desc   = content(40);
+        let* name   = content(33);
+        let* desc   = content(36);
         let* _      = restOfLine(true);
         return({ classType = ctype, name = name, description = desc })
 
     def characteristicLine(): TextParser[CharacteristicRow, t] =
         use TextParser.{flatMap};
-        let* name   = content(35);
-        let* desc   = content(40);
+        let* name   = content(33);
+        let* desc   = content(47);
         let* dtype  = datatype();
         return({ name = name, description = desc, datatype = dtype})
 
