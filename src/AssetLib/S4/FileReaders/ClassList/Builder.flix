@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
+use Data.{RoseTree, RoseForest};
+use Data.RoseTree.{RoseTree};
+
 use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
 use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassList, Class, Characteristic, Refinement};
 use AssetLib/S4/FileReaders/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
 use AssetLib/S4/FileReaders/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+use AssetLib/S4/FileReaders/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
 
 namespace AssetLib/S4/FileReaders/ClassList/Builder {
     
@@ -59,4 +63,37 @@ namespace AssetLib/S4/FileReaders/ClassList/Builder {
 
     def makeRefinement(_: List[String]): Option[Refinement] = None
 
+    /// Print Html via a rose tree
+
+    type alias Label = {name: String, description: String}
+
+    pub def allTrees(src: ClassList): RoseForest[Label] = 
+        List.map(buildRoseTree, src.classes)
+
+    def buildRoseTree(src: Class): RoseTree[Label] = 
+        let label = { name = src.name, description = src.description};
+        roseTreeChars(src.characteristics,  xs -> RoseTree(label, xs))
+
+    def roseTreeChars(xs: List[Characteristic], k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
+        match xs { 
+            case Nil => k(Nil)
+            case x1 :: rest =>
+                roseTreeChar1(x1, v1 -> 
+                    roseTreeChars(rest, vs -> k(v1 :: vs)))
+        }
+
+    def roseTreeChar1(src: Characteristic, k: RoseTree[Label] -> RoseTree[Label]): RoseTree[Label] = 
+        let label = { name = src.name, description = src.description};
+        match src.refinement { 
+            case Some(r) => roseTreeRefines1(r, kids -> k(RoseTree(label, kids)))
+            case None => k(RoseTree(label, Nil))
+        }
+
+    def roseTreeRefines1(x: Refinement, k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
+        match x { 
+            case ListOfValues(xs)   => k(List.map(x -> RoseTree({name = "Value", description = x}, Nil), xs))
+            case IntRange(_, _)     => k(RoseTree({name = "Int Range", description = "..."}, Nil) :: Nil)
+            case DecimalRange(_, _) => k(RoseTree({name = "Decimal Range", description = "..."}, Nil) :: Nil)
+        }
+        
 }
