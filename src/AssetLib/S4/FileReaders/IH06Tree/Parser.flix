@@ -15,7 +15,7 @@
  */
     
 use Time.LocalDate;
-use System.Error.{Generic};
+// use System.Error.{Generic};
 
 use TextParser.TextParser;
 use TextParser.{return, map, swapError, bounded, parseError, seqRight, tryparse, endOfInput, lookingAts, liftResult};
@@ -28,35 +28,18 @@ use AssetLib/S4/FileReaders/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
 namespace AssetLib/S4/FileReaders/IH06Tree/Parser {
 
-    pub def funcloc(): TextParser[String, t] = 
-        (lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme) `swapError` "funcloc"
 
-    def dateStamp(): TextParser[LocalDate, t] = 
+    /// Always UTF-8?
+    pub def parseFile(path: String) : Result[IH06File, System.Error] & Impure = 
+        let path1 = System/FilePath.new(path);
+        TextParser.parseFile(ih06FileParser(), path1, Text/Charset.utf_8()) 
+
+    pub def ih06FileParser(): TextParser[IH06File, t] = 
         use TextParser.flatMap;
-        let* s = lookingAts("\d{2}\.\d{2}\.\d{2}");
-        let* fmt = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yy"));
-        let* ans = liftResult(Time/LocalDate.parse(s, fmt));
-        return(ans)
-
-    def validFrom(): TextParser[LocalDate, t] = 
-        symbol("Valid From") `seqRight` lexeme(dateStamp())
-
-    def indenting(): TextParser[Unit, t] = 
-        ignore(lookingAts("(\||\-|\s)+")) `swapError` "indenting"
-    
-    def equipmentId(): TextParser[String, t] = 
-        lookingAts("\$?\d+") `swapError` "equipmentId"
-
-    pub def funcLocHeaderLine(): TextParser[(String, LocalDate), t] = 
-        use TextParser.flatMap;
-        let* _ = symbol("Functional Location");
-        let* floc = funcloc();
-        let* dt = validFrom();
-        return((floc, dt))
-
-    def descriptionHeaderLine(): TextParser[String, t] = 
-        symbol("Description") `seqRight` map(String.trim, restOfLine(true))
-
+        use TextParser/Trace.{trace};        
+        let* h1 = trace("header", header());
+        let* rows = many1Till(ih06Row(), endOfInput());
+        return({ header = h1, rows = rows })
 
     def header(): TextParser[Header, t] = 
         use TextParser.flatMap;
@@ -64,6 +47,15 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Parser {
         let* desc = descriptionHeaderLine();
         let* _ = restOfLine(true);      // one blank line
         return({ floc = floc, description = desc, validForm = date })
+
+    def ih06Row(): TextParser[IH06Row, t] = 
+        use TextParser.flatMap;
+        let* _ = indenting(); 
+        choice(    (equiLine() |> map(EquiRow))
+                :: (flocLine() |> map(FlocRow))
+                :: Nil
+            ) // `swapError` "ih06Row"
+
 
     /// May or may not contain a parent floc
     def flocLine(): TextParser[FlocRow, t] = 
@@ -74,7 +66,6 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Parser {
             flocLine2(floc)
         else
             flocLine3(floc)
-
 
     def flocLine2(floc: String): TextParser[FlocRow, t] = 
         use TextParser.flatMap;
@@ -111,26 +102,35 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Parser {
         let* supero = restOfLine(true) |> map(String.trim);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = Some(supero) })
 
-    def ih06Row(): TextParser[IH06Row, t] = 
-        use TextParser.flatMap;
-        let* _ = indenting(); 
-        choice(    (equiLine() |> map(EquiRow))
-                :: (flocLine() |> map(FlocRow))
-                :: Nil
-            ) // `swapError` "ih06Row"
 
+    def validFrom(): TextParser[LocalDate, t] = 
+        symbol("Valid From") `seqRight` lexeme(dateStamp())
+
+    def indenting(): TextParser[Unit, t] = 
+        ignore(lookingAts("(\||\-|\s)+")) `swapError` "indenting"
     
-    pub def ih06FileParser(): TextParser[IH06File, the] = 
-        use TextParser.flatMap;
-        use TextParser/Trace.{trace};        
-        let* h1 = trace("header", header());
-        let* rows = many1Till(ih06Row(), endOfInput());
-        return({ header = h1, rows = rows })
+    def equipmentId(): TextParser[String, t] = 
+        lookingAts("\$?\d+") `swapError` "equipmentId"
 
-    /// Always UTF-8?
-    pub def parseFile(path: String) : Result[IH06File, System.Error] & Impure = 
-        let path1 = System/FilePath.new(path);
-        TextParser.parseFile(ih06FileParser(), path1, Text/Charset.utf_8()) 
+    pub def funcLocHeaderLine(): TextParser[(String, LocalDate), t] = 
+        use TextParser.flatMap;
+        let* _ = symbol("Functional Location");
+        let* floc = funcloc();
+        let* dt = validFrom();
+        return((floc, dt))
+
+    def descriptionHeaderLine(): TextParser[String, t] = 
+        symbol("Description") `seqRight` map(String.trim, restOfLine(true))
+    
+    pub def funcloc(): TextParser[String, t] = 
+        (lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme) `swapError` "funcloc"
+
+    def dateStamp(): TextParser[LocalDate, t] = 
+        use TextParser.flatMap;
+        let* s = lookingAts("\d{2}\.\d{2}\.\d{2}");
+        let* fmt = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yy"));
+        let* ans = liftResult(Time/LocalDate.parse(s, fmt));
+        return(ans)
 
 
  }

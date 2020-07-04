@@ -18,25 +18,40 @@ use Time.LocalDate;
 
 namespace AssetLib/S4/FileReaders/ClassList/Datatypes {
 
+    /// Flat representation - not a tree.
+    type alias ClassListFile = { dateStamp: LocalDate, rows: List[ClassListRow] }
 
+    /// ValueRow could be a list-of-values item or a range. It is decoded later.
+    pub enum ClassListRow {
+        case ClassRow(ClassRow),
+        case CharacteristicRow(CharacteristicRow),
+        case ValueRow(String)
+    }
+
+    type alias ClassRow = { classType: String, name: String, description: String }
+    type alias CharacteristicRow = { name: String, description: String, datatype: Datatype }
+
+    /// Nested representation.
     type alias ClassList = { dateStamp: LocalDate, classes: List[Class]}
 
 
     // classType eg "002", "003"
     type alias Class = { classType: String, name: String, description: String, characteristics: List[Characteristic] }
 
-    type alias Characteristic = { name: String, description: String, datatype: Datatype }
+    type alias Characteristic = { name: String, description: String, datatype: Datatype, refinement: Option[Refinement] }
 
     pub enum Datatype { 
-        case Text(Int32, List[String]),
+        case Text(Int32),
         case Date(Int32),
-        case NumInt(Int32, Option[IntRange]),
-        case NumDecimal(Int32, Int32, Option[DecimalRange])
+        case NumInt(Int32),
+        case NumDecimal(Int32, Int32)
     }
 
-    type alias IntRange = { low: Int32, high: Int32 }
-
-    type alias DecimalRange = { low: Float64, high: Float64 }
-
+    pub enum Refinement {
+        case ListOfValues(List[String]),
+        case IntRange(Int32, Int32),
+        case DecimalRange(Float64, Float64)
+    }
+    
 
 }

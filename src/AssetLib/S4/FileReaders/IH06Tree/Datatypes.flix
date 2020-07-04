@@ -28,6 +28,7 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Datatypes {
         case EquiRow(EquiRow)
     }
 
+    /// Flat representation - not a tree.
     type alias IH06File = { header: Header, rows: List[IH06Row] }
 
 

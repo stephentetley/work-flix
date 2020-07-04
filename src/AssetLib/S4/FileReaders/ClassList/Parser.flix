@@ -14,34 +14,50 @@
  * limitations under the License.
  */
 
+use Data/Transient.DList;
 use System.Error.{Generic};
 use Time.LocalDate;
 
 
 use TextParser.TextParser;
-use TextParser.{parseFile, return, map, lookingAts, liftResult};
-// use TextParser/Combinators.{seqRight, ignore, choice, liftResult, many, manyTill};
-// use TextParser/Text.{many1UpperCase, restOfLine, lookingAts, string};
-use TextParser/Token1.{lexeme, symbol};
+use TextParser.{parseFile, return, failure, map, lookingAts, liftResult, swapError, parseLine};
+use TextParser/Combinators.{optional, manyWith};
+use TextParser/Text.{restOfLine, content, anchorLine};
+use TextParser/Token1.{lexeme, symbol, int32};
 
-use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassList};
+use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
+use AssetLib/S4/FileReaders/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
+use AssetLib/S4/FileReaders/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
 
 namespace AssetLib/S4/FileReaders/ClassList/Parser {
 
 
 
+
+    def append(x: Option[a], ac: DList[a]): DList[a] = 
+        use Data/Transient/DList.{snoc};
+        match x { 
+            case Some(a) => snoc(ac, a)
+            case None => ac
+        }
+
+
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[ClassList, System.Error] & Impure = 
+    pub def parseFile(path: String) : Result[ClassListFile, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
         TextParser.parseFile(classListParser(), path1, Text/Charset.utf_8()) 
 
 
-    def classListParser(): TextParser[ClassList, t] = 
+    def classListParser(): TextParser[ClassListFile, t] = 
         use TextParser.flatMap;
-        let* _ = symbol("Class List");
-        let* d = pDateStamp();
-        return({ dateStamp = d, classes = Nil})
+        use Data/Transient/DList.{empty, toList};
+        let* _  = symbol("Class List");
+        let* d  = pDateStamp();
+        let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
+        let* _  = anchorLine("\-{40,}");
+        let* rows = manyWith(append, empty(), parseLine(classListRow(), true));
+        return({ dateStamp = d, rows = toList(rows)})
 
     def pDateStamp(): TextParser[LocalDate, t] = 
         use TextParser.flatMap;
@@ -50,5 +66,50 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
         let* ans = liftResult(Time/LocalDate.parse(d, fmt));
         return(ans)
         
+
+    def classListRow(): TextParser[Option[ClassListRow], t] = 
+        use TextParser.flatMap;
+        let* indent = indentingLevel();
+        match indent { 
+            case 11 => optional(map(ClassRow, classLine()))
+            case 15 => optional(map(CharacteristicRow, characteristicLine()))
+            case 19 => optional(map(ValueRow, valueLine()))
+            case _  => return(None)
+        }
+
+    def classLine(): TextParser[ClassRow, t] =
+        use TextParser.{flatMap};
+        let* ctype  = content(4);
+        let* name   = content(35);
+        let* desc   = content(40);
+        let* _      = restOfLine(true);
+        return({ classType = ctype, name = name, description = desc })
+
+    def characteristicLine(): TextParser[CharacteristicRow, t] =
+        use TextParser.{flatMap};
+        let* name   = content(35);
+        let* desc   = content(40);
+        let* dtype  = datatype();
+        return({ name = name, description = desc, datatype = dtype})
+
+    def datatype(): TextParser[Datatype, t] = 
+        use TextParser.{flatMap};
+        let* tyname = lookingAts("\p{Upper}+");
+        let* length = int32();
+        let* dprec  = optional(int32());
+        match (tyname, dprec) {
+            case ("CHAR", _)        => return(Text(length))
+            case ("DATE", _)        => return(Date(length))
+            case ("NUM", None)      => return(NumInt(length))
+            case ("NUM", Some(p))   => return(NumDecimal(length, p))
+            case _                  => failure("Unknown datatype: " + tyname)
+        }
+
+    def valueLine(): TextParser[String, t] = 
+        map(String.trim, restOfLine(false))
+
+
+    def indentingLevel(): TextParser[Int32, t] = 
+        map(String.length, lookingAts("(\||\-|\s)+")) `swapError` "indentingLevel"
 
 }
