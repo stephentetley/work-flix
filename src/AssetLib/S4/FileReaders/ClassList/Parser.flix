@@ -33,8 +33,6 @@ use AssetLib/S4/FileReaders/ClassList/Datatypes.Datatype.{Text, Date, NumInt, Nu
 namespace AssetLib/S4/FileReaders/ClassList/Parser {
 
 
-
-
     def append(x: Option[a], ac: DList[a]): DList[a] = 
         use Data/Transient/DList.{snoc};
         match x { 
@@ -42,21 +40,40 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
             case None => ac
         }
 
+    pub enum SourceType {
+        case FlocClasses,
+        case EquiClasses
+    }
+
+    def getNameSize(x: SourceType): Int32 = match x {
+        case FlocClasses => 33
+        case EquiClasses => 35
+    }
+
+    def getClassDescSize(x: SourceType): Int32 = match x {
+        case FlocClasses => 36
+        case EquiClasses => 50
+    }
+
+    def getCharacteristicDescSize(x: SourceType): Int32 = match x {
+        case FlocClasses => 47
+        case EquiClasses => 50
+    }
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[ClassListFile, System.Error] & Impure = 
+    pub def parseFile(path: String, srctype: SourceType) : Result[ClassListFile, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
-        TextParser.parseFile(classListParser(), path1, Text/Charset.utf_8()) 
+        TextParser.parseFile(classListParser(srctype), path1, Text/Charset.utf_8()) 
 
 
-    def classListParser(): TextParser[ClassListFile, t] = 
+    def classListParser(srctype: SourceType): TextParser[ClassListFile, t] = 
         use TextParser.flatMap;
         use Data/Transient/DList.{empty, toList};
         let* _  = symbol("Class List");
         let* d  = pDateStamp();
         let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
         let* _  = anchorLine("\-{40,}");
-        let* rows = manyWith(append, empty(), parseLine(classListRow(), true));
+        let* rows = manyWith(append, empty(), parseLine(classListRow(srctype), true));
         return({ dateStamp = d, rows = toList(rows)})
 
     def pDateStamp(): TextParser[LocalDate, t] = 
@@ -67,29 +84,33 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
         return(ans)
         
 
-    def classListRow(): TextParser[Option[ClassListRow], t] = 
+    def classListRow(srctype: SourceType): TextParser[Option[ClassListRow], t] = 
         use TextParser.flatMap;
-        let* indent = indentingLevel();
+        use TextParser/Trace.{trace};
+        let* indent = trace("row", indentingLevel());
         match indent { 
-            case 11 => optional(map(ClassRow, classLine()))
-            case 15 => optional(map(CharacteristicRow, characteristicLine()))
+            case 11 => optional(map(ClassRow, classLine(srctype)))
+            case 15 => optional(map(CharacteristicRow, characteristicLine(srctype)))
             case 19 => optional(map(ValueRow, valueLine()))
             case _  => return(None)
         }
 
-    def classLine(): TextParser[ClassRow, t] =
+    def classLine(srctype: SourceType): TextParser[ClassRow, t] =
         use TextParser.{flatMap};
+        let namelen = getNameSize(srctype);
+        let desclen = getClassDescSize(srctype);
         let* ctype  = content(4);
-        let* name   = content(33);
+        let* name   = content(namelen);
         let* len    = restOfLineLength();
-        let* desc   = if (len > 36) content(36) else restOfLine(false);
-        //let* _      = restOfLine(true);
+        let* desc   = if (len > desclen) content(desclen) else restOfLine(false);
         return({ classType = ctype, name = name, description = desc })
 
-    def characteristicLine(): TextParser[CharacteristicRow, t] =
+    def characteristicLine(srctype: SourceType): TextParser[CharacteristicRow, t] =
         use TextParser.{flatMap};
-        let* name   = content(33);
-        let* desc   = content(47);
+        let namelen = getNameSize(srctype);
+        let desclen = getCharacteristicDescSize(srctype);
+        let* name   = content(namelen);
+        let* desc   = content(desclen);
         let* dtype  = datatype();
         return({ name = name, description = desc, datatype = dtype})
 
