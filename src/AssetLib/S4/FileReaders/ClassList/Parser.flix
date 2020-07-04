@@ -20,9 +20,9 @@ use Time.LocalDate;
 
 
 use TextParser.TextParser;
-use TextParser.{parseFile, return, failure, map, lookingAts, liftResult, swapError, parseLine};
+use TextParser.{parseFile, return, failure, map, alt, lookingAts, liftResult, swapError, parseLine};
 use TextParser/Combinators.{optional, manyWith};
-use TextParser/Text.{restOfLine, content, anchorLine};
+use TextParser/Text.{restOfLine, restOfLineLength, content, anchorLine, upperLetters};
 use TextParser/Token1.{lexeme, symbol, int32};
 
 use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
@@ -81,8 +81,9 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
         use TextParser.{flatMap};
         let* ctype  = content(4);
         let* name   = content(33);
-        let* desc   = content(36);
-        let* _      = restOfLine(true);
+        let* len    = restOfLineLength();
+        let* desc   = if (len > 36) content(36) else restOfLine(false);
+        //let* _      = restOfLine(true);
         return({ classType = ctype, name = name, description = desc })
 
     def characteristicLine(): TextParser[CharacteristicRow, t] =
@@ -94,7 +95,7 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
 
     def datatype(): TextParser[Datatype, t] = 
         use TextParser.{flatMap};
-        let* tyname = lookingAts("\p{Upper}+");
+        let* tyname = lexeme(upperLetters());
         let* length = int32();
         let* dprec  = optional(int32());
         match (tyname, dprec) {

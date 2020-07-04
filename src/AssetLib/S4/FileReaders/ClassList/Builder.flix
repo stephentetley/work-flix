@@ -25,10 +25,10 @@ use AssetLib/S4/FileReaders/ClassList/Datatypes.Refinement.{ListOfValues, IntRan
 
 namespace AssetLib/S4/FileReaders/ClassList/Builder {
     
-    pub def buildClassList(src: ClassListFile): ClassList = 
+    pub def buildClassList(src: ClassListFile): ClassList & Impure = 
         { dateStamp = src.dateStamp, classes = classesList(src.rows)}
 
-    def classesList(src: List[ClassListRow]): List[Class] = 
+    def classesList(src: List[ClassListRow]): List[Class] & Impure = 
         match src { 
             case ClassRow(r1) :: rest => {
                 let (cxs, rest1) = characteristicsList(rest);
@@ -40,19 +40,19 @@ namespace AssetLib/S4/FileReaders/ClassList/Builder {
             case _ => Nil
         }
 
-    def characteristicsList(src: List[ClassListRow]): (List[Characteristic],  List[ClassListRow]) = 
+    def characteristicsList(src: List[ClassListRow]): (List[Characteristic],  List[ClassListRow]) & Impure = 
         match src { 
             case CharacteristicRow(r1) :: rest => {
                 let (vals, rest1) = listOfValuesList(rest);
                 let c1 = {  name = r1.name, description = r1.description
                         , datatype = r1.datatype, refinement = makeRefinement(vals) };
-                let (cs, rest2) = characteristicsList(rest1);
+                let (cs, rest2) = characteristicsList(rest1);                
                 (c1 :: cs, rest2)
             }
             case xs => (Nil, xs)
         }
 
-    def listOfValuesList(src: List[ClassListRow]): (List[String],  List[ClassListRow]) = 
+    def listOfValuesList(src: List[ClassListRow]): (List[String],  List[ClassListRow]) & Impure = 
         match src { 
             case ValueRow(v1) :: rest => {
                 let (vs, rest1) = listOfValuesList(rest);
@@ -61,7 +61,22 @@ namespace AssetLib/S4/FileReaders/ClassList/Builder {
             case xs => (Nil, xs)
         }
 
-    def makeRefinement(_: List[String]): Option[Refinement] = None
+    def makeRefinement(xs: List[String]): Option[Refinement] & Impure = 
+        match xs {
+            case Nil => None
+            case r1 :: Nil => match intRange(r1) { 
+                case Ok(rng) => Some(rng)
+                case Err(_) => Some(ListOfValues(r1 :: Nil))
+            }
+            case ans => Some(ListOfValues(ans))
+        }
+
+    def intRange(src: String): Result[Refinement, System.Error] & Impure = 
+        use Result.flatMap;
+        use Text/Regex/MatchEvaluator.{lift2, getNamedCaptureInt32};
+        let* patt = Text/Regex/Pattern.compile("(?<start>\d+) \- (?<end>\d+)");
+        let eval = lift2((x,y) -> IntRange(x,y), getNamedCaptureInt32("start"), getNamedCaptureInt32("end"));
+        Text/Regex.evalContains(src, patt, eval)
 
     /// Print Html via a rose tree
 
@@ -89,11 +104,13 @@ namespace AssetLib/S4/FileReaders/ClassList/Builder {
             case None => k(RoseTree(label, Nil))
         }
 
-    def roseTreeRefines1(x: Refinement, k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
-        match x { 
+    def roseTreeRefines1(src: Refinement, k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
+        let intRangeLabel = (x,y) -> {name = "Int Range", description = Int32.toString(x) + " - " + Int32.toString(y) };
+        let decimalRangeLabel = (x,y) -> {name = "Decimal Range", description = Float64.toString(x) + " - " + Float64.toString(y) };
+        match src { 
             case ListOfValues(xs)   => k(List.map(x -> RoseTree({name = "Value", description = x}, Nil), xs))
-            case IntRange(_, _)     => k(RoseTree({name = "Int Range", description = "..."}, Nil) :: Nil)
-            case DecimalRange(_, _) => k(RoseTree({name = "Decimal Range", description = "..."}, Nil) :: Nil)
+            case IntRange(x, y)     => k(RoseTree(intRangeLabel(x,y), Nil) :: Nil)
+            case DecimalRange(x, y) => k(RoseTree(decimalRangeLabel(x,y), Nil) :: Nil)
         }
         
 }
