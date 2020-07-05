@@ -35,12 +35,14 @@ namespace AssetLib/S4/FileReaders/ClassList/ExportCsv {
     pub type alias ExportCsvParams = { charset: Text.Charset
                                     , characteristicsPath: String
                                     , refinesValuesPath: String
+                                    , refinesRangePath: String
                                     }
 
     pub def exportCsv(src: ClassList, params: ExportCsvParams): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         let* _ = exportCharacteristicsCsv(src, params.characteristicsPath, params.charset);
         let* _ = exportRefinesValuesCsv(src, params.refinesValuesPath, params.charset);
+        let* _ = exportRefinesRangeCsv(src, params.refinesRangePath, params.charset);
         Ok()
 
     pub def exportCharacteristicsCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
@@ -95,10 +97,30 @@ namespace AssetLib/S4/FileReaders/ClassList/ExportCsv {
             case _ => Ok()
         }
 
-    // def refinesRangeHeaders(): Array[String] & Impure = 
-    //     [ "Class Id", "Characteristic Id", "Lowest", "Highest" ]
+    pub def exportRefinesRangeCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
+        use Result.flatMap;
+        let headers = refinesRangeHeaders();
+        let* writer = newCsvWriter(path, cs, headers);
+        let* _ = foreachR(emitRefinesRangeClass(writer), src.classes);
+        let _ = writer.close();
+        Ok() 
+
+    def refinesRangeHeaders(): Array[String] & Impure = 
+        [ "Class Type", "Class Id", "Characteristic Id", "Lowest", "Highest" ]
 
 
+    def emitRefinesRangeClass(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
+        foreachR(emitRefinesRange(writer, src.classType, src.name), src.characteristics)
+
+    def emitRefinesRange(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
+        let step = (lowest, highest) -> {
+            let row = [ classType, className, src.name, Int32.toString(lowest), Int32.toString(highest) ];
+            writeRow(writer, row)
+        };
+        match src.refinement {
+            case Some(IntRange(lo, hi)) => step(lo, hi)
+            case _ => Ok()
+        }
 
 
 

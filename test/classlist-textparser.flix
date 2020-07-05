@@ -48,6 +48,7 @@ def main(): Result[Unit, System.Error] & Impure =
                     { charset = Text/Charset.iso_8859_1()
                     , characteristicsPath = "e:/coding/work/work-flix/output/equi_characteristics.csv"
                     , refinesValuesPath = "e:/coding/work/work-flix/output/equi_refines_values.csv"
+                    , refinesRangePath = "e:/coding/work/work-flix/output/equi_refines_range.csv"
                     },
                     "e:/coding/work/work-flix/output/equi_classlist.html"
                     )
