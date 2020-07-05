@@ -5,7 +5,7 @@ use AssetLib/S4/FileReaders/ClassList/Datatypes.ClassListRow.{ClassRow, Characte
 use AssetLib/S4/FileReaders/ClassList/Builder.{buildClassList, allTrees};
 use AssetLib/S4/FileReaders/ClassList/Parser.SourceType;
 use AssetLib/S4/FileReaders/ClassList/Parser.SourceType.{FlocClasses, EquiClasses};
-use AssetLib/S4/FileReaders/ClassList/ExportCsv.{exportCharacteristicsCsv};
+use AssetLib/S4/FileReaders/ClassList/ExportCsv.{ExportCsvParams, exportCsv};
 
 // def printAst(src: ClassListFile): Unit & Impure = 
 //     let fn = x -> match x { 
@@ -25,12 +25,12 @@ def lengthHelper(xs: List[a], ac: Int32): Int32 = match xs {
 // def printClasses(src: ClassList): Unit & Impure = 
 //     List.foreach(x -> Console.printLine(x.name), src.classes)
 
-def renderFile(src: String, srcType: SourceType, cs: Text.Charset, htmlOutfile: String, csvOutfile: String): Result[Unit, System.Error] & Impure = 
+def renderFile(src: String, srcType: SourceType, csvParams: ExportCsvParams, htmlOutfile: String): Result[Unit, System.Error] & Impure = 
     use Result.flatMap;
     use AssetLib/S4/FileReaders/ClassList/Parser.{parseFile};
     use AssetLib/Common/ExportHtmlTree.{writeHtmlForest};
     let _ = Console.printLine("renderFile...");
-    let* ast = parseFile(src, srcType, cs);
+    let* ast = parseFile(src, srcType, csvParams.charset);
     // let _ = printAst(ast);
     let _ = Console.printLine("Parsing done...");
     let _ = Console.printLine("List length: " + Int32.toString(length(ast.rows)));
@@ -38,13 +38,16 @@ def renderFile(src: String, srcType: SourceType, cs: Text.Charset, htmlOutfile: 
     // let _ = printClasses(ans);
     let _ = writeHtmlForest(htmlOutfile, allTrees(ans));
 
-    let _ = exportCharacteristicsCsv(ans, csvOutfile, cs);
+    let _ = exportCsv(ans, csvParams);
     Ok()
 
 def main(): Result[Unit, System.Error] & Impure =  
     //renderFile("G:/work/Projects/assets/facts/floc-class-export.txt", FlocClasses, Text/Charset.utf_8(), "e:/coding/work/work-flix/output/floc_classlist.html")
     renderFile("G:/work/Projects/assets/facts/equi-class-export.txt", 
                     EquiClasses, 
-                    Text/Charset.iso_8859_1(), 
-                    "e:/coding/work/work-flix/output/equi_classlist.html", 
-                    "e:/coding/work/work-flix/output/equi_characteristics.csv")
+                    { charset = Text/Charset.iso_8859_1()
+                    , characteristicsPath = "e:/coding/work/work-flix/output/equi_characteristics.csv"
+                    , refinesValuesPath = "e:/coding/work/work-flix/output/equi_refines_values.csv"
+                    },
+                    "e:/coding/work/work-flix/output/equi_classlist.html"
+                    )

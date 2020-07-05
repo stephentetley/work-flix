@@ -19,6 +19,7 @@ use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
 use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassList, Class, Characteristic, Datatype};
 use AssetLib/S4/FileReaders/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+use AssetLib/S4/FileReaders/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
 
 
 namespace AssetLib/S4/FileReaders/ClassList/ExportCsv {
@@ -31,6 +32,17 @@ namespace AssetLib/S4/FileReaders/ClassList/ExportCsv {
         case Nil => Ok() 
     }
 
+    pub type alias ExportCsvParams = { charset: Text.Charset
+                                    , characteristicsPath: String
+                                    , refinesValuesPath: String
+                                    }
+
+    pub def exportCsv(src: ClassList, params: ExportCsvParams): Result[Unit, System.Error] & Impure = 
+        use Result.flatMap;
+        let* _ = exportCharacteristicsCsv(src, params.characteristicsPath, params.charset);
+        let* _ = exportRefinesValuesCsv(src, params.refinesValuesPath, params.charset);
+        Ok()
+
     pub def exportCharacteristicsCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
         let headers = characteristicHeaders();
@@ -40,27 +52,48 @@ namespace AssetLib/S4/FileReaders/ClassList/ExportCsv {
         Ok()
 
     def characteristicHeaders(): Array[String] & Impure = 
-        [ "Class Id", "Characteristic Id", "Datatype", "Char Length", "Decimal Prec" ]
+        [ "Class Type", "Class Id", "Characteristic Id", "Datatype", "Char Length", "Decimal Prec" ]
 
 
 
     def emitCharacteristics(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
-        foreachR(emitCharacteristic(writer, src.name), src.characteristics)
+        foreachR(emitCharacteristic(writer, src.classType, src.name), src.characteristics)
 
-    def emitCharacteristic(writer: CsvWriter, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
+    def emitCharacteristic(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
         let (typeName, len, prec) = match src.datatype {
             case Text(d) => ("Text", d, "")
             case Date(d) => ("Date", d, "")
             case NumInt(d) => ("Integer", d, "")
             case NumDecimal(d, p) => ("Decimal", d, Int32.toString(p))            
         };
-        let row = [ className, src.name, typeName, Int32.toString(len), prec ];
+        let row = [ classType, className, src.name, typeName, Int32.toString(len), prec ];
         writeRow(writer, row)
-                
+
+
+    pub def exportRefinesValuesCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
+        use Result.flatMap;
+        let headers = refinesValueHeaders();
+        let* writer = newCsvWriter(path, cs, headers);
+        let* _ = foreachR(emitRefinesValuesClass(writer), src.classes);
+        let _ = writer.close();
+        Ok() 
         
-        
-    // def refinesValueHeaders(): Array[String] & Impure = 
-    //     [ "Class Id", "Characteristic Id", "Value" ]
+    def refinesValueHeaders(): Array[String] & Impure = 
+        [ "Class Type", "Class Id", "Characteristic Id", "Value" ]
+
+
+    def emitRefinesValuesClass(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
+        foreachR(emitRefinesValues(writer, src.classType, src.name), src.characteristics)
+
+    def emitRefinesValues(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
+        let step = value -> {
+            let row = [ classType, className, src.name, value ];
+            writeRow(writer, row)
+        };
+        match src.refinement {
+            case Some(ListOfValues(xs)) => foreachR(step, xs)
+            case _ => Ok()
+        }
 
     // def refinesRangeHeaders(): Array[String] & Impure = 
     //     [ "Class Id", "Characteristic Id", "Lowest", "Highest" ]
