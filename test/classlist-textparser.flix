@@ -5,6 +5,7 @@ use AssetLib/S4/FileReaders/ClassList/Datatypes.ClassListRow.{ClassRow, Characte
 use AssetLib/S4/FileReaders/ClassList/Builder.{buildClassList, allTrees};
 use AssetLib/S4/FileReaders/ClassList/Parser.SourceType;
 use AssetLib/S4/FileReaders/ClassList/Parser.SourceType.{FlocClasses, EquiClasses};
+use AssetLib/S4/FileReaders/ClassList/ExportCsv.{exportCharacteristicsCsv};
 
 // def printAst(src: ClassListFile): Unit & Impure = 
 //     let fn = x -> match x { 
@@ -21,10 +22,10 @@ def lengthHelper(xs: List[a], ac: Int32): Int32 = match xs {
     case Nil => ac
 }
 
-def printClasses(src: ClassList): Unit & Impure = 
-    List.foreach(x -> Console.printLine(x.name), src.classes)
+// def printClasses(src: ClassList): Unit & Impure = 
+//     List.foreach(x -> Console.printLine(x.name), src.classes)
 
-def renderFile(src: String, srcType: SourceType, cs: Text.Charset, outfile: String): Result[Unit, System.Error] & Impure = 
+def renderFile(src: String, srcType: SourceType, cs: Text.Charset, htmlOutfile: String, csvOutfile: String): Result[Unit, System.Error] & Impure = 
     use Result.flatMap;
     use AssetLib/S4/FileReaders/ClassList/Parser.{parseFile};
     use AssetLib/Common/ExportHtmlTree.{writeHtmlForest};
@@ -33,10 +34,11 @@ def renderFile(src: String, srcType: SourceType, cs: Text.Charset, outfile: Stri
     // let _ = printAst(ast);
     let _ = Console.printLine("Parsing done...");
     let _ = Console.printLine("List length: " + Int32.toString(length(ast.rows)));
-    let _ = Console.printLine("List length (3): " + Int32.toString(length(1 :: 2 :: 3 :: Nil)));
     let ans = buildClassList(ast);
-    let _ = printClasses(ans);
-    let _ = writeHtmlForest(outfile, allTrees(ans));
+    // let _ = printClasses(ans);
+    let _ = writeHtmlForest(htmlOutfile, allTrees(ans));
+
+    let _ = exportCharacteristicsCsv(ans, csvOutfile, cs);
     Ok()
 
 def main(): Result[Unit, System.Error] & Impure =  
@@ -44,4 +46,5 @@ def main(): Result[Unit, System.Error] & Impure =
     renderFile("G:/work/Projects/assets/facts/equi-class-export.txt", 
                     EquiClasses, 
                     Text/Charset.iso_8859_1(), 
-                    "e:/coding/work/work-flix/output/equi_classlist.html")
+                    "e:/coding/work/work-flix/output/equi_classlist.html", 
+                    "e:/coding/work/work-flix/output/equi_characteristics.csv")
