@@ -17,12 +17,12 @@
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassList, Class, Characteristic, Datatype};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
 
 
-namespace AssetLib/S4/FileReaders/ClassList/ExportCsv {
+namespace AssetLib/S4/FileReaders/ClassList/Raw/ExportCsv {
 
     def foreachR(fn: a ~> Result[Unit, System.Error], xs: List[a]): Result[Unit, System.Error] & Impure = match xs { 
         case x :: rs => match fn(x) {
@@ -31,19 +31,6 @@ namespace AssetLib/S4/FileReaders/ClassList/ExportCsv {
         }
         case Nil => Ok() 
     }
-
-    pub type alias ExportCsvParams = { charset: Text.Charset
-                                    , characteristicsPath: String
-                                    , refinesValuesPath: String
-                                    , refinesRangePath: String
-                                    }
-
-    pub def exportCsv(src: ClassList, params: ExportCsvParams): Result[Unit, System.Error] & Impure = 
-        use Result.flatMap;
-        let* _ = exportCharacteristicsCsv(src, params.characteristicsPath, params.charset);
-        let* _ = exportRefinesValuesCsv(src, params.refinesValuesPath, params.charset);
-        let* _ = exportRefinesRangeCsv(src, params.refinesRangePath, params.charset);
-        Ok()
 
     pub def exportCharacteristicsCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
         use Result.flatMap;

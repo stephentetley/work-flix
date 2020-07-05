@@ -25,12 +25,13 @@ use TextParser/Combinators.{optional, manyWith};
 use TextParser/Text.{restOfLine, restOfLineLength, content, anchorLine, upperLetters};
 use TextParser/Token1.{lexeme, symbol, int32};
 
-use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.{SourceType, ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.SourceType.{FlocClasses, EquiClasses};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
 
-namespace AssetLib/S4/FileReaders/ClassList/Parser {
+namespace AssetLib/S4/FileReaders/ClassList/Raw/Parser {
 
 
     def append(x: Option[a], ac: DList[a]): DList[a] = 
@@ -40,10 +41,7 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
             case None => ac
         }
 
-    pub enum SourceType {
-        case FlocClasses,
-        case EquiClasses
-    }
+
 
     def getNameSize(x: SourceType): Int32 = match x {
         case FlocClasses => 33

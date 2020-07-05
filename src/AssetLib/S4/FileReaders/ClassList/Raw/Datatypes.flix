@@ -16,7 +16,15 @@
 
 use Time.LocalDate;
 
-namespace AssetLib/S4/FileReaders/ClassList/Datatypes {
+namespace AssetLib/S4/FileReaders/ClassList/Raw/Datatypes {
+
+
+    /// Source type indicates minor but important formatting differences in the input files
+    pub enum SourceType {
+        case FlocClasses,
+        case EquiClasses
+    }
+
 
     /// Flat representation - not a tree.
     type alias ClassListFile = { dateStamp: LocalDate, rows: List[ClassListRow] }

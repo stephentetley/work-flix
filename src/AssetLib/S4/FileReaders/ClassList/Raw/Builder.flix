@@ -17,13 +17,13 @@
 use Data.{RoseTree, RoseForest};
 use Data.RoseTree.{RoseTree};
 
-use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.{ClassList, Class, Characteristic, Refinement};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
-use AssetLib/S4/FileReaders/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Refinement};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
 
-namespace AssetLib/S4/FileReaders/ClassList/Builder {
+namespace AssetLib/S4/FileReaders/ClassList/Raw/Builder {
     
     pub def buildClassList(src: ClassListFile): ClassList = 
         let cs = classesList(src.rows, xs -> xs);
