@@ -68,9 +68,7 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
 
     def classListParser(srctype: SourceType): TextParser[ClassListFile, t] = 
         use TextParser.flatMap;
-        use TextParser/Trace.{tell};
         use Data/Transient/DList.{empty, toList};
-        let* _ = tell("Parser Start");
         let* _  = symbol("Class List");
         let* d  = pDateStamp();
         let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
@@ -87,9 +85,8 @@ namespace AssetLib/S4/FileReaders/ClassList/Parser {
         
 
     def classListRow(srctype: SourceType): TextParser[Option[ClassListRow], t] = 
-        use TextParser.flatMap;
-        use TextParser/Trace.{trace};
-        let* indent = trace("row", indentingLevel());
+        use TextParser.flatMap;        
+        let* indent = indentingLevel();
         match indent { 
             case 11 => optional(map(ClassRow, classLine(srctype)))
             case 15 => optional(map(CharacteristicRow, characteristicLine(srctype)))

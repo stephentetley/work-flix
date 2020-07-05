@@ -6,13 +6,20 @@ use AssetLib/S4/FileReaders/ClassList/Builder.{buildClassList, allTrees};
 use AssetLib/S4/FileReaders/ClassList/Parser.SourceType;
 use AssetLib/S4/FileReaders/ClassList/Parser.SourceType.{FlocClasses, EquiClasses};
 
-def printAst(src: ClassListFile): Unit & Impure = 
-    let fn = x -> match x { 
-        case ClassRow(r1) => Console.printLine("Class:" + r1.name)
-        case CharacteristicRow(r1) => Console.printLine("Characteristic:" + r1.name)
-        case ValueRow(s) => Console.printLine("Value:" + s)
-    };
-    List.foreach(fn, src.rows)
+// def printAst(src: ClassListFile): Unit & Impure = 
+//     let fn = x -> match x { 
+//         case ClassRow(r1) => Console.printLine("Class:" + r1.name)
+//         case CharacteristicRow(r1) => Console.printLine("Characteristic:" + r1.name)
+//         case ValueRow(s) => Console.printLine("Value:" + s)
+//     };
+//     List.foreach(fn, src.rows)
+
+pub def length(xs: List[a]): Int32 = lengthHelper(xs, 0) 
+
+def lengthHelper(xs: List[a], ac: Int32): Int32 = match xs { 
+    case _ :: rs => lengthHelper(rs, ac + 1)
+    case Nil => ac
+}
 
 def printClasses(src: ClassList): Unit & Impure = 
     List.foreach(x -> Console.printLine(x.name), src.classes)
@@ -23,8 +30,10 @@ def renderFile(src: String, srcType: SourceType, cs: Text.Charset, outfile: Stri
     use AssetLib/Common/ExportHtmlTree.{writeHtmlForest};
     let _ = Console.printLine("renderFile...");
     let* ast = parseFile(src, srcType, cs);
-    let _ = printAst(ast);
-    let _ = Console.printLine(Int32.toString(List.length(ast.rows)));
+    // let _ = printAst(ast);
+    let _ = Console.printLine("Parsing done...");
+    let _ = Console.printLine("List length: " + Int32.toString(length(ast.rows)));
+    let _ = Console.printLine("List length (3): " + Int32.toString(length(1 :: 2 :: 3 :: Nil)));
     let ans = buildClassList(ast);
     let _ = printClasses(ans);
     let _ = writeHtmlForest(outfile, allTrees(ans));

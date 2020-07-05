@@ -25,43 +25,40 @@ use AssetLib/S4/FileReaders/ClassList/Datatypes.Refinement.{ListOfValues, IntRan
 
 namespace AssetLib/S4/FileReaders/ClassList/Builder {
     
-    pub def buildClassList(src: ClassListFile): ClassList & Impure = 
-        { dateStamp = src.dateStamp, classes = classesList(src.rows)}
+    pub def buildClassList(src: ClassListFile): ClassList = 
+        let cs = classesList(src.rows, xs -> xs);
+        { dateStamp = src.dateStamp, classes = cs }
 
-    def classesList(src: List[ClassListRow]): List[Class] & Impure = 
+    /// Needs CPS transforming...
+    def classesList(src: List[ClassListRow], k: List[Class] -> List[Class]): List[Class] = 
         match src { 
             case ClassRow(r1) :: rest => {
-                let (cxs, rest1) = characteristicsList(rest);
-                let c1 = { classType = r1.classType, name = r1.name
-                         , description = r1.description, characteristics = cxs };
-                let cs = classesList(rest1);
-                c1 :: cs
+                characteristicsList(rest, (cxs, rest1) -> 
+                    let c1 = { classType = r1.classType, name = r1.name
+                            , description = r1.description, characteristics = cxs };
+                    classesList(rest1, cs -> k(c1 :: cs)))
             }
-            case _ => Nil
+            case _ => k(Nil)
         }
 
-    def characteristicsList(src: List[ClassListRow]): (List[Characteristic],  List[ClassListRow]) & Impure = 
+    def characteristicsList(src: List[ClassListRow], k: (List[Characteristic], List[ClassListRow]) -> List[Class]): List[Class] = 
         match src { 
             case CharacteristicRow(r1) :: rest => {
-                let (vals, rest1) = listOfValuesList(rest);
-                let c1 = {  name = r1.name, description = r1.description
-                        , datatype = r1.datatype, refinement = makeRefinement(vals) };
-                let (cs, rest2) = characteristicsList(rest1);                
-                (c1 :: cs, rest2)
+                listOfValuesList(rest, (vals, rest1) ->
+                    let c1 = {  name = r1.name, description = r1.description
+                            , datatype = r1.datatype, refinement = makeRefinement(vals) };
+                    characteristicsList(rest1, (cs, rest2) -> k(c1 :: cs, rest2)))
             }
-            case xs => (Nil, xs)
+            case xs => k(Nil, xs)
         }
 
-    def listOfValuesList(src: List[ClassListRow]): (List[String],  List[ClassListRow]) & Impure = 
+    def listOfValuesList(src: List[ClassListRow], k: (List[String],  List[ClassListRow]) -> List[Class]): List[Class] =  
         match src { 
-            case ValueRow(v1) :: rest => {
-                let (vs, rest1) = listOfValuesList(rest);
-                (v1 :: vs, rest1)
-            }
-            case xs => (Nil, xs)
+            case ValueRow(v1) :: rest => listOfValuesList(rest, (vs, rest1) -> k(v1 :: vs, rest1))
+            case xs => k(Nil, xs)
         }
 
-    def makeRefinement(xs: List[String]): Option[Refinement] & Impure = 
+    def makeRefinement(xs: List[String]): Option[Refinement] = 
         match xs {
             case Nil => None
             case r1 :: Nil => match intRange(r1) { 
@@ -71,7 +68,9 @@ namespace AssetLib/S4/FileReaders/ClassList/Builder {
             case ans => Some(ListOfValues(ans))
         }
 
-    def intRange(src: String): Result[Refinement, System.Error] & Impure = 
+    def intRange(src: String): Result[Refinement, System.Error] = intRangeHelper(src) as & Pure 
+
+    def intRangeHelper(src: String): Result[Refinement, System.Error] & Impure = 
         use Result.flatMap;
         use Text/Regex/MatchEvaluator.{lift2, getNamedCaptureInt32};
         let* patt = Text/Regex/Pattern.compile("(?<start>\d+) \- (?<end>\d+)");
