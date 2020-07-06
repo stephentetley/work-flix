@@ -50,8 +50,8 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Builder {
 
     /// In CPS ...
     /// This is preorder builder with unlimited depth and each row is either Floc or Equi.
-    /// We have to check links in the data wether to go up or down.
-    def treesList(level: Int32, parentId: String, xs: List[IH06Row], k: (List[IH06Tree], List[IH06Row]) -> List[IH06Tree]): List[IH06Tree] = 
+    /// We have to check links in the data whether to go up or down.
+    def treesList(level: Int32, parentId: String, xs: List[IH06Row], k: (List[IH06Tree], List[IH06Row]) -> List[IH06Tree]): List[IH06Tree] =
         match xs { 
             case FlocRow(r1) :: rest => {
                 if (isChildNodeFloc(parentId, r1.parent))
@@ -73,7 +73,7 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Builder {
                 else
                     k(Nil, xs)
             }
-            case _ => k(Nil, Nil)
+            case Nil => k(Nil, Nil)
         }
 
 

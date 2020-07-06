@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-use FactIO.CsvFormat;
-use FactIO.CsvRowEvaluator;
-use FactIO.CsvWriter;
-use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
+use FactIO/Csv.CsvFormat;
+use FactIO/Csv.CsvRowEvaluator;
+use FactIO/Csv.CsvWriter;
+use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
 namespace AssetLib/Aib/BuildTree {
 
@@ -47,7 +47,7 @@ namespace AssetLib/Aib/BuildTree {
         String.stripPrefix("/", shortName) |> x -> Option.getWithDefault(x, shortName)
 
     def readAibRow1[r](ix:Int32, stk: Stack): CsvRowEvaluator[(#{ AibRow | r }, Stack)] =
-        use FactIO/CsvRowEvaluator.{flatMap, return, map, getStringByLabel};
+        use FactIO/Csv/RowEvaluator.{flatMap, return, map, getStringByLabel};
         let* reference      = getStringByLabel("Reference");
         let* commonName     = getStringByLabel("Common Name");
         let (parent, stk1)  = match getParent(commonName, stk) { 
@@ -63,8 +63,9 @@ namespace AssetLib/Aib/BuildTree {
 
     pub def readAibRows[r](path: String): Result[#{ AibRow | r }, System.Error] & Impure =    
         use Result.flatMap;
-        let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, Text/Charset.utf_8(), true);
-        let* (reln, _) = FactIO/CsvImport.importRowsWithCountAndAccum(readAibRow1, Nil, src);
+        use FactIO/Csv/CsvFormat.{excel, withFirstRecordAsHeader};
+        let* src = FactIO/Csv/Import.newCsvStreamWithBOM(path, excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        let* (reln, _) = FactIO/Csv/Import.importRowsWithCountAndAccum(readAibRow1, Nil, src);
         Ok(solve reln)
 
     /// Write
@@ -77,8 +78,8 @@ namespace AssetLib/Aib/BuildTree {
         [ Int32.toString(ix), reference, shortName, commonName, parentRef ]
 
     pub def writeAibRows[r](src: #{ AibRow | r}, path: String): Result[Unit, System.Error] & Impure =         
-        let buildStep = FactIO/CsvExport.makeBuildStep(getAibRowCells); 
-        let builder: FactIO.CsvBuilder = fold AibRow FactIO/CsvExport.emptyCsvBuilder() buildStep src;
-        FactIO/CsvExport.outputCsv(path, Text/Charset.utf_8(), headers(), builder)
+        let buildStep = FactIO/Csv/Export.makeCsvBuildStep(getAibRowCells); 
+        let builder: FactIO/Csv.CsvBuilder = fold AibRow FactIO/Csv/Export.emptyCsvBuilder() buildStep src;
+        FactIO/Csv/Export.outputCsv(path, Text/Charset.utf_8(), headers(), builder)
 
 }
