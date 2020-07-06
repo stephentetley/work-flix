@@ -24,12 +24,18 @@ use AssetLib/S4/FileReaders/ChangeFile/Datatypes.DataRow.{DataRow};
 
 namespace AssetLib/S4/FileReaders/ChangeFile/ExportCsv {
 
+        
+    pub def exportCsv(x: ChangeFile, path: String): Result[Unit, System.Error] & Impure =
+        use Result.flatMap;
+        let headers = x.getHeaderArray();
+        let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
+        let* _ = writeRows(writer, x.dataRows);
+        let _ = writer.close();
+        Ok()
+
+
     def getHeaderArray(x: ChangeFile): Array[String] = 
         let Headers(arr) = x.headers;
-        arr
-
-    def getRowArray(x: DataRow): Array[String] = 
-        let DataRow(arr) = x;
         arr
 
     def writeRows(writer: CsvWriter, rows: List[DataRow]): Result[Unit, System.Error] & Impure = 
@@ -42,13 +48,10 @@ namespace AssetLib/S4/FileReaders/ChangeFile/ExportCsv {
                 writeRows(writer, rs)
             }
         }
-        
-    pub def exportCsv(x: ChangeFile, path: String): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
-        let headers = x.getHeaderArray();
-        let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
-        let* _ = writeRows(writer, x.dataRows);
-        let _ = writer.close();
-        Ok()
+
+    def getRowArray(x: DataRow): Array[String] = 
+        let DataRow(arr) = x;
+        arr
+
 
 }

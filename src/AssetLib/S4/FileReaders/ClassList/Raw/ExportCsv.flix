@@ -17,6 +17,7 @@
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
+use AssetLib/Common/Utils.{foreachR};
 use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype};
 use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
@@ -24,13 +25,6 @@ use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.Refinement.{ListOfValues, In
 
 namespace AssetLib/S4/FileReaders/ClassList/Raw/ExportCsv {
 
-    def foreachR(fn: a ~> Result[Unit, System.Error], xs: List[a]): Result[Unit, System.Error] & Impure = match xs { 
-        case x :: rs => match fn(x) {
-            case Ok(_) => foreachR(fn, rs)
-            case Err(e) => Err(e)
-        }
-        case Nil => Ok() 
-    }
 
     pub def exportCharacteristicsCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
         use Result.flatMap;

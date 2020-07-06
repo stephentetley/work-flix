@@ -18,17 +18,11 @@ use Data.RoseTree.{RoseTree};
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
+use AssetLib/Common/Utils.{foreachR};
 use AssetLib/Aib/FileReaders/TreeExport/Raw/Datatypes.{AibTree, AibNode};
 
 namespace AssetLib/Aib/FileReaders/TreeExport/Raw/ExportCsv {
 
-    def foreachR(fn: a ~> Result[Unit, System.Error], xs: List[a]): Result[Unit, System.Error] & Impure = match xs { 
-        case x :: rs => match fn(x) {
-            case Ok(_) => foreachR(fn, rs)
-            case Err(e) => Err(e)
-        }
-        case Nil => Ok() 
-    }
 
     pub def exportAibTreesCsv(src: List[AibTree], path: String): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
