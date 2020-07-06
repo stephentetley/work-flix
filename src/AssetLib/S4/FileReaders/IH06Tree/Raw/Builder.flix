@@ -26,26 +26,20 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Builder {
     pub def buildIH06Trees(src: IH06File): List[IH06Tree] = treesList(1, "", src.rows, (xs, _) -> xs)
 
     def makeFlocNode(level: Int32, row: FlocRow): IH06Node = 
-        FlocNode({ floc = row.floc, level = level, description = row.description })
+        FlocNode({ +level = level | row })
     
     def makeEquiNode(level: Int32, row: EquiRow): IH06Node = 
-        EquiNode({ equiId = row.equiId, level = level, description = row.description })
+        EquiNode({ +level = level | row })
 
 
-    def isChildNodeFloc(parentId: String, parentPointer: Option[String]): Bool = 
-        match parentPointer { 
-            case Some(x) => x == parentId
-            case None => parentId == ""
-        }
+    def isChildNodeFloc(parentId: String, parentPointer: String): Bool = 
+        parentId == parentPointer
 
-    def isChildNodeEqui(parentId: String, parentFloc: String, parentPointer: Option[String]): Bool = 
+    def isChildNodeEqui(parentId: String, parentFloc: String, parentPointer: String): Bool = 
         if (parentFloc == parentId)
             true
         else 
-            match parentPointer { 
-                case Some(x) => x == parentId
-                case None => parentId == ""
-            }
+            parentId == parentPointer
 
 
     /// In CPS ...

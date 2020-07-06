@@ -70,14 +70,14 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Parser {
     def flocLine2(floc: String): TextParser[FlocRow, t] = 
         use TextParser.flatMap;
         let* desc = restOfLine(true) |> map(String.trim);
-        return({ floc = floc, description = desc, parent = None })
+        return({ floc = floc, description = desc, parent = "" })
         
 
     def flocLine3(floc: String): TextParser[FlocRow, t] = 
         use TextParser.flatMap;
         let* desc = content(41);
         let* parent = restOfLine(true) |> map(String.trim);
-        return({ floc = floc, description = desc, parent = Some(parent) })
+        return({ floc = floc, description = desc, parent = parent })
     
     def equiLine(): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
@@ -93,14 +93,14 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Parser {
     def equiLine3(equiId: String, desc: String): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
         let* floc = restOfLine(true) |> map(String.trim);
-        return({ equiId = equiId, description = desc, floc = floc, superordinate = None })
+        return({ equiId = equiId, description = desc, floc = floc, superordinate = "" })
 
 
     def equiLine4(equiId: String, desc: String): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
         let* floc = content(41);
         let* supero = restOfLine(true) |> map(String.trim);
-        return({ equiId = equiId, description = desc, floc = floc, superordinate = Some(supero) })
+        return({ equiId = equiId, description = desc, floc = floc, superordinate = supero })
 
 
     def validFrom(): TextParser[LocalDate, t] = 

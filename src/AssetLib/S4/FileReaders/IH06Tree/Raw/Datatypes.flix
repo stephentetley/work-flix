@@ -29,8 +29,11 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Datatypes {
         case EquiRow(EquiRow)
     }
 
-    type alias FlocRow = { floc: String, description: String, parent: Option[String] }
-    type alias EquiRow = { equiId: String, description: String, floc: String, superordinate: Option[String] }
+    /// Empty string for no parent
+    type alias FlocRow = { floc: String, description: String, parent: String }
+
+    /// Empty string for no super
+    type alias EquiRow = { equiId: String, description: String, floc: String, superordinate: String }
 
 
 
@@ -45,7 +48,7 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Datatypes {
         case EquiNode(EquiNode)
     }
 
-    type alias FlocNode = { floc: String, level: Int32, description: String }
-    type alias EquiNode = { equiId: String, level: Int32, description: String }
+    type alias FlocNode = { level: Int32, floc: String, description: String, parent: String }
+    type alias EquiNode = { level: Int32, equiId: String, description: String, floc: String, superordinate: String }
 
 }
