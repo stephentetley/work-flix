@@ -29,7 +29,11 @@ namespace AssetLib/S4/FileReaders/ClassList/Raw/Builder {
         let cs = classesList(src.rows, xs -> xs);
         { dateStamp = src.dateStamp, classes = cs }
 
-    /// Needs CPS transforming...
+    /// In CPS ...
+    /// This is preorder builder with max depth of 3 and each row has 
+    /// a distinct type, so we can tell from the node type whether to
+    /// go up or down.
+
     def classesList(src: List[ClassListRow], k: List[Class] -> List[Class]): List[Class] = 
         match src { 
             case ClassRow(r1) :: rest => {

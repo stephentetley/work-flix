@@ -24,11 +24,10 @@ namespace AssetLib/S4/FileReaders/ClassList/Relations {
         case Date
     }
 
-    rel Characteristic(className: String, charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
+    rel Characteristic(classType: String, className: String, charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
 
-    rel RefinesChoice(className: String, charName: String, value: String)
+    rel RefinesChoice(classType: String, className: String, charName: String, value: String)
 
-    rel RefinesRange(className: String, charName: String, lowest: Int32, highest: Int32)
-
+    rel RefinesRange(classType: String, className: String, charName: String, lowest: Int32, highest: Int32)
 
 }
