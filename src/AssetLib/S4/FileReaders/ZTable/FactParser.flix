@@ -32,10 +32,10 @@ namespace AssetLib/S4/FileReaders/ZTable/FactParser {
     def importRowsParser(eval: RowEvaluator[reln]): SimpleParser[reln] = 
         use FactIO/FlatFile/SimpleParser.{flatMap, return, skipLinesTill, skipLines, linesTill};
         use FactIO/FlatFile/LineEvaluator.{choice};
-        let* _  = skipLinesTill(separatingLine());
-        let* _ = skipLines(2);
-        let eval1 = makeLineEvaluator(eval);
-        let* rows = linesTill(eval1, separatingLine());        
+        let* _      = skipLinesTill(separatingLine());
+        let* _      = skipLines(2);
+        let eval1   = makeLineEvaluator(eval);
+        let* rows   = linesTill(eval1, separatingLine());        
         return(solve rows)
 
     /// Line of many '-'

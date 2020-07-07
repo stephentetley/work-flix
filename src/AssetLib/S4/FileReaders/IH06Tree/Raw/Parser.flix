@@ -36,8 +36,7 @@ namespace AssetLib/S4/FileReaders/IH06Tree/Raw/Parser {
 
     pub def ih06FileParser(): TextParser[IH06File, t] = 
         use TextParser.flatMap;
-        use TextParser/Trace.{trace};        
-        let* h1 = trace("header", header());
+        let* h1 = header();
         let* rows = many1Till(ih06Row(), endOfInput());
         return({ header = h1, rows = rows })
 
