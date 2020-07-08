@@ -17,6 +17,7 @@
 use System.Error.{IllegalArgumentException, Generic};
 use FactIO/FlatFile.RowWithHeadersEvaluator;
 
+use AssetLib/S4/FileIO/ChangeFile/FactParser.{importRows};
 use AssetLib/S4/Hierarchy/Relations.{Node};
 
 namespace AssetLib/S4/Hierarchy/HierarchyLoader {
@@ -32,8 +33,7 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
         return( Node(id, desc, parent). )
 
 
-    pub def loadEqui[r](path: String): Result[#{ Node | r }, System.Error] & Impure =
-        use AssetLib/S4/FileReaders/ChangeFile/FactParser.{importRows};
+    pub def loadEqui[r](path: String): Result[#{ Node | r }, System.Error] & Impure =        
         importRows(equiEval(), path)   
 
     def flocEval[r](): RowWithHeadersEvaluator[#{ Node | r }] = 
@@ -46,7 +46,7 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
         return( Node(id, desc, parent). )
 
     pub def loadFloc[r](path: String): Result[#{ Node | r }, System.Error] & Impure =
-        use AssetLib/S4/FileReaders/ChangeFile/FactParser.{importRows};
         importRows(flocEval(), path)  
+        
 
 }

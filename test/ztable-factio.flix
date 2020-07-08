@@ -1,6 +1,6 @@
-use AssetLib/S4/FileReaders/ZTable/Relations.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
-use AssetLib/S4/FileReaders/ZTable/BuiltinLoaders.{DbPaths, loadDb, loadFloobjl};
-use AssetLib/S4/FileReaders/ZTable/Derive.{Level, flocLevel};
+use AssetLib/S4/FileIO/ZTable/Relations.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
+use AssetLib/S4/FileIO/ZTable/BuiltinLoaders.{DbPaths, loadDb, loadFloobjl};
+use AssetLib/S4/FileIO/ZTable/Derive.{Level, flocLevel};
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln

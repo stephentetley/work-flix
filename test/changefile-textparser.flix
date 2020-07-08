@@ -1,6 +1,8 @@
 use System.Error.{Generic};
 
-use AssetLib/S4/FileReaders/ChangeFile/Datatypes.{ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Parser.{parseFile};
+use AssetLib/S4/FileIO/ChangeFile/ExportCsv.{exportCsv};
 
 // def runOrError(p: TextParser.Parser[a], f: a -> String, inp: String): String = 
 //     match TextParser.run(p, inp) { 
@@ -8,19 +10,11 @@ use AssetLib/S4/FileReaders/ChangeFile/Datatypes.{ChangeFile};
 //         case Err(e) => "*** ERROR:" + TextParser/Error.showParserError(e)
 //     }
 
-
-@test
-def test01(): Result[ChangeFile, System.Error] & Impure = 
-    use AssetLib/S4/FileReaders/ChangeFile/Parser.{parseFile};
-    let src = "G:/work/Projects/assets/asset_patch/file_download_edm/car36_outstation_valuaequi.txt";
-    parseFile(src)
         
 
 @test
 def main(): Result[Unit, System.Error] & Impure = 
     use Result.flatMap;
-    use AssetLib/S4/FileReaders/ChangeFile/Parser.{parseFile};
-    use AssetLib/S4/FileReaders/ChangeFile/ExportCsv.{exportCsv};
     let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
     let dest = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download_export.csv";
     let* x = parseFile(src);

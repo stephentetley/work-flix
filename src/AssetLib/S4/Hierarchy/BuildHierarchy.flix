@@ -19,7 +19,6 @@ use Data.RoseTree.{RoseTree};
 use System.Error.{IllegalArgumentException, Generic};
 
 
-use AssetLib/S4/ChangeFile.DataRowEvaluator;
 use AssetLib/S4/Hierarchy/Relations.{Node, Root, Child};
 
 namespace AssetLib/S4/Hierarchy/BuildHierarchy {

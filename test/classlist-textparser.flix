@@ -1,8 +1,8 @@
 use System.Error.{Generic};
 
-use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.{SourceType, ClassList, ClassListFile};
-use AssetLib/S4/FileReaders/ClassList/Raw/Datatypes.SourceType.{FlocClasses, EquiClasses};
-use AssetLib/S4/FileReaders/ClassList/TransposeRaw.{TransposeRawParams, transposeRawInput};
+use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{SourceType, ClassList, ClassListFile};
+use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{FlocClasses, EquiClasses};
+use AssetLib/S4/FileIO/ClassList/TransposeRaw.{TransposeRawParams, transposeRawInput};
 
 
 def flocOutputParams(): TransposeRawParams = 
