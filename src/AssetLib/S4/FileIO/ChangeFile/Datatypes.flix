@@ -19,6 +19,12 @@ use Time.LocalDateTime;
 namespace AssetLib/S4/FileIO/ChangeFile/Datatypes {
 
 
+
+    pub type alias ChangeFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
+
+    pub type alias FileHeader = { fileType: FileType, dataModel : DataModel, entityType: EntityType, 
+                                    variant: String, user: String, dateTime: LocalDateTime } 
+
     pub enum FileType {
         case Download,
         case Upload
@@ -60,10 +66,6 @@ namespace AssetLib/S4/FileIO/ChangeFile/Datatypes {
     
     pub opaque type DataRow = Array[String]
 
-    pub type alias FileHeader = { fileType: FileType, dataModel : DataModel, entityType: EntityType, 
-                                    variant: String, user: String, dateTime: LocalDateTime } 
-
-    pub type alias ChangeFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
 
 
 }
