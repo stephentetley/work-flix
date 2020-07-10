@@ -24,7 +24,8 @@ use TextParser/Combinators.{ignore, choice, many, manyTill};
 use TextParser/Text.{many1UpperCase, restOfLine};
 use TextParser/Token1.{symbol, lexeme};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.FileType.{Download, Upload};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataModel.{U1};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
@@ -35,8 +36,34 @@ use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 
 namespace AssetLib/S4/FileIO/ChangeFile/Parser {
 
-    
+    /// Always UTF-8?
+    pub def parseFile(path: String) : Result[PrimChangeFile, System.Error] & Impure = 
+        let path1 = System/FilePath.new(path);
+        TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8())    
 
+
+    pub def changeFileParser(): TextParser[PrimChangeFile, t] = 
+        use TextParser.flatMap;
+        let* hdr = pHeader();
+        let* sel = pSelection();        
+        let* cols = pColumnHeaders();
+        let* rows = manyTill(pDataRow(), endOfInput());
+        return(ChangeFile({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows }))
+
+
+
+    def pHeader(): TextParser[FileHeader, t] = 
+        use TextParser.flatMap;
+        let* ft = pFileType();
+        let* dm = pDataModel();
+        let* et = pEntityType();
+        let* v = pVariant();
+        let* u = pUser();
+        let* dt = pDateTime();
+        return({ fileType = ft, dataModel = dm, entityType = et, 
+                    variant = v, user = u, dateTime = dt })
+
+                    
     def asterisk(): TextParser[Unit, t] =  
         symbol("*") |> ignore
     
@@ -102,16 +129,6 @@ namespace AssetLib/S4/FileIO/ChangeFile/Parser {
         return(ans)
         
 
-    def pHeader(): TextParser[FileHeader, t] = 
-        use TextParser.flatMap;
-        let* ft = pFileType();
-        let* dm = pDataModel();
-        let* et = pEntityType();
-        let* v = pVariant();
-        let* u = pUser();
-        let* dt = pDateTime();
-        return({ fileType = ft, dataModel = dm, entityType = et, 
-                    variant = v, user = u, dateTime = dt })
 
     def pSelectionHeader(): TextParser[Unit, t] = 
         symbol("* Selection:") |> ignore         // blank header, consumes newline
@@ -150,18 +167,6 @@ namespace AssetLib/S4/FileIO/ChangeFile/Parser {
         return(DataRow(arr))
 
 
-    pub def changeFileParser(): TextParser[ChangeFile, t] = 
-        use TextParser.flatMap;
-        let* hdr = pHeader();
-        let* sel = pSelection();        
-        let* cols = pColumnHeaders();
-        let* rows = manyTill(pDataRow(), endOfInput());
-        return({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows })
 
-
-    /// Always UTF-8?
-    pub def parseFile(path: String) : Result[ChangeFile, System.Error] & Impure = 
-        let path1 = System/FilePath.new(path);
-        TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8())
 
 }

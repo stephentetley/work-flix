@@ -17,7 +17,8 @@
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{Headers, DataRow, ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, Headers, DataRow};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 
@@ -25,18 +26,16 @@ use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 namespace AssetLib/S4/FileIO/ChangeFile/ExportCsv {
 
         
-    pub def exportCsv(x: ChangeFile, path: String): Result[Unit, System.Error] & Impure =
+    pub def exportCsv(x: PrimChangeFile, path: String): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
-        let headers = x.getHeaderArray();
+        let ChangeFile(x1) = x;
+        let Headers(headers) = x1.headers;
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
-        let* _ = writeRows(writer, x.dataRows);
+        let* _ = writeRows(writer, x1.dataRows);
         let _ = writer.close();
         Ok()
 
 
-    def getHeaderArray(x: ChangeFile): Array[String] = 
-        let Headers(arr) = x.headers;
-        arr
 
     def writeRows(writer: CsvWriter, rows: List[DataRow]): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;

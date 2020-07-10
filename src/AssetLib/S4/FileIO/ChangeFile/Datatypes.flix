@@ -20,7 +20,9 @@ namespace AssetLib/S4/FileIO/ChangeFile/Datatypes {
 
 
 
-    pub type alias ChangeFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
+    pub opaque type ChangeFile[row] = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[row] }
+
+    pub type alias PrimChangeFile = ChangeFile[DataRow]
 
     pub type alias FileHeader = { fileType: FileType, dataModel : DataModel, entityType: EntityType, 
                                     variant: String, user: String, dateTime: LocalDateTime } 
