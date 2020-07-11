@@ -19,7 +19,7 @@ use System.Error.{Generic};
 use Time.LocalDateTime;
 
 use TextParser.TextParser;
-use TextParser.{return, map, failure, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
+use TextParser.{return, map, failure, alt, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
 use TextParser/Combinators.{ignore, choice, many, manyTill};
 use TextParser/Text.{many1UpperCase, restOfLine};
 use TextParser/Token1.{symbol, lexeme};
@@ -45,7 +45,7 @@ namespace AssetLib/S4/FileIO/ChangeFile/Parser {
     pub def changeFileParser(): TextParser[PrimChangeFile, t] = 
         use TextParser.flatMap;
         let* hdr = pHeader();
-        let* sel = pSelection();        
+        let* sel = alt(pSelection(), pEmptySelection());        
         let* cols = pColumnHeaders();
         let* rows = manyTill(pDataRow(), endOfInput());
         return(ChangeFile({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows }))
@@ -127,8 +127,15 @@ namespace AssetLib/S4/FileIO/ChangeFile/Parser {
         let* fmt = liftResult(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"));
         let* ans = liftResult(Time/LocalDateTime.parse(d + " " + t, fmt));
         return(ans)
-        
 
+    def pEmptySelection(): TextParser[Selection, t] = 
+        return(Selection(Nil))
+
+    def pSelection(): TextParser[Selection, t] = 
+        use TextParser.flatMap;
+        let* _ = pSelectionHeader();
+        let* xs = pSelectionLines();
+        return(Selection(xs))
 
     def pSelectionHeader(): TextParser[Unit, t] = 
         symbol("* Selection:") |> ignore         // blank header, consumes newline
@@ -144,11 +151,7 @@ namespace AssetLib/S4/FileIO/ChangeFile/Parser {
         };
         many(selection1())
 
-    def pSelection(): TextParser[Selection, t] = 
-        use TextParser.flatMap;
-        let* _ = pSelectionHeader();
-        let* xs = pSelectionLines();
-        return(Selection(xs))
+
     
     /// Note - the first header is prefixed by an asterisk, we can't use `asterisk` to find this 
     /// because `asterisk` can only see a token and there is no whitespace.
