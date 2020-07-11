@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace UCheck/TypeCheck {
+namespace UploadCheck/TypeCheck {
 
 
 /// ChangeFile is too low level to type check

@@ -19,49 +19,37 @@ use FactIO/FlatFile/RowWithHeadersEvaluator.{return, getString, getInt32};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 
-namespace UCheck/EntityTypes/ValuaEqui {
+namespace UploadCheck/EntityTypes/ClassEqui {
 
-    type alias ValuaEquiRow = 
+
+    
+    type alias ClassEquiRow = 
         { equi: String
+        , className: String
         , classType: String
-        , charId: String
-        , charValue: String
-        , code: Int32
-        , valueDescription: String
-        , intCounterValue: Int32
-        , valueFrom: String
-        , valueTo: String
+        , status: Int32
         }
 
-    type alias ValuaEquiFile = ChangeFile[ValuaEquiRow]
+    type alias ClassEquiFile = ChangeFile[ClassEquiRow]
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[ValuaEquiFile, System.Error] & Impure = 
+    pub def parseFile(path: String) : Result[ClassEquiFile, System.Error] & Impure = 
         use Result.flatMap;
         let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(path);
         let* ans = AssetLib/S4/FileIO/ChangeFile/Evaluate.transform(evaluateRow(), ast);
         Ok(ans)
 
-    def evaluateRow(): RowWithHeadersEvaluator[ValuaEquiRow] = 
+    // *EQUI	CLASS	CLASSTYPE	CLSTATUS1
+    def evaluateRow(): RowWithHeadersEvaluator[ClassEquiRow] = 
         use FactIO/FlatFile/RowWithHeadersEvaluator.{flatMap};
-        let* equi           = getString("EQUI");
-        let* classType      = getString("CLASSTYPE");
-        let* charId         = getString("CHARID");
-        let* charValue      = getString("ATWRT");
-        let* code           = getInt32("ATCOD");
-        let* descr          = getString("TEXTBEZ");
-        let* intCount       = getInt32("VALCNT");
-        let* valueFrom      = getString("ATFLV");
-        let* valueTo        = getString("ATFLB");
+        let* equi               = getString("EQUI");
+        let* className          = getString("CLASS");
+        let* classType          = getString("CLASSTYPE");
+        let* status             = getInt32("CLSTATUS1");
         return({  equi              = equi
+                , className         = className
                 , classType         = classType
-                , charId            = charId
-                , charValue         = charValue
-                , code              = code
-                , valueDescription  = descr
-                , intCounterValue   = intCount
-                , valueFrom         = valueFrom
-                , valueTo           = valueTo
+                , status            = status
             })
 
 }

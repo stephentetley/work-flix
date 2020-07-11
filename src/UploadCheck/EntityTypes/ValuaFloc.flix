@@ -19,7 +19,7 @@ use FactIO/FlatFile/RowWithHeadersEvaluator.{return, getString, getInt32};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 
-namespace UCheck/EntityTypes/ValuaFloc {
+namespace UploadCheck/EntityTypes/ValuaFloc {
 
 
     type alias ValuaFlocRow = 
