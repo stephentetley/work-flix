@@ -24,10 +24,18 @@ namespace AssetLib/S4/FileIO/ClassList/Relations {
         case Date
     }
 
-    rel Characteristic(classType: String, className: String, charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
+    
 
-    rel RefinesChoice(classType: String, className: String, charName: String, value: String)
+    rel EquiCharacteristic(classType: String, className: String, charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
 
-    rel RefinesRange(classType: String, className: String, charName: String, lowest: Int32, highest: Int32)
+    rel EquiRefinesChoice(classType: String, className: String, charName: String, value: String)
+
+    rel EquiRefinesRange(classType: String, className: String, charName: String, lowest: Int32, highest: Int32)
+
+    rel FlocCharacteristic(classType: String, className: String, charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
+
+    rel FlocRefinesChoice(classType: String, className: String, charName: String, value: String)
+
+    rel FlocRefinesRange(classType: String, className: String, charName: String, lowest: Int32, highest: Int32)
 
 }

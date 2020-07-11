@@ -46,8 +46,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
         let (typeName, len, prec) = match src.datatype {
             case Text(d) => ("Text", d, "")
             case Date(d) => ("Date", d, "")
-            case NumInt(d) => ("Integer", d, "")
-            case NumDecimal(d, p) => ("Decimal", d, Int32.toString(p))            
+            case NumInt(d) => ("NumInt", d, "")
+            case NumDecimal(d, p) => ("NumDecimal", d, Int32.toString(p))            
         };
         let row = [ classType, className, src.name, typeName, Int32.toString(len), prec ];
         writeRow(writer, row)

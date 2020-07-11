@@ -41,6 +41,8 @@ namespace AssetLib/S4/FileIO/ChangeFile/Parser {
         let path1 = System/FilePath.new(path);
         TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8())    
 
+    /// TODO - there's scope for a parser that doesn't interpret the initial "header" lines and 
+    /// just interprets the last one for column headings.
 
     pub def changeFileParser(): TextParser[PrimChangeFile, t] = 
         use TextParser.flatMap;
