@@ -17,6 +17,7 @@
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
+use AssetLib/Common/Utils.{traverse_};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, Headers, DataRow};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
@@ -31,26 +32,16 @@ namespace AssetLib/S4/FileIO/ChangeFile/ExportCsv {
         let ChangeFile(x1) = x;
         let Headers(headers) = x1.headers;
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
-        let* _ = writeRows(writer, x1.dataRows);
+        let* _ = traverse_(writeDataRow(writer), x1.dataRows);
         let _ = writer.close();
         Ok()
 
 
 
-    def writeRows(writer: CsvWriter, rows: List[DataRow]): Result[Unit, System.Error] & Impure = 
-        use Result.flatMap;
-        match rows {
-            case Nil => Ok()
-            case x :: rs => {
-                let row1 = getRowArray(x);
-                let* _ = writeRow(writer, row1);
-                writeRows(writer, rs)
-            }
-        }
+    def writeDataRow(writer: CsvWriter, row: DataRow): Result[Unit, System.Error] & Impure = 
+        let DataRow(row1) = row;
+        writeRow(writer, row1)
 
-    def getRowArray(x: DataRow): Array[String] = 
-        let DataRow(arr) = x;
-        arr
 
 
 }

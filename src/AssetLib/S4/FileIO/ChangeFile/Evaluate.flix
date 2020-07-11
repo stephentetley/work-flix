@@ -29,7 +29,7 @@ use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 namespace AssetLib/S4/FileIO/ChangeFile/Evaluate {
 
 
-    pub def transpose(eval: RowWithHeadersEvaluator[row], src: ChangeFile[DataRow]): Result[ChangeFile[row], System.Error] & Impure = 
+    pub def transform(eval: RowWithHeadersEvaluator[row], src: ChangeFile[DataRow]): Result[ChangeFile[row], System.Error] & Impure = 
         use Result.flatMap;
         let ChangeFile(x1) = src;
         let Headers(arr) = x1.headers;

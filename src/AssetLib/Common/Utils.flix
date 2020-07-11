@@ -18,12 +18,20 @@ use System.Error.{IllegalArgumentException, Generic};
 
 namespace AssetLib/Common/Utils {
 
-    pub def foreachR(fn: a ~> Result[Unit, System.Error], xs: List[a]): Result[Unit, System.Error] & Impure = match xs { 
+    pub def traverse_(fn: a -> Result[b, e] & f, xs: List[a]): Result[Unit, e] & f = match xs { 
         case x :: rs => match fn(x) {
-            case Ok(_) => foreachR(fn, rs)
+            case Ok(_) => traverse_(fn, rs)
             case Err(e) => Err(e)
         }
         case Nil => Ok() 
+    }
+
+    pub def traverseOption_(fn: a -> Option[b] & f, xs: List[a]): Option[Unit] & f = match xs { 
+        case x :: rs => match fn(x) {
+            case Some(_) => traverseOption_(fn, rs)
+            case None => None
+        }
+        case Nil => Some() 
     }
 
 }

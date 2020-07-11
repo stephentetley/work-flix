@@ -19,7 +19,7 @@ use Data.RoseTree.{RoseTree};
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{foreachR};
+use AssetLib/Common/Utils.{traverse_};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
 
@@ -32,7 +32,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
     pub def exportFlocCsv(xs: List[IH06Tree], path: String): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), flocHeaders());
-        let* _ = foreachR(emitIH06Flocs(writer), xs);
+        let* _ = traverse_(emitIH06Flocs(writer), xs);
         let _ = writer.close();
         Ok()
 
@@ -45,7 +45,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
         use Result.flatMap;
         let RoseTree(label, kids) = src;
         let* _ = emitFlocNode(writer, label);
-        foreachR(emitIH06Flocs(writer), kids)
+        traverse_(emitIH06Flocs(writer), kids)
 
     def emitFlocNode(writer: CsvWriter, src: IH06Node): Result[Unit, System.Error] & Impure = 
         match src { 
@@ -61,7 +61,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
     pub def exportEquiCsv(xs: List[IH06Tree], path: String): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), equiHeaders());
-        let* _ = foreachR(emitIH06Equis(writer), xs);
+        let* _ = traverse_(emitIH06Equis(writer), xs);
         let _ = writer.close();
         Ok()
 
@@ -74,7 +74,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
         use Result.flatMap;
         let RoseTree(label, kids) = src;
         let* _ = emitEquiNode(writer, label);
-        foreachR(emitIH06Equis(writer), kids)
+        traverse_(emitIH06Equis(writer), kids)
 
     def emitEquiNode(writer: CsvWriter, src: IH06Node): Result[Unit, System.Error] & Impure = 
         match src { 

@@ -17,7 +17,7 @@
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{foreachR};
+use AssetLib/Common/Utils.{traverse_};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
@@ -30,7 +30,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
         use Result.flatMap;
         let headers = characteristicHeaders();
         let* writer = newCsvWriter(path, cs, headers);
-        let* _ = foreachR(emitCharacteristics(writer), src.classes);
+        let* _ = traverse_(emitCharacteristics(writer), src.classes);
         let _ = writer.close();
         Ok()
 
@@ -40,7 +40,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     def emitCharacteristics(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
-        foreachR(emitCharacteristic(writer, src.classType, src.name), src.characteristics)
+        traverse_(emitCharacteristic(writer, src.classType, src.name), src.characteristics)
 
     def emitCharacteristic(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
         let (typeName, len, prec) = match src.datatype {
@@ -57,7 +57,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
         use Result.flatMap;
         let headers = refinesValueHeaders();
         let* writer = newCsvWriter(path, cs, headers);
-        let* _ = foreachR(emitRefinesValuesClass(writer), src.classes);
+        let* _ = traverse_(emitRefinesValuesClass(writer), src.classes);
         let _ = writer.close();
         Ok() 
         
@@ -66,7 +66,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     def emitRefinesValuesClass(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
-        foreachR(emitRefinesValues(writer, src.classType, src.name), src.characteristics)
+        traverse_(emitRefinesValues(writer, src.classType, src.name), src.characteristics)
 
     def emitRefinesValues(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
         let step = value -> {
@@ -74,7 +74,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
             writeRow(writer, row)
         };
         match src.refinement {
-            case Some(ListOfValues(xs)) => foreachR(step, xs)
+            case Some(ListOfValues(xs)) => traverse_(step, xs)
             case _ => Ok()
         }
 
@@ -82,7 +82,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
         use Result.flatMap;
         let headers = refinesRangeHeaders();
         let* writer = newCsvWriter(path, cs, headers);
-        let* _ = foreachR(emitRefinesRangeClass(writer), src.classes);
+        let* _ = traverse_(emitRefinesRangeClass(writer), src.classes);
         let _ = writer.close();
         Ok() 
 
@@ -91,7 +91,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     def emitRefinesRangeClass(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
-        foreachR(emitRefinesRange(writer, src.classType, src.name), src.characteristics)
+        traverse_(emitRefinesRange(writer, src.classType, src.name), src.characteristics)
 
     def emitRefinesRange(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
         let step = (lowest, highest) -> {
