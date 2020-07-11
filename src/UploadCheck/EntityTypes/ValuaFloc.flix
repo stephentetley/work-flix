@@ -43,6 +43,7 @@ namespace UploadCheck/EntityTypes/ValuaFloc {
         let* ans = AssetLib/S4/FileIO/ChangeFile/Evaluate.transform(evaluateRow(), ast);
         Ok(ans)
 
+    // FUNCLOC	CLASSTYPE	CHARID	ATWRT	ATCOD	TEXTBEZ	VALCNT	ATFLV	ATFLB
     def evaluateRow(): RowWithHeadersEvaluator[ValuaFlocRow] = 
         use FactIO/FlatFile/RowWithHeadersEvaluator.{flatMap};
         let* funcloc        = getString("FUNCLOC");

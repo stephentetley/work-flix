@@ -21,7 +21,7 @@ use Time.LocalDateTime;
 use TextParser.TextParser;
 use TextParser.{return, map, failure, alt, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
 use TextParser/Combinators.{ignore, choice, many, manyTill};
-use TextParser/Text.{many1UpperCase, restOfLine};
+use TextParser/Text.{many1UpperCase, restOfLine, makePattern};
 use TextParser/Token1.{symbol, lexeme};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
@@ -155,18 +155,23 @@ namespace AssetLib/S4/FileIO/ChangeFile/Parser {
     
     /// Note - the first header is prefixed by an asterisk, we can't use `asterisk` to find this 
     /// because `asterisk` can only see a token and there is no whitespace.
+    /// Note - headers are `sepBy` tab
+    /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
     def pColumnHeaders(): TextParser[Headers, t] = 
         use TextParser.flatMap;
         let* _ = asterisk();
-        let* str = restOfLine(true);
-        let* arr = liftAction(_ -> String.split(String.trim(str), Char.toString('\u0009')));
+        let* nl = makePattern("\R");
+        let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
+        let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray);
         return(Headers(arr))
 
-    
+    /// Note - datarows are `sepEndBy` tab, hence dropRight(1)
+    /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
     def pDataRow(): TextParser[DataRow, t] = 
         use TextParser.flatMap;
-        let* str = restOfLine(true);
-        let* arr = liftAction(_ -> String.split(String.trimRight(str), Char.toString('\u0009')));
+        let* nl = makePattern("\R");
+        let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
+        let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
         return(DataRow(arr))
 
 
