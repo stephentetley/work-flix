@@ -12,5 +12,3 @@ def main(): Result[Int32, System.Error] & Impure =
     Ok(body.dataRows |> List.length)
 
 
-// def main(): Int32 & Impure= 
-//     String.splitOn("GRI12-CAA#003#0001###", "#") |> List.toArray |> Array.length

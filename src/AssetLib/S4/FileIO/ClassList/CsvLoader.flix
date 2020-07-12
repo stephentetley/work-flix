@@ -21,7 +21,8 @@ use FactIO/Csv/CsvFormat.{withFirstRecordAsHeader};
 
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype;
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text, Date, IntNum, DecimalNum};
-use AssetLib/S4/FileIO/ClassList/Relations.{EquiCharacteristic};
+use AssetLib/S4/FileIO/ClassList/Relations.{FlocCharacteristic, FlocRefinesChoice, FlocRefinesRange,
+                                            EquiCharacteristic, EquiRefinesChoice, EquiRefinesRange};
 
 namespace AssetLib/S4/FileIO/ClassList/CsvLoader {
 
@@ -36,6 +37,54 @@ namespace AssetLib/S4/FileIO/ClassList/CsvLoader {
             case _              => throwError(System/Error.Generic("Unknown datatype: " + str))
         }
 
+    /// FlocCharacteristic
+    def evalFlocCharacteristic[r](): CsvRowEvaluator[#{ FlocCharacteristic | r }] = 
+        use FactIO/Csv/RowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex, optional};
+        let* classType      = getStringByIndex(0);
+        let* className      = getStringByIndex(1);
+        let* charName       = getStringByIndex(2);
+        let* datatype       = getDatatypeByIndex(3);
+        let* charLength     = getInt32ByIndex(4);
+        let* optPrecision   = optional(getInt32ByIndex(5));
+        return( FlocCharacteristic(classType, className, charName, datatype, charLength, optPrecision). )
+
+    pub def loadFlocCharacteristic[r](path: String): Result[#{ EquiCharacteristic | r }, System.Error] & Impure = 
+        use Result.flatMap;        
+        let* src = newCsvStream(path, FactIO/Csv/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        importRows(evalFlocCharacteristic(), src)
+
+
+    /// FlocRefinesChoice
+    def evalFlocRefinesChoice[r](): CsvRowEvaluator[#{ FlocRefinesChoice | r }] = 
+        use FactIO/Csv/RowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex, optional};
+        let* classType      = getStringByIndex(0);
+        let* className      = getStringByIndex(1);
+        let* charName       = getStringByIndex(2);
+        let* value          = getStringByIndex(3);
+        return( FlocRefinesChoice(classType, className, charName, value). )
+
+    pub def loadFlocRefinesChoice[r](path: String): Result[#{ EquiRefinesChoice | r }, System.Error] & Impure = 
+        use Result.flatMap;        
+        let* src = newCsvStream(path, FactIO/Csv/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        importRows(evalFlocRefinesChoice(), src)
+
+
+    /// FlocRefinesRange
+    def evalFlocRefinesRange[r](): CsvRowEvaluator[#{ FlocRefinesRange | r }] = 
+        use FactIO/Csv/RowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex, optional};
+        let* classType      = getStringByIndex(0);
+        let* className      = getStringByIndex(1);
+        let* charName       = getStringByIndex(2);
+        let* low            = getInt32ByIndex(3);
+        let* high           = getInt32ByIndex(4);
+        return( FlocRefinesRange(classType, className, charName, low, high). )
+
+    pub def loadFlocRefinesRange[r](path: String): Result[#{ FlocRefinesRange | r }, System.Error] & Impure = 
+        use Result.flatMap;        
+        let* src = newCsvStream(path, FactIO/Csv/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        importRows(evalFlocRefinesRange(), src)
+
+    /// EquiCharacteristic
     def evalEquiCharacteristic[r](): CsvRowEvaluator[#{ EquiCharacteristic | r }] = 
         use FactIO/Csv/RowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex, optional};
         let* classType      = getStringByIndex(0);
@@ -51,20 +100,55 @@ namespace AssetLib/S4/FileIO/ClassList/CsvLoader {
         let* src = newCsvStream(path, FactIO/Csv/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
         importRows(evalEquiCharacteristic(), src)
 
-    // type alias DbPaths = { pathOfEqobjl: String
-    //                     , pathOfFlocdes: String
-    //                     , pathOfFloobjl: String
-    //                     , pathOfManuf: String
-    //                     , pathOfObj: String
-    //                     }
 
-    // pub def loadDb[r](paths: DbPaths): Result[#{ Eqobjl, Flocdes, Floobjl, Manuf, Obj | r }, System.Error] & Impure =
-    //     use Result.flatMap;
-    //     let* r1 = loadEqobjl(paths.pathOfEqobjl);
-    //     let* r2 = loadFlocdes(paths.pathOfFlocdes);        
-    //     let* r3 = loadFloobjl(paths.pathOfFloobjl);        
-    //     let* r4 = loadManuf(paths.pathOfManuf);
-    //     let* r5 = loadObj(paths.pathOfObj);
-    //     Ok(solve r1 <+> r2 <+> r3 <+> r4 <+> r5)
+    /// EquiRefinesChoice
+    def evalEquiRefinesChoice[r](): CsvRowEvaluator[#{ EquiRefinesChoice | r }] = 
+        use FactIO/Csv/RowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex, optional};
+        let* classType      = getStringByIndex(0);
+        let* className      = getStringByIndex(1);
+        let* charName       = getStringByIndex(2);
+        let* value          = getStringByIndex(3);
+        return( EquiRefinesChoice(classType, className, charName, value). )
+
+    pub def loadEquiRefinesChoice[r](path: String): Result[#{ EquiRefinesChoice | r }, System.Error] & Impure = 
+        use Result.flatMap;        
+        let* src = newCsvStream(path, FactIO/Csv/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        importRows(evalEquiRefinesChoice(), src)
+
+
+    /// EquiRefinesRange
+    def evalEquiRefinesRange[r](): CsvRowEvaluator[#{ EquiRefinesRange | r }] = 
+        use FactIO/Csv/RowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex, optional};
+        let* classType      = getStringByIndex(0);
+        let* className      = getStringByIndex(1);
+        let* charName       = getStringByIndex(2);
+        let* low            = getInt32ByIndex(3);
+        let* high           = getInt32ByIndex(4);
+        return( EquiRefinesRange(classType, className, charName, low, high). )
+
+    pub def loadEquiRefinesRange[r](path: String): Result[#{ EquiRefinesRange | r }, System.Error] & Impure = 
+        use Result.flatMap;        
+        let* src = newCsvStream(path, FactIO/Csv/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        importRows(evalEquiRefinesRange(), src)
+
+
+
+    type alias DbPaths = { pathOfFlocCharacteristic: String
+                        , pathOfFlocRefinesChoice: String
+                        , pathOfFlocRefinesRange: String
+                        , pathOfEquiCharacteristic: String
+                        , pathOfEquiRefinesChoice: String
+                        , pathOfEquiRefinesRange: String
+                        }
+
+    pub def loadDb[r](paths: DbPaths): Result[#{ FlocCharacteristic, FlocRefinesChoice, FlocRefinesRange, EquiCharacteristic, EquiRefinesChoice, EquiRefinesRange | r }, System.Error] & Impure =
+        use Result.flatMap;
+        let* r1 = loadFlocCharacteristic(paths.pathOfFlocCharacteristic);
+        let* r2 = loadFlocRefinesChoice(paths.pathOfFlocRefinesChoice);        
+        let* r3 = loadFlocRefinesRange(paths.pathOfFlocRefinesRange);        
+        let* r4 = loadEquiCharacteristic(paths.pathOfEquiCharacteristic);
+        let* r5 = loadEquiRefinesChoice(paths.pathOfEquiRefinesChoice);
+        let* r6 = loadEquiRefinesRange(paths.pathOfEquiRefinesRange);
+        Ok(solve r1 <+> r2 <+> r3 <+> r4 <+> r5 <+> r6)
 
 }

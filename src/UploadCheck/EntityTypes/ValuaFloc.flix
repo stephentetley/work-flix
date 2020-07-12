@@ -18,8 +18,17 @@ use FactIO/FlatFile.RowWithHeadersEvaluator;
 use FactIO/FlatFile/RowWithHeadersEvaluator.{return, getString, getInt32};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 
 namespace UploadCheck/EntityTypes/ValuaFloc {
+
+    /// relations are record + index so we can identify them
+
+    rel ValuaFloc( ix: Int32, funcloc: String, classType: String
+                , charId: String, charValue: String, code: Int32
+                , valueDescription: String, intCounterValue: Int32
+                , valueFrom: String, valueTo: String )
 
 
     type alias ValuaFlocRow = 
@@ -65,5 +74,30 @@ namespace UploadCheck/EntityTypes/ValuaFloc {
                 , valueFrom         = valueFrom
                 , valueTo           = valueTo
             })
+
+
+    pub def makeValuaFloc[r](ix: Int32, row: ValuaFlocRow): #{ ValuaFloc | r } = 
+        ValuaFloc( ix
+                , row.funcloc
+                , row.classType
+                , row.charId
+                , row.charValue
+                , row.code
+                , row.valueDescription
+                , row.intCounterValue
+                , row.valueFrom
+                , row.valueTo
+                ).
+
+    pub def getRelations[r](src: ValuaFlocFile): #{ ValuaFloc | r } = 
+        let ChangeFile(body) = src;
+        let step = (ac, x) -> { 
+            let (ix, db) = ac;
+            let r1 = makeValuaFloc(ix, x);
+            (ix + 1, db <+> r1)
+        };
+        let (_, rels) = List.foldLeft(step, (1, #{ }), body.dataRows);
+        solve rels
+
 
 }
