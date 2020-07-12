@@ -76,7 +76,7 @@ namespace UploadCheck/EntityTypes/ValuaFloc {
             })
 
 
-    pub def makeValuaFloc[r](ix: Int32, row: ValuaFlocRow): #{ ValuaFloc | r } = 
+    def makeValuaFloc[r](ix: Int32, row: ValuaFlocRow): #{ ValuaFloc | r } = 
         ValuaFloc( ix
                 , row.funcloc
                 , row.classType
