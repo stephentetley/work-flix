@@ -16,12 +16,13 @@
 
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text};
 use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
-use UploadCheck/Checkers/TypeCheck.{Value, TypeFail, typecheck, tempTypeDb, deriveValues};
+use UploadCheck/Checkers/TypeCheck.{Value, TypeFail, equiTypecheck, tempTypeDb};
 
 def main(): #{ TypeFail } = 
     let r1 = #{ 
         ValuaEqui( 1, "101000245", "002", "AI2_AIB_REFERENCE", "PLI00343356", 1, "PLI00343356", 1, "", "").
         ValuaEqui( 2, "101001660", "002", "EASTING", "PLI00343356", 1, "PLI00343356", 1, "", "").           // type error
+        ValuaEqui( 3, "101000245", "002", "VEPR_PV_VERIFICATION_DATE", "2019.06.12", 1, "2019.06.12", 1, "", "").   // type error   
     };
-    let ans = (solve typecheck() <+> deriveValues() <+> r1 <+> tempTypeDb());
+    let ans = (solve equiTypecheck() <+> r1 <+> tempTypeDb());
     project TypeFail ans
