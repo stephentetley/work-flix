@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-use FactIO/Csv.CsvWriter;
-use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
+use FactIO.CsvWriter;
+use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{traverse_};
+use AssetLib/Common/Utils.{traverseX};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, Headers, DataRow};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
@@ -32,7 +32,7 @@ namespace AssetLib/S4/FileIO/ChangeFile/ExportCsv {
         let ChangeFile(x1) = x;
         let Headers(headers) = x1.headers;
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
-        let* _ = traverse_(writeDataRow(writer), x1.dataRows);
+        let* _ = traverseX(writeDataRow(writer), x1.dataRows);
         let _ = writer.close();
         Ok()
 

@@ -15,10 +15,10 @@
  */
 
 use Data.RoseTree.{RoseTree};
-use FactIO/Csv.CsvWriter;
-use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
+use FactIO.CsvWriter;
+use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{traverse_};
+use AssetLib/Common/Utils.{traverseX};
 use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTree, AibNode};
 
 namespace AssetLib/Aib/FileIO/TreeExport/Raw/ExportCsv {
@@ -28,7 +28,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/ExportCsv {
         use Result.flatMap;
         let headers = characteristicHeaders();
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
-        let* _ = traverse_(emitAibTree(writer), src);
+        let* _ = traverseX(emitAibTree(writer), src);
         let _ = writer.close();
         Ok()
 
@@ -40,7 +40,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/ExportCsv {
         use Result.flatMap;
         let RoseTree(label, kids) = src;
         let* _ = emitAibNode(writer, label);
-        traverse_(emitAibTree(writer), kids)
+        traverseX(emitAibTree(writer), kids)
 
     def emitAibNode(writer: CsvWriter, src: AibNode): Result[Unit, System.Error] & Impure = 
         let row = [ Int32.toString(src.level), src.reference, src.shortName, src.parent, src.commonName ];

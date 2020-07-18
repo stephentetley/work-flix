@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO/Csv.{CsvRowEvaluator};
-use FactIO/Csv/Import.{getRows};
+use FactIO.CsvRowEvaluator;
+use FactIO/CsvImport.{getRows};
 
 use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow};
 
@@ -26,14 +26,14 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/Reader {
 
     pub def readAibTreeFile(path: String): Result[AibTreeFile, System.Error] & Impure =    
         use Result.flatMap;
-        use FactIO/Csv/CsvFormat.{excel, withFirstRecordAsHeader};
-        let* src = FactIO/Csv/Import.newCsvStreamWithBOM(path, excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* xs = FactIO/Csv/Import.getRows(getAibRow(), src);
+        use FactIO/CsvFormat.{excel, withFirstRecordAsHeader};
+        let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        let* xs = FactIO/CsvImport.getRows(getAibRow(), src);
         Ok(xs)
 
 
     def getAibRow(): CsvRowEvaluator[AibRow] =
-        use FactIO/Csv/RowEvaluator.{flatMap, return, getStringByLabel}; 
+        use FactIO/CsvRowEvaluator.{flatMap, return, getStringByLabel}; 
         let* reference      = getStringByLabel("Reference");
         let* commonName     = getStringByLabel("Common Name");
         return({reference = reference, commonName = commonName})
