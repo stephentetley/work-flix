@@ -12,11 +12,11 @@ def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
 
 
 def paths(): DbPaths = 
-    { pathOfEqobjl  = "G:/work/Projects/assets/facts/ztables/ztable_eqobjl.txt"
-    , pathOfFlocdes = "G:/work/Projects/assets/facts/ztables/ztable_flocdes.txt"
-    , pathOfFloobjl = "G:/work/Projects/assets/facts/ztables/ztable_floobjl.txt"
-    , pathOfManuf   = "G:/work/Projects/assets/facts/ztables/ztable_manuf.txt"
-    , pathOfObj     = "G:/work/Projects/assets/facts/ztables/ztable_obj.txt"
+    { pathOfEqobjl  = System/FilePath.new("G:/work/Projects/assets/facts/ztables/ztable_eqobjl.txt")
+    , pathOfFlocdes = System/FilePath.new("G:/work/Projects/assets/facts/ztables/ztable_flocdes.txt")
+    , pathOfFloobjl = System/FilePath.new("G:/work/Projects/assets/facts/ztables/ztable_floobjl.txt")
+    , pathOfManuf   = System/FilePath.new("G:/work/Projects/assets/facts/ztables/ztable_manuf.txt")
+    , pathOfObj     = System/FilePath.new("G:/work/Projects/assets/facts/ztables/ztable_obj.txt")
     }
 
 // def loadDB[r](): Result[#{ Eqobjl, Flocdes, Floobjl, Manuf, Obj | r }, System.Error] & Impure =

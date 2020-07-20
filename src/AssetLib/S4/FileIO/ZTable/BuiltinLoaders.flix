@@ -14,70 +14,70 @@
  * limitations under the License.
  */
 
-use FactIO/FlatFile.RowEvaluator;
+use TextParser.RowParser;
 
 use AssetLib/S4/FileIO/ZTable/Relations.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
-use AssetLib/S4/FileIO/ZTable/FactParser.{importRows};
+use AssetLib/S4/FileIO/ZTable/Parser.{importRows};
 
 namespace AssetLib/S4/FileIO/ZTable/BuiltinLoaders {
 
-    def evalEqobjl[r](): RowEvaluator[#{ Eqobjl | r }] = 
-        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
+    def evalEqobjl[r](): RowParser[#{ Eqobjl | r }] = 
+        use TextParser/RowParser.{flatMap, return, getString};
         let* supertype  = getString(0);
         let* subtype    = getString(1);
         let* category   = getString(1);
         return( Eqobjl(supertype, subtype, category). )
 
-    pub def loadEqobjl[r](path: String): Result[#{ Eqobjl | r }, System.Error] & Impure =        
+    pub def loadEqobjl[r](path: System.FilePath): Result[#{ Eqobjl | r }, System.Error] & Impure =        
         importRows(evalEqobjl(), path)  
 
 
-    def evalFlocdes[r](): RowEvaluator[#{ Flocdes | r }] = 
-        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
+    def evalFlocdes[r](): RowParser[#{ Flocdes | r }] = 
+        use TextParser/RowParser.{flatMap, return, getString};
         let* objtype    = getString(0);
         let* desc       = getString(1);
         return( Flocdes(objtype, desc). )
 
-    pub def loadFlocdes[r](path: String): Result[#{ Flocdes | r }, System.Error] & Impure =
+    pub def loadFlocdes[r](path: System.FilePath): Result[#{ Flocdes | r }, System.Error] & Impure =
         importRows(evalFlocdes(), path)           
 
 
-    def evalFloobjl[r](): RowEvaluator[#{ Floobjl | r }] = 
-        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString, liftOperation, evalContains};
+    def evalFloobjl[r](): RowParser[#{ Floobjl | r }] = 
+        use TextParser/RowParser.{flatMap, return, getString, liftOperation, evalContains};
         let* structure  = getString(0);
         let* supertype  = getString(1);
         let* subtype    = getString(2);
         return( Floobjl(structure, supertype, subtype). )
 
-    pub def loadFloobjl[r](path: String): Result[#{ Floobjl | r }, System.Error] & Impure =
+    pub def loadFloobjl[r](path: System.FilePath): Result[#{ Floobjl | r }, System.Error] & Impure =
         importRows(evalFloobjl(), path)  
 
 
-    def evalManuf[r](): RowEvaluator[#{ Manuf | r }] = 
-        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
+    def evalManuf[r](): RowParser[#{ Manuf | r }] = 
+        use TextParser/RowParser.{flatMap, return, getString};
         let* manuf      = getString(0);
         let* model      = getString(1);
         return( Manuf(manuf, model). )
 
 
-    pub def loadManuf[r](path: String): Result[#{ Manuf | r }, System.Error] & Impure =
+    pub def loadManuf[r](path: System.FilePath): Result[#{ Manuf | r }, System.Error] & Impure =
         importRows(evalManuf(), path)   
 
-    def evalObj[r](): RowEvaluator[#{ Obj | r }] = 
-        use FactIO/FlatFile/RowEvaluator.{flatMap, return, getString};
+    def evalObj[r](): RowParser[#{ Obj | r }] = 
+        use TextParser/RowParser.{flatMap, return, getString};
         let* objtype    = getString(0);
         let* manuf      = getString(1);       
         return( Obj(objtype, manuf). )
 
-    pub def loadObj[r](path: String): Result[#{ Obj | r }, System.Error] & Impure =
+    pub def loadObj[r](path: System.FilePath): Result[#{ Obj | r }, System.Error] & Impure =
         importRows(evalObj(), path)  
 
 
-    type alias DbPaths = { pathOfEqobjl: String
-                        , pathOfFlocdes: String
-                        , pathOfFloobjl: String
-                        , pathOfManuf: String
-                        , pathOfObj: String
+    type alias DbPaths = { pathOfEqobjl: System.FilePath
+                        , pathOfFlocdes: System.FilePath
+                        , pathOfFloobjl: System.FilePath
+                        , pathOfManuf: System.FilePath
+                        , pathOfObj: System.FilePath
                         }
 
     pub def loadDb[r](paths: DbPaths): Result[#{ Eqobjl, Flocdes, Floobjl, Manuf, Obj | r }, System.Error] & Impure =

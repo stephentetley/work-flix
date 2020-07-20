@@ -18,14 +18,14 @@ use Data.RoseTree.{RoseTree};
 use FactIO.CsvWriter;
 use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{traverseX};
+
 use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTree, AibNode};
 
 namespace AssetLib/Aib/FileIO/TreeExport/Raw/ExportCsv {
 
 
     pub def exportAibTreesCsv(src: List[AibTree], path: String): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let headers = characteristicHeaders();
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
         let* _ = traverseX(emitAibTree(writer), src);
@@ -37,7 +37,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/ExportCsv {
 
 
     def emitAibTree(writer: CsvWriter, src: AibTree): Result[Unit, System.Error] & Impure = 
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let RoseTree(label, kids) = src;
         let* _ = emitAibNode(writer, label);
         traverseX(emitAibTree(writer), kids)

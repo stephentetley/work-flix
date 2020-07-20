@@ -17,7 +17,6 @@
 use FactIO.CsvWriter;
 use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{traverseX};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
@@ -27,7 +26,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     pub def exportCharacteristicsCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let headers = characteristicHeaders();
         let* writer = newCsvWriter(path, cs, headers);
         let* _ = traverseX(emitCharacteristics(writer), src.classes);
@@ -40,6 +39,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     def emitCharacteristics(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
+        use Result.{traverseX};
         traverseX(emitCharacteristic(writer, src.classType, src.name), src.characteristics)
 
     def emitCharacteristic(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
@@ -54,7 +54,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     pub def exportRefinesValuesCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let headers = refinesValueHeaders();
         let* writer = newCsvWriter(path, cs, headers);
         let* _ = traverseX(emitRefinesValuesClass(writer), src.classes);
@@ -66,9 +66,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     def emitRefinesValuesClass(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
+        use Result.{traverseX};
         traverseX(emitRefinesValues(writer, src.classType, src.name), src.characteristics)
 
     def emitRefinesValues(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 
+        use Result.{traverseX};
         let step = value -> {
             let row = [ classType, className, src.name, value ];
             writeRow(writer, row)
@@ -79,7 +81,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
         }
 
     pub def exportRefinesRangeCsv(src: ClassList, path: String, cs: Text.Charset): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let headers = refinesRangeHeaders();
         let* writer = newCsvWriter(path, cs, headers);
         let* _ = traverseX(emitRefinesRangeClass(writer), src.classes);
@@ -91,6 +93,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportCsv {
 
 
     def emitRefinesRangeClass(writer: CsvWriter, src: Class): Result[Unit, System.Error] & Impure = 
+        use Result.{traverseX};
         traverseX(emitRefinesRange(writer, src.classType, src.name), src.characteristics)
 
     def emitRefinesRange(writer: CsvWriter, classType: String, className: String, src: Characteristic): Result[Unit, System.Error] & Impure = 

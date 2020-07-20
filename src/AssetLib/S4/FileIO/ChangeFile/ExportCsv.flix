@@ -17,7 +17,6 @@
 use FactIO.CsvWriter;
 use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{traverseX};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, Headers, DataRow};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
@@ -28,7 +27,7 @@ namespace AssetLib/S4/FileIO/ChangeFile/ExportCsv {
 
         
     pub def exportCsv(x: PrimChangeFile, path: String): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let ChangeFile(x1) = x;
         let Headers(headers) = x1.headers;
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);

@@ -16,10 +16,9 @@
 
 use Data.RoseTree.{RoseTree};
 
-use FactIO/Csv.CsvWriter;
-use FactIO/Csv/Export.{new => newCsvWriter, writeRow, close};
+use FactIO.CsvWriter;
+use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
 
-use AssetLib/Common/Utils.{traverse_};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
 
@@ -30,9 +29,9 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
 
     /// Flocs
     pub def exportFlocCsv(xs: List[IH06Tree], path: String): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), flocHeaders());
-        let* _ = traverse_(emitIH06Flocs(writer), xs);
+        let* _ = traverseX(emitIH06Flocs(writer), xs);
         let _ = writer.close();
         Ok()
 
@@ -42,10 +41,10 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
 
 
     def emitIH06Flocs(writer: CsvWriter, src: IH06Tree): Result[Unit, System.Error] & Impure = 
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let RoseTree(label, kids) = src;
         let* _ = emitFlocNode(writer, label);
-        traverse_(emitIH06Flocs(writer), kids)
+        traverseX(emitIH06Flocs(writer), kids)
 
     def emitFlocNode(writer: CsvWriter, src: IH06Node): Result[Unit, System.Error] & Impure = 
         match src { 
@@ -59,9 +58,9 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
 
     /// Equis
     pub def exportEquiCsv(xs: List[IH06Tree], path: String): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let* writer = newCsvWriter(path, Text/Charset.utf_8(), equiHeaders());
-        let* _ = traverse_(emitIH06Equis(writer), xs);
+        let* _ = traverseX(emitIH06Equis(writer), xs);
         let _ = writer.close();
         Ok()
 
@@ -71,10 +70,10 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
 
 
     def emitIH06Equis(writer: CsvWriter, src: IH06Tree): Result[Unit, System.Error] & Impure = 
-        use Result.flatMap;
+        use Result.{flatMap, traverseX};
         let RoseTree(label, kids) = src;
         let* _ = emitEquiNode(writer, label);
-        traverse_(emitIH06Equis(writer), kids)
+        traverseX(emitIH06Equis(writer), kids)
 
     def emitEquiNode(writer: CsvWriter, src: IH06Node): Result[Unit, System.Error] & Impure = 
         match src { 

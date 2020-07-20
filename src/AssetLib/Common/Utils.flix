@@ -18,20 +18,31 @@ use System.Error.{IllegalArgumentException, Generic};
 
 namespace AssetLib/Common/Utils {
 
-    pub def traverseX(fn: a -> Result[b, e] & f, xs: List[a]): Result[Unit, e] & f = match xs { 
-        case x :: rs => match fn(x) {
-            case Ok(_) => traverseX(fn, rs)
-            case Err(e) => Err(e)
+    pub def sepBy(input: String, sep: String): Array[String] & Impure =
+        use Text/Regex.{split};
+        use Text/Regex/Pattern.{compile, quote};
+        match compile(quote(sep)) {
+            case Ok(patt) => split(input, patt)
+            case Err(_)   => Array.new(input, 1)
         }
-        case Nil => Ok() 
-    }
 
-    pub def traverseOptionX(fn: a -> Option[b] & f, xs: List[a]): Option[Unit] & f = match xs { 
-        case x :: rs => match fn(x) {
-            case Some(_) => traverseOptionX(fn, rs)
-            case None => None
+    pub def sepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
+        use Text/Regex.{split};
+        split(input, sep)
+
+    /// Input starts with sep...
+    pub def leadingSepBy(input: String, sep: String): Array[String] & Impure =
+        use Text/Regex.{split};
+        use Text/Regex/Pattern.{compile, quote};
+        match compile(quote(sep)) {
+            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
+            case Err(_)   => Array.new("", 0)
         }
-        case Nil => Some() 
-    }
+
+    /// Input starts with sep...
+    pub def leadingSepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
+        use Text/Regex.{split};
+        split(input, sep) |> Array.dropLeft(1)
+
 
 }
