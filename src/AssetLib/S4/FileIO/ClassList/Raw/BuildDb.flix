@@ -55,16 +55,21 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         runSQLiteExport(writeOutput(flocClasses, equiClasses), outpath)
         
     def writeOutput(flocClasses: ClassList, equiClasses: ClassList): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close};
+        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
+        let* _      = liftAction(_ -> { Console.printLine("ClassMembers"); Ok() });
         let* _      = collectClassMembers(flocClasses) |> writeFlocClassMembers;
         let* _      = collectClassMembers(equiClasses) |> writeEquiClassMembers;
+        let* _      = liftAction(_ -> { Console.printLine("Characteristics"); Ok() });
         let* _      = collectCharacteristics(flocClasses) |> writeFlocCharacteristics;
         let* _      = collectCharacteristics(equiClasses) |> writeEquiCharacteristics;
+        let* _      = liftAction(_ -> { Console.printLine("IntRanges"); Ok() });
         let* _      = collectIntRanges(flocClasses) |> writeFlocIntRanges;
         let* _      = collectIntRanges(equiClasses) |> writeEquiIntRanges;
+        let* _      = liftAction(_ -> { Console.printLine("DecimalRanges"); Ok() });
         let* _      = collectDecimalRanges(flocClasses) |> writeFlocDecimalRanges;
         let* _      = collectDecimalRanges(equiClasses) |> writeEquiDecimalRanges;
+        let* _      = liftAction(_ -> { Console.printLine("SelectionValues"); Ok() });
         let* _      = collectSelectionValues(flocClasses) |> writeFlocSelectionValues;
         let* _      = collectSelectionValues(equiClasses) |> writeEquiSelectionValues;
         let* _      = close();
@@ -237,7 +242,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_int_ranges");
         let* _          = execute(sqlCreateFlocIntRanges());
-        let stmt        = "INSERT INTO floc_int_ranges(charname, range_high, range_low) VALUES(?,?,?)";
+        let stmt        = "INSERT INTO floc_int_ranges(charname, range_low, range_high) VALUES(?,?,?)";
         let writes      = fold IntRangeRel emptySQLiteWriteList() writeIntRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
@@ -247,7 +252,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_int_ranges");
         let* _          = execute(sqlCreateEquiIntRanges());
-        let stmt        = "INSERT INTO equi_int_ranges(charname, range_high, range_low) VALUES(?,?,?)";
+        let stmt        = "INSERT INTO equi_int_ranges(charname, range_low, range_high) VALUES(?,?,?)";
         let writes      = fold IntRangeRel emptySQLiteWriteList() writeIntRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
@@ -272,7 +277,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_decimal_ranges");
         let* _          = execute(sqlCreateFlocDecimalRanges());
-        let stmt        = "INSERT INTO floc_decimal_ranges(charname, range_high, range_low) VALUES(?,?,?)";
+        let stmt        = "INSERT INTO floc_decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)";
         let writes      = fold DecimalRangeRel emptySQLiteWriteList() writeDecimalRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
@@ -282,7 +287,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_decimal_ranges");
         let* _          = execute(sqlCreateEquiDecimalRanges());
-        let stmt        = "INSERT INTO equi_decimal_ranges(charname, range_high, range_low) VALUES(?,?,?)";
+        let stmt        = "INSERT INTO equi_decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)";
         let writes      = fold DecimalRangeRel emptySQLiteWriteList() writeDecimalRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
@@ -339,7 +344,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     def sqlCreateFlocClassMembers(): String =
         String.unwords(
-            "CREATE TABLE floc_class_members ("
+            "CREATE TABLE IF NOT EXISTS floc_class_members ("
                 :: "classname       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL"
                 :: ")"
@@ -348,7 +353,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     def sqlCreateEquiClassMembers(): String =
         String.unwords(
-            "CREATE TABLE equi_class_members ("
+            "CREATE TABLE IF NOT EXISTS equi_class_members ("
                 :: "classname       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL"
                 :: ")"
@@ -362,23 +367,36 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
                 :: "charname       TEXT    PRIMARY KEY NOT NULL UNIQUE,"
                 :: "datatype       TEXT    NOT NULL,"
                 :: "num_chars      INTEGER NOT NULL,"
-                :: "decimal_places INTEGER NOT NULL"
+                :: "decimal_places INTEGER"
                 :: ")"
                 :: Nil
         )
 
-    def _sqlCreateFlocClassMembers(): String =
+    
+    def sqlCreateEquiCharacteristics(): String =
         String.unwords(
-            "CREATE TABLE floc_class_members ("
-                :: "class          TEXT NOT NULL,"
-                :: "characteristic TEXT NOT NULL"
-                :: ");"
+            "CREATE TABLE IF NOT EXISTS equi_characteristics ("
+                :: "charname       TEXT    PRIMARY KEY NOT NULL UNIQUE,"
+                :: "datatype       TEXT    NOT NULL,"
+                :: "num_chars      INTEGER NOT NULL,"
+                :: "decimal_places INTEGER"
+                :: ")"
                 :: Nil
         )
 
     def sqlCreateFlocIntRanges(): String =
         String.unwords(
-            "CREATE TABLE floc_int_ranges ("
+            "CREATE TABLE IF NOT EXISTS floc_int_ranges ("
+                :: "charname   TEXT    NOT NULL,"
+                :: "range_low  INTEGER NOT NULL,"
+                :: "range_high INTEGER NOT NULL"
+                :: ")"
+                :: Nil
+        )
+
+    def sqlCreateEquiIntRanges(): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS equi_int_ranges ("
                 :: "charname   TEXT    NOT NULL,"
                 :: "range_low  INTEGER NOT NULL,"
                 :: "range_high INTEGER NOT NULL"
@@ -388,7 +406,18 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     def sqlCreateFlocDecimalRanges(): String =
         String.unwords(
-            "CREATE TABLE floc_decimal_ranges ("
+            "CREATE TABLE IF NOT EXISTS floc_decimal_ranges ("
+                :: "charname   TEXT    NOT NULL,"
+                :: "range_low  DECIMAL NOT NULL,"
+                :: "range_high DECIMAL NOT NULL"
+                :: ")"
+                :: Nil
+        )
+
+
+    def sqlCreateEquiDecimalRanges(): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS equi_decimal_ranges ("
                 :: "charname   TEXT    NOT NULL,"
                 :: "range_low  DECIMAL NOT NULL,"
                 :: "range_high DECIMAL NOT NULL"
@@ -398,49 +427,9 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     def sqlCreateFlocSelectionValues(): String =
         String.unwords(
-            "CREATE TABLE floc_selection_values ("
+            "CREATE TABLE IF NOT EXISTS floc_selection_values ("
                 :: "charname TEXT NOT NULL,"
                 :: "value    TEXT NOT NULL"
-                :: ")"
-                :: Nil
-        )
-    
-    def sqlCreateEquiCharacteristics(): String =
-        String.unwords(
-            "CREATE TABLE equi_characteristics ("
-                :: "charname       TEXT    PRIMARY KEY NOT NULL UNIQUE,"
-                :: "datatype       TEXT    NOT NULL,"
-                :: "num_chars      INTEGER NOT NULL,"
-                :: "decimal_places INTEGER NOT NULL"
-                :: ")"
-                :: Nil
-        )
-
-    def _sqlCreateEquiClassMembers(): String =
-        String.unwords(
-            "CREATE TABLE equi_class_members ("
-                :: "class          TEXT NOT NULL,"
-                :: "characteristic TEXT NOT NULL"
-                :: ");"
-                :: Nil
-        )
-
-    def sqlCreateEquiIntRanges(): String =
-        String.unwords(
-            "CREATE TABLE equi_int_ranges ("
-                :: "charname   TEXT    NOT NULL,"
-                :: "range_low  INTEGER NOT NULL,"
-                :: "range_high INTEGER NOT NULL"
-                :: ")"
-                :: Nil
-        )
-
-    def sqlCreateEquiDecimalRanges(): String =
-        String.unwords(
-            "CREATE TABLE equi_decimal_ranges ("
-                :: "charname   TEXT    NOT NULL,"
-                :: "range_low  DECIMAL NOT NULL,"
-                :: "range_high DECIMAL NOT NULL"
                 :: ")"
                 :: Nil
         )
