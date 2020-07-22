@@ -59,9 +59,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/Parser {
     }
 
     /// Always UTF-8? no if parsing fails try iso_8859_1()
-    pub def parseFile(path: String, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, System.Error] & Impure = 
-        let path1 = System/FilePath.new(path);
-        TextParser.parseFile(classListParser(srctype), path1, cs) 
+    pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, System.Error] & Impure = 
+        TextParser.parseFile(classListParser(srctype), path, cs) 
 
 
     def classListParser(srctype: SourceType): TextParser[ClassListFile, t] = 

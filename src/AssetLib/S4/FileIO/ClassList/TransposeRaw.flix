@@ -23,6 +23,8 @@ use AssetLib/S4/FileIO/ClassList/Raw/ExportCsv.{ExportCsvParams, exportCharacter
 /// padding differences, ...) we consider them 'single use' raw input to be transposed to Csv for 
 /// 'real use'.
 
+/// OBSOLETE - now write to sqlite
+
 namespace AssetLib/S4/FileIO/ClassList/TransposeRaw {
 
     pub type alias TransposeRawParams = 
@@ -33,7 +35,7 @@ namespace AssetLib/S4/FileIO/ClassList/TransposeRaw {
         , refinesRangeOutpath: String
         }
 
-    pub def transposeRawInput(sourceFile: String, params: TransposeRawParams): Result[Unit, System.Error] & Impure = 
+    pub def transposeRawInput(sourceFile: System.FilePath, params: TransposeRawParams): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         let* ast    = parseFile(sourceFile, params.sourceType, params.charset);
         let ans     = buildClassList(ast);

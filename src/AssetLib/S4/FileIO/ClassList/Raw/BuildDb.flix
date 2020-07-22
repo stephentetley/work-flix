@@ -22,6 +22,9 @@ use AssetLib/Common/Utils.{foldMapRel};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+use AssetLib/S4/FileIO/ClassList/Raw/Parser.{parseFile};
+use AssetLib/S4/FileIO/ClassList/Raw/Builder.{buildClassList};
+
 
 namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb { 
 
@@ -33,26 +36,57 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
     rel DecimalRangeRel(charName: String, low: Float64, high: Float64)
     rel SelectionValueRel(charName: String, value: String)
 
+    pub def parseFlocClassList(path: System.FilePath, cs: Text.Charset): Result[ClassList, System.Error] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{FlocClasses};
+        let* ast    = parseFile(path, FlocClasses, cs);
+        let ans     = buildClassList(ast);
+        Ok(ans)
 
-    // pub def buildDb(src: ClassList, outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
-    //     use Result.flatMap;
+    pub def parseEquiClassList(path: System.FilePath, cs: Text.Charset): Result[ClassList, System.Error]  & Impure = 
+        use Result.{flatMap};
+        use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{EquiClasses};
+        let* ast    = parseFile(path, EquiClasses, cs);
+        let ans     = buildClassList(ast);
+        Ok(ans)
+
+    pub def outputDb(flocClasses: ClassList, equiClasses: ClassList, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
+        use FactIO/SQLiteExport.{runSQLiteExport};
+        runSQLiteExport(writeOutput(flocClasses, equiClasses), outpath)
+        
+    def writeOutput(flocClasses: ClassList, equiClasses: ClassList): SQLiteExport[Unit] =
+        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close};
+        let* _      = setAutoCommit(false);
+        let* _      = collectClassMembers(flocClasses) |> writeFlocClassMembers;
+        let* _      = collectClassMembers(equiClasses) |> writeEquiClassMembers;
+        let* _      = collectCharacteristics(flocClasses) |> writeFlocCharacteristics;
+        let* _      = collectCharacteristics(equiClasses) |> writeEquiCharacteristics;
+        let* _      = collectIntRanges(flocClasses) |> writeFlocIntRanges;
+        let* _      = collectIntRanges(equiClasses) |> writeEquiIntRanges;
+        let* _      = collectDecimalRanges(flocClasses) |> writeFlocDecimalRanges;
+        let* _      = collectDecimalRanges(equiClasses) |> writeEquiDecimalRanges;
+        let* _      = collectSelectionValues(flocClasses) |> writeFlocSelectionValues;
+        let* _      = collectSelectionValues(equiClasses) |> writeEquiSelectionValues;
+        let* _      = close();
+        return()
+
 
     // Traversals
 
     // Collect ClassMembers
     // Call solve to remove duplicates
-    pub def collectClassMembers[r](src: ClassList):  #{ClassMemberRel | r} = 
+    def collectClassMembers[r](src: ClassList):  #{ClassMemberRel | r} = 
         foldMapRel(classMember1, src.classes)
 
     // One-to-many
     def classMember1[r](src: Class):  #{ClassMemberRel | r} =
         let className = src.name;
-        foldMapRel(r ->  { let name = r.name; ClassMember(className, name). }, src.characteristics)
+        foldMapRel(r ->  { let name = r.name; ClassMemberRel(className, name). }, src.characteristics)
 
 
     // Collect Characteristics
     // Call solve to remove duplicates
-    pub def collectCharacteristic[r](src: ClassList):  #{CharacteristicRel | r} = 
+    def collectCharacteristics[r](src: ClassList):  #{CharacteristicRel | r} = 
         solve foldMapRel(characteristics, src.classes)
 
     // One-to-many
@@ -63,7 +97,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
     def characteristic1[r](src: Characteristic):  #{CharacteristicRel | r} =
         let name = src.name;
         let (typename, clength, prec) = deconsDatatype(src.datatype);
-        Characteristic(name, typename, clength, prec). 
+        CharacteristicRel(name, typename, clength, prec). 
         
 
     def deconsDatatype(x: Datatype): (String, Int32, Option[Int32]) = match x { 
@@ -76,7 +110,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Collect Int Ranges
     // Call solve to remove duplicates
-    pub def collectIntRanges[r](src: ClassList):  #{IntRangeRel | r} = 
+    def collectIntRanges[r](src: ClassList):  #{IntRangeRel | r} = 
         solve foldMapRel(intRanges, src.classes)
 
     // One-to-many
@@ -93,7 +127,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
     
     // Collect Decimal Ranges
     // Call solve to remove duplicates
-    pub def collectDecimalRanges[r](src: ClassList):  #{DecimalRangeRel | r} = 
+    def collectDecimalRanges[r](src: ClassList):  #{DecimalRangeRel | r} = 
         solve foldMapRel(decimalRanges, src.classes)
 
     // One-to-many
@@ -110,7 +144,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Collect Selection Values
     // Call solve to remove duplicates
-    pub def collectSelectionValues[r](src: ClassList):  #{SelectionValueRel | r} = 
+    def collectSelectionValues[r](src: ClassList):  #{SelectionValueRel | r} = 
         solve AssetLib/Common/Utils.foldMapRel(selectionValues, src.classes)
 
     // One-to-many
@@ -118,8 +152,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         AssetLib/Common/Utils.foldMapRel(selectionValue1, src.characteristics)
 
     // One-to-zero-or-one
-    def selectionValue1[r](src: Characteristic):  #{SelectionValueRel | r} =
-        
+    def selectionValue1[r](src: Characteristic):  #{SelectionValueRel | r} =        
         let name = src.name;
         match src.refinement {
             case Some(ListOfValues(xs)) => foldMapRel(r -> SelectionValueRel(name, r). , xs)
@@ -129,7 +162,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Class Members
 
-    pub def writeFlocClassMember[r](relns: #{ClassMemberRel | r}): SQLiteExport[Unit] =
+    def writeFlocClassMembers[r](relns: #{ClassMemberRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_class_members");
         let* _          = execute(sqlCreateFlocClassMembers());
@@ -139,7 +172,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         let* _          = commit();
         return()
 
-    pub def writeEquiClassMember[r](relns: #{ClassMemberRel | r}): SQLiteExport[Unit] =
+    def writeEquiClassMembers[r](relns: #{ClassMemberRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_class_members");
         let* _          = execute(sqlCreateEquiClassMembers());
@@ -164,7 +197,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Characteristics
 
-    pub def writeFlocCharacteristics[r](relns: #{CharacteristicRel | r}): SQLiteExport[Unit] =
+    def writeFlocCharacteristics[r](relns: #{CharacteristicRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_characteristics");
         let* _          = execute(sqlCreateFlocCharacteristics());
@@ -174,7 +207,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         let* _          = commit();
         return()
 
-    pub def writeEquiCharacteristic[r](relns: #{CharacteristicRel | r}): SQLiteExport[Unit] =
+    def writeEquiCharacteristics[r](relns: #{CharacteristicRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_characteristics");
         let* _          = execute(sqlCreateEquiCharacteristics());
@@ -200,7 +233,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Int Ranges
 
-    pub def writeFlocIntRanges[r](relns: #{IntRangeRel | r}): SQLiteExport[Unit] =
+    def writeFlocIntRanges[r](relns: #{IntRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_int_ranges");
         let* _          = execute(sqlCreateFlocIntRanges());
@@ -210,7 +243,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         let* _          = commit();
         return()
 
-    pub def writeEquiIntRanges[r](relns: #{IntRangeRel | r}): SQLiteExport[Unit] =
+    def writeEquiIntRanges[r](relns: #{IntRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_int_ranges");
         let* _          = execute(sqlCreateEquiIntRanges());
@@ -235,7 +268,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Decimal Ranges
 
-    pub def writeFlocDecimalRanges[r](relns: #{DecimalRangeRel | r}): SQLiteExport[Unit] =
+    def writeFlocDecimalRanges[r](relns: #{DecimalRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_decimal_ranges");
         let* _          = execute(sqlCreateFlocDecimalRanges());
@@ -245,7 +278,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         let* _          = commit();
         return()
 
-    pub def writeEquiDecimalRanges[r](relns: #{DecimalRangeRel | r}): SQLiteExport[Unit] =
+    def writeEquiDecimalRanges[r](relns: #{DecimalRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_decimal_ranges");
         let* _          = execute(sqlCreateEquiDecimalRanges());
@@ -269,7 +302,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Selection Values
 
-    pub def writeFlocSelectionValues[r](relns: #{SelectionValueRel | r}): SQLiteExport[Unit] =
+    def writeFlocSelectionValues[r](relns: #{SelectionValueRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_selection_values");
         let* _          = execute(sqlCreateFlocSelectionValues());
@@ -279,7 +312,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
         let* _          = commit();
         return()
 
-    pub def writeEquiSelectionValues[r](relns: #{SelectionValueRel | r}): SQLiteExport[Unit] =
+    def writeEquiSelectionValues[r](relns: #{SelectionValueRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_selection_values");
         let* _          = execute(sqlCreateEquiSelectionValues());
