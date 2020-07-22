@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO/FlatFile.RowWithHeadersEvaluator;
-use FactIO/FlatFile/RowWithHeadersEvaluator.{return, getString, getInt32, map};
+use TextParser.RowWithHeadersParser;
+use TextParser/RowWithHeadersParser.{return, getString, getInt32, map};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 
@@ -42,8 +42,8 @@ namespace UploadCheck/EntityTypes/Eqmltxt {
 
     
 
-    def evaluateRow(): RowWithHeadersEvaluator[EqmltxtRow] = 
-        use FactIO/FlatFile/RowWithHeadersEvaluator.{flatMap};
+    def evaluateRow(): RowWithHeadersParser[EqmltxtRow] = 
+        use TextParser/RowWithHeadersParser.{flatMap};
         let* equi           = getString("EQUI");
         let* shortText      = getString("SHORTXT");
         let* langCode       = getString("LANGUCODE");

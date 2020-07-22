@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO/FlatFile.RowWithHeadersEvaluator;
-use FactIO/FlatFile/RowWithHeadersEvaluator.{return, getString, getInt32};
+use TextParser.RowWithHeadersParser;
+use TextParser/RowWithHeadersParser.{return, getString, getInt32};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
@@ -49,8 +49,8 @@ namespace UploadCheck/EntityTypes/ValuaEqui {
         let* ans = AssetLib/S4/FileIO/ChangeFile/Evaluate.transform(evaluateRow(), ast);
         Ok(ans)
 
-    def evaluateRow(): RowWithHeadersEvaluator[ValuaEquiRow] = 
-        use FactIO/FlatFile/RowWithHeadersEvaluator.{flatMap};
+    def evaluateRow(): RowWithHeadersParser[ValuaEquiRow] = 
+        use TextParser/RowWithHeadersParser.{flatMap};
         let* equi           = getString("EQUI");
         let* classType      = getString("CLASSTYPE");
         let* charId         = getString("CHARID");

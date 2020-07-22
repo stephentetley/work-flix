@@ -18,32 +18,133 @@ use FactIO.SQLiteExport;
 use FactIO.SQLiteWriteList;
 use FactIO.SQLiteRowWriter;
 
+use AssetLib/Common/Utils.{foldMapRel};
+use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
+use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+
 namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb { 
 
-    rel ClassMember(className: String, charName: String)
-    rel Characteristic(charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32])
-    rel IntRange(charName: String, low: Int32, high: Int32)
-    rel DecimalRange(charName: String, low: Float64, high: Float64)
-    rel SelectionValue(charName: String, value: String)
+    // These are transitory relations, so the _Rel suffix is not a burden
+
+    rel ClassMemberRel(className: String, charName: String)
+    rel CharacteristicRel(charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32])
+    rel IntRangeRel(charName: String, low: Int32, high: Int32)
+    rel DecimalRangeRel(charName: String, low: Float64, high: Float64)
+    rel SelectionValueRel(charName: String, value: String)
+
+
+    // pub def buildDb(src: ClassList, outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
+    //     use Result.flatMap;
+
+    // Traversals
+
+    // Collect ClassMembers
+    // Call solve to remove duplicates
+    pub def collectClassMembers[r](src: ClassList):  #{ClassMemberRel | r} = 
+        foldMapRel(classMember1, src.classes)
+
+    // One-to-many
+    def classMember1[r](src: Class):  #{ClassMemberRel | r} =
+        let className = src.name;
+        foldMapRel(r ->  { let name = r.name; ClassMember(className, name). }, src.characteristics)
+
+
+    // Collect Characteristics
+    // Call solve to remove duplicates
+    pub def collectCharacteristic[r](src: ClassList):  #{CharacteristicRel | r} = 
+        solve foldMapRel(characteristics, src.classes)
+
+    // One-to-many
+    def characteristics[r](src: Class):  #{CharacteristicRel | r} =
+        foldMapRel(characteristic1, src.characteristics)
+
+    // One-to-one
+    def characteristic1[r](src: Characteristic):  #{CharacteristicRel | r} =
+        let name = src.name;
+        let (typename, clength, prec) = deconsDatatype(src.datatype);
+        Characteristic(name, typename, clength, prec). 
+        
+
+    def deconsDatatype(x: Datatype): (String, Int32, Option[Int32]) = match x { 
+        case Text(d) => ("Text", d, None)
+        case Date(d) => ("Date", d, None)
+        case NumInt(d) => ("Int", d, None)
+        case NumDecimal(d, p) => ("Decimal", d, Some(p)) 
+    }
+        
+
+    // Collect Int Ranges
+    // Call solve to remove duplicates
+    pub def collectIntRanges[r](src: ClassList):  #{IntRangeRel | r} = 
+        solve foldMapRel(intRanges, src.classes)
+
+    // One-to-many
+    def intRanges[r](src: Class):  #{IntRangeRel | r} =
+        foldMapRel(intRange1, src.characteristics)
+
+    // One-to-zero-or-one
+    def intRange1[r](src: Characteristic):  #{IntRangeRel | r} =
+        let name = src.name;
+        match src.refinement {
+            case Some(IntRange(lo,hi)) => IntRangeRel(name, lo, hi).
+            case _ => #{}
+        } 
+    
+    // Collect Decimal Ranges
+    // Call solve to remove duplicates
+    pub def collectDecimalRanges[r](src: ClassList):  #{DecimalRangeRel | r} = 
+        solve foldMapRel(decimalRanges, src.classes)
+
+    // One-to-many
+    def decimalRanges[r](src: Class):  #{DecimalRangeRel | r} =
+        foldMapRel(decimalRange1, src.characteristics)
+
+    // One-to-zero-or-one
+    def decimalRange1[r](src: Characteristic):  #{DecimalRangeRel | r} =
+        let name = src.name;
+        match src.refinement {
+            case Some(DecimalRange(lo,hi)) => DecimalRangeRel(name, lo, hi).
+            case _ => #{}
+        } 
+
+    // Collect Selection Values
+    // Call solve to remove duplicates
+    pub def collectSelectionValues[r](src: ClassList):  #{SelectionValueRel | r} = 
+        solve AssetLib/Common/Utils.foldMapRel(selectionValues, src.classes)
+
+    // One-to-many
+    def selectionValues[r](src: Class):  #{SelectionValueRel | r} =
+        AssetLib/Common/Utils.foldMapRel(selectionValue1, src.characteristics)
+
+    // One-to-zero-or-one
+    def selectionValue1[r](src: Characteristic):  #{SelectionValueRel | r} =
+        
+        let name = src.name;
+        match src.refinement {
+            case Some(ListOfValues(xs)) => foldMapRel(r -> SelectionValueRel(name, r). , xs)
+            case _ => #{}
+        } 
+
 
     // Class Members
 
-    pub def writeFlocClassMember[r](relns: #{ ClassMember | r}): SQLiteExport[Unit] =
+    pub def writeFlocClassMember[r](relns: #{ClassMemberRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_class_members");
         let* _          = execute(sqlCreateFlocClassMembers());
         let stmt        = "INSERT INTO floc_class_members(classname, charname) VALUES(?,?)";
-        let writes      = fold ClassMember emptySQLiteWriteList() writeClassMemberStep() relns;
+        let writes      = fold ClassMemberRel emptySQLiteWriteList() writeClassMemberStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
 
-    pub def writeEquiClassMember[r](relns: #{ ClassMember | r}): SQLiteExport[Unit] =
+    pub def writeEquiClassMember[r](relns: #{ClassMemberRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_class_members");
         let* _          = execute(sqlCreateEquiClassMembers());
         let stmt        = "INSERT INTO equi_class_members(classname, charname) VALUES(?,?)";
-        let writes      = fold ClassMember emptySQLiteWriteList() writeClassMemberStep() relns;
+        let writes      = fold ClassMemberRel emptySQLiteWriteList() writeClassMemberStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
@@ -63,22 +164,22 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Characteristics
 
-    pub def writeFlocCharacteristics[r](relns: #{ Characteristic | r}): SQLiteExport[Unit] =
+    pub def writeFlocCharacteristics[r](relns: #{CharacteristicRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_characteristics");
         let* _          = execute(sqlCreateFlocCharacteristics());
         let stmt        = "INSERT INTO floc_characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)";
-        let writes      = fold Characteristic emptySQLiteWriteList() writeCharacteristicStep() relns;
+        let writes      = fold CharacteristicRel emptySQLiteWriteList() writeCharacteristicStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
 
-    pub def writeEquiCharacteristic[r](relns: #{ Characteristic | r}): SQLiteExport[Unit] =
+    pub def writeEquiCharacteristic[r](relns: #{CharacteristicRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_characteristics");
         let* _          = execute(sqlCreateEquiCharacteristics());
         let stmt        = "INSERT INTO equi_characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)";
-        let writes      = fold Characteristic emptySQLiteWriteList() writeCharacteristicStep() relns;
+        let writes      = fold CharacteristicRel emptySQLiteWriteList() writeCharacteristicStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
@@ -99,22 +200,22 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Int Ranges
 
-    pub def writeFlocIntRanges[r](relns: #{ IntRange | r}): SQLiteExport[Unit] =
+    pub def writeFlocIntRanges[r](relns: #{IntRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_int_ranges");
         let* _          = execute(sqlCreateFlocIntRanges());
         let stmt        = "INSERT INTO floc_int_ranges(charname, range_high, range_low) VALUES(?,?,?)";
-        let writes      = fold IntRange emptySQLiteWriteList() writeIntRangeStep() relns;
+        let writes      = fold IntRangeRel emptySQLiteWriteList() writeIntRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
 
-    pub def writeEquiIntRanges[r](relns: #{ IntRange | r}): SQLiteExport[Unit] =
+    pub def writeEquiIntRanges[r](relns: #{IntRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_int_ranges");
         let* _          = execute(sqlCreateEquiIntRanges());
         let stmt        = "INSERT INTO equi_int_ranges(charname, range_high, range_low) VALUES(?,?,?)";
-        let writes      = fold IntRange emptySQLiteWriteList() writeIntRangeStep() relns;
+        let writes      = fold IntRangeRel emptySQLiteWriteList() writeIntRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
@@ -134,22 +235,22 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Decimal Ranges
 
-    pub def writeFlocDecimalRanges[r](relns: #{ DecimalRange | r}): SQLiteExport[Unit] =
+    pub def writeFlocDecimalRanges[r](relns: #{DecimalRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_decimal_ranges");
         let* _          = execute(sqlCreateFlocDecimalRanges());
         let stmt        = "INSERT INTO floc_decimal_ranges(charname, range_high, range_low) VALUES(?,?,?)";
-        let writes      = fold DecimalRange emptySQLiteWriteList() writeDecimalRangeStep() relns;
+        let writes      = fold DecimalRangeRel emptySQLiteWriteList() writeDecimalRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
 
-    pub def writeEquiDecimalRanges[r](relns: #{ DecimalRange | r}): SQLiteExport[Unit] =
+    pub def writeEquiDecimalRanges[r](relns: #{DecimalRangeRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_decimal_ranges");
         let* _          = execute(sqlCreateEquiDecimalRanges());
         let stmt        = "INSERT INTO equi_decimal_ranges(charname, range_high, range_low) VALUES(?,?,?)";
-        let writes      = fold DecimalRange emptySQLiteWriteList() writeDecimalRangeStep() relns;
+        let writes      = fold DecimalRangeRel emptySQLiteWriteList() writeDecimalRangeStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
@@ -168,22 +269,22 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/BuildDb {
 
     // Selection Values
 
-    pub def writeFlocSelectionValues[r](relns: #{ SelectionValue | r}): SQLiteExport[Unit] =
+    pub def writeFlocSelectionValues[r](relns: #{SelectionValueRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_selection_values");
         let* _          = execute(sqlCreateFlocSelectionValues());
         let stmt        = "INSERT INTO floc_selection_values(charname, value) VALUES(?,?)";
-        let writes      = fold SelectionValue emptySQLiteWriteList() writeSelectionValueStep() relns;
+        let writes      = fold SelectionValueRel emptySQLiteWriteList() writeSelectionValueStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()
 
-    pub def writeEquiSelectionValues[r](relns: #{ SelectionValue | r}): SQLiteExport[Unit] =
+    pub def writeEquiSelectionValues[r](relns: #{SelectionValueRel | r}): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_selection_values");
         let* _          = execute(sqlCreateEquiSelectionValues());
         let stmt        = "INSERT INTO equi_selection_values(charname, value) VALUES(?,?)";
-        let writes      = fold SelectionValue emptySQLiteWriteList() writeSelectionValueStep() relns;
+        let writes      = fold SelectionValueRel emptySQLiteWriteList() writeSelectionValueStep() relns;
         let* _          = execWriteList(stmt, writes);
         let* _          = commit();
         return()

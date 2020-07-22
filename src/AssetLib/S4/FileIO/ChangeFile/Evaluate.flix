@@ -56,7 +56,7 @@ namespace AssetLib/S4/FileIO/ChangeFile/Evaluate {
                 case Ok(r1) => Ok(ac <+> r1)
                 case Err(e) => Err(e)
             };
-        AssetLib/Common/Utils.foldLeftResult(accumRow, #{ },  x1.dataRows)
+        Result.foldLeftM(accumRow, #{ },  x1.dataRows)
 
     def evalRow(rowp: RowWithHeadersParser[row], headers: Map[String, Int32], row: DataRow): Result[row, System.Error] & Impure =  
         let RowWithHeadersParser(f) = rowp;

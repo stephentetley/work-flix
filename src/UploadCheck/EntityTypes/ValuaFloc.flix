@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO/FlatFile.RowWithHeadersEvaluator;
-use FactIO/FlatFile/RowWithHeadersEvaluator.{return, getString, getInt32};
+use TextParser.RowWithHeadersParser;
+use TextParser/RowWithHeadersParser.{return, getString, getInt32};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
@@ -53,8 +53,8 @@ namespace UploadCheck/EntityTypes/ValuaFloc {
         Ok(ans)
 
     // FUNCLOC	CLASSTYPE	CHARID	ATWRT	ATCOD	TEXTBEZ	VALCNT	ATFLV	ATFLB
-    def evaluateRow(): RowWithHeadersEvaluator[ValuaFlocRow] = 
-        use FactIO/FlatFile/RowWithHeadersEvaluator.{flatMap};
+    def evaluateRow(): RowWithHeadersParser[ValuaFlocRow] = 
+        use TextParser/RowWithHeadersParser.{flatMap};
         let* funcloc        = getString("FUNCLOC");
         let* classType      = getString("CLASSTYPE");
         let* charId         = getString("CHARID");

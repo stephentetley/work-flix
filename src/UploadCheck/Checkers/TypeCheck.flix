@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-use Text/Regex/Pattern.{irrefutableCompile => irrefutablePattern};
+use Text/Regex/Pattern.{irrefutablePattern};
 
 
 

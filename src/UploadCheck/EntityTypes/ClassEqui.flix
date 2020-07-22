@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO/FlatFile.RowWithHeadersEvaluator;
-use FactIO/FlatFile/RowWithHeadersEvaluator.{return, getString, getInt32};
+use TextParser.RowWithHeadersParser;
+use TextParser/RowWithHeadersParser.{return, getString, getInt32};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 
@@ -40,8 +40,8 @@ namespace UploadCheck/EntityTypes/ClassEqui {
         Ok(ans)
 
     // *EQUI	CLASS	CLASSTYPE	CLSTATUS1
-    def evaluateRow(): RowWithHeadersEvaluator[ClassEquiRow] = 
-        use FactIO/FlatFile/RowWithHeadersEvaluator.{flatMap};
+    def evaluateRow(): RowWithHeadersParser[ClassEquiRow] = 
+        use TextParser/RowWithHeadersParser.{flatMap};
         let* equi               = getString("EQUI");
         let* className          = getString("CLASS");
         let* classType          = getString("CLASSTYPE");
