@@ -25,17 +25,16 @@ namespace AssetLib/S4/FileIO/ClassList/Relations {
     }
 
     
+    rel FlocClassMember(className: String, charName: String)
+    rel FlocCharacteristic(charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
+    rel FlocSelectionValue(charName: String, value: String)
+    rel FlocIntRange(charName: String, lowest: Int32, highest: Int32)
+    rel FlocDecimalRange(charName: String, lowest: Float64, highest: Float64)
 
-    rel EquiCharacteristic(classType: String, className: String, charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
-
-    rel EquiRefinesChoice(classType: String, className: String, charName: String, value: String)
-
-    rel EquiRefinesRange(classType: String, className: String, charName: String, lowest: Int32, highest: Int32)
-
-    rel FlocCharacteristic(classType: String, className: String, charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
-
-    rel FlocRefinesChoice(classType: String, className: String, charName: String, value: String)
-
-    rel FlocRefinesRange(classType: String, className: String, charName: String, lowest: Int32, highest: Int32)
+    rel EquiClassMember(className: String, charName: String)
+    rel EquiCharacteristic(charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
+    rel EquiSelectionValue(charName: String, value: String)
+    rel EquiIntRange(charName: String, lowest: Int32, highest: Int32)
+    rel EquiDecimalRange(charName: String, lowest: Float64, highest: Float64)
 
 }
