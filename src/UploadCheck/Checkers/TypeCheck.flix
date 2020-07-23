@@ -16,8 +16,7 @@
 
 use Text/Regex/Pattern.{irrefutablePattern};
 
-
-
+use AssetLib/S4/FileIO/ClassList/Relations.{FlocCharacteristic, EquiCharacteristic};
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype; 
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text, IntNum, DecimalNum, Date};
 use UploadCheck/EntityTypes/ValuaFloc.{ValuaFloc};
@@ -25,19 +24,7 @@ use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
 
 namespace UploadCheck/Checkers/TypeCheck {
 
-    // Dummy while we see if this can be extracted from the host system...
-    rel CharacteristicType(charId: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
 
-
-    /// This will be read from file in due course
-    /// EASTING and NORTHING are really ranges
-    pub def tempTypeDb[r](): #{ CharacteristicType | r } = #{
-        CharacteristicType("MANUFACTURERS_ASSET_LIFE_YR", IntNum, 5, None).
-        CharacteristicType("AI2_AIB_REFERENCE", Text, 11, None).
-        CharacteristicType("EASTING", IntNum, 5, None).
-        CharacteristicType("NORTHING", IntNum, 5, None).
-        CharacteristicType("VEPR_PV_VERIFICATION_DATE", Date, 10, None).
-    }
 
     rel TypeFail(ix: Int32, identifier: String, charId: String, value: String, valueType: Datatype)
     rel Value(ix: Int32, identifier: String, charId: String, value: String, valueType: Datatype)
@@ -45,10 +32,10 @@ namespace UploadCheck/Checkers/TypeCheck {
     /// Note we can put together the steps of typechicking in a pipeline rather than
     /// define them as one monolithic set of Datalog rules
     
-    pub def equiTypecheck[r](): #{ TypeFail, Value, ValuaEqui, CharacteristicType | r } =
+    pub def equiTypecheck[r](): #{ TypeFail, Value, ValuaEqui, EquiCharacteristic | r } =
         typecheck() <+> deriveEquiValues()
 
-    pub def flocTypecheck[r](): #{ TypeFail, Value, ValuaFloc, CharacteristicType | r } =
+    pub def flocTypecheck[r](): #{ TypeFail, Value, ValuaFloc, FlocCharacteristic | r } =
         typecheck() <+> deriveFlocValues()
 
     
@@ -87,43 +74,43 @@ namespace UploadCheck/Checkers/TypeCheck {
 
  
 
-    def deriveEquiValues[r](): #{ Value, ValuaEqui, CharacteristicType | r } =  #{
+    def deriveEquiValues[r](): #{ Value, ValuaEqui, EquiCharacteristic | r } =  #{
 
         Value(ix, equiId, charId, charValue, Text) :-
             ValuaEqui(ix, equiId, _, charId, charValue, _, _, _, _, _),
-            CharacteristicType(charId, Text, _, _). 
+            EquiCharacteristic(charId, Text, _, _). 
 
         Value(ix, equiId, charId, charValue, Date) :-
             ValuaEqui(ix, equiId, _, charId, charValue, _, _, _, _, _),
-            CharacteristicType(charId, Date, _, _). 
+            EquiCharacteristic(charId, Date, _, _). 
 
         Value(ix, equiId, charId, valueFrom, IntNum) :-
             ValuaEqui(ix, equiId, _, charId, _, _, _, _, valueFrom, _), 
-            CharacteristicType(charId, IntNum, _, _).
+            EquiCharacteristic(charId, IntNum, _, _).
 
         Value(ix, equiId, charId, valueFrom, DecimalNum) :-
             ValuaEqui(ix, equiId, _, charId, _, _, _, _, valueFrom, _), 
-            CharacteristicType(charId, DecimalNum, _, _).
+            EquiCharacteristic(charId, DecimalNum, _, _).
 
     }
 
-    def deriveFlocValues[r](): #{ Value, ValuaFloc, CharacteristicType | r } =  #{
+    def deriveFlocValues[r](): #{ Value, ValuaFloc, FlocCharacteristic | r } =  #{
 
         Value(ix, floc, charId, charValue, Text) :-
             ValuaFloc(ix, floc, _, charId, charValue, _, _, _, _, _),
-            CharacteristicType(charId, Text, _, _). 
+            FlocCharacteristic(charId, Text, _, _). 
 
         Value(ix, floc, charId, charValue, Date) :-
             ValuaFloc(ix, floc, _, charId, charValue, _, _, _, _, _),
-            CharacteristicType(charId, Date, _, _). 
+            FlocCharacteristic(charId, Date, _, _). 
 
         Value(ix, floc, charId, valueFrom, IntNum) :-
             ValuaFloc(ix, floc, _, charId, _, _, _, _, valueFrom, _), 
-            CharacteristicType(charId, IntNum, _, _).
+            FlocCharacteristic(charId, IntNum, _, _).
 
         Value(ix, floc, charId, valueFrom, DecimalNum) :-
             ValuaFloc(ix, floc, _, charId, _, _, _, _, valueFrom, _), 
-            CharacteristicType(charId, DecimalNum, _, _).
+            FlocCharacteristic(charId, DecimalNum, _, _).
 
     }
 

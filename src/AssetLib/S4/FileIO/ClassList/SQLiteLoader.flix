@@ -31,11 +31,11 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
 
 
 
-    pub def loadDb[r](path: System.FilePath): Result[#{ FlocCharacteristic, EquiCharacteristic,
-                                                        FlocSelectionValue, EquiSelectionValue,
-                                                        FlocIntRange, EquiIntRange,
-                                                        FlocDecimalRange, EquiDecimalRange, 
-                                                        FlocClassMember, EquiClassMember | r}, System.Error] & Impure =
+    pub def loadCharacteristicsDb[r](path: System.FilePath): Result[#{ FlocCharacteristic, EquiCharacteristic,
+                                            FlocSelectionValue, EquiSelectionValue,
+                                            FlocIntRange, EquiIntRange,
+                                            FlocDecimalRange, EquiDecimalRange, 
+                                            FlocClassMember, EquiClassMember | r}, System.Error] & Impure =
         use Result.flatMap;
         let* r1     = loadFlocCharacteristics(path);
         let* r2     = loadEquiCharacteristics(path);
