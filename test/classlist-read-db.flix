@@ -1,7 +1,7 @@
 use System.Error.{Generic};
 
 use AssetLib/S4/FileIO/ClassList/Relations.{FlocCharacteristic, EquiCharacteristic};
-use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{loadClassListDb};
+use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{loadCharacteristicsDb};
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln

@@ -17,7 +17,7 @@
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text};
 use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{loadCharacteristicsDb};
 use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
-use UploadCheck/Checkers/TypeCheck.{Value, TypeFail, equiTypecheck};
+use UploadCheck/Checkers/CharacteristicTypeCheck.{Value, TypeFail, equiTypecheck};
 
 
 // def main(): #{EquiCharacteristic} & Impure =  
