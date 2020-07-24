@@ -32,7 +32,7 @@ use UploadCheck/Checkers/CharacteristicTypeCheck.{Value, TypeFail, equiTypecheck
 
 def typeCheck(): Result[#{TypeFail}, System.Error] & Impure = 
     use Result.{flatMap};
-    let charsPath  = System/FilePath.new("G:/work/Projects/assets/facts/characteristics_db.sqlite");
+    let charsPath  = System/FilePath.new("G:/work/Projects/assets/facts/equi_characteristics.sqlite");
     let* characteristics = loadCharacteristicsDb(charsPath);
     let r1 = #{ 
         ValuaEqui( 1, "101000245", "002", "AI2_AIB_REFERENCE", "PLI00343356", 1, "PLI00343356", 1, "", "").

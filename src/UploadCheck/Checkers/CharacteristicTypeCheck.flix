@@ -16,7 +16,7 @@
 
 use Text/Regex/Pattern.{irrefutablePattern};
 
-use AssetLib/S4/FileIO/ClassList/Relations.{FlocCharacteristic, EquiCharacteristic};
+use AssetLib/S4/FileIO/ClassList/Relations.{Characteristic};
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype; 
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text, IntNum, DecimalNum, Date};
 use UploadCheck/EntityTypes/ValuaFloc.{ValuaFloc};
@@ -33,10 +33,10 @@ namespace UploadCheck/Checkers/CharacteristicTypeCheck {
     /// Note we can put together the steps of typechicking in a pipeline rather than
     /// define them as one monolithic set of Datalog rules
     
-    pub def equiTypecheck[r](): #{TypeFail, UniCharacteristic, ValuaEqui, EquiCharacteristic | r} =
+    pub def equiTypecheck[r](): #{TypeFail, UniCharacteristic, ValuaEqui, Characteristic | r} =
         typecheck() <+> equiToUniCharacteristic()
 
-    pub def flocTypecheck[r](): #{TypeFail, UniCharacteristic, ValuaFloc, FlocCharacteristic | r} =
+    pub def flocTypecheck[r](): #{TypeFail, UniCharacteristic, ValuaFloc, Characteristic | r} =
         typecheck() <+> flocToUniCharacteristic()
 
     
