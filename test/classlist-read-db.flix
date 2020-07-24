@@ -1,6 +1,6 @@
 use System.Error.{Generic};
 
-use AssetLib/S4/FileIO/ClassList/Relations.{FlocCharacteristic, EquiCharacteristic};
+use AssetLib/S4/FileIO/ClassList/Relations.{Characteristic};
 use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{loadCharacteristicsDb};
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
@@ -11,12 +11,12 @@ def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     }
 }
 
-def main(): #{EquiCharacteristic} & Impure =  
+def main(): #{Characteristic} & Impure =  
     use Result.flatMap;
     let step = () -> {
-        let path  = System/FilePath.new("G:/work/Projects/assets/facts/characteristics_db.sqlite");
+        let path  = System/FilePath.new("G:/work/Projects/assets/facts/equi_characteristics.sqlite");
         let* relns = loadCharacteristicsDb(path);
-        let r1 = project EquiCharacteristic relns;
+        let r1 = project Characteristic relns;
         Ok(r1)
     };
     step() |> runResult

@@ -29,7 +29,7 @@ use AssetLib/S4/FileIO/ClassList/Raw/Builder.{buildClassList};
 namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb { 
 
     // These are transitory relations, so the _Rel suffix is not a burden
-
+    
     rel ClassMemberRel(className: String, charName: String)
     rel CharacteristicRel(charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32])
     rel IntRangeRel(charName: String, low: Int32, high: Int32)
