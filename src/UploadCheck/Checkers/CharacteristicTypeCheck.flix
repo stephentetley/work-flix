@@ -21,25 +21,26 @@ use AssetLib/S4/FileIO/ClassList/Relations.Datatype;
 use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text, IntNum, DecimalNum, Date};
 use UploadCheck/EntityTypes/ValuaFloc.{ValuaFloc};
 use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
+use UploadCheck/Checkers/UniCharacteristic.{UniCharacteristic};
+use UploadCheck/Checkers/UniCharacteristic.{equiToUniCharacteristic, flocToUniCharacteristic};
 
 namespace UploadCheck/Checkers/CharacteristicTypeCheck {
 
 
 
     rel TypeFail(ix: Int32, identifier: String, charId: String, value: String, valueType: Datatype)
-    rel UniCharacteristic(ix: Int32, identifier: String, charId: String, value: String, valueType: Datatype)
-
+   
     /// Note we can put together the steps of typechicking in a pipeline rather than
     /// define them as one monolithic set of Datalog rules
     
-    pub def equiTypecheck[r](): #{ TypeFail, UniCharacteristic, ValuaEqui, EquiCharacteristic | r } =
+    pub def equiTypecheck[r](): #{TypeFail, UniCharacteristic, ValuaEqui, EquiCharacteristic | r} =
         typecheck() <+> equiToUniCharacteristic()
 
-    pub def flocTypecheck[r](): #{ TypeFail, UniCharacteristic, ValuaFloc, FlocCharacteristic | r } =
+    pub def flocTypecheck[r](): #{TypeFail, UniCharacteristic, ValuaFloc, FlocCharacteristic | r} =
         typecheck() <+> flocToUniCharacteristic()
 
     
-    def typecheck[r](): #{ TypeFail, UniCharacteristic | r } = #{
+    def typecheck[r](): #{TypeFail, UniCharacteristic | r} = #{
 
         TypeFail(ix, identifier, charId, value, IntNum) :-
             UniCharacteristic(ix, identifier, charId, value, IntNum), if !checkIntValue(value).
@@ -71,52 +72,5 @@ namespace UploadCheck/Checkers/CharacteristicTypeCheck {
     def checkDecimalValue(x: String): Bool = 
         use Text/Regex.{matches};
         x.matches(regexDecimal())
-
- 
-    /// The actual "value" might either be CharacteristicValue (Text and Date) or ValueFrom (Int and Decimal)
-    def equiToUniCharacteristic[r](): #{ UniCharacteristic, ValuaEqui, EquiCharacteristic | r } =  #{
-
-        UniCharacteristic(ix, equiId, charId, charValue, Text) :-
-            ValuaEqui(ix, equiId, _, charId, charValue, _, _, _, _, _),
-            EquiCharacteristic(charId, Text, _, _). 
-
-        UniCharacteristic(ix, equiId, charId, charValue, Date) :-
-            ValuaEqui(ix, equiId, _, charId, charValue, _, _, _, _, _),
-            EquiCharacteristic(charId, Date, _, _). 
-
-        UniCharacteristic(ix, equiId, charId, valueFrom, IntNum) :-
-            ValuaEqui(ix, equiId, _, charId, _, _, _, _, valueFrom, _), 
-            EquiCharacteristic(charId, IntNum, _, _).
-
-        UniCharacteristic(ix, equiId, charId, valueFrom, DecimalNum) :-
-            ValuaEqui(ix, equiId, _, charId, _, _, _, _, valueFrom, _), 
-            EquiCharacteristic(charId, DecimalNum, _, _).
-
-    }
-
-
-    /// The actual "value" might either be CharacteristicValue (Text and Date) or ValueFrom (Int and Decimal)
-    def flocToUniCharacteristic[r](): #{ UniCharacteristic, ValuaFloc, FlocCharacteristic | r } =  #{
-
-        UniCharacteristic(ix, floc, charId, charValue, Text) :-
-            ValuaFloc(ix, floc, _, charId, charValue, _, _, _, _, _),
-            FlocCharacteristic(charId, Text, _, _). 
-
-        UniCharacteristic(ix, floc, charId, charValue, Date) :-
-            ValuaFloc(ix, floc, _, charId, charValue, _, _, _, _, _),
-            FlocCharacteristic(charId, Date, _, _). 
-
-        UniCharacteristic(ix, floc, charId, valueFrom, IntNum) :-
-            ValuaFloc(ix, floc, _, charId, _, _, _, _, valueFrom, _), 
-            FlocCharacteristic(charId, IntNum, _, _).
-
-        UniCharacteristic(ix, floc, charId, valueFrom, DecimalNum) :-
-            ValuaFloc(ix, floc, _, charId, _, _, _, _, valueFrom, _), 
-            FlocCharacteristic(charId, DecimalNum, _, _).
-
-    }
-
-
-
 
 }

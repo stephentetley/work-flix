@@ -24,7 +24,8 @@ namespace AssetLib/S4/FileIO/ClassList/Relations {
         case Date
     }
 
-    
+    /// TODO - look towards having two databases, but one set of types then we aren't
+    /// defining two time the number of functions.
     rel FlocClassMember(className: String, charName: String)
     rel FlocCharacteristic(charName: String, datatype: Datatype, charLength: Int32, decimalPrec: Option[Int32])
     rel FlocSelectionValue(charName: String, value: String)
