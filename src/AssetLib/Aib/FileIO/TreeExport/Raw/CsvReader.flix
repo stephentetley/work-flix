@@ -20,11 +20,12 @@ use FactIO/CsvImport.{getRows};
 use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow};
 
 /// Use FactIO but build a list rather than a set of relations.
+/// (Hence is called CsvReader not CsvLoader)
 
-namespace AssetLib/Aib/FileIO/TreeExport/Raw/Reader {
+namespace AssetLib/Aib/FileIO/TreeExport/Raw/CsvReader {
 
 
-    pub def readAibTreeFile(path: String): Result[AibTreeFile, System.Error] & Impure =    
+    pub def readAibTreeFile(path: System.FilePath): Result[AibTreeFile, System.Error] & Impure =    
         use Result.flatMap;
         use FactIO/CsvFormat.{excel, withFirstRecordAsHeader};
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, excel().withFirstRecordAsHeader(), Text/Charset.utf_8());

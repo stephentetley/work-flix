@@ -55,9 +55,8 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
     /// ClassMember
     def loadClassMembers[r](path: System.FilePath): Result[#{ClassMember | r}, System.Error] & Impure = 
         use Result.flatMap;
-        use System/FilePath.{toString};
         let query = "SELECT classname, charname FROM class_members";
-        let* src = FactIO/SQLiteImport.newSQLiteStream(path.toString(), query);
+        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
         let* relns = FactIO/SQLiteImport.importRows(evalClassMember(), src);
         Ok(relns)
 
@@ -70,9 +69,8 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
     /// Characteristic
     def loadCharacteristics[r](path: System.FilePath): Result[#{Characteristic | r}, System.Error] & Impure = 
         use Result.flatMap;
-        use System/FilePath.{toString};
         let query = "SELECT charname, datatype, num_chars, decimal_places FROM characteristics";
-        let* src = FactIO/SQLiteImport.newSQLiteStream(path.toString(), query);
+        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
         let* relns = FactIO/SQLiteImport.importRows(evalCharacteristic(), src);
         Ok(relns)
 
@@ -88,9 +86,8 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
     /// SelectionValue
     def loadSelectionValues[r](path: System.FilePath): Result[#{SelectionValue | r}, System.Error] & Impure = 
         use Result.flatMap;
-        use System/FilePath.{toString};
         let query = "SELECT charname, value FROM selection_values";
-        let* src = FactIO/SQLiteImport.newSQLiteStream(path.toString(), query);
+        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
         let* relns = FactIO/SQLiteImport.importRows(evalSelectionValue(), src);
         Ok(relns)
 
@@ -103,9 +100,8 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
     /// IntRange
     def loadIntRanges[r](path: System.FilePath): Result[#{IntRange | r}, System.Error] & Impure = 
         use Result.flatMap;
-        use System/FilePath.{toString};
         let query = "SELECT charname, range_low, range_high FROM int_ranges";
-        let* src = FactIO/SQLiteImport.newSQLiteStream(path.toString(), query);
+        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
         let* relns = FactIO/SQLiteImport.importRows(evalIntRange(), src);
         Ok(relns)
 
@@ -119,9 +115,8 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
     /// DecimalRange
     def loadDecimalRanges[r](path: System.FilePath): Result[#{DecimalRange | r}, System.Error] & Impure = 
         use Result.flatMap;
-        use System/FilePath.{toString};
         let query = "SELECT charname, range_low, range_high FROM decimal_ranges";
-        let* src = FactIO/SQLiteImport.newSQLiteStream(path.toString(), query);
+        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
         let* relns = FactIO/SQLiteImport.importRows(evalDecimalRange(), src);
         Ok(relns)
 

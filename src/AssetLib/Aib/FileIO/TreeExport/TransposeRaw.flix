@@ -17,8 +17,8 @@
 use AssetLib/Common/ExportHtmlTree.{writeHtmlForest};
 use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibTree};
 use AssetLib/Aib/FileIO/TreeExport/Raw/Builder.{buildAibTrees, allTrees};
-use AssetLib/Aib/FileIO/TreeExport/Raw/Reader.{readAibTreeFile};
-use AssetLib/Aib/FileIO/TreeExport/Raw/ExportCsv.{exportAibTreesCsv};
+use AssetLib/Aib/FileIO/TreeExport/Raw/CsvReader.{readAibTreeFile};
+use AssetLib/Aib/FileIO/TreeExport/Raw/CsvExport.{exportAibTreesCsv};
 
 
 
@@ -26,14 +26,14 @@ namespace AssetLib/Aib/FileIO/TreeExport/TransposeRaw {
 
 
 
-    pub def transposeRawInput(sourceFile: String, level: Int32, csvOutpath: String): Result[Unit, System.Error] & Impure = 
+    pub def transposeRawInput(sourceFile: System.FilePath, level: Int32, csvOutpath: System.FilePath): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         let* rows   = readAibTreeFile(sourceFile);
         let ans     = buildAibTrees(rows, level);
         let* _      = exportAibTreesCsv(ans, csvOutpath);
         Ok()
 
-    pub def generateHtml(sourceFile: String, level: Int32, htmlOutpath: String): Result[Unit, System.Error] & Impure = 
+    pub def generateHtml(sourceFile: System.FilePath, level: Int32, htmlOutpath: System.FilePath): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         let* rows   = readAibTreeFile(sourceFile);
         let ans     = buildAibTrees(rows, level);
