@@ -26,7 +26,7 @@ use UploadCheck/Checkers/UniCharacteristic.{equiToUniCharacteristic, flocToUniCh
 
 namespace UploadCheck/Checkers/CharacteristicTypeCheck {
 
-
+    /// Change to a Bool check...
 
     rel TypeFail(ix: Int32, identifier: String, charId: String, value: String, valueType: Datatype)
    
