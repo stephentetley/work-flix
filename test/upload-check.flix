@@ -1,50 +1,36 @@
-// use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
-// use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
-// use UploadCheck/EntityTypes/ValuaFloc.{ValuaFloc, parseFile, getRelations};
 
-// def main(): #{ ValuaFloc } & Impure = 
-//     use Result.flatMap;
-//     let step = () -> {
-//         let src = "G:/work/Projects/assets/asset_patch/mmim_upgrade_2019/patch_output/outstation_patch_04_create_valuaflocs.txt";    
-//         // let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(src);
-//         let* ast = parseFile(src);
-//         let relns = getRelations(ast);
-//         Ok(solve relns)
-//     };
-//     let db = step() |> x -> Result.getWithDefault(x, #{ });
-//     project ValuaFloc db
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
+use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember};
+use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{CharacteristicsDb};
 
-use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text};
-use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{loadCharacteristicsDb};
-use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
-use UploadCheck/Checkers/CharacteristicTypeCheck.{Value, TypeFail, equiTypecheck};
+use UploadCheck/Checkers/CharacteristicInClassCheck.{characteristicInClassCheck};
+use UploadCheck/Checkers/SelectionValueCheck.{selectionValueCheck};
+use UploadCheck/Checkers/IntRangeCheck.{intRangeCheck};
 
 
-// def main(): #{EquiCharacteristic} & Impure =  
-//     use Result.flatMap;
-//     let step = () -> {
-//         let path  = System/FilePath.new("G:/work/Projects/assets/facts/characteristics_db.sqlite");
-//         let* relns = loadDb(path);
-//         let r1 = project EquiCharacteristic relns;
-//         Ok(r1)
-//     };
-//     step() |> runResult
 
-def typeCheck(): Result[#{TypeFail}, System.Error] & Impure = 
+// def runChecks[r](db: CharacteristicsDb[r], row: EqClassification): Bool =
+//     let x1 = characteristicInClassCheck(project ClassMember db, row.className, row.characteristicName);
+//     // let x2 = selectionValueCheck(project SelectionValue db, row.characteristicName, row.charValue);
+//     // let x3 = intRangeCheck(db, row.characteristicName, row.charValue);
+//     x1 // (x1 && x2)
+    
+def runCharacteristicInClassCheck(db: #{ClassMember}, row: EqClassification): Bool = 
+    characteristicInClassCheck(project ClassMember db, row.className, row.characteristicName)
+
+def main(): Unit & Impure = 
     use Result.{flatMap};
-    let charsPath  = System/FilePath.new("G:/work/Projects/assets/facts/equi_characteristics.sqlite");
-    let* characteristics = loadCharacteristicsDb(charsPath);
-    let r1 = #{ 
-        ValuaEqui( 1, "101000245", "002", "AI2_AIB_REFERENCE", "PLI00343356", 1, "PLI00343356", 1, "", "").
-        ValuaEqui( 2, "101001660", "002", "EASTING", "PLI00343356", 1, "PLI00343356", 1, "", "").           // type error
-        ValuaEqui( 3, "101000245", "002", "VEPR_PV_VERIFICATION_DATE", "2019.06.12", 1, "2019.06.12", 1, "", "").   // type error   
+    use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{loadCharacteristicsDb};
+    let step = () -> {
+        let dbPath      = System/FilePath.new("G:/work/Projects/assets/facts/equi_characteristics.sqlite");
+        let* db         = loadCharacteristicsDb(dbPath);
+        let uxlSrc      = System/FilePath.new("G:/work/Projects/assets/uxl/eq_characteristics.csv");
+        let* rows       = AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc);
+        let db1         = project ClassMember db;
+        let _           = Console.printLine("Running...");
+        let _           = List.foreach(x -> if (runCharacteristicInClassCheck(db1, x)) Console.printLine("ok") else Console.printLine("check failed"), rows);
+        Ok()
     };
-    let ans = (solve equiTypecheck() <+> r1 <+> characteristics);
-    Ok(project TypeFail ans)
+    step() |> _ -> ()
 
 
-def main(): #{TypeFail} & Impure = 
-    match typeCheck() {
-        case Err(_) => #{}
-        case Ok(reln) => reln
-    }

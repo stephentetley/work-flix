@@ -25,7 +25,11 @@ use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember, Characteristic, Selecti
 
 namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
 
-
+    type alias CharacteristicsDb[r] = #{ Characteristic, 
+                                            SelectionValue, 
+                                            IntRange, 
+                                            DecimalRange, 
+                                            ClassMember | r}
 
     pub def loadCharacteristicsDb[r](path: System.FilePath): Result[#{ Characteristic, 
                                             SelectionValue, 

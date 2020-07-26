@@ -20,12 +20,12 @@ use AssetLib/S4/FileIO/ClassList/Relations.{SelectionValue};
 
 namespace UploadCheck/Checkers/SelectionValueCheck {
 
-    pub def selectionValueCheck[r](db: #{SelectionValue, Restricted, RestrictedValue | r}, charname: String, value: String): Bool = 
+    pub def selectionValueCheck(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String, value: String): Bool = 
         isRestricted(db, charname) && isRestrictedValue(db, charname, value)
 
     rel Restricted(charname: String)
 
-    def isRestricted[r](db: #{SelectionValue, Restricted | r}, charname: String): Bool = 
+    def isRestricted(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String): Bool = 
         let rules = #{
             Restricted(name) :- SelectionValue(name, _).
         };
@@ -33,7 +33,7 @@ namespace UploadCheck/Checkers/SelectionValueCheck {
 
     rel RestrictedValue(charname: String, value: String)
 
-    def isRestrictedValue[r](db: #{SelectionValue, RestrictedValue | r}, charname: String, value: String): Bool = 
+    def isRestrictedValue(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String, value: String): Bool = 
         let rules = #{
             RestrictedValue(name, valu) :- SelectionValue(name, valu).
         };

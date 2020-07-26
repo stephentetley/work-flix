@@ -23,7 +23,7 @@ namespace UploadCheck/Checkers/CharacteristicInClassCheck {
     rel CharInClass(className: String, charName: String)
 
 
-    pub def characteristicInClassCheck[r](db: #{ClassMember, CharInClass |r}, classname: String, charname: String): Bool = 
+    pub def characteristicInClassCheck(db: #{ClassMember, CharInClass}, classname: String, charname: String): Bool = 
         let rules = #{
             CharInClass(x, y) :- ClassMember(x, y).
         };
