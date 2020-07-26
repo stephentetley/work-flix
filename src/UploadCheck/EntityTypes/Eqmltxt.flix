@@ -34,7 +34,7 @@ namespace UploadCheck/EntityTypes/Eqmltxt {
     type alias EqmltxtFile = ChangeFile[EqmltxtRow]
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[EqmltxtFile, System.Error] & Impure = 
+    pub def parseFile(path: System.FilePath) : Result[EqmltxtFile, System.Error] & Impure = 
         use Result.flatMap;
         let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(path);
         let* ans = AssetLib/S4/FileIO/ChangeFile/Evaluate.transform(evaluateRow(), ast);

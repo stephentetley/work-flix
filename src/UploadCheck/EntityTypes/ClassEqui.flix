@@ -33,7 +33,7 @@ namespace UploadCheck/EntityTypes/ClassEqui {
     type alias ClassEquiFile = ChangeFile[ClassEquiRow]
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[ClassEquiFile, System.Error] & Impure = 
+    pub def parseFile(path: System.FilePath) : Result[ClassEquiFile, System.Error] & Impure = 
         use Result.flatMap;
         let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(path);
         let* ans = AssetLib/S4/FileIO/ChangeFile/Evaluate.transform(evaluateRow(), ast);

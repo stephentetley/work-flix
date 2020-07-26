@@ -46,7 +46,7 @@ namespace UploadCheck/EntityTypes/ValuaFloc {
     type alias ValuaFlocFile = ChangeFile[ValuaFlocRow]
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[ValuaFlocFile, System.Error] & Impure = 
+    pub def parseFile(path: System.FilePath) : Result[ValuaFlocFile, System.Error] & Impure = 
         use Result.flatMap;
         let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(path);
         let* ans = AssetLib/S4/FileIO/ChangeFile/Evaluate.transform(evaluateRow(), ast);
