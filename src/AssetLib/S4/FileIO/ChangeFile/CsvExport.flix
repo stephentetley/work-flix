@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO.CsvWriter;
-use FactIO/CsvExport.{new => newCsvWriter, writeRow, close};
+use FactIO.CsvExport;
+use FactIO.CsvRowWriter;
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, Headers, DataRow};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
@@ -23,23 +23,22 @@ use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/ChangeFile/ExportCsv {
+namespace AssetLib/S4/FileIO/ChangeFile/CsvExport {
 
         
-    pub def exportCsv(x: PrimChangeFile, path: String): Result[Unit, System.Error] & Impure =
-        use Result.{flatMap, traverseX};
+    pub def exportCsv(x: PrimChangeFile, path: System.FilePath): Result[Unit, System.Error] & Impure =
+        use Result.{flatMap};
+        use FactIO/CsvExport.{runCsvExport, traverseX};
         let ChangeFile(x1) = x;
         let Headers(headers) = x1.headers;
-        let* writer = newCsvWriter(path, Text/Charset.utf_8(), headers);
-        let* _ = traverseX(writeDataRow(writer), x1.dataRows);
-        let _ = writer.close();
+        let* _ = runCsvExport(traverseX(writeDataRow, x1.dataRows), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
         Ok()
 
 
-
-    def writeDataRow(writer: CsvWriter, row: DataRow): Result[Unit, System.Error] & Impure = 
+    def writeDataRow(row: DataRow): CsvExport[Unit] = 
+        use FactIO/CsvExport.{writeLine};
         let DataRow(row1) = row;
-        writeRow(writer, row1)
+        writeLine(row1)
 
 
 

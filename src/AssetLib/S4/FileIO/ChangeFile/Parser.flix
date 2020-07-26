@@ -37,9 +37,8 @@ use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 namespace AssetLib/S4/FileIO/ChangeFile/Parser {
 
     /// Always UTF-8?
-    pub def parseFile(path: String) : Result[PrimChangeFile, System.Error] & Impure = 
-        let path1 = System/FilePath.new(path);
-        TextParser.parseFile(changeFileParser(), path1, Text/Charset.utf_8())    
+    pub def parseFile(path: System.FilePath) : Result[PrimChangeFile, System.Error] & Impure = 
+        TextParser.parseFile(changeFileParser(), path, Text/Charset.utf_8())    
 
     /// TODO - there's scope for a parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.

@@ -2,7 +2,7 @@ use System.Error.{Generic};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Parser.{parseFile};
-use AssetLib/S4/FileIO/ChangeFile/ExportCsv.{exportCsv};
+use AssetLib/S4/FileIO/ChangeFile/CsvExport.{exportCsv};
 
 // def runOrError(p: TextParser.Parser[a], f: a -> String, inp: String): String = 
 //     match TextParser.run(p, inp) { 
@@ -15,8 +15,8 @@ use AssetLib/S4/FileIO/ChangeFile/ExportCsv.{exportCsv};
 @test
 def main(): Result[Unit, System.Error] & Impure = 
     use Result.flatMap;
-    let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
-    let dest = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download_export.csv";
+    let src = System/FilePath.new("G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt");
+    let dest = System/FilePath.new("G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download_export.csv");
     let* x = parseFile(src);
     let* _ = exportCsv(x, dest);
     Ok()

@@ -34,29 +34,7 @@ use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, Num
 namespace AssetLib/S4/FileIO/ClassList/Raw/Parser {
 
 
-    def append(x: Option[a], ac: DList[a]): DList[a] = 
-        use Data/Transient/DList.{snoc};
-        match x { 
-            case Some(a) => snoc(ac, a)
-            case None => ac
-        }
-
-
-
-    def getNameSize(x: SourceType): Int32 = match x {
-        case FlocClasses => 33
-        case EquiClasses => 35
-    }
-
-    def getClassDescSize(x: SourceType): Int32 = match x {
-        case FlocClasses => 36
-        case EquiClasses => 10
-    }
-
-    def getCharacteristicDescSize(x: SourceType): Int32 = match x {
-        case FlocClasses => 47
-        case EquiClasses => 51
-    }
+    
 
     /// Always UTF-8? no if parsing fails try iso_8859_1()
     pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, System.Error] & Impure = 
@@ -129,5 +107,31 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/Parser {
 
     def indentingLevel(): TextParser[Int32, t] = 
         map(String.length, lookingAts("(\||\-|\s)+")) `swapError` "indentingLevel"
+
+    /// Utils
+    
+    def append(x: Option[a], ac: DList[a]): DList[a] = 
+        use Data/Transient/DList.{snoc};
+        match x { 
+            case Some(a) => snoc(ac, a)
+            case None => ac
+        }
+
+
+
+    def getNameSize(x: SourceType): Int32 = match x {
+        case FlocClasses => 33
+        case EquiClasses => 35
+    }
+
+    def getClassDescSize(x: SourceType): Int32 = match x {
+        case FlocClasses => 36
+        case EquiClasses => 10
+    }
+
+    def getCharacteristicDescSize(x: SourceType): Int32 = match x {
+        case FlocClasses => 47
+        case EquiClasses => 51
+    }
 
 }

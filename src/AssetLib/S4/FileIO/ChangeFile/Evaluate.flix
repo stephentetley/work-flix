@@ -64,7 +64,7 @@ namespace AssetLib/S4/FileIO/ChangeFile/Evaluate {
         f(headers, r1)
 
  
-    pub def importRows(rowp: RowWithHeadersParser[reln], path: String): Result[reln, System.Error] & Impure = 
+    pub def importRows(rowp: RowWithHeadersParser[reln], path: System.FilePath): Result[reln, System.Error] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(path);
         evaluateRelations(rowp, ast)
