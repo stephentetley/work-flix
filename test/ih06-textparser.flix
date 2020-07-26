@@ -9,15 +9,15 @@ use AssetLib/S4/FileIO/IH06Tree/TransposeRaw.{TransposeRawParams, transposeRawIn
     
 
 def rawParams(): TransposeRawParams = 
-    { flocOutpath = "G:/work/Projects/assets/capital_schemes/ear02/ear02_ih06_flocs.csv"
-    , equiOutpath = "G:/work/Projects/assets/capital_schemes/ear02/ear02_ih06_equis.csv"
+    { flocOutpath = System/FilePath.new("G:/work/Projects/assets/capital_schemes/ear02/ear02_ih06_flocs.csv")
+    , equiOutpath = System/FilePath.new("G:/work/Projects/assets/capital_schemes/ear02/ear02_ih06_equis.csv")
     }
 
 @test
 def main(): Result[Unit, System.Error] & Impure =
     use Result.flatMap;
-    let src = "G:/work/Projects/assets/ih06_trees/catte_ih06_export.txt";    
-    let htmldest = "E:/coding/work/work-flix/output/catte_ih06__tree.html";
+    let src = System/FilePath.new("G:/work/Projects/assets/ih06_trees/catte_ih06_export.txt");
+    let htmldest = System/FilePath.new("E:/coding/work/work-flix/output/catte_ih06__tree.html");
     let* _      = transposeRawInput(src, rawParams());    
     let* ast    = parseFile(src);
     let trees   = buildIH06Trees(ast);

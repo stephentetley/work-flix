@@ -17,7 +17,7 @@
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{SourceType, ClassList, ClassListFile};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
-use AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv.{exportFlocCsv, exportEquiCsv};
+use AssetLib/S4/FileIO/IH06Tree/Raw/CsvExport.{exportFlocCsv, exportEquiCsv};
 
 /// Because the text file exports from the master system do not feel 'robust' (charset anomalies, 
 /// padding differences, ...) we consider them 'single use' raw input to be transposed to Csv for 
@@ -26,11 +26,11 @@ use AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv.{exportFlocCsv, exportEquiCsv};
 namespace AssetLib/S4/FileIO/IH06Tree/TransposeRaw {
 
     pub type alias TransposeRawParams = 
-        { flocOutpath: String
-        , equiOutpath: String
+        { flocOutpath: System.FilePath
+        , equiOutpath: System.FilePath
         }
 
-    pub def transposeRawInput(sourceFile: String, params: TransposeRawParams): Result[Unit, System.Error] & Impure = 
+    pub def transposeRawInput(sourceFile: System.FilePath, params: TransposeRawParams): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         let* ast    = parseFile(sourceFile);
         let ans     = buildIH06Trees(ast);

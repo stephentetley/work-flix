@@ -22,6 +22,8 @@ use AssetLib/S4/Hierarchy/Relations.{Node};
 
 namespace AssetLib/S4/Hierarchy/HierarchyLoader {
 
+    pub def loadEqui[r](path: System.FilePath): Result[#{ Node | r }, System.Error] & Impure =        
+        importRows(equiRowParser(), path)   
 
     def equiRowParser[r](): RowWithHeadersParser[#{ Node | r }] = 
         use TextParser/RowWithHeadersParser.{flatMap, return, getString};
@@ -33,9 +35,9 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
         return( Node(id, desc, parent). )
 
 
-    pub def loadEqui[r](path: String): Result[#{ Node | r }, System.Error] & Impure =        
-        importRows(equiRowParser(), path)   
-
+    pub def loadFloc[r](path: System.FilePath): Result[#{ Node | r }, System.Error] & Impure =
+        importRows(flocRowParser(), path)  
+    
     def flocRowParser[r](): RowWithHeadersParser[#{ Node | r }] = 
         use TextParser/RowWithHeadersParser.{flatMap, return, getString};
         let* id1        = getString("FUNCLOC");
@@ -45,8 +47,6 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
         let* parent     = getString("TPLMA");        
         return( Node(id, desc, parent). )
 
-    pub def loadFloc[r](path: String): Result[#{ Node | r }, System.Error] & Impure =
-        importRows(flocRowParser(), path)  
         
 
 }
