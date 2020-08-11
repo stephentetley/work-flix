@@ -19,8 +19,8 @@ use System.Error.{Generic};
 use Time.LocalDateTime;
 
 use TextParser.TextParser;
-use TextParser.{return, map, failure, alt, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
-use TextParser/Combinators.{ignore, choice, many, manyTill};
+use TextParser.{return, map, failure, alt, choice, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
+use TextParser/Combinators.{ignore, many, manyTill};
 use TextParser/Text.{many1UpperCase, restOfLine, makePattern};
 use TextParser/Token1.{symbol, lexeme};
 

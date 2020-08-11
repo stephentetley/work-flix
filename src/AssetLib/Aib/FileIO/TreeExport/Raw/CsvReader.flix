@@ -29,7 +29,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/CsvReader {
         use Result.flatMap;
         use FactIO/CsvFormat.{excel, withFirstRecordAsHeader};
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* xs = FactIO/CsvImport.getRows(getAibRow(), src);
+        let* xs = FactIO/CsvImport.evaluateRows(getAibRow(), src);
         Ok(xs)
 
 

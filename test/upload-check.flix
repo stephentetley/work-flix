@@ -23,7 +23,7 @@ def main(): Unit & Impure =
     use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{loadCharacteristicsDb};
     let step = () -> {
         let dbPath      = System/FilePath.new("G:/work/Projects/assets/facts/equi_characteristics.sqlite");
-        let* db         = loadCharacteristicsDb(dbPath);
+        let* db         = solve loadCharacteristicsDb(dbPath);
         let uxlSrc      = System/FilePath.new("G:/work/Projects/assets/uxl/eq_characteristics.csv");
         let* rows       = AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc);
         let db1         = project ClassMember db;

@@ -24,12 +24,12 @@ def paths(): DbPaths =
     
 
 
-def main(): #{ Level } & Impure =
+def main(): Option[#{Level}] & Impure =
     use Result.flatMap;
     let step = () -> {
         let* db = loadFloobjl(paths().pathOfFloobjl);
         let _ = Console.printLine("Solving...");
-        let lvl = flocLevel(db);
+        let lvl = flocLevel(db, "SDOS");
         Ok(lvl)
     };
     step() |> runResult

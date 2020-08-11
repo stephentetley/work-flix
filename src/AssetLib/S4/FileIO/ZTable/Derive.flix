@@ -19,15 +19,18 @@ use AssetLib/S4/FileIO/ZTable/Relations.{Floobjl};
 namespace AssetLib/S4/FileIO/ZTable/Derive {
 
     rel Level(id: String, level: Int32)
-    rel Descendant(super: String, sub: String, level: Int32)
+    rel Up(child: String, parent: String, level: Int32)
 
-    /// Needs rethink - non-terminating...
-    def descendants[r](): #{ Descendant, Floobjl | r } = #{
-        Descendant(sub, super, 1) :- Floobjl(_, super, sub).
-        // Descendant(sub, super, i+1) :- Floobjl(_, x, sub), Descendant(super, x, i).
-    }
+    // TODO count up
 
-    pub def flocLevel[r](db: #{ Floobjl, Descendant, Level | r}): #{ Level } = 
-        project Level (solve db <+> descendants() <+> #{ Level(x,i) :- Descendant(start, x, i), if start == "SITE". })
+    pub def flocLevel[r](db: #{ Floobjl, Up, Level | r}, floc1: String): Option[#{Level}] = 
+        let p = #{
+            Up(sub, "SITE", 1) :- Floobjl(_, "SITE", sub).
+            Up(sub, super, i+1) :- Floobjl(_, x, sub), Up(super, x, i).
+            
+            Level(sub, i) :- Up(sub, _, i).
+        };
+        let m = solve (db <+> p);
+        if (m |= Level(floc1,5).) Some(project Level m) else None
 
 }

@@ -15,11 +15,10 @@
  */
     
 use Time.LocalDate;
-// use System.Error.{Generic};
 
 use TextParser.TextParser;
-use TextParser.{return, map, swapError, bounded, parseError, seqRight, tryparse, endOfInput, lookingAts, liftResult};
-use TextParser/Combinators.{tuple2, choice, many1Till, ignore};
+use TextParser.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, lookingAts, liftResult};
+use TextParser/Combinators.{tuple2, many1Till, ignore};
 use TextParser/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
 use TextParser/Token1.{symbol, lexeme};
 
