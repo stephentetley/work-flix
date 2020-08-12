@@ -18,7 +18,7 @@ use TextParser.TextParser;
 use TextParser.RowParser;
 
 
-namespace AssetLib/S4/FileIO/ZTable/Parser {
+namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
 
 
 

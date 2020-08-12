@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/S4/FileIO/ZTable/Relations {
+namespace AssetLib/S4/FileIO/ZTable/Raw/Relations {
 
     rel Eqobjl(superObject: String, subObject: String, category: String)
 

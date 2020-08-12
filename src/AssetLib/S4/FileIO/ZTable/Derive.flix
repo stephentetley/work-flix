@@ -27,7 +27,7 @@ namespace AssetLib/S4/FileIO/ZTable/Derive {
         let rules = #{
             /// SITE 'is' 1
             Up(struct, sub, super, 2) :- Floobjl(struct, super, sub), if super == "SITE".
-            Up(struct, sub, super, i+1) :- Floobjl(struct, x, sub), Up(struct, x, super, i).
+            Up(struct, sub, super, i+1) :- Floobjl(struct, x, sub), Up(struct,  x, super, i).
         };
         project Level (solve (rules <+> db <+> #{ Level(s1, x) :- Up(struct1, s1, p, x), if s1 == start && struct1 == sturucture. }))
 
