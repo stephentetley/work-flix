@@ -19,18 +19,25 @@ use AssetLib/S4/FileIO/ZTable/Relations.{Floobjl};
 namespace AssetLib/S4/FileIO/ZTable/Derive {
 
     rel Level(id: String, level: Int32)
-    rel Up(child: String, parent: String, level: Int32)
+    rel Up(structure: String, child: String, parent: String, level: Int32)
 
     // TODO count up
 
-    pub def flocLevel[r](db: #{ Floobjl, Up, Level | r}, floc1: String): Option[#{Level}] = 
-        let p = #{
-            Up(sub, "SITE", 1) :- Floobjl(_, "SITE", sub).
-            Up(sub, super, i+1) :- Floobjl(_, x, sub), Up(super, x, i).
-            
-            Level(sub, i) :- Up(sub, _, i).
+    pub def flocLevel[r](db: #{ Floobjl, Up, Level | r}, sturucture: String, start: String): #{Level} = 
+        let rules = #{
+            /// SITE 'is' 1
+            Up(struct, sub, super, 2) :- Floobjl(struct, super, sub), if super == "SITE".
+            Up(struct, sub, super, i+1) :- Floobjl(struct, x, sub), Up(struct, x, super, i).
         };
-        let m = solve (db <+> p);
-        if (m |= Level(floc1,5).) Some(project Level m) else None
+        project Level (solve (rules <+> db <+> #{ Level(s1, x) :- Up(struct1, s1, p, x), if s1 == start && struct1 == sturucture. }))
+
+    rel Linked(child: String, parent: String)
+
+    pub def validChild[r](db: #{ Floobjl, Linked | r}, start: String): Bool = 
+        let rules = #{
+            Linked(sub, super) :- Floobjl(_, super, sub).
+            Linked(sub, super) :- Floobjl(_, x, sub), Linked(x, super).
+        };
+        (solve rules <+> db) |= Linked(start, "SITE").
 
 }
