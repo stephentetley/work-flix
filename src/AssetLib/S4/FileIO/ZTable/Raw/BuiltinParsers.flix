@@ -16,7 +16,7 @@
 
 use TextParser.RowParser;
 
-use AssetLib/S4/FileIO/ZTable/Raw/Relations.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
+use AssetLib/S4/FileIO/ZTable/Raw/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
 use AssetLib/S4/FileIO/ZTable/Raw/Parser.{importRows};
 
 namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
@@ -28,68 +28,56 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
                         , pathOfObj: System.FilePath
                         }
 
-    pub def loadDb[r](paths: DbPaths): Result[#{ Eqobjl, Flocdes, Floobjl, Manuf, Obj | r }, System.Error] & Impure =
-        use Result.flatMap;
-        let _ = Console.printLine("Reading Eqobjl...");
-        let* r1 = loadEqobjl(paths.pathOfEqobjl);
-        let _ = Console.printLine("Reading Flocdes...");
-        let* r2 = loadFlocdes(paths.pathOfFlocdes);
-        let _ = Console.printLine("Reading Floobjl...");
-        let* r3 = loadFloobjl(paths.pathOfFloobjl);
-        let _ = Console.printLine("Reading Manuf...");
-        let* r4 = loadManuf(paths.pathOfManuf);
-        let _ = Console.printLine("Reading Obj...");
-        let* r5 = loadObj(paths.pathOfObj);
-        Ok(solve r1 <+> r2 <+> r3 <+> r4 <+> r5)
 
-    pub def loadEqobjl[r](path: System.FilePath): Result[#{ Eqobjl | r }, System.Error] & Impure =        
+    pub def loadEqobjl(path: System.FilePath): Result[List[Eqobjl], System.Error] & Impure =        
         importRows(evalEqobjl(), path)  
 
-    def evalEqobjl[r](): RowParser[#{ Eqobjl | r }] = 
+    def evalEqobjl(): RowParser[Eqobjl] = 
         use TextParser/RowParser.{flatMap, return, getString};
-        let* supertype  = getString(0);
-        let* subtype    = getString(1);
-        let* category   = getString(1);
-        return( Eqobjl(supertype, subtype, category). )
+        let* supero     = getString(0);
+        let* subo       = getString(1);
+        let* cat        = getString(2);
+        return({superObject = supero, subObject = subo, category = cat})
 
-    pub def loadFlocdes[r](path: System.FilePath): Result[#{ Flocdes | r }, System.Error] & Impure =
+
+    pub def loadFlocdes(path: System.FilePath): Result[List[Flocdes], System.Error] & Impure =
         importRows(evalFlocdes(), path)           
 
-    def evalFlocdes[r](): RowParser[#{ Flocdes | r }] = 
+    def evalFlocdes(): RowParser[Flocdes] = 
         use TextParser/RowParser.{flatMap, return, getString};
         let* objtype    = getString(0);
         let* desc       = getString(1);
-        return( Flocdes(objtype, desc). )
+        return({objectType = objtype, description = desc})
 
 
-    pub def loadFloobjl[r](path: System.FilePath): Result[#{ Floobjl | r }, System.Error] & Impure =
+    pub def loadFloobjl(path: System.FilePath): Result[List[Floobjl], System.Error] & Impure =
         importRows(evalFloobjl(), path)  
 
-    def evalFloobjl[r](): RowParser[#{ Floobjl | r }] = 
+    def evalFloobjl(): RowParser[Floobjl] = 
         use TextParser/RowParser.{flatMap, return, getString, liftOperation, evalContains};
-        let* structure  = getString(0);
-        let* supertype  = getString(1);
-        let* subtype    = getString(2);
-        return( Floobjl(structure, supertype, subtype). )
+        let* struct     = getString(0);
+        let* supero     = getString(1);
+        let* subo       = getString(2);
+        return({structure = struct, superObject = supero, subObject = subo})
 
-    pub def loadManuf[r](path: System.FilePath): Result[#{ Manuf | r }, System.Error] & Impure =
+    pub def loadManuf(path: System.FilePath): Result[List[Manuf], System.Error] & Impure =
         importRows(evalManuf(), path)   
 
-    def evalManuf[r](): RowParser[#{ Manuf | r }] = 
+    def evalManuf(): RowParser[Manuf] = 
         use TextParser/RowParser.{flatMap, return, getString};
         let* manuf      = getString(0);
-        let* model      = getString(1);
-        return( Manuf(manuf, model). )
+        let* modl       = getString(1);
+        return({manufacturer = manuf, model = modl})
 
 
-    pub def loadObj[r](path: System.FilePath): Result[#{ Obj | r }, System.Error] & Impure =
+    pub def loadObj(path: System.FilePath): Result[List[Obj], System.Error] & Impure =
         importRows(evalObj(), path)  
 
-    def evalObj[r](): RowParser[#{ Obj | r }] = 
+    def evalObj(): RowParser[Obj] = 
         use TextParser/RowParser.{flatMap, return, getString};
-        let* objtype    = getString(0);
-        let* manuf      = getString(1);       
-        return( Obj(objtype, manuf). )
+        let* objectty   = getString(0);
+        let* manuf      = getString(1);
+        return({objectType = objectty, manufacturer = manuf})
 
 
 

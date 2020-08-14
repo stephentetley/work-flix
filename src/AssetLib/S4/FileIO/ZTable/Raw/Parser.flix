@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+use Data/Transient.DList;
+
 use TextParser.TextParser;
 use TextParser.RowParser;
 
@@ -22,23 +24,26 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
 
 
 
-    pub def importRows(rowp: RowParser[reln], path: System.FilePath): Result[reln, System.Error] & Impure = 
+    pub def importRows(rowp: RowParser[row], path: System.FilePath): Result[List[row], System.Error] & Impure = 
         use Result.flatMap;
-        let* relns = TextParser.parseFile(importRowsParser(rowp), path, Text/Charset.utf_8());
-        Ok(solve relns)
+        use Data/Transient/DList.{toList};
+        let* rows = TextParser.parseFile(importRowsParser(rowp), path, Text/Charset.utf_8());
+        Ok(toList(rows))
 
 
-    def importRowsParser(rowp: RowParser[reln]): TextParser[reln, t] = 
+    def importRowsParser(rowp: RowParser[row]): TextParser[DList[row], t] = 
+        use Data/Transient/DList.{empty, snoc};
         use TextParser.{flatMap, return};
         use TextParser/Combinators.{manyTill, manyTillWith, count};
         use TextParser/Text.{skipLine};
         let* _      = manyTill(skipLine(), separatingLine());
         let* _      = count(2, skipLine());
         let row1    = makeLineTextParser(rowp);
-        let* rows   = manyTillWith((x,ac) -> ac <+> x, #{}, row1, separatingLine());        
-        return(solve rows)
+        let* rows   = manyTillWith((x,ac) -> snoc(ac, x), empty(), row1, separatingLine());        
+        let* _      = TextParser/Trace.tell("Returning rows...");
+        return(rows)
 
-    /// Line of many '-'
+    /// Line of many '-' chars.
     def separatingLine(): TextParser[Unit, t] = 
         use TextParser.{flatMap, return, skippingAts};
         use TextParser/Text.{newline};
@@ -47,7 +52,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
         return()
 
 
-    def makeLineTextParser(rowp: RowParser[reln]): TextParser[reln, t] = 
+    def makeLineTextParser(rowp: RowParser[row]): TextParser[row, t] = 
         use TextParser/RowParser.{rowTextParser};
         use AssetLib/Common/Utils.{leadingSepBy};
         let split = s -> leadingSepBy(s, "|");

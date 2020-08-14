@@ -1,5 +1,5 @@
 
-use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{DbPaths, loadDb};
+use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{DbPaths};
 use AssetLib/S4/FileIO/ZTable/Raw/ExportDb.{outputDb};
 
 
@@ -17,7 +17,5 @@ def paths(): DbPaths =
 
 def main(): Result[Unit, System.Error] & Impure = 
     use Result.{flatMap};
-    use System/FilePath.{toString};
-    let* db = loadDb(paths());
     let outpath = System/FilePath.new("G:/work/Projects/assets/facts/ztables/ztables.sqlite");
-    outputDb(db, outpath)
+    outputDb(paths(), outpath)

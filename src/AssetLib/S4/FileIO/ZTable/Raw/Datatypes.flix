@@ -15,16 +15,16 @@
  */
 
 
-namespace AssetLib/S4/FileIO/ZTable/Raw/Relations {
+namespace AssetLib/S4/FileIO/ZTable/Raw/Datatypes {
 
-    rel Eqobjl(superObject: String, subObject: String, category: String)
+    type alias Eqobjl = {superObject: String, subObject: String, category: String}
 
-    rel Flocdes(objectType: String, description: String)
+    type alias Flocdes = {objectType: String, description: String}
 
-    rel Floobjl(structure: String, superObject: String, subObject: String)
+    type alias Floobjl = {structure: String, superObject: String, subObject: String}
 
-    rel Manuf(manufacturer: String, model: String)
+    type alias Manuf = {manufacturer: String, model: String}
 
-    rel Obj(objectType: String, manufacturer: String)
+    type alias Obj = {objectType: String, manufacturer: String}
 
 }

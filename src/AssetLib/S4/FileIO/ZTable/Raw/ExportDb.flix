@@ -15,26 +15,28 @@
  */
 
 use FactIO.SQLiteExport;
-use FactIO.SQLiteWriteList;
 use FactIO.SQLiteRowWriter;
 
 use AssetLib/Common/Utils.{foldMapRel};
-use AssetLib/S4/FileIO/ZTable/Raw/Relations.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
-
+use AssetLib/S4/FileIO/ZTable/Raw/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
+use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{DbPaths};
+use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{loadFloobjl};
 
 namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb { 
 
+    /// temp
+    type alias PreparedStatement = FactIO/Internal/SQLite.PreparedStatement
 
-
-    pub def outputDb[r](src: #{Eqobjl, Flocdes, Floobjl, Manuf, Obj |r}, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
+    pub def outputDb(srcPaths: DbPaths, outPath: System.FilePath): Result[Unit, System.Error] & Impure =         
         use FactIO/SQLiteExport.{runSQLiteExport};
-        runSQLiteExport(writeOutput(src), outpath)
+        runSQLiteExport(writeOutput(srcPaths), outPath)
         
-    def writeOutput[r](src: #{Eqobjl, Flocdes, Floobjl, Manuf, Obj |r}): SQLiteExport[Unit] =
+    def writeOutput(srcPaths: DbPaths): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> { Console.printLine("Floobjl"); Ok() });
-        let* _      = writeFloobjl(src);
+        let* rs1    = liftAction(_ -> loadFloobjl(srcPaths.pathOfFloobjl));
+        let* _      = writeFloobjls(rs1);
         let* _      = close();
         return()
 
@@ -42,27 +44,23 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Floobjl
 
-    def writeFloobjl[r](relns: #{Floobjl | r}): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
-        let* _          = execute("DROP TABLE IF EXISTS flocobj");
+    def writeFloobjls(rows: List[Floobjl]): SQLiteExport[Unit] =
+        use FactIO/SQLiteExport.{flatMap, return, execute, mapX, prepareStatement, writeRow, commit};
+        let* _          = execute("DROP TABLE IF EXISTS floobj");
         let* _          = execute(sqlCreateFlocobj());
-        let stmt        = "INSERT INTO flocobj(structure, super_floc, sub_floc) VALUES(?,?,?)";
-        let writes      = fold Floobjl emptySQLiteWriteList() writeFloobjlStep() relns;
-        let* _          = execWriteList(stmt, writes);
+        let* stmt       = prepareStatement("INSERT INTO floobj(structure, super_object, sub_object) VALUES(?,?,?)");
+        let _           = mapX(x -> writeRow(stmt, floobjlRowWriter(x)), rows);
         let* _          = commit();
         return()
 
 
-    def writeFloobjlStep(): ((String, String, String), SQLiteWriteList) -> SQLiteWriteList = 
-        FactIO/SQLiteExport.makeSQLiteWriteStep(writeFloobjlRow)
 
-    /// A RowWriter for the body of a Floobjl
-    def writeFloobjlRow(src: (String, String, String)): SQLiteRowWriter[Unit] = 
+    /// A RowWriter for Floobjl
+    def floobjlRowWriter(src: Floobjl): SQLiteRowWriter[Unit] = 
         use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
-        let (structure, superFloc, subFloc) = src;
-        let* _ = putString!(0, structure);
-        let* _ = putString!(1, superFloc);
-        let* _ = putString!(2, subFloc);
+        let* _ = putString!(0, src.structure);
+        let* _ = putString!(1, src.superObject);
+        let* _ = putString!(2, src.subObject);
         return()
 
 
@@ -72,10 +70,10 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     def sqlCreateFlocobj(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS flocobj ("
+            "CREATE TABLE IF NOT EXISTS floobj ("
                 :: "structure       TEXT NOT NULL,"
-                :: "super_floc      TEXT NOT NULL,"
-                :: "sub_floc        TEXT NOT NULL"
+                :: "super_object    TEXT NOT NULL,"
+                :: "sub_object      TEXT NOT NULL"
                 :: ")"
                 :: Nil
         )
