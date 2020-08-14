@@ -35,8 +35,9 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> { Console.printLine("Floobjl"); Ok() });
-        let* rs1    = liftAction(_ -> loadFloobjl(srcPaths.pathOfFloobjl));
-        let* _      = writeFloobjls(rs1);
+        let* rs1    = liftAction(_ -> loadFloobjl(srcPaths.pathOfFloobjl));        
+        let* nrows  = writeFloobjls(rs1);
+        let* _      = liftAction(_ -> { Console.printLine("Row count: " + Int32.toString(nrows)); Ok()});
         let* _      = close();
         return()
 
@@ -44,14 +45,14 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Floobjl
 
-    def writeFloobjls(rows: List[Floobjl]): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, mapX, prepareStatement, writeRow, commit};
+    def writeFloobjls(rows: List[Floobjl]): SQLiteExport[Int32] =
+        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS floobj");
         let* _          = execute(sqlCreateFlocobj());
         let* stmt       = prepareStatement("INSERT INTO floobj(structure, super_object, sub_object) VALUES(?,?,?)");
-        let _           = mapX(x -> writeRow(stmt, floobjlRowWriter(x)), rows);
+        let* nrows      = foldM((ac,x) -> { let* n = writeRow(stmt, floobjlRowWriter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
-        return()
+        return(nrows)
 
 
 
