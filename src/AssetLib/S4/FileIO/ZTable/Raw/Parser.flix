@@ -39,8 +39,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
         let* _      = manyTill(skipLine(), separatingLine());
         let* _      = count(2, skipLine());
         let row1    = makeLineTextParser(rowp);
-        let* rows   = manyTillWith((x,ac) -> snoc(ac, x), empty(), row1, separatingLine());        
-        let* _      = TextParser/Trace.tell("Returning rows...");
+        let* rows   = manyTillWith((x,ac) -> snoc(ac, x), empty(), row1, separatingLine()); 
         return(rows)
 
     /// Line of many '-' chars.
