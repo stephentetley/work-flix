@@ -35,15 +35,15 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
         let* _      = setAutoCommit(false);
         let* rs1    = liftAction(_ -> loadEqobjl(srcPaths.pathOfEqobjl));
-        let* _      = writeTable("Eqobjl", setupEqobjl(rs1));
+        let* _      = writeTable("Eqobjl", exportEqobjl(rs1));
         let* rs2    = liftAction(_ -> loadFlocdes(srcPaths.pathOfFlocdes));
-        let* _      = writeTable("Flocdes", setupFlocdes(rs2));
+        let* _      = writeTable("Flocdes", exportFlocdes(rs2));
         let* rs3    = liftAction(_ -> loadFloobjl(srcPaths.pathOfFloobjl));
-        let* _      = writeTable("Foobjl", setupFloobjl(rs3));
+        let* _      = writeTable("Foobjl", exportFloobjl(rs3));
         let* rs4    = liftAction(_ -> loadManuf(srcPaths.pathOfManuf));
-        let* _      = writeTable("Manuf", setupManuf(rs4));
+        let* _      = writeTable("Manuf", exportManuf(rs4));
         let* rs5    = liftAction(_ -> loadObj(srcPaths.pathOfObj));
-        let* _      = writeTable("Obj", setupObj(rs5));
+        let* _      = writeTable("Obj", exportObj(rs5));
         let* _      = close();
         return()
 
@@ -56,7 +56,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         return()
 
     // Eqobjl
-    def setupEqobjl(rows: List[Eqobjl]): SQLiteExport[Int32] =
+    def exportEqobjl(rows: List[Eqobjl]): SQLiteExport[Int32] =
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS eqobjl");
         let* _          = execute(sqlCreateEqobjl());
@@ -79,7 +79,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Flocdes
 
-    def setupFlocdes(rows: List[Flocdes]): SQLiteExport[Int32] =
+    def exportFlocdes(rows: List[Flocdes]): SQLiteExport[Int32] =
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS flocdes");
         let* _          = execute(sqlCreateFlocdes());
@@ -100,7 +100,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Floobjl
 
-    def setupFloobjl(rows: List[Floobjl]): SQLiteExport[Int32] =
+    def exportFloobjl(rows: List[Floobjl]): SQLiteExport[Int32] =
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS floobj");
         let* _          = execute(sqlCreateFloobjl());
@@ -121,7 +121,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Manuf
 
-    def setupManuf(rows: List[Manuf]): SQLiteExport[Int32] =
+    def exportManuf(rows: List[Manuf]): SQLiteExport[Int32] =
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS manuf");
         let* _          = execute(sqlCreateManuf());
@@ -141,7 +141,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Obj
 
-    def setupObj(rows: List[Obj]): SQLiteExport[Int32] =
+    def exportObj(rows: List[Obj]): SQLiteExport[Int32] =
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS obj");
         let* _          = execute(sqlCreateObj());

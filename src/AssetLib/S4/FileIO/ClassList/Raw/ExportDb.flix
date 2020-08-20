@@ -34,7 +34,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     rel CharacteristicRel(charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32])
     rel IntRangeRel(charName: String, low: Int32, high: Int32)
     rel DecimalRangeRel(charName: String, low: Float64, high: Float64)
-    rel SelectionValueRel(charName: String, value: String)
+
+    type alias SelectionValue1 = {charName: String, value: String}
 
     pub def parseFlocClassList(path: System.FilePath, cs: Text.Charset): Result[ClassList, System.Error] & Impure = 
         use Result.{flatMap};
@@ -144,19 +145,19 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Collect Selection Values
     // Call solve to remove duplicates
-    def collectSelectionValues[r](src: ClassList):  #{SelectionValueRel | r} = 
-        solve AssetLib/Common/Utils.foldMapRel(selectionValues, src.classes)
+    def collectSelectionValues(src: ClassList):  List[SelectionValue1] = 
+        List.flatMap(selectionValues, src.classes)
 
     // One-to-many
-    def selectionValues[r](src: Class):  #{SelectionValueRel | r} =
-        AssetLib/Common/Utils.foldMapRel(selectionValue1, src.characteristics)
+    def selectionValues(src: Class):  List[SelectionValue1] =
+        List.flatMap(selectionValue1, src.characteristics)
 
     // One-to-zero-or-one
-    def selectionValue1[r](src: Characteristic):  #{SelectionValueRel | r} =        
+    def selectionValue1(src: Characteristic):  List[SelectionValue1] =
         let name = src.name;
         match src.refinement {
-            case Some(ListOfValues(xs)) => foldMapRel(r -> SelectionValueRel(name, r). , xs)
-            case _ => #{}
+            case Some(ListOfValues(xs)) => List.map(x -> {charName = name, value = x}, xs)
+            case _ => Nil
         } 
 
 
@@ -262,25 +263,21 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Selection Values
 
-    def writeSelectionValues[r](relns: #{SelectionValueRel | r}): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
+    def writeSelectionValues(rows: List[SelectionValue1]): SQLiteExport[Int32] =
+        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS selection_values");
         let* _          = execute(sqlCreateSelectionValues());
-        let stmt        = "INSERT INTO selection_values(charname, value) VALUES(?,?)";
-        let writes      = fold SelectionValueRel emptySQLiteWriteList() writeSelectionValueStep() relns;
-        let* _          = execWriteList(stmt, writes);
+        let* stmt       = prepareStatement("INSERT INTO selection_values(charname, value) VALUES(?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, selectionValueRowWriter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
-        return()
+        return(nrows)
 
-    def writeSelectionValueStep(): ((String, String), SQLiteWriteList) -> SQLiteWriteList = 
-        FactIO/SQLiteExport.makeSQLiteWriteStep(writeSelectionValueRow)
 
     /// A RowWriter for the body of DecimalRange
-    def writeSelectionValueRow(src: (String, String)): SQLiteRowWriter[Unit] = 
+    def selectionValueRowWriter(src: SelectionValue1): SQLiteRowWriter[Unit] = 
         use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
-        let (charname, value) = src;
-        let* _ = putString!(0, charname);
-        let* _ = putString!(1, value);
+        let* _ = putString!(0, src.charName);
+        let* _ = putString!(1, src.value);
         return()
 
 
