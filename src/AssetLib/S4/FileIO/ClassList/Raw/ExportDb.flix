@@ -30,10 +30,13 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // These are transitory relations, so the _Rel suffix is not a burden
     
-    rel ClassMemberRel(className: String, charName: String)
-    rel CharacteristicRel(charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32])
-    rel IntRangeRel(charName: String, low: Int32, high: Int32)
-    rel DecimalRangeRel(charName: String, low: Float64, high: Float64)
+    type alias ClassMember1 = {className: String, charName: String}
+    
+    type alias Characteristic1 = {charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32]}
+    
+    type alias IntRange1 = {charName: String, low: Int32, high: Int32}
+    
+    type alias DecimalRange1 = {charName: String, low: Float64, high: Float64}
 
     type alias SelectionValue1 = {charName: String, value: String}
 
@@ -76,31 +79,31 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Collect ClassMembers
     // Call solve to remove duplicates
-    def collectClassMembers[r](src: ClassList):  #{ClassMemberRel | r} = 
-        foldMapRel(classMember1, src.classes)
+    def collectClassMembers(src: ClassList): List[ClassMember1] =
+        let cmp = (x,y) -> x.className == y.className && x.charName == y.charName;
+        List.flatMap(classMember1, src.classes) |> List.nubBy(cmp)
 
     // One-to-many
-    def classMember1[r](src: Class):  #{ClassMemberRel | r} =
-        let className = src.name;
-        foldMapRel(r ->  { let name = r.name; ClassMemberRel(className, name). }, src.characteristics)
-
+    def classMember1(src: Class): List[ClassMember1] =
+        List.map(r ->  {className = src.name, charName = r.name}, src.characteristics)
+        
 
     // Collect Characteristics
     // Call solve to remove duplicates
-    def collectCharacteristics[r](src: ClassList):  #{CharacteristicRel | r} = 
-        solve foldMapRel(characteristics, src.classes)
+    def collectCharacteristics(src: ClassList): List[Characteristic1] = 
+        let cmp = (x,y) -> x.charName == y.charName && x.datatype == y.datatype;
+        List.flatMap(characteristics, src.classes) |> List.nubBy(cmp)
 
     // One-to-many
-    def characteristics[r](src: Class):  #{CharacteristicRel | r} =
-        foldMapRel(characteristic1, src.characteristics)
+    def characteristics(src: Class): List[Characteristic1] =
+        List.map(characteristic1, src.characteristics)
 
     // One-to-one
-    def characteristic1[r](src: Characteristic):  #{CharacteristicRel | r} =
-        let name = src.name;
+    def characteristic1(src: Characteristic):  Characteristic1 =
         let (typename, clength, prec) = deconsDatatype(src.datatype);
-        CharacteristicRel(name, typename, clength, prec). 
+        {charName = src.name, datatype = typename, charLength = clength, decimalPrec = prec} 
         
-
+        
     def deconsDatatype(x: Datatype): (String, Int32, Option[Int32]) = match x { 
         case Text(d) => ("Text", d, None)
         case Date(d) => ("Date", d, None)
@@ -111,36 +114,35 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Collect Int Ranges
     // Call solve to remove duplicates
-    def collectIntRanges[r](src: ClassList):  #{IntRangeRel | r} = 
-        solve foldMapRel(intRanges, src.classes)
+    def collectIntRanges(src: ClassList): List[IntRange1] = 
+        List.flatMap(intRanges, src.classes)
 
     // One-to-many
-    def intRanges[r](src: Class):  #{IntRangeRel | r} =
-        foldMapRel(intRange1, src.characteristics)
+    def intRanges(src: Class): List[IntRange1] =
+        List.flatMap(intRange1, src.characteristics)
 
     // One-to-zero-or-one
-    def intRange1[r](src: Characteristic):  #{IntRangeRel | r} =
-        let name = src.name;
+    def intRange1(src: Characteristic): List[IntRange1] =
         match src.refinement {
-            case Some(IntRange(lo,hi)) => IntRangeRel(name, lo, hi).
-            case _ => #{}
+            case Some(IntRange(lo,hi)) => {charName = src.name, low = lo, high = hi} :: Nil
+            case _ => Nil
         } 
     
     // Collect Decimal Ranges
     // Call solve to remove duplicates
-    def collectDecimalRanges[r](src: ClassList):  #{DecimalRangeRel | r} = 
-        solve foldMapRel(decimalRanges, src.classes)
+    def collectDecimalRanges(src: ClassList): List[DecimalRange1] =
+        List.flatMap(decimalRanges, src.classes)
 
     // One-to-many
-    def decimalRanges[r](src: Class):  #{DecimalRangeRel | r} =
-        foldMapRel(decimalRange1, src.characteristics)
+    def decimalRanges(src: Class): List[DecimalRange1] =
+        List.flatMap(decimalRange1, src.characteristics)
 
     // One-to-zero-or-one
-    def decimalRange1[r](src: Characteristic):  #{DecimalRangeRel | r} =
+    def decimalRange1(src: Characteristic):  List[DecimalRange1] =
         let name = src.name;
         match src.refinement {
-            case Some(DecimalRange(lo,hi)) => DecimalRangeRel(name, lo, hi).
-            case _ => #{}
+            case Some(DecimalRange(lo,hi)) => {charName = name, low = lo, high = hi} :: Nil
+            case _ => Nil
         } 
 
     // Collect Selection Values
@@ -163,102 +165,83 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Class Members
 
-    def writeClassMembers[r](relns: #{ClassMemberRel | r}): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
+    def writeClassMembers(rows: List[ClassMember1]): SQLiteExport[Int32] =
+        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS class_members");
         let* _          = execute(sqlCreateClassMembers());
-        let stmt        = "INSERT INTO class_members(classname, charname) VALUES(?,?)";
-        let writes      = fold ClassMemberRel emptySQLiteWriteList() writeClassMemberStep() relns;
-        let* _          = execWriteList(stmt, writes);
+        let* stmt       = prepareStatement("INSERT INTO class_members(classname, charname) VALUES(?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, classMemberRowWriter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
-        return()
+        return(nrows)
 
 
-    def writeClassMemberStep(): ((String, String), SQLiteWriteList) -> SQLiteWriteList = 
-        FactIO/SQLiteExport.makeSQLiteWriteStep(writeClassMemberRow)
 
     /// A RowWriter for the body of a ClassMember
-    def writeClassMemberRow(src: (String, String)): SQLiteRowWriter[Unit] = 
+    def classMemberRowWriter(x: ClassMember1): SQLiteRowWriter[Unit] = 
         use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
-        let (classname, charname) = src;
-        let* _ = putString!(0, classname);
-        let* _ = putString!(1, charname);
+        let* _ = putString!(0, x.className);
+        let* _ = putString!(1, x.charName);
         return()
 
 
     // Characteristics
 
-    def writeCharacteristics[r](relns: #{CharacteristicRel | r}): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
+    def writeCharacteristics(rows: List[Characteristic1]): SQLiteExport[Int32] =
+        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS characteristics");
         let* _          = execute(sqlCreateCharacteristics());
-        let stmt        = "INSERT INTO characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)";
-        let writes      = fold CharacteristicRel emptySQLiteWriteList() writeCharacteristicStep() relns;
-        let* _          = execWriteList(stmt, writes);
+        let* stmt       = prepareStatement("INSERT INTO characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, characteristicRowWriter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
-        return()
-
-
-    def writeCharacteristicStep(): ((String, String, Int32, Option[Int32]), SQLiteWriteList) -> SQLiteWriteList = 
-        FactIO/SQLiteExport.makeSQLiteWriteStep(writeCharacteristicRow)
+        return(nrows)
 
     /// A RowWriter for the body of a Characteristic
-    def writeCharacteristicRow(src: (String, String, Int32, Option[Int32])): SQLiteRowWriter[Unit] = 
+    def characteristicRowWriter(x: Characteristic1): SQLiteRowWriter[Unit] = 
         use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!, putOptionInt32!};
-        let (charname, datatype, numChars, decimalPlaces) = src;
-        let* _ = putString!(0, charname);
-        let* _ = putString!(1, datatype);
-        let* _ = putInt32!(2, numChars);
-        let* _ = putOptionInt32!(3, decimalPlaces);
+        let* _ = putString!(0, x.charName);
+        let* _ = putString!(1, x.datatype);
+        let* _ = putInt32!(2, x.charLength);
+        let* _ = putOptionInt32!(3, x.decimalPrec);
         return()
 
     // Int Ranges
 
-    def writeIntRanges[r](relns: #{IntRangeRel | r}): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
+    def writeIntRanges(rows: List[IntRange1]): SQLiteExport[Int32] =
+        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS int_ranges");
         let* _          = execute(sqlCreateIntRanges());
-        let stmt        = "INSERT INTO int_ranges(charname, range_low, range_high) VALUES(?,?,?)";
-        let writes      = fold IntRangeRel emptySQLiteWriteList() writeIntRangeStep() relns;
-        let* _          = execWriteList(stmt, writes);
+        let* stmt       = prepareStatement("INSERT INTO int_ranges(charname, range_low, range_high) VALUES(?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, intRangeRowWriter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
-        return()
+        return(nrows)
 
-    def writeIntRangeStep(): ((String, Int32, Int32), SQLiteWriteList) -> SQLiteWriteList = 
-        FactIO/SQLiteExport.makeSQLiteWriteStep(writeIntRangeRow)
-
-    /// A RowWriter for the body of IntRange
-    def writeIntRangeRow(src: (String, Int32, Int32)): SQLiteRowWriter[Unit] = 
+    /// A RowWriter for IntRange
+    def intRangeRowWriter(x: IntRange1): SQLiteRowWriter[Unit] = 
         use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
-        let (charname, low, high) = src;
-        let* _ = putString!(0, charname);
-        let* _ = putInt32!(1, low);
-        let* _ = putInt32!(2, high);
+        let* _ = putString!(0, x.charName);
+        let* _ = putInt32!(1, x.low);
+        let* _ = putInt32!(2, x.high);
         return()
 
 
     // Decimal Ranges
 
-    def writeDecimalRanges[r](relns: #{DecimalRangeRel | r}): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, commit};
+    def writeDecimalRanges(rows: List[DecimalRange1]): SQLiteExport[Int32] =
+        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS decimal_ranges");
         let* _          = execute(sqlCreateDecimalRanges());
-        let stmt        = "INSERT INTO decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)";
-        let writes      = fold DecimalRangeRel emptySQLiteWriteList() writeDecimalRangeStep() relns;
-        let* _          = execWriteList(stmt, writes);
+        let* stmt       = prepareStatement("INSERT INTO decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, decimalRangeRowWriter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
-        return()
+        return(nrows)
 
-    def writeDecimalRangeStep(): ((String, Float64, Float64), SQLiteWriteList) -> SQLiteWriteList = 
-        FactIO/SQLiteExport.makeSQLiteWriteStep(writeDecimalRangeRow)
-
-    /// A RowWriter for the body of DecimalRange
-    def writeDecimalRangeRow(src: (String, Float64, Float64)): SQLiteRowWriter[Unit] = 
+    
+    /// A RowWriter for DecimalRange1
+    def decimalRangeRowWriter(x: DecimalRange1): SQLiteRowWriter[Unit] = 
         use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putFloat64!};
-        let (charname, low, high) = src;
-        let* _ = putString!(0, charname);
-        let* _ = putFloat64!(1, low);
-        let* _ = putFloat64!(2, high);
+        let* _ = putString!(0, x.charName);
+        let* _ = putFloat64!(1, x.low);
+        let* _ = putFloat64!(2, x.high);
         return()
 
     // Selection Values
@@ -273,11 +256,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         return(nrows)
 
 
-    /// A RowWriter for the body of DecimalRange
-    def selectionValueRowWriter(src: SelectionValue1): SQLiteRowWriter[Unit] = 
+    /// A RowWriter for SelectionValue1
+    def selectionValueRowWriter(x: SelectionValue1): SQLiteRowWriter[Unit] = 
         use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
-        let* _ = putString!(0, src.charName);
-        let* _ = putString!(1, src.value);
+        let* _ = putString!(0, x.charName);
+        let* _ = putString!(1, x.value);
         return()
 
 
