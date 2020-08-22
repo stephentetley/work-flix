@@ -21,8 +21,25 @@ use FactIO.CsvRowWriter;
 
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
+use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
+use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
 
-namespace AssetLib/S4/FileIO/IH06Tree/Raw/CsvExport {
+namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
+
+
+    type alias CsvOutputPaths = 
+        { flocOutpath: System.FilePath
+        , equiOutpath: System.FilePath
+        }
+
+    pub def exportCsv(sourceFile: System.FilePath, outPaths: CsvOutputPaths): Result[Unit, System.Error] & Impure = 
+        use Result.flatMap;
+        let* ast    = parseFile(sourceFile);
+        let ans     = buildIH06Trees(ast);
+        let* _      = exportFlocCsv(ans, outPaths.flocOutpath);        
+        let* _      = exportEquiCsv(ans, outPaths.equiOutpath);
+        Ok()
+
 
     /// Flocs
     pub def exportFlocCsv(xs: List[IH06Tree], path: System.FilePath): Result[Unit, System.Error] & Impure =
@@ -80,7 +97,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/CsvExport {
                     let* _ = putInt32!(1, r.level);
                     let* _ = putString!(2, r.description);
                     let* _ = putString!(3, r.floc);
-                    let* _ = putString!(3, r.superordinate);
+                    let* _ = putString!(4, r.superordinate);
                     return()
                 };                
                 FactIO/CsvExport.writeRow(proc)

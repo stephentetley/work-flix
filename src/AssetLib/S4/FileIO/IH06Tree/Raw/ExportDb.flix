@@ -23,8 +23,17 @@ use Data.RoseTree.{RoseTree};
 
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node, FlocNode, EquiNode};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
+use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
+use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
 
-namespace AssetLib/S4/FileIO/IHO6Tree/Raw/ExportDb { 
+namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb { 
+
+    pub def exportDb(sourceFile: System.FilePath, outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
+        use Result.flatMap;
+        let* ast    = parseFile(sourceFile);
+        let ans     = buildIH06Trees(ast);
+        let* _      = outputDb(ans, outpath);        
+        Ok()
 
 
     pub def outputDb(xs: List[IH06Tree], outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
@@ -34,10 +43,12 @@ namespace AssetLib/S4/FileIO/IHO6Tree/Raw/ExportDb {
     def writeOutput(xs: List[IH06Tree]): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
-        let* _      = liftAction(_ -> { Console.printLine("Flocs"); Ok() });
-        let* _      = exportFlocNodes(xs);
-        let* _      = liftAction(_ -> { Console.printLine("Equi"); Ok() });
-        let* _      = exportEquiNodes(xs);
+        let* _      = liftAction(_ -> { Console.printLine("Flocs..."); Ok() });
+        let* n1     = exportFlocNodes(xs);
+        let* _      = liftAction(_ -> { Console.printLine(Int32.toString(n1)); Ok() });
+        let* _      = liftAction(_ -> { Console.printLine("Equi..."); Ok() });
+        let* n2     = exportEquiNodes(xs);
+        let* _      = liftAction(_ -> { Console.printLine(Int32.toString(n2)); Ok() });
         let* _      = close();
         return()
 
@@ -53,11 +64,10 @@ namespace AssetLib/S4/FileIO/IHO6Tree/Raw/ExportDb {
         return(nrows)
 
     def emitIH06Flocs(stmt: PreparedStatement, src: IH06Tree): SQLiteExport[Int32] = 
-        use FactIO/SQLiteExport.{flatMap, return, traverseX};
+        use FactIO/SQLiteExport.{flatMap, return, mapAccumX};
         let RoseTree(label, kids) = src;
-        let* _ = emitFlocNode(stmt, label);
-        let* _ = traverseX(emitIH06Flocs(stmt), kids);
-        return(1)                               // TODO count properly
+        let* n = emitFlocNode(stmt, label);
+        mapAccumX((ac,x) -> {let* i = emitIH06Flocs(stmt, x); return(ac+i)}, n, kids)
 
     def emitFlocNode(stmt: PreparedStatement, src: IH06Node): SQLiteExport[Int32] = 
         use FactIO/SQLiteExport.{return, writeRow};
@@ -80,35 +90,35 @@ namespace AssetLib/S4/FileIO/IHO6Tree/Raw/ExportDb {
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_node");
         let* _          = execute(sqlCreateEquiNode());
-        let* stmt       = prepareStatement("INSERT INTO equi_node(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = emitIH06Equis(stmt, x); return(ac+n)}, 0, xs);
+        // let* stmt       = prepareStatement("INSERT INTO equi_node(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
+        // let* nrows      = foldM((ac, x) -> { let* n = emitIH06Equis(stmt, x); return(ac+n)}, 0, xs);
+        let* nrows      = return(List.length(xs));
         let* _          = commit();
         return(nrows)
 
 
-    def emitIH06Equis(stmt: PreparedStatement, src: IH06Tree): SQLiteExport[Int32] = 
-        use FactIO/SQLiteExport.{flatMap, return, traverseX};
-        let RoseTree(label, kids) = src;
-        let* _ = emitEquiNode(stmt, label);
-        let* _ = traverseX(emitIH06Equis(stmt), kids);
-        return(1)                               // TODO count properly
+    // def emitIH06Equis(stmt: PreparedStatement, src: IH06Tree): SQLiteExport[Int32] = 
+    //     use FactIO/SQLiteExport.{flatMap, return, mapAccumX};
+    //     let RoseTree(label, kids) = src;
+    //     let* n = emitEquiNode(stmt, label);
+    //     mapAccumX((ac,x) -> {let* i = emitIH06Equis(stmt, x); return(ac+i)}, n, kids)
 
-    def emitEquiNode(stmt: PreparedStatement,src: IH06Node): SQLiteExport[Int32] = 
-        use FactIO/SQLiteExport.{return, writeRow};
-        match src { 
-            case EquiNode(r) => writeRow(stmt, equiNodeRowWriter(r))
-            case _           => return(0)
-        }
+    // def emitEquiNode(stmt: PreparedStatement,src: IH06Node): SQLiteExport[Int32] = 
+    //     use FactIO/SQLiteExport.{return, writeRow};
+    //     match src { 
+    //         case EquiNode(r) => writeRow(stmt, equiNodeRowWriter(r))
+    //         case _           => return(0)
+    //     }
 
-    /// A RowWriter for EquiNode
-    def equiNodeRowWriter(x: EquiNode): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
-        let* _ = putString!(0,  x.floc);
-        let* _ = putInt32!(1,   x.level);
-        let* _ = putString!(2,  x.description);
-        let* _ = putString!(3,  x.floc);
-        let* _ = putString!(4,  x.superordinate);
-        return()
+    // /// A RowWriter for EquiNode
+    // def equiNodeRowWriter(x: EquiNode): SQLiteRowWriter[Unit] = 
+    //     use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
+    //     let* _ = putString!(0,  x.floc);
+    //     let* _ = putInt32!(1,   x.level);
+    //     let* _ = putString!(2,  x.description);
+    //     let* _ = putString!(3,  x.floc);
+    //     let* _ = putString!(4,  x.superordinate);
+    //     return()
 
 
 
