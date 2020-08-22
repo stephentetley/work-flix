@@ -25,7 +25,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes {
     type alias Header =  { floc: String, description: String, validForm: LocalDate }
 
     pub enum IH06Row {
-        case FlocRow(FlocRow),
+        case FlocRow(FlocRow)
         case EquiRow(EquiRow)
     }
 
@@ -34,8 +34,6 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes {
 
     /// Empty string for no super
     type alias EquiRow = { equiId: String, description: String, floc: String, superordinate: String }
-
-
 
 
     /// Nested representation.
