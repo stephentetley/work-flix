@@ -90,7 +90,6 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/Parser {
     def equiLine3(equiId: String, desc: String): TextParser[EquiRow, t] = 
         use TextParser.flatMap;
         let* floc = restOfLine(true) |> map(String.trim);
-        let* _ = TextParser/Trace.tell("E3, Floc is" + floc);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = "" })
 
 

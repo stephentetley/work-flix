@@ -90,35 +90,34 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_node");
         let* _          = execute(sqlCreateEquiNode());
-        // let* stmt       = prepareStatement("INSERT INTO equi_node(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
-        // let* nrows      = foldM((ac, x) -> { let* n = emitIH06Equis(stmt, x); return(ac+n)}, 0, xs);
-        let* nrows      = return(List.length(xs));
+        let* stmt       = prepareStatement("INSERT INTO equi_node(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = emitIH06Equis(stmt, x); return(ac+n)}, 0, xs);
         let* _          = commit();
         return(nrows)
 
 
-    // def emitIH06Equis(stmt: PreparedStatement, src: IH06Tree): SQLiteExport[Int32] = 
-    //     use FactIO/SQLiteExport.{flatMap, return, mapAccumX};
-    //     let RoseTree(label, kids) = src;
-    //     let* n = emitEquiNode(stmt, label);
-    //     mapAccumX((ac,x) -> {let* i = emitIH06Equis(stmt, x); return(ac+i)}, n, kids)
+    def emitIH06Equis(stmt: PreparedStatement, src: IH06Tree): SQLiteExport[Int32] = 
+        use FactIO/SQLiteExport.{flatMap, return, mapAccumX};
+        let RoseTree(label, kids) = src;
+        let* n = emitEquiNode(stmt, label);
+        mapAccumX((ac,x) -> {let* i = emitIH06Equis(stmt, x); return(ac+i)}, n, kids)
 
-    // def emitEquiNode(stmt: PreparedStatement,src: IH06Node): SQLiteExport[Int32] = 
-    //     use FactIO/SQLiteExport.{return, writeRow};
-    //     match src { 
-    //         case EquiNode(r) => writeRow(stmt, equiNodeRowWriter(r))
-    //         case _           => return(0)
-    //     }
+    def emitEquiNode(stmt: PreparedStatement,src: IH06Node): SQLiteExport[Int32] = 
+        use FactIO/SQLiteExport.{return, writeRow};
+        match src { 
+            case EquiNode(r) => writeRow(stmt, equiNodeRowWriter(r))
+            case _           => return(0)
+        }
 
-    // /// A RowWriter for EquiNode
-    // def equiNodeRowWriter(x: EquiNode): SQLiteRowWriter[Unit] = 
-    //     use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
-    //     let* _ = putString!(0,  x.floc);
-    //     let* _ = putInt32!(1,   x.level);
-    //     let* _ = putString!(2,  x.description);
-    //     let* _ = putString!(3,  x.floc);
-    //     let* _ = putString!(4,  x.superordinate);
-    //     return()
+    /// A RowWriter for EquiNode
+    def equiNodeRowWriter(x: EquiNode): SQLiteRowWriter[Unit] = 
+        use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
+        let* _ = putString!(0,  x.equiId);
+        let* _ = putInt32!(1,   x.level);
+        let* _ = putString!(2,  x.description);
+        let* _ = putString!(3,  x.floc);
+        let* _ = putString!(4,  x.superordinate);
+        return()
 
 
 
