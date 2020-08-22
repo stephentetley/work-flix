@@ -17,28 +17,28 @@
 use Data/Transient.DList;
 
 use TextParser.TextParser;
-use TextParser.RowParser;
+use Data/RowReader.RowEvaluator;
 
 
 namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
 
 
 
-    pub def importRows(rowp: RowParser[row], path: System.FilePath): Result[List[row], System.Error] & Impure = 
+    pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], System.Error] & Impure = 
         use Result.flatMap;
         use Data/Transient/DList.{toList};
-        let* rows = TextParser.parseFile(importRowsParser(rowp), path, Text/Charset.utf_8());
+        let* rows = TextParser.parseFile(importRowsParser(eval), path, Text/Charset.utf_8());
         Ok(toList(rows))
 
 
-    def importRowsParser(rowp: RowParser[row]): TextParser[DList[row], t] = 
+    def importRowsParser(eval: RowEvaluator[row]): TextParser[DList[row], t] = 
         use Data/Transient/DList.{empty, snoc};
         use TextParser.{flatMap, return};
         use TextParser/Combinators.{manyTill, manyTillWith, count};
         use TextParser/Text.{skipLine};
         let* _      = manyTill(skipLine(), separatingLine());
         let* _      = count(2, skipLine());
-        let row1    = makeLineTextParser(rowp);
+        let row1    = makeLineTextParser(eval);
         let* rows   = manyTillWith((x,ac) -> snoc(ac, x), empty(), row1, separatingLine()); 
         return(rows)
 
@@ -51,10 +51,14 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
         return()
 
 
-    def makeLineTextParser(rowp: RowParser[row]): TextParser[row, t] = 
-        use TextParser/RowParser.{rowTextParser};
+    def makeLineTextParser(eval: RowEvaluator[row]): TextParser[row, t] = 
+        use TextParser.{flatMap, return, liftActionResult};
+        use TextParser/Text.{restOfLine};
+        use Data/RowReader/RowEvaluator.{evaluateString};
         use AssetLib/Common/Utils.{leadingSepBy};
         let split = s -> leadingSepBy(s, "|");
-        rowTextParser(split, rowp)
+        let* s0 = restOfLine(true);
+        let s1 = Text/Regex.replace(s0, Text/Regex/Pattern.irrefutablePattern("\R"), "");
+        liftActionResult(_ -> evaluateString(split, s1, eval))
 
 }
