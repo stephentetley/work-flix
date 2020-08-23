@@ -31,18 +31,18 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         runSQLiteExport(writeOutput(srcPaths), outPath)
         
     def writeOutput(srcPaths: DbPaths): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
+        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftActionResult};
         use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
         let* _      = setAutoCommit(false);
-        let* rs1    = liftAction(_ -> loadEqobjl(srcPaths.pathOfEqobjl));
+        let* rs1    = liftActionResult(_ -> loadEqobjl(srcPaths.pathOfEqobjl));
         let* _      = writeTable("Eqobjl", exportEqobjl(rs1));
-        let* rs2    = liftAction(_ -> loadFlocdes(srcPaths.pathOfFlocdes));
+        let* rs2    = liftActionResult(_ -> loadFlocdes(srcPaths.pathOfFlocdes));
         let* _      = writeTable("Flocdes", exportFlocdes(rs2));
-        let* rs3    = liftAction(_ -> loadFloobjl(srcPaths.pathOfFloobjl));
+        let* rs3    = liftActionResult(_ -> loadFloobjl(srcPaths.pathOfFloobjl));
         let* _      = writeTable("Foobjl", exportFloobjl(rs3));
-        let* rs4    = liftAction(_ -> loadManuf(srcPaths.pathOfManuf));
+        let* rs4    = liftActionResult(_ -> loadManuf(srcPaths.pathOfManuf));
         let* _      = writeTable("Manuf", exportManuf(rs4));
-        let* rs5    = liftAction(_ -> loadObj(srcPaths.pathOfObj));
+        let* rs5    = liftActionResult(_ -> loadObj(srcPaths.pathOfObj));
         let* _      = writeTable("Obj", exportObj(rs5));
         let* _      = close();
         return()
@@ -50,9 +50,9 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
     def writeTable(name: String, operation: SQLiteExport[Int32]): SQLiteExport[Unit] = 
         use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
-        let* _      = liftAction(_ -> { Console.printLine(name); Ok() });
+        let* _      = liftAction(_ -> Console.printLine(name));
         let* nrows  = operation;
-        let* _      = liftAction(_ -> { Console.printLine("Row count: " + Int32.toString(nrows)); Ok()});
+        let* _      = liftAction(_ -> Console.printLine("Row count: " + Int32.toString(nrows)));
         return()
 
     // Eqobjl

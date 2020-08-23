@@ -45,7 +45,7 @@ namespace AssetLib/S4/FileIO/EntityFile/ExportDb {
         let* _      = setAutoCommit(false);
         let* _      = execute("DROP TABLE IF EXISTS " + params.tableName);
         let* _      = execute(params.createTableSql);
-        let* _      = liftAction(_ -> { Console.printLine(params.tableName + "..."); Ok() });
+        let* _      = liftAction(_ -> Console.printLine(params.tableName + "..."));
         let* stmt   = prepareStatement(params.insertSql);
         let* _      = mapRowWriterX(stmt, params.writeRow, x1.dataRows);
         let* _      = commit();

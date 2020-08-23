@@ -43,12 +43,12 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
     def writeOutput(xs: List[IH06Tree]): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
-        let* _      = liftAction(_ -> { Console.printLine("Flocs..."); Ok() });
+        let* _      = liftAction(_ -> Console.printLine("Flocs..."));
         let* n1     = exportFlocNodes(xs);
-        let* _      = liftAction(_ -> { Console.printLine(Int32.toString(n1)); Ok() });
-        let* _      = liftAction(_ -> { Console.printLine("Equi..."); Ok() });
+        let* _      = liftAction(_ -> Console.printLine(Int32.toString(n1)));
+        let* _      = liftAction(_ -> Console.printLine("Equi..."));
         let* n2     = exportEquiNodes(xs);
-        let* _      = liftAction(_ -> { Console.printLine(Int32.toString(n2)); Ok() });
+        let* _      = liftAction(_ -> Console.printLine(Int32.toString(n2)));
         let* _      = close();
         return()
 

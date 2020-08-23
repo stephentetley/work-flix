@@ -61,15 +61,15 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     def writeOutput(src: ClassList): SQLiteExport[Unit] =
         use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
-        let* _      = liftAction(_ -> { Console.printLine("ClassMembers"); Ok() });
+        let* _      = liftAction(_ -> Console.printLine("ClassMembers"));
         let* _      = collectClassMembers(src) |> writeClassMembers;
-        let* _      = liftAction(_ -> { Console.printLine("Characteristics"); Ok() });
+        let* _      = liftAction(_ -> Console.printLine("Characteristics"));
         let* _      = collectCharacteristics(src) |> writeCharacteristics;
-        let* _      = liftAction(_ -> { Console.printLine("IntRanges"); Ok() });
+        let* _      = liftAction(_ -> Console.printLine("IntRanges"));
         let* _      = collectIntRanges(src) |> writeIntRanges;
-        let* _      = liftAction(_ -> { Console.printLine("DecimalRanges"); Ok() });
+        let* _      = liftAction(_ -> Console.printLine("DecimalRanges"));
         let* _      = collectDecimalRanges(src) |> writeDecimalRanges;
-        let* _      = liftAction(_ -> { Console.printLine("SelectionValues"); Ok() });
+        let* _      = liftAction(_ -> Console.printLine("SelectionValues"));
         let* _      = collectSelectionValues(src) |> writeSelectionValues;
         let* _      = close();
         return()
