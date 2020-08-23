@@ -2,15 +2,9 @@ use System.Error.{Generic};
 
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Parser.{parseFile};
-use AssetLib/S4/FileIO/ChangeFile/CsvExport.{exportCsv};
+use AssetLib/S4/FileIO/ChangeFile/ExportCsv.{exportCsv};
+use AssetLib/S4/FileIO/ChangeFile/ExportDb.{exportDb};
 
-// def runOrError(p: TextParser.Parser[a], f: a -> String, inp: String): String = 
-//     match TextParser.run(p, inp) { 
-//         case Ok(a) => f(a)
-//         case Err(e) => "*** ERROR:" + TextParser/Error.showParserError(e)
-//     }
-
-        
 
 @test
 def main(): Result[Unit, System.Error] & Impure = 
@@ -20,10 +14,4 @@ def main(): Result[Unit, System.Error] & Impure =
     let* x = parseFile(src);
     let* _ = exportCsv(x, dest);
     Ok()
-
-// @test
-// def tree01(): Result[ChangeFile, System.Error] & Impure = 
-//     use AssetLib/S4/FileReaders/ChangeFile/Parser.{parseFile};
-//     let src = "G:/work/Projects/assets/tree-build/goo04-wsp-floc-file_download.txt";
-//     parseFile(src)
 

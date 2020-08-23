@@ -24,7 +24,7 @@ use TextParser/Combinators.{ignore, many, manyTill};
 use TextParser/Text.{many1UpperCase, restOfLine, makePattern};
 use TextParser/Token1.{symbol, lexeme};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.FileType.{Download, Upload};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataModel.{U1};
@@ -37,13 +37,13 @@ use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 namespace AssetLib/S4/FileIO/ChangeFile/Parser {
 
     /// Always UTF-8?
-    pub def parseFile(path: System.FilePath) : Result[PrimChangeFile, System.Error] & Impure = 
+    pub def parseFile(path: System.FilePath) : Result[ChangeFile, System.Error] & Impure = 
         TextParser.parseFile(changeFileParser(), path, Text/Charset.utf_8())    
 
-    /// TODO - there's scope for a parser that doesn't interpret the initial "header" lines and 
+    /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
 
-    pub def changeFileParser(): TextParser[PrimChangeFile, t] = 
+    pub def changeFileParser(): TextParser[ChangeFile, t] = 
         use TextParser.flatMap;
         let* hdr = pHeader();
         let* sel = alt(pSelection(), pEmptySelection());        

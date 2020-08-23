@@ -17,16 +17,16 @@
 use FactIO.CsvExport;
 use FactIO.CsvRowWriter;
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, Headers, DataRow};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile, Headers, DataRow};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/ChangeFile/CsvExport {
+namespace AssetLib/S4/FileIO/ChangeFile/ExportCsv {
 
         
-    pub def exportCsv(x: PrimChangeFile, path: System.FilePath): Result[Unit, System.Error] & Impure =
+    pub def exportCsv(x: ChangeFile, path: System.FilePath): Result[Unit, System.Error] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
         let ChangeFile(x1) = x;

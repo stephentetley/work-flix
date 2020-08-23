@@ -18,11 +18,13 @@ use Time.LocalDateTime;
 
 namespace AssetLib/S4/FileIO/ChangeFile/Datatypes {
 
+    /// ChangeFile
+
+    pub opaque type ChangeFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
+
+    pub opaque type DataRow = Array[String]
 
 
-    pub opaque type ChangeFile[row] = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[row] }
-
-    pub type alias PrimChangeFile = ChangeFile[DataRow]
 
     pub type alias FileHeader = { fileType: FileType, dataModel : DataModel, entityType: EntityType, 
                                     variant: String, user: String, dateTime: LocalDateTime } 
@@ -66,8 +68,10 @@ namespace AssetLib/S4/FileIO/ChangeFile/Datatypes {
 
     pub opaque type Headers = Array[String]
     
-    pub opaque type DataRow = Array[String]
+
+    /// EntityData
 
 
+    pub opaque type EntityData[row] = { entityType: EntityType, headers: Headers, dataRows: List[row] }
 
 }

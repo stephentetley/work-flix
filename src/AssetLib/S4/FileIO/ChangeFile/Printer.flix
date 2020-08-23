@@ -20,7 +20,7 @@ use Text/SimpleFormat.{toString, besideSpace, beside, below, hcat, vcat, text, c
 use Text/SimpleFormat.{<>, <<>>, <!>};
 
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{PrimChangeFile, FileType, DataModel, EntityType, Headers, Selection, DataRow, FileHeader, ChangeFile};
+use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.FileType.{Download, Upload};
 use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataModel.{U1};
@@ -35,17 +35,17 @@ namespace AssetLib/S4/FileIO/ChangeFile/Printer {
 
 
 
-    pub def writeChangeFile(x: PrimChangeFile, path: String): Result[Unit, System.Error] & Impure = 
+    pub def writeChangeFile(x: ChangeFile, path: String): Result[Unit, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
         let str = ppChangeFile(x).toString();
         System/File.writeFile(path1, Text/Charset.utf_8(), str)
 
-    pub def printChangeFile(x: PrimChangeFile): String & Impure = 
+    pub def printChangeFile(x: ChangeFile): String & Impure = 
         
         ppChangeFile(x).toString()
 
     
-    def ppChangeFile (x: PrimChangeFile): Doc & Impure = 
+    def ppChangeFile (x: ChangeFile): Doc & Impure = 
         let ChangeFile(x1) = x;
         vcat(
                 ppFileHeader(x1.fileHeader)
