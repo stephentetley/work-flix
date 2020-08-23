@@ -17,9 +17,9 @@
 use TextParser.RowWithHeadersParser;
 use TextParser/RowWithHeadersParser.{return, getString, getInt32};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 namespace UploadCheck/EntityTypes/ValuaEqui {
 
@@ -40,7 +40,7 @@ namespace UploadCheck/EntityTypes/ValuaEqui {
         , valueTo: String
         }
 
-    type alias ValuaEquiFile = ChangeFile[ValuaEquiRow]
+    type alias ValuaEquiFile = ChangeData[ValuaEquiRow]
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[ValuaEquiFile, System.Error] & Impure = 

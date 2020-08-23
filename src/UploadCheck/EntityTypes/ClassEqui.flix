@@ -17,7 +17,7 @@
 use TextParser.RowWithHeadersParser;
 use TextParser/RowWithHeadersParser.{return, getString, getInt32};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData};
 
 namespace UploadCheck/EntityTypes/ClassEqui {
 
@@ -30,7 +30,7 @@ namespace UploadCheck/EntityTypes/ClassEqui {
         , status: Int32
         }
 
-    type alias ClassEquiFile = ChangeFile[ClassEquiRow]
+    type alias ClassEquiFile = EntityData[ClassEquiRow]
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[ClassEquiFile, System.Error] & Impure = 

@@ -17,9 +17,9 @@
 use TextParser.RowWithHeadersParser;
 use TextParser/RowWithHeadersParser.{return, getString, getInt32};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 namespace UploadCheck/EntityTypes/ValuaFloc {
 
@@ -43,7 +43,7 @@ namespace UploadCheck/EntityTypes/ValuaFloc {
         , valueTo: String
         }
 
-    type alias ValuaFlocFile = ChangeFile[ValuaFlocRow]
+    type alias ValuaFlocFile = EntityData[ValuaFlocRow]
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[ValuaFlocFile, System.Error] & Impure = 

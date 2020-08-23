@@ -17,7 +17,7 @@
 use TextParser.RowWithHeadersParser;
 use TextParser/RowWithHeadersParser.{return, getString, getInt32};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData};
 
 namespace UploadCheck/EntityTypes/ClassFloc {
 
@@ -30,7 +30,7 @@ namespace UploadCheck/EntityTypes/ClassFloc {
         , status: Int32
         }
 
-    type alias ClassFlocFile = ChangeFile[ClassFlocRow]
+    type alias ClassFlocFile = EntityData[ClassFlocRow]
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[ClassFlocFile, System.Error] & Impure = 

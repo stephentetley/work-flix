@@ -17,7 +17,7 @@
 use TextParser.RowWithHeadersParser;
 use TextParser/RowWithHeadersParser.{return, getString, getInt32, map};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData};
 
 namespace UploadCheck/EntityTypes/Eqmltxt {
 
@@ -31,7 +31,7 @@ namespace UploadCheck/EntityTypes/Eqmltxt {
         , moreTextExists: Bool
         }
 
-    type alias EqmltxtFile = ChangeFile[EqmltxtRow]
+    type alias EqmltxtFile = EntityData[EqmltxtRow]
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[EqmltxtFile, System.Error] & Impure = 
