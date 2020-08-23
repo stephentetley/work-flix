@@ -21,29 +21,34 @@ use Data/RowReader.RowWithHeadersEvaluator;
 use Data/RowReader.RowWithHeadersEvaluator.{RowWithHeadersEvaluator};
 use Data/RowReader/RowWithHeadersEvaluator.{makeHeaders};
 
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, DataRow, EntityData};
 use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
 use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
 use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 namespace AssetLib/S4/FileIO/EntityFile/Evaluate {
 
 
-    // pub def transformChangeFile(rowp: RowWithHeadersEvaluator[row], src: ChangeFile): Result[ChangeFile, System.Error] & Impure = 
-    //     use Result.flatMap;
-    //     let ChangeFile(x1) = src;
-    //     let Headers(arr) = x1.headers;
-    //     let headers = makeHeaders(arr);
-    //     let* xs = Result.traverse(evalRow(rowp, headers), x1.dataRows);
-    //     Ok(ChangeFile({dataRows = xs | x1}))
+    pub def toEntityData(headers: Array[String], 
+                         eval: RowWithHeadersEvaluator[r], 
+                         src: EntityFile): Result[EntityData[r], System.Error] & Impure = 
+        use Result.flatMap;
+        let EntityFile(x1) = src;
+        let Headers(arr) = x1.headers;
+        let oheaders = makeHeaders(arr);
+        let* xs = Result.traverse(evalRow(eval, oheaders), x1.dataRows);
+        Ok(EntityData({entityType = x1.fileHeader.entityType, headers = Headers(headers), dataRows = xs}))
+
+    ///
+    /// Specialized version of `toEntityData` all rows selected.
+    ///
+    pub def toEntityData1(src: EntityFile): Result[EntityData[DataRow], System.Error] = 
+        use Result.flatMap;
+        let EntityFile(x1) = src;
+        Ok(EntityData({entityType = x1.fileHeader.entityType, headers = x1.headers, dataRows = x1.dataRows}))
 
 
-    // pub def evaluate(rowp: RowWithHeadersParser[row], src: ChangeFile): Result[List[row], System.Error] & Impure = 
-    //     use Result.flatMap;
-    //     let ChangeFile(x1) = src;
-    //     let Headers(arr) = x1.headers;
-    //     let headers = makeHeaders(arr);
-    //     Result.traverse(evalRow(rowp, headers), x1.dataRows)
 
     /// Import rows of a ChangeFile
     pub def importRows(rowp: RowWithHeadersEvaluator[reln], path: System.FilePath): Result[reln, System.Error] & Impure = 

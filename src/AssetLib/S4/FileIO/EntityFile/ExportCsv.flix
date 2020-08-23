@@ -17,8 +17,8 @@
 use FactIO.CsvExport;
 use FactIO.CsvRowWriter;
 
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, Headers, DataRow};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData, Headers, DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
 use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
 use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
@@ -26,16 +26,16 @@ use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 namespace AssetLib/S4/FileIO/EntityFile/ExportCsv {
 
         
-    pub def exportCsv(x: EntityFile, path: System.FilePath): Result[Unit, System.Error] & Impure =
+    pub def exportCsv(rowWriter: r -> CsvExport[Unit], x: EntityData[r], path: System.FilePath): Result[Unit, System.Error] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
-        let EntityFile(x1) = x;
+        let EntityData(x1) = x;
         let Headers(headers) = x1.headers;
-        let* _ = runCsvExport(traverseX(writeDataRow, x1.dataRows), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
+        let* _ = runCsvExport(traverseX(rowWriter, x1.dataRows), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
         Ok()
 
 
-    def writeDataRow(row: DataRow): CsvExport[Unit] = 
+    pub def writeDataRow(row: DataRow): CsvExport[Unit] = 
         use FactIO/CsvExport.{writeLine};
         let DataRow(row1) = row;
         writeLine(row1)
