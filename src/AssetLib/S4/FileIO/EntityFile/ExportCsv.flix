@@ -17,19 +17,19 @@
 use FactIO.CsvExport;
 use FactIO.CsvRowWriter;
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile, Headers, DataRow};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, Headers, DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/ChangeFile/ExportCsv {
+namespace AssetLib/S4/FileIO/EntityFile/ExportCsv {
 
         
-    pub def exportCsv(x: ChangeFile, path: System.FilePath): Result[Unit, System.Error] & Impure =
+    pub def exportCsv(x: EntityFile, path: System.FilePath): Result[Unit, System.Error] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
-        let ChangeFile(x1) = x;
+        let EntityFile(x1) = x;
         let Headers(headers) = x1.headers;
         let* _ = runCsvExport(traverseX(writeDataRow, x1.dataRows), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
         Ok()

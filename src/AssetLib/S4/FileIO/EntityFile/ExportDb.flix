@@ -17,13 +17,13 @@
 use FactIO.SQLiteExport;
 use FactIO.SQLiteRowWriter;
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{EntityData, Headers};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.EntityData.{EntityData};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData, Headers};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/ChangeFile/ExportDb {
+namespace AssetLib/S4/FileIO/EntityFile/ExportDb {
 
     type alias ExportParams[row] = 
         { tableName: String

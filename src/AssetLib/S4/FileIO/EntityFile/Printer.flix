@@ -20,33 +20,32 @@ use Text/SimpleFormat.{toString, besideSpace, beside, below, hcat, vcat, text, c
 use Text/SimpleFormat.{<>, <<>>, <!>};
 
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.FileType.{Download, Upload};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataModel.{U1};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.Selection.{Selection};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.FileType.{Download, Upload};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataModel.{U1};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.Selection.{Selection};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/ChangeFile/Printer {
+namespace AssetLib/S4/FileIO/EntityFile/Printer {
 
 
 
 
-    pub def writeChangeFile(x: ChangeFile, path: String): Result[Unit, System.Error] & Impure = 
+    pub def writeChangeFile(x: EntityFile, path: String): Result[Unit, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
-        let str = ppChangeFile(x).toString();
+        let str = ppEntityFile(x).toString();
         System/File.writeFile(path1, Text/Charset.utf_8(), str)
 
-    pub def printChangeFile(x: ChangeFile): String & Impure = 
-        
-        ppChangeFile(x).toString()
+    pub def printChangeFile(x: EntityFile): String & Impure =         
+        ppEntityFile(x).toString()
 
     
-    def ppChangeFile (x: ChangeFile): Doc & Impure = 
-        let ChangeFile(x1) = x;
+    def ppEntityFile(x: EntityFile): Doc & Impure = 
+        let EntityFile(x1) = x;
         vcat(
                 ppFileHeader(x1.fileHeader)
             :: ppSelection(x1.selection)

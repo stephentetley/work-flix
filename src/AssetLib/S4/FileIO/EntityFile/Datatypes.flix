@@ -16,11 +16,11 @@
 
 use Time.LocalDateTime;
 
-namespace AssetLib/S4/FileIO/ChangeFile/Datatypes {
+namespace AssetLib/S4/FileIO/EntityFile/Datatypes {
 
-    /// ChangeFile
+    /// EntityFile - from "File Download" or for "File Upload".
 
-    pub opaque type ChangeFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
+    pub opaque type EntityFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
 
     pub opaque type DataRow = Array[String]
 

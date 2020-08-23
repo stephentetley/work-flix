@@ -21,12 +21,12 @@ use Data/RowReader.RowWithHeadersEvaluator;
 use Data/RowReader.RowWithHeadersEvaluator.{RowWithHeadersEvaluator};
 use Data/RowReader/RowWithHeadersEvaluator.{makeHeaders};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile, DataRow};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
-namespace AssetLib/S4/FileIO/ChangeFile/Evaluate {
+namespace AssetLib/S4/FileIO/EntityFile/Evaluate {
 
 
     // pub def transformChangeFile(rowp: RowWithHeadersEvaluator[row], src: ChangeFile): Result[ChangeFile, System.Error] & Impure = 
@@ -48,13 +48,13 @@ namespace AssetLib/S4/FileIO/ChangeFile/Evaluate {
     /// Import rows of a ChangeFile
     pub def importRows(rowp: RowWithHeadersEvaluator[reln], path: System.FilePath): Result[reln, System.Error] & Impure = 
         use Result.flatMap;        
-        let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(path);
+        let* ast = AssetLib/S4/FileIO/EntityFile/Parser.parseFile(path);
         evaluateRelations(rowp, ast)
 
 
-    def evaluateRelations(rowp: RowWithHeadersEvaluator[reln], src: ChangeFile): Result[reln, System.Error] & Impure = 
+    def evaluateRelations(rowp: RowWithHeadersEvaluator[reln], src: EntityFile): Result[reln, System.Error] & Impure = 
         use Result.flatMap;
-        let ChangeFile(x1) = src;
+        let EntityFile(x1) = src;
         let Headers(arr) = x1.headers;
         let headers = makeHeaders(arr);
         let accumRow = (ac, x) -> 

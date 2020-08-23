@@ -1,9 +1,9 @@
 use System.Error.{Generic};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Parser.{parseFile};
-use AssetLib/S4/FileIO/ChangeFile/ExportCsv.{exportCsv};
-use AssetLib/S4/FileIO/ChangeFile/ExportDb.{exportDb};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile};
+use AssetLib/S4/FileIO/EntityFile/Parser.{parseFile};
+use AssetLib/S4/FileIO/EntityFile/ExportCsv.{exportCsv};
+use AssetLib/S4/FileIO/EntityFile/ExportDb.{exportDb};
 
 
 @test

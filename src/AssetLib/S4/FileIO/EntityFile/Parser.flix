@@ -24,32 +24,32 @@ use TextParser/Combinators.{ignore, many, manyTill};
 use TextParser/Text.{many1UpperCase, restOfLine, makePattern};
 use TextParser/Token1.{symbol, lexeme};
 
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.{ChangeFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.ChangeFile.{ChangeFile};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.FileType.{Download, Upload};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataModel.{U1};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.Selection.{Selection};
-use AssetLib/S4/FileIO/ChangeFile/Datatypes.DataRow.{DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.FileType.{Download, Upload};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataModel.{U1};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.Selection.{Selection};
+use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/ChangeFile/Parser {
+namespace AssetLib/S4/FileIO/EntityFile/Parser {
 
     /// Always UTF-8?
-    pub def parseFile(path: System.FilePath) : Result[ChangeFile, System.Error] & Impure = 
-        TextParser.parseFile(changeFileParser(), path, Text/Charset.utf_8())    
+    pub def parseFile(path: System.FilePath) : Result[EntityFile, System.Error] & Impure = 
+        TextParser.parseFile(entityFileParser(), path, Text/Charset.utf_8())    
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
 
-    pub def changeFileParser(): TextParser[ChangeFile, t] = 
+    pub def entityFileParser(): TextParser[EntityFile, t] = 
         use TextParser.flatMap;
         let* hdr = pHeader();
         let* sel = alt(pSelection(), pEmptySelection());        
         let* cols = pColumnHeaders();
         let* rows = manyTill(pDataRow(), endOfInput());
-        return(ChangeFile({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows }))
+        return(EntityFile({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows }))
 
 
 
