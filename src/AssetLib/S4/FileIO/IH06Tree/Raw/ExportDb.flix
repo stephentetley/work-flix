@@ -44,17 +44,17 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("Flocs..."));
-        let* n1     = exportFlocNodes(xs);
+        let* n1     = addFlocNodes(xs);
         let* _      = liftAction(_ -> Console.printLine(Int32.toString(n1)));
         let* _      = liftAction(_ -> Console.printLine("Equi..."));
-        let* n2     = exportEquiNodes(xs);
+        let* n2     = addEquiNodes(xs);
         let* _      = liftAction(_ -> Console.printLine(Int32.toString(n2)));
         let* _      = close();
         return()
 
 
     // FlocNodes
-    def exportFlocNodes(xs: List[IH06Tree]): SQLiteExport[Int32] =
+    pub def addFlocNodes(xs: List[IH06Tree]): SQLiteExport[Int32] =
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_node");
         let* _          = execute(sqlCreateFlocNode());
@@ -86,7 +86,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         return()
 
     // EquiNodes
-    def exportEquiNodes(xs: List[IH06Tree]): SQLiteExport[Int32] =
+    pub def addEquiNodes(xs: List[IH06Tree]): SQLiteExport[Int32] =
         use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_node");
         let* _          = execute(sqlCreateEquiNode());
