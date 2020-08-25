@@ -30,6 +30,7 @@ namespace ShapeShifter/Setup {
     type alias SetupParams = 
         { ih06File: FilePath 
         , flocDownloadFile: FilePath
+        , equiDownloadFile: FilePath
         }
 
     pub def outputDb(params: SetupParams, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
@@ -43,6 +44,8 @@ namespace ShapeShifter/Setup {
         let* _      = addIH06Data(params.ih06File);
         let* _      = liftAction(_ -> Console.printLine("Floc download..."));
         let* _      = addFlocDownloadData(params.flocDownloadFile);
+        let* _      = liftAction(_ -> Console.printLine("Equi download..."));
+        let* _      = addEquiDownloadData(params.equiDownloadFile);
         let* _      = close();
         return()
 
@@ -58,7 +61,7 @@ namespace ShapeShifter/Setup {
         return()
 
     /// Floc data from a "file download"
-    type alias FlocRow  = {funcloc: String, structureIndicator: String, objectType: String}
+    type alias FlocRow = {funcloc: String, structureIndicator: String, objectType: String}
 
     def addFlocDownloadData(src: FilePath): SQLiteExport[Unit] = 
         use FactIO/SQLiteExport.{flatMap, return, liftActionResult}; 
@@ -91,11 +94,11 @@ namespace ShapeShifter/Setup {
         return()
 
     def flocExportParams(): ExportParams[FlocRow] = 
-            { tableName = "floc_entity"
-            , createTableSql = sqlCreateTableFlocEntity()
-            , insertSql = "INSERT INTO floc_entity(funcloc, structure_indicator, object_type) VALUES(?,?,?)"
-            , writeRow = flocRowWriter
-            }
+        { tableName = "floc_entity"
+        , createTableSql = sqlCreateTableFlocEntity()
+        , insertSql = "INSERT INTO floc_entity(funcloc, structure_indicator, object_type) VALUES(?,?,?)"
+        , writeRow = flocRowWriter
+        }
 
 
     def sqlCreateTableFlocEntity(): String =
@@ -109,5 +112,66 @@ namespace ShapeShifter/Setup {
         )
 
 
+    /// Equi data from a "file download"
+    type alias EquiRow = {equiId: String, objectType: String, manufacturer: String, 
+                            serialNumber: String, technicalId: String}
+
+    def addEquiDownloadData(src: FilePath): SQLiteExport[Unit] = 
+        use FactIO/SQLiteExport.{flatMap, return, liftActionResult, liftAction}; 
+        use AssetLib/S4/FileIO/EntityFile/Parser.{parseFile};
+        use AssetLib/S4/FileIO/EntityFile/Evaluate.{toEntityData};
+        use AssetLib/S4/FileIO/EntityFile/ExportDb.{addEntityData};
+        let* _      = liftAction(_ -> Console.printLine("addEquiDownloadData1..."));
+        let* ast    = liftActionResult(_ -> parseFile(src));
+        let* _      = liftAction(_ -> Console.printLine("addEquiDownloadData2..."));
+        let* ans    = liftActionResult(_ -> toEntityData(equiHeaders(), evalEquiRow(), ast));
+        let* _      = liftAction(_ -> Console.printLine("addEquiDownloadData3..."));
+        let* _      = addEntityData(equiExportParams(), ans);
+        return()
+
+
+    def evalEquiRow(): RowWithHeadersEvaluator[EquiRow] = 
+        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
+        let* equi       = getString("EQUI");
+        let* objType    = getString("EQART_EQU");
+        let* manu       = getString("HERST");
+        let* serialNum  = getString("SERGE");
+        let* techId     = getString("TIDN_EEQZ");        
+        return({equiId = equi, objectType = objType, manufacturer = manu, 
+                serialNumber = serialNum, technicalId = techId})
+
+
+    def equiHeaders(): Array[String] & Impure = 
+        [ "equi_id", "object_type", "manufacturer", "serial_number", "technical_id" ]
+
+    /// A RowWriter for EquiRow
+    def equiRowWriter(x: EquiRow): SQLiteRowWriter[Unit] = 
+        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+        let* _ = putString!(0,  x.equiId);
+        let* _ = putString!(1,  x.objectType);
+        let* _ = putString!(2,  x.manufacturer);
+        let* _ = putString!(3,  x.serialNumber);
+        let* _ = putString!(4,  x.technicalId);
+        return()
+
+    def equiExportParams(): ExportParams[EquiRow] = 
+        { tableName = "equi_entity"
+        , createTableSql = sqlCreateTableEquiEntity()
+        , insertSql = "INSERT INTO equi_entity(equi_id, object_type, manufacturer, serial_number, technical_id) VALUES(?,?,?,?,?)"
+        , writeRow = equiRowWriter
+        }
+
+
+    def sqlCreateTableEquiEntity(): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS equi_entity ("
+                :: "equi_id                 TEXT    NOT NULL PRIMARY KEY,"
+                :: "object_type             TEXT    NOT NULL,"
+                :: "manufacturer            TEXT,"
+                :: "serial_number           TEXT,"
+                :: "technical_id            TEXT"
+                :: ")"
+                :: Nil
+        )
 
 }
