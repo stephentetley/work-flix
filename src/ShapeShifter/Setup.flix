@@ -61,7 +61,12 @@ namespace ShapeShifter/Setup {
         return()
 
     /// Floc data from a "file download"
-    type alias FlocRow = {funcloc: String, structureIndicator: String, objectType: String}
+    type alias FlocRow = 
+        { funcloc: String
+        , structureIndicator: String
+        , objectType: String
+        , objectStatus: String
+        }
 
     def addFlocDownloadData(src: FilePath): SQLiteExport[Unit] = 
         use FactIO/SQLiteExport.{flatMap, return, liftActionResult}; 
@@ -79,11 +84,12 @@ namespace ShapeShifter/Setup {
         let* floc       = getString("FUNCLOC");
         let* si         = getString("TPLKZ_FLC");    
         let* ot         = getString("EQART");
-        return({funcloc = floc, structureIndicator = si, objectType = ot})
+        let* os         = getString("USTW_FLOC");
+        return({funcloc = floc, structureIndicator = si, objectType = ot, objectStatus = os})
 
 
     def flocHeaders(): Array[String] & Impure = 
-        [ "funcloc", "structure_indicator", "object_type" ]
+        [ "funcloc", "structure_indicator", "object_type", "object_status" ]
 
     /// A RowWriter for FlocRow
     def flocRowWriter(x: FlocRow): SQLiteRowWriter[Unit] = 
@@ -91,12 +97,13 @@ namespace ShapeShifter/Setup {
         let* _ = putString!(0,  x.funcloc);
         let* _ = putString!(1,  x.structureIndicator);
         let* _ = putString!(2,  x.objectType);
+        let* _ = putString!(3,  x.objectStatus);
         return()
 
     def flocExportParams(): ExportParams[FlocRow] = 
         { tableName = "floc_entity"
         , createTableSql = sqlCreateTableFlocEntity()
-        , insertSql = "INSERT INTO floc_entity(funcloc, structure_indicator, object_type) VALUES(?,?,?)"
+        , insertSql = "INSERT INTO floc_entity(funcloc, structure_indicator, object_type, object_status) VALUES(?,?,?,?)"
         , writeRow = flocRowWriter
         }
 
@@ -106,15 +113,25 @@ namespace ShapeShifter/Setup {
             "CREATE TABLE IF NOT EXISTS floc_entity ("
                 :: "funcloc                 TEXT    NOT NULL PRIMARY KEY,"
                 :: "structure_indicator     TEXT    NOT NULL,"
-                :: "object_type             TEXT    NOT NULL"
+                :: "object_type             TEXT    NOT NULL,"
+                :: "object_status           TEXT    NOT NULL"
                 :: ")"
                 :: Nil
         )
 
 
     /// Equi data from a "file download"
-    type alias EquiRow = {equiId: String, objectType: String, manufacturer: String, 
-                            serialNumber: String, technicalId: String}
+    type alias EquiRow = 
+        { equiId: String
+        , objectType: String
+        , manufacturer: String
+        , serialNumber: String
+        , technicalId: String
+        , objectStatus: String
+        , modelNumber: String
+        , partNumber: String
+        , equiCategory: String
+        }
 
     def addEquiDownloadData(src: FilePath): SQLiteExport[Unit] = 
         use FactIO/SQLiteExport.{flatMap, return, liftActionResult, liftAction}; 
@@ -136,13 +153,18 @@ namespace ShapeShifter/Setup {
         let* objType    = getString("EQART_EQU");
         let* manu       = getString("HERST");
         let* serialNum  = getString("SERGE");
-        let* techId     = getString("TIDN_EEQZ");        
+        let* techId     = getString("TIDN_EEQZ");
+        let* objStatus  = getString("USTW_EQUI");
+        let* modelNum   = getString("TYPBZ");
+        let* partNum    = getString("MAPA_EEQZ");
+        let* equiCat    = getString("EQTYP");
         return({equiId = equi, objectType = objType, manufacturer = manu, 
-                serialNumber = serialNum, technicalId = techId})
+                serialNumber = serialNum, technicalId = techId, objectStatus = objStatus, 
+                modelNumber = modelNum, partNumber = partNum, equiCategory = equiCat})
 
 
     def equiHeaders(): Array[String] & Impure = 
-        [ "equi_id", "object_type", "manufacturer", "serial_number", "technical_id" ]
+        [ "equi_id", "object_type", "manufacturer", "serial_number", "technical_id", "object_status", "model_number", "part_number", "equi_category" ]
 
     /// A RowWriter for EquiRow
     def equiRowWriter(x: EquiRow): SQLiteRowWriter[Unit] = 
@@ -152,12 +174,17 @@ namespace ShapeShifter/Setup {
         let* _ = putString!(2,  x.manufacturer);
         let* _ = putString!(3,  x.serialNumber);
         let* _ = putString!(4,  x.technicalId);
+        let* _ = putString!(5,  x.objectStatus);
+        let* _ = putString!(6,  x.modelNumber);
+        let* _ = putString!(7,  x.partNumber);
+        let* _ = putString!(8,  x.equiCategory);
         return()
 
     def equiExportParams(): ExportParams[EquiRow] = 
         { tableName = "equi_entity"
         , createTableSql = sqlCreateTableEquiEntity()
-        , insertSql = "INSERT INTO equi_entity(equi_id, object_type, manufacturer, serial_number, technical_id) VALUES(?,?,?,?,?)"
+        , insertSql = { "INSERT INTO equi_entity(equi_id, object_type, manufacturer, serial_number, technical_id, object_status, model_number, part_number, equi_category)"
+                        + " VALUES(?,?,?,?,?,?,?,?,?)" }
         , writeRow = equiRowWriter
         }
 
@@ -169,7 +196,11 @@ namespace ShapeShifter/Setup {
                 :: "object_type             TEXT    NOT NULL,"
                 :: "manufacturer            TEXT,"
                 :: "serial_number           TEXT,"
-                :: "technical_id            TEXT"
+                :: "technical_id            TEXT,"
+                :: "object_status           TEXT,"
+                :: "model_number            TEXT,"
+                :: "part_number             TEXT,"
+                :: "equi_category           TEXT"
                 :: ")"
                 :: Nil
         )
