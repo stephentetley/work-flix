@@ -33,7 +33,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/Builder {
     def treesList(level: Int32, parent: String, parentCommonName: String, xs: List[AibRow], k: (List[AibTree], List[AibRow]) -> List[AibTree]): List[AibTree] = 
         match xs { 
             case r1 :: rest => {
-                if (String.isPrefixOf(parentCommonName, r1.commonName))
+                if (String.startsWith(r1.commonName, parentCommonName))
                     treesList(level + 1, r1.reference, r1.commonName, rest, (kids, rest1) -> {
                         let label = makeAibNode(level, parent, parentCommonName, r1);
                         let node = RoseTree(label, kids);

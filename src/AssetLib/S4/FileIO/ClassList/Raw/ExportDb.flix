@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-use FactIO.SQLiteExport;
-use FactIO.SQLiteWriteList;
-use FactIO.SQLiteRowWriter;
+use FactIO.JdbcExport;
+use FactIO.JdbcWriteList;
+use FactIO.JdbcRowWriter;
 
 use AssetLib/Common/Utils.{foldMapRel};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
@@ -55,11 +55,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         Ok(ans)
 
     pub def outputDb(src: ClassList, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
-        use FactIO/SQLiteExport.{runSQLiteExport};
+        use FactIO/JdbcExport.{runSQLiteExport};
         runSQLiteExport(writeOutput(src), outpath)
         
-    def writeOutput(src: ClassList): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
+    def writeOutput(src: ClassList): JdbcExport[Unit] =
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("ClassMembers"));
         let* _      = collectClassMembers(src) |> writeClassMembers;
@@ -81,7 +81,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     // Call solve to remove duplicates
     def collectClassMembers(src: ClassList): List[ClassMember1] =
         let cmp = (x,y) -> x.className == y.className && x.charName == y.charName;
-        List.flatMap(classMember1, src.classes) |> List.nubBy(cmp)
+        List.flatMap(classMember1, src.classes) |> List.distinctWith(cmp)
 
     // One-to-many
     def classMember1(src: Class): List[ClassMember1] =
@@ -92,7 +92,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     // Call solve to remove duplicates
     def collectCharacteristics(src: ClassList): List[Characteristic1] = 
         let cmp = (x,y) -> x.charName == y.charName && x.datatype == y.datatype;
-        List.flatMap(characteristics, src.classes) |> List.nubBy(cmp)
+        List.flatMap(characteristics, src.classes) |> List.distinctWith(cmp)
 
     // One-to-many
     def characteristics(src: Class): List[Characteristic1] =
@@ -165,8 +165,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Class Members
 
-    def writeClassMembers(rows: List[ClassMember1]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
+    def writeClassMembers(rows: List[ClassMember1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS class_members");
         let* _          = execute(sqlCreateClassMembers());
         let* stmt       = prepareStatement("INSERT INTO class_members(classname, charname) VALUES(?,?)");
@@ -177,8 +177,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
 
     /// A RowWriter for the body of a ClassMember
-    def classMemberRowWriter(x: ClassMember1): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def classMemberRowWriter(x: ClassMember1): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0, x.className);
         let* _ = putString!(1, x.charName);
         return()
@@ -186,8 +186,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Characteristics
 
-    def writeCharacteristics(rows: List[Characteristic1]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
+    def writeCharacteristics(rows: List[Characteristic1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS characteristics");
         let* _          = execute(sqlCreateCharacteristics());
         let* stmt       = prepareStatement("INSERT INTO characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)");
@@ -196,8 +196,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         return(nrows)
 
     /// A RowWriter for the body of a Characteristic
-    def characteristicRowWriter(x: Characteristic1): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!, putOptionInt32!};
+    def characteristicRowWriter(x: Characteristic1): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!, putOptionInt32!};
         let* _ = putString!(0, x.charName);
         let* _ = putString!(1, x.datatype);
         let* _ = putInt32!(2, x.charLength);
@@ -206,8 +206,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Int Ranges
 
-    def writeIntRanges(rows: List[IntRange1]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
+    def writeIntRanges(rows: List[IntRange1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS int_ranges");
         let* _          = execute(sqlCreateIntRanges());
         let* stmt       = prepareStatement("INSERT INTO int_ranges(charname, range_low, range_high) VALUES(?,?,?)");
@@ -216,8 +216,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         return(nrows)
 
     /// A RowWriter for IntRange
-    def intRangeRowWriter(x: IntRange1): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
+    def intRangeRowWriter(x: IntRange1): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!};
         let* _ = putString!(0, x.charName);
         let* _ = putInt32!(1, x.low);
         let* _ = putInt32!(2, x.high);
@@ -226,8 +226,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Decimal Ranges
 
-    def writeDecimalRanges(rows: List[DecimalRange1]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
+    def writeDecimalRanges(rows: List[DecimalRange1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS decimal_ranges");
         let* _          = execute(sqlCreateDecimalRanges());
         let* stmt       = prepareStatement("INSERT INTO decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)");
@@ -237,8 +237,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     
     /// A RowWriter for DecimalRange1
-    def decimalRangeRowWriter(x: DecimalRange1): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putFloat64!};
+    def decimalRangeRowWriter(x: DecimalRange1): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putFloat64!};
         let* _ = putString!(0, x.charName);
         let* _ = putFloat64!(1, x.low);
         let* _ = putFloat64!(2, x.high);
@@ -246,8 +246,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Selection Values
 
-    def writeSelectionValues(rows: List[SelectionValue1]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
+    def writeSelectionValues(rows: List[SelectionValue1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS selection_values");
         let* _          = execute(sqlCreateSelectionValues());
         let* stmt       = prepareStatement("INSERT INTO selection_values(charname, value) VALUES(?,?)");
@@ -257,8 +257,8 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
 
     /// A RowWriter for SelectionValue1
-    def selectionValueRowWriter(x: SelectionValue1): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def selectionValueRowWriter(x: SelectionValue1): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0, x.charName);
         let* _ = putString!(1, x.value);
         return()
