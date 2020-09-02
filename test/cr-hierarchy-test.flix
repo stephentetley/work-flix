@@ -15,9 +15,9 @@ use AssetLib/S4/Hierarchy/BuildHierarchy.{Label};
 def loadDB[r](): Result[#{ Node | r }, System.Error] & Impure =
     use Result.flatMap;
     use AssetLib/S4/Hierarchy/HierarchyLoader.{loadEqui, loadFloc};
-    let* r1 = loadEqui(System/FilePath.new("G:/work/Projects/assets/capital_schemes/otl07/wat43_equi_file_download.txt"));
-    let* r2 = loadFloc(System/FilePath.new("G:/work/Projects/assets/capital_schemes/otl07/wat43_floc_FLOC_REF_file_download.txt"));
-    let* r3 = loadFloc(System/FilePath.new("G:/work/Projects/assets/capital_schemes/otl07/wat43_floc_FUNCLOC_file_download.txt"));
+    let* r1 = loadEqui(System/FilePath.new("G:/work/assets/capital_schemes/otl07/wat43_equi_file_download.txt"));
+    let* r2 = loadFloc(System/FilePath.new("G:/work/assets/capital_schemes/otl07/wat43_floc_FLOC_REF_file_download.txt"));
+    let* r3 = loadFloc(System/FilePath.new("G:/work/assets/capital_schemes/otl07/wat43_floc_FUNCLOC_file_download.txt"));
     Ok(r1 <+> r2 <+> r3)
     
 

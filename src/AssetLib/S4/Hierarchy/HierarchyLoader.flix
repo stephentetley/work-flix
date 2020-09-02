@@ -15,9 +15,9 @@
  */
 
 use System.Error.{IllegalArgumentException, Generic};
-use TextParser.RowWithHeadersParser;
+use Data/RowReader.RowWithHeadersEvaluator;
 
-use AssetLib/S4/FileIO/ChangeFile/Evaluate.{importRows};
+use AssetLib/S4/FileIO/EntityFile/Evaluate.{importRows};
 use AssetLib/S4/Hierarchy/Relations.{Node};
 
 namespace AssetLib/S4/Hierarchy/HierarchyLoader {
@@ -25,8 +25,8 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
     pub def loadEqui[r](path: System.FilePath): Result[#{ Node | r }, System.Error] & Impure =        
         importRows(equiRowParser(), path)   
 
-    def equiRowParser[r](): RowWithHeadersParser[#{ Node | r }] = 
-        use TextParser/RowWithHeadersParser.{flatMap, return, getString};
+    def equiRowParser[r](): RowWithHeadersEvaluator[#{ Node | r }] = 
+        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
         let* id         = getString("EQUI");
         let* desc       = getString("TXTMI");
         let* parent1    = getString("HEQU_EEQZ");
@@ -38,8 +38,8 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
     pub def loadFloc[r](path: System.FilePath): Result[#{ Node | r }, System.Error] & Impure =
         importRows(flocRowParser(), path)  
     
-    def flocRowParser[r](): RowWithHeadersParser[#{ Node | r }] = 
-        use TextParser/RowWithHeadersParser.{flatMap, return, getString};
+    def flocRowParser[r](): RowWithHeadersEvaluator[#{ Node | r }] = 
+        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
         let* id1        = getString("FUNCLOC");
         let* id2        = getString("FLOC_REF");
         let id          = if (String.isMatch("\$\d+", id1)) id2 else id1;

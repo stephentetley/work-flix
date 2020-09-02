@@ -51,13 +51,13 @@ namespace AssetLib/S4/FileIO/EntityFile/Evaluate {
 
 
     /// Import rows of a ChangeFile
-    pub def importRows(rowp: RowWithHeadersEvaluator[reln], path: System.FilePath): Result[reln, System.Error] & Impure = 
+    pub def importRows(rowp: RowWithHeadersEvaluator[#{| reln}], path: System.FilePath): Result[#{| reln}, System.Error] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/S4/FileIO/EntityFile/Parser.parseFile(path);
         evaluateRelations(rowp, ast)
 
 
-    def evaluateRelations(rowp: RowWithHeadersEvaluator[reln], src: EntityFile): Result[reln, System.Error] & Impure = 
+    def evaluateRelations(rowp: RowWithHeadersEvaluator[#{| reln}], src: EntityFile): Result[#{| reln}, System.Error] & Impure = 
         use Result.flatMap;
         let EntityFile(x1) = src;
         let Headers(arr) = x1.headers;
