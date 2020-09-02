@@ -8,20 +8,20 @@ use AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb.{exportDb};
     
 
 def csvDest(): CsvOutputPaths = 
-    { flocOutpath = System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_ih06_flocs.csv")
-    , equiOutpath = System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_ih06_equis.csv")
+    { flocOutpath = System/FilePath.new("G:/work/assets/capital_schemes/wethe_ih06_flocs.csv")
+    , equiOutpath = System/FilePath.new("G:/work/assets/capital_schemes/wethe_ih06_equis.csv")
     }
 
 @test
 def main(): Result[Unit, System.Error] & Impure =
     use Result.flatMap;
-    let src = System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn-ih06.txt");
-    let htmldest = System/FilePath.new("E:/coding/work/work-flix/output/eastn_ih06_tree.html");
+    let src = System/FilePath.new("G:/work/assets/capital_schemes/wethe_wetherby_wwtw_ih06.txt");
+    let htmldest = System/FilePath.new("E:/coding/work/work-flix/output/wethe_wetherby_wwtw_ih06.html");
     let* _      = exportCsv(src, csvDest());    
     let* ast    = parseFile(src);
     let trees   = buildIH06Trees(ast);
     let* _      = writeHtmlForest(htmldest, allTrees(trees));
-    let* _      = exportDb(src, System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_ih06.sqlite"));
+    // let* _      = exportDb(src, System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_ih06.sqlite"));
     Ok()
 
 

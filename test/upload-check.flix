@@ -21,9 +21,9 @@ def runCharacteristicInClassCheck(db: #{ClassMember}, row: EqClassification): Bo
 def main(): Unit & Impure = 
     use Result.{flatMap};
     let step = () -> {
-        let dbPath      = System/FilePath.new("G:/work/Projects/assets/facts/equi_characteristics.sqlite");
+        let dbPath      = System/FilePath.new("G:/work/assets/facts/equi_characteristics.sqlite");
         let* db         = loadCharacteristicsDb(dbPath);
-        let uxlSrc      = System/FilePath.new("G:/work/Projects/assets/uxl/eq_characteristics.csv");
+        let uxlSrc      = System/FilePath.new("G:/work/assets/uxl/eq_characteristics.csv");
         let* rows       = AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc);
         let db1         = project ClassMember db;
         let _           = Console.printLine("Running...");

@@ -1,7 +1,7 @@
 use System.Error.{Generic};
 
 use Data/RowReader.RowWithHeadersEvaluator;
-use FactIO.SQLiteRowWriter;
+use FactIO.JdbcRowWriter;
 
 use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile};
 use AssetLib/S4/FileIO/EntityFile/Parser.{parseFile};
@@ -18,8 +18,8 @@ def main(): Result[Unit, System.Error] & Impure =
 
 def csv01(): Result[Unit, System.Error] & Impure = 
     use Result.{flatMap};
-    let src     = System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_floc_download.txt");
-    let dest    = System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_floc_download_export.csv");
+    let src     = System/FilePath.new("G:/work/assets/capital_schemes/eastn/eastn_floc_download.txt");
+    let dest    = System/FilePath.new("G:/work/assets/capital_schemes/eastn/eastn_floc_download_export.csv");
     let* ast    = parseFile(src) |> Result.flatMap(toEntityData1);
     let* _      = exportCsv(writeDataRow, ast, dest);
     Ok()
@@ -30,8 +30,8 @@ type alias EquiRow  = {equiId: String, objectType: String, manufacturer: String,
 
 def sqlite01(): Result[Unit, System.Error] & Impure = 
     use Result.{flatMap};
-    let src     = System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_floc_download.txt");
-    let dest    = System/FilePath.new("G:/work/Projects/assets/capital_schemes/eastn/eastn_entities.sqlite");
+    let src     = System/FilePath.new("G:/work/assets/capital_schemes/eastn/eastn_floc_download.txt");
+    let dest    = System/FilePath.new("G:/work/assets/capital_schemes/eastn/eastn_entities.sqlite");
     let* ast    = parseFile(src) |> Result.flatMap(toEntityData(flocHeaders(), evalFlocRow()));
     let* _      = exportDb(flocExportParams(), ast, dest);
     Ok()
@@ -48,8 +48,8 @@ def flocHeaders(): Array[String] & Impure =
     [ "funcloc", "structure_indicator", "object_type" ]
 
 /// A RowWriter for FlocRow
-def flocRowWriter(x: FlocRow): SQLiteRowWriter[Unit] = 
-    use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+def flocRowWriter(x: FlocRow): JdbcRowWriter[Unit] = 
+    use FactIO/JdbcRowWriter.{flatMap, return, putString!};
     let* _ = putString!(0,  x.funcloc);
     let* _ = putString!(1,  x.structureIndicator);
     let* _ = putString!(2,  x.objectType);

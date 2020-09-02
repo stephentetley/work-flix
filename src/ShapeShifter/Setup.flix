@@ -18,14 +18,14 @@ use Data/RowReader.RowWithHeadersEvaluator;
 use System.FilePath;
 
 
-use FactIO.SQLiteExport;
-use FactIO.SQLiteRowWriter;
+use FactIO.JdbcExport;
+use FactIO.JdbcRowWriter;
 
 use AssetLib/S4/FileIO/EntityFile/ExportDb.{ExportParams};
 
 namespace ShapeShifter/Setup {
 
-    /// Preferable to have each step as a SQLiteExport action then we can share a db handle.
+    /// Preferable to have each step as a JdbcExport action then we can share a db handle.
 
     type alias SetupParams = 
         { ih06File: FilePath 
@@ -34,11 +34,11 @@ namespace ShapeShifter/Setup {
         }
 
     pub def outputDb(params: SetupParams, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
-        use FactIO/SQLiteExport.{runSQLiteExport};
+        use FactIO/JdbcExport.{runSQLiteExport};
         runSQLiteExport(writeOutput(params), outpath)
         
-    def writeOutput(params: SetupParams): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
+    def writeOutput(params: SetupParams): JdbcExport[Unit] =
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("IH06..."));
         let* _      = addIH06Data(params.ih06File);
@@ -49,8 +49,8 @@ namespace ShapeShifter/Setup {
         let* _      = close();
         return()
 
-    def addIH06Data(src: FilePath): SQLiteExport[Unit] = 
-        use FactIO/SQLiteExport.{flatMap, return, liftActionResult}; 
+    def addIH06Data(src: FilePath): JdbcExport[Unit] = 
+        use FactIO/JdbcExport.{flatMap, return, liftActionResult}; 
         use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
         use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
         use AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb.{addFlocNodes, addEquiNodes};
@@ -68,8 +68,8 @@ namespace ShapeShifter/Setup {
         , objectStatus: String
         }
 
-    def addFlocDownloadData(src: FilePath): SQLiteExport[Unit] = 
-        use FactIO/SQLiteExport.{flatMap, return, liftActionResult}; 
+    def addFlocDownloadData(src: FilePath): JdbcExport[Unit] = 
+        use FactIO/JdbcExport.{flatMap, return, liftActionResult}; 
         use AssetLib/S4/FileIO/EntityFile/Parser.{parseFile};
         use AssetLib/S4/FileIO/EntityFile/Evaluate.{toEntityData};
         use AssetLib/S4/FileIO/EntityFile/ExportDb.{addEntityData};
@@ -92,8 +92,8 @@ namespace ShapeShifter/Setup {
         [ "funcloc", "structure_indicator", "object_type", "object_status" ]
 
     /// A RowWriter for FlocRow
-    def flocRowWriter(x: FlocRow): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def flocRowWriter(x: FlocRow): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0,  x.funcloc);
         let* _ = putString!(1,  x.structureIndicator);
         let* _ = putString!(2,  x.objectType);
@@ -133,8 +133,8 @@ namespace ShapeShifter/Setup {
         , equiCategory: String
         }
 
-    def addEquiDownloadData(src: FilePath): SQLiteExport[Unit] = 
-        use FactIO/SQLiteExport.{flatMap, return, liftActionResult, liftAction}; 
+    def addEquiDownloadData(src: FilePath): JdbcExport[Unit] = 
+        use FactIO/JdbcExport.{flatMap, return, liftActionResult, liftAction}; 
         use AssetLib/S4/FileIO/EntityFile/Parser.{parseFile};
         use AssetLib/S4/FileIO/EntityFile/Evaluate.{toEntityData};
         use AssetLib/S4/FileIO/EntityFile/ExportDb.{addEntityData};
@@ -167,8 +167,8 @@ namespace ShapeShifter/Setup {
         [ "equi_id", "object_type", "manufacturer", "serial_number", "technical_id", "object_status", "model_number", "part_number", "equi_category" ]
 
     /// A RowWriter for EquiRow
-    def equiRowWriter(x: EquiRow): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def equiRowWriter(x: EquiRow): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0,  x.equiId);
         let* _ = putString!(1,  x.objectType);
         let* _ = putString!(2,  x.manufacturer);

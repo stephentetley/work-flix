@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-use FactIO.SQLiteExport;
-use FactIO.SQLiteRowWriter;
-use FactIO/SQLiteExport.{PreparedStatement};
+use FactIO.JdbcExport;
+use FactIO.JdbcRowWriter;
+use FactIO/JdbcExport.{PreparedStatement};
 
 use AssetLib/Common/Utils.{foldMapRel};
 use AssetLib/S4/FileIO/ZTable/Raw/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
@@ -27,11 +27,11 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
 
     pub def outputDb(srcPaths: DbPaths, outPath: System.FilePath): Result[Unit, System.Error] & Impure =         
-        use FactIO/SQLiteExport.{runSQLiteExport};
+        use FactIO/JdbcExport.{runSQLiteExport};
         runSQLiteExport(writeOutput(srcPaths), outPath)
         
-    def writeOutput(srcPaths: DbPaths): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftActionResult};
+    def writeOutput(srcPaths: DbPaths): JdbcExport[Unit] =
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftActionResult};
         use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
         let* _      = setAutoCommit(false);
         let* rs1    = liftActionResult(_ -> loadEqobjl(srcPaths.pathOfEqobjl));
@@ -47,8 +47,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         let* _      = close();
         return()
 
-    def writeTable(name: String, operation: SQLiteExport[Int32]): SQLiteExport[Unit] = 
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
+    def writeTable(name: String, operation: JdbcExport[Int32]): JdbcExport[Unit] = 
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine(name));
         let* nrows  = operation;
@@ -56,8 +56,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         return()
 
     // Eqobjl
-    def exportEqobjl(rows: List[Eqobjl]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportEqobjl(rows: List[Eqobjl]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS eqobjl");
         let* _          = execute(sqlCreateEqobjl());
         let* stmt       = prepareStatement("INSERT INTO eqobjl(super_object, sub_object, category) VALUES(?,?,?)");
@@ -68,8 +68,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
 
     /// A RowWriter for Eqobjl
-    def eqobjlRowWriter(src: Eqobjl): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def eqobjlRowWriter(src: Eqobjl): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0, src.superObject);
         let* _ = putString!(1, src.subObject);
         let* _ = putString!(2, src.category);
@@ -79,8 +79,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Flocdes
 
-    def exportFlocdes(rows: List[Flocdes]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportFlocdes(rows: List[Flocdes]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS flocdes");
         let* _          = execute(sqlCreateFlocdes());
         let* stmt       = prepareStatement("INSERT INTO flocdes(object_type, description) VALUES(?,?)");
@@ -91,8 +91,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
 
     /// A RowWriter for Flocdes
-    def flocdesRowWriter(src: Flocdes): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def flocdesRowWriter(src: Flocdes): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0, src.objectType);
         let* _ = putString!(1, src.description);
         return()
@@ -100,8 +100,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Floobjl
 
-    def exportFloobjl(rows: List[Floobjl]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportFloobjl(rows: List[Floobjl]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS floobj");
         let* _          = execute(sqlCreateFloobjl());
         let* stmt       = prepareStatement("INSERT INTO floobj(structure, super_object, sub_object) VALUES(?,?,?)");
@@ -112,8 +112,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
 
     /// A RowWriter for Floobjl
-    def floobjlRowWriter(src: Floobjl): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def floobjlRowWriter(src: Floobjl): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0, src.structure);
         let* _ = putString!(1, src.superObject);
         let* _ = putString!(2, src.subObject);
@@ -121,8 +121,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
     // Manuf
 
-    def exportManuf(rows: List[Manuf]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportManuf(rows: List[Manuf]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS manuf");
         let* _          = execute(sqlCreateManuf());
         let* stmt       = prepareStatement("INSERT INTO manuf(manufacturer, model) VALUES(?,?)");
@@ -133,16 +133,16 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
 
     /// A RowWriter for Manuf
-    def manufRowWriter(src: Manuf): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def manufRowWriter(src: Manuf): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0, src.manufacturer);
         let* _ = putString!(1, src.model);
         return()
 
     // Obj
 
-    def exportObj(rows: List[Obj]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportObj(rows: List[Obj]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
         let* _          = execute("DROP TABLE IF EXISTS obj");
         let* _          = execute(sqlCreateObj());
         let* stmt       = prepareStatement("INSERT INTO obj(object_type, manufacturer) VALUES(?,?)");
@@ -153,8 +153,8 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
 
 
     /// A RowWriter for Obj
-    def objRowWriter(src: Obj): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!};
+    def objRowWriter(src: Obj): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
         let* _ = putString!(0, src.objectType);
         let* _ = putString!(1, src.manufacturer);
         return()

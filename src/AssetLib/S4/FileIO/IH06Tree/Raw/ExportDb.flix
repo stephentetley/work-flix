@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-use FactIO.SQLiteExport;
-use FactIO.SQLiteWriteList;
-use FactIO.SQLiteRowWriter;
-use FactIO/SQLiteExport.{PreparedStatement};
+use FactIO.JdbcExport;
+use FactIO.JdbcWriteList;
+use FactIO.JdbcRowWriter;
+use FactIO/JdbcExport.{PreparedStatement};
 
 use Data.RoseTree.{RoseTree};
 
@@ -37,11 +37,11 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
 
 
     pub def outputDb(xs: List[IH06Tree], outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
-        use FactIO/SQLiteExport.{runSQLiteExport};
+        use FactIO/JdbcExport.{runSQLiteExport};
         runSQLiteExport(writeOutput(xs), outpath)
         
-    def writeOutput(xs: List[IH06Tree]): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, close, liftAction};
+    def writeOutput(xs: List[IH06Tree]): JdbcExport[Unit] =
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("Flocs..."));
         let* n1     = addFlocNodes(xs);
@@ -54,8 +54,8 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
 
 
     // FlocNodes
-    pub def addFlocNodes(xs: List[IH06Tree]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, commit};
+    pub def addFlocNodes(xs: List[IH06Tree]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS floc_node");
         let* _          = execute(sqlCreateFlocNode());
         let* stmt       = prepareStatement("INSERT INTO floc_node(floc, level, description, parent) VALUES(?,?,?,?)");
@@ -63,22 +63,22 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         let* _          = commit();
         return(nrows)
 
-    def emitIH06Flocs(stmt: PreparedStatement, src: IH06Tree): SQLiteExport[Int32] = 
-        use FactIO/SQLiteExport.{flatMap, return, mapAccumX};
+    def emitIH06Flocs(stmt: PreparedStatement, src: IH06Tree): JdbcExport[Int32] = 
+        use FactIO/JdbcExport.{flatMap, return, mapAccumX};
         let RoseTree(label, kids) = src;
         let* n = emitFlocNode(stmt, label);
         mapAccumX((ac,x) -> {let* i = emitIH06Flocs(stmt, x); return(ac+i)}, n, kids)
 
-    def emitFlocNode(stmt: PreparedStatement, src: IH06Node): SQLiteExport[Int32] = 
-        use FactIO/SQLiteExport.{return, writeRow};
+    def emitFlocNode(stmt: PreparedStatement, src: IH06Node): JdbcExport[Int32] = 
+        use FactIO/JdbcExport.{return, writeRow};
         match src { 
             case FlocNode(r) => writeRow(stmt, flocNodeRowWriter(r))
             case _           => return(0)
         }
 
      /// A RowWriter for FlocNode
-    def flocNodeRowWriter(x: FlocNode): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
+    def flocNodeRowWriter(x: FlocNode): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!};
         let* _ = putString!(0,  x.floc);
         let* _ = putInt32!(1,   x.level);
         let* _ = putString!(2,  x.description);
@@ -86,8 +86,8 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         return()
 
     // EquiNodes
-    pub def addEquiNodes(xs: List[IH06Tree]): SQLiteExport[Int32] =
-        use FactIO/SQLiteExport.{flatMap, return, execute, foldM, prepareStatement, commit};
+    pub def addEquiNodes(xs: List[IH06Tree]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS equi_node");
         let* _          = execute(sqlCreateEquiNode());
         let* stmt       = prepareStatement("INSERT INTO equi_node(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
@@ -96,22 +96,22 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         return(nrows)
 
 
-    def emitIH06Equis(stmt: PreparedStatement, src: IH06Tree): SQLiteExport[Int32] = 
-        use FactIO/SQLiteExport.{flatMap, return, mapAccumX};
+    def emitIH06Equis(stmt: PreparedStatement, src: IH06Tree): JdbcExport[Int32] = 
+        use FactIO/JdbcExport.{flatMap, return, mapAccumX};
         let RoseTree(label, kids) = src;
         let* n = emitEquiNode(stmt, label);
         mapAccumX((ac,x) -> {let* i = emitIH06Equis(stmt, x); return(ac+i)}, n, kids)
 
-    def emitEquiNode(stmt: PreparedStatement,src: IH06Node): SQLiteExport[Int32] = 
-        use FactIO/SQLiteExport.{return, writeRow};
+    def emitEquiNode(stmt: PreparedStatement,src: IH06Node): JdbcExport[Int32] = 
+        use FactIO/JdbcExport.{return, writeRow};
         match src { 
             case EquiNode(r) => writeRow(stmt, equiNodeRowWriter(r))
             case _           => return(0)
         }
 
     /// A RowWriter for EquiNode
-    def equiNodeRowWriter(x: EquiNode): SQLiteRowWriter[Unit] = 
-        use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
+    def equiNodeRowWriter(x: EquiNode): JdbcRowWriter[Unit] = 
+        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!};
         let* _ = putString!(0,  x.equiId);
         let* _ = putInt32!(1,   x.level);
         let* _ = putString!(2,  x.description);

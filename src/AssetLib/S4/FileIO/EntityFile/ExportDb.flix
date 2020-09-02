@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-use FactIO.SQLiteExport;
-use FactIO.SQLiteRowWriter;
+use FactIO.JdbcExport;
+use FactIO.JdbcRowWriter;
 
 use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData, Headers};
 use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
@@ -29,26 +29,26 @@ namespace AssetLib/S4/FileIO/EntityFile/ExportDb {
         { tableName: String
         , createTableSql: String
         , insertSql: String
-        , writeRow: row -> SQLiteRowWriter[Unit]
+        , writeRow: row -> JdbcRowWriter[Unit]
         }
 
 
 
 
     pub def exportDb(params: ExportParams[r], x: EntityData[r], outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
-        use FactIO/SQLiteExport.{runSQLiteExport};
+        use FactIO/JdbcExport.{runSQLiteExport};
         runSQLiteExport(writeOutput(params, x), outpath)
         
-    def writeOutput(params: ExportParams[r], x: EntityData[r]): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, execute, prepareStatement, mapRowWriterX, commit, close, liftAction};
+    def writeOutput(params: ExportParams[r], x: EntityData[r]): JdbcExport[Unit] =
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, execute, prepareStatement, mapRowWriterX, commit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine(params.tableName + "..."));
         let* _      = addEntityData(params, x);
         let* _      = close();
         return()
 
-    pub def addEntityData(params: ExportParams[r], x: EntityData[r]): SQLiteExport[Unit] =
-        use FactIO/SQLiteExport.{flatMap, return, setAutoCommit, execute, prepareStatement, mapRowWriterX, commit, close, liftAction};
+    pub def addEntityData(params: ExportParams[r], x: EntityData[r]): JdbcExport[Unit] =
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, execute, prepareStatement, mapRowWriterX, commit, close, liftAction};
         let EntityData(x1) = x;
         let* _      = execute("DROP TABLE IF EXISTS " + params.tableName);
         let* _      = execute(params.createTableSql);
