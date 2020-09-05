@@ -24,7 +24,21 @@ use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
 namespace AssetLib/S4/FileIO/IH06Tree/Raw/Builder {
     
     /// TODO - this does not work if the source is not a "root"...
-    pub def buildIH06Trees(src: IH06File): List[IH06Tree] = treesList("", src.rows, (xs, _) -> xs)
+    pub def buildIH06Trees(src: IH06File): List[IH06Tree] = match src.rows { 
+        case r1 :: _ => { 
+            let parent = Option.getWithDefault(getParentId(r1), "");
+            treesList(parent, src.rows, (xs, _) -> xs)
+        }
+        case Nil => Nil
+
+    }
+        
+
+
+    def getParentId(row: IH06Row): Option[String] = match row {
+        case FlocRow(r1) => Some(r1.parent)
+        case _           => None
+    }
 
     def makeFlocNode(row: FlocRow): IH06Node = 
         let level = getLevel(row.floc);
