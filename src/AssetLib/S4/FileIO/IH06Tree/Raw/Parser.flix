@@ -29,8 +29,12 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/Parser {
 
 
     /// Always UTF-8? No need to handle utf8+BOM...
-    pub def parseFile(path: System.FilePath) : Result[IH06File, System.Error] & Impure = 
-        TextParser.parseFile(ih06FileParser(), path, Text/Charset.utf_8()) 
+    pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, System.Error] & Impure = 
+        TextParser.parseFile(ih06FileParser(), path, cs) 
+
+    pub def parseFileWithBOM(path: System.FilePath, cs: Text.Charset) : Result[IH06File, System.Error] & Impure = 
+        TextParser.parseFileWithBOM(ih06FileParser(), path, cs) 
+
 
     pub def ih06FileParser(): TextParser[IH06File, t] = 
         use TextParser.flatMap;

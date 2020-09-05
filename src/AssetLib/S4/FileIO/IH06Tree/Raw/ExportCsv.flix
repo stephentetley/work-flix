@@ -22,7 +22,7 @@ use FactIO.CsvRowWriter;
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
+use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile, parseFileWithBOM};
 
 namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
 
@@ -32,9 +32,9 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
         , equiOutpath: System.FilePath
         }
 
-    pub def exportCsv(sourceFile: System.FilePath, outPaths: CsvOutputPaths): Result[Unit, System.Error] & Impure = 
+    pub def exportCsv(sourceFile: System.FilePath, cs: Text.Charset, hasBOM: Bool, outPaths: CsvOutputPaths): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
-        let* ast    = parseFile(sourceFile);
+        let* ast    = if (hasBOM) parseFileWithBOM(sourceFile, cs) else parseFile(sourceFile, cs);
         let ans     = buildIH06Trees(ast);
         let* _      = exportFlocCsv(ans, outPaths.flocOutpath);        
         let* _      = exportEquiCsv(ans, outPaths.equiOutpath);

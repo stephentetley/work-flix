@@ -28,9 +28,9 @@ use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
 
 namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb { 
 
-    pub def exportDb(sourceFile: System.FilePath, outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
+    pub def exportDb(sourceFile: System.FilePath, cs: Text.Charset, outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
-        let* ast    = parseFile(sourceFile);
+        let* ast    = parseFile(sourceFile, cs);
         let ans     = buildIH06Trees(ast);
         let* _      = outputDb(ans, outpath);        
         Ok()

@@ -23,13 +23,20 @@ use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
 
 namespace AssetLib/S4/FileIO/IH06Tree/Raw/Builder {
     
-    pub def buildIH06Trees(src: IH06File): List[IH06Tree] = treesList(1, "", src.rows, (xs, _) -> xs)
+    /// TODO - this does not work if the source is not a "root"...
+    pub def buildIH06Trees(src: IH06File): List[IH06Tree] = treesList("", src.rows, (xs, _) -> xs)
 
-    def makeFlocNode(level: Int32, row: FlocRow): IH06Node = 
+    def makeFlocNode(row: FlocRow): IH06Node = 
+        let level = getLevel(row.floc);
         FlocNode({ +level = level | row })
     
-    def makeEquiNode(level: Int32, row: EquiRow): IH06Node = 
+    def makeEquiNode(row: EquiRow): IH06Node = 
+        let level = getLevel(row.floc);
         EquiNode({ +level = level | row })
+
+    def getLevel(floc: String): Int32 = 
+        use AssetLib/S4/Base/Floc.{new, level};
+        level(new(floc))
 
 
     def isChildNodeFloc(parentId: String, parentPointer: String): Bool = 
@@ -45,24 +52,24 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/Builder {
     /// In CPS ...
     /// This is preorder builder with unlimited depth and each row is either Floc or Equi.
     /// We have to check links in the data whether to go up or down.
-    def treesList(level: Int32, parentId: String, xs: List[IH06Row], k: (List[IH06Tree], List[IH06Row]) -> List[IH06Tree]): List[IH06Tree] =
+    def treesList(parentId: String, xs: List[IH06Row], k: (List[IH06Tree], List[IH06Row]) -> List[IH06Tree]): List[IH06Tree] =
         match xs { 
             case FlocRow(r1) :: rest => {
                 if (isChildNodeFloc(parentId, r1.parent))
-                    treesList(level + 1, r1.floc, rest, (kids, rest1) -> {
-                        let label = makeFlocNode(level, r1);
+                    treesList(r1.floc, rest, (kids, rest1) -> {
+                        let label = makeFlocNode(r1);
                         let node = RoseTree(label, kids);
-                        treesList(level, parentId, rest1, (siblings, rest2) -> k(node :: siblings, rest2))
+                        treesList(parentId, rest1, (siblings, rest2) -> k(node :: siblings, rest2))
                     })
                 else
                     k(Nil, xs)
             }
             case EquiRow(r1) :: rest => {
                 if (isChildNodeEqui(parentId, r1.floc, r1.superordinate))
-                    treesList(level + 1, r1.equiId, rest, (kids, rest1) -> {
-                        let label = makeEquiNode(level, r1);
+                    treesList(r1.equiId, rest, (kids, rest1) -> {
+                        let label = makeEquiNode(r1);
                         let node = RoseTree(label, kids);
-                        treesList(level, parentId, rest1, (siblings, rest2) -> k(node :: siblings, rest2))
+                        treesList(parentId, rest1, (siblings, rest2) -> k(node :: siblings, rest2))
                     })
                 else
                     k(Nil, xs)
