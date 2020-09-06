@@ -8,8 +8,8 @@ use AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb.{exportDb};
     
 
 def csvDest(): CsvOutputPaths = 
-    { flocOutpath = System/FilePath.new("G:/work/assets/capital_schemes/sto18_ih06_flocs.csv")
-    , equiOutpath = System/FilePath.new("G:/work/assets/capital_schemes/sto18_ih06_equis.csv")
+    { flocOutpath = System/FilePath.new("G:/work/assets/capital_schemes/ih06-lob02-e-hv_flocs.csv")
+    , equiOutpath = System/FilePath.new("G:/work/assets/capital_schemes/ih06-lob02-e-hv_equis.csv")
     }
 
 // def temp(): Result[Unit, System.Error] & Impure = 
@@ -19,12 +19,12 @@ def csvDest(): CsvOutputPaths =
 //     let _       = Console.printLine("@@@" + String.take(10, str));
 //     Ok()
 
-
+// ih06-lob02-e-hv.txt is not rooted...
 
 def main(): Result[Unit, System.Error] & Impure =
     use Result.flatMap;
-    let src         = System/FilePath.new("G:/work/assets/capital_schemes/sto18_ih06.txt");
-    let htmldest    = System/FilePath.new("E:/coding/work/work-flix/output/sto18_ih06.html");
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/ih06-lob02-e-hv.txt");
+    let htmldest    = System/FilePath.new("E:/coding/work/work-flix/output/ih06-lob02-e-hv.html");
     let* _          = exportCsv(src, Text/Charset.utf_8(), true, csvDest());    
     let* ast        = parseFileWithBOM(src, Text/Charset.utf_8());
     let _           = Console.printLine("Count: " + Int32.toString(List.length(ast.rows))); 
