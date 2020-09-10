@@ -19,10 +19,10 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-namespace UploadCheck/SqlCheckers/CharInClassCheck {
+namespace UploadCheck/SqlCheckers/EquiCharInClassCheck {
 
 
-    pub def charInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
+    pub def equiCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
         let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM class_members WHERE classname = ? AND charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPStmt!(charname, classname));

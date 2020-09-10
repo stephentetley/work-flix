@@ -21,17 +21,17 @@ use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
 
-namespace UploadCheck/SqlCheckers/IntRangeCheck {
+namespace UploadCheck/SqlCheckers/EquiIntRangeCheck {
 
 
-    pub def intRangeCheck(charname: String, value: String): DbMonad[Bool] = 
+    pub def equiIntRangeCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return};
         match Int32.fromString(value) {
-            case Ok(x) => intRangeCheck1(charname, x)
+            case Ok(x) => intRangeCheck(charname, x)
             case Err(_) => return(true)
         }
 
-    def intRangeCheck1(charname: String, value: Int32): DbMonad[Bool] = 
+    def intRangeCheck(charname: String, value: Int32): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
         let* pstmt  = prepareStatement("SELECT range_low, range_high FROM int_ranges WHERE charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPStmt!(charname));

@@ -18,10 +18,10 @@ use BasicDb.DbMonad;
 use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 
-namespace UploadCheck/SqlCheckers/SelectionValueCheck {
+namespace UploadCheck/SqlCheckers/EquiSelectionValueCheck {
 
 
-    pub def selectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
+    pub def equiSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};
         let* a1 = isRestricted(charname);
         if (a1) isRestrictedValue(charname, value) else return(true) 

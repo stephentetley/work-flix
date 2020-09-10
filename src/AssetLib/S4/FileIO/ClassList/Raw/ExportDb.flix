@@ -25,6 +25,10 @@ use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRang
 use AssetLib/S4/FileIO/ClassList/Raw/Parser.{parseFile};
 use AssetLib/S4/FileIO/ClassList/Raw/Builder.{buildClassList};
 
+// See this to avoid duplication:
+// https://stackoverflow.com/questions/19337029/insert-if-not-exists-statement-in-sqlite/19343100#19343100
+
+
 
 namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb { 
 
@@ -54,23 +58,23 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let ans     = buildClassList(ast);
         Ok(ans)
 
-    pub def outputDb(src: ClassList, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
+    pub def outputDb(prefix: String, src: ClassList, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
         use FactIO/JdbcExport.{runSQLiteExport};
-        runSQLiteExport(writeOutput(src), outpath)
+        runSQLiteExport(writeOutput(prefix, src), outpath)
         
-    def writeOutput(src: ClassList): JdbcExport[Unit] =
+    def writeOutput(prefix: String, src: ClassList): JdbcExport[Unit] =
         use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("ClassMembers"));
-        let* _      = collectClassMembers(src) |> writeClassMembers;
+        let* _      = collectClassMembers(src) |> writeClassMembers(prefix);
         let* _      = liftAction(_ -> Console.printLine("Characteristics"));
-        let* _      = collectCharacteristics(src) |> writeCharacteristics;
+        let* _      = collectCharacteristics(src) |> writeCharacteristics(prefix);
         let* _      = liftAction(_ -> Console.printLine("IntRanges"));
-        let* _      = collectIntRanges(src) |> writeIntRanges;
+        let* _      = collectIntRanges(src) |> writeIntRanges(prefix);
         let* _      = liftAction(_ -> Console.printLine("DecimalRanges"));
-        let* _      = collectDecimalRanges(src) |> writeDecimalRanges;
+        let* _      = collectDecimalRanges(src) |> writeDecimalRanges(prefix);
         let* _      = liftAction(_ -> Console.printLine("SelectionValues"));
-        let* _      = collectSelectionValues(src) |> writeSelectionValues;
+        let* _      = collectSelectionValues(src) |> writeSelectionValues(prefix);
         let* _      = close();
         return()
 
@@ -165,11 +169,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Class Members
 
-    def writeClassMembers(rows: List[ClassMember1]): JdbcExport[Int32] =
+    def writeClassMembers(prefix: String, rows: List[ClassMember1]): JdbcExport[Int32] =
         use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS class_members");
-        let* _          = execute(sqlCreateClassMembers());
-        let* stmt       = prepareStatement("INSERT INTO class_members(classname, charname) VALUES(?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_class_members");
+        let* _          = execute(sqlCreateClassMembers(prefix));
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_class_members(classname, charname) VALUES(?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, classMemberRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -186,11 +190,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Characteristics
 
-    def writeCharacteristics(rows: List[Characteristic1]): JdbcExport[Int32] =
+    def writeCharacteristics(prefix: String, rows: List[Characteristic1]): JdbcExport[Int32] =
         use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS characteristics");
-        let* _          = execute(sqlCreateCharacteristics());
-        let* stmt       = prepareStatement("INSERT INTO characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_characteristics");
+        let* _          = execute(sqlCreateCharacteristics(prefix));
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, characteristicRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -206,11 +210,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Int Ranges
 
-    def writeIntRanges(rows: List[IntRange1]): JdbcExport[Int32] =
+    def writeIntRanges(prefix: String, rows: List[IntRange1]): JdbcExport[Int32] =
         use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS int_ranges");
-        let* _          = execute(sqlCreateIntRanges());
-        let* stmt       = prepareStatement("INSERT INTO int_ranges(charname, range_low, range_high) VALUES(?,?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_int_ranges");
+        let* _          = execute(sqlCreateIntRanges(prefix));
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_int_ranges(charname, range_low, range_high) VALUES(?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, intRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -226,11 +230,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Decimal Ranges
 
-    def writeDecimalRanges(rows: List[DecimalRange1]): JdbcExport[Int32] =
+    def writeDecimalRanges(prefix: String, rows: List[DecimalRange1]): JdbcExport[Int32] =
         use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS decimal_ranges");
-        let* _          = execute(sqlCreateDecimalRanges());
-        let* stmt       = prepareStatement("INSERT INTO decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_decimal_ranges");
+        let* _          = execute(sqlCreateDecimalRanges(prefix));
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, decimalRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -246,11 +250,11 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Selection Values
 
-    def writeSelectionValues(rows: List[SelectionValue1]): JdbcExport[Int32] =
+    def writeSelectionValues(prefix: String, rows: List[SelectionValue1]): JdbcExport[Int32] =
         use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS selection_values");
-        let* _          = execute(sqlCreateSelectionValues());
-        let* stmt       = prepareStatement("INSERT INTO selection_values(charname, value) VALUES(?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_selection_values");
+        let* _          = execute(sqlCreateSelectionValues(prefix));
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_selection_values(charname, value) VALUES(?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, selectionValueRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -267,18 +271,19 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // SQL DDL
 
-    def sqlCreateClassMembers(): String =
+    def sqlCreateClassMembers(prefix: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS class_members ("
+            "CREATE TABLE IF NOT EXISTS ${prefix}_class_members ("
                 :: "classname       TEXT NOT NULL,"
-                :: "charname        TEXT NOT NULL"
+                :: "charname        TEXT NOT NULL,"
+                :: "UNIQUE(charname, classname)"
                 :: ")"
                 :: Nil
         )
 
-    def sqlCreateCharacteristics(): String =
+    def sqlCreateCharacteristics(prefix: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS characteristics ("
+            "CREATE TABLE IF NOT EXISTS ${prefix}_characteristics ("
                 :: "charname       TEXT    PRIMARY KEY NOT NULL UNIQUE,"
                 :: "datatype       TEXT    NOT NULL,"
                 :: "num_chars      INTEGER NOT NULL,"
@@ -288,32 +293,36 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         )
 
 
-    def sqlCreateIntRanges(): String =
+    def sqlCreateIntRanges(prefix: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS int_ranges ("
+            "CREATE TABLE IF NOT EXISTS ${prefix}_int_ranges ("
                 :: "charname   TEXT    NOT NULL,"
                 :: "range_low  INTEGER NOT NULL,"
-                :: "range_high INTEGER NOT NULL"
+                :: "range_high INTEGER NOT NULL,"
+                :: "UNIQUE(charname, range_low, range_high)"
                 :: ")"
                 :: Nil
         )
 
-    def sqlCreateDecimalRanges(): String =
+    def sqlCreateDecimalRanges(prefix: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS decimal_ranges ("
+            "CREATE TABLE IF NOT EXISTS ${prefix}_decimal_ranges ("
                 :: "charname   TEXT    NOT NULL,"
                 :: "range_low  DECIMAL NOT NULL,"
-                :: "range_high DECIMAL NOT NULL"
+                :: "range_high DECIMAL NOT NULL,"
+                :: "UNIQUE(charname, range_low, range_hi)"
                 :: ")"
                 :: Nil
         )
 
-    def sqlCreateSelectionValues(): String =
+    def sqlCreateSelectionValues(prefix: String): String =
         String.unwords(
-            "CREATE TABLE selection_values ("
+            "CREATE TABLE ${prefix}_selection_values ("
                 :: "charname TEXT NOT NULL,"
-                :: "value    TEXT NOT NULL"
+                :: "value    TEXT NOT NULL,"
+                :: "UNIQUE(charname, value)"
                 :: ")"
                 :: Nil
         )
+
 } 

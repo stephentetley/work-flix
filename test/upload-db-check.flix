@@ -6,17 +6,17 @@ use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult,
         createStatement, prepareStatement, executeQuery, psExecuteQuery, allRowsX, rsClose, mapX};
 
 use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
-use UploadCheck/SqlCheckers/CharInClassCheck.{charInClassCheck};
-use UploadCheck/SqlCheckers/IntRangeCheck.{intRangeCheck};
-use UploadCheck/SqlCheckers/SelectionValueCheck.{selectionValueCheck};
+use UploadCheck/SqlCheckers/EquiCharInClassCheck.{equiCharInClassCheck};
+use UploadCheck/SqlCheckers/EquiIntRangeCheck.{equiIntRangeCheck};
+use UploadCheck/SqlCheckers/EquiSelectionValueCheck.{equiSelectionValueCheck};
 
 def check1(row: EqClassification): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* a1     = charInClassCheck(row.characteristicName, row.className);
+    let* a1     = equiCharInClassCheck(row.characteristicName, row.className);
     let* _      = liftAction(_ -> if (a1) Console.print("ok") else Console.print("check failed"));
-    let* a2     = intRangeCheck(row.characteristicName, row.charValue);
+    let* a2     = equiIntRangeCheck(row.characteristicName, row.charValue);
     let* _      = liftAction(_ -> if (a2) Console.print(", ok") else Console.print(", check failed"));
-    let* a3     = selectionValueCheck(row.characteristicName, row.charValue);
+    let* a3     = equiSelectionValueCheck(row.characteristicName, row.charValue);
     let* _      = liftAction(_ -> if (a3) Console.printLine(", ok") else Console.printLine(", check failed"));
     return()
 
