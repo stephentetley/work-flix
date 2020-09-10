@@ -25,9 +25,6 @@ use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRang
 use AssetLib/S4/FileIO/ClassList/Raw/Parser.{parseFile};
 use AssetLib/S4/FileIO/ClassList/Raw/Builder.{buildClassList};
 
-// See this to avoid duplication:
-// https://stackoverflow.com/questions/19337029/insert-if-not-exists-statement-in-sqlite/19343100#19343100
-
 
 
 namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb { 
@@ -44,27 +41,23 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     type alias SelectionValue1 = {charName: String, value: String}
 
-    pub def parseFlocClassList(path: System.FilePath, cs: Text.Charset): Result[ClassList, System.Error] & Impure = 
-        use Result.{flatMap};
+    pub def parseFlocClassList(path: System.FilePath, cs: Text.Charset): JdbcExport[ClassList] = 
+        use FactIO/JdbcExport.{flatMap, return, liftActionResult};
         use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{FlocClasses};
-        let* ast    = parseFile(path, FlocClasses, cs);
+        let* ast    = liftActionResult(_ -> parseFile(path, FlocClasses, cs));
         let ans     = buildClassList(ast);
-        Ok(ans)
+        return(ans)
 
-    pub def parseEquiClassList(path: System.FilePath, cs: Text.Charset): Result[ClassList, System.Error]  & Impure = 
-        use Result.{flatMap};
+    pub def parseEquiClassList(path: System.FilePath, cs: Text.Charset): JdbcExport[ClassList] = 
+        use FactIO/JdbcExport.{flatMap, return, liftActionResult};
         use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{EquiClasses};
-        let* ast    = parseFile(path, EquiClasses, cs);
+        let* ast    = liftActionResult(_ -> parseFile(path, EquiClasses, cs));
         let ans     = buildClassList(ast);
-        Ok(ans)
-
-    pub def outputDb(prefix: String, src: ClassList, outpath: System.FilePath): Result[Unit, System.Error] & Impure =         
-        use FactIO/JdbcExport.{runSQLiteExport};
-        runSQLiteExport(writeOutput(prefix, src), outpath)
+        return(ans)
         
-    def writeOutput(prefix: String, src: ClassList): JdbcExport[Unit] =
-        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
-        let* _      = setAutoCommit(false);
+    pub def outputTables(prefix: String, src: ClassList): JdbcExport[Unit] =
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommitOff, close, liftAction};
+        let* _      = setAutoCommitOff();
         let* _      = liftAction(_ -> Console.printLine("ClassMembers"));
         let* _      = collectClassMembers(src) |> writeClassMembers(prefix);
         let* _      = liftAction(_ -> Console.printLine("Characteristics"));
@@ -74,8 +67,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let* _      = liftAction(_ -> Console.printLine("DecimalRanges"));
         let* _      = collectDecimalRanges(src) |> writeDecimalRanges(prefix);
         let* _      = liftAction(_ -> Console.printLine("SelectionValues"));
-        let* _      = collectSelectionValues(src) |> writeSelectionValues(prefix);
-        let* _      = close();
+        let* _      = collectSelectionValues(src) |> writeSelectionValues(prefix);        
         return()
 
 
@@ -310,7 +302,7 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
                 :: "charname   TEXT    NOT NULL,"
                 :: "range_low  DECIMAL NOT NULL,"
                 :: "range_high DECIMAL NOT NULL,"
-                :: "UNIQUE(charname, range_low, range_hi)"
+                :: "UNIQUE(charname, range_low, range_high)"
                 :: ")"
                 :: Nil
         )
