@@ -19,7 +19,7 @@ use System.FilePath;
 
 
 use FactIO.JdbcExport;
-use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowSetter;
 
 use AssetLib/S4/FileIO/EntityFile/ExportDb.{ExportParams};
 
@@ -29,6 +29,7 @@ namespace ShapeShifter/Setup {
 
     type alias SetupParams = 
         { ih06File: FilePath 
+        , hasBOM: Bool
         , flocDownloadFile: FilePath
         , equiDownloadFile: FilePath
         }
@@ -41,7 +42,7 @@ namespace ShapeShifter/Setup {
         use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("IH06..."));
-        let* _      = addIH06Data(params.ih06File);
+        let* _      = addIH06Data(params.ih06File, params.hasBOM);
         let* _      = liftAction(_ -> Console.printLine("Floc download..."));
         let* _      = addFlocDownloadData(params.flocDownloadFile);
         let* _      = liftAction(_ -> Console.printLine("Equi download..."));
@@ -49,12 +50,12 @@ namespace ShapeShifter/Setup {
         let* _      = close();
         return()
 
-    def addIH06Data(src: FilePath): JdbcExport[Unit] = 
+    def addIH06Data(src: FilePath, hasBOM: Bool): JdbcExport[Unit] = 
         use FactIO/JdbcExport.{flatMap, return, liftActionResult}; 
         use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
-        use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
+        use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFileWithBOM, parseFile};
         use AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb.{addFlocNodes, addEquiNodes};
-        let* ast    = liftActionResult(_ -> parseFile(src));
+        let* ast    = liftActionResult(_ -> if (hasBOM) parseFileWithBOM(src, Text/Charset.utf_8()) else parseFile(src, Text/Charset.utf_8()));
         let ans     = buildIH06Trees(ast);
         let* _      = addFlocNodes(ans);
         let* _      = addEquiNodes(ans);
@@ -91,9 +92,9 @@ namespace ShapeShifter/Setup {
     def flocHeaders(): Array[String] & Impure = 
         [ "funcloc", "structure_indicator", "object_type", "object_status" ]
 
-    /// A RowWriter for FlocRow
-    def flocRowWriter(x: FlocRow): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for FlocRow
+    def flocRowSetter(x: FlocRow): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0,  x.funcloc);
         let* _ = putString!(1,  x.structureIndicator);
         let* _ = putString!(2,  x.objectType);
@@ -104,7 +105,7 @@ namespace ShapeShifter/Setup {
         { tableName = "floc_entity"
         , createTableSql = sqlCreateTableFlocEntity()
         , insertSql = "INSERT INTO floc_entity(funcloc, structure_indicator, object_type, object_status) VALUES(?,?,?,?)"
-        , writeRow = flocRowWriter
+        , writeRow = flocRowSetter
         }
 
 
@@ -166,9 +167,9 @@ namespace ShapeShifter/Setup {
     def equiHeaders(): Array[String] & Impure = 
         [ "equi_id", "object_type", "manufacturer", "serial_number", "technical_id", "object_status", "model_number", "part_number", "equi_category" ]
 
-    /// A RowWriter for EquiRow
-    def equiRowWriter(x: EquiRow): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for EquiRow
+    def equiRowSetter(x: EquiRow): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0,  x.equiId);
         let* _ = putString!(1,  x.objectType);
         let* _ = putString!(2,  x.manufacturer);
@@ -185,7 +186,7 @@ namespace ShapeShifter/Setup {
         , createTableSql = sqlCreateTableEquiEntity()
         , insertSql = { "INSERT INTO equi_entity(equi_id, object_type, manufacturer, serial_number, technical_id, object_status, model_number, part_number, equi_category)"
                         + " VALUES(?,?,?,?,?,?,?,?,?)" }
-        , writeRow = equiRowWriter
+        , writeRow = equiRowSetter
         }
 
 

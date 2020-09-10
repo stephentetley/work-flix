@@ -16,7 +16,7 @@
 
 use FactIO.JdbcExport;
 use FactIO.JdbcWriteList;
-use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowSetter;
 use FactIO/JdbcExport.{PreparedStatement};
 
 use Data.RoseTree.{RoseTree};
@@ -77,8 +77,8 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         }
 
      /// A RowWriter for FlocNode
-    def flocNodeRowWriter(x: FlocNode): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!};
+    def flocNodeRowWriter(x: FlocNode): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!};
         let* _ = putString!(0,  x.floc);
         let* _ = putInt32!(1,   x.level);
         let* _ = putString!(2,  x.description);
@@ -110,8 +110,8 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         }
 
     /// A RowWriter for EquiNode
-    def equiNodeRowWriter(x: EquiNode): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!};
+    def equiNodeRowWriter(x: EquiNode): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!};
         let* _ = putString!(0,  x.equiId);
         let* _ = putInt32!(1,   x.level);
         let* _ = putString!(2,  x.description);

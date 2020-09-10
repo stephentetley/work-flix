@@ -15,7 +15,7 @@
  */
 
 use FactIO.JdbcExport;
-use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowSetter;
 use FactIO/JdbcExport.{PreparedStatement};
 
 use AssetLib/Common/Utils.{foldMapRel};
@@ -61,15 +61,15 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS eqobjl");
         let* _          = execute(sqlCreateEqobjl());
         let* stmt       = prepareStatement("INSERT INTO eqobjl(super_object, sub_object, category) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, eqobjlRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, eqobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
-    /// A RowWriter for Eqobjl
-    def eqobjlRowWriter(src: Eqobjl): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for Eqobjl
+    def eqobjlRowSetter(src: Eqobjl): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0, src.superObject);
         let* _ = putString!(1, src.subObject);
         let* _ = putString!(2, src.category);
@@ -84,15 +84,15 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS flocdes");
         let* _          = execute(sqlCreateFlocdes());
         let* stmt       = prepareStatement("INSERT INTO flocdes(object_type, description) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, flocdesRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, flocdesRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
-    /// A RowWriter for Flocdes
-    def flocdesRowWriter(src: Flocdes): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for Flocdes
+    def flocdesRowSetter(src: Flocdes): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0, src.objectType);
         let* _ = putString!(1, src.description);
         return()
@@ -105,15 +105,15 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS floobj");
         let* _          = execute(sqlCreateFloobjl());
         let* stmt       = prepareStatement("INSERT INTO floobj(structure, super_object, sub_object) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, floobjlRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, floobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
-    /// A RowWriter for Floobjl
-    def floobjlRowWriter(src: Floobjl): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for Floobjl
+    def floobjlRowSetter(src: Floobjl): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0, src.structure);
         let* _ = putString!(1, src.superObject);
         let* _ = putString!(2, src.subObject);
@@ -126,15 +126,15 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS manuf");
         let* _          = execute(sqlCreateManuf());
         let* stmt       = prepareStatement("INSERT INTO manuf(manufacturer, model) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, manufRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, manufRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
-    /// A RowWriter for Manuf
-    def manufRowWriter(src: Manuf): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for Manuf
+    def manufRowSetter(src: Manuf): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0, src.manufacturer);
         let* _ = putString!(1, src.model);
         return()
@@ -146,15 +146,15 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS obj");
         let* _          = execute(sqlCreateObj());
         let* stmt       = prepareStatement("INSERT INTO obj(object_type, manufacturer) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, objRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, objRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
-    /// A RowWriter for Obj
-    def objRowWriter(src: Obj): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for Obj
+    def objRowSetter(src: Obj): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0, src.objectType);
         let* _ = putString!(1, src.manufacturer);
         return()

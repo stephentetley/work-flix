@@ -15,7 +15,7 @@
  */
 
 use FactIO.JdbcExport;
-use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowSetter;
 
 use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData, Headers};
 use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
@@ -29,7 +29,7 @@ namespace AssetLib/S4/FileIO/EntityFile/ExportDb {
         { tableName: String
         , createTableSql: String
         , insertSql: String
-        , writeRow: row -> JdbcRowWriter[Unit]
+        , writeRow: row -> JdbcRowSetter[Unit]
         }
 
 
@@ -40,7 +40,7 @@ namespace AssetLib/S4/FileIO/EntityFile/ExportDb {
         runSQLiteExport(writeOutput(params, x), outpath)
         
     def writeOutput(params: ExportParams[r], x: EntityData[r]): JdbcExport[Unit] =
-        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, execute, prepareStatement, mapRowWriterX, commit, close, liftAction};
+        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine(params.tableName + "..."));
         let* _      = addEntityData(params, x);
@@ -48,12 +48,12 @@ namespace AssetLib/S4/FileIO/EntityFile/ExportDb {
         return()
 
     pub def addEntityData(params: ExportParams[r], x: EntityData[r]): JdbcExport[Unit] =
-        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, execute, prepareStatement, mapRowWriterX, commit, close, liftAction};
+        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, mapRowSetterX, commit};
         let EntityData(x1) = x;
         let* _      = execute("DROP TABLE IF EXISTS " + params.tableName);
         let* _      = execute(params.createTableSql);
         let* stmt   = prepareStatement(params.insertSql);
-        let* _      = mapRowWriterX(stmt, params.writeRow, x1.dataRows);
+        let* _      = mapRowSetterX(stmt, params.writeRow, x1.dataRows);
         let* _      = commit();
         return()
 

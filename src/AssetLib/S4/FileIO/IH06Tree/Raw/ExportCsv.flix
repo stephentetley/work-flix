@@ -17,7 +17,7 @@
 use Data.RoseTree.{RoseTree};
 
 use FactIO.CsvExport;
-use FactIO.CsvRowWriter;
+use FactIO.CsvRowSetter;
 
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node};
 use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
@@ -57,7 +57,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
         traverseX(emitIH06Flocs, kids)
 
     def emitFlocNode(src: IH06Node): CsvExport[Unit] = 
-        use FactIO/CsvRowWriter.{flatMap, return, putInt32!, putString!};
+        use FactIO/CsvRowSetter.{flatMap, return, putInt32!, putString!};
         match src { 
             case FlocNode(r) => {
                 let proc = { 
@@ -89,7 +89,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
         traverseX(emitIH06Equis, kids)
 
     def emitEquiNode(src: IH06Node): CsvExport[Unit] = 
-        use FactIO/CsvRowWriter.{flatMap, return, putInt32!, putString!};
+        use FactIO/CsvRowSetter.{flatMap, return, putInt32!, putString!};
         match src { 
             case EquiNode(r) => { 
                 let proc = {

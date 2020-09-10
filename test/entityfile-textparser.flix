@@ -1,7 +1,7 @@
 use System.Error.{Generic};
 
 use Data/RowReader.RowWithHeadersEvaluator;
-use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowSetter;
 
 use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile};
 use AssetLib/S4/FileIO/EntityFile/Parser.{parseFile};
@@ -47,9 +47,9 @@ def evalFlocRow(): RowWithHeadersEvaluator[FlocRow] =
 def flocHeaders(): Array[String] & Impure = 
     [ "funcloc", "structure_indicator", "object_type" ]
 
-/// A RowWriter for FlocRow
-def flocRowWriter(x: FlocRow): JdbcRowWriter[Unit] = 
-    use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+/// A RowSetter for FlocRow
+def flocRowSetter(x: FlocRow): JdbcRowSetter[Unit] = 
+    use FactIO/JdbcRowSetter.{flatMap, return, putString!};
     let* _ = putString!(0,  x.funcloc);
     let* _ = putString!(1,  x.structureIndicator);
     let* _ = putString!(2,  x.objectType);
@@ -59,7 +59,7 @@ def flocExportParams(): ExportParams[FlocRow] =
         { tableName = "floc_entity"
         , createTableSql = sqlCreateTableFlocEntity()
         , insertSql = "INSERT INTO floc_entity(funcloc, structure_indicator, object_type) VALUES(?,?,?)"
-        , writeRow = flocRowWriter
+        , writeRow = flocRowSetter
         }
 
 

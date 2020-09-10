@@ -16,7 +16,7 @@
 
 use FactIO.JdbcExport;
 use FactIO.JdbcWriteList;
-use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowSetter;
 
 use AssetLib/Common/Utils.{foldMapRel};
 use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
@@ -170,15 +170,15 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS class_members");
         let* _          = execute(sqlCreateClassMembers());
         let* stmt       = prepareStatement("INSERT INTO class_members(classname, charname) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, classMemberRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, classMemberRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
-    /// A RowWriter for the body of a ClassMember
-    def classMemberRowWriter(x: ClassMember1): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for the body of a ClassMember
+    def classMemberRowSetter(x: ClassMember1): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0, x.className);
         let* _ = putString!(1, x.charName);
         return()
@@ -191,13 +191,13 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS characteristics");
         let* _          = execute(sqlCreateCharacteristics());
         let* stmt       = prepareStatement("INSERT INTO characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, characteristicRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, characteristicRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
-    /// A RowWriter for the body of a Characteristic
-    def characteristicRowWriter(x: Characteristic1): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!, putOptionInt32!};
+    /// A RowSetter for the body of a Characteristic
+    def characteristicRowSetter(x: Characteristic1): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!, putOptionInt32!};
         let* _ = putString!(0, x.charName);
         let* _ = putString!(1, x.datatype);
         let* _ = putInt32!(2, x.charLength);
@@ -211,13 +211,13 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS int_ranges");
         let* _          = execute(sqlCreateIntRanges());
         let* stmt       = prepareStatement("INSERT INTO int_ranges(charname, range_low, range_high) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, intRangeRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, intRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
-    /// A RowWriter for IntRange
-    def intRangeRowWriter(x: IntRange1): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!};
+    /// A RowSetter for IntRange
+    def intRangeRowSetter(x: IntRange1): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!};
         let* _ = putString!(0, x.charName);
         let* _ = putInt32!(1, x.low);
         let* _ = putInt32!(2, x.high);
@@ -231,14 +231,14 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS decimal_ranges");
         let* _          = execute(sqlCreateDecimalRanges());
         let* stmt       = prepareStatement("INSERT INTO decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, decimalRangeRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, decimalRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
     
-    /// A RowWriter for DecimalRange1
-    def decimalRangeRowWriter(x: DecimalRange1): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!, putFloat64!};
+    /// A RowSetter for DecimalRange1
+    def decimalRangeRowSetter(x: DecimalRange1): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putFloat64!};
         let* _ = putString!(0, x.charName);
         let* _ = putFloat64!(1, x.low);
         let* _ = putFloat64!(2, x.high);
@@ -251,14 +251,14 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let* _          = execute("DROP TABLE IF EXISTS selection_values");
         let* _          = execute(sqlCreateSelectionValues());
         let* stmt       = prepareStatement("INSERT INTO selection_values(charname, value) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, selectionValueRowWriter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, selectionValueRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
-    /// A RowWriter for SelectionValue1
-    def selectionValueRowWriter(x: SelectionValue1): JdbcRowWriter[Unit] = 
-        use FactIO/JdbcRowWriter.{flatMap, return, putString!};
+    /// A RowSetter for SelectionValue1
+    def selectionValueRowSetter(x: SelectionValue1): JdbcRowSetter[Unit] = 
+        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
         let* _ = putString!(0, x.charName);
         let* _ = putString!(1, x.value);
         return()

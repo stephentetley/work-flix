@@ -17,7 +17,7 @@
 use Data.RoseTree.{RoseTree};
 
 use FactIO.CsvExport;
-use FactIO.CsvRowWriter;
+use FactIO.CsvRowSetter;
 
 use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTree, AibNode};
 
@@ -43,8 +43,8 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/CsvExport {
         let* _ = writeRow(emitAibNode(label));
         traverseX(writeAibTree, kids)
 
-    def emitAibNode(src: AibNode): CsvRowWriter[Unit] = 
-        use FactIO/CsvRowWriter.{flatMap, return, putString!, putInt32!};
+    def emitAibNode(src: AibNode): CsvRowSetter[Unit] = 
+        use FactIO/CsvRowSetter.{flatMap, return, putString!, putInt32!};
         let* _ = putInt32!(0, src.level); 
         let* _ = putString!(1, src.reference); 
         let* _ = putString!(2, src.shortName);
