@@ -28,7 +28,7 @@ namespace UploadCheck/SqlCheckers/EquiSelectionValueCheck {
 
     def isRestricted(charname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM selection_values WHERE charname = ?;");
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM equi_selection_values WHERE charname = ?;");
         let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putString!(0,  charname));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
         let* _      = rsClose(rs);
@@ -37,7 +37,7 @@ namespace UploadCheck/SqlCheckers/EquiSelectionValueCheck {
 
     def isRestrictedValue(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM selection_values WHERE charname = ? AND value = ?;");
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM equi_selection_values WHERE charname = ? AND value = ?;");
         let* rs     = psExecuteQuery(pstmt, restrictedValueSetter(charname, value));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
         let* _      = rsClose(rs);

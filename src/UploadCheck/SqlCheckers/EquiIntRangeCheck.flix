@@ -33,7 +33,7 @@ namespace UploadCheck/SqlCheckers/EquiIntRangeCheck {
 
     def intRangeCheck(charname: String, value: Int32): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM int_ranges WHERE charname = ?");
+        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM equi_int_ranges WHERE charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPStmt!(charname));
         let* orng   = optional(firstRow(rs, evalRow()));
         let* _      = rsClose(rs);

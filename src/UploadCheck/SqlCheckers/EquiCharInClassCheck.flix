@@ -24,13 +24,13 @@ namespace UploadCheck/SqlCheckers/EquiCharInClassCheck {
 
     pub def equiCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM class_members WHERE classname = ? AND charname = ?");
-        let* rs     = psExecuteQuery(pstmt, setPStmt!(charname, classname));
+        let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM equi_class_members WHERE classname = ? AND charname = ?");
+        let* rs     = psExecuteQuery(pstmt, setPrepStmt!(charname, classname));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
         let* _      = rsClose(rs);
         return(n > 0)
 
-    def setPStmt!(charname: String, classname: String): PreparedStatementSetter[Unit] = 
+    def setPrepStmt!(charname: String, classname: String): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, putString!, putInt32!};
         let* _ = putString!(0,  classname);
         let* _ = putString!(1,  charname);

@@ -30,7 +30,7 @@ def test01(): DbMonad[Unit] =
     
 
 def main(): Unit & Impure = 
-    match runSQLite(test01(), System/FilePath.new("G:/work/assets/facts/equi_characteristics.sqlite")) {
+    match runSQLite(test01(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok() => Console.printLine("Finished...")
     }
