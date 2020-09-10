@@ -7,13 +7,15 @@ use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult,
 
 use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
 use UploadCheck/SqlCheckers/CharInClassCheck.{charInClassCheck};
-
+use UploadCheck/SqlCheckers/IntRangeCheck.{intRangeCheck};
 
 
 def check1(row: EqClassification): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* ans    = charInClassCheck(row.characteristicName, row.className);
-    let* _      = liftAction(_ -> if (ans) Console.printLine("ok") else Console.printLine("check failed"));
+    let* a1     = charInClassCheck(row.characteristicName, row.className);
+    let* _      = liftAction(_ -> if (a1) Console.print("ok") else Console.print("check failed"));
+    let* a2     = intRangeCheck(row.characteristicName, row.charValue);
+    let* _      = liftAction(_ -> if (a2) Console.printLine(", ok") else Console.printLine(", check failed"));
     return()
 
 def test01(): DbMonad[Unit] = 

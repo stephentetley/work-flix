@@ -15,11 +15,9 @@
  */
 
 use BasicDb.DbMonad;
-use BasicDb/DbMonad.{runSQLite, createStatement, prepareStatement, executeQuery, psExecuteQuery, firstRow, rsClose};
+use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
-
-use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember};
 
 namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
