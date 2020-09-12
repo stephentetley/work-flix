@@ -21,19 +21,26 @@ use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
 
-namespace UploadCheck/SqlCheckers/EquiIntRangeCheck {
+namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
+
+    pub def flocIntRangeCheck(charname: String, value: String): DbMonad[Bool] = 
+        use BasicDb/DbMonad.{return};
+        match Int32.fromString(value) {
+            case Ok(x) => intRangeCheck("floc", charname, x)
+            case Err(_) => return(true)
+        }
 
     pub def equiIntRangeCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return};
         match Int32.fromString(value) {
-            case Ok(x) => intRangeCheck(charname, x)
+            case Ok(x) => intRangeCheck("equi", charname, x)
             case Err(_) => return(true)
         }
 
-    def intRangeCheck(charname: String, value: Int32): DbMonad[Bool] = 
+    def intRangeCheck(prefix: String, charname: String, value: Int32): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM equi_int_ranges WHERE charname = ?");
+        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM ${prefix}_int_ranges WHERE charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPStmt!(charname));
         let* orng   = optional(firstRow(rs, evalRow()));
         let* _      = rsClose(rs);

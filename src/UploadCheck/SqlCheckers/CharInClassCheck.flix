@@ -19,12 +19,18 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-namespace UploadCheck/SqlCheckers/EquiCharInClassCheck {
+namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
 
     pub def equiCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
+        charInClassCheck("equi", charname, classname)
+
+    pub def flocCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
+        charInClassCheck("floc", charname, classname)
+
+    def charInClassCheck(prefix: String, charname: String, classname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM equi_class_members WHERE classname = ? AND charname = ?");
+        let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM ${prefix}_class_members WHERE classname = ? AND charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPrepStmt!(charname, classname));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
         let* _      = rsClose(rs);

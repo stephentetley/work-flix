@@ -6,9 +6,9 @@ use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult,
         createStatement, prepareStatement, executeQuery, psExecuteQuery, allRowsX, rsClose, mapX};
 
 use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
-use UploadCheck/SqlCheckers/EquiCharInClassCheck.{equiCharInClassCheck};
-use UploadCheck/SqlCheckers/EquiIntRangeCheck.{equiIntRangeCheck};
-use UploadCheck/SqlCheckers/EquiSelectionValueCheck.{equiSelectionValueCheck};
+use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClassCheck};
+use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRangeCheck};
+use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValueCheck};
 
 def check1(row: EqClassification): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};

@@ -18,26 +18,31 @@ use BasicDb.DbMonad;
 use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 
-namespace UploadCheck/SqlCheckers/EquiSelectionValueCheck {
+namespace UploadCheck/SqlCheckers/SelectionValueCheck {
+
+    pub def flocSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
+        use BasicDb/DbMonad.{return, flatMap};
+        let* a1 = isRestricted("floc", charname);
+        if (a1) isRestrictedValue("floc", charname, value) else return(true) 
 
 
     pub def equiSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};
-        let* a1 = isRestricted(charname);
-        if (a1) isRestrictedValue(charname, value) else return(true) 
+        let* a1 = isRestricted("equi", charname);
+        if (a1) isRestrictedValue("equi", charname, value) else return(true) 
 
-    def isRestricted(charname: String): DbMonad[Bool] = 
+    def isRestricted(prefix: String, charname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM equi_selection_values WHERE charname = ?;");
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM ${prefix}_selection_values WHERE charname = ?;");
         let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putString!(0,  charname));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
         let* _      = rsClose(rs);
         return(n > 0)
 
 
-    def isRestrictedValue(charname: String, value: String): DbMonad[Bool] = 
+    def isRestrictedValue(prefix: String, charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM equi_selection_values WHERE charname = ? AND value = ?;");
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM ${prefix}_selection_values WHERE charname = ? AND value = ?;");
         let* rs     = psExecuteQuery(pstmt, restrictedValueSetter(charname, value));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
         let* _      = rsClose(rs);
