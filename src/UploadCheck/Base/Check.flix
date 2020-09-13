@@ -32,7 +32,7 @@ namespace Data {
 
 }
 
-namespace Data {
+namespace Data/Check {
 
     // type alias RowFail = { datasetName: String, index: Int32, failures: Nel[String] }
 
@@ -87,17 +87,13 @@ namespace Data {
         case (Fail(e1), Fail(e2)) => Fail(Nel.append(e1, e2))
     }
 
-
-
     ///
-    /// Returns `Success(v1 :: v2 :: ... v :: vn)` if each of `f(xs_i)` is `Success(v_i)`.
+    /// Returns `Pass` if each of `f(xs_i)` is `Pass`.
     ///
     /// Otherwise returns `Failure(e1 :: ... :: en)` with all of the failures concatenated.
     ///
     pub def traverse(f: a -> Check[e] & ef, xs: List[a]): Check[e] & ef =
         traverseHelperPass(f, xs)
-
-
 
     ///
     /// Helper function for `traverse`.
@@ -108,24 +104,62 @@ namespace Data {
         case Nil        => Pass
         case x :: rs    => match f(x) {
             case Pass => traverseHelperPass(f, rs)
-            case Fail(e1) => traverseHelperFail(f, rs, e1)
+            case Fail(e1) => traverseHelperFail(f, rs, e1, ks -> Fail(ks))
         }
     }
 
     ///
     /// Helper function for `traverse`.
     ///
-    /// Precondition: at least one Failure has been encountered.
+    /// Precondition: at least one Failure has been encountered (initially `ac1`).
     ///
-    def traverseHelperFail(f: a -> Check[e] & f, xs: List[a], ac: Nel[e]): Check[e] & f = match xs {
-        case Nil        => Fail(ac)
+    def traverseHelperFail(f: a -> Check[e] & ef, xs: List[a], ac1: Nel[e], fk: Nel[e] -> Check[e]): Check[e] & ef = match xs {
+        case Nil        => fk(ac1)
         case x :: rs    => match f(x) {
-            case Pass(_) => traverseHelperFail(f, rs, ac)
-            case Fail(e1) => traverseHelperFail(f, rs, Nel.append(ac, e1))
+            case Pass(_) => traverseHelperFail(f, rs, ac1, fk)
+            case Fail(es) => traverseHelperFail(f, rs, es, ks -> fk(Nel.append(ac1, ks)))
         }
     }
 
-    // TODO - a "faster" CPS version without Nel.append is possible
+    ///
+    /// Returns `Pass` if each of `f(xs_i)` is `Pass`.
+    ///
+    /// Otherwise returns `Failure(e1 :: ... :: en)` with all of the failures concatenated.
+    ///
+    pub def traverseWithIndex(f: (a, Int32) -> Check[e] & ef, xs: List[a]): Check[e] & ef =
+        traverseWithIndexHelperPass(f, 0, xs)
+
+    ///
+    /// Helper function for `traverse`.
+    ///
+    /// Precondition: no Failure has been encountered.
+    ///
+    def traverseWithIndexHelperPass(f: (a, Int32) -> Check[e] & ef, ix: Int32, xs: List[a]): Check[e] & ef = match xs {
+        case Nil        => Pass
+        case x :: rs    => match f(x, ix) {
+            case Pass => traverseWithIndexHelperPass(f, ix + 1, rs)
+            case Fail(e1) => traverseWithIndexHelperFail(f, ix + 1, rs, e1, ks -> Fail(ks))
+        }
+    }
+
+    ///
+    /// Helper function for `traverse`.
+    ///
+    /// Precondition: at least one Failure has been encountered (initially `ac1`).
+    ///
+    def traverseWithIndexHelperFail(f: (a, Int32) -> Check[e] & ef, 
+                                    ix: Int32, 
+                                    xs: List[a], 
+                                    ac1: Nel[e], 
+                                    fk: Nel[e] -> Check[e]): Check[e] & ef = match xs {
+        case Nil        => fk(ac1)
+        case x :: rs    => match f(x, ix) {
+            case Pass(_) => traverseWithIndexHelperFail(f, ix + 1, rs, ac1, fk)
+            case Fail(es) => traverseWithIndexHelperFail(f, ix + 1, rs, es, ks -> fk(Nel.append(ac1, ks)))
+        }
+    }
+
+
 
 
 }

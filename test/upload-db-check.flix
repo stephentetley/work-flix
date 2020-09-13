@@ -33,6 +33,14 @@ def main(): Unit & Impure =
     match runSQLite(checkEqui(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok() => Console.printLine("Finished...")
-    }
+    };
+    temp()
 
     
+def temp(): Unit & Impure = 
+    use Data.Check.Pass;
+    use Data/Check.{failure, traverseWithIndex, getErrors};
+    let xs = 1 :: 2 :: 3 :: 4 :: Nil;
+    let checker = (i, ix) -> if (i == 0) Pass else failure(Int32.toString(i) + " (at " + Int32.toString(ix) + ") failed");
+    let answers = traverseWithIndex(checker, xs);
+    List.foreach(Console.printLine, getErrors(answers))
