@@ -20,7 +20,7 @@ def check1(row: EqClassification): DbMonad[Unit] =
     let* _      = liftAction(_ -> if (a3) Console.printLine(", ok") else Console.printLine(", check failed"));
     return()
 
-def test01(): DbMonad[Unit] = 
+def checkEqui(): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};
     let uxlSrc      = System/FilePath.new("G:/work/assets/uxl/eq_characteristics.csv");
     let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc));
@@ -30,7 +30,7 @@ def test01(): DbMonad[Unit] =
     
 
 def main(): Unit & Impure = 
-    match runSQLite(test01(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+    match runSQLite(checkEqui(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok() => Console.printLine("Finished...")
     }
