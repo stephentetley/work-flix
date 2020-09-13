@@ -30,11 +30,13 @@ namespace Data {
         case Fail(Nel[e])
     }
 
+    // type alias Checker[a, e] = a -> Check[e]
+
 }
 
 namespace Data/Check {
 
-    // type alias RowFail = { datasetName: String, index: Int32, failures: Nel[String] }
+
 
     pub def failure(err: e): Check[e] = Fail(Nel.singleton(err))
 

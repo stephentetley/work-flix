@@ -1,14 +1,32 @@
+use Data.Check.{Pass, Fail};
+
 use BasicDb.DbMonad;
 use BasicDb.RowEvaluator;
 use BasicDb.PreparedStatementSetter;
 
 use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, 
-        createStatement, prepareStatement, executeQuery, psExecuteQuery, allRowsX, rsClose, mapX};
+        createStatement, prepareStatement, executeQuery, psExecuteQuery, allRowsX, rsClose, mapX, mapWithIndexM};
 
 use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
-use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClassCheck};
+
+use UploadCheck/Base/RowCheck.{RowCheck, RowFail};
+use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClassCheck, charInClass};
 use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRangeCheck};
 use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValueCheck};
+
+
+def checkEquiRow(row: EqClassification, ix: Int32): DbMonad[RowCheck] = 
+    use BasicDb/DbMonad.{flatMap, return};
+    let* a1     = charInClass(row.characteristicName, row.className, ix);
+    return(a1)
+
+def checkEquis(): DbMonad[List[RowCheck]] = 
+    use BasicDb/DbMonad.{flatMap, return};
+    let uxlSrc      = System/FilePath.new("G:/work/assets/uxl/eq_characteristics.csv");
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc));
+    let* _          = liftAction(_ -> Console.printLine("Running..."));
+    let* xs         = mapWithIndexM(checkEquiRow, rows);
+    return(xs)
 
 def check1(row: EqClassification): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};
@@ -29,18 +47,21 @@ def checkEqui(): DbMonad[Unit] =
     return()
     
 
+def printCheck(row: RowCheck): Unit & Impure = 
+    let print1 = (rc : RowFail) -> Console.printLine("Row " + Int32.toString(rc.rowIndex) + ": " + rc.failMessage);
+    match row {
+        case Pass => () as & Impure
+        case Fail(xs) => Nel.foreach(print1, xs)
+    }
+
 def main(): Unit & Impure = 
     match runSQLite(checkEqui(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok() => Console.printLine("Finished...")
     };
-    temp()
+    match runSQLite(checkEquis(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+        case Err(e) => Console.printLine(System/Error.toString(e))
+        case Ok(xs) => List.foreach(printCheck, xs)
+    }
 
     
-def temp(): Unit & Impure = 
-    use Data.Check.Pass;
-    use Data/Check.{failure, traverseWithIndex, getErrors};
-    let xs = 1 :: 2 :: 3 :: 4 :: Nil;
-    let checker = (i, ix) -> if (i == 0) Pass else failure(Int32.toString(i) + " (at " + Int32.toString(ix) + ") failed");
-    let answers = traverseWithIndex(checker, xs);
-    List.foreach(Console.printLine, getErrors(answers))

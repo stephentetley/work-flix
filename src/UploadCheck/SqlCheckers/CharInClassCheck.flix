@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
+use Data.Check.{Pass};
+use Data/Check.{failure};
+
 use BasicDb.DbMonad;
 use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
+use UploadCheck/Base/RowCheck.{RowCheck};
+
 namespace UploadCheck/SqlCheckers/CharInClassCheck {
+
+    pub def charInClass(charname: String, classname: String, rowIx: Int32): DbMonad[RowCheck] =
+        let errMsg = "charInClass failed - ${charname} not in class ${classname}";
+        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
+                            equiCharInClassCheck(charname, classname))
 
 
     pub def equiCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
