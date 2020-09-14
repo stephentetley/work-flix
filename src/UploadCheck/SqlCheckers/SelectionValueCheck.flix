@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
+use Data.Check.{Pass};
+use Data/Check.{failure};
+
 use BasicDb.DbMonad;
 use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
+
+use UploadCheck/Base/RowCheck.{RowCheck};
 
 namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
@@ -25,6 +30,11 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
         let* a1 = isRestricted("floc", charname);
         if (a1) isRestrictedValue("floc", charname, value) else return(true) 
 
+
+    pub def equiSelectionValue(charname: String, value: String, rowIx: Int32): DbMonad[RowCheck] =
+        let errMsg = "equiSelectionValue failed - `${value}` not in list of values for ${charname}";
+        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
+                            equiSelectionValueCheck(charname, value))
 
     pub def equiSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};

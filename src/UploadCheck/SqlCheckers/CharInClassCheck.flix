@@ -26,17 +26,23 @@ use UploadCheck/Base/RowCheck.{RowCheck};
 
 namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
-    pub def charInClass(charname: String, classname: String, rowIx: Int32): DbMonad[RowCheck] =
-        let errMsg = "charInClass failed - ${charname} not in class ${classname}";
+    pub def flocCharInClass(charname: String, classname: String, rowIx: Int32): DbMonad[RowCheck] =
+        let errMsg = "flocCharInClass failed - ${charname} not in class ${classname}";
+        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
+                            flocCharInClassCheck(charname, classname))
+
+    pub def flocCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
+        charInClassCheck("floc", charname, classname)
+
+
+    pub def equiCharInClass(charname: String, classname: String, rowIx: Int32): DbMonad[RowCheck] =
+        let errMsg = "equiCharInClass failed - ${charname} not in class ${classname}";
         BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
                             equiCharInClassCheck(charname, classname))
 
 
     pub def equiCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
         charInClassCheck("equi", charname, classname)
-
-    pub def flocCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
-        charInClassCheck("floc", charname, classname)
 
     def charInClassCheck(prefix: String, charname: String, classname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};

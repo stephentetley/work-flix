@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+use Data.Check.{Pass};
+use Data/Check.{failure};
 
 use BasicDb.DbMonad;
 use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, optional, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
+use UploadCheck/Base/RowCheck.{RowCheck};
 
 namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
@@ -30,6 +33,12 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
             case Ok(x) => intRangeCheck("floc", charname, x)
             case Err(_) => return(true)
         }
+
+    pub def equiIntRange(charname: String, value: String, rowIx: Int32): DbMonad[RowCheck] =
+        let errMsg = "equiIntRange failed - `${value}` not in value range for ${charname}";
+        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
+                            equiIntRangeCheck(charname, value))
+
 
     pub def equiIntRangeCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return};

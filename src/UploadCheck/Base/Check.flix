@@ -88,6 +88,12 @@ namespace Data/Check {
         case (a, Pass) => a
         case (Fail(e1), Fail(e2)) => Fail(Nel.append(e1, e2))
     }
+    
+    ///
+    /// Returns ...
+    ///
+    pub def concat(xs: List[Check[e]]): Check[e] = 
+        List.foldLeft(append, Pass, xs)
 
     ///
     /// Returns `Pass` if each of `f(xs_i)` is `Pass`.
