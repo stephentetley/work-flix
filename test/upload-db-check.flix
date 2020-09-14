@@ -9,29 +9,25 @@ use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult,
 
 use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
 
-use UploadCheck/Base/RowCheck.{RowCheck, RowFail};
+use UploadCheck/Base/RowCheck.{RowChecker, RowCheck, RowFail, execRowChecker};
 use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClassCheck, equiCharInClass};
 use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRangeCheck, equiIntRange};
 use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValueCheck, equiSelectionValue};
 
 
-def indexAdd(offset: Int32, fn: (a, Int32) -> DbMonad[RowCheck]): (a, Int32) -> DbMonad[RowCheck] = (a, i) -> fn(a, i + offset)
-    
 
-def checkEquiRow(row: EqClassification, ix: Int32): DbMonad[RowCheck] = 
-    use BasicDb/DbMonad.{flatMap, return};
-    use Data/Check.{concat};
-    let* a1     = equiCharInClass(row.characteristicName, row.className, ix);
-    let* a2     = equiIntRange(row.characteristicName, row.charValue, ix);
-    let* a3     = equiSelectionValue(row.characteristicName, row.charValue, ix);
-    return(concat(a1 :: a2 :: a3 :: Nil))
+def checkEquiRow(): RowChecker[EqClassification] = 
+    use UploadCheck/Base/RowCheck.{<&&>};
+    use UploadCheck/Base/RowCheck.{offsetIndex};
+    offsetIndex(7, equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass())
+    
 
 def checkEquis(): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
     let uxlSrc      = System/FilePath.new("G:/work/assets/uxl/eq_characteristics.csv");
     let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
-    let* xs         = mapWithIndexM(indexAdd(7, checkEquiRow), rows);
+    let* xs         = mapWithIndexM(execRowChecker(checkEquiRow()), rows);
     return(xs)
 
 def check1(row: EqClassification): DbMonad[Unit] = 
@@ -70,10 +66,4 @@ def main(): Unit & Impure =
     match runSQLite(checkEquis(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok(xs) => List.foreach(printCheck, xs)
-    };
-    temp01()
-
-def temp01(): Unit & Impure = 
-    use Data/Check.{failure};
-    let xs = Data/Check.concat(failure("A") :: failure("B") :: failure("C") :: Nil) |> Data/Check.getErrors;
-    List.foreach(Console.printLine, xs)
+    }

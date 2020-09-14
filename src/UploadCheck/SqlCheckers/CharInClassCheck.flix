@@ -22,23 +22,30 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-use UploadCheck/Base/RowCheck.{RowCheck};
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlocClassification};
+use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
+use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
 namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
-    pub def flocCharInClass(charname: String, classname: String, rowIx: Int32): DbMonad[RowCheck] =
-        let errMsg = "flocCharInClass failed - ${charname} not in class ${classname}";
-        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
-                            flocCharInClassCheck(charname, classname))
+    
+    pub def flocCharInClass(): RowChecker[EqClassification] = 
+        RowChecker((row, ix) -> 
+            let errMsg = "flocCharInClass failed - ${row.characteristicName} not in class ${row.className}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+                                charInClassCheck("floc", row.characteristicName, row.className))
+        )
 
-    pub def flocCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
-        charInClassCheck("floc", charname, classname)
 
 
-    pub def equiCharInClass(charname: String, classname: String, rowIx: Int32): DbMonad[RowCheck] =
-        let errMsg = "equiCharInClass failed - ${charname} not in class ${classname}";
-        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
-                            equiCharInClassCheck(charname, classname))
+
+    pub def equiCharInClass(): RowChecker[EqClassification] = 
+        RowChecker((row, ix) -> 
+            let errMsg = "equiCharInClass failed - ${row.characteristicName} not in class ${row.className}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+                                charInClassCheck("equi", row.characteristicName, row.className))
+        )
+
 
 
     pub def equiCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 

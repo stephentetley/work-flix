@@ -21,20 +21,30 @@ use BasicDb.DbMonad;
 use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 
-use UploadCheck/Base/RowCheck.{RowCheck};
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlocClassification};
+use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
+use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
 namespace UploadCheck/SqlCheckers/SelectionValueCheck {
+
+    pub def flocSelectionValue(): RowChecker[FlocClassification] = 
+        RowChecker((row, ix) -> 
+            let errMsg = "flocSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+                                flocSelectionValueCheck(row.characteristicName, row.charValue))
+        )
 
     pub def flocSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};
         let* a1 = isRestricted("floc", charname);
         if (a1) isRestrictedValue("floc", charname, value) else return(true) 
 
-
-    pub def equiSelectionValue(charname: String, value: String, rowIx: Int32): DbMonad[RowCheck] =
-        let errMsg = "equiSelectionValue failed - `${value}` not in list of values for ${charname}";
-        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
-                            equiSelectionValueCheck(charname, value))
+    pub def equiSelectionValue(): RowChecker[EqClassification] = 
+        RowChecker((row, ix) -> 
+            let errMsg = "equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+                                equiSelectionValueCheck(row.characteristicName, row.charValue))
+        )
 
     pub def equiSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};

@@ -89,6 +89,7 @@ namespace Data/Check {
         case (Fail(e1), Fail(e2)) => Fail(Nel.append(e1, e2))
     }
     
+
     ///
     /// Returns ...
     ///

@@ -22,7 +22,10 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, optional, firstRow, rsClo
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-use UploadCheck/Base/RowCheck.{RowCheck};
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlocClassification};
+use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
+use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
+
 
 namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
@@ -34,10 +37,13 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
             case Err(_) => return(true)
         }
 
-    pub def equiIntRange(charname: String, value: String, rowIx: Int32): DbMonad[RowCheck] =
-        let errMsg = "equiIntRange failed - `${value}` not in value range for ${charname}";
-        BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = rowIx, failMessage = errMsg }), 
-                            equiIntRangeCheck(charname, value))
+
+    pub def equiIntRange(): RowChecker[EqClassification] = 
+        RowChecker((row, ix) -> 
+            let errMsg =  "equiIntRange failed - `${row.charValue}` not in value range for ${row.characteristicName}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+                                equiIntRangeCheck(row.characteristicName, row.charValue))
+        )
 
 
     pub def equiIntRangeCheck(charname: String, value: String): DbMonad[Bool] = 
