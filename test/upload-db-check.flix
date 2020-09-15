@@ -1,18 +1,14 @@
 use Data.Check.{Pass, Fail};
 
 use BasicDb.DbMonad;
-use BasicDb.RowEvaluator;
-use BasicDb.PreparedStatementSetter;
-
-use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, 
-        createStatement, prepareStatement, executeQuery, psExecuteQuery, allRowsX, rsClose, mapX, mapWithIndexM};
+use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, mapWithIndexM};
 
 use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
 
 use UploadCheck/Base/RowCheck.{RowChecker, RowCheck, RowFail, execRowChecker};
-use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClassCheck, equiCharInClass};
-use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRangeCheck, equiIntRange};
-use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValueCheck, equiSelectionValue};
+use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
+use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRange};
+use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValue};
 use UploadCheck/SqlCheckers/TypeCheck.{equiTypeCheck};
 
 

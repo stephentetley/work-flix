@@ -33,25 +33,17 @@ namespace UploadCheck/SqlCheckers/CharInClassCheck {
         RowChecker((row, ix) -> 
             let errMsg = "flocCharInClass failed - ${row.characteristicName} not in class ${row.className}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
-                                charInClassCheck("floc", row.characteristicName, row.className))
+                                charInClassHelper("floc", row.characteristicName, row.className))
         )
-
-
-
 
     pub def equiCharInClass(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
             let errMsg = "equiCharInClass failed - ${row.characteristicName} not in class ${row.className}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
-                                charInClassCheck("equi", row.characteristicName, row.className))
+                                charInClassHelper("equi", row.characteristicName, row.className))
         )
 
-
-
-    pub def equiCharInClassCheck(charname: String, classname: String): DbMonad[Bool] = 
-        charInClassCheck("equi", charname, classname)
-
-    def charInClassCheck(prefix: String, charname: String, classname: String): DbMonad[Bool] = 
+    def charInClassHelper(prefix: String, charname: String, classname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
         let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM ${prefix}_class_members WHERE classname = ? AND charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPrepStmt!(charname, classname));

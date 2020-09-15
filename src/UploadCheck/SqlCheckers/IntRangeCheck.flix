@@ -29,8 +29,16 @@ use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
 namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
+    /// TODO should use a type check
 
-    pub def flocIntRangeCheck(charname: String, value: String): DbMonad[Bool] = 
+    pub def flocIntRange(): RowChecker[FlocClassification] = 
+        RowChecker((row, ix) -> 
+            let errMsg =  "flocIntRange failed - `${row.charValue}` not in value range for ${row.characteristicName}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+                                flocIntRangeHelper(row.characteristicName, row.charValue))
+        )
+
+    pub def flocIntRangeHelper(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return};
         match Int32.fromString(value) {
             case Ok(x) => intRangeCheck("floc", charname, x)
@@ -42,11 +50,11 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
         RowChecker((row, ix) -> 
             let errMsg =  "equiIntRange failed - `${row.charValue}` not in value range for ${row.characteristicName}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
-                                equiIntRangeCheck(row.characteristicName, row.charValue))
+                                equiIntRangeHelper(row.characteristicName, row.charValue))
         )
 
 
-    pub def equiIntRangeCheck(charname: String, value: String): DbMonad[Bool] = 
+    def equiIntRangeHelper(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return};
         match Int32.fromString(value) {
             case Ok(x) => intRangeCheck("equi", charname, x)

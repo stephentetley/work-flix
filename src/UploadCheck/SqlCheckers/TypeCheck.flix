@@ -26,11 +26,20 @@ use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlocClassification};
 use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
 use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 use UploadCheck/Base/Common.Datatype;
-use UploadCheck/Base/Common.Datatype.{Text, Data, Integer, Decimal};
+use UploadCheck/Base/Common.Datatype.{Text, Date, Integer, Decimal};
 use UploadCheck/Base/Common.{datatypeName};
-use UploadCheck/SqlCheckers/SqlCommon.{getEquiDatatype};
+use UploadCheck/SqlCheckers/SqlCommon.{getFlocDatatype, getEquiDatatype};
 
 namespace UploadCheck/SqlCheckers/TypeCheck {
+
+    pub def flocTypeCheck(): RowChecker[FlocClassification] = 
+        use BasicDb/DbMonad.{return, flatMap, map};
+        RowChecker((row, ix) -> {
+            let* tyname = map(getTypeName, getEquiDatatype(row.characteristicName));
+            let errMsg  = "flocTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
+            let* ans    = flocTypeCheckHelper(row.characteristicName, row.charValue);
+            if (ans) return(Pass) else return(failure({ rowIndex = ix, failMessage = errMsg }))                                
+        })
 
 
     pub def equiTypeCheck(): RowChecker[EqClassification] = 
@@ -45,6 +54,14 @@ namespace UploadCheck/SqlCheckers/TypeCheck {
     def getTypeName(x: Option[Datatype]): String = 
         Option.getWithDefault(Option.map(datatypeName, x), "<ERR>")
 
+    def flocTypeCheckHelper(charname: String, value: String): DbMonad[Bool] = 
+        use BasicDb/DbMonad.{return, liftAction, ifSomeM};
+        ifSomeM(
+            getFlocDatatype(charname), 
+            x -> return(typeCheck(x, value)),
+            return(false)
+        )
+
     def equiTypeCheckHelper(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, liftAction, ifSomeM};
         ifSomeM(
@@ -54,20 +71,24 @@ namespace UploadCheck/SqlCheckers/TypeCheck {
         )
 
     def typeCheck(ty: Datatype, value: String): Bool = match ty { 
-        case Text => true // as & Impure
+        case Text => true 
         case Integer => checkInteger(value)
         case Decimal => checkDecimal(value)
-
-        case _ => false // as & Impure
+        case Date => checkDate(value)
     }
 
+   def checkInteger(value: String): Bool = 
+        let patt = Text/Regex/Pattern.irrefutablePattern("[0-9]+");
+        Text/Regex.matches(value, patt)
+ 
     def checkDecimal(value: String): Bool = 
-        let patt = Text/Regex/Pattern.irrefutablePattern("[0-9]*\.[0-9]*");
+        let patt = Text/Regex/Pattern.irrefutablePattern("[0-9]+(\.[0-9]*)?");
+        Text/Regex.matches(value, patt)
+ 
+    def checkDate(value: String): Bool = 
+        let patt = Text/Regex/Pattern.irrefutablePattern("[0-3][0-9]\.[0-1][0-9]\.[1-2][0-9]{,3}");
         Text/Regex.matches(value, patt)
     
-    def checkInteger(value: String): Bool = 
-        let patt = Text/Regex/Pattern.irrefutablePattern("[0-9]*");
-        Text/Regex.matches(value, patt)
     
 
 }

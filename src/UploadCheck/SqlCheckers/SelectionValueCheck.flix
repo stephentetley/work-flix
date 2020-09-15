@@ -31,10 +31,10 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
         RowChecker((row, ix) -> 
             let errMsg = "flocSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
-                                flocSelectionValueCheck(row.characteristicName, row.charValue))
+                                flocSelectionValueHelper(row.characteristicName, row.charValue))
         )
 
-    pub def flocSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
+    def flocSelectionValueHelper(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};
         let* a1 = isRestricted("floc", charname);
         if (a1) isRestrictedValue("floc", charname, value) else return(true) 
@@ -43,10 +43,10 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
         RowChecker((row, ix) -> 
             let errMsg = "equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
-                                equiSelectionValueCheck(row.characteristicName, row.charValue))
+                                equiSelectionValueHelper(row.characteristicName, row.charValue))
         )
 
-    pub def equiSelectionValueCheck(charname: String, value: String): DbMonad[Bool] = 
+    pub def equiSelectionValueHelper(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};
         let* a1 = isRestricted("equi", charname);
         if (a1) isRestrictedValue("equi", charname, value) else return(true) 
