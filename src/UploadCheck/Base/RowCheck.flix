@@ -51,8 +51,10 @@ namespace UploadCheck/Base/RowCheck {
         )
 
     pub def check3(chk1: RowChecker[row], chk2: RowChecker[row], chk3: RowChecker[row]): RowChecker[row] = 
-        check2(chk1, check2(chk2, chk3))
+        chk1 <&&> check2(chk2, chk3)
 
+    pub def check4(chk1: RowChecker[row], chk2: RowChecker[row], chk3: RowChecker[row], chk4: RowChecker[row]): RowChecker[row] = 
+        chk1 <&&> check3(chk2, chk3, chk4)
 
 }
 
