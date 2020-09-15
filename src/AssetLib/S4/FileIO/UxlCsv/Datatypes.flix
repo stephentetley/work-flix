@@ -17,16 +17,19 @@
 
 namespace AssetLib/S4/FileIO/UxlCsv/Datatypes {
 
+
+    // Functional Location,Deletion Ind,Class Type,Class,Status,Characteristics,Char Value,Ch.Deletion Ind.
+    type alias FlClassification = { 
+        functionalLocation: String, deletionInd: Bool, classType: String, className: String, 
+        status: Int32, characteristicName: String, charValue: String, charDeletionInd: Bool 
+        }
+
+    // Equipment,Delete Ind.,Class Type,Class,Status,Characteristics,Char Value,Ch. Delete Ind.
     type alias EqClassification = { 
         equiId: String, deleteInd: Bool, classType: String, className: String, 
         status: Int32, characteristicName: String, charValue: String, charDeleteInd: Bool 
         }
 
-    // Functional Location	Deletion Ind	Class Type	Class	Status	Characteristics	Char Value	Ch.Deletion Ind.
 
-    type alias FlocClassification = { 
-        functionalLocation: String, deleteInd: Bool, classType: String, className: String, 
-        status: Int32, characteristicName: String, charValue: String, charDeleteInd: Bool 
-        }
 
 }

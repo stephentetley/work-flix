@@ -3,13 +3,41 @@ use Data.Check.{Pass, Fail};
 use BasicDb.DbMonad;
 use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, mapWithIndexM};
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{FlClassification, EqClassification};
 
 use UploadCheck/Base/RowCheck.{RowChecker, RowCheck, RowFail, execRowChecker};
 use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
 use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRange};
 use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValue};
-use UploadCheck/SqlCheckers/TypeCheck.{equiTypeCheck};
+use UploadCheck/SqlCheckers/TypeCheck.{flocTypeCheck, equiTypeCheck};
+
+
+
+def main(): Unit & Impure = 
+    let equiCsv = System/FilePath.new("G:/work/assets/uxl/LANGS_v52-7_eqclassification.csv");
+    match runSQLite(checkEquis(equiCsv), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+        case Err(e) => Console.printLine(System/Error.toString(e))
+        case Ok(xs) => List.foreach(printCheck, xs)
+    };
+    let flocCsv = System/FilePath.new("G:/work/assets/uxl/LANGS_v52-7_flclassification.csv");
+    match runSQLite(checkFlocs(flocCsv), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+        case Err(e) => Console.printLine(System/Error.toString(e))
+        case Ok(xs) => List.foreach(printCheck, xs)
+    }
+
+def checkFlocRow(): RowChecker[FlClassification] = 
+    /// use UploadCheck/Base/RowCheck.{<&&>};
+    use UploadCheck/Base/RowCheck.{offsetIndex};
+    offsetIndex(7, 
+        flocTypeCheck())
+    
+
+def checkFlocs(equiCsv: System.FilePath): DbMonad[List[RowCheck]] = 
+    use BasicDb/DbMonad.{flatMap, return};
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadFlClassifications(equiCsv));
+    let* _          = liftAction(_ -> Console.printLine("Running..."));
+    let* xs         = mapWithIndexM(execRowChecker(checkFlocRow()), rows);
+    return(xs)
 
 
 def checkEquiRow(): RowChecker[EqClassification] = 
@@ -19,10 +47,9 @@ def checkEquiRow(): RowChecker[EqClassification] =
         equiTypeCheck() <&&> equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass())
     
 
-def checkEquis(): DbMonad[List[RowCheck]] = 
+def checkEquis(equiCsv: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let uxlSrc      = System/FilePath.new("G:/work/assets/uxl/eq_characteristics.csv");
-    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc));
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(equiCsv));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
     let* xs         = mapWithIndexM(execRowChecker(checkEquiRow()), rows);
     return(xs)
@@ -37,9 +64,3 @@ def printCheck(row: RowCheck): Unit & Impure =
     }
 
 
-
-def main(): Unit & Impure = 
-    match runSQLite(checkEquis(), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
-        case Err(e) => Console.printLine(System/Error.toString(e))
-        case Ok(xs) => List.foreach(printCheck, xs)
-    }

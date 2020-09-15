@@ -22,7 +22,7 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, optional, firstRow, rsClo
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlocClassification};
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlClassification};
 use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
 use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 use UploadCheck/Base/Common.Datatype;
@@ -32,7 +32,7 @@ use UploadCheck/SqlCheckers/SqlCommon.{getFlocDatatype, getEquiDatatype};
 
 namespace UploadCheck/SqlCheckers/TypeCheck {
 
-    pub def flocTypeCheck(): RowChecker[FlocClassification] = 
+    pub def flocTypeCheck(): RowChecker[FlClassification] = 
         use BasicDb/DbMonad.{return, flatMap, map};
         RowChecker((row, ix) -> {
             let* tyname = map(getTypeName, getEquiDatatype(row.characteristicName));

@@ -22,7 +22,7 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, optional, firstRow, rsClo
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlocClassification};
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlClassification};
 use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
 use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
@@ -31,7 +31,7 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
     /// TODO should use a type check
 
-    pub def flocIntRange(): RowChecker[FlocClassification] = 
+    pub def flocIntRange(): RowChecker[FlClassification] = 
         RowChecker((row, ix) -> 
             let errMsg =  "flocIntRange failed - `${row.charValue}` not in value range for ${row.characteristicName}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 

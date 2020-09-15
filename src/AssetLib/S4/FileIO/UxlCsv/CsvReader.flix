@@ -17,22 +17,53 @@
 use FactIO/CsvImport.{};
 use FactIO.CsvRowEvaluator;
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
+use AssetLib/S4/FileIO/UxlCsv/Datatypes.{FlClassification, EqClassification};
 
 namespace AssetLib/S4/FileIO/UxlCsv/CsvReader {
 
     /// Note - the Csv input may trail with blank rows...
+
+    pub def loadFlClassifications(path: System.FilePath): Result[List[FlClassification], System.Error] & Impure =    
+        use Result.flatMap;
+        use FactIO/CsvFormat.{excel};
+        let* src0   = FactIO/CsvImport.newCsvStreamWithBOM(path, excel(), Text/Charset.utf_8());
+        let src     = Data/Stream.drop(6, src0);
+        let* xs     = FactIO/CsvImport.evaluateRowsSkipEmptyRows(evalFlClassification(), src);
+        Ok(xs)
+
+
+    def evalFlClassification(): CsvRowEvaluator[FlClassification] = 
+        use FactIO/CsvRowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex};
+        let* floc                   = getStringByIndex(0);
+        let* deleteInd              = getBool(1);
+        let* classType              = getStringByIndex(2);
+        let* className              = getStringByIndex(3);
+        let* status                 = getInt32ByIndex(4);
+        let* characteristicName     = getStringByIndex(5);
+        let* charValue              = getStringByIndex(6);
+        let* charDeleteInd          = getBool(7);
+        return({ 
+            functionalLocation = floc, 
+            deletionInd = deleteInd, 
+            classType = classType, 
+            className = className, 
+            status = status, 
+            characteristicName = characteristicName, 
+            charValue = charValue, 
+            charDeletionInd = charDeleteInd
+            })
+
 
     pub def loadEqClassifications(path: System.FilePath): Result[List[EqClassification], System.Error] & Impure =    
         use Result.flatMap;
         use FactIO/CsvFormat.{excel};
         let* src0   = FactIO/CsvImport.newCsvStreamWithBOM(path, excel(), Text/Charset.utf_8());
         let src     = Data/Stream.drop(6, src0);
-        let* xs     = FactIO/CsvImport.evaluateRowsSkipEmptyRows(getEqClassification(), src);
+        let* xs     = FactIO/CsvImport.evaluateRowsSkipEmptyRows(evalEqClassification(), src);
         Ok(xs)
 
 
-    def getEqClassification(): CsvRowEvaluator[EqClassification] = 
+    def evalEqClassification(): CsvRowEvaluator[EqClassification] = 
         use FactIO/CsvRowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex};
         let* equiId                 = getStringByIndex(0);
         let* deleteInd              = getBool(1);
