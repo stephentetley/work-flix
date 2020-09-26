@@ -26,11 +26,11 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
         importRows(equiRowParser(), path)   
 
     def equiRowParser[r](): RowWithHeadersEvaluator[#{ Node | r }] = 
-        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
-        let* id         = getString("EQUI");
-        let* desc       = getString("TXTMI");
-        let* parent1    = getString("HEQU_EEQZ");
-        let* parent2    = getString("TPLN_EILO");
+        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getStringNamed};
+        let* id         = getStringNamed("EQUI");
+        let* desc       = getStringNamed("TXTMI");
+        let* parent1    = getStringNamed("HEQU_EEQZ");
+        let* parent2    = getStringNamed("TPLN_EILO");
         let parent      = if (String.isEmpty(parent1)) parent2 else parent1;
         return( Node(id, desc, parent). )
 
@@ -39,12 +39,12 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
         importRows(flocRowParser(), path)  
     
     def flocRowParser[r](): RowWithHeadersEvaluator[#{ Node | r }] = 
-        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
-        let* id1        = getString("FUNCLOC");
-        let* id2        = getString("FLOC_REF");
+        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getStringNamed};
+        let* id1        = getStringNamed("FUNCLOC");
+        let* id2        = getStringNamed("FLOC_REF");
         let id          = if (String.isMatch("\$\d+", id1)) id2 else id1;
-        let* desc       = getString("TXTMI");        
-        let* parent     = getString("TPLMA");        
+        let* desc       = getStringNamed("TXTMI");        
+        let* parent     = getStringNamed("TPLMA");        
         return( Node(id, desc, parent). )
 
         

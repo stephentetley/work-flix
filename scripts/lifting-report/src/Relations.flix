@@ -27,7 +27,7 @@ namespace LiftingReport/Relations {
         match String.trim(String.toLowerCase(s)) {
             case "fixed" => Ok(Fixed)
             case "portable" => Ok(Portable)
-            case _ => Err(System/Error.Generic("FixedOrPortable"))
+            case _ => Err(System/Error.Generic("readFixedOrPortable"))
         }
 
     rel EquiMatch(aiName: String, containsList: List[String], s4ObjType: String, s4Class: String, fop: FixedOrPortable)

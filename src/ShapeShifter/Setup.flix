@@ -81,11 +81,11 @@ namespace ShapeShifter/Setup {
 
 
     def evalFlocRow(): RowWithHeadersEvaluator[FlocRow] = 
-        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
-        let* floc       = getString("FUNCLOC");
-        let* si         = getString("TPLKZ_FLC");    
-        let* ot         = getString("EQART");
-        let* os         = getString("USTW_FLOC");
+        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getStringNamed};
+        let* floc       = getStringNamed("FUNCLOC");
+        let* si         = getStringNamed("TPLKZ_FLC");    
+        let* ot         = getStringNamed("EQART");
+        let* os         = getStringNamed("USTW_FLOC");
         return({funcloc = floc, structureIndicator = si, objectType = ot, objectStatus = os})
 
 
@@ -149,16 +149,16 @@ namespace ShapeShifter/Setup {
 
 
     def evalEquiRow(): RowWithHeadersEvaluator[EquiRow] = 
-        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
-        let* equi       = getString("EQUI");
-        let* objType    = getString("EQART_EQU");
-        let* manu       = getString("HERST");
-        let* serialNum  = getString("SERGE");
-        let* techId     = getString("TIDN_EEQZ");
-        let* objStatus  = getString("USTW_EQUI");
-        let* modelNum   = getString("TYPBZ");
-        let* partNum    = getString("MAPA_EEQZ");
-        let* equiCat    = getString("EQTYP");
+        use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getStringNamed};
+        let* equi       = getStringNamed("EQUI");
+        let* objType    = getStringNamed("EQART_EQU");
+        let* manu       = getStringNamed("HERST");
+        let* serialNum  = getStringNamed("SERGE");
+        let* techId     = getStringNamed("TIDN_EEQZ");
+        let* objStatus  = getStringNamed("USTW_EQUI");
+        let* modelNum   = getStringNamed("TYPBZ");
+        let* partNum    = getStringNamed("MAPA_EEQZ");
+        let* equiCat    = getStringNamed("EQTYP");
         return({equiId = equi, objectType = objType, manufacturer = manu, 
                 serialNumber = serialNum, technicalId = techId, objectStatus = objStatus, 
                 modelNumber = modelNum, partNumber = partNum, equiCategory = equiCat})

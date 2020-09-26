@@ -37,10 +37,10 @@ def sqlite01(): Result[Unit, System.Error] & Impure =
     Ok()
 
 def evalFlocRow(): RowWithHeadersEvaluator[FlocRow] = 
-    use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getString};
-    let* floc       = getString("FUNCLOC");
-    let* si         = getString("TPLKZ_FLC");    
-    let* ot         = getString("EQART");
+    use Data/RowReader/RowWithHeadersEvaluator.{flatMap, return, getStringNamed};
+    let* floc       = getStringNamed("FUNCLOC");
+    let* si         = getStringNamed("TPLKZ_FLC");    
+    let* ot         = getStringNamed("EQART");
     return({funcloc = floc, structureIndicator = si, objectType = ot})
 
 

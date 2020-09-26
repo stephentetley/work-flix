@@ -33,10 +33,10 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalEqobjl(), path)  
 
     def evalEqobjl(): RowEvaluator[Eqobjl] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getString};
-        let* supero     = getString(0);
-        let* subo       = getString(1);
-        let* cat        = getString(2);
+        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        let* supero     = getStringAt(0);
+        let* subo       = getStringAt(1);
+        let* cat        = getStringAt(2);
         return({superObject = supero, subObject = subo, category = cat})
 
 
@@ -44,9 +44,9 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalFlocdes(), path)           
 
     def evalFlocdes(): RowEvaluator[Flocdes] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getString};
-        let* objtype    = getString(0);
-        let* desc       = getString(1);
+        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        let* objtype    = getStringAt(0);
+        let* desc       = getStringAt(1);
         return({objectType = objtype, description = desc})
 
 
@@ -54,19 +54,19 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalFloobjl(), path)  
 
     def evalFloobjl(): RowEvaluator[Floobjl] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getString, liftOperation, evalContains};
-        let* struct     = getString(0);
-        let* supero     = getString(1);
-        let* subo       = getString(2);
+        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        let* struct     = getStringAt(0);
+        let* supero     = getStringAt(1);
+        let* subo       = getStringAt(2);
         return({structure = struct, superObject = supero, subObject = subo})
 
     pub def loadManuf(path: System.FilePath): Result[List[Manuf], System.Error] & Impure =
         importRows(evalManuf(), path)   
 
     def evalManuf(): RowEvaluator[Manuf] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getString};
-        let* manuf      = getString(0);
-        let* modl       = getString(1);
+        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        let* manuf      = getStringAt(0);
+        let* modl       = getStringAt(1);
         return({manufacturer = manuf, model = modl})
 
 
@@ -74,9 +74,9 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalObj(), path)  
 
     def evalObj(): RowEvaluator[Obj] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getString};
-        let* objectty   = getString(0);
-        let* manuf      = getString(1);
+        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        let* objectty   = getStringAt(0);
+        let* manuf      = getStringAt(1);
         return({objectType = objectty, manufacturer = manuf})
 
 

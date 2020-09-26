@@ -14,9 +14,9 @@ use LiftingReport/MakeReport.{makeReport};
 @test
 def test01(): Result[Unit, System.Error] & Impure =
     let config = 
-        { aiMemoLinesCsv = "G:/work/Projects/assets/lifting-equipment-reports/ewden-ai2-source-memolines.csv"
-        , aiInfosCsv = "G:/work/Projects/assets/lifting-equipment-reports/ewden-ai2-source-serial-num-etc.csv"
-        , equiMatchesCsv = "G:/work/Projects/assets/lifting-equipment-reports/01.lifting_equipment_types.csv"
-        , outputCsv = "G:/work/Projects/assets/lifting-equipment-reports/ewden_report1_output.csv"
+        { aiMemoLinesCsv    = "G:/work/assets/lifting-equipment-reports/ewden-ai2-source-memolines.csv"
+        , aiInfosCsv        = "G:/work/assets/lifting-equipment-reports/ewden-ai2-source-serial-num-etc.csv"
+        , equiMatchesCsv    = "G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.csv"
+        , outputCsv         = "G:/work/assets/lifting-equipment-reports/ewden_report1_output.csv"
         };
     makeReport(config)

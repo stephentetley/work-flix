@@ -34,9 +34,9 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/CsvReader {
 
 
     def getAibRow(): CsvRowEvaluator[AibRow] =
-        use FactIO/CsvRowEvaluator.{flatMap, return, getStringByLabel}; 
-        let* reference      = getStringByLabel("Reference");
-        let* commonName     = getStringByLabel("Common Name");
+        use FactIO/CsvRowEvaluator.{flatMap, return, getStringNamed}; 
+        let* reference      = getStringNamed("Reference");
+        let* commonName     = getStringNamed("Common Name");
         return({reference = reference, commonName = commonName})
 
 }

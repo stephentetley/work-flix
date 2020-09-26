@@ -33,15 +33,15 @@ namespace AssetLib/S4/FileIO/UxlCsv/CsvReader {
 
 
     def evalFlClassification(): CsvRowEvaluator[FlClassification] = 
-        use FactIO/CsvRowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex};
-        let* floc                   = getStringByIndex(0);
-        let* deleteInd              = getBool(1);
-        let* classType              = getStringByIndex(2);
-        let* className              = getStringByIndex(3);
-        let* status                 = getInt32ByIndex(4);
-        let* characteristicName     = getStringByIndex(5);
-        let* charValue              = getStringByIndex(6);
-        let* charDeleteInd          = getBool(7);
+        use FactIO/CsvRowEvaluator.{flatMap, return, getStringAt, getInt32At};
+        let* floc                   = getStringAt(0);
+        let* deleteInd              = getBoolAt(1);
+        let* classType              = getStringAt(2);
+        let* className              = getStringAt(3);
+        let* status                 = getInt32At(4);
+        let* characteristicName     = getStringAt(5);
+        let* charValue              = getStringAt(6);
+        let* charDeleteInd          = getBoolAt(7);
         return({ 
             functionalLocation = floc, 
             deletionInd = deleteInd, 
@@ -64,15 +64,15 @@ namespace AssetLib/S4/FileIO/UxlCsv/CsvReader {
 
 
     def evalEqClassification(): CsvRowEvaluator[EqClassification] = 
-        use FactIO/CsvRowEvaluator.{flatMap, return, getStringByIndex, getInt32ByIndex};
-        let* equiId                 = getStringByIndex(0);
-        let* deleteInd              = getBool(1);
-        let* classType              = getStringByIndex(2);
-        let* className              = getStringByIndex(3);
-        let* status                 = getInt32ByIndex(4);
-        let* characteristicName     = getStringByIndex(5);
-        let* charValue              = getStringByIndex(6);
-        let* charDeleteInd          = getBool(7);
+        use FactIO/CsvRowEvaluator.{flatMap, return, getStringAt, getInt32At};
+        let* equiId                 = getStringAt(0);
+        let* deleteInd              = getBoolAt(1);
+        let* classType              = getStringAt(2);
+        let* className              = getStringAt(3);
+        let* status                 = getInt32At(4);
+        let* characteristicName     = getStringAt(5);
+        let* charValue              = getStringAt(6);
+        let* charDeleteInd          = getBoolAt(7);
         return({ 
             equiId = equiId, 
             deleteInd = deleteInd, 
@@ -84,9 +84,9 @@ namespace AssetLib/S4/FileIO/UxlCsv/CsvReader {
             charDeleteInd = charDeleteInd
             })
 
-    def getBool(ix: Int32): CsvRowEvaluator[Bool] = 
-        use FactIO/CsvRowEvaluator.{flatMap, getStringByIndex, return};
-        let* x = getStringByIndex(ix);
+    def getBoolAt(ix: Int32): CsvRowEvaluator[Bool] = 
+        use FactIO/CsvRowEvaluator.{flatMap, getStringAt, return};
+        let* x = getStringAt(ix);
         if (x == "X") return(true) else return(false)
 
 }

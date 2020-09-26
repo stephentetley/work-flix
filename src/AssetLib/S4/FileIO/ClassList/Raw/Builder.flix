@@ -76,9 +76,9 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/Builder {
 
     def intRangeHelper(src: String): Result[Refinement, System.Error] & Impure = 
         use Result.flatMap;
-        use Text/Regex/MatchEvaluator.{lift2, getNamedCaptureInt32};
+        use Text/Regex/MatchEvaluator.{lift2, getInt32Named};
         let* patt = Text/Regex/Pattern.compile("(?<start>\d+) \- (?<end>\d+)");
-        let eval = lift2((x,y) -> IntRange(x,y), getNamedCaptureInt32("start"), getNamedCaptureInt32("end"));
+        let eval = lift2((x,y) -> IntRange(x,y), getInt32Named("start"), getInt32Named("end"));
         Text/Regex.evalContains(src, patt, eval)
 
     /// Print Html via a rose tree

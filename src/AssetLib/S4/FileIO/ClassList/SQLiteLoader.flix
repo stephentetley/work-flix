@@ -44,9 +44,9 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
         let* r5     = loadClassMembers(path);
         Ok(solve r1 <+> r2 <+> r3 <+> r4 <+> r5)
 
-    def getDatatypeByLabel(label: String): JdbcRowEvaluator[Datatype] = 
-        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringByLabel, throwError};
-        let* str = getStringByLabel(label);
+    def getDatatypeNamed(label: String): JdbcRowEvaluator[Datatype] = 
+        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringNamed, throwError};
+        let* str = getStringNamed(label);
         match str { 
             case "Text"         => return(Text)
             case "Int"          => return(IntNum)
@@ -65,9 +65,9 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
         Ok(relns)
 
     def evalClassMember[r](): JdbcRowEvaluator[#{ClassMember | r}] = 
-        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringByLabel};
-        let* className      = getStringByLabel("classname");
-        let* charName       = getStringByLabel("charname");
+        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringNamed};
+        let* className      = getStringNamed("classname");
+        let* charName       = getStringNamed("charname");
         return( ClassMember(className, charName). )
 
     /// Characteristic
@@ -80,11 +80,11 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
 
     
     def evalCharacteristic[r](): JdbcRowEvaluator[#{Characteristic | r}] = 
-        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringByLabel, getInt32ByLabel, optional};
-        let* charName       = getStringByLabel("charname");
-        let* datatype       = getDatatypeByLabel("datatype");
-        let* charLength     = getInt32ByLabel("num_chars");
-        let* optPrecision   = optional(getInt32ByLabel("decimal_places"));
+        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringNamed, getInt32Named, optional};
+        let* charName       = getStringNamed("charname");
+        let* datatype       = getDatatypeNamed("datatype");
+        let* charLength     = getInt32Named("num_chars");
+        let* optPrecision   = optional(getInt32Named("decimal_places"));
         return( Characteristic(charName, datatype, charLength, optPrecision). )
 
     /// SelectionValue
@@ -96,9 +96,9 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
         Ok(relns)
 
     def evalSelectionValue[r](): JdbcRowEvaluator[#{SelectionValue | r}] = 
-        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringByLabel};
-        let* charName       = getStringByLabel("charname");
-        let* value          = getStringByLabel("value");
+        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringNamed};
+        let* charName       = getStringNamed("charname");
+        let* value          = getStringNamed("value");
         return( SelectionValue(charName, value). )
 
     /// IntRange
@@ -110,10 +110,10 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
         Ok(relns)
 
     def evalIntRange[r](): JdbcRowEvaluator[#{IntRange | r}] = 
-        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringByLabel, getInt32ByLabel};
-        let* charName       = getStringByLabel("charname");
-        let* low            = getInt32ByLabel("range_low");
-        let* high           = getInt32ByLabel("range_high");
+        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringNamed, getInt32Named};
+        let* charName       = getStringNamed("charname");
+        let* low            = getInt32Named("range_low");
+        let* high           = getInt32Named("range_high");
         return( IntRange(charName, low, high). )
 
     /// DecimalRange
@@ -125,10 +125,10 @@ namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
         Ok(relns)
 
     def evalDecimalRange[r](): JdbcRowEvaluator[#{DecimalRange | r}] = 
-        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringByLabel, getFloat64ByLabel};
-        let* charName       = getStringByLabel("charname");
-        let* low            = getFloat64ByLabel("range_low");
-        let* high           = getFloat64ByLabel("range_high");
+        use FactIO/JdbcRowEvaluator.{flatMap, return, getStringNamed, getFloat64Named};
+        let* charName       = getStringNamed("charname");
+        let* low            = getFloat64Named("range_low");
+        let* high           = getFloat64Named("range_high");
         return( DecimalRange(charName, low, high). )
     
 
