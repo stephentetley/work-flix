@@ -80,23 +80,9 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
 
     def evalRow(): RowEvaluator[(Int32, Int32)] = 
-        use BasicDb/RowEvaluator.{tuple2, getInt32};
-        tuple2(getInt32(0), getInt32(1))
+        use BasicDb/RowEvaluator.{tuple2, getInt32At};
+        tuple2(getInt32At(0), getInt32At(1))
 
 
-    // rel Restricted(charname: String)
-
-    // def isRestricted[r](db: #{IntRange, Restricted | r}, charname: String): Bool = 
-    //     let rules = #{
-    //         Restricted(name) :- IntRange(name, _, _).
-    //     };
-    //     (solve db <+> rules) |= Restricted(charname).
-
-    
-    // def isRestrictedValue[r](db: #{IntRange, Restricted | r}, charname: String, value: Int32): Bool = 
-    //     let rules = #{
-    //         Restricted(name) :- IntRange(name, low, high), if low <= value && value <= high.
-    //     };
-    //     (solve db <+> rules) |= Restricted(charname).
 
 }

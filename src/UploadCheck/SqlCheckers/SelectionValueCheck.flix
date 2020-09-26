@@ -55,7 +55,7 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
         use BasicDb/DbMonad.{flatMap, return};
         let* pstmt  = prepareStatement("SELECT COUNT(value) FROM ${prefix}_selection_values WHERE charname = ?;");
         let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putString!(0,  charname));
-        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
+        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
         let* _      = rsClose(rs);
         return(n > 0)
 
@@ -64,7 +64,7 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
         use BasicDb/DbMonad.{flatMap, return};
         let* pstmt  = prepareStatement("SELECT COUNT(value) FROM ${prefix}_selection_values WHERE charname = ? AND value = ?;");
         let* rs     = psExecuteQuery(pstmt, restrictedValueSetter(charname, value));
-        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
+        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
         let* _      = rsClose(rs);
         return(n > 0)
 

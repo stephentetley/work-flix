@@ -47,7 +47,7 @@ namespace UploadCheck/SqlCheckers/CharInClassCheck {
         use BasicDb/DbMonad.{flatMap, return};
         let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM ${prefix}_class_members WHERE classname = ? AND charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPrepStmt!(charname, classname));
-        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32(0));
+        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
         let* _      = rsClose(rs);
         return(n > 0)
 

@@ -33,7 +33,7 @@ namespace UploadCheck/SqlCheckers/SqlCommon {
         use BasicDb/DbMonad.{flatMap, return};
         let* pstmt  = prepareStatement("SELECT DISTINCT datatype FROM ${prefix}_characteristics WHERE charname = ?");        
         let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putString!(0,  charname));
-        let* ans    = optional(firstRow(rs, BasicDb/RowEvaluator.getString(0)));
+        let* ans    = optional(firstRow(rs, BasicDb/RowEvaluator.getStringAt(0)));
         let* _      = rsClose(rs);
         return(Option.flatMap(decodeDatatype, ans))
 
