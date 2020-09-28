@@ -39,7 +39,7 @@ namespace AssetLib/S4/FileIO/UxlFile/CsvReader {
         let* deleteInd              = getBoolAt(1);
         let* classType              = getStringAt(2);
         let* className              = getStringAt(3);
-        let* status                 = getInt32At(4);
+        let* status                 = getStringAt(4);
         let* characteristicName     = getStringAt(5);
         let* charValue              = getStringAt(6);
         let* charDeleteInd          = getBoolAt(7);
@@ -70,7 +70,7 @@ namespace AssetLib/S4/FileIO/UxlFile/CsvReader {
         let* deleteInd              = getBoolAt(1);
         let* classType              = getStringAt(2);
         let* className              = getStringAt(3);
-        let* status                 = getInt32At(4);
+        let* status                 = getStringAt(4);
         let* characteristicName     = getStringAt(5);
         let* charValue              = getStringAt(6);
         let* charDeleteInd          = getBoolAt(7);

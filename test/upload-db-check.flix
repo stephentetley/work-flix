@@ -14,13 +14,12 @@ use UploadCheck/SqlCheckers/TypeCheck.{flocTypeCheck, equiTypeCheck};
 
 
 def main(): Unit & Impure = 
-    let equiCsv = System/FilePath.new("G:/work/assets/uxl/LANGS_v52-7_eqclassification.csv");
-    match runSQLite(checkEquis(equiCsv), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+    let xlsxPath = System/FilePath.new("G:/work/assets/uxl/LANGS_MMOP_ALL_v52-7.xlsx");
+    match runSQLite(checkEquis(xlsxPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok(xs) => List.foreach(printCheck, xs)
     };
-    let flocCsv = System/FilePath.new("G:/work/assets/uxl/LANGS_v52-7_flclassification.csv");
-    match runSQLite(checkFlocs(flocCsv), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+    match runSQLite(checkFlocs(xlsxPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok(xs) => List.foreach(printCheck, xs)
     }
@@ -32,9 +31,9 @@ def checkFlocRow(): RowChecker[FlClassification] =
         flocTypeCheck())
     
 
-def checkFlocs(equiCsv: System.FilePath): DbMonad[List[RowCheck]] = 
+def checkFlocs(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/CsvReader.loadFlClassifications(equiCsv));
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadFlClassifications(xlsxPath));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
     let* xs         = mapWithIndexM(execRowChecker(checkFlocRow()), rows);
     return(xs)
@@ -47,9 +46,9 @@ def checkEquiRow(): RowChecker[EqClassification] =
         equiTypeCheck() <&&> equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass())
     
 
-def checkEquis(equiCsv: System.FilePath): DbMonad[List[RowCheck]] = 
+def checkEquis(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/CsvReader.loadEqClassifications(equiCsv));
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEqClassifications(xlsxPath));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
     let* xs         = mapWithIndexM(execRowChecker(checkEquiRow()), rows);
     return(xs)
