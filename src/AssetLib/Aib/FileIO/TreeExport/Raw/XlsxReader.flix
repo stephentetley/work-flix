@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
-use FactIO.CsvRowEvaluator;
-use FactIO/CsvImport.{getRows};
 
-use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow};
 
-/// Use FactIO but build a list rather than a set of relations.
-/// (Hence is called CsvReader not CsvLoader)
 
-namespace AssetLib/Aib/FileIO/TreeExport/Raw/CsvReader {
 
+namespace AssetLib/Aib/FileIO/TreeExport/Raw/XlsxReader {
+
+    use SheetIO.NamedRowEvaluator;
+    use SheetIO.SheetReader;
+
+    use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow};
 
     pub def readAibTreeFile(path: System.FilePath): Result[AibTreeFile, System.Error] & Impure =    
-        use Result.flatMap;
-        use FactIO/CsvFormat.{excel, withFirstRecordAsHeader};
-        let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* xs = FactIO/CsvImport.evaluateRows(getAibRow(), src);
-        Ok(xs)
+        SheetIO/SheetReader.runXlsx(readAibSheet(), path)
+
+    pub def readAibSheet(): SheetReader[List[AibRow]] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
+        let* s1     = getSheet("Sheet1");
+        let* xs     = allNamedRows(s1, evalAibRow());
+        return(xs)
 
 
-    def getAibRow(): CsvRowEvaluator[AibRow] =
-        use FactIO/CsvRowEvaluator.{flatMap, return, getStringNamed}; 
+    def evalAibRow(): NamedRowEvaluator[AibRow] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed}; 
         let* reference      = getStringNamed("Reference");
         let* commonName     = getStringNamed("Common Name");
         return({reference = reference, commonName = commonName})
