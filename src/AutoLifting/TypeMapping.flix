@@ -16,9 +16,13 @@
 
 namespace AutoLifting/TypeMapping {
 
-    pub rel Distinguished(aibType: String, pattern: String, category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
+    use AutoLifting/MappingTable.{Distinguished, Ordinary};
 
-    pub rel Oridnary(aibType: String, category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
+
+    def oneOption(xs: List[a]): Option[a] = match xs {
+        case x :: Nil   => Some(x)
+        case _          => None
+    }
 
     pub rel TypeAnswer(category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
 
@@ -46,6 +50,12 @@ namespace AutoLifting/TypeMapping {
         { category = cat, s4Object = obj, s4Class = cls, fixedOrPortable = if (fop == "Fixed") Fixed else Portable }
 
 
+    pub def getS4TypeInfo[r](db: #{Distinguished, Ordinary, TypeAnswer | r}, srcType: String, srcName: String): Option[Answer] = 
+        match oneOption(distinguishedMatch(db, srcType, srcName)) { 
+            case Some(x) => Some(x)
+            case None => oneOption(ordinaryMatch(db, srcType))
+        }
+
     pub def distinguishedMatch[r](db: #{Distinguished, TypeAnswer | r}, srcType: String, srcName: String): List[Answer] = 
         let nameContains = (x, pat) -> Text/Regex.contains(x, Text/Regex/Pattern.irrefutablePattern(pat));
         
@@ -59,7 +69,14 @@ namespace AutoLifting/TypeMapping {
         fold TypeAnswer Nil ((x, ac) -> typeAnswerToAnswer(x) :: ac) ans
 
 
-
+    pub def ordinaryMatch[r](db: #{Ordinary, TypeAnswer | r}, srcType: String): List[Answer] = 
+        let rules = #{
+            TypeAnswer(cat, obj, cls, fop) :- 
+                Ordinary(atyp, cat, obj, cls, fop), 
+                if atyp == srcType.
+        };
+        let ans = solve (db <+> rules);
+        fold TypeAnswer Nil ((x, ac) -> typeAnswerToAnswer(x) :: ac) ans
 
 
 }

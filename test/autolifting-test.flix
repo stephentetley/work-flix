@@ -15,10 +15,16 @@
 use AutoLifting/TypeMapping.TypeAnswer;
 
 def main(): Unit & Impure = 
-    use AutoLifting/TypeMapping.{Distinguished, distinguishedMatch};
-    let db = #{
-        Distinguished("EQUIPMENT: BEAMS - LIFTING AND SPREADING", "BEAM", "H", "CRHT", "CRHTLB", "Fixed").
-    };
-    let xs = distinguishedMatch(db, "EQUIPMENT: BEAMS - LIFTING AND SPREADING", "xzy/STATUTORY/LIFTING EQUIPMENT/YW12345 RUNWAY BEAM/BEAMS - LIFTING AND SPREADING");
-    List.foreach(x -> Console.printLine(AutoLifting/TypeMapping.showAnswer(x)), xs)
+    use AutoLifting/MappingTable.{Distinguished, readMappingFile};
+    use AutoLifting/TypeMapping.{getS4TypeInfo};
+
+    let tablePath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
+    match readMappingFile(tablePath) {
+        case Ok(db) => {
+            let ans = getS4TypeInfo(db, "EQUIPMENT: BEAMS - LIFTING AND SPREADING", "YW12345 BEAM 1");
+            Option.foreach(x -> Console.printLine(AutoLifting/TypeMapping.showAnswer(x)), ans)
+        }
+        case Err(msg) => Console.printLine(System/Error.toString(msg))
+    }
+    
 

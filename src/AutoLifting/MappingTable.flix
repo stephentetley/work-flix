@@ -19,7 +19,9 @@ namespace AutoLifting/MappingTable {
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
-    // AI2 Equi Type, Name Contains, Category, Object Type, Classification, S4 Description (in classes export Pdf), Fixed or Portable
+    pub rel Distinguished(aibType: String, pattern: String, category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
+
+    pub rel Ordinary(aibType: String, category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
 
     type alias MappingTableRow = 
         { aibEquipmentType: String
@@ -30,8 +32,11 @@ namespace AutoLifting/MappingTable {
         , fixedOrPortable: String
         }
 
-    pub def readFile(path: System.FilePath) : Result[List[MappingTableRow], System.Error] & Impure = 
-        SheetIO/SheetReader.runXlsx(readMappingTable(), path)
+    pub def readMappingFile[r](path: System.FilePath) : Result[#{Distinguished, Ordinary | r}, System.Error] & Impure = 
+        Result.map(
+            makeMappings, 
+            SheetIO/SheetReader.runXlsx(readMappingTable(), path)
+        )
 
     def readMappingTable(): SheetReader[List[MappingTableRow]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
@@ -58,5 +63,16 @@ namespace AutoLifting/MappingTable {
             <*> getStringNamed("Object Type")
             <*> getStringNamed("Classification")
             <*> getStringNamed("Fixed or Portable")
+
+    /// TODO - could compile regex pattern at this point so we have control of Pattern.compile errors
+    def makeMappings[r](xs: List[MappingTableRow]): #{Distinguished, Ordinary | r} = 
+        List.foldLeft((ac,x) -> ac <+> makeSingleMapping(x), #{}, xs)
+
+    def makeSingleMapping[r](x: MappingTableRow): #{Distinguished, Ordinary | r} = 
+        match x.nameContains { 
+            case Some(pat) => Distinguished(x.aibEquipmentType, pat, x.category, x.s4ObjectType, x.s4ObjectClass, x.fixedOrPortable).
+            case None => Ordinary(x.aibEquipmentType, x.category, x.s4ObjectType, x.s4ObjectClass, x.fixedOrPortable).
+        } 
+
 
 }
