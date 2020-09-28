@@ -16,11 +16,26 @@
 
 namespace AutoLifting/SaiReferenceTable {
 
+    use AutoLifting/WorkList.EquiWorkItem;
+
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
     
     /// Use a Map rather than Datalog because this is so simple
 
-    pub def buildAssetReferences(xs: List[AibExportRow]): Map[String, String] = 
+
+    pub def getSaiReferenceTable(path: System.FilePath): Result[Map[String, String], System.Error] & Impure =        
+        use Result.flatMap; 
+        let* xs = AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path);
+        let _   = Console.printLine("Length1 = ${Int32.toString(List.length(xs))}");
+        let ans = buildAssetReferences(xs);
+        Ok(ans)
+
+    pub def getSaiParentReference(x: EquiWorkItem, m: Map[String, String]): Option[String] = 
+        Map.get(x.parentName, m)
+
+
+
+    def buildAssetReferences(xs: List[AibExportRow]): Map[String, String] = 
         List.foldLeft((ac, x) ->  insertStep(x, ac), Map.empty(), xs)
 
 

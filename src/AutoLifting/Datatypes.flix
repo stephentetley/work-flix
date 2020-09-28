@@ -23,8 +23,26 @@ namespace AutoLifting/Datatypes {
 
   
     type alias ChildNew = 
-        { 
-            
+        { aibName: String
+        , s4Name: String
+        , pliReference: String
+        , parentSaiReference: String
         }
+
+
+    type alias S4TypeInfo = 
+        { category: String 
+        , s4Object: String
+        , s4Class: String
+        , fixedOrPortable: FixedOrPortable
+        }
+
+    pub def showS4TypeInfo(x: S4TypeInfo): String = 
+        let fop = match x.fixedOrPortable { 
+                    case Fixed => "Fixed"
+                    case Portable => "Portable"
+        };
+        "<${x.category}, ${x.s4Object}, ${x.s4Class}, ${fop}>"
+
 
 }

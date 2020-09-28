@@ -35,8 +35,9 @@ def main(): Unit & Impure =
     }
 
 def main2(): Result[Unit, System.Error] & Impure = 
+    use AutoLifting/Datatypes.{showS4TypeInfo};
     use AutoLifting/MappingTable.{readMappingFile};
-    use AutoLifting/TypeMapping.{getS4TypeInfo, showS4TypeInfo};
+    use AutoLifting/TypeMapping.{getS4TypeInfo};
     use AutoLifting/WorkList.{getWorkList};
     use Result.flatMap;
     let tablePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");

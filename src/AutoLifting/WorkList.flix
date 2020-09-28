@@ -21,6 +21,7 @@ namespace AutoLifting/WorkList {
     type alias EquiWorkItem = 
         { equiName: String
         , equiType: String
+        , parentName: String
         }
 
 
@@ -42,6 +43,9 @@ namespace AutoLifting/WorkList {
         use Result.flatMap;
         let* name = getEquiNameFromCommonName(x.assetName);
         let* typ = getEquiTypeFromCommonName(x.assetName);
-        Ok({ equiName = name, equiType = typ})
+        Ok({ equiName = name, 
+             equiType = typ, 
+             parentName = x.newParentName 
+            })
 
 }

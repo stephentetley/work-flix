@@ -16,33 +16,11 @@
 
 namespace AutoLifting/TypeMapping {
 
-    use AutoLifting/Datatypes.FixedOrPortable;
+    use AutoLifting/Datatypes.{FixedOrPortable, S4TypeInfo};
     use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
     use AutoLifting/MappingTable.{Distinguished, Ordinary};
 
-
-    def oneOption(xs: List[a]): Option[a] = match xs {
-        case x :: Nil   => Some(x)
-        case _          => None
-    }
-
     pub rel TypeAnswer(category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
-
-
-
-    type alias S4TypeInfo = 
-        { category: String 
-        , s4Object: String
-        , s4Class: String
-        , fixedOrPortable: FixedOrPortable
-        }
-
-    pub def showS4TypeInfo(x: S4TypeInfo): String = 
-        let fop = match x.fixedOrPortable { 
-                    case Fixed => "Fixed"
-                    case Portable => "Portable"
-        };
-        "<${x.category}, ${x.s4Object}, ${x.s4Class}, ${fop}>"
 
     def typeAnswerToS4TypeInfo(src: (String, String, String, String)): S4TypeInfo = 
         let (cat, obj, cls, fop) = src;
@@ -54,6 +32,11 @@ namespace AutoLifting/TypeMapping {
             case Some(x) => Some(x)
             case None => oneOption(ordinaryMatch(db, srcType))
         }
+    
+    def oneOption(xs: List[a]): Option[a] = match xs {
+        case x :: Nil   => Some(x)
+        case _          => None
+    }
 
     pub def distinguishedMatch[r](db: #{Distinguished, TypeAnswer | r}, srcType: String, srcName: String): List[S4TypeInfo] = 
         let nameContains = (x, pat) -> Text/Regex.contains(x, Text/Regex/Pattern.irrefutablePattern(pat));
