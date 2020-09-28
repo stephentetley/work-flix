@@ -22,7 +22,7 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification, FlocClassification};
+use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlocClassification};
 use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
 use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 

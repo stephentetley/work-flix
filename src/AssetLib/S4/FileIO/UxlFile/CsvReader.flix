@@ -14,12 +14,13 @@
  * limitations under the License.
  */
     
-use FactIO/CsvImport.{};
-use FactIO.CsvRowEvaluator;
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{FlClassification, EqClassification};
+namespace AssetLib/S4/FileIO/UxlFile/CsvReader {
 
-namespace AssetLib/S4/FileIO/UxlCsv/CsvReader {
+
+    use FactIO.CsvRowEvaluator;
+
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, EqClassification};
 
     /// Note - the Csv input may trail with blank rows...
 

@@ -3,7 +3,7 @@ use Data.Check.{Pass, Fail};
 use BasicDb.DbMonad;
 use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, mapWithIndexM};
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{FlClassification, EqClassification};
+use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, EqClassification};
 
 use UploadCheck/Base/RowCheck.{RowChecker, RowCheck, RowFail, execRowChecker};
 use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
@@ -34,7 +34,7 @@ def checkFlocRow(): RowChecker[FlClassification] =
 
 def checkFlocs(equiCsv: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadFlClassifications(equiCsv));
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/CsvReader.loadFlClassifications(equiCsv));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
     let* xs         = mapWithIndexM(execRowChecker(checkFlocRow()), rows);
     return(xs)
@@ -49,7 +49,7 @@ def checkEquiRow(): RowChecker[EqClassification] =
 
 def checkEquis(equiCsv: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(equiCsv));
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/CsvReader.loadEqClassifications(equiCsv));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
     let* xs         = mapWithIndexM(execRowChecker(checkEquiRow()), rows);
     return(xs)

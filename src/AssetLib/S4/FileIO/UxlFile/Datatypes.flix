@@ -15,7 +15,7 @@
  */
     
 
-namespace AssetLib/S4/FileIO/UxlCsv/Datatypes {
+namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
 
 
     // Functional Location,Deletion Ind,Class Type,Class,Status,Characteristics,Char Value,Ch.Deletion Ind.

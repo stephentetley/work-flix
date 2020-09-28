@@ -1,5 +1,5 @@
 
-use AssetLib/S4/FileIO/UxlCsv/Datatypes.{EqClassification};
+use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification};
 use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember};
 use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{CharacteristicsDb, loadCharacteristicsDb};
 
@@ -24,7 +24,7 @@ def main(): Unit & Impure =
         let dbPath      = System/FilePath.new("G:/work/assets/facts/equi_characteristics.sqlite");
         let* db         = loadCharacteristicsDb(dbPath);
         let uxlSrc      = System/FilePath.new("G:/work/assets/uxl/eq_characteristics.csv");
-        let* rows       = AssetLib/S4/FileIO/UxlCsv/CsvReader.loadEqClassifications(uxlSrc);
+        let* rows       = AssetLib/S4/FileIO/UxlFile/CsvReader.loadEqClassifications(uxlSrc);
         let db1         = project ClassMember db;
         let _           = Console.printLine("Running...");
         let _           = List.foreach(x -> if (runCharacteristicInClassCheck(db1, x)) Console.printLine("ok") else Console.printLine("check failed"), rows);
