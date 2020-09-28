@@ -1,0 +1,52 @@
+/*
+ * Copyright 2020 Stephen Tetley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader {
+
+    use SheetIO.SheetReader;
+    use SheetIO.NamedRowEvaluator;
+
+    use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+
+    pub def readFile(path: System.FilePath) : Result[List[AibExportRow], System.Error] & Impure = 
+        SheetIO/SheetReader.runXlsx(readAideChanges(), path)
+
+    def readAideChanges(): SheetReader[List[AibExportRow]] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
+        let* s1     = getSheet("Sheet1");
+        let* xs     = allNamedRows(s1, evalAibExportRow());
+        return(xs)
+
+
+    // Change,Reference,Asset Name,OldParentName,NewParentName
+    def evalAibExportRow(): NamedRowEvaluator[AibExportRow] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};
+        let* s0     = getStringNamed("Change");
+        let* s1     = getStringNamed("Reference");
+        let* s2     = getStringNamedWithDefault("Asset Name", "");
+        let* s3     = getStringNamedWithDefault("OldParentName", "");
+        let* s4     = getStringNamedWithDefault("NewParentName", "");
+        return( { change = s0
+                , reference = s1
+                , assetName = s2
+                , oldParentName = s3
+                , newParentName = s4
+                } )
+
+}
+
+
+
