@@ -50,7 +50,7 @@ namespace AutoLifting/TypeMapping {
         { category = cat, s4Object = obj, s4Class = cls, fixedOrPortable = if (fop == "Fixed") Fixed else Portable }
 
 
-    pub def getS4TypeInfo[r](db: #{Distinguished, Ordinary, TypeAnswer | r}, srcType: String, srcName: String): Option[Answer] = 
+    pub def getS4TypeInfo[r](db: #{Distinguished, Ordinary, TypeAnswer | r}, srcName: String, srcType: String): Option[Answer] = 
         match oneOption(distinguishedMatch(db, srcType, srcName)) { 
             case Some(x) => Some(x)
             case None => oneOption(ordinaryMatch(db, srcType))

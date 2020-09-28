@@ -13,18 +13,42 @@
 
 
 use AutoLifting/TypeMapping.TypeAnswer;
+use AutoLifting/WorkList.EquiWorkItem;
 
+/// def main(): Unit & Impure = 
+///     use AutoLifting/MappingTable.{readMappingFile};
+///     use AutoLifting/TypeMapping.{getS4TypeInfo};
+
+///     let tablePath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
+///     match readMappingFile(tablePath) {
+///         case Ok(db) => {
+///             let ans = getS4TypeInfo(db, "EQUIPMENT: BEAMS - LIFTING AND SPREADING", "YW12345 BEAM 1");
+///             Option.foreach(x -> Console.printLine(AutoLifting/TypeMapping.showAnswer(x)), ans)
+///         }
+///         case Err(msg) => Console.printLine(System/Error.toString(msg))
+///     }
+    
 def main(): Unit & Impure = 
-    use AutoLifting/MappingTable.{Distinguished, readMappingFile};
-    use AutoLifting/TypeMapping.{getS4TypeInfo};
-
-    let tablePath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
-    match readMappingFile(tablePath) {
-        case Ok(db) => {
-            let ans = getS4TypeInfo(db, "EQUIPMENT: BEAMS - LIFTING AND SPREADING", "YW12345 BEAM 1");
-            Option.foreach(x -> Console.printLine(AutoLifting/TypeMapping.showAnswer(x)), ans)
-        }
+    match main2() {
+        case Ok() => Console.printLine("Done.")
         case Err(msg) => Console.printLine(System/Error.toString(msg))
     }
-    
+
+def main2(): Result[Unit, System.Error] & Impure = 
+    use AutoLifting/MappingTable.{readMappingFile};
+    use AutoLifting/TypeMapping.{getS4TypeInfo};
+    use AutoLifting/WorkList.{getWorkList};
+    use Result.flatMap;
+    let tablePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
+    let* db         = readMappingFile(tablePath);
+    let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/BBMED.xlsx");
+    let* xs         = getWorkList(workPath);
+    let _           = List.foreach(x1 ->
+                        match getS4TypeInfo(db, x1.equiName, x1.equiType) { 
+                            case Some(x) => Console.printLine(x1.equiName + ": " + AutoLifting/TypeMapping.showAnswer(x))
+                            case None => Console.printLine(x1.equiName + ": ??")
+                        }
+                        , xs);
+    Ok()
+
 
