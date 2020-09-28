@@ -16,6 +16,9 @@
 
 namespace AutoLifting/Common {
 
+    use AutoLifting/Datatypes.FixedOrPortable;
+    use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
+
     pub def getEquiNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
         use Text/Regex.{evalContains};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
@@ -43,6 +46,11 @@ namespace AutoLifting/Common {
                         , getCaptureNamed("rest")
                         );
         Text/Regex.rewriteWith(s, patt, eval)
+
+    pub def flocLocation(root: String, fop: FixedOrPortable): String = match fop { 
+        case Fixed => root + "-SMS-LFT-FLT-SYS01"
+        case Portable => root + "-SMS-LFT-PRL-SYS01"
+    }
         
 
 }

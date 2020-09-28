@@ -16,6 +16,8 @@
 
 namespace AutoLifting/TypeMapping {
 
+    use AutoLifting/Datatypes.FixedOrPortable;
+    use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
     use AutoLifting/MappingTable.{Distinguished, Ordinary};
 
 
@@ -26,37 +28,34 @@ namespace AutoLifting/TypeMapping {
 
     pub rel TypeAnswer(category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
 
-    pub enum FixedOrPortable { 
-        case Fixed
-        case Portable
-    }
 
-    type alias Answer = 
+
+    type alias S4TypeInfo = 
         { category: String 
         , s4Object: String
         , s4Class: String
         , fixedOrPortable: FixedOrPortable
         }
 
-    pub def showAnswer(x: Answer): String = 
+    pub def showS4TypeInfo(x: S4TypeInfo): String = 
         let fop = match x.fixedOrPortable { 
                     case Fixed => "Fixed"
                     case Portable => "Portable"
         };
         "<${x.category}, ${x.s4Object}, ${x.s4Class}, ${fop}>"
 
-    def typeAnswerToAnswer(src: (String, String, String, String)): Answer = 
+    def typeAnswerToS4TypeInfo(src: (String, String, String, String)): S4TypeInfo = 
         let (cat, obj, cls, fop) = src;
         { category = cat, s4Object = obj, s4Class = cls, fixedOrPortable = if (fop == "Fixed") Fixed else Portable }
 
 
-    pub def getS4TypeInfo[r](db: #{Distinguished, Ordinary, TypeAnswer | r}, srcName: String, srcType: String): Option[Answer] = 
+    pub def getS4TypeInfo[r](db: #{Distinguished, Ordinary, TypeAnswer | r}, srcName: String, srcType: String): Option[S4TypeInfo] = 
         match oneOption(distinguishedMatch(db, srcType, srcName)) { 
             case Some(x) => Some(x)
             case None => oneOption(ordinaryMatch(db, srcType))
         }
 
-    pub def distinguishedMatch[r](db: #{Distinguished, TypeAnswer | r}, srcType: String, srcName: String): List[Answer] = 
+    pub def distinguishedMatch[r](db: #{Distinguished, TypeAnswer | r}, srcType: String, srcName: String): List[S4TypeInfo] = 
         let nameContains = (x, pat) -> Text/Regex.contains(x, Text/Regex/Pattern.irrefutablePattern(pat));
         
         let rules = #{
@@ -66,17 +65,17 @@ namespace AutoLifting/TypeMapping {
                 nameContains(srcName, pat).
         };
         let ans = solve (db <+> rules);
-        fold TypeAnswer Nil ((x, ac) -> typeAnswerToAnswer(x) :: ac) ans
+        fold TypeAnswer Nil ((x, ac) -> typeAnswerToS4TypeInfo(x) :: ac) ans
 
 
-    pub def ordinaryMatch[r](db: #{Ordinary, TypeAnswer | r}, srcType: String): List[Answer] = 
+    pub def ordinaryMatch[r](db: #{Ordinary, TypeAnswer | r}, srcType: String): List[S4TypeInfo] = 
         let rules = #{
             TypeAnswer(cat, obj, cls, fop) :- 
                 Ordinary(atyp, cat, obj, cls, fop), 
                 if atyp == srcType.
         };
         let ans = solve (db <+> rules);
-        fold TypeAnswer Nil ((x, ac) -> typeAnswerToAnswer(x) :: ac) ans
+        fold TypeAnswer Nil ((x, ac) -> typeAnswerToS4TypeInfo(x) :: ac) ans
 
 
 }

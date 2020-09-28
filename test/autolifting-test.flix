@@ -36,7 +36,7 @@ def main(): Unit & Impure =
 
 def main2(): Result[Unit, System.Error] & Impure = 
     use AutoLifting/MappingTable.{readMappingFile};
-    use AutoLifting/TypeMapping.{getS4TypeInfo};
+    use AutoLifting/TypeMapping.{getS4TypeInfo, showS4TypeInfo};
     use AutoLifting/WorkList.{getWorkList};
     use Result.flatMap;
     let tablePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
@@ -45,7 +45,7 @@ def main2(): Result[Unit, System.Error] & Impure =
     let* xs         = getWorkList(workPath);
     let _           = List.foreach(x1 ->
                         match getS4TypeInfo(db, x1.equiName, x1.equiType) { 
-                            case Some(x) => Console.printLine(x1.equiName + ": " + AutoLifting/TypeMapping.showAnswer(x))
+                            case Some(x) => Console.printLine(x1.equiName + ": " + showS4TypeInfo(x))
                             case None => Console.printLine(x1.equiName + ": ??")
                         }
                         , xs);
