@@ -16,46 +16,22 @@
 
 namespace AutoLifting/Common {
 
-    use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.FixedOrPortable;
     use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
-
-    pub def getEquiNameFromCommonName(commonName: String): ReportMonad[String] = 
-        use Text/Regex.{evalContains};
-        use Text/Regex/MatchEvaluator.{getCaptureNamed};
-        use Result.flatMap;
-        let step = () -> {
-            let* patt = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
-            evalContains(commonName, patt, getCaptureNamed("name"))
-        };
-        AutoLifting/ReportMonad.liftActionResult(step)
-
-
-    pub def getEquiTypeFromCommonName(commonName: String): ReportMonad[String] = 
-        use Text/Regex.{evalContains};
-        use Text/Regex/MatchEvaluator.{getCaptureNamed};
-        use Result.flatMap;
-        let step = () -> {
-            let* patt = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/.*/(?<name>EQUIPMENT: .*)");
-            evalContains(commonName, patt, getCaptureNamed("name"))
-        };
-        AutoLifting/ReportMonad.liftActionResult(step)
 
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
     /// 
-    pub def toProperCase(s: String): ReportMonad[String] =         
+    pub def toProperCase(s: String): Result[String, System.Error] & Impure =
         use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed};
         use Result.flatMap;
-        let step = () -> {
-            let* patt = Text/Regex/Pattern.compile("\b(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)\b");
-            let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
+        let* patt = Text/Regex/Pattern.compile("\b(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)\b");
+        let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
                             );
-            Text/Regex.rewriteWith(s, patt, eval)
-        };
-        AutoLifting/ReportMonad.liftActionResult(step)
+        Text/Regex.rewriteWith(s, patt, eval)
+
 
     pub def flocLocation(root: String, fop: FixedOrPortable): String = match fop { 
         case Fixed => root + "-SMS-LFT-FLT-SYS01"

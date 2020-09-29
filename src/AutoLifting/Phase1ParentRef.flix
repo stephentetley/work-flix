@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/SaiReferenceTable {
+namespace AutoLifting/Phase1ParentRef {
 
-    use AutoLifting/Datatypes.{EquiWorkItem, EquiWorkItem1};
+    use AutoLifting.ReportMonad;
+    use AutoLifting/Datatypes.{EquiWorkItem1, EquiWorkItem2};
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
     
-    /// Use a Map rather than Datalog because this is so simple
+    /// Use a Map rather than Datalog for this because it is so simple
 
 
-    pub def getSaiReferenceTable(path: System.FilePath): Result[Map[String, String], System.Error] & Impure =        
-        use Result.flatMap; 
-        let* xs = AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path);
-        let _   = Console.printLine("Length1 = ${Int32.toString(List.length(xs))}");
+    pub def loadSaiReferenceTable(path: System.FilePath): ReportMonad[Map[String, String]] =
+        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult}; 
+        let* xs = liftActionResult(_ -> AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path));
         let ans = buildAssetReferences(xs);
-        Ok(ans)
+        return(ans)
 
-    pub def getSaiParentReference(x: EquiWorkItem, m: Map[String, String]): Option[String] = 
-        Map.get(x.parentName, m)
+    pub def updateParentReferences(m: Map[String, String], xs: List[EquiWorkItem1]): ReportMonad[List[EquiWorkItem2]] = 
+        AutoLifting/ReportMonad.mapM(updateParentReference1(m), xs)
 
-    pub def updateParentReference(x: EquiWorkItem, m: Map[String, String]): Result[EquiWorkItem1, System.Error] = 
+    pub def updateParentReference1(m: Map[String, String], x: EquiWorkItem1): ReportMonad[EquiWorkItem2] = 
+        use AutoLifting/ReportMonad.{throwError, return};
         match Map.get(x.parentName, m) {
-            case None => Err(System/Error.Generic("No parent"))
+            case None => throwError("updateParentReference - No parent for ${x.aibEquiName}")
             case Some(sai) => { 
                 let x1 = { -parentName | x }; 
-                Ok({ +parentSaiReference = sai | x1 })
+                return({ +parentSaiReference = sai | x1 })
             }
         }
 

@@ -21,17 +21,23 @@ namespace AutoLifting/Datatypes {
         case Portable
     }
 
+    /// Start with (Reference, AssetName, NewParent)
   
-    type alias EquiWorkItem = 
-        { equiName: String
-        , equiType: String
+    /// Result of Phase1Renaming
+    type alias EquiWorkItem1 = 
+        { aibEquiName: String
+        , aibEquiType: String
+        , s4EquiName: String
         , pliReference: String
         , parentName: String
         }
 
-    type alias EquiWorkItem1 = 
-        { equiName: String
-        , equiType: String
+
+    /// Get parent SAI, remove parentName
+    type alias EquiWorkItem2 = 
+        { aibEquiName: String
+        , aibEquiType: String
+        , s4EquiName: String
         , pliReference: String
         , parentSaiReference: String
         }

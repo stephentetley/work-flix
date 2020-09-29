@@ -16,5 +16,25 @@
 
 namespace AutoLifting/ReportMain {
 
+    use AutoLifting.ReportMonad;
+
+    use AutoLifting/Datatypes.{EquiWorkItem2};
+
+    pub def reportPhase1( typeTablePath: System.FilePath
+                        , workListPath: System.FilePath): ReportMonad[Unit] = 
+        use AutoLifting/ReportMonad.{return, flatMap, liftAction, mapM};
+        let* _          = liftAction(_ -> Console.printLine("Running..."));
+        let* _db         = AutoLifting/MappingTable.readMappingFile(typeTablePath);
+        let* xs1        = AutoLifting/Phase1WorkList.getWorkList(workListPath);
+        let* xs2        = AutoLifting/Phase1Naming.expandNames(xs1);
+        let* parents    = AutoLifting/Phase1ParentRef.loadSaiReferenceTable(workListPath);
+        let* xs3        = AutoLifting/Phase1ParentRef.updateParentReferences(parents, xs2);
+        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showEquiWorkItem2(x)), xs3));
+        return()
+
+    pub def showEquiWorkItem2(x: EquiWorkItem2): String = 
+       "<${x.aibEquiName}, ${x.aibEquiType}, ${x.s4EquiName}, _, _>"
+
+
 
 }

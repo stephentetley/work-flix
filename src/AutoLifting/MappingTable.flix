@@ -16,6 +16,8 @@
 
 namespace AutoLifting/MappingTable {
 
+    use AutoLifting.ReportMonad;
+
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
@@ -32,11 +34,11 @@ namespace AutoLifting/MappingTable {
         , fixedOrPortable: String
         }
 
-    pub def readMappingFile[r](path: System.FilePath) : Result[#{Distinguished, Ordinary | r}, System.Error] & Impure = 
-        Result.map(
-            makeMappings, 
-            SheetIO/SheetReader.runXlsx(readMappingTable(), path)
-        )
+    pub def readMappingFile[r](path: System.FilePath) : ReportMonad[#{Distinguished, Ordinary | r}] = 
+        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, map};
+        let* src = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readMappingTable(), path));
+        return(makeMappings(src))
+        
 
     def readMappingTable(): SheetReader[List[MappingTableRow]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
