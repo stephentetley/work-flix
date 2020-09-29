@@ -17,15 +17,17 @@
 namespace AutoLifting/WorkList {
     
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+    use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.EquiWorkItem;
 
 
 
 
-    pub def getWorkList(path: System.FilePath): Result[List[EquiWorkItem], System.Error] & Impure =        
-        use Result.flatMap; 
-        let* xs = AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path) |> Result.map(List.filterMap(childNew));
-        Result.traverse(makeWorkItem, xs)
+    pub def getWorkList(path: System.FilePath): ReportMonad[List[EquiWorkItem]] =
+        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, mapM}; 
+        let* src = liftActionResult(_ -> AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path));
+        let xs   = List.filterMap(childNew, src);
+        mapM(makeWorkItem, xs)
 
     def childNew(x: AibExportRow): Option[AibExportRow] =  
         if (x.change == "Child New" && String.startsWith(x.reference, "PLI"))
@@ -33,15 +35,15 @@ namespace AutoLifting/WorkList {
         else 
             None
 
-    def makeWorkItem(x: AibExportRow): Result[EquiWorkItem, System.Error] & Impure = 
-        use AutoLifting/Common.{getEquiNameFromCommonName, getEquiTypeFromCommonName};
-        use Result.flatMap;
-        let* name = getEquiNameFromCommonName(x.assetName);
-        let* typ = getEquiTypeFromCommonName(x.assetName);
-        Ok( { equiName      = name
-            , equiType      = typ
-            , pliReference  = x.reference
-            , parentName    = x.newParentName 
-            } )
+    def makeWorkItem(x: AibExportRow): ReportMonad[EquiWorkItem] = 
+        use AutoLifting/ReportMonad.{return, flatMap};
+        use AutoLifting/Common.{getEquiNameFromCommonName, getEquiTypeFromCommonName};        
+        let* name   = getEquiNameFromCommonName(x.assetName);
+        let* typ    = getEquiTypeFromCommonName(x.assetName);
+        return( { equiName      = name
+                , equiType      = typ
+                , pliReference  = x.reference
+                , parentName    = x.newParentName 
+                } )
 
 }

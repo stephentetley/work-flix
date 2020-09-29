@@ -13,7 +13,7 @@
 
 
 use AutoLifting/TypeMapping.TypeAnswer;
-use AutoLifting/WorkList.EquiWorkItem;
+use AutoLifting/Datatypes.EquiWorkItem;
 
 /// def main(): Unit & Impure = 
 ///     use AutoLifting/MappingTable.{readMappingFile};
@@ -39,15 +39,23 @@ def main2(): Result[Unit, System.Error] & Impure =
     use AutoLifting/MappingTable.{readMappingFile};
     use AutoLifting/TypeMapping.{getS4TypeInfo};
     use AutoLifting/WorkList.{getWorkList};
+    use AutoLifting/SaiReferenceTable.{getSaiReferenceTable, getSaiParentReference};
     use Result.flatMap;
     let tablePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
     let* db         = readMappingFile(tablePath);
     let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/BBMED.xlsx");
-    let* xs         = getWorkList(workPath);
+    let* xs         = AutoLifting/ReportMonad.runReportMonad(getWorkList(workPath));
     let _           = List.foreach(x1 ->
                         match getS4TypeInfo(db, x1.equiName, x1.equiType) { 
                             case Some(x) => Console.printLine(x1.equiName + ": " + showS4TypeInfo(x))
                             case None => Console.printLine(x1.equiName + ": ??")
+                        }
+                        , xs);
+    let* parents    = getSaiReferenceTable(workPath);
+    let _           = List.foreach(x -> 
+                        match getSaiParentReference(x, parents) {
+                            case None => Console.printLine("${x.equiName}: ??")
+                            case Some(s) => Console.printLine("${x.equiName}: ${s}")
                         }
                         , xs);
     Ok()

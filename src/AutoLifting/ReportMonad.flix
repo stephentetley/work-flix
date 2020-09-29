@@ -29,8 +29,14 @@ namespace AutoLifting/ReportMonad {
     use AutoLifting.ReportMonad;
     use AutoLifting.ReportMonad.{ReportMonad};
 
+    pub def runReportMonad(ma: ReportMonad[a]): Result[a, System.Error] & Impure = 
+        Result.map(snd, apply1(ma, 1))
+
     pub def return(x: a): ReportMonad[a] =
         ReportMonad(s -> Ok((s, x)) as & Impure)
+
+    pub def throwError(msg: String): ReportMonad[a] =
+        ReportMonad(_ -> Err(System/Error.Generic(msg)) as & Impure)        
 
     def apply1(x: ReportMonad[a], s: Int32): Result[(Int32, a), System.Error] & Impure =
         let ReportMonad(f) = x;
