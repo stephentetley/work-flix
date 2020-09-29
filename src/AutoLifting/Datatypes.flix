@@ -22,12 +22,26 @@ namespace AutoLifting/Datatypes {
     }
 
   
-    type alias ChildNew = 
-        { aibName: String
-        , s4Name: String
+    type alias EquiWorkItem = 
+        { equiName: String
+        , equiType: String
+        , pliReference: String
+        , parentName: String
+        }
+
+    type alias EquiWorkItem1 = 
+        { equiName: String
+        , equiType: String
         , pliReference: String
         , parentSaiReference: String
         }
+
+    /// type alias ChildNew = 
+    ///     { aibName: String
+    ///     , s4Name: String
+    ///     , pliReference: String
+    ///     , parentSaiReference: String
+    ///     }
 
 
     type alias S4TypeInfo = 

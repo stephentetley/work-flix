@@ -17,19 +17,14 @@
 namespace AutoLifting/WorkList {
     
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+    use AutoLifting/Datatypes.EquiWorkItem;
 
-    type alias EquiWorkItem = 
-        { equiName: String
-        , equiType: String
-        , parentName: String
-        }
 
 
 
     pub def getWorkList(path: System.FilePath): Result[List[EquiWorkItem], System.Error] & Impure =        
         use Result.flatMap; 
         let* xs = AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path) |> Result.map(List.filterMap(childNew));
-        let _   = Console.printLine("Length1 = ${Int32.toString(List.length(xs))}");
         Result.traverse(makeWorkItem, xs)
 
     def childNew(x: AibExportRow): Option[AibExportRow] =  
@@ -43,9 +38,10 @@ namespace AutoLifting/WorkList {
         use Result.flatMap;
         let* name = getEquiNameFromCommonName(x.assetName);
         let* typ = getEquiTypeFromCommonName(x.assetName);
-        Ok({ equiName = name, 
-             equiType = typ, 
-             parentName = x.newParentName 
-            })
+        Ok( { equiName      = name
+            , equiType      = typ
+            , pliReference  = x.reference
+            , parentName    = x.newParentName 
+            } )
 
 }

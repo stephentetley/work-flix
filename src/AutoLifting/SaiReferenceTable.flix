@@ -16,7 +16,7 @@
 
 namespace AutoLifting/SaiReferenceTable {
 
-    use AutoLifting/WorkList.EquiWorkItem;
+    use AutoLifting/Datatypes.{EquiWorkItem, EquiWorkItem1};
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
     
@@ -33,7 +33,14 @@ namespace AutoLifting/SaiReferenceTable {
     pub def getSaiParentReference(x: EquiWorkItem, m: Map[String, String]): Option[String] = 
         Map.get(x.parentName, m)
 
-
+    pub def updateParentReference(x: EquiWorkItem, m: Map[String, String]): Result[EquiWorkItem1, System.Error] = 
+        match Map.get(x.parentName, m) {
+            case None => Err(System/Error.Generic("No parent"))
+            case Some(sai) => { 
+                let x1 = { -parentName | x }; 
+                Ok({ +parentSaiReference = sai | x1 })
+            }
+        }
 
     def buildAssetReferences(xs: List[AibExportRow]): Map[String, String] = 
         List.foldLeft((ac, x) ->  insertStep(x, ac), Map.empty(), xs)
@@ -43,7 +50,7 @@ namespace AutoLifting/SaiReferenceTable {
         if (String.startsWith(x.reference, "PLI"))
             ac
         else 
-            Map.insert(x.reference, x.assetName, ac)
+            Map.insert(String.trim(x.assetName), String.trim(x.reference), ac)
 
 
 
