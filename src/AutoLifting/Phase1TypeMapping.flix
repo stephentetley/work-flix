@@ -31,7 +31,10 @@ namespace AutoLifting/Phase1TypeMapping {
                             x: EquiWorkItem3): ReportMonad[EquiWorkItem4] = 
         use AutoLifting/ReportMonad.{return, throwError};
         match getS4TypeInfo(db, x.aibEquiName, x.aibEquiType) {
-            case Some(typ) => return({ +s4TyInfo = typ | x})
+            case Some(typ) => { 
+                let floc = AutoLifting/Common.flocLocation(x.s4SiteCode, typ.fixedOrPortable);
+                return({ +s4TyInfo = typ, +s4Floc = floc | x})
+            }
             case None => throwError("No type mapping for ${x.aibEquiName} ${x.aibEquiType}")
         }
 

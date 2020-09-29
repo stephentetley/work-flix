@@ -61,7 +61,7 @@ namespace AutoLifting/Datatypes {
         }
 
 
-    /// Add S4 Type Info
+    /// Add S4 Type Info and s4Floc
     type alias EquiWorkItem4 = 
         { aibEquiName: String
         , aibEquiType: String
@@ -70,6 +70,7 @@ namespace AutoLifting/Datatypes {
         , s4SiteCode: String
         , parentSaiReference: String
         , s4TyInfo: S4TypeInfo
+        , s4Floc: String
         }
 
     type alias S4TypeInfo = 

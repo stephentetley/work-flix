@@ -29,4 +29,5 @@ def main2(): Result[Unit, System.Error] & Impure =
     let typesDbPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
     let sitesDbPath = System/FilePath.new("G:/work/assets/facts/AI2toS4Hana_Lvl1_2FlocMapping.xlsx");
     let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/BBMED.xlsx");
-    runReportMonad(reportPhase1(typesDbPath, sitesDbPath, workPath))
+    let outPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/BBMED_out.xlsx");
+    runReportMonad(reportPhase1(typesDbPath, sitesDbPath, workPath, outPath))

@@ -20,7 +20,8 @@ namespace AutoLifting/ReportMain {
 
     pub def reportPhase1( typeTablePath: System.FilePath
                         , siteTablePath: System.FilePath
-                        , workListPath: System.FilePath): ReportMonad[Unit] = 
+                        , workListPath: System.FilePath
+                        , outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction, mapM};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
         let* xs0        = AutoLifting/Phase1WorkList.getWorkList(workListPath);
@@ -31,11 +32,12 @@ namespace AutoLifting/ReportMain {
         let* xs3        = AutoLifting/Phase1SiteMapping.updateSiteCodes(siteDb, xs2);
         let* typeDb     = AutoLifting/MappingTable.readMappingFile(typeTablePath);
         let* xs4        = AutoLifting/Phase1TypeMapping.addTypeInfos(typeDb, xs3);
+        let* _          = AutoLifting/Phase1Report.writePhase1Report(xs4, outPath);
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showEquiWorkItem4(x)), xs4));
         return()
 
     pub def showEquiWorkItem4(x: AutoLifting/Datatypes.EquiWorkItem4): String = 
-       "<${x.aibEquiName}, ${x.aibEquiType}, ${x.s4EquiName}, ${x.s4SiteCode}, _, ${x.s4TyInfo.s4Object}, ${x.s4TyInfo.s4Class}>"
+       "<${x.pliReference}, ${x.parentSaiReference}, ${x.s4EquiName}, ${x.s4Floc}, ${x.s4TyInfo.category}, ${x.s4TyInfo.s4Object}, ${x.s4TyInfo.s4Class}>"
 
 
 
