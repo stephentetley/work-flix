@@ -21,6 +21,12 @@ namespace AutoLifting/Datatypes {
         case Portable
     }
 
+    pub def showFixedOrPortable(x: FixedOrPortable): String =  match x { 
+        case Fixed => "Fixed"
+        case Portable => "Portable"
+    }
+
+
     /// Start with (Reference, AssetName, NewParent)
   
     /// Result of Phase1Renaming
@@ -42,13 +48,15 @@ namespace AutoLifting/Datatypes {
         , parentSaiReference: String
         }
 
-    /// type alias ChildNew = 
-    ///     { aibName: String
-    ///     , s4Name: String
-    ///     , pliReference: String
-    ///     , parentSaiReference: String
-    ///     }
-
+    /// Add S4 Type Info
+    type alias EquiWorkItem3 = 
+        { aibEquiName: String
+        , aibEquiType: String
+        , s4EquiName: String
+        , pliReference: String
+        , parentSaiReference: String
+        , s4TyInfo: S4TypeInfo
+        }
 
     type alias S4TypeInfo = 
         { category: String 
@@ -57,12 +65,7 @@ namespace AutoLifting/Datatypes {
         , fixedOrPortable: FixedOrPortable
         }
 
-    pub def showS4TypeInfo(x: S4TypeInfo): String = 
-        let fop = match x.fixedOrPortable { 
-                    case Fixed => "Fixed"
-                    case Portable => "Portable"
-        };
-        "<${x.category}, ${x.s4Object}, ${x.s4Class}, ${fop}>"
+
 
 
 }
