@@ -19,20 +19,23 @@ namespace AutoLifting/ReportMain {
     use AutoLifting.ReportMonad;
 
     pub def reportPhase1( typeTablePath: System.FilePath
+                        , siteTablePath: System.FilePath
                         , workListPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction, mapM};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* xs1        = AutoLifting/Phase1WorkList.getWorkList(workListPath);
-        let* xs2        = AutoLifting/Phase1Naming.expandNames(xs1);
+        let* xs0        = AutoLifting/Phase1WorkList.getWorkList(workListPath);
+        let* xs1        = AutoLifting/Phase1Naming.expandNames(xs0);
         let* parents    = AutoLifting/Phase1ParentRef.loadSaiReferenceTable(workListPath);
-        let* xs3        = AutoLifting/Phase1ParentRef.updateParentReferences(parents, xs2);
-        let* db         = AutoLifting/MappingTable.readMappingFile(typeTablePath);
-        let* xs4        = AutoLifting/Phase1TypeMapping.addTypeInfos(db, xs3);
-        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showEquiWorkItem3(x)), xs4));
+        let* xs2        = AutoLifting/Phase1ParentRef.updateParentReferences(parents, xs1);
+        let* siteDb     = AutoLifting/Phase1SiteMapping.loadSiteMapTable(siteTablePath);
+        let* xs3        = AutoLifting/Phase1SiteMapping.updateSiteCodes(siteDb, xs2);
+        let* typeDb     = AutoLifting/MappingTable.readMappingFile(typeTablePath);
+        let* xs4        = AutoLifting/Phase1TypeMapping.addTypeInfos(typeDb, xs3);
+        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showEquiWorkItem4(x)), xs4));
         return()
 
-    pub def showEquiWorkItem3(x: AutoLifting/Datatypes.EquiWorkItem3): String = 
-       "<${x.aibEquiName}, ${x.aibEquiType}, ${x.s4EquiName}, _, _, ${x.s4TyInfo.s4Object}, ${x.s4TyInfo.s4Class}>"
+    pub def showEquiWorkItem4(x: AutoLifting/Datatypes.EquiWorkItem4): String = 
+       "<${x.aibEquiName}, ${x.aibEquiType}, ${x.s4EquiName}, ${x.s4SiteCode}, _, ${x.s4TyInfo.s4Object}, ${x.s4TyInfo.s4Class}>"
 
 
 

@@ -33,6 +33,7 @@ namespace AutoLifting/Datatypes {
     type alias EquiWorkItem1 = 
         { aibEquiName: String
         , aibEquiType: String
+        , aibSiteName: String
         , s4EquiName: String
         , pliReference: String
         , parentName: String
@@ -43,17 +44,30 @@ namespace AutoLifting/Datatypes {
     type alias EquiWorkItem2 = 
         { aibEquiName: String
         , aibEquiType: String
-        , s4EquiName: String
         , pliReference: String
+        , aibSiteName: String
+        , s4EquiName: String
         , parentSaiReference: String
         }
 
-    /// Add S4 Type Info
+    /// Get S4 Site, remove Aib Site
     type alias EquiWorkItem3 = 
         { aibEquiName: String
         , aibEquiType: String
-        , s4EquiName: String
         , pliReference: String
+        , s4EquiName: String
+        , s4SiteCode: String
+        , parentSaiReference: String
+        }
+
+
+    /// Add S4 Type Info
+    type alias EquiWorkItem4 = 
+        { aibEquiName: String
+        , aibEquiType: String
+        , pliReference: String
+        , s4EquiName: String
+        , s4SiteCode: String
         , parentSaiReference: String
         , s4TyInfo: S4TypeInfo
         }

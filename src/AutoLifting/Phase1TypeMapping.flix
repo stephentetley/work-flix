@@ -17,18 +17,18 @@
 namespace AutoLifting/Phase1TypeMapping {
 
     use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{FixedOrPortable, S4TypeInfo, EquiWorkItem2, EquiWorkItem3};
+    use AutoLifting/Datatypes.{FixedOrPortable, S4TypeInfo, EquiWorkItem3, EquiWorkItem4};
     use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
     use AutoLifting/MappingTable.{Distinguished, Ordinary};
 
 
 
     pub def addTypeInfos[r](db: #{Distinguished, Ordinary, TypeAnswer | r}, 
-                            xs: List[EquiWorkItem2]): ReportMonad[List[EquiWorkItem3]] = 
+                            xs: List[EquiWorkItem3]): ReportMonad[List[EquiWorkItem4]] = 
         AutoLifting/ReportMonad.mapM(addTypeInfo1(db), xs)
 
     pub def addTypeInfo1[r](db: #{Distinguished, Ordinary, TypeAnswer | r}, 
-                            x: EquiWorkItem2): ReportMonad[EquiWorkItem3] = 
+                            x: EquiWorkItem3): ReportMonad[EquiWorkItem4] = 
         use AutoLifting/ReportMonad.{return, throwError};
         match getS4TypeInfo(db, x.aibEquiName, x.aibEquiType) {
             case Some(typ) => return({ +s4TyInfo = typ | x})

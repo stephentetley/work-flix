@@ -29,9 +29,11 @@ namespace AutoLifting/Phase1Naming {
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult};
         let* name       = getAibEquiNameFromCommonName(x.assetName);
         let* typ        = getAibEquiTypeFromCommonName(x.assetName);
+        let* site       = getAibSiteNameFromCommonName(x.assetName);
         let* s4Name     = liftActionResult(_ -> AutoLifting/Common.toProperCase(name));
         return( { aibEquiName   = name
                 , aibEquiType   = typ
+                , aibSiteName   = site
                 , s4EquiName    = s4Name
                 , pliReference  = x.reference
                 , parentName    = x.newParentName 
@@ -61,6 +63,14 @@ namespace AutoLifting/Phase1Naming {
         AutoLifting/ReportMonad.liftActionResult(step)
 
 
-        
+    def getAibSiteNameFromCommonName(commonName: String): ReportMonad[String] = 
+        use Text/Regex.{evalStartsWith};
+        use Text/Regex/MatchEvaluator.{getCaptureNamed};
+        use Result.flatMap;
+        let step = () -> {
+            let* patt = Text/Regex/Pattern.compile("(?<name>.*)/STATUTORY/");
+            evalStartsWith(commonName, patt, getCaptureNamed("name"))
+        };
+        AutoLifting/ReportMonad.liftActionResult(step)
 
 }
