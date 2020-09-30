@@ -76,7 +76,7 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
 
     def setPStmt!(charname: String): PreparedStatementSetter[Unit] = 
-        BasicDb/PreparedStatementSetter.putString!(0,  charname)
+        BasicDb/PreparedStatementSetter.putStringAt!(0,  charname)
 
 
     def evalRow(): RowEvaluator[(Int32, Int32)] = 

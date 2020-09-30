@@ -52,9 +52,9 @@ namespace UploadCheck/SqlCheckers/CharInClassCheck {
         return(n > 0)
 
     def setPrepStmt!(charname: String, classname: String): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putString!, putInt32!};
-        let* _ = putString!(0,  classname);
-        let* _ = putString!(1,  charname);
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _ = putStringAt!(0,  classname);
+        let* _ = putStringAt!(1,  charname);
         return()
 
     
