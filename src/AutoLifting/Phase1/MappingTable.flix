@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/MappingTable {
+namespace AutoLifting/Phase1/MappingTable {
 
     use AutoLifting.ReportMonad;
 

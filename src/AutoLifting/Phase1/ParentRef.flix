@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1ParentRef {
+namespace AutoLifting/Phase1/ParentRef {
 
     use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.{EquiWorkItem1, EquiWorkItem2};

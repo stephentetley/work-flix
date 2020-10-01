@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1Naming {
+namespace AutoLifting/Phase1/Naming {
 
     use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.{FixedOrPortable, EquiWorkItem1};

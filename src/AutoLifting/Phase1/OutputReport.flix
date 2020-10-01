@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1Report {
+namespace AutoLifting/Phase1/OutputReport {
 
     use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.{EquiWorkItem4};

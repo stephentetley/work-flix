@@ -24,15 +24,15 @@ namespace AutoLifting/ReportMain {
                         , outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction, mapM};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* xs0        = AutoLifting/Phase1WorkList.getWorkList(workListPath);
-        let* xs1        = AutoLifting/Phase1Naming.expandNames(xs0);
-        let* parents    = AutoLifting/Phase1ParentRef.loadSaiReferenceTable(workListPath);
-        let* xs2        = AutoLifting/Phase1ParentRef.updateParentReferences(parents, xs1);
-        let* siteDb     = AutoLifting/Phase1SiteMapping.loadSiteMapTable(siteTablePath);
-        let* xs3        = AutoLifting/Phase1SiteMapping.updateSiteCodes(siteDb, xs2);
-        let* typeDb     = AutoLifting/MappingTable.readMappingFile(typeTablePath);
-        let* xs4        = AutoLifting/Phase1TypeMapping.addTypeInfos(typeDb, xs3);
-        let* _          = AutoLifting/Phase1Report.writePhase1Report(xs4, outPath);
+        let* xs0        = AutoLifting/Phase1/WorkList.getWorkList(workListPath);
+        let* xs1        = AutoLifting/Phase1/Naming.expandNames(xs0);
+        let* parents    = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
+        let* xs2        = AutoLifting/Phase1/ParentRef.updateParentReferences(parents, xs1);
+        let* siteDb     = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(siteTablePath);
+        let* xs3        = AutoLifting/Phase1/SiteMapping.updateSiteCodes(siteDb, xs2);
+        let* typeDb     = AutoLifting/Phase1/MappingTable.readMappingFile(typeTablePath);
+        let* xs4        = AutoLifting/Phase1/TypeMapping.addTypeInfos(typeDb, xs3);
+        let* _          = AutoLifting/Phase1/OutputReport.writePhase1Report(xs4, outPath);
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showEquiWorkItem4(x)), xs4));
         return()
 

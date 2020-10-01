@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1TypeMapping {
+namespace AutoLifting/Phase1/TypeMapping {
 
     use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.{FixedOrPortable, S4TypeInfo, EquiWorkItem3, EquiWorkItem4};
     use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
-    use AutoLifting/MappingTable.{Distinguished, Ordinary};
+    use AutoLifting/Phase1/MappingTable.{Distinguished, Ordinary};
 
 
 

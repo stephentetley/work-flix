@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1SiteMapping {
+namespace AutoLifting/Phase1/SiteMapping {
 
     use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.{EquiWorkItem2, EquiWorkItem3};
