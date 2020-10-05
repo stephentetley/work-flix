@@ -46,9 +46,10 @@ namespace AutoLifting/Phase2/AibAttributeReader {
         maximalNamedRows(s1, 0, 1, evalAibAttributeRow())
 
     def evalAibAttributeRow(): NamedRowEvaluator[AibAttributeRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getOptionFloat64Named, getStringNamedWithDefault};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
+                getFloat64Named, getStringNamedWithDefault, optional, getInt64Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
                 { pliReference      = x1
                 , installedFrom     = x2
                 , manufacturer      = x3
@@ -59,31 +60,26 @@ namespace AutoLifting/Phase2/AibAttributeReader {
                 , statutoryRef      = x8
                 , testCertNum       = x9
                 })
-            <&> getStringNamed("Reference")
+            <&> logEval(getStringNamed("Reference"))
             <*> getLocalDateNamed("Installed From")
             <*> getStringNamed("Manufacturer")
             <*> getStringNamed("Model")
             <*> getStringNamed("Loc.Ref.")
-            <*> getOptionFloat64FromStringField("Work Load")
+            <*> optional(getFloat64Named("Work Load"))
             <*> getStringNamedWithDefault("Work Load Units", "")
-            <*> getStringNamedWithDefault("YWRef", "")
-            <*> getStringNamedWithDefault("Test Cert No", "")
+            /// TODO need to use DataFormatter to read int as string...
+            <*> alt(getStringNamedWithDefault("YWRef", ""), map(Int64.toString, getInt64Named("YWRef")))
+            <*> alt(getStringNamedWithDefault("Test Cert No", ""), map(Int64.toString, getInt64Named("Test Cert No")))
 
     def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] = 
         use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
         map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
-
-
-    def getOptionFloat64FromStringField(label: String): NamedRowEvaluator[Option[Float64]] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getOptionStringNamed};
-        let* x1        = getOptionStringNamed(label);
-        match x1 {
-            case Some(s)    => map(Some, strToFloat(s))
-            case None       => return(None)
-        }
- 
-    def strToFloat(s: String): NamedRowEvaluator[Float64] = 
-        use SheetIO/NamedRowEvaluator.{liftResult};
-        liftResult(Result.mapErr(msg -> System/Error.Generic(msg), Float64.fromString(s)))
+        
+    def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+        let* ans = ma;
+        let* _ = liftAction(_ -> Console.printLine(ans));
+        return(ans)
+  
 
 }

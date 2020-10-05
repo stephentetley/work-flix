@@ -42,13 +42,15 @@ namespace AutoLifting/ReportMain {
 
     pub def reportPhase2( workListPath: System.FilePath
                         , attribsPath: System.FilePath
-                        , _memosPath: System.FilePath
+                        , memosPath: System.FilePath
                         , _outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
         let* items      = AutoLifting/Phase2/WorkList.getWorkList(workListPath);
         let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(items))));
         let* attribs    = AutoLifting/Phase2/AibAttributeReader.getAibAttributeRows(attribsPath);
         let* _          = liftAction(_ -> Console.printLine("Attribute rows: " + Int32.toString(List.length(attribs))));
+        let* memos      = AutoLifting/Phase2/AibMemoReader.getAibMemoRows(memosPath);
+        let* _          = liftAction(_ -> Console.printLine("Memo rows: " + Int32.toString(List.length(memos))));
         return()
 
 }
