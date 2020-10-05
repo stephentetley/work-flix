@@ -19,20 +19,9 @@ namespace AutoLifting/Phase2/AibAttributeReader {
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
+    use AutoLifting/Datatypes.AibAttributeRow;
     use AutoLifting.ReportMonad;
 
-
-    type alias AibAttributeRow = 
-        { pliReference: String
-        , installedFrom: Time.LocalDate
-        , manufacturer: String
-        , model: String
-        , osgb36: String
-        , workLoad: Option[Float64]
-        , workLoadUnits: String
-        , statutoryRef: String
-        , testCertNum: String
-        }
 
     /// Must be a *.xlsx (OO-XML) file.
     pub def getAibAttributeRows(path: System.FilePath): ReportMonad[List[AibAttributeRow]] =

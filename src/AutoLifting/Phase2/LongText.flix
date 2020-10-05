@@ -42,15 +42,15 @@ namespace AutoLifting/Phase2/LongText {
 
     def insertStep(x: AibMemoRow, ac: Map[String, String]): Map[String, String] = 
         match makeLongText(x) {
-            case Some(text) => Map.insert(String.trim(x.pliReference), text, ac)
+            case Some(text) => Map.insert(x.pliReference, text, ac)
             case None => ac
         }
 
-    
     def makeLongText(x: AibMemoRow): Option[String] = 
         let memos = x.memo1 :: x.memo2 :: x.memo3 :: x.memo4 :: x.memo5 :: Nil;
         let xs = List.filter(s -> !(String.isEmpty(s)), memos);
         let text = String.intercalate(String.lineSeparator(), xs);
         if (String.isEmpty(text)) None else Some(text)
+
 
 }

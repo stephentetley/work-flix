@@ -47,17 +47,17 @@ namespace AutoLifting/ReportMain {
                         , _outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
         let* xs1      = AutoLifting/Phase2/WorkList.getWorkList(workListPath);
-        let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(xs1))));
-        let* attribs    = AutoLifting/Phase2/AibAttributeReader.getAibAttributeRows(attribsPath);
-        let* _          = liftAction(_ -> Console.printLine("Attribute rows: " + Int32.toString(List.length(attribs))));
+        let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(xs1))));        
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(memosPath);
         let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
-        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem2(x)), xs2));
+        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(attribsPath);
+        let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);
+        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem3(x)), xs3));
         return()
 
-        pub def showPhase2WorkItem2(x: AutoLifting/Datatypes.Phase2WorkItem2): String = 
+        pub def showPhase2WorkItem3(x: AutoLifting/Datatypes.Phase2WorkItem3): String = 
             let showOpt = o -> Option.getWithDefault(o, "_");
-            "<${x.pliReference}, ${showOpt(x.s4LongText)}>"
+            "<${x.pliReference}, ${showOpt(x.s4LongText)}, ${Time/LocalDate.toString(x.installedFrom)}>"
 
 
 

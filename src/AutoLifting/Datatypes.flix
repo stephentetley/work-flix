@@ -102,7 +102,7 @@ namespace AutoLifting/Datatypes {
         , memo4: String
         , memo5: String
         }
-        
+
     type alias Phase2WorkItem2 = 
         { pliReference: String
         , parentSaiReference: String
@@ -113,5 +113,31 @@ namespace AutoLifting/Datatypes {
         , s4Class: String
         , s4LongText: Option[String]
         }
+
+    type alias AibAttributeRow = 
+        { pliReference: String
+        , installedFrom: Time.LocalDate
+        , manufacturer: String
+        , model: String
+        , osgb36: String
+        , workLoad: Option[Float64]
+        , workLoadUnits: String
+        , statutoryRef: String
+        , testCertNum: String
+        }
+
+    type alias Phase2WorkItem3 = 
+        { pliReference: String
+        , parentSaiReference: String
+        , s4EquiName: String
+        , s4Floc: String
+        , s4Category: String 
+        , s4Object: String
+        , s4Class: String
+        , s4LongText: Option[String]
+        , installedFrom: Time.LocalDate
+        }
+
+
 
 }
