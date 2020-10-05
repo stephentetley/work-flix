@@ -22,10 +22,10 @@ namespace AutoLifting/ReportMain {
                         , siteTablePath: System.FilePath
                         , workListPath: System.FilePath
                         , outPath: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/ReportMonad.{return, flatMap, liftAction, mapM};
+        use AutoLifting/ReportMonad.{return, flatMap, liftAction};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* xs0        = AutoLifting/Phase1/WorkList.getWorkList(workListPath);
-        let* xs1        = AutoLifting/Phase1/Naming.expandNames(xs0);
+        let* items      = AutoLifting/Phase1/WorkList.getWorkList(workListPath);
+        let* xs1        = AutoLifting/Phase1/Naming.expandNames(items);
         let* parents    = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
         let* xs2        = AutoLifting/Phase1/ParentRef.updateParentReferences(parents, xs1);
         let* siteDb     = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(siteTablePath);
@@ -40,5 +40,15 @@ namespace AutoLifting/ReportMain {
        "<${x.pliReference}, ${x.parentSaiReference}, ${x.s4EquiName}, ${x.s4Floc}, ${x.s4TyInfo.category}, ${x.s4TyInfo.s4Object}, ${x.s4TyInfo.s4Class}>"
 
 
+    pub def reportPhase2( workListPath: System.FilePath
+                        , attribsPath: System.FilePath
+                        , _memosPath: System.FilePath
+                        , _outPath: System.FilePath): ReportMonad[Unit] = 
+        use AutoLifting/ReportMonad.{return, flatMap, liftAction};
+        let* items      = AutoLifting/Phase2/WorkList.getWorkList(workListPath);
+        let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(items))));
+        let* attribs    = AutoLifting/Phase2/AibAttributeReader.getAibAttributeRows(attribsPath);
+        let* _          = liftAction(_ -> Console.printLine("Attribute rows: " + Int32.toString(List.length(attribs))));
+        return()
 
 }

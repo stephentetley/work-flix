@@ -26,16 +26,11 @@ namespace AutoLifting/Phase1/OutputReport {
         use SheetIO/SheetWriter.{runXlsx};
         AutoLifting/ReportMonad.liftActionResult(_ -> runXlsx(phase1ReportWriter(rows), path))
         
-
-
     def phase1ReportWriter(rows: List[EquiWorkItem4]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, createSheet, liftAction, allRowsWithHeaders};
         let* s1         = createSheet("Phase_1");
         let* headers    = liftAction(_ -> getHeaders());
         allRowsWithHeaders(s1, headers, rows, setPhase1Row!)
-
-
-
 
     def getHeaders(): Array[String] & Impure = 
         [ "Reference"

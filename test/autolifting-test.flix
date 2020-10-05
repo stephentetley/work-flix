@@ -17,17 +17,36 @@ use AutoLifting/Datatypes.EquiWorkItem;
 
     
 def main(): Unit & Impure = 
-    match main2() {
-        case Ok() => Console.printLine("Done.")
-        case Err(msg) => Console.printLine(System/Error.toString(msg))
+    let phase = 2;
+    match phase { 
+        case 1 => match phase1() {
+            case Ok() => Console.printLine("Done.")
+            case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
+        }
+        case 2 => match phase2() {
+            case Ok() => Console.printLine("Done.")
+            case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
+        }
+        case _ => Console.printLine("Unknown phase: ${Int32.toString(phase)}")
     }
 
-def main2(): Result[Unit, System.Error] & Impure = 
+
+def phase1(): Result[Unit, System.Error] & Impure = 
     use AutoLifting/ReportMonad.{runReportMonad};
     use AutoLifting/ReportMain.{reportPhase1};
     use Result.flatMap;
     let typesDbPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
     let sitesDbPath = System/FilePath.new("G:/work/assets/facts/AI2toS4Hana_Lvl1_2FlocMapping.xlsx");
-    let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/BBMED.xlsx");
-    let outPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/BBMED_out.xlsx");
+    let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/ESHOT_lifting.xlsx");
+    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase1.xlsx");
     runReportMonad(reportPhase1(typesDbPath, sitesDbPath, workPath, outPath))
+
+def phase2(): Result[Unit, System.Error] & Impure = 
+    use AutoLifting/ReportMonad.{runReportMonad};
+    use AutoLifting/ReportMain.{reportPhase2};
+    use Result.flatMap;
+    let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase1.xlsx");
+    let attribsPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_attribs.xlsx");
+    let memosPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_memos.xlsx");
+    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/Output_final.xlsx");
+    runReportMonad(reportPhase2(workPath, attribsPath, memosPath, outPath))

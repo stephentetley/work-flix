@@ -81,6 +81,16 @@ namespace AutoLifting/Datatypes {
         }
 
 
+    /// Reference, Parent Reference, S4 Name, S4 Floc, Equi Category, Equi Object, Equi Class
 
+    type alias Phase2WorkItem1 = 
+        { pliReference: String
+        , parentSaiReference: String
+        , s4EquiName: String
+        , s4Floc: String
+        , s4Category: String 
+        , s4Object: String
+        , s4Class: String
+        }
 
 }

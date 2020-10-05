@@ -20,6 +20,7 @@ namespace AutoLifting/Phase1/WorkList {
     
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
 
+    /// Phase1 - we already have a reader in the common filetypes, but we have to filter out some results.
 
     pub def getWorkList(path: System.FilePath): ReportMonad[List[AibExportRow]] =
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, mapM}; 
