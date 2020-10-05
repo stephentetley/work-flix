@@ -93,4 +93,25 @@ namespace AutoLifting/Datatypes {
         , s4Class: String
         }
 
+
+    type alias AibMemoRow = 
+        { pliReference: String
+        , memo1: String
+        , memo2: String
+        , memo3: String
+        , memo4: String
+        , memo5: String
+        }
+        
+    type alias Phase2WorkItem2 = 
+        { pliReference: String
+        , parentSaiReference: String
+        , s4EquiName: String
+        , s4Floc: String
+        , s4Category: String 
+        , s4Object: String
+        , s4Class: String
+        , s4LongText: Option[String]
+        }
+
 }

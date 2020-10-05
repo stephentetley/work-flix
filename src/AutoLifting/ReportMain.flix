@@ -18,6 +18,7 @@ namespace AutoLifting/ReportMain {
 
     use AutoLifting.ReportMonad;
 
+    /// TODO use record for named args...
     pub def reportPhase1( typeTablePath: System.FilePath
                         , siteTablePath: System.FilePath
                         , workListPath: System.FilePath
@@ -39,18 +40,25 @@ namespace AutoLifting/ReportMain {
     pub def showEquiWorkItem4(x: AutoLifting/Datatypes.EquiWorkItem4): String = 
        "<${x.pliReference}, ${x.parentSaiReference}, ${x.s4EquiName}, ${x.s4Floc}, ${x.s4TyInfo.category}, ${x.s4TyInfo.s4Object}, ${x.s4TyInfo.s4Class}>"
 
-
+    /// TODO use record for named args...
     pub def reportPhase2( workListPath: System.FilePath
-                        , attribsPath: System.FilePath
                         , memosPath: System.FilePath
+                        , attribsPath: System.FilePath
                         , _outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
-        let* items      = AutoLifting/Phase2/WorkList.getWorkList(workListPath);
-        let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(items))));
+        let* xs1      = AutoLifting/Phase2/WorkList.getWorkList(workListPath);
+        let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(xs1))));
         let* attribs    = AutoLifting/Phase2/AibAttributeReader.getAibAttributeRows(attribsPath);
         let* _          = liftAction(_ -> Console.printLine("Attribute rows: " + Int32.toString(List.length(attribs))));
-        let* memos      = AutoLifting/Phase2/AibMemoReader.getAibMemoRows(memosPath);
-        let* _          = liftAction(_ -> Console.printLine("Memo rows: " + Int32.toString(List.length(memos))));
+        let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(memosPath);
+        let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
+        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem2(x)), xs2));
         return()
+
+        pub def showPhase2WorkItem2(x: AutoLifting/Datatypes.Phase2WorkItem2): String = 
+            let showOpt = o -> Option.getWithDefault(o, "_");
+            "<${x.pliReference}, ${showOpt(x.s4LongText)}>"
+
+
 
 }

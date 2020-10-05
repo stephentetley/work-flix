@@ -158,5 +158,12 @@ namespace AutoLifting/ReportMonad {
             }
         }
 
+    /// Alias for `bind`
+    pub def >>=(ma: ReportMonad[a], k: a -> ReportMonad[b]): ReportMonad[b] = 
+        bind(ma, k)
+
+    /// Alias for `flatMap` (flipped `bind`)
+    pub def =<<(k: a -> ReportMonad[b], ma: ReportMonad[a]): ReportMonad[b] = 
+        flatMap(k, ma)
 
 }

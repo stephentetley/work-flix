@@ -46,7 +46,7 @@ def phase2(): Result[Unit, System.Error] & Impure =
     use AutoLifting/ReportMain.{reportPhase2};
     use Result.flatMap;
     let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase1.xlsx");
-    let attribsPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_attribs.xlsx");
     let memosPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_memos.xlsx");
+    let attribsPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_attribs.xlsx");
     let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/Output_final.xlsx");
-    runReportMonad(reportPhase2(workPath, attribsPath, memosPath, outPath))
+    runReportMonad(reportPhase2(workPath, memosPath, attribsPath, outPath))

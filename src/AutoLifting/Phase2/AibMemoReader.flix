@@ -19,17 +19,10 @@ namespace AutoLifting/Phase2/AibMemoReader {
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
+    use AutoLifting/Datatypes.AibMemoRow;
     use AutoLifting.ReportMonad;
 
 
-    type alias AibMemoRow = 
-        { pliReference: String
-        , memo1: String
-        , memo2: String
-        , memo3: String
-        , memo4: String
-        , memo5: String
-        }
 
     /// Must be a *.xlsx (OO-XML) file.
     pub def getAibMemoRows(path: System.FilePath): ReportMonad[List[AibMemoRow]] =
@@ -46,18 +39,18 @@ namespace AutoLifting/Phase2/AibMemoReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> 
-                { pliReference  = x1
-                , memo1         = x2
-                , memo2         = x3
-                , memo3         = x4
-                , memo4         = x5
-                , memo5         = x6
+                { pliReference  = String.trim(x1)
+                , memo1         = String.trim(x2)
+                , memo2         = String.trim(x3)
+                , memo3         = String.trim(x4)
+                , memo4         = String.trim(x5)
+                , memo5         = String.trim(x6)
                 })
             <&> getStringNamed("Reference")
             <*> getStringNamedWithDefault("Memo Line 1", "")
-            <*> getStringNamedWithDefault("Memo Line 1", "")
-            <*> getStringNamedWithDefault("Memo Line 1", "")
-            <*> getStringNamedWithDefault("Memo Line 1", "")
-            <*> getStringNamedWithDefault("Memo Line 1", "")
+            <*> getStringNamedWithDefault("Memo Line 2", "")
+            <*> getStringNamedWithDefault("Memo Line 3", "")
+            <*> getStringNamedWithDefault("Memo Line 4", "")
+            <*> getStringNamedWithDefault("Memo Line 5", "")
 
 }
