@@ -33,48 +33,52 @@ namespace AutoLifting/Phase2/Phase2Output {
         allRowsWithHeaders(s1, headers, rows, setPhase2Row!)
 
     def getHeaders(): Array[String] & Impure = 
-        [ "Reference"
-        , "Parent Reference"
+        [ "AIB Reference"        
         , "S4 Name"
         , "S4 Floc"
         , "Equi Category"
         , "Equi Object"
         , "Equi Class"
         , "Start-up Date"
+        , "Manufacturer"
+        , "Model"
+        , "Part Number"
+        , "Serial Number"
         , "Long Text"
+        , "Aib Reference 1"
+        , "Aib Reference 2"
+        , "Easting"
+        , "Northing"
+        , "Work Load"
+        , "Work Load Units"
+        , "Statutory Ref"
+        , "Test Cert Num"
         ]
 
-        ///  pliReference: String
-        /// , parentSaiReference: String
-        /// , s4EquiName: String
-        /// , s4Floc: String
-        /// , s4Category: String 
-        /// , s4Object: String
-        /// , s4Class: String
-        /// , installedFrom: Time.LocalDate
-        /// , manufacturer: String
-        /// , model: String
-        /// , partNumber: String
-        /// , serialNumber: String
-        /// , longText: Option[String]
-        /// , easting: Int32
-        /// , northing: Int32
-        /// , workLoad: Option[Float64]
-        /// , workLoadUnits: String
-        /// , statutoryRef: String
-        /// , testCertNum: String
-
-    
     def setPhase2Row!(x: Phase2WorkItem3): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putOptionStringAt!, 
+                putInt32At!, putOptionFloat64At!};
         let* _      = putStringAt!(0, x.pliReference);
-        let* _      = putStringAt!(1, x.parentSaiReference);
-        let* _      = putStringAt!(2, x.s4EquiName);
-        let* _      = putStringAt!(3, x.s4Floc);
-        let* _      = putStringAt!(4, x.s4Category);
-        let* _      = putStringAt!(5, x.s4Object);
-        let* _      = putStringAt!(6, x.s4Class);        
-        let* _      = putS4DateAt!(7, x.installedFrom);
+        let* _      = putStringAt!(1, x.s4EquiName);
+        let* _      = putStringAt!(2, x.s4Floc);
+        let* _      = putStringAt!(3, x.s4Category);
+        let* _      = putStringAt!(4, x.s4Object);
+        let* _      = putStringAt!(5, x.s4Class);
+        let* _      = putS4DateAt!(6, x.installedFrom);
+        let* _      = putStringAt!(7, x.manufacturer);
+        let* _      = putStringAt!(8, x.model);
+        let* _      = putStringAt!(9, x.partNumber);
+        let* _      = putStringAt!(10, x.serialNumber);
+        let* _      = putOptionStringAt!(11, x.longText);        
+        let* _      = putStringAt!(12, x.pliReference);
+        let* _      = putStringAt!(13, x.parentSaiReference);
+        let* _      = putInt32At!(14, x.easting);
+        let* _      = putInt32At!(15, x.northing);
+        let* _      = putOptionFloat64At!(16, x.workLoad);
+        let* _      = putStringAt!(17, x.workLoadUnits);
+        let* _      = putStringAt!(18, x.statutoryRef);
+        let* _      = putStringAt!(19, x.testCertNum);
+
         return()
 
     def putS4DateAt!(ix: Int32, dt: Time.LocalDate): RowSetter[Unit] = 

@@ -51,9 +51,10 @@ namespace AutoLifting/ReportMain {
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(memosPath);
         let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
         let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(attribsPath);
-        let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);
-        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs3, outPath);
-        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem3(x)), xs3));
+        let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);        
+        let* xs4        = AutoLifting/Phase2/Rename.renameForS4(xs3);
+        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs4, outPath);
+        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem3(x)), xs4));
         return()
 
         pub def showPhase2WorkItem3(x: AutoLifting/Datatypes.Phase2WorkItem3): String = 
