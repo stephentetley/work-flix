@@ -26,7 +26,7 @@ namespace AutoLifting/Phase2/Rename {
 
     pub def renameForS4Item(x: Phase2WorkItem3): ReportMonad[Phase2WorkItem3] = 
         use AutoLifting/ReportMonad.{flatMap, return};
-        let step = renameManufacturer >> renameModel >> renameWorkLoadUnit;
+        let step = renameManufacturer >> renameModel >> renameSerialNumber >> renameWorkLoadUnit;
         return(step(x))
         
     def renameManufacturer(x: Phase2WorkItem3): Phase2WorkItem3 = 
@@ -40,6 +40,13 @@ namespace AutoLifting/Phase2/Rename {
             case "UNSPECIFIED" => { model = "TO BE DETERMINED" | x }
             case _  => x
         }        
+
+    def renameSerialNumber(x: Phase2WorkItem3): Phase2WorkItem3 = 
+        match x.serialNumber { 
+            case "" => { serialNumber = "UNKNOWN" | x }
+            case _  => x
+        } 
+
 
     def renameWorkLoadUnit(x: Phase2WorkItem3): Phase2WorkItem3 = 
         match x.workLoadUnits { 

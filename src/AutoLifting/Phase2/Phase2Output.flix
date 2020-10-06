@@ -35,16 +35,16 @@ namespace AutoLifting/Phase2/Phase2Output {
     def getHeaders(): Array[String] & Impure = 
         [ "AIB Reference"        
         , "S4 Name"
-        , "S4 Floc"
         , "Equi Category"
+        , "S4 Floc"
         , "Equi Object"
-        , "Equi Class"
         , "Start-up Date"
         , "Manufacturer"
         , "Model"
         , "Part Number"
         , "Serial Number"
         , "Long Text"
+        , "Equi Class"
         , "Aib Reference 1"
         , "Aib Reference 2"
         , "Easting"
@@ -60,16 +60,16 @@ namespace AutoLifting/Phase2/Phase2Output {
                 putInt32At!, putOptionFloat64At!};
         let* _      = putStringAt!(0, x.pliReference);
         let* _      = putStringAt!(1, x.s4EquiName);
-        let* _      = putStringAt!(2, x.s4Floc);
-        let* _      = putStringAt!(3, x.s4Category);
+        let* _      = putStringAt!(2, x.s4Category);
+        let* _      = putStringAt!(3, x.s4Floc);
         let* _      = putStringAt!(4, x.s4Object);
-        let* _      = putStringAt!(5, x.s4Class);
-        let* _      = putS4DateAt!(6, x.installedFrom);
-        let* _      = putStringAt!(7, x.manufacturer);
-        let* _      = putStringAt!(8, x.model);
-        let* _      = putStringAt!(9, x.partNumber);
-        let* _      = putStringAt!(10, x.serialNumber);
-        let* _      = putOptionStringAt!(11, x.longText);        
+        let* _      = putS4DateAt!(5, x.installedFrom);
+        let* _      = putStringAt!(6, x.manufacturer);
+        let* _      = putStringAt!(7, x.model);
+        let* _      = putStringAt!(8, x.partNumber);
+        let* _      = putStringAt!(9, x.serialNumber);
+        let* _      = putOptionStringAt!(10, x.longText); 
+        let* _      = putStringAt!(11, x.s4Class);       
         let* _      = putStringAt!(12, x.pliReference);
         let* _      = putStringAt!(13, x.parentSaiReference);
         let* _      = putInt32At!(14, x.easting);

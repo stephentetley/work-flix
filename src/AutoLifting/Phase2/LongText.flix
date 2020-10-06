@@ -50,7 +50,7 @@ namespace AutoLifting/Phase2/LongText {
         let memos = x.memo1 :: x.memo2 :: x.memo3 :: x.memo4 :: x.memo5 :: Nil;
         let xs = List.filter(s -> !(String.isEmpty(s)), memos);
         let text = String.intercalate(String.lineSeparator(), xs);
-        if (String.isEmpty(text)) None else Some(text)
+        if (String.isEmpty(text)) None else Some(String.trim(text))
 
 
 }
