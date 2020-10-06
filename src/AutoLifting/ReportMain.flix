@@ -25,7 +25,7 @@ namespace AutoLifting/ReportMain {
                         , outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* items      = AutoLifting/Phase1/WorkList.getWorkList(workListPath);
+        let* items      = AutoLifting/Phase1/Phase1WorkList.getWorkList(workListPath);
         let* xs1        = AutoLifting/Phase1/Naming.expandNames(items);
         let* parents    = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
         let* xs2        = AutoLifting/Phase1/ParentRef.updateParentReferences(parents, xs1);
@@ -33,7 +33,7 @@ namespace AutoLifting/ReportMain {
         let* xs3        = AutoLifting/Phase1/SiteMapping.updateSiteCodes(siteDb, xs2);
         let* typeDb     = AutoLifting/Phase1/MappingTable.readMappingFile(typeTablePath);
         let* xs4        = AutoLifting/Phase1/TypeMapping.addTypeInfos(typeDb, xs3);
-        let* _          = AutoLifting/Phase1/OutputReport.writePhase1Report(xs4, outPath);
+        let* _          = AutoLifting/Phase1/Phase1Output.writePhase1Report(xs4, outPath);
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showEquiWorkItem4(x)), xs4));
         return()
 
@@ -46,7 +46,7 @@ namespace AutoLifting/ReportMain {
                         , attribsPath: System.FilePath
                         , _outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
-        let* xs1      = AutoLifting/Phase2/WorkList.getWorkList(workListPath);
+        let* xs1      = AutoLifting/Phase2/Phase2WorkList.getWorkList(workListPath);
         let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(xs1))));        
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(memosPath);
         let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);

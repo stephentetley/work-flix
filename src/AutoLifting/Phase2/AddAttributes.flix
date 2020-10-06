@@ -44,9 +44,16 @@ namespace AutoLifting/Phase2/AddAttributes {
                 let* eastNorth = getEastingNorthing(attrs.osgb36);
                 let v6 = eastNorth.easting;
                 let v7 = eastNorth.northing;
-                let x1 = { +installedFrom = v1, +manufacturer = v2, +model = v3, 
-                            +partNumber = v4, +serialNumber = v5, 
-                            +easting = v6, +northing = v7 | x }; 
+                let v8 = attrs.workLoad;
+                let v9 = attrs.workLoadUnits;
+                let v10 = attrs.statutoryRef;
+                let v11 = attrs.testCertNum;
+                let x1 =    { +installedFrom = v1, +manufacturer = v2
+                            , +model = v3
+                            , +partNumber = v4, +serialNumber = v5
+                            , +easting = v6, +northing = v7
+                            , +workLoad = v8, +workLoadUnits = v9
+                            , +statutoryRef = v10, +testCertNum = v11 | x }; 
                 return(x1)
             }
         }

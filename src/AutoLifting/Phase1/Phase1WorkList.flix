@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1/WorkList {
+namespace AutoLifting/Phase1/Phase1WorkList {
     
     use AutoLifting.ReportMonad;
     

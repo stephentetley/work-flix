@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase2/WorkList {
+namespace AutoLifting/Phase2/Phase2WorkList {
     
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;

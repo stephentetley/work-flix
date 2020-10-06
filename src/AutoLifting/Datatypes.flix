@@ -144,6 +144,10 @@ namespace AutoLifting/Datatypes {
         , serialNumber: String
         , easting: Int32
         , northing: Int32
+        , workLoad: Option[Float64]
+        , workLoadUnits: String
+        , statutoryRef: String
+        , testCertNum: String
         }
 
 
