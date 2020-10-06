@@ -46,8 +46,8 @@ namespace AutoLifting/Phase2/AibAttributeReader {
                 , installedFrom     = x2
                 , manufacturer      = x3
                 , model             = x4
-                , serialNumber      = x6
                 , specificModel     = x5
+                , serialNumber      = x6
                 , osgb36            = x7
                 , workLoad          = x8
                 , workLoadUnits     = x9
@@ -58,8 +58,8 @@ namespace AutoLifting/Phase2/AibAttributeReader {
             <*> getLocalDateNamed("Installed From")
             <*> getStringNamed("Manufacturer")
             <*> getStringNamed("Model")
-            <*> getCouldBeNumericalNamed("Serial No", dfmt)
             <*> getStringNamedWithDefault("Specific Model/Frame", "")
+            <*> getCouldBeNumericalNamed("Serial No", dfmt)
             <*> getStringNamed("Loc.Ref.")
             <*> optional(getFloat64Named("Work Load"))
             <*> getStringNamedWithDefault("Work Load Units", "")
