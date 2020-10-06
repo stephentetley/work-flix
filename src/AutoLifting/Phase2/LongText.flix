@@ -33,7 +33,7 @@ namespace AutoLifting/Phase2/LongText {
     pub def updateLongText1(m: Map[String, String], x: Phase2WorkItem1): ReportMonad[Phase2WorkItem2] = 
         use AutoLifting/ReportMonad.{flatMap, return};
         let oltext  = Map.get(x.pliReference, m);
-        return({ +s4LongText = oltext | x })
+        return({ +longText = oltext | x })
         
 
     def buildMemoLookups(xs: List[AibMemoRow]): Map[String, String] = 

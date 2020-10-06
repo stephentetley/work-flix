@@ -48,5 +48,5 @@ def phase2(): Result[Unit, System.Error] & Impure =
     let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase1.xlsx");
     let memosPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_memos.xlsx");
     let attribsPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_attribs.xlsx");
-    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/Output_final.xlsx");
+    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase2.xlsx");
     runReportMonad(reportPhase2(workPath, memosPath, attribsPath, outPath))

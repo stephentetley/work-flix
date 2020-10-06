@@ -44,7 +44,7 @@ namespace AutoLifting/ReportMain {
     pub def reportPhase2( workListPath: System.FilePath
                         , memosPath: System.FilePath
                         , attribsPath: System.FilePath
-                        , _outPath: System.FilePath): ReportMonad[Unit] = 
+                        , outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
         let* xs1      = AutoLifting/Phase2/Phase2WorkList.getWorkList(workListPath);
         let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(xs1))));        
@@ -52,12 +52,13 @@ namespace AutoLifting/ReportMain {
         let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
         let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(attribsPath);
         let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);
+        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs3, outPath);
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem3(x)), xs3));
         return()
 
         pub def showPhase2WorkItem3(x: AutoLifting/Datatypes.Phase2WorkItem3): String = 
             let showOpt = o -> Option.getWithDefault(o, "_");
-            "<${x.pliReference}, ${showOpt(x.s4LongText)}, ${Time/LocalDate.toString(x.installedFrom)}, ${Int32.toString(x.easting)}, ${Int32.toString(x.northing)}>"
+            "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.installedFrom)}, ${Int32.toString(x.easting)}, ${Int32.toString(x.northing)}>"
 
 
 

@@ -39,4 +39,10 @@ namespace AutoLifting/Common {
     }
         
 
+    pub def formatDateForS4(dt: Time.LocalDate): Result[String, System.Error] = 
+        use Result.{flatMap};
+        let* fmt = Time/Format/DateFormatter.fromPattern("dd.MM.yyyy");
+        let ans = Time/LocalDate.format(dt, fmt);
+        Ok(ans)
+
 }

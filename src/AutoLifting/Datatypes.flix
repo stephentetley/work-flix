@@ -111,7 +111,7 @@ namespace AutoLifting/Datatypes {
         , s4Category: String 
         , s4Object: String
         , s4Class: String
-        , s4LongText: Option[String]
+        , longText: Option[String]
         }
 
     type alias AibAttributeRow = 
@@ -136,12 +136,12 @@ namespace AutoLifting/Datatypes {
         , s4Category: String 
         , s4Object: String
         , s4Class: String
-        , s4LongText: Option[String]
         , installedFrom: Time.LocalDate
         , manufacturer: String
         , model: String
         , partNumber: String
         , serialNumber: String
+        , longText: Option[String]
         , easting: Int32
         , northing: Int32
         , workLoad: Option[Float64]
