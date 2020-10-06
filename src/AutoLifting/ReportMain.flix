@@ -57,7 +57,7 @@ namespace AutoLifting/ReportMain {
 
         pub def showPhase2WorkItem3(x: AutoLifting/Datatypes.Phase2WorkItem3): String = 
             let showOpt = o -> Option.getWithDefault(o, "_");
-            "<${x.pliReference}, ${showOpt(x.s4LongText)}, ${Time/LocalDate.toString(x.installedFrom)}>"
+            "<${x.pliReference}, ${showOpt(x.s4LongText)}, ${Time/LocalDate.toString(x.installedFrom)}, ${Int32.toString(x.easting)}, ${Int32.toString(x.northing)}>"
 
 
 

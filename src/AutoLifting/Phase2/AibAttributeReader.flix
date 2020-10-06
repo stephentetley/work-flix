@@ -18,9 +18,11 @@ namespace AutoLifting/Phase2/AibAttributeReader {
         
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
+    use SheetIO.DataFormatter;
 
     use AutoLifting/Datatypes.AibAttributeRow;
     use AutoLifting.ReportMonad;
+    
 
 
     /// Must be a *.xlsx (OO-XML) file.
@@ -30,40 +32,52 @@ namespace AutoLifting/Phase2/AibAttributeReader {
         
 
     def readAibAttributeRows() : SheetReader[List[AibAttributeRow]] =
-        use SheetIO/SheetReader.{flatMap, return, getSheetAt, maximalNamedRows}; 
+        use SheetIO/SheetReader.{flatMap, return, getSheetAt, liftAction, maximalNamedRows}; 
         let* s1 = getSheetAt(0); 
-        maximalNamedRows(s1, 0, 1, evalAibAttributeRow())
+        let* dfmt = liftAction(_ -> SheetIO/DataFormatter.new()); 
+        maximalNamedRows(s1, 0, 1, evalAibAttributeRow(dfmt))
 
-    def evalAibAttributeRow(): NamedRowEvaluator[AibAttributeRow] = 
+    def evalAibAttributeRow(dfmt: DataFormatter): NamedRowEvaluator[AibAttributeRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
-                getFloat64Named, getStringNamedWithDefault, optional, getInt64Named};
+                getFloat64Named, getStringNamedWithDefault, optional, getStringNamedWithDataFormatter};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) ->
                 { pliReference      = x1
                 , installedFrom     = x2
                 , manufacturer      = x3
                 , model             = x4
-                , osgb36            = x5
-                , workLoad          = x6
-                , workLoadUnits     = x7
-                , statutoryRef      = x8
-                , testCertNum       = x9
+                , serialNumber      = x6
+                , specificModel     = x5
+                , osgb36            = x7
+                , workLoad          = x8
+                , workLoadUnits     = x9
+                , statutoryRef      = x10
+                , testCertNum       = x11
                 })
             <&> logEval(getStringNamed("Reference"))
             <*> getLocalDateNamed("Installed From")
             <*> getStringNamed("Manufacturer")
             <*> getStringNamed("Model")
+            <*> getCouldBeNumericalNamed("Serial No", dfmt)
+            <*> getStringNamedWithDefault("Specific Model/Frame", "")
             <*> getStringNamed("Loc.Ref.")
             <*> optional(getFloat64Named("Work Load"))
             <*> getStringNamedWithDefault("Work Load Units", "")
-            /// TODO need to use DataFormatter to read int as string...
-            <*> alt(getStringNamedWithDefault("YWRef", ""), map(Int64.toString, getInt64Named("YWRef")))
-            <*> alt(getStringNamedWithDefault("Test Cert No", ""), map(Int64.toString, getInt64Named("Test Cert No")))
+            /// Need to use DataFormatter as the string might actually be seen as a numeric to Excel
+            <*> getCouldBeNumericalNamed("YWRef", dfmt)
+            <*> getCouldBeNumericalNamed("Test Cert No", dfmt)
 
     def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] = 
         use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
         map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
         
+    /// TODO - this works for the sample data but ideally we would use getStringNamedWithDataFormatter...
+    def getCouldBeNumericalNamed(label: String, _dfmt: DataFormatter): NamedRowEvaluator[String] = 
+        use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
+        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
+        
+
+
     def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
         let* ans = ma;

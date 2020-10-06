@@ -25,8 +25,8 @@ namespace AssetLib/Common/Osgb36 {
     pub def parse(s: String): Result[NGR, System.Error] = 
         use Result.flatMap;
         let s1 = String.trim(s);
-        let* patt = Regex/Pattern.compile("\p{Alpha}{2}[0-9]{10}");
-        if (Regex.isMatch(patt, s1))
+        let* patt = Text/Regex/Pattern.compile("\p{Alpha}{2}[0-9]{10}");
+        if (Text/Regex.matches(s1, patt))
             Ok(NGR(s1))
         else 
             Err(IllegalArgumentException)

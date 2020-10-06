@@ -119,6 +119,8 @@ namespace AutoLifting/Datatypes {
         , installedFrom: Time.LocalDate
         , manufacturer: String
         , model: String
+        , specificModel: String
+        , serialNumber: String
         , osgb36: String
         , workLoad: Option[Float64]
         , workLoadUnits: String
@@ -136,6 +138,12 @@ namespace AutoLifting/Datatypes {
         , s4Class: String
         , s4LongText: Option[String]
         , installedFrom: Time.LocalDate
+        , manufacturer: String
+        , model: String
+        , partNumber: String
+        , serialNumber: String
+        , easting: Int32
+        , northing: Int32
         }
 
 

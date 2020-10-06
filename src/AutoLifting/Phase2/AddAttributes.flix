@@ -16,7 +16,8 @@
 
 namespace AutoLifting/Phase2/AddAttributes {
     
- 
+    use AssetLib/Common/Osgb36.EastingNorthing;
+
     use AutoLifting/Datatypes.{Phase2WorkItem2, AibAttributeRow, Phase2WorkItem3};
     use AutoLifting.ReportMonad;
 
@@ -33,10 +34,19 @@ namespace AutoLifting/Phase2/AddAttributes {
     pub def updateAttributes1(m: Map[String, AibAttributeRow], x: Phase2WorkItem2): ReportMonad[Phase2WorkItem3] = 
         use AutoLifting/ReportMonad.{flatMap, return, throwError};
         match Map.get(x.pliReference, m) {
-            case None => throwError("updateLongText - No attributes for ${x.pliReference}")
+            case None => throwError("updateAttributes - No attributes for ${x.pliReference}")
             case Some(attrs) => { 
-                // let v1 = attrs.installedFrom;
-                let x1 = { +installedFrom = attrs.installedFrom | x }; 
+                let v1 = attrs.installedFrom;
+                let v2 = attrs.manufacturer;
+                let v3 = attrs.model;
+                let v4 = attrs.specificModel;
+                let v5 = attrs.serialNumber;
+                let* eastNorth = getEastingNorthing(attrs.osgb36);
+                let v6 = eastNorth.easting;
+                let v7 = eastNorth.northing;
+                let x1 = { +installedFrom = v1, +manufacturer = v2, +model = v3, 
+                            +partNumber = v4, +serialNumber = v5, 
+                            +easting = v6, +northing = v7 | x }; 
                 return(x1)
             }
         }
@@ -45,5 +55,11 @@ namespace AutoLifting/Phase2/AddAttributes {
     def buildAttributeLookups(xs: List[AibAttributeRow]): Map[String, AibAttributeRow] = 
         List.foldLeft((ac, x) ->  Map.insert(x.pliReference, x, ac), Map.empty(), xs)
 
+    def getEastingNorthing(ngr: String): ReportMonad[EastingNorthing] = 
+        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+        use AutoLifting/ReportMonad.{flatMap, liftActionResult};
+        let* ngr1 = liftActionResult(_ -> parse(ngr) as & Impure);
+        liftActionResult(_ -> toEastingNorthing(ngr1) as & Impure)
+        
 
 }
