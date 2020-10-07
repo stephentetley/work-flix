@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase2/Rename {
+namespace AutoLifting/Phase2/RenameValues {
     
  
     use AutoLifting/Datatypes.{Phase2WorkItem3};
@@ -50,8 +50,9 @@ namespace AutoLifting/Phase2/Rename {
 
     def renameWorkLoadUnit(x: Phase2WorkItem3): Phase2WorkItem3 = 
         match x.workLoadUnits { 
-            case "KILOGRAM" => { workLoadUnits = "KG" | x }
-            case _  => x
+            case "KILOGRAM"         => { workLoadUnits = "KG" | x }
+            case "HUNDREDWEIGHT"    => { workLoadUnits = "CWT" | x }
+            case _                  => x
         }
 
 

@@ -16,7 +16,54 @@
     
 
 namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
+    
+    /// Description (Long), Priority, Due Date, Reason, Type of Change Request, Change Request Group, 
+    /// MBOM-Material, MBOM-Plant, MBOM-Usage, MBOM-Alternative, FL-Functional Location, EQ-Equipment, Process Requester
+    
+    /// Typically `changeRequestType` = "AIWEAM0P"
+    /// Typically `processRequester` = "ASSET DATA"
+    type alias ChangeRequestDetails = 
+        { description: String
+        , priority: String
+        , dueDate: String
+        , reason: String
+        , changeRequestType: String
+        , changeRequestGroup: String
+        , mbomMaterial: String
+        , mbomPlant: String
+        , mbomUsage: String
+        , mbomAlternative: String
+        , flocOrEquipment: String
+        , processRequester: String
+        }
 
+    /// Just fields of interest...
+    type alias FunctionalLocationData = 
+        { functionalLocation: String
+        , maskedFuncLoc: String
+        , description: String
+        , functLocCat: Int32
+        , strIndicator: String
+        , objectType: String
+        , startupDate: Option[Time.LocalDate]
+        , maintPlant: Int32
+        , companyCode: Int32
+        , coArea: Int32
+        , supFunctLoc: String
+        , equipInstall: Bool
+        , statusProfile: String
+        , userStatus: String        
+        } 
+    
+    /// `description` should be the same value as description on FunctionalLocationData page.
+    /// `longText` is the actual long text
+    type alias FlMultilingualText = 
+        { functionalLocation: String
+        , deleteIndicator: Bool
+        , language: String
+        , description: String
+        , longText: String
+        }
 
     // Functional Location,Deletion Ind,Class Type,Class,Status,Characteristics,Char Value,Ch.Deletion Ind.
     type alias FlClassification = 
@@ -28,6 +75,44 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , characteristicName: String
         , charValue: String
         , charDeletionInd: Bool 
+        }
+
+    /// Just fields of interest...
+    type alias EquipmentData = 
+        { equiId: String
+        , equipCategory: String
+        , description: String
+        , objectType: String
+        , grossWeight: Option[Int32]
+        , unitOfWeight: String
+        , startupDate: Option[Time.LocalDate]
+        , acquistonValue: String
+        , manufacturer: String
+        , modelNumber: String
+        , manufPartNo: String
+        , manufSerialNo: String
+        , constructYear: Int32
+        , constructMth: Int32
+        , maintPlant: Int32
+        , companyCode: String
+        , coArea: Int32
+        , planningPlant: Int32
+        , functionalLoc: String
+        , superordEquip: String
+        , position: Int32
+        , techIdentNo: String
+        , statusProfile: String
+        , statusOfAnObject: String
+        }
+
+    /// `description` should be the same value as description on FunctionalLocationData page.
+    /// `longText` is the actual long text
+    type alias EqMultilingualText = 
+        { equiId: String
+        , deleteIndicator: Bool
+        , language: String
+        , description: String
+        , longText: String
         }
 
     // Equipment,Delete Ind.,Class Type,Class,Status,Characteristics,Char Value,Ch. Delete Ind.
