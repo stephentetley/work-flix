@@ -86,7 +86,6 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , grossWeight: Option[Int32]
         , unitOfWeight: String
         , startupDate: Option[Time.LocalDate]
-        , acquistonValue: String
         , manufacturer: String
         , modelNumber: String
         , manufPartNo: String
@@ -94,7 +93,7 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , constructYear: Int32
         , constructMth: Int32
         , maintPlant: Int32
-        , companyCode: String
+        , companyCode: Int32
         , coArea: Int32
         , planningPlant: Int32
         , functionalLoc: String
