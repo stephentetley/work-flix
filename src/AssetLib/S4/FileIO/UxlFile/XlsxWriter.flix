@@ -20,13 +20,107 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
     use SheetIO.RowSetter;
     use SheetIO.SheetWriter;
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails,
+        FunctionalLocationData, FlMultilingualText, FlClassification, 
+        EquipmentData, EqMultilingualText, EqClassification};
+
+
+    /// Functional Location Data
+
+    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
+    pub def writeChangeRequestDetails(xs: List[ChangeRequestDetails]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
+        let* s1     = getSheet("Functional Location Data");
+        let* _      = setCursor!(s1, 6);
+        mapX(x -> appendRow(s1, setChangeRequestDetails!(x)), xs)
+
+
+    /// Just write fields of interest...
+    def setChangeRequestDetails!(x: ChangeRequestDetails): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _      = putStringAt!(0, x.description);
+        let* _      = putStringAt!(4, x.changeRequestType);
+        let* _      = putStringAt!(10, x.flFunctionalLocation);
+        let* _      = putStringAt!(11, x.eqEquipment);
+        let* _      = putStringAt!(12, x.processRequester);
+        return()
+
+
+    /// Functional Location Data
+
+    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
+    pub def writeFunctionalLocationData(xs: List[FunctionalLocationData]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
+        let* s1     = getSheet("Functional Location Data");
+        let* _      = setCursor!(s1, 6);
+        mapX(x -> appendRow(s1, setFunctionalLocationData!(x)), xs)
+
+
+    /// Just write fields of interest...
+    def setFunctionalLocationData!(x: FunctionalLocationData): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _      = putStringAt!(0, x.functionalLocation);
+        let* _      = putStringAt!(1, x.maskedFuncLoc);
+        let* _      = putStringAt!(2, x.description);
+        let* _      = putInt32At!(3, x.functLocCat);
+        let* _      = putStringAt!(4, x.strIndicator);
+        let* _      = putStringAt!(5, x.objectType);
+        let* _      = putOptionLocalDateAt!(12, x.startupDate);
+        let* _      = putInt32At!(23, x.maintPlant);
+        let* _      = putInt32At!(30, x.companyCode);
+        let* _      = putInt32At!(35, x.coArea);
+        let* _      = putStringAt!(46, x.supFunctLoc);
+        let* _      = putS4BoolAt!(47, x.equipInstall);
+        let* _      = putStringAt!(49, x.statusProfile);
+        let* _      = putStringAt!(50, x.userStatus);
+        return()
+
+
+    /// FL-Multilingual Text
+
+    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
+    pub def writeFlMultilingualText(xs: List[FlMultilingualText]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
+        let* s1     = getSheet("FL-Multilingual Text");
+        let* _      = setCursor!(s1, 6);
+        mapX(x -> appendRow(s1, setFlMultilingualText!(x)), xs)
+
+    def setFlMultilingualText!(x: FlMultilingualText): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        let* _      = putStringAt!(0, x.functionalLocation);
+        let* _      = putS4BoolAt!(1, x.deleteIndicator);
+        let* _      = putStringAt!(2, x.language);
+        let* _      = putStringAt!(3, x.description);
+        let* _      = putStringAt!(4, x.longText);
+        return()
+
+
+    /// FL-Classification
+
+    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
+    pub def writeFlClassification(xs: List[FlClassification]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
+        let* s1     = getSheet("FL-Classification");
+        let* _      = setCursor!(s1, 6);
+        mapX(x -> appendRow(s1, setFlClassification!(x)), xs)
+
+    def setFlClassification!(x: FlClassification): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        let* _      = putStringAt!(0, x.functionalLocation);
+        let* _      = putS4BoolAt!(1, x.deletionInd);
+        let* _      = putStringAt!(2, x.classType);
+        let* _      = putStringAt!(3, x.className);
+        let* _      = putStringAt!(4, x.status);
+        let* _      = putStringAt!(5, x.characteristicName);
+        let* _      = putStringAt!(6, x.charValue);
+        let* _      = putS4BoolAt!(7, x.charDeletionInd);
+        return()
 
 
     /// Equipment Data
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeEqEquipmentData(xs: List[EquipmentData]): SheetWriter[Unit] = 
+    pub def writeEquipmentData(xs: List[EquipmentData]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
         let* s1     = getSheet("Equipment Data");
         let* _      = setCursor!(s1, 6);
@@ -81,12 +175,12 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         return()
 
 
-    /// Eq-Classification
+    /// EQ-Classification
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeEqClassification(xs: List[EqClassification]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("Eq-Classification");
+        let* s1     = getSheet("EQ-Classification");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setEqClassification!(x)), xs)
 

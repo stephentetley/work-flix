@@ -17,23 +17,16 @@
 
 namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
     
-    /// Description (Long), Priority, Due Date, Reason, Type of Change Request, Change Request Group, 
-    /// MBOM-Material, MBOM-Plant, MBOM-Usage, MBOM-Alternative, FL-Functional Location, EQ-Equipment, Process Requester
     
     /// Typically `changeRequestType` = "AIWEAM0P"
     /// Typically `processRequester` = "ASSET DATA"
+    /// Just fields of interest...
+    /// Either `flFunctionalLocation` or `eqEquipment`
     type alias ChangeRequestDetails = 
         { description: String
-        , priority: String
-        , dueDate: String
-        , reason: String
         , changeRequestType: String
-        , changeRequestGroup: String
-        , mbomMaterial: String
-        , mbomPlant: String
-        , mbomUsage: String
-        , mbomAlternative: String
-        , flocOrEquipment: String
+        , flFunctionalLocation: String
+        , eqEquipment: String
         , processRequester: String
         }
 
