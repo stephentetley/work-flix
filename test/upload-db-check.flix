@@ -33,7 +33,7 @@ def checkFlocRow(): RowChecker[FlClassification] =
 
 def checkFlocs(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadFlClassifications(xlsxPath));
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadFlClassification(xlsxPath));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
     let* xs         = mapWithIndexM(execRowChecker(checkFlocRow()), rows);
     return(xs)
@@ -48,7 +48,7 @@ def checkEquiRow(): RowChecker[EqClassification] =
 
 def checkEquis(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEqClassifications(xlsxPath));
+    let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEqClassification(xlsxPath));
     let* _          = liftAction(_ -> Console.printLine("Running..."));
     let* xs         = mapWithIndexM(execRowChecker(checkEquiRow()), rows);
     return(xs)

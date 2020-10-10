@@ -25,12 +25,12 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         EquipmentData, EqMultilingualText, EqClassification};
 
 
-    /// Functional Location Data
+    /// Change Request Details
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeChangeRequestDetails(xs: List[ChangeRequestDetails]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("Functional Location Data");
+        let* s1     = getSheet("Change Request Details");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setChangeRequestDetails!(x)), xs)
 

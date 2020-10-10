@@ -25,6 +25,79 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
 
+    /// Change Request Details
+
+    pub def readChangeRequestDetails(): SheetReader[List[ChangeRequestDetails]] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheet, maximalNamedRows};      
+        let* s1     = getSheet("EQ-Classification");
+        let* xs     = maximalNamedRows(s1, 4, 6, getChangeRequestDetails());
+        return(xs)
+
+    def getChangeRequestDetails(): NamedRowEvaluator[ChangeRequestDetails] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
+                getStringNamedWithDefault, getInt32Named};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5) -> 
+                { description           = x1
+                , changeRequestType     = x2
+                , flFunctionalLocation  = x3
+                , eqEquipment           = x4
+                , processRequester      = x5
+                })
+            <&> getStringNamed("Text")                  /// description
+            <*> getStringNamed("CrType")                /// changeRequestType
+            <*> getStringNamed("Funcloc")               /// flFunctionalLocation
+            <*> getStringNamed("Equi")                  /// eqEquipment
+            <*> getStringNamed("ZzprocessRequester")    /// processRequester
+        
+
+
+    /// Functional Location Data
+
+    pub def readFunctionalLocationData(): SheetReader[List[FunctionalLocationData]] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheet, maximalNamedRows};      
+        let* s1     = getSheet("Functional Location Data");
+        let* xs     = maximalNamedRows(s1, 4, 6, getFunctionalLocationData());
+        return(xs)
+
+    def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
+                getStringNamedWithDefault, getInt32Named};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14) ->
+                { functionalLocation    = x1
+                , maskedFuncLoc         = x2
+                , description           = x3                
+                , functLocCat           = x4
+                , strIndicator          = x5
+                , objectType            = x6
+                , startupDate           = x7
+                , maintPlant            = x8
+                , companyCode           = x9
+                , coArea                = x10
+                , supFunctLoc           = x11
+                , equipInstall          = x12
+                , statusProfile         = x13
+                , userStatus            = x14
+                })
+            <&> getStringNamed("Funcloc")               /// functionalLocation
+            <*> getStringNamed("FlocRef")               /// maskedFuncLoc
+            <*> getStringNamed("Txtmi")                 /// description
+            <*> getInt32Named("Fltyp")                  /// functLocCat
+            <*> getStringNamed("TplkzFlc")              /// strIndicator
+            <*> getStringNamed("Eqart")                 /// objectType
+            <*> getOptionLocalDateNamed("Inbdt")        /// startupDate
+            <*> getInt32Named("SwerkFl")                /// maintPlant
+            <*> getInt32Named("Bukrsfloc")              /// companyCode
+            <*> getInt32Named("KokrFloc")               /// coArea
+            <*> getStringNamed("Tplma")                 /// supFunctLoc
+            <*> getS4BoolNamed("Iequi")                 /// equipInstall
+            <*> getStringNamed("StsmFloc")              /// statusProfile
+            <*> getStringNamed("Sttxu")                 /// userStatus
+   
+    
+
+
     /// FL-Multilingual Text
 
     pub def readFlMultilingualText(): SheetReader[List[FlMultilingualText]] = 
@@ -45,7 +118,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
                 , longText = x5
                 })
             <&> getStringNamed("Funcloc")
-            <*> getBoolNamed("DeleteFlag")
+            <*> getS4BoolNamed("DeleteFlag")
             <*> getStringNamed("Langucode")
             <*> getStringNamed("Pltxt")
             <*> getStatusNamed("FlLtxt")
@@ -77,13 +150,13 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
                 , charDeletionInd       = x8
                 })
             <&> getStringNamed("FunclocCl")
-            <*> getBoolNamed("DeleteCl")
+            <*> getS4BoolNamed("DeleteCl")
             <*> getStringNamed("ClasstypeCl")
             <*> getStringNamed("ClassCl")
             <*> getStatusNamed("Clstatus1Cl")
             <*> getStringNamed("CharidExtForm")
             <*> getStringNamedWithDefault("Atwrt", "")
-            <*> getBoolNamed("DeleteCh")
+            <*> getS4BoolNamed("DeleteCh")
 
     /// Equipment Data
 
@@ -168,7 +241,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
                 , longText = x5
                 })
             <&> getStringNamed("Equi")
-            <*> getBoolNamed("DeleteFlag")
+            <*> getS4BoolNamed("DeleteFlag")
             <*> getStringNamed("Langucode")
             <*> getStringNamed("Shortxt")
             <*> getStatusNamed("EqLtxt")
@@ -199,17 +272,17 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
                 , charDeleteInd         = x8
                 })
             <&> getStringNamed("EquiCl")
-            <*> getBoolNamed("DeleteCl")
+            <*> getS4BoolNamed("DeleteCl")
             <*> getStringNamed("ClasstypeCl")
             <*> getStringNamed("ClassCl")
             <*> getStatusNamed("Clstatus1Cl")
             <*> getStringNamed("CharidExtForm")
             <*> getStringNamedWithDefault("Atwrt", "")
-            <*> getBoolNamed("DeleteCh")
+            <*> getS4BoolNamed("DeleteCh")
 
 
     /// Allows blank...
-    def getBoolNamed(label: String): NamedRowEvaluator[Bool] = 
+    def getS4BoolNamed(label: String): NamedRowEvaluator[Bool] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamedWithDefault};
         let* x = getStringNamedWithDefault(label, "");
         if (x == "X") return(true) else return(false)
