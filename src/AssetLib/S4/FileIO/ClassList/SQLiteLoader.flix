@@ -25,6 +25,8 @@ use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember, Characteristic, Selecti
 
 namespace AssetLib/S4/FileIO/ClassList/SQLiteLoader {
 
+    /// TODO now out-of-date / invalid 
+
     type alias CharacteristicsDb[r] = #{ Characteristic, 
                                             SelectionValue, 
                                             IntRange, 

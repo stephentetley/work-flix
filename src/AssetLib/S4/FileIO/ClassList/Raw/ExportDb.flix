@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
-use FactIO.JdbcExport;
-use FactIO.JdbcWriteList;
-use FactIO.JdbcRowSetter;
-
-use AssetLib/Common/Utils.{foldMapRel};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
-use AssetLib/S4/FileIO/ClassList/Raw/Parser.{parseFile};
-use AssetLib/S4/FileIO/ClassList/Raw/Builder.{buildClassList};
-
-
-
 namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb { 
 
-    // These are transitory relations, so the _Rel suffix is not a burden
-    
-    type alias ClassMember1 = {className: String, charName: String}
-    
-    type alias Characteristic1 = {charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32]}
-    
-    type alias IntRange1 = {charName: String, low: Int32, high: Int32}
-    
-    type alias DecimalRange1 = {charName: String, low: Float64, high: Float64}
+    use FactIO.JdbcExport;
+    use FactIO.JdbcWriteList;
+    use FactIO.JdbcRowSetter;
 
-    type alias SelectionValue1 = {charName: String, value: String}
+    use AssetLib/Common/Utils.{foldMapRel};
+    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
+    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+    use AssetLib/S4/FileIO/ClassList/Raw/Parser.{parseFile};
+    use AssetLib/S4/FileIO/ClassList/Raw/Builder.{buildClassList};
+
+    type alias ClassMember1 = {classType: String, className: String, charName: String}
+    
+    type alias Characteristic1 = {classType: String, charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32]}
+    
+    type alias IntRange1 = {classType: String, charName: String, low: Int32, high: Int32}
+    
+    type alias DecimalRange1 = {classType: String, charName: String, low: Float64, high: Float64}
+
+    type alias SelectionValue1 = {classType: String, charName: String, value: String}
 
     pub def parseFlocClassList(path: System.FilePath, cs: Text.Charset): JdbcExport[ClassList] = 
         use FactIO/JdbcExport.{flatMap, return, liftActionResult};
@@ -54,50 +50,64 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
         let* ast    = liftActionResult(_ -> parseFile(path, EquiClasses, cs));
         let ans     = buildClassList(ast);
         return(ans)
-        
-    pub def outputTables(prefix: String, src: ClassList): JdbcExport[Unit] =
+
+
+    pub def setupTables(): JdbcExport[Unit] =  
+        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
+        let* _          = execute("DROP TABLE IF EXISTS classlist_class_members");
+        let* _          = execute(sqlCreateClassMembers());
+        let* _          = execute("DROP TABLE IF EXISTS classlist_characteristics");
+        let* _          = execute(sqlCreateCharacteristics());
+        let* _          = execute("DROP TABLE IF EXISTS classlist_int_ranges");
+        let* _          = execute(sqlCreateIntRanges());
+        let* _          = execute("DROP TABLE IF EXISTS classlist_decimal_ranges");
+        let* _          = execute(sqlCreateDecimalRanges());
+        let* _          = execute("DROP TABLE IF EXISTS classlist_selection_values");
+        let* _          = execute(sqlCreateSelectionValues());
+        return()
+
+
+    pub def outputTables(classType: String, src: ClassList): JdbcExport[Unit] =
         use FactIO/JdbcExport.{flatMap, return, setAutoCommitOff, close, liftAction};
         let* _      = setAutoCommitOff();
         let* _      = liftAction(_ -> Console.printLine("ClassMembers"));
-        let* _      = collectClassMembers(src) |> writeClassMembers(prefix);
+        let* _      = collectClassMembers(classType, src) |> writeClassMembers;
         let* _      = liftAction(_ -> Console.printLine("Characteristics"));
-        let* _      = collectCharacteristics(src) |> writeCharacteristics(prefix);
+        let* _      = collectCharacteristics(classType, src) |> writeCharacteristics;
         let* _      = liftAction(_ -> Console.printLine("IntRanges"));
-        let* _      = collectIntRanges(src) |> writeIntRanges(prefix);
+        let* _      = collectIntRanges(classType, src) |> writeIntRanges;
         let* _      = liftAction(_ -> Console.printLine("DecimalRanges"));
-        let* _      = collectDecimalRanges(src) |> writeDecimalRanges(prefix);
+        let* _      = collectDecimalRanges(classType, src) |> writeDecimalRanges;
         let* _      = liftAction(_ -> Console.printLine("SelectionValues"));
-        let* _      = collectSelectionValues(src) |> writeSelectionValues(prefix);        
+        let* _      = collectSelectionValues(classType, src) |> writeSelectionValues;
         return()
 
 
     // Traversals
 
     // Collect ClassMembers
-    // Call solve to remove duplicates
-    def collectClassMembers(src: ClassList): List[ClassMember1] =
+    def collectClassMembers(ctype: String, src: ClassList): List[ClassMember1] =
         let cmp = (x,y) -> x.className == y.className && x.charName == y.charName;
-        List.flatMap(classMember1, src.classes) |> List.distinctWith(cmp)
+        List.flatMap(classMember1(ctype), src.classes) |> List.distinctWith(cmp)
 
     // One-to-many
-    def classMember1(src: Class): List[ClassMember1] =
-        List.map(r ->  {className = src.name, charName = r.name}, src.characteristics)
+    def classMember1(ctype: String, src: Class): List[ClassMember1] =
+        List.map(r ->  {classType = ctype, className = src.name, charName = r.name}, src.characteristics)
         
 
     // Collect Characteristics
-    // Call solve to remove duplicates
-    def collectCharacteristics(src: ClassList): List[Characteristic1] = 
+    def collectCharacteristics(ctype: String, src: ClassList): List[Characteristic1] = 
         let cmp = (x,y) -> x.charName == y.charName && x.datatype == y.datatype;
-        List.flatMap(characteristics, src.classes) |> List.distinctWith(cmp)
+        List.flatMap(characteristics(ctype), src.classes) |> List.distinctWith(cmp)
 
     // One-to-many
-    def characteristics(src: Class): List[Characteristic1] =
-        List.map(characteristic1, src.characteristics)
+    def characteristics(ctype: String, src: Class): List[Characteristic1] =
+        List.map(characteristic1(ctype), src.characteristics)
 
     // One-to-one
-    def characteristic1(src: Characteristic):  Characteristic1 =
+    def characteristic1(ctype: String,src: Characteristic):  Characteristic1 =
         let (typename, clength, prec) = deconsDatatype(src.datatype);
-        {charName = src.name, datatype = typename, charLength = clength, decimalPrec = prec} 
+        {classType = ctype, charName = src.name, datatype = typename, charLength = clength, decimalPrec = prec} 
         
         
     def deconsDatatype(x: Datatype): (String, Int32, Option[Int32]) = match x { 
@@ -110,62 +120,62 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     // Collect Int Ranges
     // Call solve to remove duplicates
-    def collectIntRanges(src: ClassList): List[IntRange1] = 
-        List.flatMap(intRanges, src.classes)
+    def collectIntRanges(ctype: String, src: ClassList): List[IntRange1] = 
+        List.flatMap(intRanges(ctype), src.classes)
 
     // One-to-many
-    def intRanges(src: Class): List[IntRange1] =
-        List.flatMap(intRange1, src.characteristics)
+    def intRanges(ctype: String, src: Class): List[IntRange1] =
+        List.flatMap(intRange1(ctype), src.characteristics)
 
     // One-to-zero-or-one
-    def intRange1(src: Characteristic): List[IntRange1] =
+    def intRange1(ctype: String, src: Characteristic): List[IntRange1] =
         match src.refinement {
-            case Some(IntRange(lo,hi)) => {charName = src.name, low = lo, high = hi} :: Nil
+            case Some(IntRange(lo,hi)) => {classType = ctype, charName = src.name, low = lo, high = hi} :: Nil
             case _ => Nil
         } 
     
     // Collect Decimal Ranges
     // Call solve to remove duplicates
-    def collectDecimalRanges(src: ClassList): List[DecimalRange1] =
-        List.flatMap(decimalRanges, src.classes)
+    def collectDecimalRanges(ctype: String, src: ClassList): List[DecimalRange1] =
+        List.flatMap(decimalRanges(ctype), src.classes)
 
     // One-to-many
-    def decimalRanges(src: Class): List[DecimalRange1] =
-        List.flatMap(decimalRange1, src.characteristics)
+    def decimalRanges(ctype: String, src: Class): List[DecimalRange1] =
+        List.flatMap(decimalRange1(ctype), src.characteristics)
 
     // One-to-zero-or-one
-    def decimalRange1(src: Characteristic):  List[DecimalRange1] =
+    def decimalRange1(ctype: String, src: Characteristic):  List[DecimalRange1] =
         let name = src.name;
         match src.refinement {
-            case Some(DecimalRange(lo,hi)) => {charName = name, low = lo, high = hi} :: Nil
+            case Some(DecimalRange(lo,hi)) => {classType = ctype, charName = name, low = lo, high = hi} :: Nil
             case _ => Nil
         } 
 
     // Collect Selection Values
     // Call solve to remove duplicates
-    def collectSelectionValues(src: ClassList):  List[SelectionValue1] = 
-        List.flatMap(selectionValues, src.classes)
+    def collectSelectionValues(ctype: String, src: ClassList):  List[SelectionValue1] = 
+        List.flatMap(selectionValues(ctype), src.classes)
 
     // One-to-many
-    def selectionValues(src: Class):  List[SelectionValue1] =
-        List.flatMap(selectionValue1, src.characteristics)
+    def selectionValues(ctype: String, src: Class):  List[SelectionValue1] =
+        List.flatMap(selectionValue1(ctype), src.characteristics)
 
     // One-to-zero-or-one
-    def selectionValue1(src: Characteristic):  List[SelectionValue1] =
+    def selectionValue1(ctype: String, src: Characteristic):  List[SelectionValue1] =
         let name = src.name;
         match src.refinement {
-            case Some(ListOfValues(xs)) => List.map(x -> {charName = name, value = x}, xs)
+            case Some(ListOfValues(xs)) => List.map(x -> {classType = ctype, charName = name, value = x}, xs)
             case _ => Nil
         } 
 
 
+
+
     // Class Members
 
-    def writeClassMembers(prefix: String, rows: List[ClassMember1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_class_members");
-        let* _          = execute(sqlCreateClassMembers(prefix));
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_class_members(classname, charname) VALUES(?,?)");
+    def writeClassMembers(rows: List[ClassMember1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_class_members(classtype, classname, charname) VALUES(?, ?, ?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, classMemberRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -175,18 +185,17 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     /// A RowSetter for the body of a ClassMember
     def classMemberRowSetter(x: ClassMember1): JdbcRowSetter[Unit] = 
         use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, x.className);
-        let* _ = putString!(1, x.charName);
+        let* _ = putString!(0, x.classType);
+        let* _ = putString!(1, x.className);
+        let* _ = putString!(2, x.charName);
         return()
 
 
     // Characteristics
 
-    def writeCharacteristics(prefix: String, rows: List[Characteristic1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_characteristics");
-        let* _          = execute(sqlCreateCharacteristics(prefix));
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_characteristics(charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?)");
+    def writeCharacteristics(rows: List[Characteristic1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_characteristics(classtype, charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, characteristicRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -194,19 +203,18 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     /// A RowSetter for the body of a Characteristic
     def characteristicRowSetter(x: Characteristic1): JdbcRowSetter[Unit] = 
         use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!, putOptionInt32!};
-        let* _ = putString!(0, x.charName);
-        let* _ = putString!(1, x.datatype);
-        let* _ = putInt32!(2, x.charLength);
-        let* _ = putOptionInt32!(3, x.decimalPrec);
+        let* _ = putString!(0, x.classType);
+        let* _ = putString!(1, x.charName);
+        let* _ = putString!(2, x.datatype);
+        let* _ = putInt32!(3, x.charLength);
+        let* _ = putOptionInt32!(4, x.decimalPrec);
         return()
 
     // Int Ranges
 
-    def writeIntRanges(prefix: String, rows: List[IntRange1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_int_ranges");
-        let* _          = execute(sqlCreateIntRanges(prefix));
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_int_ranges(charname, range_low, range_high) VALUES(?,?,?)");
+    def writeIntRanges(rows: List[IntRange1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_int_ranges(classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, intRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -214,19 +222,18 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     /// A RowSetter for IntRange
     def intRangeRowSetter(x: IntRange1): JdbcRowSetter[Unit] = 
         use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!};
-        let* _ = putString!(0, x.charName);
-        let* _ = putInt32!(1, x.low);
-        let* _ = putInt32!(2, x.high);
+        let* _ = putString!(0, x.classType);
+        let* _ = putString!(1, x.charName);
+        let* _ = putInt32!(2, x.low);
+        let* _ = putInt32!(3, x.high);
         return()
 
 
     // Decimal Ranges
 
-    def writeDecimalRanges(prefix: String, rows: List[DecimalRange1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_decimal_ranges");
-        let* _          = execute(sqlCreateDecimalRanges(prefix));
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_decimal_ranges(charname, range_low, range_high) VALUES(?,?,?)");
+    def writeDecimalRanges(rows: List[DecimalRange1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_decimal_ranges(classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, decimalRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -235,18 +242,17 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     /// A RowSetter for DecimalRange1
     def decimalRangeRowSetter(x: DecimalRange1): JdbcRowSetter[Unit] = 
         use FactIO/JdbcRowSetter.{flatMap, return, putString!, putFloat64!};
-        let* _ = putString!(0, x.charName);
-        let* _ = putFloat64!(1, x.low);
-        let* _ = putFloat64!(2, x.high);
+        let* _ = putString!(0, x.classType);
+        let* _ = putString!(1, x.charName);
+        let* _ = putFloat64!(2, x.low);
+        let* _ = putFloat64!(3, x.high);
         return()
 
     // Selection Values
 
-    def writeSelectionValues(prefix: String, rows: List[SelectionValue1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS ${prefix}_selection_values");
-        let* _          = execute(sqlCreateSelectionValues(prefix));
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${prefix}_selection_values(charname, value) VALUES(?,?)");
+    def writeSelectionValues(rows: List[SelectionValue1]): JdbcExport[Int32] =
+        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_selection_values(classtype, charname, value) VALUES(?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, selectionValueRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -255,64 +261,71 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
     /// A RowSetter for SelectionValue1
     def selectionValueRowSetter(x: SelectionValue1): JdbcRowSetter[Unit] = 
         use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, x.charName);
-        let* _ = putString!(1, x.value);
+        let* _ = putString!(0, x.classType);
+        let* _ = putString!(1, x.charName);
+        let* _ = putString!(2, x.value);
         return()
 
 
 
     // SQL DDL
 
-    def sqlCreateClassMembers(prefix: String): String =
+    def sqlCreateClassMembers(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${prefix}_class_members ("
+            "CREATE TABLE IF NOT EXISTS classlist_class_members ("
+                :: "classtype       TEXT NOT NULL,"
                 :: "classname       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL,"
-                :: "UNIQUE(charname, classname)"
+                :: "UNIQUE(classtype, charname, classname)"
                 :: ")"
                 :: Nil
         )
 
-    def sqlCreateCharacteristics(prefix: String): String =
+    def sqlCreateCharacteristics(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${prefix}_characteristics ("
-                :: "charname       TEXT    PRIMARY KEY NOT NULL UNIQUE,"
-                :: "datatype       TEXT    NOT NULL,"
-                :: "num_chars      INTEGER NOT NULL,"
-                :: "decimal_places INTEGER"
+            "CREATE TABLE IF NOT EXISTS classlist_characteristics ("
+                :: "classtype       TEXT NOT NULL,"
+                :: "charname        TEXT NOT NULL,"
+                :: "datatype        TEXT NOT NULL,"
+                :: "num_chars       INTEGER NOT NULL,"
+                :: "decimal_places  INTEGER,"
+                :: "UNIQUE(classtype, charname, datatype)"
                 :: ")"
                 :: Nil
         )
 
 
-    def sqlCreateIntRanges(prefix: String): String =
+    def sqlCreateIntRanges(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${prefix}_int_ranges ("
-                :: "charname   TEXT    NOT NULL,"
-                :: "range_low  INTEGER NOT NULL,"
-                :: "range_high INTEGER NOT NULL,"
-                :: "UNIQUE(charname, range_low, range_high)"
+            "CREATE TABLE IF NOT EXISTS classlist_int_ranges ("
+                :: "classtype       TEXT NOT NULL,"
+                :: "charname        TEXT NOT NULL,"
+                :: "range_low       INTEGER NOT NULL,"
+                :: "range_high      INTEGER NOT NULL,"
+                :: "UNIQUE(classtype, charname)"
                 :: ")"
                 :: Nil
         )
 
-    def sqlCreateDecimalRanges(prefix: String): String =
+    def sqlCreateDecimalRanges(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${prefix}_decimal_ranges ("
-                :: "charname   TEXT    NOT NULL,"
-                :: "range_low  DECIMAL NOT NULL,"
-                :: "range_high DECIMAL NOT NULL,"
-                :: "UNIQUE(charname, range_low, range_high)"
+            "CREATE TABLE IF NOT EXISTS classlist_decimal_ranges ("
+                :: "classtype       TEXT NOT NULL,"
+                :: "charname        TEXT NOT NULL,"
+                :: "range_low       DECIMAL NOT NULL,"
+                :: "range_high      DECIMAL NOT NULL,"
+                :: "UNIQUE(classtype, charname)"
                 :: ")"
                 :: Nil
         )
 
-    def sqlCreateSelectionValues(prefix: String): String =
+    def sqlCreateSelectionValues(): String =
         String.unwords(
-            "CREATE TABLE ${prefix}_selection_values ("
-                :: "charname TEXT NOT NULL,"
-                :: "value    TEXT NOT NULL,"
-                :: "UNIQUE(charname, value)"
+            "CREATE TABLE classlist_selection_values ("
+                :: "classtype       TEXT NOT NULL,"
+                :: "charname        TEXT NOT NULL,"
+                :: "value           TEXT NOT NULL,"
+                :: "UNIQUE(classtype, charname, value)"
                 :: ")"
                 :: Nil
         )
