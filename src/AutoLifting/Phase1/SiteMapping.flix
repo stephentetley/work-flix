@@ -40,9 +40,7 @@ namespace AutoLifting/Phase1/SiteMapping {
 
     pub def loadSiteMapTable(path: System.FilePath): ReportMonad[Map[String, String]] =
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult}; 
-        let* _      = AutoLifting/ReportMonad.liftAction(_ -> Console.printLine("load1")); 
         let* ans    = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMapTable(), path));
-        let* _      = AutoLifting/ReportMonad.liftAction(_ -> Console.printLine("load done")); 
         return(ans)
 
     def readSiteMapTable(): SheetReader[Map[String, String]] = 
@@ -65,14 +63,14 @@ namespace AutoLifting/Phase1/SiteMapping {
     def evalSiteMapRow(): NamedRowEvaluator[(String, Option[String])] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, optional, tuple2};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        tuple2( logEval(getStringNamed("AI2_InstallationCommonName"))
+        tuple2( getStringNamed("AI2_InstallationCommonName")
               , optional(getStringNamed("L1 exists in S4 01/10/2019"))
               )
 
-    def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
-        let* ans = ma;
-        let* _ = liftAction(_ -> Console.printLine(ans));
-        return(ans)
+    /// def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+    ///     let* ans = ma;
+    ///     let* _ = liftAction(_ -> Console.printLine(ans));
+    ///     return(ans)
 
 }

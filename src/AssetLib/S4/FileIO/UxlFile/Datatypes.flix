@@ -91,7 +91,7 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , planningPlant: Int32
         , functionalLoc: String
         , superordEquip: String
-        , position: Int32
+        , position: Option[Int32]
         , techIdentNo: String
         , statusProfile: String
         , statusOfAnObject: String

@@ -149,7 +149,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         let* _      = putInt32At!(36, x.planningPlant);
         let* _      = putStringAt!(41, x.functionalLoc);
         let* _      = putStringAt!(42, x.superordEquip);
-        let* _      = putInt32At!(43, x.position);
+        let* _      = putOptionInt32At!(43, x.position);
         let* _      = putStringAt!(44, x.techIdentNo);
         let* _      = putStringAt!(45, x.statusProfile);
         let* _      = putStringAt!(46, x.statusOfAnObject);

@@ -215,7 +215,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getInt32Named("PplaEeqz")               /// planningPlant
             <*> getStringNamed("TplnEilo")              /// functionalLoc
             <*> getStringNamed("HequEeqz")              /// superordEquip
-            <*> getInt32Named("HeqnEeqz")               /// position
+            <*> getOptionInt32Named("HeqnEeqz")         /// position
             <*> getStringNamed("TidnEeqz")              /// techIdentNo
             <*> getStringNamed("StsmEqui")              /// statusProfile
             <*> getStringNamed("UstwEqui")              /// statusOfAnObject
