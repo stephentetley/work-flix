@@ -40,28 +40,39 @@ namespace AutoLifting/Phase1/SiteMapping {
 
     pub def loadSiteMapTable(path: System.FilePath): ReportMonad[Map[String, String]] =
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult}; 
-        let* xs = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMapTable(), path));
-        let ans = buildSitesMap(xs);
+        let* _      = AutoLifting/ReportMonad.liftAction(_ -> Console.printLine("load1")); 
+        let* ans    = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMapTable(), path));
+        let* _      = AutoLifting/ReportMonad.liftAction(_ -> Console.printLine("load done")); 
         return(ans)
 
-    pub def readSiteMapTable(): SheetReader[List[(String, String)]] = 
+    def readSiteMapTable(): SheetReader[Map[String, String]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
-        let* s1     = getSheet("Sheet1");
+        let* s1     = getSheet("inst to SAP migration");
         let* xs     = allNamedRows(s1, evalSiteMapRow());
-        return(xs)
+        let m1      = buildSitesMap(xs);
+        return(m1)
 
 
-    def buildSitesMap(xs: List[(String, String)]): Map[String, String] = 
-        List.foldLeft((ac, pair) -> { let (x,y) = pair; Map.insert(String.trim(x), String.trim(y), ac)}, Map.empty(), xs)
+    def buildSitesMap(xs: List[(String, Option[String])]): Map[String, String] = 
+        let add1 = (ac, pair) -> match pair { 
+            case (n, Some(v)) => Map.insert(String.trim(n), String.trim(v), ac)
+            case (_, _) => ac
+        };
+        List.foldLeft(add1, Map.empty(), xs)
 
 
-    // Change,Reference,Asset Name,OldParentName,NewParentName
-    def evalSiteMapRow(): NamedRowEvaluator[(String, String)] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, tuple2};
+    
+    def evalSiteMapRow(): NamedRowEvaluator[(String, Option[String])] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, optional, tuple2};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        tuple2( getStringNamed("AI2_InstallationCommonName")
-              , getStringNamed("S/4 Hana Floc Lvl1_Code")
+        tuple2( logEval(getStringNamed("AI2_InstallationCommonName"))
+              , optional(getStringNamed("L1 exists in S4 01/10/2019"))
               )
 
+    def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+        let* ans = ma;
+        let* _ = liftAction(_ -> Console.printLine(ans));
+        return(ans)
 
 }

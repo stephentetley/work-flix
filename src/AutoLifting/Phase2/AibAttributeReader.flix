@@ -41,21 +41,22 @@ namespace AutoLifting/Phase2/AibAttributeReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
                 getFloat64Named, getStringNamedWithDefault, optional, getStringNamedWithDataFormatter};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use String.{trim};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12) ->
                 { pliReference      = x1
                 , installedFrom     = x2
-                , manufacturer      = x3
-                , model             = x4
-                , specificModel     = x5
-                , serialNumber      = x6
+                , manufacturer      = x3.trim()
+                , model             = x4.trim()
+                , specificModel     = x5.trim()
+                , serialNumber      = x6.trim()
                 , osgb36            = x7
-                , locationOnSite    = x8
+                , locationOnSite    = x8.trim()
                 , workLoad          = x9
                 , workLoadUnits     = x10
-                , statutoryRef      = x11
-                , testCertNum       = x12
+                , statutoryRef      = x11.trim()
+                , testCertNum       = x12.trim()
                 })
-            <&> logEval(getStringNamed("Reference"))
+            <&> getStringNamed("Reference")
             <*> getLocalDateNamed("Installed From")
             <*> getStringNamed("Manufacturer")
             <*> getStringNamed("Model")
@@ -80,11 +81,11 @@ namespace AutoLifting/Phase2/AibAttributeReader {
         
 
 
-    def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
-        let* ans = ma;
-        let* _ = liftAction(_ -> Console.printLine(ans));
-        return(ans)
+    /// def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+    ///     let* ans = ma;
+    ///     let* _ = liftAction(_ -> Console.printLine(ans));
+    ///     return(ans)
   
 
 }

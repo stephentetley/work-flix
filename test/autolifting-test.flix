@@ -29,13 +29,13 @@ def mainResult(): Result[Unit, System.Error] & Impure =
     use Result.flatMap;
     let factsPaths = 
         { typeTablePath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx")
-        , siteTablePath = System/FilePath.new("G:/work/assets/facts/AI2toS4Hana_Lvl1_2FlocMapping.xlsx")
+        , siteTablePath = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
         };
     let inputPaths = 
-        { workListPath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/SCARBO source.xlsx")
-        , attribsPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_attribs_export.xlsx")
-        , memosPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_memo_export.xlsx")
+        { workListPath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/HULL source.xlsx")
+        , attribsPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_attribs_export.xlsx")
+        , memosPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_memos_export.xlsx")
         };
-    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_new_childs.xlsx");
+    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_new_kids.xlsx");
     runReportMonad(generateChildNewReport(factsPaths, inputPaths, outPath))
 
