@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-use Data/Transient.DList;
-use System.Error.{Generic};
-use Time.LocalDate;
 
-
-use TextParser.TextParser;
-use TextParser.{parseFile, return, failure, map, alt, lookingAts, liftResult, swapError, parseLine};
-use TextParser/Combinators.{optional, manyWith};
-use TextParser/Text.{restOfLine, restOfLineLength, content, anchorLine, upperLetters};
-use TextParser/Token1.{lexeme, symbol, int32};
-
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{SourceType, ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{FlocClasses, EquiClasses};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
 
 namespace AssetLib/S4/FileIO/ClassList/Raw/Parser {
 
 
-    
+    use Data/Transient.DList;
+    use System.Error.{Generic};
+    use Time.LocalDate;
+
+
+    use TextParser.TextParser;
+    use TextParser.{parseFile, return, failure, map, alt, lookingAts, liftResult, swapError, parseLine};
+    use TextParser/Combinators.{optional, manyWith};
+    use TextParser/Text.{restOfLine, restOfLineLength, content, anchorLine, upperLetters};
+    use TextParser/Token1.{lexeme, symbol, int32};
+
+    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{SourceType, ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
+    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{FlocClasses, EquiClasses};
+    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
+    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
     /// Always UTF-8? no if parsing fails try iso_8859_1()
     pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, System.Error] & Impure = 

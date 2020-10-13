@@ -52,6 +52,7 @@ namespace AutoLifting/Phase2/RenameValues {
         match x.workLoadUnits { 
             case "KILOGRAM"         => { workLoadUnits = "KG" | x }
             case "HUNDREDWEIGHT"    => { workLoadUnits = "CWT" | x }
+            case "TONNE"            => { workLoadUnits = "TON (UK)" | x }
             case _                  => x
         }
 

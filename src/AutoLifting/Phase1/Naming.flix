@@ -25,6 +25,7 @@ namespace AutoLifting/Phase1/Naming {
     pub def expandNames(xs: List[AibExportRow]): ReportMonad[List[EquiWorkItem1]] = 
         AutoLifting/ReportMonad.mapM(expandNames1, xs)
 
+    /// TODO - must assert name is within `LIFTING EQUIPMENT` namespace...
     pub def expandNames1(x: AibExportRow): ReportMonad[EquiWorkItem1] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult};
         let* name       = getAibEquiNameFromCommonName(x.assetName);

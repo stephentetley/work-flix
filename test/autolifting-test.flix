@@ -15,38 +15,27 @@
 use AutoLifting/TypeMapping.TypeAnswer;
 use AutoLifting/Datatypes.EquiWorkItem;
 
-    
+/// TODO phases make less sense that expected, its easily possible to collect aib data at the start...
 def main(): Unit & Impure = 
-    let phase = 2;
-    match phase { 
-        case 1 => match phase1() {
-            case Ok() => Console.printLine("Done.")
-            case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
-        }
-        case 2 => match phase2() {
-            case Ok() => Console.printLine("Done.")
-            case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
-        }
-        case _ => Console.printLine("Unknown phase: ${Int32.toString(phase)}")
+    match mainResult() {
+        case Ok() => Console.printLine("Done.")
+        case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
     }
 
 
-def phase1(): Result[Unit, System.Error] & Impure = 
+def mainResult(): Result[Unit, System.Error] & Impure = 
     use AutoLifting/ReportMonad.{runReportMonad};
-    use AutoLifting/ReportMain.{reportPhase1};
+    use AutoLifting/ReportMain.{generateChildNewReport};
     use Result.flatMap;
-    let typesDbPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx");
-    let sitesDbPath = System/FilePath.new("G:/work/assets/facts/AI2toS4Hana_Lvl1_2FlocMapping.xlsx");
-    let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/ESHOT_lifting.xlsx");
-    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase1.xlsx");
-    runReportMonad(reportPhase1(typesDbPath, sitesDbPath, workPath, outPath))
+    let factsPaths = 
+        { typeTablePath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx")
+        , siteTablePath = System/FilePath.new("G:/work/assets/facts/AI2toS4Hana_Lvl1_2FlocMapping.xlsx")
+        };
+    let inputPaths = 
+        { workListPath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/SCARBO source.xlsx")
+        , attribsPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_attribs_export.xlsx")
+        , memosPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_memo_export.xlsx")
+        };
+    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_new_childs.xlsx");
+    runReportMonad(generateChildNewReport(factsPaths, inputPaths, outPath))
 
-def phase2(): Result[Unit, System.Error] & Impure = 
-    use AutoLifting/ReportMonad.{runReportMonad};
-    use AutoLifting/ReportMain.{reportPhase2};
-    use Result.flatMap;
-    let workPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase1.xlsx");
-    let memosPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_memos.xlsx");
-    let attribsPath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_aib_export_attribs.xlsx");
-    let outPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/eshot_phase2.xlsx");
-    runReportMonad(reportPhase2(workPath, memosPath, attribsPath, outPath))

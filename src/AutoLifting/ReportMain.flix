@@ -16,50 +16,62 @@
 
 namespace AutoLifting/ReportMain {
 
+    use AutoLifting/Datatypes.{EquiWorkItem4};
     use AutoLifting.ReportMonad;
 
-    /// TODO use record for named args...
-    pub def reportPhase1( typeTablePath: System.FilePath
-                        , siteTablePath: System.FilePath
-                        , workListPath: System.FilePath
-                        , outPath: System.FilePath): ReportMonad[Unit] = 
+    type alias FactsPaths = 
+        { typeTablePath: System.FilePath
+        , siteTablePath: System.FilePath            
+        }
+
+    type alias InputPaths = 
+        { workListPath: System.FilePath
+        , attribsPath: System.FilePath
+        , memosPath: System.FilePath
+        }
+
+    pub def generateChildNewReport( factsPaths: FactsPaths
+                                  , inputPaths: InputPaths
+                                  , outPath: System.FilePath):  ReportMonad[Unit] = 
+                                  
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
+        let* xs1        = reportPhase1(factsPaths, inputPaths.workListPath);
+        let* _          = reportPhase2(xs1, inputPaths, outPath);
+        return()
+
+    /// TODO use record for named args...
+    def reportPhase1(factsPaths: FactsPaths,
+                     workListPath: System.FilePath): ReportMonad[List[EquiWorkItem4]] = 
+        use AutoLifting/ReportMonad.{return, flatMap};
         let* items      = AutoLifting/Phase1/Phase1WorkList.getWorkList(workListPath);
         let* xs1        = AutoLifting/Phase1/Naming.expandNames(items);
         let* parents    = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
         let* xs2        = AutoLifting/Phase1/ParentRef.updateParentReferences(parents, xs1);
-        let* siteDb     = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(siteTablePath);
+        let* siteDb     = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(factsPaths.siteTablePath);
         let* xs3        = AutoLifting/Phase1/SiteMapping.updateSiteCodes(siteDb, xs2);
-        let* typeDb     = AutoLifting/Phase1/MappingTable.readMappingFile(typeTablePath);
+        let* typeDb     = AutoLifting/Phase1/MappingTable.readMappingFile(factsPaths.typeTablePath);
         let* xs4        = AutoLifting/Phase1/TypeMapping.addTypeInfos(typeDb, xs3);
-        let* _          = AutoLifting/Phase1/Phase1Output.writePhase1Report(xs4, outPath);
-        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showEquiWorkItem4(x)), xs4));
-        return()
-
-    pub def showEquiWorkItem4(x: AutoLifting/Datatypes.EquiWorkItem4): String = 
-       "<${x.pliReference}, ${x.parentSaiReference}, ${x.s4EquiName}, ${x.s4Floc}, ${x.s4TyInfo.category}, ${x.s4TyInfo.s4Object}, ${x.s4TyInfo.s4Class}>"
+        return(xs4)
 
     /// TODO use record for named args...
-    pub def reportPhase2( workListPath: System.FilePath
-                        , memosPath: System.FilePath
-                        , attribsPath: System.FilePath
-                        , outPath: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/ReportMonad.{return, flatMap, liftAction};
-        let* xs1      = AutoLifting/Phase2/Phase2WorkList.getWorkList(workListPath);
-        let* _          = liftAction(_ -> Console.printLine("Work items: " + Int32.toString(List.length(xs1))));        
-        let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(memosPath);
+    def reportPhase2(xs: List[EquiWorkItem4],
+                         inputPaths: InputPaths,
+                         outPath: System.FilePath): ReportMonad[Unit] = 
+        use AutoLifting/ReportMonad.{return, flatMap, liftAction};     
+        let* xs1        = AutoLifting/Phase2/Phase2WorkList.getWorkList(xs);
+        let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(inputPaths.memosPath);
         let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
-        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(attribsPath);
+        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(inputPaths.attribsPath);
         let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);        
         let* xs4        = AutoLifting/Phase2/RenameValues.renameForS4(xs3);
         let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs4, outPath);
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem3(x)), xs4));
         return()
 
-        pub def showPhase2WorkItem3(x: AutoLifting/Datatypes.Phase2WorkItem3): String = 
-            let showOpt = o -> Option.getWithDefault(o, "_");
-            "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.installedFrom)}, ${Int32.toString(x.easting)}, ${Int32.toString(x.northing)}>"
+    pub def showPhase2WorkItem3(x: AutoLifting/Datatypes.Phase2WorkItem3): String = 
+        let showOpt = o -> Option.getWithDefault(o, "_");
+        "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.installedFrom)}, ${Int32.toString(x.easting)}, ${Int32.toString(x.northing)}>"
 
 
 

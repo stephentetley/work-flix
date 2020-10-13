@@ -16,44 +16,27 @@
 
 namespace AutoLifting/Phase2/Phase2WorkList {
     
-    use SheetIO.SheetReader;
-    use SheetIO.NamedRowEvaluator;
-
-    use AutoLifting/Datatypes.Phase2WorkItem1;
+    use AutoLifting/Datatypes.{EquiWorkItem4, Phase2WorkItem1};
     use AutoLifting.ReportMonad;
 
     // Phase2WorkItem1
     /// Reference	Parent Reference	S4 Name	S4 Floc	Equi Category	Equi Object	Equi Class
 
     /// Must be a *.xlsx (OO-XML) file.
-    pub def getWorkList(path: System.FilePath): ReportMonad[List[Phase2WorkItem1]] =
-        use AutoLifting/ReportMonad.{liftActionResult};
-        liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readWorkListRows(), path))
+    pub def getWorkList(xs: List[EquiWorkItem4]): ReportMonad[List[Phase2WorkItem1]] =
+        use AutoLifting/ReportMonad.{mapM};
+        mapM(translate, xs)
         
 
-    def readWorkListRows() : SheetReader[List[Phase2WorkItem1]] =
-        use SheetIO/SheetReader.{flatMap, return, getSheetAt, maximalNamedRows}; 
-        let* s1 = getSheetAt(0); 
-        maximalNamedRows(s1, 0, 1, evalWorkListRow())
-
-    def evalWorkListRow(): NamedRowEvaluator[Phase2WorkItem1] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7) -> 
-                { pliReference          = x1
-                , parentSaiReference    = x2
-                , s4EquiName            = x3
-                , s4Floc                = x4
-                , s4Category            = x5
-                , s4Object              = x6
-                , s4Class               = x7
+    def translate(x: EquiWorkItem4): ReportMonad[Phase2WorkItem1] = 
+        use AutoLifting/ReportMonad.{return};
+        return({ pliReference           = x.pliReference
+                , parentSaiReference    = x.parentSaiReference
+                , s4EquiName            = x.s4EquiName
+                , s4Floc                = x.s4Floc
+                , s4Category            = x.s4TyInfo.category
+                , s4Object              = x.s4TyInfo.s4Object
+                , s4Class               = x.s4TyInfo.s4Class
                 })
-            <&> getStringNamed("Reference")
-            <*> getStringNamed("Parent Reference")
-            <*> getStringNamed("S4 Name")
-            <*> getStringNamed("S4 Floc")
-            <*> getStringNamed("Equi Category")
-            <*> getStringNamed("Equi Object")
-            <*> getStringNamed("Equi Class")
 
 }
