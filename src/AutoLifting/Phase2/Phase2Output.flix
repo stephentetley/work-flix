@@ -49,6 +49,7 @@ namespace AutoLifting/Phase2/Phase2Output {
         , "Aib Reference 2"
         , "Easting"
         , "Northing"
+        , "Location On Site"
         , "Work Load"
         , "Work Load Units"
         , "Statutory Ref"
@@ -74,10 +75,11 @@ namespace AutoLifting/Phase2/Phase2Output {
         let* _      = putStringAt!(13, x.parentSaiReference);
         let* _      = putInt32At!(14, x.easting);
         let* _      = putInt32At!(15, x.northing);
-        let* _      = putOptionFloat64At!(16, x.workLoad);
-        let* _      = putStringAt!(17, x.workLoadUnits);
-        let* _      = putStringAt!(18, x.statutoryRef);
-        let* _      = putStringAt!(19, x.testCertNum);
+        let* _      = putStringAt!(16, x.locationOnSite);
+        let* _      = putOptionFloat64At!(17, x.workLoad);
+        let* _      = putStringAt!(18, x.workLoadUnits);
+        let* _      = putStringAt!(19, x.statutoryRef);
+        let* _      = putStringAt!(20, x.testCertNum);
 
         return()
 

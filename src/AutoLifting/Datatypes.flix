@@ -28,6 +28,7 @@ namespace AutoLifting/Datatypes {
 
 
     /// Start with (Reference, AssetName, NewParent)
+    /// i.e. AibExportRow
   
     /// Result of Phase1Renaming
     type alias EquiWorkItem1 = 
@@ -122,6 +123,7 @@ namespace AutoLifting/Datatypes {
         , specificModel: String
         , serialNumber: String
         , osgb36: String
+        , locationOnSite: String
         , workLoad: Option[Float64]
         , workLoadUnits: String
         , statutoryRef: String
@@ -144,6 +146,7 @@ namespace AutoLifting/Datatypes {
         , longText: Option[String]
         , easting: Int32
         , northing: Int32
+        , locationOnSite: String
         , workLoad: Option[Float64]
         , workLoadUnits: String
         , statutoryRef: String

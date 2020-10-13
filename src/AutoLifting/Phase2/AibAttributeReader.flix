@@ -41,7 +41,7 @@ namespace AutoLifting/Phase2/AibAttributeReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
                 getFloat64Named, getStringNamedWithDefault, optional, getStringNamedWithDataFormatter};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12) ->
                 { pliReference      = x1
                 , installedFrom     = x2
                 , manufacturer      = x3
@@ -49,10 +49,11 @@ namespace AutoLifting/Phase2/AibAttributeReader {
                 , specificModel     = x5
                 , serialNumber      = x6
                 , osgb36            = x7
-                , workLoad          = x8
-                , workLoadUnits     = x9
-                , statutoryRef      = x10
-                , testCertNum       = x11
+                , locationOnSite    = x8
+                , workLoad          = x9
+                , workLoadUnits     = x10
+                , statutoryRef      = x11
+                , testCertNum       = x12
                 })
             <&> logEval(getStringNamed("Reference"))
             <*> getLocalDateNamed("Installed From")
@@ -61,6 +62,7 @@ namespace AutoLifting/Phase2/AibAttributeReader {
             <*> getStringNamedWithDefault("Specific Model/Frame", "")
             <*> getCouldBeNumericalNamed("Serial No", dfmt)
             <*> getStringNamed("Loc.Ref.")
+            <*> getStringNamedWithDefault("Location On Site", "")
             <*> optional(getFloat64Named("Work Load"))
             <*> getStringNamedWithDefault("Work Load Units", "")
             /// Need to use DataFormatter as the string might actually be seen as a numeric to Excel
