@@ -16,10 +16,36 @@
 
 namespace AutoLifting/EmitUxl/Emitter {
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
+        EquipmentData, EqMultilingualText, EqClassification};
     
+    use AutoLifting.ReportMonad;
 
-    pub def genEquipmentData(rec: {equiId: String, 
+    /// cf "$101214878" ... 101,214,878
+    pub def addS4EquiIds[r](xs: List[{| r}]): ReportMonad[List[{ s4EquiId: String | r}]] =
+        use AutoLifting/ReportMonad.{mapM};
+        mapM(addS4EquiId, xs)
+
+
+    def addS4EquiId[r](rec: {| r}): ReportMonad[{ s4EquiId: String | r}] =
+        use AutoLifting/ReportMonad.{return, flatMap, genEquiId};
+        let* equiId = genEquiId();
+        return({+s4EquiId = equiId | rec})
+
+    pub def genChangeRequestDetails[r](description: String, xs: List[{equiId: String |r}]): List[ChangeRequestDetails] = 
+        let fn = (r1, ix) -> genChangeRequestDetails1({description = description, equiId = r1.equiId}, ix < 1);
+        List.mapWithIndex(fn, xs)
+
+    def genChangeRequestDetails1(rec: {description: String, 
+                                          equiId: String}, initial: Bool): ChangeRequestDetails = 
+        { description           = if (initial) rec.description else ""
+        , changeRequestType     = if (initial) "AIWEAM0P" else ""
+        , flFunctionalLocation  = ""
+        , eqEquipment           = rec.equiId
+        , processRequester      = "ASSET DATA"
+        }
+
+    pub def genEquipmentData1(rec: {equiId: String, 
                                    category: String, 
                                    description: String, 
                                    objectType: String,
@@ -55,7 +81,15 @@ namespace AutoLifting/EmitUxl/Emitter {
         , statusOfAnObject      = "OPER"
         }
 
-    pub def genEqMultilingualText(rec: {equiId: String, description: String, longText: String}): EqMultilingualText = 
+    pub def genEqMultilingualText[r](xs: List[{equiId: String, s4EquiName: String, longText: Option[String]|r}]): List[EqMultilingualText] = 
+        let fn = r1 -> match r1.longText { 
+            case Some(s) if !(String.isEmpty(s)) => 
+                Some(genEqMultilingualText1({{equiId = r1.equiId, description = r1.s4EquiName, longText = s}}))
+            case None => None
+        };
+        List.filterMap(fn, xs)
+
+    def genEqMultilingualText1(rec: {equiId: String, description: String, longText: String}): EqMultilingualText = 
         { equiId            = rec.equiId
         , deleteIndicator   = false
         , language          = "EN"
@@ -63,7 +97,7 @@ namespace AutoLifting/EmitUxl/Emitter {
         , longText          = rec.longText
         }
 
-    pub def genEqClassification(rec: {equiId: String, className: String, charName: String, charValue: String}): EqClassification = 
+    pub def genEqClassification1(rec: {equiId: String, className: String, charName: String, charValue: String}): EqClassification = 
         { equiId                = rec.equiId
         , deleteInd             = false
         , classType             = "002"

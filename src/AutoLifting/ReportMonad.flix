@@ -30,7 +30,18 @@ namespace AutoLifting/ReportMonad {
     use AutoLifting.ReportMonad.{ReportMonad};
 
     pub def runReportMonad(ma: ReportMonad[a]): Result[a, System.Error] & Impure = 
-        Result.map(snd, apply1(ma, 1))
+        let n1 = initEquiNumber();
+        Result.map(snd, apply1(ma, n1))
+
+
+    def initEquiNumber(): Int32 & Impure = 
+        use Time/LocalDateTime.{now, getDayOfMonth, getHour, getMinute};
+        let dt = now();
+        let x1 = getDayOfMonth(dt) * 10_000_000;
+        let x2 = getHour(dt) * 100_000;
+        let x3 = getMinute(dt) * 1_000;
+        x1 + x2 + x3
+
 
     pub def return(x: a): ReportMonad[a] =
         ReportMonad(s -> Ok((s, x)) as & Impure)
@@ -165,5 +176,12 @@ namespace AutoLifting/ReportMonad {
     /// Alias for `flatMap` (flipped `bind`)
     pub def =<<(k: a -> ReportMonad[b], ma: ReportMonad[a]): ReportMonad[b] = 
         flatMap(k, ma)
+
+
+    pub def genEquiId(): ReportMonad[String] =         
+        ReportMonad(s -> Ok((s, "$" + Int32.toString(s))) as & Impure)
+
+    pub def restEquiIdCounter(): ReportMonad[Unit] =
+        ReportMonad(_ -> { let n = initEquiNumber(); Ok((n, ()))})
 
 }
