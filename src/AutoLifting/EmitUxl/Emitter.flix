@@ -21,8 +21,11 @@ namespace AutoLifting/EmitUxl/Emitter {
     
     use AutoLifting.ReportMonad;
 
-    /// cf "$101214878" ... 101,214,878
-    pub def addS4EquiIds[r](xs: List[{| r}]): ReportMonad[List[{ s4EquiId: String | r}]] =
+
+
+
+    /// Ids of form cf "$101214878" ... 101,214,878
+    pub def addS4EquiIds[r](xs: List[{| r}]): ReportMonad[List[{s4EquiId: String | r}]] =
         use AutoLifting/ReportMonad.{mapM};
         mapM(addS4EquiId, xs)
 
@@ -31,6 +34,11 @@ namespace AutoLifting/EmitUxl/Emitter {
         use AutoLifting/ReportMonad.{return, flatMap, genEquiId};
         let* equiId = genEquiId();
         return({+s4EquiId = equiId | rec})
+
+
+
+    ///  writeChangeRequestDetails
+
 
     pub def genChangeRequestDetails[r](description: String, xs: List[{equiId: String |r}]): List[ChangeRequestDetails] = 
         let fn = (r1, ix) -> genChangeRequestDetails1({description = description, equiId = r1.equiId}, ix < 1);
