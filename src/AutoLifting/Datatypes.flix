@@ -40,30 +40,11 @@ namespace AutoLifting/Datatypes {
         , parentName: String
         }
 
-
+    
     /// Get parent SAI, remove parentName
-    type alias EquiWorkItem2 = 
-        { aibEquiName: String
-        , aibEquiType: String
-        , pliReference: String
-        , aibSiteName: String
-        , s4EquiName: String
-        , parentSaiReference: String
-        }
-
     /// Get S4 Site, remove Aib Site
-    type alias EquiWorkItem3 = 
-        { aibEquiName: String
-        , aibEquiType: String
-        , pliReference: String
-        , s4EquiName: String
-        , s4SiteCode: String
-        , parentSaiReference: String
-        }
-
-
     /// Add S4 Type Info and s4Floc
-    type alias EquiWorkItem4 = 
+    type alias Phase1FinalWorkItem = 
         { aibEquiName: String
         , aibEquiType: String
         , pliReference: String
@@ -104,25 +85,26 @@ namespace AutoLifting/Datatypes {
         , memo5: String
         }
 
-    type alias Phase2WorkItem2 = 
-        { pliReference: String
-        , parentSaiReference: String
-        , s4EquiName: String
-        , s4Floc: String
-        , s4Category: String 
-        , s4Object: String
-        , s4Class: String
-        , longText: Option[String]
-        }
+
 
     type alias AibAttributeRow = 
         { pliReference: String
-        , installedFrom: Time.LocalDate
+        , equiAttributes: EquiAttributes
+        , charAttributes: AibCharAttributes
+        }
+
+    type alias EquiAttributes = 
+        { installedFrom: Time.LocalDate
         , manufacturer: String
         , model: String
-        , specificModel: String
+        , partNumber: String
         , serialNumber: String
-        , osgb36: String
+        }
+
+
+
+    type alias AibCharAttributes = 
+        { osgb36: String
         , locationOnSite: String
         , workLoad: Option[Float64]
         , workLoadUnits: String
@@ -130,27 +112,27 @@ namespace AutoLifting/Datatypes {
         , testCertNum: String
         }
 
-    type alias Phase2WorkItem3 = 
-        { pliReference: String
-        , parentSaiReference: String
-        , s4EquiName: String
-        , s4Floc: String
-        , s4Category: String 
-        , s4Object: String
-        , s4Class: String
-        , installedFrom: Time.LocalDate
-        , manufacturer: String
-        , model: String
-        , partNumber: String
-        , serialNumber: String
-        , longText: Option[String]
-        , easting: Int32
+    type alias S4CharAttributes = 
+        { easting: Int32
         , northing: Int32
         , locationOnSite: String
         , workLoad: Option[Float64]
         , workLoadUnits: String
         , statutoryRef: String
         , testCertNum: String
+        }
+
+    type alias Phase2FinalWorkItem = 
+        { pliReference: String
+        , parentSaiReference: String
+        , s4EquiName: String
+        , s4Floc: String
+        , s4Category: String 
+        , s4Object: String
+        , s4Class: String
+        , equiAttributes: EquiAttributes
+        , longText: Option[String]
+        , charAttributes: S4CharAttributes
         }
 
 

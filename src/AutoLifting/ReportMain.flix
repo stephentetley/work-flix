@@ -16,7 +16,7 @@
 
 namespace AutoLifting/ReportMain {
 
-    use AutoLifting/Datatypes.{EquiWorkItem4, Phase2WorkItem3};
+    use AutoLifting/Datatypes.{Phase1FinalWorkItem, Phase2FinalWorkItem};
     use AutoLifting.ReportMonad;
 
     type alias ReportConfig = 
@@ -43,7 +43,7 @@ namespace AutoLifting/ReportMain {
 
     /// TODO use record for named args...
     def reportPhase1(reportConfig: ReportConfig,
-                     workListPath: System.FilePath): ReportMonad[List[EquiWorkItem4]] = 
+                     workListPath: System.FilePath): ReportMonad[List[Phase1FinalWorkItem]] = 
         use AutoLifting/ReportMonad.{return, flatMap};
         let* items      = AutoLifting/Phase1/Phase1WorkList.getWorkList(workListPath);
         let* xs1        = AutoLifting/Phase1/Naming.expandNames(items);
@@ -56,9 +56,9 @@ namespace AutoLifting/ReportMain {
         return(xs4)
 
     
-    def reportPhase2(xs: List[EquiWorkItem4],
+    def reportPhase2(xs: List[Phase1FinalWorkItem],
                      inputPaths: InputPaths,
-                     outPath: System.FilePath): ReportMonad[List[Phase2WorkItem3]] =
+                     outPath: System.FilePath): ReportMonad[List[Phase2FinalWorkItem]] =
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};     
         let* xs1        = AutoLifting/Phase2/Phase2WorkList.getWorkList(xs);
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(inputPaths.memosPath);
@@ -67,12 +67,12 @@ namespace AutoLifting/ReportMain {
         let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);        
         let* xs4        = AutoLifting/Phase2/RenameValues.renameForS4(xs3);
         let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs4, outPath);
-        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2WorkItem3(x)), xs4));
+        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2FinalWorkItem(x)), xs4));
         return(xs4)
 
-    pub def showPhase2WorkItem3(x: AutoLifting/Datatypes.Phase2WorkItem3): String = 
+    pub def showPhase2FinalWorkItem(x: AutoLifting/Datatypes.Phase2FinalWorkItem): String = 
         let showOpt = o -> Option.getWithDefault(o, "_");
-        "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.installedFrom)}, ${Int32.toString(x.easting)}, ${Int32.toString(x.northing)}>"
+        "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.equiAttributes.installedFrom)}>"
 
 
 

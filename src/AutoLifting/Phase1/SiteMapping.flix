@@ -25,10 +25,12 @@ namespace AutoLifting/Phase1/SiteMapping {
     
     /// Use a Map rather than Datalog for this because it is so simple
     
-    pub def updateSiteCodes(m: Map[String, String], xs: List[EquiWorkItem2]): ReportMonad[List[EquiWorkItem3]] = 
+    pub def updateSiteCodes[r](m: Map[String, String], 
+                               xs: List[{aibSiteName: String, aibEquiName: String | r}]): ReportMonad[List[{s4SiteCode: String, aibEquiName: String | r}]] = 
         AutoLifting/ReportMonad.mapM(updateSiteCode1(m), xs)
 
-    pub def updateSiteCode1(m: Map[String, String], x: EquiWorkItem2): ReportMonad[EquiWorkItem3] = 
+    def updateSiteCode1[r](m: Map[String, String], 
+                           x: {aibSiteName: String, aibEquiName: String | r}): ReportMonad[{s4SiteCode: String, aibEquiName: String | r}] = 
         use AutoLifting/ReportMonad.{throwError, return};
         match Map.get(x.aibSiteName, m) {
             case None => throwError("updateSiteCode1 - No S$ site for ${x.aibEquiName}")

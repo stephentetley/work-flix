@@ -17,44 +17,54 @@
 namespace AutoLifting/Phase2/RenameValues {
     
  
-    use AutoLifting/Datatypes.{Phase2WorkItem3};
+    use AutoLifting/Datatypes.{EquiAttributes, S4CharAttributes};
     use AutoLifting.ReportMonad;
 
 
-    pub def renameForS4(xs: List[Phase2WorkItem3]): ReportMonad[List[Phase2WorkItem3]] = 
+    pub def renameForS4(xs: List[{equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}]): ReportMonad[List[{equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}]] = 
         AutoLifting/ReportMonad.mapM(renameForS4Item, xs)
 
-    pub def renameForS4Item(x: Phase2WorkItem3): ReportMonad[Phase2WorkItem3] = 
+    pub def renameForS4Item[r](x: {equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}): ReportMonad[{equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}] = 
         use AutoLifting/ReportMonad.{flatMap, return};
         let step = renameManufacturer >> renameModel >> renameSerialNumber >> renameWorkLoadUnit;
         return(step(x))
         
-    def renameManufacturer(x: Phase2WorkItem3): Phase2WorkItem3 = 
-        match x.manufacturer { 
-            case "UNKNOWN MANUFACTURER" => { manufacturer = "TO BE DETERMINED" | x }
+    def renameManufacturer[r](x: {equiAttributes: EquiAttributes | r}): {equiAttributes: EquiAttributes | r} = 
+        match x.equiAttributes.manufacturer { 
+            case "UNKNOWN MANUFACTURER" => { 
+                let attrs1 = {manufacturer = "TO BE DETERMINED" | x.equiAttributes};
+                {equiAttributes = attrs1 | x}
+            }
             case _  => x
         }
 
-    def renameModel(x: Phase2WorkItem3): Phase2WorkItem3 = 
-        match x.model { 
-            case "UNSPECIFIED" => { model = "TO BE DETERMINED" | x }
+    def renameModel[r](x: {equiAttributes: EquiAttributes | r}): {equiAttributes: EquiAttributes | r} = 
+        match x.equiAttributes.model { 
+            case "UNSPECIFIED" => { 
+                let attrs1 = {model = "TO BE DETERMINED" | x.equiAttributes};
+                {equiAttributes = attrs1 | x}
+            }
             case _  => x
         }        
 
-    def renameSerialNumber(x: Phase2WorkItem3): Phase2WorkItem3 = 
-        match x.serialNumber { 
-            case "" => { serialNumber = "UNKNOWN" | x }
+    def renameSerialNumber[r](x: {equiAttributes: EquiAttributes | r}): {equiAttributes: EquiAttributes | r} = 
+        match x.equiAttributes.serialNumber { 
+            case "" => { 
+                let attrs1 = {serialNumber = "UNKNOWN" | x.equiAttributes};
+                {equiAttributes = attrs1 | x}
+            }
             case _  => x
         } 
 
 
-    def renameWorkLoadUnit(x: Phase2WorkItem3): Phase2WorkItem3 = 
-        match x.workLoadUnits { 
-            case "KILOGRAM"         => { workLoadUnits = "KG" | x }
-            case "HUNDREDWEIGHT"    => { workLoadUnits = "CWT" | x }
-            case "TONNE"            => { workLoadUnits = "TON (UK)" | x }
-            case _                  => x
-        }
+    def renameWorkLoadUnit[r](x: {charAttributes: S4CharAttributes | r}): {charAttributes: S4CharAttributes | r} = 
+        let update = match x.charAttributes.workLoadUnits { 
+            case "KILOGRAM"         => {workLoadUnits = "KG" | x.charAttributes}
+            case "HUNDREDWEIGHT"    => {workLoadUnits = "CWT" | x.charAttributes}
+            case "TONNE"            => {workLoadUnits = "TON (UK)" | x.charAttributes}
+            case _                  => x.charAttributes
+        };
+        {charAttributes = update | x}
 
 
 }

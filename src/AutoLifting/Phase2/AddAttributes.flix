@@ -18,7 +18,7 @@ namespace AutoLifting/Phase2/AddAttributes {
     
     use AssetLib/Common/Osgb36.EastingNorthing;
 
-    use AutoLifting/Datatypes.{Phase2WorkItem2, AibAttributeRow, Phase2WorkItem3};
+    use AutoLifting/Datatypes.{AibAttributeRow, S4CharAttributes, EquiAttributes};
     use AutoLifting.ReportMonad;
 
     pub def loadAttributeLookups(path: System.FilePath): ReportMonad[Map[String, AibAttributeRow]] =
@@ -28,39 +28,20 @@ namespace AutoLifting/Phase2/AddAttributes {
         )
         
 
-    pub def updateAttributes(m: Map[String, AibAttributeRow], xs: List[Phase2WorkItem2]): ReportMonad[List[Phase2WorkItem3]] = 
+    pub def updateAttributes[r](m: Map[String, AibAttributeRow], 
+                                xs: List[{pliReference: String | r}]): ReportMonad[List[{charAttributes: S4CharAttributes, equiAttributes: EquiAttributes, pliReference: String | r}]] = 
         AutoLifting/ReportMonad.mapM(updateAttributes1(m), xs)
 
-    pub def updateAttributes1(m: Map[String, AibAttributeRow], x: Phase2WorkItem2): ReportMonad[Phase2WorkItem3] = 
+    pub def updateAttributes1[r](m: Map[String, AibAttributeRow], 
+                                 x: {pliReference: String | r}): ReportMonad[{charAttributes: S4CharAttributes, equiAttributes: EquiAttributes, pliReference: String | r}] = 
         use AutoLifting/ReportMonad.{flatMap, return, throwError};
         match Map.get(x.pliReference, m) {
             case None => throwError("updateAttributes - No attributes for ${x.pliReference}")
             case Some(attrs) => { 
-                let v1 = attrs.installedFrom;
-                let v2 = attrs.manufacturer;
-                let v3 = attrs.model;
-                let v4 = attrs.specificModel;
-                let v5 = attrs.serialNumber;
-                let* eastNorth = getEastingNorthing(attrs.osgb36);
-                let v6 = eastNorth.easting;
-                let v7 = eastNorth.northing;
-                let v8 = attrs.locationOnSite;
-                let v9 = attrs.workLoad;
-                let v10 = attrs.workLoadUnits;
-                let v11 = attrs.statutoryRef;
-                let v12 = attrs.testCertNum;
-                let x1 =    { +installedFrom    = v1
-                            , +manufacturer     = v2
-                            , +model            = v3
-                            , +partNumber       = v4
-                            , +serialNumber     = v5
-                            , +easting          = v6
-                            , +northing         = v7
-                            , +locationOnSite   = v8
-                            , +workLoad         = v9
-                            , +workLoadUnits    = v10
-                            , +statutoryRef     = v11
-                            , +testCertNum      = v12 | x }; 
+                let eattrs = attrs.equiAttributes;
+                let* eastNorth = getEastingNorthing(attrs.charAttributes.osgb36);
+                let cattrs  = {+easting = eastNorth.easting, +northing = eastNorth.northing, -osgb36 | attrs.charAttributes}; 
+                let x1  = { +equiAttributes = eattrs, +charAttributes = cattrs | x }; 
                 return(x1)
             }
         }

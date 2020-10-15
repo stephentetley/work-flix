@@ -44,17 +44,21 @@ namespace AutoLifting/Phase2/AibAttributeReader {
         use String.{trim};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12) ->
                 { pliReference      = x1
-                , installedFrom     = x2
-                , manufacturer      = x3.trim()
-                , model             = x4.trim()
-                , specificModel     = x5.trim()
-                , serialNumber      = x6.trim()
-                , osgb36            = x7
-                , locationOnSite    = x8.trim()
-                , workLoad          = x9
-                , workLoadUnits     = x10
-                , statutoryRef      = x11.trim()
-                , testCertNum       = x12.trim()
+                , equiAttributes = 
+                    { installedFrom     = x2
+                    , manufacturer      = x3.trim()
+                    , model             = x4.trim()
+                    , partNumber        = x5.trim()
+                    , serialNumber      = x6.trim()
+                    }
+                , charAttributes = 
+                    { osgb36            = x7
+                    , locationOnSite    = x8.trim()
+                    , workLoad          = x9
+                    , workLoadUnits     = x10
+                    , statutoryRef      = x11.trim()
+                    , testCertNum       = x12.trim()
+                    }
                 })
             <&> getStringNamed("Reference")
             <*> getLocalDateNamed("Installed From")

@@ -16,19 +16,19 @@
 
 namespace AutoLifting/Phase2/Phase2WorkList {
     
-    use AutoLifting/Datatypes.{EquiWorkItem4, Phase2WorkItem1};
+    use AutoLifting/Datatypes.{Phase1FinalWorkItem, Phase2WorkItem1};
     use AutoLifting.ReportMonad;
 
     // Phase2WorkItem1
     /// Reference	Parent Reference	S4 Name	S4 Floc	Equi Category	Equi Object	Equi Class
 
     /// Must be a *.xlsx (OO-XML) file.
-    pub def getWorkList(xs: List[EquiWorkItem4]): ReportMonad[List[Phase2WorkItem1]] =
+    pub def getWorkList(xs: List[Phase1FinalWorkItem]): ReportMonad[List[Phase2WorkItem1]] =
         use AutoLifting/ReportMonad.{mapM};
         mapM(translate, xs)
         
 
-    def translate(x: EquiWorkItem4): ReportMonad[Phase2WorkItem1] = 
+    def translate(x: Phase1FinalWorkItem): ReportMonad[Phase2WorkItem1] = 
         use AutoLifting/ReportMonad.{return};
         return({ pliReference           = x.pliReference
                 , parentSaiReference    = x.parentSaiReference

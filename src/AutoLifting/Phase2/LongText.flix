@@ -27,10 +27,12 @@ namespace AutoLifting/Phase2/LongText {
         )
         
 
-    pub def updateLongTexts(m: Map[String, String], xs: List[Phase2WorkItem1]): ReportMonad[List[Phase2WorkItem2]] = 
+    pub def updateLongTexts[r](m: Map[String, String], 
+                               xs: List[{pliReference: String | r}]): ReportMonad[List[{longText: Option[String], pliReference: String | r}]] = 
         AutoLifting/ReportMonad.mapM(updateLongText1(m), xs)
 
-    pub def updateLongText1(m: Map[String, String], x: Phase2WorkItem1): ReportMonad[Phase2WorkItem2] = 
+    pub def updateLongText1[r](m: Map[String, String], 
+                               x: {pliReference: String | r}): ReportMonad[{longText: Option[String], pliReference: String | r}] = 
         use AutoLifting/ReportMonad.{flatMap, return};
         let oltext  = Map.get(x.pliReference, m);
         return({ +longText = oltext | x })
