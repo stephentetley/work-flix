@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1/MappingTable {
+namespace AutoLifting/Phase1/TypeMappingTable {
 
     use AutoLifting.ReportMonad;
 
@@ -34,7 +34,7 @@ namespace AutoLifting/Phase1/MappingTable {
         , fixedOrPortable: String
         }
 
-    pub def readMappingFile[r](path: System.FilePath) : ReportMonad[#{Distinguished, Ordinary | r}] = 
+    pub def readTypeMappingFile[r](path: System.FilePath) : ReportMonad[#{Distinguished, Ordinary | r}] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, map};
         let* src = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readMappingTable(), path));
         return(makeMappings(src))

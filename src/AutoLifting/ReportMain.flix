@@ -51,7 +51,7 @@ namespace AutoLifting/ReportMain {
         let* xs2        = AutoLifting/Phase1/ParentRef.updateParentReferences(parents, xs1);
         let* siteDb     = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(reportConfig.siteTablePath);
         let* xs3        = AutoLifting/Phase1/SiteMapping.updateSiteCodes(siteDb, xs2);
-        let* typeDb     = AutoLifting/Phase1/MappingTable.readMappingFile(reportConfig.typeTablePath);
+        let* typeDb     = AutoLifting/Phase1/TypeMappingTable.readTypeMappingFile(reportConfig.typeTablePath);
         let* xs4        = AutoLifting/Phase1/TypeMapping.addTypeInfos(typeDb, xs3);
         return(xs4)
 
