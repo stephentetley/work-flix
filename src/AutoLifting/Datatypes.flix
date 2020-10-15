@@ -31,7 +31,7 @@ namespace AutoLifting/Datatypes {
     /// i.e. AibExportRow
   
     /// Result of Phase1Renaming
-    type alias EquiWorkItem1 = 
+    type alias AibWorkItem = 
         { aibEquiName: String
         , aibEquiType: String
         , aibSiteName: String

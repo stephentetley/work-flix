@@ -17,16 +17,16 @@
 namespace AutoLifting/Phase1/Naming {
 
     use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{FixedOrPortable, EquiWorkItem1};
+    use AutoLifting/Datatypes.{FixedOrPortable, AibWorkItem};
     use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
 
-    pub def expandNames(xs: List[AibExportRow]): ReportMonad[List[EquiWorkItem1]] = 
+    pub def expandNames(xs: List[AibExportRow]): ReportMonad[List[AibWorkItem]] = 
         AutoLifting/ReportMonad.mapM(expandNames1, xs)
 
     /// TODO - must assert name is within `LIFTING EQUIPMENT` namespace...
-    pub def expandNames1(x: AibExportRow): ReportMonad[EquiWorkItem1] = 
+    pub def expandNames1(x: AibExportRow): ReportMonad[AibWorkItem] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult};
         let* name       = getAibEquiNameFromCommonName(x.assetName);
         let* typ        = getAibEquiTypeFromCommonName(x.assetName);

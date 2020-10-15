@@ -30,10 +30,12 @@ namespace AutoLifting/Phase1/ParentRef {
         let ans = buildAssetReferences(xs);
         return(ans)
 
-    pub def updateParentReferences(m: Map[String, String], xs: List[EquiWorkItem1]): ReportMonad[List[EquiWorkItem2]] = 
+    pub def updateParentReferences[r](m: Map[String, String], 
+                                      xs: List[{parentName: String, aibEquiName: String | r}]): ReportMonad[List[{parentSaiReference : String, aibEquiName: String | r}]] = 
         AutoLifting/ReportMonad.mapM(updateParentReference1(m), xs)
 
-    pub def updateParentReference1(m: Map[String, String], x: EquiWorkItem1): ReportMonad[EquiWorkItem2] = 
+    pub def updateParentReference1[r](m: Map[String, String], 
+                                      x: {parentName: String, aibEquiName: String | r}): ReportMonad[{parentSaiReference : String, aibEquiName: String | r}] = 
         use AutoLifting/ReportMonad.{throwError, return};
         match Map.get(x.parentName, m) {
             case None => throwError("updateParentReference - No parent for ${x.aibEquiName}")

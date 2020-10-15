@@ -55,7 +55,7 @@ namespace AutoLifting/ReportMain {
         let* xs4        = AutoLifting/Phase1/TypeMapping.addTypeInfos(typeDb, xs3);
         return(xs4)
 
-    /// TODO use record for named args...
+    
     def reportPhase2(xs: List[EquiWorkItem4],
                      inputPaths: InputPaths,
                      outPath: System.FilePath): ReportMonad[List[Phase2WorkItem3]] =
