@@ -25,20 +25,23 @@ namespace AutoLifting/ReportMain {
         , uxlTemplatePath: System.FilePath
         }
 
-    type alias InputPaths = 
+    type alias ReportProperties = 
         { workListPath: System.FilePath
         , attribsPath: System.FilePath
         , memosPath: System.FilePath
+        , reportDescription: String
+        , phase2OutPath: System.FilePath
+        , uxlOutPath: System.FilePath
         }
 
     pub def generateChildNewReport( reportConfig: ReportConfig
-                                  , inputPaths: InputPaths
-                                  , outPath: System.FilePath):  ReportMonad[Unit] = 
+                                  , reportProps: ReportProperties ):  ReportMonad[Unit] = 
                                   
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* xs1        = reportPhase1(reportConfig, inputPaths.workListPath);
-        let* _          = reportPhase2(xs1, inputPaths, outPath);
+        let* xs1        = reportPhase1(reportConfig, reportProps.workListPath);
+        let* xs2        = reportPhase2(reportProps, xs1);
+        let* _          = reportEmitUxlFile(reportConfig, reportProps, xs2);
         return()
 
     /// TODO use record for named args...
@@ -56,24 +59,29 @@ namespace AutoLifting/ReportMain {
         return(xs4)
 
     
-    def reportPhase2(xs: List[Phase1FinalWorkItem],
-                     inputPaths: InputPaths,
-                     outPath: System.FilePath): ReportMonad[List[Phase2FinalWorkItem]] =
+    def reportPhase2(reportProps: ReportProperties, xs: List[Phase1FinalWorkItem]): ReportMonad[List[Phase2FinalWorkItem]] =
         use AutoLifting/ReportMonad.{return, flatMap, liftAction};     
         let* xs1        = AutoLifting/Phase2/Phase2WorkList.getWorkList(xs);
-        let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(inputPaths.memosPath);
+        let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(reportProps.memosPath);
         let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
-        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(inputPaths.attribsPath);
+        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(reportProps.attribsPath);
         let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);        
         let* xs4        = AutoLifting/Phase2/RenameValues.renameForS4(xs3);
-        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs4, outPath);
+        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs4, reportProps.phase2OutPath);
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2FinalWorkItem(x)), xs4));
         return(xs4)
 
-    pub def showPhase2FinalWorkItem(x: AutoLifting/Datatypes.Phase2FinalWorkItem): String = 
+    def showPhase2FinalWorkItem(x: AutoLifting/Datatypes.Phase2FinalWorkItem): String = 
         let showOpt = o -> Option.getWithDefault(o, "_");
         "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.equiAttributes.installedFrom)}>"
 
+    def reportEmitUxlFile(reportConfig: ReportConfig,
+                             reportProps: ReportProperties, 
+                             xs: List[Phase2FinalWorkItem]): ReportMonad[Unit] =
+        AutoLifting/EmitUxl/Emitter.writeputUxlFile(reportProps.reportDescription,
+                                                    xs, 
+                                                    reportConfig.uxlTemplatePath,
+                                                    reportProps.uxlOutPath)
 
 
 }

@@ -16,11 +16,12 @@
 
 namespace AutoLifting/EmitUxl/Emitter {
 
+    use SheetIO.SheetWriter;
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
         EquipmentData, EqMultilingualText, EqClassification};
     
     use AutoLifting.ReportMonad;
-
+    use AutoLifting/Datatypes.{Phase2FinalWorkItem};
 
 
 
@@ -35,13 +36,26 @@ namespace AutoLifting/EmitUxl/Emitter {
         let* equiId = genEquiId();
         return({+s4EquiId = equiId | rec})
 
+    pub def writeputUxlFile(description: String, 
+                               xs: List[Phase2FinalWorkItem],   /// temp
+                               templatePath: System.FilePath,
+                               outPath: System.FilePath): ReportMonad[Unit] = 
+        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult};
+        use SheetIO/SheetWriter.{runTemplateXssf};
+        let* xs1        = addS4EquiIds(xs);
+        liftActionResult(_ -> runTemplateXssf(outputChangeRequestDetails(description, xs1), templatePath, outPath))
 
 
-    ///  writeChangeRequestDetails
+    pub def outputChangeRequestDetails[r](description: String, xs: List[{s4EquiId: String |r}]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, return};
+        let crDetails   = genChangeRequestDetails(description, xs);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crDetails);
+        return()
+        
 
 
-    pub def genChangeRequestDetails[r](description: String, xs: List[{equiId: String |r}]): List[ChangeRequestDetails] = 
-        let fn = (r1, ix) -> genChangeRequestDetails1({description = description, equiId = r1.equiId}, ix < 1);
+    pub def genChangeRequestDetails[r](description: String, xs: List[{s4EquiId: String |r}]): List[ChangeRequestDetails] = 
+        let fn = (r1, ix) -> genChangeRequestDetails1({description = description, equiId = r1.s4EquiId}, ix < 1);
         List.mapWithIndex(fn, xs)
 
     def genChangeRequestDetails1(rec: {description: String, 
