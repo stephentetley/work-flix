@@ -41,8 +41,8 @@ namespace AutoLifting/Phase1/TypeMappingTable {
         
 
     def readMappingTable(): SheetReader[List[MappingTableRow]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
-        let* s1     = getSheet("AI2_to_EquiClass");
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
+        let* s1     = getSheetNamed("AI2_to_EquiClass");
         let* xs     = allNamedRows(s1, evalMappingTableRow());
         return(xs)
 

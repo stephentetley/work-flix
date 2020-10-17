@@ -40,9 +40,10 @@ namespace AutoLifting/EmitUxl/Emitter {
                                xs: List[Phase2FinalWorkItem],   /// temp
                                templatePath: System.FilePath,
                                outPath: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult};
+        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, liftAction};
         use SheetIO/SheetWriter.{runTemplateXssf};
         let* xs1        = addS4EquiIds(xs);
+        let* _          = liftAction(_ -> Console.printLine("Output: ${System/FilePath.toString(outPath)}"));
         liftActionResult(_ -> runTemplateXssf(outputChangeRequestDetails(description, xs1), templatePath, outPath))
 
 

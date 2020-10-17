@@ -29,8 +29,12 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeChangeRequestDetails(xs: List[ChangeRequestDetails]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("Change Request Details");
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};
+        use SheetIO/SheetWriter.{getSheetNames}; /// TEMP
+        let* _      = SheetIO/SheetWriter.liftAction(_ -> Console.printLine("Sheet names..."));  /// TEMP
+        let* names  = getSheetNames();      /// TEMP
+        let* _      = mapX(x -> SheetIO/SheetWriter.liftAction(_ -> Console.printLine(x)), names);  /// TEMP
+        let* s1     = getSheetNamed("Change Request Details");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setChangeRequestDetails!(x)), xs)
 
@@ -50,8 +54,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeFunctionalLocationData(xs: List[FunctionalLocationData]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("Functional Location Data");
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("Functional Location Data");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setFunctionalLocationData!(x)), xs)
 
@@ -80,8 +84,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeFlMultilingualText(xs: List[FlMultilingualText]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("FL-Multilingual Text");
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("FL-Multilingual Text");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setFlMultilingualText!(x)), xs)
 
@@ -99,8 +103,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeFlClassification(xs: List[FlClassification]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("FL-Classification");
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("FL-Classification");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setFlClassification!(x)), xs)
 
@@ -121,8 +125,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeEquipmentData(xs: List[EquipmentData]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("Equipment Data");
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("Equipment Data");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setEquipmentData!(x)), xs)
 
@@ -160,8 +164,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeEqMultilingualText(xs: List[EqMultilingualText]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("EQ-Multilingual Text");
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("EQ-Multilingual Text");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setEqMultilingualText!(x)), xs)
 
@@ -179,8 +183,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeEqClassification(xs: List[EqClassification]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheet, setCursor!, appendRow, mapX};      
-        let* s1     = getSheet("EQ-Classification");
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("EQ-Classification");
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setEqClassification!(x)), xs)
 

@@ -46,8 +46,8 @@ namespace AutoLifting/Phase1/SiteMapping {
         return(ans)
 
     def readSiteMapTable(): SheetReader[Map[String, String]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
-        let* s1     = getSheet("inst to SAP migration");
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
+        let* s1     = getSheetNamed("inst to SAP migration");
         let* xs     = allNamedRows(s1, evalSiteMapRow());
         let m1      = buildSitesMap(xs);
         return(m1)
