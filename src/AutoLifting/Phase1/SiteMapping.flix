@@ -33,7 +33,7 @@ namespace AutoLifting/Phase1/SiteMapping {
                            x: {aibSiteName: String, aibEquiName: String | r}): ReportMonad[{s4SiteCode: String, aibEquiName: String | r}] = 
         use AutoLifting/ReportMonad.{throwError, return};
         match Map.get(x.aibSiteName, m) {
-            case None => throwError("updateSiteCode1 - No S$ site for ${x.aibEquiName}")
+            case None => throwError("updateSiteCode1 - No site for ${x.aibEquiName}")
             case Some(site) => { 
                 let x1 = { -aibSiteName | x }; 
                 return({ +s4SiteCode = site | x1 })
@@ -41,9 +41,9 @@ namespace AutoLifting/Phase1/SiteMapping {
         }
 
     pub def loadSiteMapTable(path: System.FilePath): ReportMonad[Map[String, String]] =
-        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult}; 
-        let* ans    = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMapTable(), path));
-        return(ans)
+        use AutoLifting/ReportMonad.{liftActionResult}; 
+        liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMapTable(), path))
+        
 
     def readSiteMapTable(): SheetReader[Map[String, String]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      

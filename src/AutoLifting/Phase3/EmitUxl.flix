@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/EmitUxl/Emitter {
+namespace AutoLifting/Phase3/EmitUxl {
 
     use SheetIO.SheetWriter;
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 

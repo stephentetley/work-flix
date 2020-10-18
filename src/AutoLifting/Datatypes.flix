@@ -135,6 +135,21 @@ namespace AutoLifting/Datatypes {
         , charAttributes: S4CharAttributes
         }
 
+    type alias Phase3FinalWorkItem = 
+        { s4EquiId: String
+        , s4EquiName: String
+        , s4Floc: String
+        , s4Category: String 
+        , s4Object: String
+        , s4Class: String
+        , longText: Option[String]
+        , classifications: EquiClassification
+        }
 
+    type alias EquiClassification = 
+        { equiClass: String
+        , characteristicName: String
+        , value: String
+        }
 
 }

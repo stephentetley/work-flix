@@ -25,8 +25,8 @@ namespace AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader {
         SheetIO/SheetReader.runXlsx(readAideChanges(), path)
 
     def readAideChanges(): SheetReader[List[AibExportRow]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
-        let* s1     = getSheet("Sheet1");
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
+        let* s1     = getSheetNamed("Sheet1");
         let* xs     = allNamedRows(s1, evalAibExportRow());
         return(xs)
 

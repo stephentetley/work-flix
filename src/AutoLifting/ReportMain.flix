@@ -78,7 +78,7 @@ namespace AutoLifting/ReportMain {
     def reportEmitUxlFile(reportConfig: ReportConfig,
                              reportProps: ReportProperties, 
                              xs: List[Phase2FinalWorkItem]): ReportMonad[Unit] =
-        AutoLifting/EmitUxl/Emitter.writeputUxlFile(reportProps.reportDescription,
+        AutoLifting/Phase3/EmitUxl.writeputUxlFile(reportProps.reportDescription,
                                                     xs, 
                                                     reportConfig.uxlTemplatePath,
                                                     reportProps.uxlOutPath)
