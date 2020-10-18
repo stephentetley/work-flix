@@ -28,9 +28,10 @@ def mainResult(): Result[Unit, System.Error] & Impure =
     use AutoLifting/ReportMain.{generateChildNewReport};
     use Result.flatMap;
     let reportConfig = 
-        { typeTablePath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx")
-        , siteTablePath = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
-        , uxlTemplatePath = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx")
+        { typeTablePath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx")
+        , liftingTablePath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/02.classification_fields.xlsx")
+        , siteTablePath     = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
+        , uxlTemplatePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx")
         };
     let reportProps = 
         { workListPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/HULL source.xlsx")

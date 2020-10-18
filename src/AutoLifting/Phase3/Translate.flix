@@ -57,8 +57,8 @@ namespace AutoLifting/Phase3/Translate {
                                       , longText: Option[String] | r}): ReportMonad[Option[EquiMultilingualText]] = 
         use AutoLifting/ReportMonad.{return};
         match x.longText {
-            case Some(s) if (String.length(s) >= 30) => return(Some({ description = x.s4EquiName , longText = s}))
-            case None => return(None)
+            case Some(s) if (String.length(s) >= 30) => return(Some({description = x.s4EquiName, longText = s}))
+            case _ => return(None)
         }
 
 }

@@ -18,39 +18,27 @@ namespace AutoLifting/Phase3/EmitUxl {
 
     use SheetIO.SheetWriter;
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
-        EquipmentData, EqMultilingualText, EqClassification};
+        EquipmentData => UxlEquipmentData, EqMultilingualText, EqClassification};
     
     use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{Phase2FinalWorkItem};
+    use AutoLifting/Datatypes.{Phase3FinalWorkItem, EquipmentData, EquiMultilingualText, EquiClassification};
 
-
-
-    /// Ids of form cf "$101214878" ... 101,214,878
-    pub def addS4EquiIds[r](xs: List[{| r}]): ReportMonad[List[{s4EquiId: String | r}]] =
-        use AutoLifting/ReportMonad.{mapM};
-        mapM(addS4EquiId, xs)
-
-
-    def addS4EquiId[r](rec: {| r}): ReportMonad[{ s4EquiId: String | r}] =
-        use AutoLifting/ReportMonad.{return, flatMap, genEquiId};
-        let* equiId = genEquiId();
-        return({+s4EquiId = equiId | rec})
 
     pub def writeputUxlFile(description: String, 
-                               xs: List[Phase2FinalWorkItem],   /// temp
-                               templatePath: System.FilePath,
-                               outPath: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, liftAction};
+                            xs: List[Phase3FinalWorkItem],
+                            templatePath: System.FilePath,
+                            outPath: System.FilePath): ReportMonad[Unit] = 
+        use AutoLifting/ReportMonad.{liftActionResult};
         use SheetIO/SheetWriter.{runTemplateXssf};
-        let* xs1        = addS4EquiIds(xs);
-        let* _          = liftAction(_ -> Console.printLine("Output: ${System/FilePath.toString(outPath)}"));
-        liftActionResult(_ -> runTemplateXssf(outputChangeRequestDetails(description, xs1), templatePath, outPath))
+        liftActionResult(_ -> runTemplateXssf(outputChangeRequestDetails(description, xs), templatePath, outPath))
 
 
-    pub def outputChangeRequestDetails[r](description: String, xs: List[{s4EquiId: String |r}]): SheetWriter[Unit] = 
+    pub def outputChangeRequestDetails(description: String, xs: List[Phase3FinalWorkItem]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let crDetails   = genChangeRequestDetails(description, xs);
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crDetails);
+        let equis       = List.map(genEquipmentData1, xs);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEquipmentData(equis);
         return()
         
 
@@ -68,35 +56,25 @@ namespace AutoLifting/Phase3/EmitUxl {
         , processRequester      = "ASSET DATA"
         }
 
-    pub def genEquipmentData1(rec: {equiId: String, 
-                                   category: String, 
-                                   description: String, 
-                                   objectType: String,
-                                   startupDate: Time.LocalDate,
-                                   manufacturer: String, 
-                                   modelNumber: String,
-                                   partNumber: String,
-                                   serialNumber: String,
-                                   startupDate: Time.LocalDate,
-                                   s4Floc: String}): EquipmentData = 
-        { equiId                = rec.equiId
-        , equipCategory         = rec.category
-        , description           = rec.description
-        , objectType            = rec.objectType
+    def genEquipmentData1(x: Phase3FinalWorkItem): UxlEquipmentData = 
+        { equiId                = x.s4EquiId
+        , equipCategory         = x.equipmentData.category
+        , description           = x.equipmentData.description
+        , objectType            = x.equipmentData.objectType
         , grossWeight           = None
         , unitOfWeight          = ""
-        , startupDate           = Some(rec.startupDate)
-        , manufacturer          = rec.manufacturer
-        , modelNumber           = rec.modelNumber
-        , manufPartNo           = rec.partNumber
-        , manufSerialNo         = rec.serialNumber
-        , constructYear         = Time/LocalDate.getYear(rec.startupDate)
-        , constructMth          = Time/LocalDate.getMonth(rec.startupDate)
+        , startupDate           = Some(x.equipmentData.startupDate)
+        , manufacturer          = x.equipmentData.manufacturer
+        , modelNumber           = x.equipmentData.model
+        , manufPartNo           = x.equipmentData.partNumber
+        , manufSerialNo         = x.equipmentData.serialNumber
+        , constructYear         = Time/LocalDate.getYear(x.equipmentData.startupDate)
+        , constructMth          = Time/LocalDate.getMonth(x.equipmentData.startupDate)
         , maintPlant            = 2100
         , companyCode           = 2100
         , coArea                = 1000
         , planningPlant         = 2100
-        , functionalLoc         = rec.s4Floc
+        , functionalLoc         = x.equipmentData.functionalLocation
         , superordEquip         = ""
         , position              = None
         , techIdentNo           = ""

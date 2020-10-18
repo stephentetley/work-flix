@@ -21,6 +21,7 @@ namespace AutoLifting/ReportMain {
 
     type alias ReportConfig = 
         { typeTablePath: System.FilePath
+        , liftingTablePath: System.FilePath
         , siteTablePath: System.FilePath
         , uxlTemplatePath: System.FilePath
         }
@@ -60,7 +61,7 @@ namespace AutoLifting/ReportMain {
 
     
     def reportPhase2(reportProps: ReportProperties, xs: List[Phase1FinalWorkItem]): ReportMonad[List[Phase2FinalWorkItem]] =
-        use AutoLifting/ReportMonad.{return, flatMap, liftAction};     
+        use AutoLifting/ReportMonad.{flatMap, return, liftAction};     
         let* xs1        = AutoLifting/Phase2/Phase2WorkList.getWorkList(xs);
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(reportProps.memosPath);
         let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
@@ -76,12 +77,17 @@ namespace AutoLifting/ReportMain {
         "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.equiAttributes.installedFrom)}>"
 
     def reportEmitUxlFile(reportConfig: ReportConfig,
-                             reportProps: ReportProperties, 
-                             xs: List[Phase2FinalWorkItem]): ReportMonad[Unit] =
-        AutoLifting/Phase3/EmitUxl.writeputUxlFile(reportProps.reportDescription,
-                                                    xs, 
-                                                    reportConfig.uxlTemplatePath,
-                                                    reportProps.uxlOutPath)
+                          reportProps: ReportProperties, 
+                          xs: List[Phase2FinalWorkItem]): ReportMonad[Unit] =
+        use AutoLifting/ReportMonad.{flatMap, return, mapM}; 
+        use AutoLifting/Phase3/EmitUxl.{writeputUxlFile};
+        let* liftings   = AutoLifting/Phase3/LiftingClassifications.loadLiftingMapping(reportConfig.liftingTablePath);
+        let* xs1        = mapM(AutoLifting/Phase3/Translate.translate(liftings), xs);
+        let* _          = writeputUxlFile(reportProps.reportDescription,
+                                          xs1, 
+                                          reportConfig.uxlTemplatePath,
+                                          reportProps.uxlOutPath);
+        return()
 
 
 }
