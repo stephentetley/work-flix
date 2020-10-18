@@ -138,12 +138,22 @@ namespace AutoLifting/Datatypes {
     type alias Phase3FinalWorkItem = 
         { s4EquiId: String
         , s4EquiName: String
-        , s4Floc: String
-        , s4Category: String 
-        , s4Object: String
         , s4Class: String
-        , longText: Option[String]
-        , classifications: EquiClassification
+        , equipmentData: EquipmentData
+        , multilingualText: Option[EquiMultilingualText]
+        , classifications: List[EquiClassification]
+        }
+
+    type alias EquipmentData = 
+        { category: String
+        , description: String
+        , objectType: String
+        , startupDate: Time.LocalDate
+        , manufacturer: String
+        , model: String
+        , partNumber: String
+        , serialNumber: String 
+        , functionalLocation: String
         }
 
     type alias EquiClassification = 
@@ -151,5 +161,11 @@ namespace AutoLifting/Datatypes {
         , characteristicName: String
         , value: String
         }
+
+   type alias EquiMultilingualText = 
+        { description: String           /// description = s4EquiName
+        , longText: String        
+        }
+
 
 }
