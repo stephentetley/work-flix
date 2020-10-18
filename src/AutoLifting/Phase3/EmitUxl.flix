@@ -18,10 +18,10 @@ namespace AutoLifting/Phase3/EmitUxl {
 
     use SheetIO.SheetWriter;
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
-        EquipmentData => UxlEquipmentData, EqMultilingualText, EqClassification};
+        EquipmentData, EqMultilingualText, EqClassification};
     
     use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{Phase3FinalWorkItem, EquipmentData, EquiMultilingualText, EquiClassification};
+    use AutoLifting/Datatypes.{Phase3FinalWorkItem, EquiData, EquiClassification};
 
 
     pub def writeputUxlFile(description: String, 
@@ -37,8 +37,12 @@ namespace AutoLifting/Phase3/EmitUxl {
         use SheetIO/SheetWriter.{flatMap, return};
         let crDetails   = genChangeRequestDetails(description, xs);
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crDetails);
-        let equis       = List.map(genEquipmentData1, xs);
+        let equis       = List.map(genEquipmentData, xs);
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEquipmentData(equis);
+        let mltexts     = List.flatMap(genEqMultilingualText, xs);        
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqMultilingualText(mltexts);        
+        let classifs    = List.flatMap(genEqClassifications, xs);        
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqClassification(classifs);
         return()
         
 
@@ -56,56 +60,60 @@ namespace AutoLifting/Phase3/EmitUxl {
         , processRequester      = "ASSET DATA"
         }
 
-    def genEquipmentData1(x: Phase3FinalWorkItem): UxlEquipmentData = 
+    def genEquipmentData(x: Phase3FinalWorkItem): EquipmentData = 
+        let iNone : Option[Int32] = None;       /// TODO this should be unnecessary, but it currently fixes a runtime cast error
         { equiId                = x.s4EquiId
-        , equipCategory         = x.equipmentData.category
-        , description           = x.equipmentData.description
-        , objectType            = x.equipmentData.objectType
-        , grossWeight           = None
+        , equipCategory         = x.equiData.category
+        , description           = x.equiData.description
+        , objectType            = x.equiData.objectType
+        , grossWeight           = iNone
         , unitOfWeight          = ""
-        , startupDate           = Some(x.equipmentData.startupDate)
-        , manufacturer          = x.equipmentData.manufacturer
-        , modelNumber           = x.equipmentData.model
-        , manufPartNo           = x.equipmentData.partNumber
-        , manufSerialNo         = x.equipmentData.serialNumber
-        , constructYear         = Time/LocalDate.getYear(x.equipmentData.startupDate)
-        , constructMth          = Time/LocalDate.getMonth(x.equipmentData.startupDate)
+        , startupDate           = Some(x.equiData.startupDate)
+        , manufacturer          = x.equiData.manufacturer
+        , modelNumber           = x.equiData.model
+        , manufPartNo           = x.equiData.partNumber
+        , manufSerialNo         = x.equiData.serialNumber
+        , constructYear         = Time/LocalDate.getYear(x.equiData.startupDate)
+        , constructMth          = Time/LocalDate.getMonth(x.equiData.startupDate)
         , maintPlant            = 2100
         , companyCode           = 2100
         , coArea                = 1000
         , planningPlant         = 2100
-        , functionalLoc         = x.equipmentData.functionalLocation
+        , functionalLoc         = x.equiData.functionalLocation
         , superordEquip         = ""
-        , position              = None
+        , position              = iNone
         , techIdentNo           = ""
         , statusProfile         = "ZEQUIPST"
         , statusOfAnObject      = "OPER"
         }
 
-    pub def genEqMultilingualText[r](xs: List[{equiId: String, s4EquiName: String, longText: Option[String]|r}]): List[EqMultilingualText] = 
-        let fn = r1 -> match r1.longText { 
-            case Some(s) if !(String.isEmpty(s)) => 
-                Some(genEqMultilingualText1({{equiId = r1.equiId, description = r1.s4EquiName, longText = s}}))
-            case None => None
-        };
-        List.filterMap(fn, xs)
 
-    def genEqMultilingualText1(rec: {equiId: String, description: String, longText: String}): EqMultilingualText = 
-        { equiId            = rec.equiId
-        , deleteIndicator   = false
-        , language          = "EN"
-        , description       = rec.description
-        , longText          = rec.longText
+
+    def genEqMultilingualText(x: Phase3FinalWorkItem): List[EqMultilingualText] = 
+        match x.multilingualText {
+            case Some(mltext) => {
+                let v1 = { equiId            = x.s4EquiId
+                         , deleteIndicator   = false
+                         , language          = "EN"
+                         , description       = mltext.description
+                         , longText          = mltext.longText
+                         };
+                v1 :: Nil
+            }
+            case None => Nil
         }
+        
+    def genEqClassifications(x: Phase3FinalWorkItem): List[EqClassification] = 
+        List.map(genEqClassification1(x.s4EquiId), x.classifications)
 
-    pub def genEqClassification1(rec: {equiId: String, className: String, charName: String, charValue: String}): EqClassification = 
-        { equiId                = rec.equiId
+    def genEqClassification1(equiId: String, x: EquiClassification): EqClassification = 
+        { equiId                = equiId
         , deleteInd             = false
         , classType             = "002"
-        , className             = rec.className
+        , className             = x.equiClass
         , status                = "1"
-        , characteristicName    = rec.charName
-        , charValue             = rec.charValue
+        , characteristicName    = x.characteristicName
+        , charValue             = x.value
         , charDeleteInd         = false
         }
 

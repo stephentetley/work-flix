@@ -139,12 +139,12 @@ namespace AutoLifting/Datatypes {
         { s4EquiId: String
         , s4EquiName: String
         , s4Class: String
-        , equipmentData: EquipmentData
+        , equiData: EquiData
         , multilingualText: Option[EquiMultilingualText]
         , classifications: List[EquiClassification]
         }
 
-    type alias EquipmentData = 
+    type alias EquiData = 
         { category: String
         , description: String
         , objectType: String

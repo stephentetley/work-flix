@@ -17,7 +17,7 @@
 namespace AutoLifting/Phase3/Translate {
     
     use AutoLifting/Datatypes.{Phase2FinalWorkItem, Phase3FinalWorkItem, 
-        EquiMultilingualText, EquipmentData};
+        EquiMultilingualText, EquiData};
     use AutoLifting.ReportMonad;
 
 
@@ -25,7 +25,7 @@ namespace AutoLifting/Phase3/Translate {
         use AutoLifting/ReportMonad.{flatMap, return, genEquiId};
         use AutoLifting/Phase3/LiftingClassifications.{getFixedClassifications, getWorkLoadClassifications};
         let* equiId     = genEquiId();
-        let* equiData   = getEquipmentData(x);
+        let* equiData   = getEquiData(x);
         let* mltext     = getMultilingualText(x);
         let* cs1        = getFixedClassifications(x);
         let* cs2        = getWorkLoadClassifications(liftingData, x);
@@ -33,13 +33,13 @@ namespace AutoLifting/Phase3/Translate {
             { s4EquiId          = equiId
             , s4EquiName        = x.s4EquiName
             , s4Class           = x.s4Class
-            , equipmentData     = equiData
+            , equiData          = equiData
             , multilingualText  = mltext
             , classifications   = cs1 ::: cs2
             }
         )
 
-    def getEquipmentData(x: Phase2FinalWorkItem): ReportMonad[EquipmentData] = 
+    def getEquiData(x: Phase2FinalWorkItem): ReportMonad[EquiData] = 
         use AutoLifting/ReportMonad.{return};
         return(
             { category              = x.s4Category

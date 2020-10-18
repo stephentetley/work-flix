@@ -137,26 +137,26 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putStringAt!(1, x.equipCategory);
         let* _      = putStringAt!(2, x.description);
-        let* _      = putStringAt!(5, x.objectType);
-        /// let* _      = putOptionInt32At!(7, x.grossWeight);
-        /// let* _      = putStringAt!(8, x.unitOfWeight);
-        /// let* _      = putOptionLocalDateAt!(10, x.startupDate);
-        /// let* _      = putStringAt!(14, x.manufacturer);
-        /// let* _      = putStringAt!(15, x.modelNumber);
-        /// let* _      = putStringAt!(16, x.manufPartNo);
-        /// let* _      = putStringAt!(17, x.manufSerialNo);
-        /// let* _      = putInt32At!(19, x.constructYear);
-        /// let* _      = putPaddedInt32At!(20, 2, x.constructMth);
+        let* _      = putStringAt!(4, x.objectType);
+        let* _      = putOptionInt32At!(7, x.grossWeight);
+        let* _      = putStringAt!(8, x.unitOfWeight);
+        let* _      = putOptionLocalDateAt!(10, x.startupDate);
+        let* _      = putStringAt!(14, x.manufacturer);
+        let* _      = putStringAt!(15, x.modelNumber);
+        let* _      = putStringAt!(16, x.manufPartNo);
+        let* _      = putStringAt!(17, x.manufSerialNo);
+        let* _      = putInt32At!(19, x.constructYear);
+        let* _      = putPaddedInt32At!(20, 2, x.constructMth);
         let* _      = putInt32At!(21, x.maintPlant);
-        /// let* _      = putInt32At!(27, x.companyCode);
-        /// let* _      = putInt32At!(32, x.coArea);
-        /// let* _      = putInt32At!(36, x.planningPlant);
-        /// let* _      = putStringAt!(41, x.functionalLoc);
-        /// let* _      = putStringAt!(42, x.superordEquip);
-        /// let* _      = putOptionInt32At!(43, x.position);
-        /// let* _      = putStringAt!(44, x.techIdentNo);
-        /// let* _      = putStringAt!(45, x.statusProfile);
-        /// let* _      = putStringAt!(46, x.statusOfAnObject);
+        let* _      = putInt32At!(28, x.companyCode);
+        let* _      = putInt32At!(32, x.coArea);
+        let* _      = putInt32At!(37, x.planningPlant);
+        let* _      = putStringAt!(42, x.functionalLoc);
+        let* _      = putStringAt!(43, x.superordEquip);
+        let* _      = putOptionInt32At!(44, x.position);
+        let* _      = putStringAt!(45, x.techIdentNo);
+        let* _      = putStringAt!(50, x.statusProfile);
+        let* _      = putStringAt!(51, x.statusOfAnObject);
         return()
 
 
@@ -208,10 +208,10 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         if (x) putStringAt!(ix, "X") else putBlankAt!(ix)
 
 
-    /// def putPaddedInt32At!(ix: Int32, w: Int32, x: Int32): RowSetter[Unit] = 
-    ///     use SheetIO/RowSetter.{putStringAt!};
-    ///     let s = String.padLeft(w, '0', Int32.toString(x));
-    ///     putStringAt!(ix, s)
+    def putPaddedInt32At!(ix: Int32, w: Int32, x: Int32): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{putStringAt!};
+        let s = String.padLeft(w, '0', Int32.toString(x));
+        putStringAt!(ix, s)
 
     def putOptionLocalDateAt!(ix: Int32, x: Option[Time.LocalDate]): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, liftActionResult, putStringAt!, putBlankAt!};
