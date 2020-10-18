@@ -24,13 +24,13 @@ namespace AutoLifting/Phase3/Translate {
     pub def translate(liftingData: Map[String, (String, String)], x: Phase2FinalWorkItem): ReportMonad[Phase3FinalWorkItem] = 
         use AutoLifting/ReportMonad.{flatMap, return, genEquiId};
         use AutoLifting/Phase3/LiftingClassifications.{getFixedClassifications, getWorkLoadClassifications};
-        let* equiId     = genEquiId();
+        let* equiId1    = genEquiId();
         let* equiData   = getEquiData(x);
         let* mltext     = getMultilingualText(x);
         let* cs1        = getFixedClassifications(x);
         let* cs2        = getWorkLoadClassifications(liftingData, x);
         return(
-            { s4EquiId          = equiId
+            { s4EquiId          = equiId1
             , s4EquiName        = x.s4EquiName
             , s4Class           = x.s4Class
             , equiData          = equiData

@@ -179,7 +179,7 @@ namespace AutoLifting/ReportMonad {
 
 
     pub def genEquiId(): ReportMonad[String] =         
-        ReportMonad(s -> Ok((s, "$" + Int32.toString(s))) as & Impure)
+        ReportMonad(s -> Ok((s + 1, "$" + Int32.toString(s))) as & Impure)
 
     pub def restEquiIdCounter(): ReportMonad[Unit] =
         ReportMonad(_ -> { let n = initEquiNumber(); Ok((n, ()))})
