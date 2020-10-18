@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/EmitUxl/LiftingClassifications {
+namespace AutoLifting/Phase3/LiftingClassifications {
 
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
