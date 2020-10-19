@@ -34,25 +34,6 @@ namespace AutoLifting/Phase1/TypeMapping {
         }
 
 
-    /// TODO
-    /// Polymorphic type aliases would make the signatures much nicer but they don't seem to work at the moment...
-    /// type alias SourceType[r] = {s4SiteCode: String, aibEquiName: String, aibEquiType: String | r}
-    /// type alias AnswerType[r] = {s4TyInfo: S4TypeInfo, s4Floc: String, s4SiteCode: String, aibEquiName: String, aibEquiType: String | r}
-
-    pub def addTypeInfos[r,s](db: #{Distinguished, Ordinary, TypeAnswer | s}, 
-                              xs: List[{s4SiteCode: String, aibEquiName: String, aibEquiType: String | r}]): ReportMonad[List[{s4TyInfo: S4TypeInfo, s4Floc: String, s4SiteCode: String, aibEquiName: String, aibEquiType: String | r}]] = 
-        AutoLifting/ReportMonad.mapM(addTypeInfo1(db), xs)
-
-    pub def addTypeInfo1[r,s](db: #{Distinguished, Ordinary, TypeAnswer | s}, 
-                              x: {s4SiteCode: String, aibEquiName: String, aibEquiType: String | r}): ReportMonad[{s4TyInfo: S4TypeInfo, s4Floc: String, s4SiteCode: String, aibEquiName: String, aibEquiType: String | r}] = 
-        use AutoLifting/ReportMonad.{return, throwError};
-        match getS4TypeInfo(db, x.aibEquiName, x.aibEquiType) {
-            case Some(typ) => { 
-                let floc = AutoLifting/Common.flocLocation(x.s4SiteCode, typ.fixedOrPortable);
-                return({ +s4TyInfo = typ, +s4Floc = floc | x})
-            }
-            case None => throwError("No type mapping for ${x.aibEquiName} ${x.aibEquiType}")
-        }
 
     def getS4TypeInfo[s](db: #{Distinguished, Ordinary, TypeAnswer | s}, srcName: String, srcType: String): Option[S4TypeInfo] = 
         match oneOption(distinguishedMatch(db, srcType, srcName)) { 

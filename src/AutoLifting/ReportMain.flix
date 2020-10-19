@@ -45,19 +45,17 @@ namespace AutoLifting/ReportMain {
         let* _          = reportEmitUxlFile(reportConfig, reportProps, xs2);
         return()
 
-    /// TODO use record for named args...
+    
     def reportPhase1(reportConfig: ReportConfig,
                      workListPath: System.FilePath): ReportMonad[List[Phase1FinalWorkItem]] = 
-        use AutoLifting/ReportMonad.{return, flatMap};
+        use AutoLifting/ReportMonad.{return, flatMap, mapM};
+        use AutoLifting/Phase1/Translate.{translate};
         let* items      = AutoLifting/Phase1/Phase1WorkList.getWorkList(workListPath);
-        let* xs1        = AutoLifting/Phase1/Naming.expandNames(items);
-        let* parents    = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
-        let* xs2        = AutoLifting/Phase1/ParentRef.updateParentReferences(parents, xs1);
-        let* siteDb     = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(reportConfig.siteTablePath);
-        let* xs3        = AutoLifting/Phase1/SiteMapping.updateSiteCodes(siteDb, xs2);
+        let* siteCodes  = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(reportConfig.siteTablePath);
+        let* parentIds  = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
         let* typeDb     = AutoLifting/Phase1/TypeMappingTable.readTypeMappingFile(reportConfig.typeTablePath);
-        let* xs4        = AutoLifting/Phase1/TypeMapping.addTypeInfos(typeDb, xs3);
-        return(xs4)
+        mapM(translate(siteCodes, parentIds, typeDb), items)
+        
 
     
     def reportPhase2(reportProps: ReportProperties, xs: List[Phase1FinalWorkItem]): ReportMonad[List[Phase2FinalWorkItem]] =

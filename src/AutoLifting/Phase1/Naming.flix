@@ -22,9 +22,6 @@ namespace AutoLifting/Phase1/Naming {
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
 
-    pub def expandNames(xs: List[AibExportRow]): ReportMonad[List[AibWorkItem]] = 
-        AutoLifting/ReportMonad.mapM(expandNames1, xs)
-
     type alias AibNames = 
         { equiName: String
         , equiType: String
@@ -40,23 +37,6 @@ namespace AutoLifting/Phase1/Naming {
                , equiType   = typ
                , siteName   = site
                })
-
-
-    /// TODO - must assert name is within `LIFTING EQUIPMENT` namespace...
-    pub def expandNames1(x: AibExportRow): ReportMonad[AibWorkItem] = 
-        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult};
-        let* name       = getAibEquiNameFromCommonName(x.assetName);
-        let* typ        = getAibEquiTypeFromCommonName(x.assetName);
-        let* site       = getAibSiteNameFromCommonName(x.assetName);
-        let* s4Name     = liftActionResult(_ -> AutoLifting/Common.properCaseEquiName(name));
-        return( { aibEquiName   = name
-                , aibEquiType   = typ
-                , aibSiteName   = site
-                , s4EquiName    = s4Name
-                , pliReference  = x.reference
-                , parentName    = x.newParentName 
-                } )
-
 
 
     def getAibEquiNameFromCommonName(commonName: String): ReportMonad[String] = 

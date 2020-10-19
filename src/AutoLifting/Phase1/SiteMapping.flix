@@ -33,21 +33,6 @@ namespace AutoLifting/Phase1/SiteMapping {
         }
 
 
-    pub def updateSiteCodes[r](m: Map[String, String], 
-                               xs: List[{aibSiteName: String, aibEquiName: String | r}]): ReportMonad[List[{s4SiteCode: String, aibEquiName: String | r}]] = 
-        AutoLifting/ReportMonad.mapM(updateSiteCode1(m), xs)
-
-    def updateSiteCode1[r](m: Map[String, String], 
-                           x: {aibSiteName: String, aibEquiName: String | r}): ReportMonad[{s4SiteCode: String, aibEquiName: String | r}] = 
-        use AutoLifting/ReportMonad.{throwError, return};
-        match Map.get(x.aibSiteName, m) {
-            case None => throwError("updateSiteCode1 - No site for ${x.aibEquiName}")
-            case Some(site) => { 
-                let x1 = { -aibSiteName | x }; 
-                return({ +s4SiteCode = site | x1 })
-            }
-        }
-
     pub def loadSiteMapTable(path: System.FilePath): ReportMonad[Map[String, String]] =
         use AutoLifting/ReportMonad.{liftActionResult}; 
         liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMapTable(), path))
