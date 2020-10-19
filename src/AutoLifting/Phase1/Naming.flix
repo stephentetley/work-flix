@@ -31,7 +31,7 @@ namespace AutoLifting/Phase1/Naming {
         let* name       = getAibEquiNameFromCommonName(x.assetName);
         let* typ        = getAibEquiTypeFromCommonName(x.assetName);
         let* site       = getAibSiteNameFromCommonName(x.assetName);
-        let* s4Name     = liftActionResult(_ -> AutoLifting/Common.toProperCase(name));
+        let* s4Name     = liftActionResult(_ -> AutoLifting/Common.properCaseEquiName(name));
         return( { aibEquiName   = name
                 , aibEquiType   = typ
                 , aibSiteName   = site

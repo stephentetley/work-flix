@@ -34,12 +34,12 @@ def mainResult(): Result[Unit, System.Error] & Impure =
         , uxlTemplatePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx")
         };
     let reportProps = 
-        { workListPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/HULL source.xlsx")
-        , attribsPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_attribs_export.xlsx")
-        , memosPath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_memos_export.xlsx")
+        { workListPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/HULL WEST SPS.xlsx")
+        , attribsPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_attribs_export.xlsx")
+        , memosPath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_memos_export.xlsx")
         , reportDescription = "Site 01 (GC) 16/10/2020 Stephen"
-        , phase2OutPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_new_kids.xlsx")
-        , uxlOutPath        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_new_kids_uxl.xlsx")
+        , phase2OutPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_new_kids.xlsx")
+        , uxlOutPath        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_new_kids_uxl.xlsx")
         };
     runReportMonad(generateChildNewReport(reportConfig, reportProps))
 

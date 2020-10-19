@@ -22,15 +22,25 @@ namespace AutoLifting/Common {
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
     /// 
-    pub def toProperCase(s: String): Result[String, System.Error] & Impure =
+    def toProperCase1(s: String): Result[String, System.Error] & Impure =
         use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed};
         use Result.flatMap;
-        let* patt = Text/Regex/Pattern.compile("\b(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)\b");
+        let* patt = Text/Regex/Pattern.compile("^(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)$");
         let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
                             );
-        Text/Regex.rewriteWith(s, patt, eval)
+        if (Text/Regex.matches(s, patt))
+            Text/Regex.rewriteWith(s, patt, eval)
+        else 
+            Ok(s)
+
+
+    pub def properCaseEquiName(s: String): Result[String, System.Error] & Impure =
+        use Result.{flatMap};
+        let words = String.words(s);
+        let* xs     = Result.traverse(toProperCase1, words) ;
+        Ok(String.unwords(xs))
 
 
     pub def flocLocation(root: String, fop: FixedOrPortable): String = match fop { 
@@ -44,5 +54,10 @@ namespace AutoLifting/Common {
         let* fmt = Time/Format/DateFormatter.fromPattern("dd.MM.yyyy");
         let ans = Time/LocalDate.format(dt, fmt);
         Ok(ans)
+
+
+    pub def cwtToKg(cwt: Float64): Float64 = cwt * 50.80234544f64
+
+    pub def ukTontoKg(ukton: Float64): Float64 = ukton / 0.00098421
 
 }
