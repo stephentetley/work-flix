@@ -25,6 +25,8 @@ namespace AutoLifting/Phase1/TypeMappingTable {
 
     pub rel Ordinary(aibType: String, category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
 
+    pub rel TypeAnswer(category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
+
     type alias MappingTableRow = 
         { aibEquipmentType: String
         , nameContains: Option[String]        /// Regex pattern?

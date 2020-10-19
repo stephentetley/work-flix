@@ -23,6 +23,14 @@ namespace AutoLifting/Phase1/ParentRef {
     
     /// Use a Map rather than Datalog for this because it is so simple
 
+    pub def getSaiParentReference(parentIds: Map[String, String], 
+                                  parentCommonName: String): ReportMonad[String] = 
+        use AutoLifting/ReportMonad.{throwError, return};
+        match Map.get(parentCommonName, parentIds) {
+            case None => throwError("updateParentReference - No parent for ${parentCommonName}")
+            case Some(sai) => return(sai)
+        }
+
 
     pub def loadSaiReferenceTable(path: System.FilePath): ReportMonad[Map[String, String]] =
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult}; 

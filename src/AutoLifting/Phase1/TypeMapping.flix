@@ -19,7 +19,20 @@ namespace AutoLifting/Phase1/TypeMapping {
     use AutoLifting.ReportMonad;
     use AutoLifting/Datatypes.{FixedOrPortable, S4TypeInfo, EquiWorkItem3, EquiWorkItem4};
     use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
-    use AutoLifting/Phase1/TypeMappingTable.{Distinguished, Ordinary};
+    use AutoLifting/Phase1/TypeMappingTable.{Distinguished, Ordinary, TypeAnswer};
+
+
+    pub def getTypeInfo[s](db: #{Distinguished, Ordinary, TypeAnswer | s}, 
+                           x: {s4SiteCode: String, aibEquiName: String, aibEquiType: String}): ReportMonad[{s4TyInfo: S4TypeInfo, s4Floc: String}] = 
+        use AutoLifting/ReportMonad.{return, throwError};
+        match getS4TypeInfo(db, x.aibEquiName, x.aibEquiType) {
+            case Some(typ) => { 
+                let floc = AutoLifting/Common.flocLocation(x.s4SiteCode, typ.fixedOrPortable);
+                return({ s4TyInfo = typ, s4Floc = floc})
+            }
+            case None => throwError("No type mapping for ${x.aibEquiName} ${x.aibEquiType}")
+        }
+
 
     /// TODO
     /// Polymorphic type aliases would make the signatures much nicer but they don't seem to work at the moment...
@@ -47,7 +60,7 @@ namespace AutoLifting/Phase1/TypeMapping {
             case None => oneOption(ordinaryMatch(db, srcType))
         }
 
-    pub rel TypeAnswer(category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
+    
 
     def typeAnswerToS4TypeInfo(src: (String, String, String, String)): S4TypeInfo = 
         let (cat, obj, cls, fop) = src;

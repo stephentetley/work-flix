@@ -25,6 +25,14 @@ namespace AutoLifting/Phase1/SiteMapping {
     
     /// Use a Map rather than Datalog for this because it is so simple
     
+    pub def getS4SiteCode(m: Map[String, String], aibSiteName: String): ReportMonad[String] = 
+        use AutoLifting/ReportMonad.{throwError, return};
+        match Map.get(aibSiteName, m) {
+            case None => throwError("getSiteCode - No site for ${aibSiteName}")
+            case Some(site) => return(site)
+        }
+
+
     pub def updateSiteCodes[r](m: Map[String, String], 
                                xs: List[{aibSiteName: String, aibEquiName: String | r}]): ReportMonad[List[{s4SiteCode: String, aibEquiName: String | r}]] = 
         AutoLifting/ReportMonad.mapM(updateSiteCode1(m), xs)
