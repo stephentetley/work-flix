@@ -53,7 +53,7 @@ namespace AutoLifting/ReportMain {
         let* items      = AutoLifting/Phase1/Phase1WorkList.getWorkList(workListPath);
         let* siteCodes  = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(reportConfig.siteTablePath);
         let* parentIds  = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
-        let* typeDb     = AutoLifting/Phase1/TypeMappingTable.readTypeMappingFile(reportConfig.typeTablePath);
+        let* typeDb     = AutoLifting/Phase1/TypeMapping.readTypeMappingFile(reportConfig.typeTablePath);
         mapM(translate(siteCodes, parentIds, typeDb), items)
         
 

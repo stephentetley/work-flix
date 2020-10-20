@@ -17,9 +17,10 @@
 namespace AutoLifting/Phase1/Translate {
     
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
+    
     use AutoLifting/Datatypes.{Phase1FinalWorkItem};
     use AutoLifting.ReportMonad;
-    use AutoLifting/Phase1/TypeMappingTable.{Distinguished, Ordinary, TypeAnswer};
+    use AutoLifting/Phase1/TypeMapping.{Distinguished, Ordinary, TypeAnswer};
 
     pub def translate[s]( siteCodes: Map[String, String]
                         , parentIds: Map[String,String]
