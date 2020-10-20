@@ -59,16 +59,15 @@ namespace AutoLifting/ReportMain {
 
     
     def reportPhase2(reportProps: ReportProperties, xs: List[Phase1FinalWorkItem]): ReportMonad[List[Phase2FinalWorkItem]] =
-        use AutoLifting/ReportMonad.{flatMap, return, liftAction};     
-        let* xs1        = AutoLifting/Phase2/Phase2WorkList.getWorkList(xs);
+        use AutoLifting/ReportMonad.{flatMap, return, liftAction, mapM};   
+        use AutoLifting/Phase2/Translate.{translate};  
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(reportProps.memosPath);
-        let* xs2        = AutoLifting/Phase2/LongText.updateLongTexts(memos, xs1);
         let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(reportProps.attribsPath);
-        let* xs3        = AutoLifting/Phase2/AddAttributes.updateAttributes(attribs, xs2);        
-        let* xs4        = AutoLifting/Phase2/RenameValues.renameForS4(xs3);
-        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs4, reportProps.phase2OutPath);
-        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2FinalWorkItem(x)), xs4));
-        return(xs4)
+        let* xs1        = mapM(translate(memos, attribs), xs);
+        let* xs2        = AutoLifting/Phase2/RenameValues.renameForS4(xs1);
+        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs2, reportProps.phase2OutPath);
+        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2FinalWorkItem(x)), xs2));
+        return(xs2)
 
     def showPhase2FinalWorkItem(x: AutoLifting/Datatypes.Phase2FinalWorkItem): String = 
         let showOpt = o -> Option.getWithDefault(o, "_");

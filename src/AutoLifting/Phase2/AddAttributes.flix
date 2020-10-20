@@ -27,6 +27,21 @@ namespace AutoLifting/Phase2/AddAttributes {
             AutoLifting/Phase2/AibAttributeReader.getAibAttributeRows(path)
         )
         
+    /// The records here can be simplified...
+    pub def getAttributes(attribsMap: Map[String, AibAttributeRow], 
+                          pliReference: String): ReportMonad[{charAttributes: S4CharAttributes, equiAttributes: EquiAttributes}] = 
+        use AutoLifting/ReportMonad.{flatMap, return, throwError};
+        match Map.get(pliReference, attribsMap) {
+            case None => throwError("updateAttributes - No attributes for ${pliReference}")
+            case Some(attrs) => { 
+                let eattrs      = attrs.equiAttributes;
+                let* eastNorth  = getEastingNorthing(attrs.charAttributes.osgb36);
+                let cattrs       = {+easting = eastNorth.easting, +northing = eastNorth.northing, -osgb36 | attrs.charAttributes}; 
+                return({equiAttributes = eattrs, charAttributes = cattrs})
+            }
+        }
+
+
 
     pub def updateAttributes[r](m: Map[String, AibAttributeRow], 
                                 xs: List[{pliReference: String | r}]): ReportMonad[List[{charAttributes: S4CharAttributes, equiAttributes: EquiAttributes, pliReference: String | r}]] = 

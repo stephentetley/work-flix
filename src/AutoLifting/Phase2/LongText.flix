@@ -26,12 +26,16 @@ namespace AutoLifting/Phase2/LongText {
             AutoLifting/Phase2/AibMemoReader.getAibMemoRows(path)
         )
         
+    pub def getLongText(memosMap: Map[String, String], pliReference: String): ReportMonad[Option[String]] = 
+        use AutoLifting/ReportMonad.{return};
+        return(Map.get(pliReference, memosMap))
+
 
     pub def updateLongTexts[r](m: Map[String, String], 
                                xs: List[{pliReference: String | r}]): ReportMonad[List[{longText: Option[String], pliReference: String | r}]] = 
         AutoLifting/ReportMonad.mapM(updateLongText1(m), xs)
 
-    pub def updateLongText1[r](m: Map[String, String], 
+    def updateLongText1[r](m: Map[String, String], 
                                x: {pliReference: String | r}): ReportMonad[{longText: Option[String], pliReference: String | r}] = 
         use AutoLifting/ReportMonad.{flatMap, return};
         let oltext  = Map.get(x.pliReference, m);
