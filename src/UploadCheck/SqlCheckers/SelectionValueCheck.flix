@@ -51,27 +51,34 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
         let* a1 = isRestricted("equi", charname);
         if (a1) isRestrictedValue("equi", charname, value) else return(true) 
 
-    def isRestricted(prefix: String, charname: String): DbMonad[Bool] = 
+    def isRestricted(classtype: String, charname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM ${prefix}_selection_values WHERE charname = ?;");
-        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  charname));
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM classlist_selection_values WHERE classtype = ? AND charname = ?;");
+        let* rs     = psExecuteQuery(pstmt, isRestrictedSetter(classtype,  charname));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
         let* _      = rsClose(rs);
         return(n > 0)
 
-
-    def isRestrictedValue(prefix: String, charname: String, value: String): DbMonad[Bool] = 
-        use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM ${prefix}_selection_values WHERE charname = ? AND value = ?;");
-        let* rs     = psExecuteQuery(pstmt, restrictedValueSetter(charname, value));
-        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
-        let* _      = rsClose(rs);
-        return(n > 0)
-
-    def restrictedValueSetter(charname: String, value: String):PreparedStatementSetter[Unit] = 
+    def isRestrictedSetter(classtype: String, charname: String):PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{return, flatMap, putStringAt!};
-        let* _ = putStringAt!(0,  charname);
-        let* _ = putStringAt!(1,  value);
+        let* _ = putStringAt!(0,  classtype);
+        let* _ = putStringAt!(1,  charname);
+        return()
+
+
+    def isRestrictedValue(classtype: String, charname: String, value: String): DbMonad[Bool] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM classlist_selection_values WHERE classtype = ? AND charname = ? AND value = ?;");
+        let* rs     = psExecuteQuery(pstmt, restrictedValueSetter(classtype, charname, value));
+        let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
+        let* _      = rsClose(rs);
+        return(n > 0)
+
+    def restrictedValueSetter(classtype: String, charname: String, value: String):PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{return, flatMap, putStringAt!};
+        let* _ = putStringAt!(0,  classtype);
+        let* _ = putStringAt!(1,  charname);
+        let* _ = putStringAt!(2,  value);
         return()
 
 }

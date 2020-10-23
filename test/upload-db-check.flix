@@ -14,21 +14,16 @@ use UploadCheck/SqlCheckers/TypeCheck.{flocTypeCheck, equiTypeCheck};
 
 
 def main(): Unit & Impure = 
-    let xlsxPath = System/FilePath.new("G:/work/assets/uxl/LANGS_MMOP_ALL_v52-7.xlsx");
-    match runSQLite(checkEquis(xlsxPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+    let xlsxPath = System/FilePath.new("G:/work/assets/uxl/hull_new_kids_uxl.xlsx");
+    match runSQLite(checkEquis(xlsxPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics2.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok(xs) => List.foreach(printCheck, xs)
     };
-    match runSQLite(checkFlocs(xlsxPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics.sqlite")) {
+    match runSQLite(checkFlocs(xlsxPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics2.sqlite")) {
         case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok(xs) => List.foreach(printCheck, xs)
     }
 
-def checkFlocRow(): RowChecker[FlClassification] = 
-    /// use UploadCheck/Base/RowCheck.{<&&>};
-    use UploadCheck/Base/RowCheck.{offsetIndex};
-    offsetIndex(7, 
-        flocTypeCheck())
     
 
 def checkFlocs(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
@@ -38,13 +33,13 @@ def checkFlocs(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] =
     let* xs         = mapWithIndexM(execRowChecker(checkFlocRow()), rows);
     return(xs)
 
-
-def checkEquiRow(): RowChecker[EqClassification] = 
-    use UploadCheck/Base/RowCheck.{<&&>};
+def checkFlocRow(): RowChecker[FlClassification] = 
+    /// use UploadCheck/Base/RowCheck.{<&&>};
     use UploadCheck/Base/RowCheck.{offsetIndex};
     offsetIndex(7, 
-        equiTypeCheck() <&&> equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass())
-    
+        flocTypeCheck())
+
+
 
 def checkEquis(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
     use BasicDb/DbMonad.{flatMap, return};
@@ -53,6 +48,12 @@ def checkEquis(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] =
     let* xs         = mapWithIndexM(execRowChecker(checkEquiRow()), rows);
     return(xs)
 
+def checkEquiRow(): RowChecker[EqClassification] = 
+    use UploadCheck/Base/RowCheck.{<&&>};
+    use UploadCheck/Base/RowCheck.{offsetIndex};
+    offsetIndex(7, 
+        equiTypeCheck() <&&> equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass()
+    )
     
 
 def printCheck(row: RowCheck): Unit & Impure = 

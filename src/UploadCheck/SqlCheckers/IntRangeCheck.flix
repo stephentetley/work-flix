@@ -38,7 +38,7 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
                                 flocIntRangeHelper(row.characteristicName, row.charValue))
         )
 
-    pub def flocIntRangeHelper(charname: String, value: String): DbMonad[Bool] = 
+    def flocIntRangeHelper(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return};
         match Int32.fromString(value) {
             case Ok(x) => intRangeCheck("floc", charname, x)
@@ -61,10 +61,10 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
             case Err(_) => return(true)
         }
 
-    def intRangeCheck(prefix: String, charname: String, value: Int32): DbMonad[Bool] = 
+    def intRangeCheck(classtype: String, charname: String, value: Int32): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM ${prefix}_int_ranges WHERE charname = ?");
-        let* rs     = psExecuteQuery(pstmt, setPStmt!(charname));
+        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM classlist_int_ranges WHERE classtype = ? AND charname = ?");
+        let* rs     = psExecuteQuery(pstmt, setPStmt!(classtype, charname));
         let* orng   = optional(firstRow(rs, evalRow()));
         let* _      = rsClose(rs);
         return(inRange(orng, value))
@@ -75,8 +75,11 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
     }
 
 
-    def setPStmt!(charname: String): PreparedStatementSetter[Unit] = 
-        BasicDb/PreparedStatementSetter.putStringAt!(0,  charname)
+    def setPStmt!(classtype: String, charname: String): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{return, flatMap, putStringAt!};
+        let* _ = putStringAt!(0,  classtype);
+        let* _ = putStringAt!(0,  charname);
+        return()
 
 
     def evalRow(): RowEvaluator[(Int32, Int32)] = 

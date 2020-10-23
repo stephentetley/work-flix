@@ -29,14 +29,19 @@ namespace UploadCheck/SqlCheckers/SqlCommon {
 
     pub def getEquiDatatype(charname: String): DbMonad[Option[Datatype]] = getDatatype("equi", charname)
 
-    def getDatatype(prefix: String, charname: String): DbMonad[Option[Datatype]] = 
+    def getDatatype(classtype: String, charname: String): DbMonad[Option[Datatype]] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT DISTINCT datatype FROM ${prefix}_characteristics WHERE charname = ?");        
-        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  charname));
+        let* pstmt  = prepareStatement("SELECT DISTINCT datatype FROM classlist_characteristics WHERE classtype = ? AND charname = ?");        
+        let* rs     = psExecuteQuery(pstmt, datatypeSetter(classtype,  charname));
         let* ans    = optional(firstRow(rs, BasicDb/RowEvaluator.getStringAt(0)));
         let* _      = rsClose(rs);
         return(Option.flatMap(decodeDatatype, ans))
 
+    def datatypeSetter(classtype: String, charname: String):PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{return, flatMap, putStringAt!};
+        let* _ = putStringAt!(0,  classtype);
+        let* _ = putStringAt!(1,  charname);
+        return()
 
     
 

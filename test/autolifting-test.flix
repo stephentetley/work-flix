@@ -33,13 +33,19 @@ def mainResult(): Result[Unit, System.Error] & Impure =
         , siteTablePath     = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
         , uxlTemplatePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx")
         };
+    let workListPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/SCARGILL IRE.xlsx");
     let reportProps = 
-        { workListPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/HULL WEST SPS.xlsx")
-        , attribsPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_attribs_export.xlsx")
-        , memosPath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_memos_export.xlsx")
+        { workListPath      = workListPath
+        , attribsPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scargill_attribs_export.xlsx")
+        , memosPath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scargill_memos_export.xlsx")
         , reportDescription = "Site 01 (GC) 16/10/2020 Stephen"
-        , phase2OutPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_new_kids.xlsx")
-        , uxlOutPath        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull_west_new_kids_uxl.xlsx")
+        , phase2OutPath     = makeOutputName(workListPath, "_new_kids.xlsx")
+        , uxlOutPath        = makeOutputName(workListPath, "_new_kids_uxl.xlsx")
         };
     runReportMonad(generateChildNewReport(reportConfig, reportProps))
 
+
+def makeOutputName(path: System.FilePath, newSuffix: String): System.FilePath = 
+    let s = Option.getWithDefault(System/FilePath.getBaseName(path), "");
+    let s1 = s + newSuffix;
+    System/FilePath.replaceFileName(path, s1)
