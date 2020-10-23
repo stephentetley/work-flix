@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-use Data.Check.{Pass};
-use Data/Check.{failure};
 
-use BasicDb.DbMonad;
-use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, optional, firstRow, rsClose};
-use BasicDb.PreparedStatementSetter;
-use BasicDb.RowEvaluator;
-
-use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlClassification};
-use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
-use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
 
 namespace UploadCheck/SqlCheckers/IntRangeCheck {
+
+    use DataCheck.Check.{Pass};
+    use DataCheck/Check.{failure};
+
+    use BasicDb.DbMonad;
+    use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, optional, firstRow, rsClose};
+    use BasicDb.PreparedStatementSetter;
+    use BasicDb.RowEvaluator;
+
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlClassification};
+    use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
+    use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
     /// TODO should use a type check
 

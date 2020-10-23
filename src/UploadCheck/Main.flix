@@ -18,7 +18,7 @@
 
 namespace UploadCheck/Main {
 
-    use Data.Check.{Pass, Fail};
+    use DataCheck.Check.{Pass, Fail};
 
     use BasicDb.DbMonad;
     use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, mapWithIndexM};
@@ -47,7 +47,7 @@ namespace UploadCheck/Main {
 
     def checkAll(uxlPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
         use BasicDb/DbMonad.{flatMap, return};
-        use Data/Check.{concat};
+        use DataCheck/Check.{concat};
         let* a1     = checkFlClassifications(uxlPath);        
         let* a2     = checkEquipmentData(uxlPath);
         let* a3     = checkEqClassifications(uxlPath);
@@ -60,7 +60,7 @@ namespace UploadCheck/Main {
         use BasicDb/DbMonad.{flatMap, return};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadFlClassification(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkFlClassificationsHelper()), rows);
-        return(Data/Check.concat(xs))
+        return(DataCheck/Check.concat(xs))
 
     def checkFlClassificationsHelper(): RowChecker[FlClassification] = 
         /// use UploadCheck/Base/RowCheck.{<&&>};
@@ -73,7 +73,7 @@ namespace UploadCheck/Main {
         use BasicDb/DbMonad.{flatMap, return};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEquipmentData(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkEquipmentDataHelper()), rows);
-        return(Data/Check.concat(xs))
+        return(DataCheck/Check.concat(xs))
 
     def checkEquipmentDataHelper(): RowChecker[EquipmentData] = 
         /// use UploadCheck/Base/RowCheck.{<&&>};
@@ -86,7 +86,7 @@ namespace UploadCheck/Main {
         use BasicDb/DbMonad.{flatMap, return};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEqClassification(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkEqClassificationsHelper()), rows);
-        return(Data/Check.concat(xs))
+        return(DataCheck/Check.concat(xs))
 
     def checkEqClassificationsHelper(): RowChecker[EqClassification] = 
         use UploadCheck/Base/RowCheck.{<&&>};

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-
-use Data.Check;
-use Data.Check.{Pass, Fail};
-
-use BasicDb.DbMonad;
-
 namespace UploadCheck/Base/RowCheck {
 
+    use DataCheck.Check;
+    use DataCheck.Check.{Pass, Fail};
+
+    use BasicDb.DbMonad;
 
     type alias UxlRowFail = { sheetName: String, rowIndex: Int32, failMessage: String }
 
@@ -54,7 +52,7 @@ namespace UploadCheck/Base/RowCheck {
 
 
     pub def check2(chk1: RowChecker[row], chk2: RowChecker[row]): RowChecker[row] = 
-        use Data/Check.{append};
+        use DataCheck/Check.{append};
         RowChecker((row, ix) -> 
             BasicDb/DbMonad.lift2(append, execRowChecker(chk1, row, ix), execRowChecker(chk2, row, ix))
         )

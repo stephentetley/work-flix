@@ -19,24 +19,23 @@
 // Check is the anonymous version of Validation.
 // Operationally it is noticeably less useful than Validation (less operations can be supported).
 
+/// Probably this will go in a new project / repository...
 
-
-namespace Data {
+namespace DataCheck {
 
     pub enum Check[e] { 
         case Pass
         case Fail(Nel[e])
     }
 
-    // type alias Checker[a, e] = a -> Check[e]
 
 }
 
-namespace Data/Check {
+namespace DataCheck/Check {
 
 
-    use Data.Check;
-    use Data.Check.{Pass, Fail};
+    use DataCheck.Check;
+    use DataCheck.Check.{Pass, Fail};
 
     pub def failure(err: e): Check[e] = Fail(Nel.singleton(err))
 

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-use Data.Check.{Pass};
-use Data/Check.{failure};
-
-use BasicDb.DbMonad;
-use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
-use BasicDb.PreparedStatementSetter;
-use BasicDb.RowEvaluator;
-
-use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlClassification};
-use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
-use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
 namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
-    
+    use DataCheck.Check.{Pass};
+    use DataCheck/Check.{failure};
+
+    use BasicDb.DbMonad;
+    use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
+    use BasicDb.PreparedStatementSetter;
+    use BasicDb.RowEvaluator;
+
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlClassification};
+    use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
+    use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
+
     pub def flocCharInClass(): RowChecker[FlClassification] = 
         RowChecker((row, ix) -> 
             let errMsg = "${row.functionalLocation} - flocCharInClass failed - ${row.characteristicName} not in class ${row.className}";
