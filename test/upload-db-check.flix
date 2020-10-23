@@ -57,7 +57,7 @@ def checkEquiRow(): RowChecker[EqClassification] =
     
 
 def printCheck(row: RowCheck): Unit & Impure = 
-    let print1 = (rc : RowFail) -> Console.printLine("Row " + Int32.toString(rc.rowIndex) + ": " + rc.failMessage);
+    let print1 = (rc : RowFail) -> Console.printLine("${rc.sheetName}, row:${Int32.toString(rc.rowIndex)} - ${rc.failMessage}");
     match row {
         case Pass => () as & Impure
         case Fail(xs) => Nel.foreach(print1, xs)

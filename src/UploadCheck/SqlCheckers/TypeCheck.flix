@@ -36,9 +36,9 @@ namespace UploadCheck/SqlCheckers/TypeCheck {
         use BasicDb/DbMonad.{return, flatMap, map};
         RowChecker((row, ix) -> {
             let* tyname = map(getTypeName, getEquiDatatype(row.characteristicName));
-            let errMsg  = "flocTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
+            let errMsg  = "${row.functionalLocation} - flocTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
             let* ans    = flocTypeCheckHelper(row.characteristicName, row.charValue);
-            if (ans) return(Pass) else return(failure({ rowIndex = ix, failMessage = errMsg }))                                
+            if (ans) return(Pass) else return(failure({sheetName = "Fl-Classification", rowIndex = ix, failMessage = errMsg})) 
         })
 
 
@@ -46,9 +46,9 @@ namespace UploadCheck/SqlCheckers/TypeCheck {
         use BasicDb/DbMonad.{return, flatMap, map};
         RowChecker((row, ix) -> {
             let* tyname = map(getTypeName, getEquiDatatype(row.characteristicName));
-            let errMsg  = "equiTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
+            let errMsg  = "${row.equiId} - equiTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
             let* ans    = equiTypeCheckHelper(row.characteristicName, row.charValue);
-            if (ans) return(Pass) else return(failure({ rowIndex = ix, failMessage = errMsg }))                                
+            if (ans) return(Pass) else return(failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg }))                                
         })
 
     def getTypeName(x: Option[Datatype]): String = 

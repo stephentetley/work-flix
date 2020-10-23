@@ -22,24 +22,24 @@ use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
 use BasicDb.PreparedStatementSetter;
 use BasicDb.RowEvaluator;
 
-use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlocClassification};
+use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlClassification};
 use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
 use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 
 namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
     
-    pub def flocCharInClass(): RowChecker[EqClassification] = 
+    pub def flocCharInClass(): RowChecker[FlClassification] = 
         RowChecker((row, ix) -> 
-            let errMsg = "flocCharInClass failed - ${row.characteristicName} not in class ${row.className}";
-            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+            let errMsg = "${row.functionalLocation} - flocCharInClass failed - ${row.characteristicName} not in class ${row.className}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Fl-Classification", rowIndex = ix, failMessage = errMsg}),
                                 charInClassHelper("floc", row.characteristicName, row.className))
         )
 
     pub def equiCharInClass(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
-            let errMsg = "equiCharInClass failed - ${row.characteristicName} not in class ${row.className}";
-            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+            let errMsg = "${row.equiId} - equiCharInClass failed - ${row.characteristicName} not in class ${row.className}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg}),
                                 charInClassHelper("equi", row.characteristicName, row.className))
         )
 

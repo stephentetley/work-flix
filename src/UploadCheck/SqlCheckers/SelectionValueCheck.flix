@@ -29,8 +29,8 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
     pub def flocSelectionValue(): RowChecker[FlClassification] = 
         RowChecker((row, ix) -> 
-            let errMsg = "flocSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
-            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+            let errMsg = "${row.functionalLocation} - flocSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Fl-Classification", rowIndex = ix, failMessage = errMsg}), 
                                 flocSelectionValueHelper(row.characteristicName, row.charValue))
         )
 
@@ -41,8 +41,8 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
     pub def equiSelectionValue(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
-            let errMsg = "equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
-            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+            let errMsg = "${row.equiId} - equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg }), 
                                 equiSelectionValueHelper(row.characteristicName, row.charValue))
         )
 

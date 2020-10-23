@@ -34,7 +34,7 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
     pub def flocIntRange(): RowChecker[FlClassification] = 
         RowChecker((row, ix) -> 
             let errMsg =  "flocIntRange failed - `${row.charValue}` not in value range for ${row.characteristicName}";
-            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Fl-Classification", rowIndex = ix, failMessage = errMsg}), 
                                 flocIntRangeHelper(row.characteristicName, row.charValue))
         )
 
@@ -49,7 +49,7 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
     pub def equiIntRange(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
             let errMsg =  "equiIntRange failed - `${row.charValue}` not in value range for ${row.characteristicName}";
-            BasicDb/DbMonad.map(x -> if (x) Pass else failure({ rowIndex = ix, failMessage = errMsg }), 
+            BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg}), 
                                 equiIntRangeHelper(row.characteristicName, row.charValue))
         )
 
