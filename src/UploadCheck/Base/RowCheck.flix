@@ -23,11 +23,20 @@ use BasicDb.DbMonad;
 namespace UploadCheck/Base/RowCheck {
 
 
-    type alias RowFail = { rowIndex: Int32, failMessage: String }
+    type alias RowFail = { sheetName: String, rowIndex: Int32, failMessage: String }
 
     type alias RowCheck = Check[RowFail]
 
     pub opaque type RowChecker[row] = row -> Int32 -> DbMonad[RowCheck]
+
+    /// Possibly Impure but not _in_ a monad.
+    pub opaque type FunRowChecker[row] = row -> Int32 ~> RowCheck
+
+    pub def liftFunRowChecker(chk: FunRowChecker[row]): RowChecker[row] =
+        RowChecker((row, ix) -> {
+            let FunRowChecker(f) = chk;
+            BasicDb/DbMonad.liftAction(_ -> f(row, ix))
+        })
 
     pub def execRowChecker(chk: RowChecker[row], row: row, ix: Int32): DbMonad[RowCheck] = 
         let RowChecker(f) = chk;

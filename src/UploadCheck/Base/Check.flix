@@ -74,7 +74,7 @@ namespace Data/Check {
     ///
     /// Returns `Fail(f(v))` if `o` is `Fail(v)`. Otherwise returns `Pass`.
     ///
-    pub def map(f: e1 -> e2 & ef, x: Check[e1]): Check[e2] & ef = match x {
+    pub def mapFail(f: e1 -> e2 & ef, x: Check[e1]): Check[e2] & ef = match x {
         case Pass => Pass
         case Fail(e) => Fail(Nel.map(f, e))
     }
