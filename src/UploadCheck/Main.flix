@@ -23,49 +23,72 @@ namespace UploadCheck/Main {
     use BasicDb.DbMonad;
     use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, mapWithIndexM};
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, EqClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, EquipmentData, EqClassification};
 
-    use UploadCheck/Base/RowCheck.{RowChecker, RowCheck, RowFail, execRowChecker};
+    use UploadCheck/Base/RowCheck.{RowChecker, UxlRowCheck, UxlRowFail, execRowChecker, liftFunRowChecker};
     use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
     use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRange};
     use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValue};
     use UploadCheck/SqlCheckers/TypeCheck.{flocTypeCheck, equiTypeCheck};
+    use UploadCheck/FunCheckers/DescriptionLengthCheck.{equiDescriptionLength};
+
+
+    /// Note - here the DbMonad is equivalent to the Datalog part of Flix. 
+    /// Due to current performance problems we are writing the checkers with 
+    /// a SQL database of facts rather than a Datalog one.
+    type alias CheckerMonad[a] = DbMonad[a]
 
     pub def runMain(uxlPath: System.FilePath): Unit & Impure = 
-        match runSQLite(checkEquis(uxlPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics2.sqlite")) {
+        Console.printLine("Running...");
+        match runSQLite(checkAll(uxlPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics2.sqlite")) {
             case Err(e) => Console.printLine(System/Error.toString(e))
-            case Ok(xs) => List.foreach(printCheck, xs)
-        };
-        match runSQLite(checkFlocs(uxlPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics2.sqlite")) {
-            case Err(e) => Console.printLine(System/Error.toString(e))
-            case Ok(xs) => List.foreach(printCheck, xs)
+            case Ok(ans) => printCheck(ans)
         }
 
-        
+    def checkAll(uxlPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        use Data/Check.{concat};
+        let* a1     = checkFlClassifications(uxlPath);        
+        let* a2     = checkEquipmentData(uxlPath);
+        let* a3     = checkEqClassifications(uxlPath);
+        return(concat(a1 :: a2 :: a3 :: Nil))
 
-    def checkFlocs(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
+
+
+
+    def checkFlClassifications(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
         use BasicDb/DbMonad.{flatMap, return};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadFlClassification(xlsxPath));
-        let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* xs         = mapWithIndexM(execRowChecker(checkFlClassifications()), rows);
-        return(xs)
+        let* xs         = mapWithIndexM(execRowChecker(checkFlClassificationsHelper()), rows);
+        return(Data/Check.concat(xs))
 
-    def checkFlClassifications(): RowChecker[FlClassification] = 
+    def checkFlClassificationsHelper(): RowChecker[FlClassification] = 
         /// use UploadCheck/Base/RowCheck.{<&&>};
         use UploadCheck/Base/RowCheck.{offsetIndex};
         offsetIndex(7, 
             flocTypeCheck())
 
+        
+    def checkEquipmentData(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEquipmentData(xlsxPath));
+        let* xs         = mapWithIndexM(execRowChecker(checkEquipmentDataHelper()), rows);
+        return(Data/Check.concat(xs))
 
+    def checkEquipmentDataHelper(): RowChecker[EquipmentData] = 
+        /// use UploadCheck/Base/RowCheck.{<&&>};
+        use UploadCheck/Base/RowCheck.{offsetIndex};
+        offsetIndex(7, 
+            liftFunRowChecker(equiDescriptionLength())
+        )
 
-    def checkEquis(xlsxPath: System.FilePath): DbMonad[List[RowCheck]] = 
+    def checkEqClassifications(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
         use BasicDb/DbMonad.{flatMap, return};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEqClassification(xlsxPath));
-        let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* xs         = mapWithIndexM(execRowChecker(checkEquiRow()), rows);
-        return(xs)
+        let* xs         = mapWithIndexM(execRowChecker(checkEqClassificationsHelper()), rows);
+        return(Data/Check.concat(xs))
 
-    def checkEquiRow(): RowChecker[EqClassification] = 
+    def checkEqClassificationsHelper(): RowChecker[EqClassification] = 
         use UploadCheck/Base/RowCheck.{<&&>};
         use UploadCheck/Base/RowCheck.{offsetIndex};
         offsetIndex(7, 
@@ -73,10 +96,10 @@ namespace UploadCheck/Main {
         )
         
 
-    def printCheck(row: RowCheck): Unit & Impure = 
-        let print1 = (rc : RowFail) -> Console.printLine("${rc.sheetName}, row:${Int32.toString(rc.rowIndex)} - ${rc.failMessage}");
-        match row {
-            case Pass => () as & Impure
+    def printCheck(checks: UxlRowCheck): Unit & Impure = 
+        let print1 = (rc : UxlRowFail) -> Console.printLine("${rc.sheetName}, row:${Int32.toString(rc.rowIndex)} - ${rc.failMessage}");
+        match checks {
+            case Pass => Console.printLine("Pass")
             case Fail(xs) => Nel.foreach(print1, xs)
         }
 

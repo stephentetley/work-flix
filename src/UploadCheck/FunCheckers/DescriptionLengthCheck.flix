@@ -46,7 +46,7 @@ namespace UploadCheck/FunCheckers/DescriptionLengthCheck {
                       
         )
 
-    def descriptionLengthHelper(descriptionMedium: String): Check[String] = 
+    def descriptionLengthHelper(descriptionMedium: String): Check[String] =         
         match String.length(descriptionMedium) {
             case len if len < 1     => failure("empty text")
             case len if len > 40    => failure("`${descriptionMedium}` too long")

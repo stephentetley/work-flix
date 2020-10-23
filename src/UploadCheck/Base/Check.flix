@@ -20,8 +20,6 @@
 // Operationally it is noticeably less useful than Validation (less operations can be supported).
 
 
-use Data.Check;
-use Data.Check.{Pass, Fail};
 
 namespace Data {
 
@@ -37,6 +35,8 @@ namespace Data {
 namespace Data/Check {
 
 
+    use Data.Check;
+    use Data.Check.{Pass, Fail};
 
     pub def failure(err: e): Check[e] = Fail(Nel.singleton(err))
 

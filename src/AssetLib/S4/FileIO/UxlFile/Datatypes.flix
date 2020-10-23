@@ -76,7 +76,7 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , equipCategory: String
         , description: String
         , objectType: String
-        , grossWeight: Option[Int32]
+        , grossWeight: Option[Float64]
         , unitOfWeight: String
         , startupDate: Option[Time.LocalDate]
         , manufacturer: String

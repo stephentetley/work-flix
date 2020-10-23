@@ -159,6 +159,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getS4BoolNamed("DeleteCh")
 
     /// Equipment Data
+    pub def loadEquipmentData(path: System.FilePath): Result[List[EquipmentData], System.Error] & Impure =   
+        SheetIO/SheetReader.runXlsx(readEquipmentData(), path)
 
     pub def readEquipmentData(): SheetReader[List[EquipmentData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
@@ -168,7 +170,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
 
     def getEquipmentData(): NamedRowEvaluator[EquipmentData] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, 
-                getOptionInt32Named, getInt32Named};
+                getStringNamedWithDefault, getOptionInt32Named, getInt32Named, getFloat64Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, 
             x15, x16, x17, x18, x19, x20, x21, x22, x23) -> 
@@ -196,29 +198,29 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
                 , statusProfile     = x22
                 , statusOfAnObject  = x23
                 })
-            <&> getStringNamed("Equi")                  /// equiId
-            <*> getStringNamed("Eqtyp")                 /// equipCategory
-            <*> getStringNamed("Txtmi")                 /// description
-            <*> getStringNamed("EqartEqu")              /// objectType
-            <*> getOptionInt32Named("Brgew")            /// grossWeight
-            <*> getStringNamed("Gewei")                 /// unitOfWeight
-            <*> getOptionLocalDateNamed("Inbdt")        /// startupDate
-            <*> getStringNamed("Herst")                 /// manufacturer
-            <*> getStringNamed("Typbz")                 /// modelNumber
-            <*> getStringNamed("MapaEeqz")              /// manufPartNo
-            <*> getStringNamed("Serge")                 /// manufSerialNo
-            <*> getInt32Named("Baujj")                  /// constructYear
-            <*> getPaddedInt32Named("BaummEqi")         /// constructMth
-            <*> getInt32Named("SwerEilo")               /// maintPlant 
-            <*> getInt32Named("BukrEilo")               /// companyCode
-            <*> getInt32Named("KokrEilo")               /// coArea
-            <*> getInt32Named("PplaEeqz")               /// planningPlant
-            <*> getStringNamed("TplnEilo")              /// functionalLoc
-            <*> getStringNamed("HequEeqz")              /// superordEquip
-            <*> getOptionInt32Named("HeqnEeqz")         /// position
-            <*> getStringNamed("TidnEeqz")              /// techIdentNo
-            <*> getStringNamed("StsmEqui")              /// statusProfile
-            <*> getStringNamed("UstwEqui")              /// statusOfAnObject
+            <&> getStringNamed("Equi")                              /// equiId
+            <*> getStringNamed("Eqtyp")                             /// equipCategory
+            <*> logged("Txtmi", getStringNamed("Txtmi"))                          /// description
+            <*> getStringNamed("EqartEqu")                          /// objectType
+            <*> optional(getFloat64Named("Brgew"))                  /// grossWeight
+            <*> getStringNamedWithDefault("Gewei", "")              /// unitOfWeight
+            <*> getOptionLocalDateNamed("Inbdt")                    /// startupDate
+            <*> getStringNamed("Herst")                             /// manufacturer
+            <*> getStringNamed("Typbz")                             /// modelNumber
+            <*> getStringNamedWithDefault("MapaEeqz", "")           /// manufPartNo
+            <*> getStringNamed("Serge")                             /// manufSerialNo
+            <*> getInt32Named("Baujj")                              /// constructYear
+            <*> getPaddedInt32Named("BaummEqi")                     /// constructMth
+            <*> getInt32Named("SwerEilo")                           /// maintPlant 
+            <*> getInt32Named("BukrEilo")                           /// companyCode
+            <*> getInt32Named("KokrEilo")                           /// coArea
+            <*> getInt32Named("PplaEeqz")                           /// planningPlant
+            <*> getStringNamed("TplnEilo")                          /// functionalLoc
+            <*> getStringNamed("HequEeqz")                          /// superordEquip
+            <*> getOptionInt32Named("HeqnEeqz")                     /// position
+            <*> getStringNamed("TidnEeqz")                          /// techIdentNo
+            <*> getStringNamed("StsmEqui")                          /// statusProfile
+            <*> getStringNamed("UstwEqui")                          /// statusOfAnObject
 
 
     /// EQ-Multilingual Text
@@ -308,5 +310,19 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     def getOptionLocalDateNamed(label: String): NamedRowEvaluator[Option[Time.LocalDate]] = 
         use SheetIO/NamedRowEvaluator.{optional};
         optional(getLocalDateNamed(label))
+
+
+    def logged(tag: String, fn: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+        let* ans = fn;
+        let* _ = liftAction(_ -> Console.printLine("${tag}: ${ans}"));
+        return(ans)
+
+///    def loggedInt32(tag: String, fn: NamedRowEvaluator[Int32]): NamedRowEvaluator[Int32] = 
+///         use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+///         let* ans = fn;
+///         let* _ = liftAction(_ -> Console.printLine("${tag}: ${Int32.toString(ans)}"));
+///         return(ans)
+
 
 }

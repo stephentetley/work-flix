@@ -61,12 +61,13 @@ namespace AutoLifting/Phase3/EmitUxl {
         }
 
     def genEquipmentData(x: Phase3FinalWorkItem): EquipmentData = 
-        let iNone : Option[Int32] = None;       /// TODO this should be unnecessary, but it currently fixes a runtime cast error
+        let f64None : Option[Float64] = None;       /// TODO this should be unnecessary, but it currently fixes a runtime cast error
+        let i32None : Option[Int32] = None;       /// TODO this should be unnecessary, but it currently fixes a runtime cast error
         { equiId                = x.s4EquiId
         , equipCategory         = x.equiData.category
         , description           = x.equiData.description
         , objectType            = x.equiData.objectType
-        , grossWeight           = iNone
+        , grossWeight           = f64None
         , unitOfWeight          = ""
         , startupDate           = Some(x.equiData.startupDate)
         , manufacturer          = x.equiData.manufacturer
@@ -81,7 +82,7 @@ namespace AutoLifting/Phase3/EmitUxl {
         , planningPlant         = 2100
         , functionalLoc         = x.equiData.functionalLocation
         , superordEquip         = ""
-        , position              = iNone
+        , position              = i32None
         , techIdentNo           = ""
         , statusProfile         = "ZEQUIPST"
         , statusOfAnObject      = "OPER"

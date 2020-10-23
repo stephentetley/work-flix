@@ -133,12 +133,12 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Just write fields of interest...
     def setEquipmentData!(x: EquipmentData): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putStringAt!(1, x.equipCategory);
         let* _      = putStringAt!(2, x.description);
         let* _      = putStringAt!(4, x.objectType);
-        let* _      = putOptionInt32At!(7, x.grossWeight);
+        let* _      = putOptionFloat64At!(7, x.grossWeight);
         let* _      = putStringAt!(8, x.unitOfWeight);
         let* _      = putOptionLocalDateAt!(10, x.startupDate);
         let* _      = putStringAt!(14, x.manufacturer);
@@ -148,8 +148,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         let* _      = putInt32At!(19, x.constructYear);
         let* _      = putPaddedInt32At!(20, 2, x.constructMth);
         let* _      = putInt32At!(21, x.maintPlant);
-        let* _      = putInt32At!(28, x.companyCode);
-        let* _      = putInt32At!(32, x.coArea);
+        let* _      = putInt32At!(28, x.companyCode);       /// AC BukrEilo
+        let* _      = putInt32At!(33, x.coArea);            // AH 
         let* _      = putInt32At!(37, x.planningPlant);
         let* _      = putStringAt!(42, x.functionalLoc);
         let* _      = putStringAt!(43, x.superordEquip);
