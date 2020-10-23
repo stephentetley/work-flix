@@ -21,7 +21,7 @@ use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text, IntNum, DecimalNum, D
 use UploadCheck/EntityTypes/ValuaFloc.{ValuaFloc};
 use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
 
-namespace UploadCheck/Checkers/UniCharacteristic {
+namespace UploadCheck/DatalogCheckers/UniCharacteristic {
 
 
     /// Characteristic extended with index and equiId 

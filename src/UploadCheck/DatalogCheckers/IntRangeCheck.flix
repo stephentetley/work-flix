@@ -18,7 +18,7 @@
 use AssetLib/S4/FileIO/ClassList/Relations.{IntRange};
 
 
-namespace UploadCheck/Checkers/IntRangeCheck {
+namespace UploadCheck/DatalogCheckers/IntRangeCheck {
 
     pub def intRangeCheck[r](db: #{IntRange, Restricted | r}, charname: String, value: Int32): Bool = 
         isRestricted(db, charname) && isRestrictedValue(db, charname, value)

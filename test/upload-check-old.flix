@@ -3,9 +3,9 @@ use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification};
 use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember};
 use AssetLib/S4/FileIO/ClassList/SQLiteLoader.{CharacteristicsDb, loadCharacteristicsDb};
 
-use UploadCheck/Checkers/CharacteristicInClassCheck.{characteristicInClassCheck};
-use UploadCheck/Checkers/SelectionValueCheck.{selectionValueCheck};
-use UploadCheck/Checkers/IntRangeCheck.{intRangeCheck};
+use UploadCheck/DatalogCheckers/CharacteristicInClassCheck.{characteristicInClassCheck};
+use UploadCheck/DatalogCheckers/SelectionValueCheck.{selectionValueCheck};
+use UploadCheck/DatalogCheckers/IntRangeCheck.{intRangeCheck};
 
 
 

@@ -24,7 +24,7 @@ use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
 use UploadCheck/Checkers/UniCharacteristic.{UniCharacteristic};
 use UploadCheck/Checkers/UniCharacteristic.{equiToUniCharacteristic, flocToUniCharacteristic};
 
-namespace UploadCheck/Checkers/CharacteristicTypeCheck {
+namespace UploadCheck/DatalogCheckers/CharacteristicTypeCheck {
 
     /// Change to a Bool check...
 

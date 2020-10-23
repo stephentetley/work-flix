@@ -18,7 +18,7 @@
 use AssetLib/S4/FileIO/ClassList/Relations.{SelectionValue};
 
 
-namespace UploadCheck/Checkers/SelectionValueCheck {
+namespace UploadCheck/DatalogCheckers/SelectionValueCheck {
 
     pub def selectionValueCheck(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String, value: String): Bool = 
         isRestricted(db, charname) && isRestrictedValue(db, charname, value)

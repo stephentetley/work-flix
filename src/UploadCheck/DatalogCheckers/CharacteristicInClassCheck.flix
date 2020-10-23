@@ -18,7 +18,7 @@ use Text/Regex/Pattern.{irrefutablePattern};
 
 use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember};
 
-namespace UploadCheck/Checkers/CharacteristicInClassCheck {
+namespace UploadCheck/DatalogCheckers/CharacteristicInClassCheck {
 
     rel CharInClass(className: String, charName: String)
 
