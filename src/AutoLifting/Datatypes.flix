@@ -94,7 +94,8 @@ namespace AutoLifting/Datatypes {
         }
 
     type alias EquiAttributes = 
-        { installedFrom: Time.LocalDate
+        { assetStatus: String
+        , installedFrom: Time.LocalDate
         , manufacturer: String
         , model: String
         , partNumber: String
