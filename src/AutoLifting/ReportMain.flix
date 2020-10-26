@@ -64,7 +64,7 @@ namespace AutoLifting/ReportMain {
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(reportProps.memosPath);
         let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(reportProps.attribsPath);
         let* xs1        = mapM(translate(memos, attribs), xs);
-        let* xs2        = AutoLifting/Phase2/RenameValues.renameForS4(xs1);
+        let* xs2        = AutoLifting/Phase2/RewriteValues.renameForS4(xs1);
         let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs2, reportProps.phase2OutPath);
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2FinalWorkItem(x)), xs2));
         return(xs2)

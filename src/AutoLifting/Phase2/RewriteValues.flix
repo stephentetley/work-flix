@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase2/RenameValues {
+namespace AutoLifting/Phase2/RewriteValues {
     
  
     use AutoLifting/Datatypes.{EquiAttributes, S4CharAttributes};
