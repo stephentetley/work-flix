@@ -57,7 +57,6 @@ namespace AutoLifting/Phase1/SiteMapping {
     
     def evalSiteMapRow(): NamedRowEvaluator[(String, Option[String])] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, optional, tuple2};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         tuple2( getStringNamed("AI2_InstallationCommonName")
               , optional(getStringNamed("L1 exists in S4 01/10/2019"))
               )
