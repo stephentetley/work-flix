@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-use FactIO.CsvExport;
-use FactIO.CsvRowWriter;
-
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData, Headers, DataRow};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/EntityFile/ExportCsv {
+
+namespace AssetLib/S4/FileIO/DownloadFile/ExportCsv {
+
+    use FactIO.CsvExport;
+    use FactIO.CsvRowWriter;
+
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{EntityData, Headers, DataRow};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityData.{EntityData};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Headers.{Headers};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataRow.{DataRow};
 
         
     pub def exportCsv(rowWriter: r -> CsvExport[Unit], x: EntityData[r], path: System.FilePath): Result[Unit, System.Error] & Impure =

@@ -14,42 +14,43 @@
  * limitations under the License.
  */
 
-use System.Error.{Generic};
-
-use Time.LocalDateTime;
-
-use TextParser.TextParser;
-use TextParser.{return, map, failure, alt, choice, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
-use TextParser/Combinators.{ignore, many, manyTill};
-use TextParser/Text.{many1UpperCase, restOfLine, makePattern};
-use TextParser/Token1.{symbol, lexeme};
-
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.FileType.{Download, Upload};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.DataModel.{U1};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.Selection.{Selection};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/EntityFile/Parser {
+namespace AssetLib/S4/FileIO/DownloadFile/Parser {
+    
+    use System.Error.{Generic};
+
+    use Time.LocalDateTime;
+
+    use TextParser.TextParser;
+    use TextParser.{return, map, failure, alt, choice, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
+    use TextParser/Combinators.{ignore, many, manyTill};
+    use TextParser/Text.{many1UpperCase, restOfLine, makePattern};
+    use TextParser/Token1.{symbol, lexeme};
+
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DownloadFile.{DownloadFile};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.FileType.{Download, Upload};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataModel.{U1};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Headers.{Headers};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Selection.{Selection};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataRow.{DataRow};
 
     /// Always UTF-8?
-    pub def parseFile(path: System.FilePath) : Result[EntityFile, System.Error] & Impure = 
-        TextParser.parseFile(entityFileParser(), path, Text/Charset.utf_8())    
+    pub def parseFile(path: System.FilePath) : Result[DownloadFile, System.Error] & Impure = 
+        TextParser.parseFile(downloadFileParser(), path, Text/Charset.utf_8())    
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
 
-    pub def entityFileParser(): TextParser[EntityFile, t] = 
+    pub def downloadFileParser(): TextParser[DownloadFile, t] = 
         use TextParser.flatMap;
         let* hdr = pHeader();
         let* sel = alt(pSelection(), pEmptySelection());        
         let* cols = pColumnHeaders();
         let* rows = manyTill(pDataRow(), endOfInput());
-        return(EntityFile({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows }))
+        return(DownloadFile({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows }))
 
 
 

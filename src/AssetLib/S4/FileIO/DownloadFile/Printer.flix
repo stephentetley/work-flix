@@ -14,40 +14,38 @@
  * limitations under the License.
  */
 
-use Time.LocalDateTime;
-use Text/SimpleFormat.{Doc};
-use Text/SimpleFormat.{toString, besideSpace, beside, below, hcat, vcat, text, char, colon, punctuate, tab, line};
-use Text/SimpleFormat.{<>, <<>>, <!>};
 
 
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityFile.{EntityFile};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.FileType.{Download, Upload};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.DataModel.{U1};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.Selection.{Selection};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
+namespace AssetLib/S4/FileIO/DownloadFile/Printer {
+
+    use Time.LocalDateTime;
+    use Text/SimpleFormat.{Doc};
+    use Text/SimpleFormat.{toString, besideSpace, beside, below, hcat, vcat, text, char, colon, punctuate, tab, line};
+    use Text/SimpleFormat.{<>, <<>>, <!>};
 
 
-namespace AssetLib/S4/FileIO/EntityFile/Printer {
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DownloadFile.{DownloadFile};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.FileType.{Download, Upload};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataModel.{U1};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Headers.{Headers};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Selection.{Selection};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataRow.{DataRow};
 
-
-
-
-    pub def writeChangeFile(x: EntityFile, path: String): Result[Unit, System.Error] & Impure = 
+    pub def writeChangeFile(x: DownloadFile, path: String): Result[Unit, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
-        let str = ppEntityFile(x).toString();
+        let str = ppDownloadFile(x).toString();
         System/File.writeFile(path1, Text/Charset.utf_8(), str)
 
-    pub def printChangeFile(x: EntityFile): String & Impure =         
-        ppEntityFile(x).toString()
+    pub def printChangeFile(x: DownloadFile): String & Impure =         
+        ppDownloadFile(x).toString()
 
     
-    def ppEntityFile(x: EntityFile): Doc & Impure = 
-        let EntityFile(x1) = x;
+    def ppDownloadFile(x: DownloadFile): Doc & Impure = 
+        let DownloadFile(x1) = x;
         vcat(
-                ppFileHeader(x1.fileHeader)
+               ppFileHeader(x1.fileHeader)
             :: ppSelection(x1.selection)
             :: ppHeaders(x1.headers)
             :: List.map(ppDataRow, x1.dataRows)
@@ -55,7 +53,7 @@ namespace AssetLib/S4/FileIO/EntityFile/Printer {
 
     def ppFileHeader (x: FileHeader): Doc = 
         vcat(
-                ppFileType(x.fileType)
+               ppFileType(x.fileType)
             :: ppDataModel(x.dataModel)
             :: ppEntityType(x.entityType)
             :: ppVariant(x.variant)

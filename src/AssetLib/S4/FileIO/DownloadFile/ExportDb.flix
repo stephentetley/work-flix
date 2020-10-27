@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-use FactIO.JdbcExport;
-use FactIO.JdbcRowSetter;
-
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData, Headers};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.EntityData.{EntityData};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.Headers.{Headers};
-use AssetLib/S4/FileIO/EntityFile/Datatypes.DataRow.{DataRow};
 
 
-namespace AssetLib/S4/FileIO/EntityFile/ExportDb {
+namespace AssetLib/S4/FileIO/DownloadFile/ExportDb {
+
+    use FactIO.JdbcExport;
+    use FactIO.JdbcRowSetter;
+
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{EntityData, Headers};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityData.{EntityData};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Headers.{Headers};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataRow.{DataRow};
 
     type alias ExportParams[row] = 
         { tableName: String

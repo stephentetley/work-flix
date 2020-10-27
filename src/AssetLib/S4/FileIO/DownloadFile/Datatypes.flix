@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-use Time.LocalDateTime;
 
-namespace AssetLib/S4/FileIO/EntityFile/Datatypes {
 
-    /// EntityFile - from "File Download" or for "File Upload".
+namespace AssetLib/S4/FileIO/DownloadFile/Datatypes {
 
-    pub opaque type EntityFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
+    use Time.LocalDateTime;
+
+    /// EntityFile - from "File Download" 
+    /// Could be created as a "File Upload" but we may not need that (even though we have a pretty printer).
+
+    pub opaque type DownloadFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
 
     pub opaque type DataRow = Array[String]
 
@@ -29,6 +32,8 @@ namespace AssetLib/S4/FileIO/EntityFile/Datatypes {
     pub type alias FileHeader = { fileType: FileType, dataModel : DataModel, entityType: EntityType, 
                                     variant: String, user: String, dateTime: LocalDateTime } 
 
+    /// Possibly change to String?
+    /// Generally we are now only concerned with Download files
     pub enum FileType {
         case Download,
         case Upload

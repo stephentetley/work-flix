@@ -3,11 +3,11 @@ use System.Error.{Generic};
 use Data/RowReader.RowWithHeadersEvaluator;
 use FactIO.JdbcRowSetter;
 
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityFile};
-use AssetLib/S4/FileIO/EntityFile/Parser.{parseFile};
-use AssetLib/S4/FileIO/EntityFile/Evaluate.{toEntityData, toEntityData1};
-use AssetLib/S4/FileIO/EntityFile/ExportCsv.{exportCsv, writeDataRow};
-use AssetLib/S4/FileIO/EntityFile/ExportDb.{ExportParams, exportDb};
+use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile};
+use AssetLib/S4/FileIO/DownloadFile/Parser.{parseFile};
+use AssetLib/S4/FileIO/DownloadFile/Evaluate.{toEntityData, toEntityData1};
+use AssetLib/S4/FileIO/DownloadFile/ExportCsv.{exportCsv, writeDataRow};
+use AssetLib/S4/FileIO/DownloadFile/ExportDb.{ExportParams, exportDb};
 
 
 def main(): Result[Unit, System.Error] & Impure = 
