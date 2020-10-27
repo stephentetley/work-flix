@@ -25,11 +25,14 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
     use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Row};
     use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Row.{FlocRow, EquiRow};
 
-    type alias AibRow = 
+    type alias ResultRow = 
         { pliReference: String
-        , ywRef: String
-        , itemName: String
+        , aibItemName: String
+        , ywRefs: String
+        , s4EquiIds: String
+        , s4EquiNames: String
         }
+
 
     type alias S4Row = 
         { equiId: String
@@ -38,19 +41,76 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
         }
 
 
+
+    pub def makeIH06MatchesReport(x: { aideFile: System.FilePath
+                                     , ih06File: System.FilePath
+                                     , xlsxOutPath: System.FilePath}): Result[Unit, System.Error] & Impure = 
+        let tempFile = System/FilePath.replaceFileName(x.xlsxOutPath, "temp.duckdb");
+        BasicDb/DbMonad.runDuckDB(makeReport(x), tempFile)
+
+    def makeReport(x: { aideFile: System.FilePath
+                      , ih06File: System.FilePath
+                      , xlsxOutPath: System.FilePath}): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
+        let* _      = setupIH06Db(x.ih06File);
+        return()
+
+    pub def deriveRow(patt: Text/Regex.Pattern, pliNumber: String, commonName: String): DbMonad[ResultRow] = 
+        use BasicDb/DbMonad.{flatMap, return, liftAction};
+        let* name = liftAction(_ -> getName(patt, commonName));
+        if (String.isEmpty(name))
+            return({ pliReference   = pliNumber
+                   , aibItemName    = commonName
+                   , ywRefs         = ""
+                   , s4EquiIds      = ""
+                   , s4EquiNames    = ""
+                   })
+        else {
+            let ywref = getPrefix(name);
+            let* s4row = getS4Matches(ywref);
+            return({ pliReference   = pliNumber
+                   , aibItemName    = name
+                   , ywRefs         = s4row.ywRef
+                   , s4EquiIds      = s4row.equiId
+                   , s4EquiNames    = s4row.equiName
+                   })
+        }
+
+
+    def getName(patt: Text/Regex.Pattern, s: String): String & Impure = 
+        Result.getWithDefault(Text/Regex.evalContains(s, patt, Text/Regex/MatchEvaluator.getCaptureNamed("name")), "")
+
+
+    pub def headings(): Array[String] & Impure = 
+        ["PLI Reference", "AIB Item Name", "YW Refs", "S4 Equi Ids", "S4 Equi Names"]
+
+
+
+
     pub def getPrefix(s: String): String = match String.words(s) {
         case Nil => ""
         case s1 :: _ => s1
     }
 
 
-    pub def getS4Matches(ywRef: String): DbMonad[List[S4Row]] = 
+    pub def getS4Matches(ywRef: String): DbMonad[S4Row] =
         use BasicDb/DbMonad.{flatMap, return, prepareStatement, psExecuteQuery, allRows, rsClose};
         let* pstmt  = prepareStatement("SELECT equi_id, yw_ref, equi_name FROM s4equi WHERE yw_ref = ?");
         let* rs     = psExecuteQuery(pstmt, setQueryStmt!(ywRef));
         let* ans    = allRows(rs, evalResult());
         let* _      = rsClose(rs);
-        return(ans)
+        return(mergeRows(ans))
+
+    def mergeRows(xs: List[S4Row]): S4Row = 
+        let merge = (x1,x2) -> 
+            { equiId    = x1.equiId + "; " + x2.equiId
+            , ywRef     = x1.ywRef + "; " + x2.ywRef
+            , equiName  = x1.equiName + "; " + x2.equiName
+            };
+        match xs {
+            case Nil => { equiId = "", ywRef = "", equiName = "" }
+            case x1 :: rs => List.foldLeft(merge, x1, rs)
+        }
 
     def setQueryStmt!(ywRef: String): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
