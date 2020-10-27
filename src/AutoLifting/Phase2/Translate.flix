@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+
+/// Phase 1 adds item specific attributes.
+/// These are attributes collated from extra reports on the asset database.
+
+
 namespace AutoLifting/Phase2/Translate {
     
     use AutoLifting/Datatypes.{Phase1FinalWorkItem, Phase2FinalWorkItem, AibAttributeRow};
@@ -29,6 +34,7 @@ namespace AutoLifting/Phase2/Translate {
         return(
             { pliReference          = x.pliReference
             , parentSaiReference    = x.parentSaiReference
+            , change                = x.change
             , s4EquiName            = x.s4EquiName
             , s4Floc                = x.s4Floc
             , s4Category            = x.s4TyInfo.category

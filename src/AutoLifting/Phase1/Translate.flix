@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/// Phase 1 adds "static" attributes.
+/// These are attributes derived from the type of the item and its site.
+/// The derivation is from a static database of facts.
+
+
 namespace AutoLifting/Phase1/Translate {
     
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
@@ -38,6 +43,7 @@ namespace AutoLifting/Phase1/Translate {
             { aibEquiName           = aibNames.equiName
             , aibEquiType           = aibNames.equiType
             , pliReference          = x.reference
+            , change                = x.change
             , s4EquiName            = s4EquiName
             , s4SiteCode            = s4SiteCode
             , parentSaiReference    = saiParent

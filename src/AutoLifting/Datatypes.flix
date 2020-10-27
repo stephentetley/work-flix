@@ -30,15 +30,6 @@ namespace AutoLifting/Datatypes {
     /// Start with (Reference, AssetName, NewParent)
     /// i.e. AibExportRow
   
-    /// Result of Phase1Renaming
-    type alias AibWorkItem = 
-        { aibEquiName: String
-        , aibEquiType: String
-        , aibSiteName: String
-        , s4EquiName: String
-        , pliReference: String
-        , parentName: String
-        }
 
     
     /// Get parent SAI, remove parentName
@@ -48,6 +39,7 @@ namespace AutoLifting/Datatypes {
         { aibEquiName: String
         , aibEquiType: String
         , pliReference: String
+        , change: String
         , s4EquiName: String
         , s4SiteCode: String
         , parentSaiReference: String
@@ -64,16 +56,6 @@ namespace AutoLifting/Datatypes {
 
 
     /// Reference, Parent Reference, S4 Name, S4 Floc, Equi Category, Equi Object, Equi Class
-
-    type alias Phase2WorkItem1 = 
-        { pliReference: String
-        , parentSaiReference: String
-        , s4EquiName: String
-        , s4Floc: String
-        , s4Category: String 
-        , s4Object: String
-        , s4Class: String
-        }
 
 
     type alias AibMemoRow = 
@@ -93,6 +75,7 @@ namespace AutoLifting/Datatypes {
         , charAttributes: AibCharAttributes
         }
 
+    
     type alias EquiAttributes = 
         { assetStatus: String
         , installedFrom: Time.LocalDate
@@ -126,6 +109,7 @@ namespace AutoLifting/Datatypes {
     type alias Phase2FinalWorkItem = 
         { pliReference: String
         , parentSaiReference: String
+        , change: String
         , s4EquiName: String
         , s4Floc: String
         , s4Category: String 
@@ -135,6 +119,8 @@ namespace AutoLifting/Datatypes {
         , longText: Option[String]
         , charAttributes: S4CharAttributes
         }
+
+    /// Has the "shape" of a UXL create new item.
 
     type alias Phase3FinalWorkItem = 
         { s4EquiId: String
