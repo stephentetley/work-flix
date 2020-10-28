@@ -22,6 +22,10 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
+    use SheetIO.RowSetter;
+    use SheetIO.SheetWriter;
+
+    use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
     use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Row};
     use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Row.{FlocRow, EquiRow};
 
@@ -40,22 +44,38 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
         , equiName: String
         }
 
-
-
     pub def makeIH06MatchesReport(x: { aideFile: System.FilePath
                                      , ih06File: System.FilePath
                                      , xlsxOutPath: System.FilePath}): Result[Unit, System.Error] & Impure = 
-        let tempFile = System/FilePath.replaceFileName(x.xlsxOutPath, "temp.duckdb");
-        BasicDb/DbMonad.runDuckDB(makeReport(x), tempFile)
+        let tempFile    = System/FilePath.replaceFileName(x.xlsxOutPath, "temp.sqlite");
+        let _           = Console.printLine(System/FilePath.toString(tempFile));
+        BasicDb/DbMonad.runSQLite(makeReport(x), tempFile)
 
     def makeReport(x: { aideFile: System.FilePath
                       , ih06File: System.FilePath
                       , xlsxOutPath: System.FilePath}): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        let* _      = setupIH06Db(x.ih06File);
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftAction, liftResult, filterMapM};
+        use AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.{readFile => readAideFile};
+        use SheetIO/SheetWriter.{runXlsx};
+        let* _              = setupIH06Db(x.ih06File);        
+        let* aideRows       = liftActionResult(_ -> readAideFile(x.aideFile));
+        let* namePattern    = liftResult(_ -> Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT: "));
+        let* xs             = filterMapM(getAideOptionRow(namePattern), aideRows);
+        let* _              = liftAction(_ -> Console.printLine("Writing ${System/FilePath.toString(x.xlsxOutPath)} ${Int32.toString(List.length(xs))} rows..."));
+        let* _              = liftActionResult(_ -> runXlsx(outputXlsx(xs), x.xlsxOutPath));
         return()
 
-    pub def deriveRow(patt: Text/Regex.Pattern, pliNumber: String, commonName: String): DbMonad[ResultRow] = 
+
+    def getAideOptionRow(patt: Text/Regex.Pattern, row: AibExportRow): DbMonad[Option[ResultRow]] = 
+        use BasicDb/DbMonad.{flatMap, return, map};
+        if (String.startsWith(row.reference, "PLI")) {
+            let* ans =  deriveRow1(patt, row.reference, row.assetName);
+            return(Some(ans))
+        } else
+            return(None)
+        
+
+    def deriveRow1(patt: Text/Regex.Pattern, pliNumber: String, commonName: String): DbMonad[ResultRow] = 
         use BasicDb/DbMonad.{flatMap, return, liftAction};
         let* name = liftAction(_ -> getName(patt, commonName));
         if (String.isEmpty(name))
@@ -81,19 +101,17 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
         Result.getWithDefault(Text/Regex.evalContains(s, patt, Text/Regex/MatchEvaluator.getCaptureNamed("name")), "")
 
 
-    pub def headings(): Array[String] & Impure = 
-        ["PLI Reference", "AIB Item Name", "YW Refs", "S4 Equi Ids", "S4 Equi Names"]
+    
 
 
 
-
-    pub def getPrefix(s: String): String = match String.words(s) {
+    def getPrefix(s: String): String = match String.words(s) {
         case Nil => ""
         case s1 :: _ => s1
     }
 
 
-    pub def getS4Matches(ywRef: String): DbMonad[S4Row] =
+    def getS4Matches(ywRef: String): DbMonad[S4Row] =
         use BasicDb/DbMonad.{flatMap, return, prepareStatement, psExecuteQuery, allRows, rsClose};
         let* pstmt  = prepareStatement("SELECT equi_id, yw_ref, equi_name FROM s4equi WHERE yw_ref = ?");
         let* rs     = psExecuteQuery(pstmt, setQueryStmt!(ywRef));
@@ -130,7 +148,7 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
             <*> getStringNamed("equi_name")
 
 
-    pub def setupIH06Db(srcFile: System.FilePath): DbMonad[Unit] = 
+    def setupIH06Db(srcFile: System.FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFileWithBOM => parseIH06File};
         let* ih06   = liftActionResult(_ -> parseIH06File(srcFile, Text/Charset.utf_8()));
@@ -163,5 +181,27 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
         let* _ = putStringAt!(2,  x.equiName);
         return()
 
+    // Report output to Xlsx file...
+
+    def outputXlsx(rows: List[ResultRow]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, return, liftAction, createSheet, allRowsWithHeaders};
+        let* sheet1     = createSheet("Output");
+        let* headers    = liftAction(_ -> getXlsxHeaders());
+        let* _          = allRowsWithHeaders(sheet1, headers, rows, setXlsxRow!);
+        return()
+
+
+    def getXlsxHeaders(): Array[String] & Impure = 
+        ["PLI Reference", "AIB Item Name", "YW Refs", "S4 Equi Ids", "S4 Equi Names"]
+
+
+    def setXlsxRow!(x: ResultRow): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        let* _      = putStringAt!(0, x.pliReference);
+        let* _      = putStringAt!(1, x.aibItemName);
+        let* _      = putStringAt!(2, x.ywRefs);
+        let* _      = putStringAt!(3, x.s4EquiIds);
+        let* _      = putStringAt!(4, x.s4EquiNames);
+        return()
 
 }
