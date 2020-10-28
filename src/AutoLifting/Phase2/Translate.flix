@@ -21,14 +21,14 @@
 
 namespace AutoLifting/Phase2/Translate {
     
-    use AutoLifting/Datatypes.{Phase1FinalWorkItem, Phase2FinalWorkItem, AibAttributeRow};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common/Datatypes.{Phase1FinalWorkItem, Phase2FinalWorkItem, AibAttributeRow};
+    use AutoLifting/Common.ReportMonad;
 
 
     pub def translate( memosMap: Map[String, String]
                      , attribsMap: Map[String, AibAttributeRow]
                      , x: Phase1FinalWorkItem): ReportMonad[Phase2FinalWorkItem] = 
-        use AutoLifting/ReportMonad.{flatMap, return};
+        use AutoLifting/Common/ReportMonad.{flatMap, return};
         let* longText   = AutoLifting/Phase2/LongText.getLongText(memosMap, x.pliReference);
         let* attrs      = AutoLifting/Phase2/AddAttributes.getAttributes(attribsMap, x.pliReference);
         return(

@@ -22,14 +22,14 @@ namespace AutoLifting/Phase2/AddAttributes {
 
     use AssetLib/Common/Osgb36.EastingNorthing;
 
-    use AutoLifting/Datatypes.{AibAttributeRow, S4CharAttributes, EquiAttributes};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common/Datatypes.{AibAttributeRow, S4CharAttributes, EquiAttributes};
+    use AutoLifting/Common.ReportMonad;
 
         
     /// The records here can be simplified...
     pub def getAttributes(attribsMap: Map[String, AibAttributeRow], 
                           pliReference: String): ReportMonad[{charAttributes: S4CharAttributes, equiAttributes: EquiAttributes}] = 
-        use AutoLifting/ReportMonad.{flatMap, return, throwError};
+        use AutoLifting/Common/ReportMonad.{flatMap, return, throwError};
         match Map.get(pliReference, attribsMap) {
             case None => throwError("updateAttributes - No attributes for ${pliReference}")
             case Some(attrs) => { 
@@ -44,13 +44,13 @@ namespace AutoLifting/Phase2/AddAttributes {
 
     def getEastingNorthing(ngr: String): ReportMonad[EastingNorthing] = 
         use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
-        use AutoLifting/ReportMonad.{flatMap, liftActionResult};
+        use AutoLifting/Common/ReportMonad.{flatMap, liftActionResult};
         let* ngr1 = liftActionResult(_ -> parse(ngr) as & Impure);
         liftActionResult(_ -> toEastingNorthing(ngr1) as & Impure)
 
 
     pub def loadAttributeLookups(path: System.FilePath): ReportMonad[Map[String, AibAttributeRow]] =
-        use AutoLifting/ReportMonad.{map}; 
+        use AutoLifting/Common/ReportMonad.{map}; 
         map(buildAttributeLookups, getAibAttributeRows(path))
         
 
@@ -60,7 +60,7 @@ namespace AutoLifting/Phase2/AddAttributes {
 
     /// Must be a *.xlsx (OO-XML) file.
     def getAibAttributeRows(path: System.FilePath): ReportMonad[List[AibAttributeRow]] =
-        use AutoLifting/ReportMonad.{liftActionResult};
+        use AutoLifting/Common/ReportMonad.{liftActionResult};
         liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readAibAttributeRows(), path))
         
 
@@ -95,7 +95,7 @@ namespace AutoLifting/Phase2/AddAttributes {
                     }
                 })
             <&> getStringNamed("Reference")
-            <*> logEval(getStringNamed("AssetStatus"))
+            <*> getStringNamed("AssetStatus")
             <*> getLocalDateNamed("Installed From")
             <*> getStringNamed("Manufacturer")
             <*> getStringNamed("Model")
@@ -119,11 +119,11 @@ namespace AutoLifting/Phase2/AddAttributes {
         alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
         
 
-    def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
-        let* ans = ma;
-        let* _ = liftAction(_ -> Console.printLine(ans));
-        return(ans)
+    /// def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+    ///     let* ans = ma;
+    ///     let* _ = liftAction(_ -> Console.printLine(ans));
+    ///     return(ans)
         
 
 }

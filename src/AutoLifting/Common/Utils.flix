@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Common {
+namespace AutoLifting/Common/Utils {
 
-    use AutoLifting/Datatypes.FixedOrPortable;
-    use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
+    use AutoLifting/Common/Datatypes.FixedOrPortable;
+    use AutoLifting/Common/Datatypes.FixedOrPortable.{Fixed, Portable};
 
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
@@ -47,6 +47,8 @@ namespace AutoLifting/Common {
         case Fixed => root + "-SMS-LFT-FLT-SYS01"
         case Portable => root + "-SMS-LFT-PRL-SYS01"
     }
+        
+    pub def suffixDELToName(s: String): String = String.take(34, s) + " (Del)"
         
 
     pub def formatDateForS4(dt: Time.LocalDate): Result[String, System.Error] = 

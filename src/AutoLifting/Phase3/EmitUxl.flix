@@ -20,15 +20,15 @@ namespace AutoLifting/Phase3/EmitUxl {
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
         EquipmentData, EqMultilingualText, EqClassification};
     
-    use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{Phase3FinalWorkItem, EquiData, EquiClassification};
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common/Datatypes.{Phase3FinalWorkItem, EquiData, EquiClassification};
 
 
     pub def writeputUxlFile(description: String, 
                             xs: List[Phase3FinalWorkItem],
                             templatePath: System.FilePath,
                             outPath: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/ReportMonad.{liftActionResult};
+        use AutoLifting/Common/ReportMonad.{liftActionResult};
         use SheetIO/SheetWriter.{runTemplateXssf};
         liftActionResult(_ -> runTemplateXssf(outputChangeRequestDetails(description, xs), templatePath, outPath))
 

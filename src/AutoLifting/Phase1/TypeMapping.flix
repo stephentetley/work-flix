@@ -20,9 +20,9 @@ namespace AutoLifting/Phase1/TypeMapping {
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
-    use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{FixedOrPortable, S4TypeInfo, EquiWorkItem3, EquiWorkItem4};
-    use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common/Datatypes.{FixedOrPortable, S4TypeInfo, EquiWorkItem3, EquiWorkItem4};
+    use AutoLifting/Common/Datatypes.FixedOrPortable.{Fixed, Portable};
     
     pub rel Distinguished(aibType: String, pattern: String, category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
 
@@ -33,10 +33,10 @@ namespace AutoLifting/Phase1/TypeMapping {
 
     pub def getTypeInfo[s]( db: #{Distinguished, Ordinary, TypeAnswer | s}
                           , x: {s4SiteCode: String, aibEquiName: String, aibEquiType: String}): ReportMonad[{s4TyInfo: S4TypeInfo, s4Floc: String}] = 
-        use AutoLifting/ReportMonad.{return, throwError};
+        use AutoLifting/Common/ReportMonad.{return, throwError};
         match getS4TypeInfo(db, x.aibEquiName, x.aibEquiType) {
             case Some(typ) => { 
-                let floc = AutoLifting/Common.flocLocation(x.s4SiteCode, typ.fixedOrPortable);
+                let floc = AutoLifting/Common/Utils.flocLocation(x.s4SiteCode, typ.fixedOrPortable);
                 return({ s4TyInfo = typ, s4Floc = floc})
             }
             case None => throwError("No type mapping for ${x.aibEquiName} ${x.aibEquiType}")
@@ -98,7 +98,7 @@ namespace AutoLifting/Phase1/TypeMapping {
         }
 
     pub def readTypeMappingFile[s](path: System.FilePath) : ReportMonad[#{Distinguished, Ordinary | s}] = 
-        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, map};
+        use AutoLifting/Common/ReportMonad.{return, flatMap, liftActionResult, map};
         let* src = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readMappingTable(), path));
         return(makeMappings(src))
         

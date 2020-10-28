@@ -11,7 +11,7 @@ def main(): Unit & Impure =
 
 
 def mainResult(): Result[Unit, System.Error] & Impure = 
-    use AutoLifting/ReportMonad.{runReportMonad};
+    use AutoLifting/Common/ReportMonad.{runReportMonad};
     use AutoLifting/ReportMain.{generateChildNewReport};
     use Result.flatMap;
     let reportConfig = 

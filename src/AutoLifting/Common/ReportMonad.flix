@@ -15,7 +15,7 @@
  */
 
 
-namespace AutoLifting {
+namespace AutoLifting/Common {
 
     /// Assumption - needs name supply for UXL?
 
@@ -24,10 +24,10 @@ namespace AutoLifting {
 }
 
 
-namespace AutoLifting/ReportMonad {
+namespace AutoLifting/Common/ReportMonad {
 
-    use AutoLifting.ReportMonad;
-    use AutoLifting.ReportMonad.{ReportMonad};
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common.ReportMonad.{ReportMonad};
 
     pub def runReportMonad(ma: ReportMonad[a]): Result[a, System.Error] & Impure = 
         let n1 = initEquiNumber();
@@ -92,6 +92,13 @@ namespace AutoLifting/ReportMonad {
             let a = fn(); 
             Ok((s, a)) 
         )
+
+    pub def liftResult(fn: Unit -> Result[a, System.Error]): ReportMonad[a] =
+        ReportMonad(s -> match fn() {
+            case Ok(a) => Ok((s, a)) as & Impure
+            case Err(e) => Err(e)
+        })
+
 
     pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): ReportMonad[a] =
         ReportMonad(s -> match fn() {

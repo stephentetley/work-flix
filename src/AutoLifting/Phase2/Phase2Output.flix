@@ -16,15 +16,15 @@
 
 namespace AutoLifting/Phase2/Phase2Output {
 
-    use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{Phase2FinalWorkItem};
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common/Datatypes.{Phase2FinalWorkItem};
 
     use SheetIO.RowSetter;
     use SheetIO.SheetWriter;
 
     pub def writePhase2Report(rows: List[Phase2FinalWorkItem], path: System.FilePath): ReportMonad[Unit] =
         use SheetIO/SheetWriter.{runXlsx};
-        AutoLifting/ReportMonad.liftActionResult(_ -> runXlsx(phase2ReportWriter(rows), path))
+        AutoLifting/Common/ReportMonad.liftActionResult(_ -> runXlsx(phase2ReportWriter(rows), path))
         
     def phase2ReportWriter(rows: List[Phase2FinalWorkItem]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, createSheet, liftAction, allRowsWithHeaders};
@@ -87,7 +87,7 @@ namespace AutoLifting/Phase2/Phase2Output {
 
     def putS4DateAt!(ix: Int32, dt: Time.LocalDate): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, liftActionResult};
-        let* s = liftActionResult(_ -> AutoLifting/Common.formatDateForS4(dt) as & Impure);
+        let* s = liftActionResult(_ -> AutoLifting/Common/Utils.formatDateForS4(dt) as & Impure);
         putStringAt!(ix, s)
 
 }

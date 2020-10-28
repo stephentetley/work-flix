@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Datatypes {
+namespace AutoLifting/Common/Datatypes {
 
     pub enum FixedOrPortable { 
         case Fixed

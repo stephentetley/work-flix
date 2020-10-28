@@ -16,15 +16,15 @@
 
 namespace AutoLifting/Phase1/Phase1Output {
 
-    use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{Phase1FinalWorkItem};
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common/Datatypes.{Phase1FinalWorkItem};
 
     use SheetIO.RowSetter;
     use SheetIO.SheetWriter;
 
     pub def writePhase1Report(rows: List[Phase1FinalWorkItem], path: System.FilePath): ReportMonad[Unit] =
         use SheetIO/SheetWriter.{runXlsx};
-        AutoLifting/ReportMonad.liftActionResult(_ -> runXlsx(phase1ReportWriter(rows), path))
+        AutoLifting/Common/ReportMonad.liftActionResult(_ -> runXlsx(phase1ReportWriter(rows), path))
         
     def phase1ReportWriter(rows: List[Phase1FinalWorkItem]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, createSheet, liftAction, allRowsWithHeaders};
@@ -41,8 +41,6 @@ namespace AutoLifting/Phase1/Phase1Output {
         , "Equi Object"
         , "Equi Class"
         ]
-
-
     
     def setPhase1Row!(x: Phase1FinalWorkItem): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};

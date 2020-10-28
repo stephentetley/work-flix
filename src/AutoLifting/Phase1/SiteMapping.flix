@@ -15,18 +15,21 @@
  */
 
 namespace AutoLifting/Phase1/SiteMapping {
-
-    use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{EquiWorkItem2, EquiWorkItem3};
-
-    use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+    
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
+
+    use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common/Datatypes.{EquiWorkItem2, EquiWorkItem3};
+
+
     
     /// Use a Map rather than Datalog for this because it is so simple
     
     pub def getS4SiteCode(m: Map[String, String], aibSiteName: String): ReportMonad[String] = 
-        use AutoLifting/ReportMonad.{throwError, return};
+        use AutoLifting/Common/ReportMonad.{throwError, return};
         match Map.get(aibSiteName, m) {
             case None => throwError("getSiteCode - No site for ${aibSiteName}")
             case Some(site) => return(site)
@@ -34,7 +37,7 @@ namespace AutoLifting/Phase1/SiteMapping {
 
 
     pub def loadSiteMapTable(path: System.FilePath): ReportMonad[Map[String, String]] =
-        use AutoLifting/ReportMonad.{liftActionResult}; 
+        use AutoLifting/Common/ReportMonad.{liftActionResult}; 
         liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMapTable(), path))
         
 

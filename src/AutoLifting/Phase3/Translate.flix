@@ -16,13 +16,13 @@
 
 namespace AutoLifting/Phase3/Translate {
     
-    use AutoLifting/Datatypes.{Phase2FinalWorkItem, Phase3FinalWorkItem, 
+    use AutoLifting/Common/Datatypes.{Phase2FinalWorkItem, Phase3FinalWorkItem, 
         EquiMultilingualText, EquiData};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common.ReportMonad;
 
 
     pub def translate(liftingData: Map[String, (String, String)], x: Phase2FinalWorkItem): ReportMonad[Phase3FinalWorkItem] = 
-        use AutoLifting/ReportMonad.{flatMap, return, genEquiId};
+        use AutoLifting/Common/ReportMonad.{flatMap, return, genEquiId};
         use AutoLifting/Phase3/LiftingClassifications.{getFixedClassifications, getWorkLoadClassifications};
         let* equiId1    = genEquiId();
         let* equiData   = getEquiData(x);
@@ -40,7 +40,7 @@ namespace AutoLifting/Phase3/Translate {
         )
 
     def getEquiData(x: Phase2FinalWorkItem): ReportMonad[EquiData] = 
-        use AutoLifting/ReportMonad.{return};
+        use AutoLifting/Common/ReportMonad.{return};
         return(
             { category              = x.s4Category
             , description           = x.s4EquiName
@@ -55,7 +55,7 @@ namespace AutoLifting/Phase3/Translate {
 
     pub def getMultilingualText[r](x: { s4EquiName: String
                                       , longText: Option[String] | r}): ReportMonad[Option[EquiMultilingualText]] = 
-        use AutoLifting/ReportMonad.{return};
+        use AutoLifting/Common/ReportMonad.{return};
         match x.longText {
             case Some(s) if (String.length(s) >= 30) => return(Some({description = x.s4EquiName, longText = s}))
             case _ => return(None)

@@ -16,8 +16,8 @@
 
 namespace AutoLifting/ReportMain {
 
-    use AutoLifting/Datatypes.{Phase1FinalWorkItem, Phase2FinalWorkItem};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common/Datatypes.{Phase1FinalWorkItem, Phase2FinalWorkItem};
+    use AutoLifting/Common.ReportMonad;
 
     type alias ReportConfig = 
         { typeTablePath: System.FilePath
@@ -37,8 +37,7 @@ namespace AutoLifting/ReportMain {
 
     pub def generateChildNewReport( reportConfig: ReportConfig
                                   , reportProps: ReportProperties ):  ReportMonad[Unit] = 
-                                  
-        use AutoLifting/ReportMonad.{return, flatMap, liftAction};
+        use AutoLifting/Common/ReportMonad.{return, flatMap, liftAction};
         let* _          = liftAction(_ -> Console.printLine("Running..."));
         let* xs1        = reportPhase1(reportConfig, reportProps.workListPath);
         let* xs2        = reportPhase2(reportProps, xs1);
@@ -48,7 +47,7 @@ namespace AutoLifting/ReportMain {
     
     def reportPhase1(reportConfig: ReportConfig,
                      workListPath: System.FilePath): ReportMonad[List[Phase1FinalWorkItem]] = 
-        use AutoLifting/ReportMonad.{return, flatMap, mapM};
+        use AutoLifting/Common/ReportMonad.{return, flatMap, mapM};
         use AutoLifting/Phase1/Translate.{translate};
         let* items      = AutoLifting/Phase1/Phase1WorkList.getWorkList(workListPath);
         let* siteCodes  = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(reportConfig.siteTablePath);
@@ -59,7 +58,7 @@ namespace AutoLifting/ReportMain {
 
     
     def reportPhase2(reportProps: ReportProperties, xs: List[Phase1FinalWorkItem]): ReportMonad[List[Phase2FinalWorkItem]] =
-        use AutoLifting/ReportMonad.{flatMap, return, liftAction, mapM};   
+        use AutoLifting/Common/ReportMonad.{flatMap, return, liftAction, mapM};   
         use AutoLifting/Phase2/Translate.{translate};  
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(reportProps.memosPath);
         let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(reportProps.attribsPath);
@@ -69,14 +68,14 @@ namespace AutoLifting/ReportMain {
         let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2FinalWorkItem(x)), xs2));
         return(xs2)
 
-    def showPhase2FinalWorkItem(x: AutoLifting/Datatypes.Phase2FinalWorkItem): String = 
+    def showPhase2FinalWorkItem(x: AutoLifting/Common/Datatypes.Phase2FinalWorkItem): String = 
         let showOpt = o -> Option.getWithDefault(o, "_");
         "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.equiAttributes.installedFrom)}>"
 
     def reportEmitUxlFile(reportConfig: ReportConfig,
                           reportProps: ReportProperties, 
                           xs: List[Phase2FinalWorkItem]): ReportMonad[Unit] =
-        use AutoLifting/ReportMonad.{flatMap, return, mapM}; 
+        use AutoLifting/Common/ReportMonad.{flatMap, return, mapM}; 
         use AutoLifting/Phase3/EmitUxl.{writeputUxlFile};
         let* liftings   = AutoLifting/Phase3/LiftingClassifications.loadLiftingMapping(reportConfig.liftingTablePath);
         let* xs1        = mapM(AutoLifting/Phase3/Translate.translate(liftings), xs);

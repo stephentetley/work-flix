@@ -17,15 +17,15 @@
 namespace AutoLifting/Phase2/RewriteValues {
     
  
-    use AutoLifting/Datatypes.{EquiAttributes, S4CharAttributes};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common/Datatypes.{EquiAttributes, S4CharAttributes};
+    use AutoLifting/Common.ReportMonad;
 
 
     pub def renameForS4(xs: List[{equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}]): ReportMonad[List[{equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}]] = 
-        AutoLifting/ReportMonad.mapM(renameForS4Item, xs)
+        AutoLifting/Common/ReportMonad.mapM(renameForS4Item, xs)
 
     pub def renameForS4Item[r](x: {equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}): ReportMonad[{equiAttributes: EquiAttributes, charAttributes: S4CharAttributes | r}] = 
-        use AutoLifting/ReportMonad.{flatMap, return};
+        use AutoLifting/Common/ReportMonad.{flatMap, return};
         let step = renameManufacturer >> renameModel >> renameSerialNumber >> renameWorkLoadUnit;
         return(step(x))
         

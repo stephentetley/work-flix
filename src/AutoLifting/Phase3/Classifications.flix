@@ -19,8 +19,8 @@ namespace AutoLifting/Phase3/LiftingClassifications {
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
-    use AutoLifting/Datatypes.{S4CharAttributes, EquiClassification};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common/Datatypes.{S4CharAttributes, EquiClassification};
+    use AutoLifting/Common.ReportMonad;
 
     type alias LiftingMapping = 
         { objectClass: String
@@ -34,7 +34,7 @@ namespace AutoLifting/Phase3/LiftingClassifications {
                                           , s4Class: String
                                           , longText: Option[String]
                                           , charAttributes: S4CharAttributes | r}): ReportMonad[List[EquiClassification]] = 
-        use AutoLifting/ReportMonad.{flatMap, return};
+        use AutoLifting/Common/ReportMonad.{flatMap, return};
         let c1   = {equiClass = "EAST_NORTH", characteristicName = "EASTING", value = Int32.toString(x.charAttributes.easting)};
         let c2   = {equiClass = "EAST_NORTH", characteristicName = "NORTHING", value = Int32.toString(x.charAttributes.northing)};
         let c3   = {equiClass = "AIB_REFERENCE", characteristicName = "AI2_AIB_REFERENCE", value = x.pliReference};
@@ -56,7 +56,7 @@ namespace AutoLifting/Phase3/LiftingClassifications {
     pub def getWorkLoadClassifications[r](m: Map[String, (String, String)], 
                                           x: { s4Class: String
                                              , charAttributes: S4CharAttributes | r}): ReportMonad[List[EquiClassification]] = 
-        use AutoLifting/ReportMonad.{flatMap, return, throwError};
+        use AutoLifting/Common/ReportMonad.{flatMap, return, throwError};
         match (x.charAttributes.workLoad, x.charAttributes.workLoadUnits) {
             case (Some(d), s) if !(String.isEmpty(s)) => match Map.get(x.s4Class, m) {
                 case None => throwError("getLiftingClassifications - No mapping for class ${x.s4Class}")
@@ -74,7 +74,7 @@ namespace AutoLifting/Phase3/LiftingClassifications {
 
 
     pub def loadLiftingMapping(path: System.FilePath): ReportMonad[Map[String, (String, String)]] =
-        use AutoLifting/ReportMonad.{liftActionResult};
+        use AutoLifting/Common/ReportMonad.{liftActionResult};
         liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readLiftingMapping(), path))
 
 

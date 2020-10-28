@@ -23,22 +23,22 @@ namespace AutoLifting/Phase1/Translate {
     
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
     
-    use AutoLifting/Datatypes.{Phase1FinalWorkItem};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common/Datatypes.{Phase1FinalWorkItem};
+    use AutoLifting/Common.ReportMonad;
     use AutoLifting/Phase1/TypeMapping.{Distinguished, Ordinary, TypeAnswer};
 
     pub def translate[s]( siteCodes: Map[String, String]
                         , parentIds: Map[String,String]
                         , typeDb: #{Distinguished, Ordinary, TypeAnswer | s}
                         , x: AibExportRow): ReportMonad[Phase1FinalWorkItem] = 
-        use AutoLifting/ReportMonad.{flatMap, return, liftActionResult};
+        use AutoLifting/Common/ReportMonad.{flatMap, return, liftActionResult};
         let* aibNames       = AutoLifting/Phase1/Naming.getAibNames(x);
         let* s4SiteCode     = AutoLifting/Phase1/SiteMapping.getS4SiteCode(siteCodes, aibNames.siteName);
         let* saiParent      = AutoLifting/Phase1/ParentRef.getSaiParentReference(parentIds, x.newParentName);
         let* typeMap        = AutoLifting/Phase1/TypeMapping.getTypeInfo(typeDb, { s4SiteCode = s4SiteCode
                                                                                  , aibEquiName = aibNames.equiName
                                                                                  , aibEquiType = aibNames.equiType});
-        let* s4EquiName     = liftActionResult(_ -> AutoLifting/Common.properCaseEquiName(aibNames.equiName));
+        let* s4EquiName     = liftActionResult(_ -> AutoLifting/Common/Utils.properCaseEquiName(aibNames.equiName));
         return(
             { aibEquiName           = aibNames.equiName
             , aibEquiType           = aibNames.equiType

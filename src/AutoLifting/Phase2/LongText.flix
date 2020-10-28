@@ -19,16 +19,16 @@ namespace AutoLifting/Phase2/LongText {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AutoLifting/Datatypes.{Phase2WorkItem1, Phase2WorkItem2, AibMemoRow};
-    use AutoLifting.ReportMonad;
+    use AutoLifting/Common/Datatypes.{Phase2WorkItem1, Phase2WorkItem2, AibMemoRow};
+    use AutoLifting/Common.ReportMonad;
 
 
     pub def getLongText(memosMap: Map[String, String], pliReference: String): ReportMonad[Option[String]] = 
-        use AutoLifting/ReportMonad.{return};
+        use AutoLifting/Common/ReportMonad.{return};
         return(Map.get(pliReference, memosMap))
 
     pub def loadMemoLookups(path: System.FilePath): ReportMonad[Map[String, String]] =
-        use AutoLifting/ReportMonad.{map}; 
+        use AutoLifting/Common/ReportMonad.{map}; 
         map(buildMemoLookups, getAibMemoRows(path))
         
 
@@ -52,7 +52,7 @@ namespace AutoLifting/Phase2/LongText {
 
     /// Must be a *.xlsx (OO-XML) file.
     def getAibMemoRows(path: System.FilePath): ReportMonad[List[AibMemoRow]] =
-        use AutoLifting/ReportMonad.{liftActionResult};
+        use AutoLifting/Common/ReportMonad.{liftActionResult};
         liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readAibMemoRows(), path))
         
 

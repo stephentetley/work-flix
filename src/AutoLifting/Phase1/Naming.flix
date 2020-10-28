@@ -16,11 +16,12 @@
 
 namespace AutoLifting/Phase1/Naming {
 
-    use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{FixedOrPortable, AibWorkItem};
-    use AutoLifting/Datatypes.FixedOrPortable.{Fixed, Portable};
-
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common/Datatypes.{FixedOrPortable, AibWorkItem};
+    use AutoLifting/Common/Datatypes.FixedOrPortable.{Fixed, Portable};
+
 
     type alias AibNames = 
         { equiName: String
@@ -29,7 +30,7 @@ namespace AutoLifting/Phase1/Naming {
         }
 
     pub def getAibNames(x: AibExportRow): ReportMonad[AibNames] = 
-        use AutoLifting/ReportMonad.{return, flatMap};
+        use AutoLifting/Common/ReportMonad.{return, flatMap};
         let* name       = getAibEquiNameFromCommonName(x.assetName);
         let* typ        = getAibEquiTypeFromCommonName(x.assetName);
         let* site       = getAibSiteNameFromCommonName(x.assetName);
@@ -40,35 +41,26 @@ namespace AutoLifting/Phase1/Naming {
 
 
     def getAibEquiNameFromCommonName(commonName: String): ReportMonad[String] = 
+        use AutoLifting/Common/ReportMonad.{flatMap, liftResult, liftActionResult};
         use Text/Regex.{evalContains};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
-        use Result.flatMap;
-        let step = () -> {
-            let* patt = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
-            evalContains(commonName, patt, getCaptureNamed("name"))
-        };
-        AutoLifting/ReportMonad.liftActionResult(step)
+        let* patt = liftResult(_ -> Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT"));
+        liftActionResult(_ -> Text/Regex.evalContains(commonName, patt, getCaptureNamed("name")))
+       
 
 
     def getAibEquiTypeFromCommonName(commonName: String): ReportMonad[String] = 
-        use Text/Regex.{evalContains};
+        use AutoLifting/Common/ReportMonad.{flatMap, liftResult, liftActionResult};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
-        use Result.flatMap;
-        let step = () -> {
-            let* patt = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/.*/(?<name>EQUIPMENT: .*)");
-            evalContains(commonName, patt, getCaptureNamed("name"))
-        };
-        AutoLifting/ReportMonad.liftActionResult(step)
-
+        let* patt = liftResult(_ -> Text/Regex/Pattern.compile("LIFTING EQUIPMENT/.*/(?<name>EQUIPMENT: .*)"));
+        liftActionResult(_ -> Text/Regex.evalContains(commonName, patt, getCaptureNamed("name")))
+        
 
     def getAibSiteNameFromCommonName(commonName: String): ReportMonad[String] = 
+        use AutoLifting/Common/ReportMonad.{flatMap, liftResult, liftActionResult};
         use Text/Regex.{evalStartsWith};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
-        use Result.flatMap;
-        let step = () -> {
-            let* patt = Text/Regex/Pattern.compile("(?<name>.*)/STATUTORY/");
-            evalStartsWith(commonName, patt, getCaptureNamed("name"))
-        };
-        AutoLifting/ReportMonad.liftActionResult(step)
+        let* patt = liftResult(_ -> Text/Regex/Pattern.compile("(?<name>.*)/STATUTORY/"));
+        liftActionResult(_ -> evalStartsWith(commonName, patt, getCaptureNamed("name")))
 
 }

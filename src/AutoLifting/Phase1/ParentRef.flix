@@ -16,16 +16,16 @@
 
 namespace AutoLifting/Phase1/ParentRef {
 
-    use AutoLifting.ReportMonad;
-    use AutoLifting/Datatypes.{EquiWorkItem1, EquiWorkItem2};
-
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
-    
+
+    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Common/Datatypes.{EquiWorkItem1, EquiWorkItem2};
+
     /// Use a Map rather than Datalog for this because it is so simple
 
     pub def getSaiParentReference(parentIds: Map[String, String], 
                                   parentCommonName: String): ReportMonad[String] = 
-        use AutoLifting/ReportMonad.{throwError, return};
+        use AutoLifting/Common/ReportMonad.{throwError, return};
         match Map.get(parentCommonName, parentIds) {
             case None => throwError("updateParentReference - No parent for ${parentCommonName}")
             case Some(sai) => return(sai)
@@ -33,7 +33,7 @@ namespace AutoLifting/Phase1/ParentRef {
 
 
     pub def loadSaiReferenceTable(path: System.FilePath): ReportMonad[Map[String, String]] =
-        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult}; 
+        use AutoLifting/Common/ReportMonad.{return, flatMap, liftActionResult}; 
         let* xs = liftActionResult(_ -> AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path));
         let ans = buildAssetReferences(xs);
         return(ans)

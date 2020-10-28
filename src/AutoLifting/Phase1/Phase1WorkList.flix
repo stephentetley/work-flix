@@ -16,18 +16,20 @@
 
 namespace AutoLifting/Phase1/Phase1WorkList {
     
-    use AutoLifting.ReportMonad;
-    
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+    
+    use AutoLifting/Common.ReportMonad;
 
     /// Phase1 - we already have a reader in the common filetypes, but we have to filter out some results.
 
     pub def getWorkList(path: System.FilePath): ReportMonad[List[AibExportRow]] =
-        use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, mapM}; 
+        use AutoLifting/Common/ReportMonad.{return, flatMap, liftActionResult, mapM}; 
         let* src = liftActionResult(_ -> AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path));
         let xs   = List.filterMap(childNew, src);
         return(xs)
 
+
+    /// TODO - need to consider all change types
     def childNew(x: AibExportRow): Option[AibExportRow] =  
         if (x.change == "Child New" && String.startsWith(x.reference, "PLI"))
             Some(x)
