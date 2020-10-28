@@ -95,10 +95,5 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
                 case Err(e) => Err(e)
             };
         Result.foldLeftM(accumRow, #{ },  x1.dataRows)
-
-
- 
-
-
     
 }

@@ -69,10 +69,8 @@ namespace AutoLifting/ExistingObject/Build {
 
     /// TODO - this should be a builtin in the S4/FileTypes/DownloadFile namespace
     pub def equiRowEvaluator(): RowEvaluator[EquiAttributes] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{flatMap, return, map, 
-            getStringNamed, getS4DateNamed, getInt32Named};
+        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4DateNamed, getInt32Named};
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
-        use String.{trim};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
                 { equiId                = x1
                 , category              = x2
