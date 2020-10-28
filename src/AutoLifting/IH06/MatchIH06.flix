@@ -30,7 +30,8 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
     use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     type alias ResultRow = 
-        { pliReference: String
+        { change: String
+        , pliReference: String
         , aibItemName: String
         , ywRefs: String
         , s4EquiIds: String
@@ -69,17 +70,18 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
     def getAideOptionRow(patt: Text/Regex.Pattern, row: AibExportRow): DbMonad[Option[ResultRow]] = 
         use BasicDb/DbMonad.{flatMap, return, map};
         if (String.startsWith(row.reference, "PLI")) {
-            let* ans =  deriveRow1(patt, row.reference, row.assetName);
+            let* ans =  deriveRow1(patt, row.change, row.reference, row.assetName);
             return(Some(ans))
         } else
             return(None)
         
 
-    def deriveRow1(patt: Text/Regex.Pattern, pliNumber: String, commonName: String): DbMonad[ResultRow] = 
+    def deriveRow1(patt: Text/Regex.Pattern, change: String, pliNumber: String, commonName: String): DbMonad[ResultRow] = 
         use BasicDb/DbMonad.{flatMap, return, liftAction};
         let* name = liftAction(_ -> getName(patt, commonName));
         if (String.isEmpty(name))
-            return({ pliReference   = pliNumber
+            return({ change         = change
+                   , pliReference   = pliNumber
                    , aibItemName    = commonName
                    , ywRefs         = ""
                    , s4EquiIds      = ""
@@ -88,7 +90,8 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
         else {
             let ywref = getPrefix(name);
             let* s4row = getS4Matches(ywref);
-            return({ pliReference   = pliNumber
+            return({ change         = change
+                   , pliReference   = pliNumber
                    , aibItemName    = name
                    , ywRefs         = s4row.ywRef
                    , s4EquiIds      = s4row.equiId
@@ -192,16 +195,17 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
 
 
     def getXlsxHeaders(): Array[String] & Impure = 
-        ["PLI Reference", "AIB Item Name", "YW Refs", "S4 Equi Ids", "S4 Equi Names"]
+        ["Change", "PLI Reference", "AIB Item Name", "YW Refs", "S4 Equi Ids", "S4 Equi Names"]
 
 
     def setXlsxRow!(x: ResultRow): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
-        let* _      = putStringAt!(0, x.pliReference);
-        let* _      = putStringAt!(1, x.aibItemName);
-        let* _      = putStringAt!(2, x.ywRefs);
-        let* _      = putStringAt!(3, x.s4EquiIds);
-        let* _      = putStringAt!(4, x.s4EquiNames);
+        let* _      = putStringAt!(0, x.change);
+        let* _      = putStringAt!(1, x.pliReference);
+        let* _      = putStringAt!(2, x.aibItemName);
+        let* _      = putStringAt!(3, x.ywRefs);
+        let* _      = putStringAt!(4, x.s4EquiIds);
+        let* _      = putStringAt!(5, x.s4EquiNames);
         return()
 
 }
