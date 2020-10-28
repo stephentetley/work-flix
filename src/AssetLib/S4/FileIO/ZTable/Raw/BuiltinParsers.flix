@@ -21,12 +21,13 @@ use AssetLib/S4/FileIO/ZTable/Raw/Parser.{importRows};
 
 namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
 
-    type alias DbPaths = { pathOfEqobjl: System.FilePath
-                        , pathOfFlocdes: System.FilePath
-                        , pathOfFloobjl: System.FilePath
-                        , pathOfManuf: System.FilePath
-                        , pathOfObj: System.FilePath
-                        }
+    type alias DbPaths = 
+        { pathOfEqobjl: System.FilePath
+        , pathOfFlocdes: System.FilePath
+        , pathOfFloobjl: System.FilePath
+        , pathOfManuf: System.FilePath
+        , pathOfObj: System.FilePath
+        }
 
 
     pub def loadEqobjl(path: System.FilePath): Result[List[Eqobjl], System.Error] & Impure =        

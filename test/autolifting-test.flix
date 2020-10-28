@@ -13,7 +13,6 @@ def main(): Unit & Impure =
 def mainResult(): Result[Unit, System.Error] & Impure = 
     use AutoLifting/Common/ReportMonad.{runReportMonad};
     use AutoLifting/ReportMain.{generateChildNewReport};
-    use Result.flatMap;
     let reportConfig = 
         { typeTablePath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx")
         , liftingTablePath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/02.classification_fields.xlsx")
