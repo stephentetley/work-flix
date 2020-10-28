@@ -55,25 +55,30 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
     def makeReport(x: { aideFile: System.FilePath
                       , ih06File: System.FilePath
                       , xlsxOutPath: System.FilePath}): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftAction, liftResult, filterMapM};
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftAction, liftResult, mapM};
         use AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.{readFile => readAideFile};
         use SheetIO/SheetWriter.{runXlsx};
         let* _              = setupIH06Db(x.ih06File);        
         let* aideRows       = liftActionResult(_ -> readAideFile(x.aideFile));
         let* namePattern    = liftResult(_ -> Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT: "));
-        let* xs             = filterMapM(getAideOptionRow(namePattern), aideRows);
+        let* xs             = mapM(getAideOptionRow(namePattern), aideRows);
         let* _              = liftAction(_ -> Console.printLine("Writing ${System/FilePath.toString(x.xlsxOutPath)} ${Int32.toString(List.length(xs))} rows..."));
         let* _              = liftActionResult(_ -> runXlsx(outputXlsx(xs), x.xlsxOutPath));
         return()
 
 
-    def getAideOptionRow(patt: Text/Regex.Pattern, row: AibExportRow): DbMonad[Option[ResultRow]] = 
+    def getAideOptionRow(patt: Text/Regex.Pattern, row: AibExportRow): DbMonad[ResultRow] = 
         use BasicDb/DbMonad.{flatMap, return, map};
         if (String.startsWith(row.reference, "PLI")) {
-            let* ans =  deriveRow1(patt, row.change, row.reference, row.assetName);
-            return(Some(ans))
+            deriveRow1(patt, row.change, row.reference, row.assetName)
         } else
-            return(None)
+            return({ change         = row.change
+                   , pliReference   = row.reference
+                   , aibItemName    = row.assetName
+                   , ywRefs         = ""
+                   , s4EquiIds      = ""
+                   , s4EquiNames    = ""
+                   })
         
 
     def deriveRow1(patt: Text/Regex.Pattern, change: String, pliNumber: String, commonName: String): DbMonad[ResultRow] = 
@@ -195,7 +200,7 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
 
 
     def getXlsxHeaders(): Array[String] & Impure = 
-        ["Change", "PLI Reference", "AIB Item Name", "YW Refs", "S4 Equi Ids", "S4 Equi Names"]
+        ["Change", "Reference", "AIB Item Name", "S4 Equi Ids", "YW Refs", "S4 Equi Names"]
 
 
     def setXlsxRow!(x: ResultRow): RowSetter[Unit] = 
@@ -203,8 +208,8 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
         let* _      = putStringAt!(0, x.change);
         let* _      = putStringAt!(1, x.pliReference);
         let* _      = putStringAt!(2, x.aibItemName);
-        let* _      = putStringAt!(3, x.ywRefs);
-        let* _      = putStringAt!(4, x.s4EquiIds);
+        let* _      = putStringAt!(3, x.s4EquiIds);
+        let* _      = putStringAt!(4, x.ywRefs);
         let* _      = putStringAt!(5, x.s4EquiNames);
         return()
 
