@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-use FactIO.JdbcExport;
-use FactIO.JdbcRowSetter;
-use FactIO/JdbcExport.{PreparedStatement};
 
-use AssetLib/Common/Utils.{foldMapRel};
-use AssetLib/S4/FileIO/ZTable/Raw/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
-use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{DbPaths};
-
-namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb { 
+namespace AssetLib/S4/FileIO/ZTable/ExportDb { 
 
 
+    use FactIO.JdbcExport;
+    use FactIO.JdbcRowSetter;
+    use FactIO/JdbcExport.{PreparedStatement};
+
+    use AssetLib/Common/Utils.{foldMapRel};
+    use AssetLib/S4/FileIO/ZTable/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
+    use AssetLib/S4/FileIO/ZTable/Builtins.{DbPaths};
 
     pub def outputDb(srcPaths: DbPaths, outPath: System.FilePath): Result[Unit, System.Error] & Impure =         
         use FactIO/JdbcExport.{runSQLiteExport};
@@ -32,7 +32,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/ExportDb {
         
     def writeOutput(srcPaths: DbPaths): JdbcExport[Unit] =
         use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftActionResult};
-        use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
+        use AssetLib/S4/FileIO/ZTable/Builtins.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
         let* _      = setAutoCommit(false);
         let* rs1    = liftActionResult(_ -> loadEqobjl(srcPaths.pathOfEqobjl));
         let* _      = writeTable("Eqobjl", exportEqobjl(rs1));

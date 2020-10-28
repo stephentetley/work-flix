@@ -1,6 +1,6 @@
 
-use AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers.{DbPaths};
-use AssetLib/S4/FileIO/ZTable/Raw/ExportDb.{outputDb};
+use AssetLib/S4/FileIO/ZTable/Builtins.{DbPaths};
+use AssetLib/S4/FileIO/ZTable/ExportDb.{outputDb};
 
 
 

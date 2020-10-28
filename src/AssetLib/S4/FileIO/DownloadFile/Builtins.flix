@@ -20,6 +20,15 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     
+    /// CLASSFLOC
+
+    type alias ClassFlocRow = 
+        { funcloc: String
+        , className: String
+        , classType: String
+        , status: Int32
+        }
+
 
     /// EQMLTXT
 

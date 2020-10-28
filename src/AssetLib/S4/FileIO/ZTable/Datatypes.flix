@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/S4/FileIO/ZTable/Raw/Datatypes {
+namespace AssetLib/S4/FileIO/ZTable/Datatypes {
 
     type alias Eqobjl = {superObject: String, subObject: String, category: String}
 

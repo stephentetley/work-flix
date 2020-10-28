@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-use Data/RowReader.RowEvaluator;
 
-use AssetLib/S4/FileIO/ZTable/Raw/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
-use AssetLib/S4/FileIO/ZTable/Raw/Parser.{importRows};
+namespace AssetLib/S4/FileIO/ZTable/Builtins {
 
-namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
+    use AssetLib/S4/FileIO/ZTable/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
+    use AssetLib/S4/FileIO/ZTable/Parser.{importRows};
+
+    use AssetLib/S4/FileIO/ZTable.RowEvaluator;
 
     type alias DbPaths = 
         { pathOfEqobjl: System.FilePath
@@ -34,7 +35,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalEqobjl(), path)  
 
     def evalEqobjl(): RowEvaluator[Eqobjl] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/S4/FileIO/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* supero     = getStringAt(0);
         let* subo       = getStringAt(1);
         let* cat        = getStringAt(2);
@@ -45,7 +46,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalFlocdes(), path)           
 
     def evalFlocdes(): RowEvaluator[Flocdes] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/S4/FileIO/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* objtype    = getStringAt(0);
         let* desc       = getStringAt(1);
         return({objectType = objtype, description = desc})
@@ -55,7 +56,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalFloobjl(), path)  
 
     def evalFloobjl(): RowEvaluator[Floobjl] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/S4/FileIO/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* struct     = getStringAt(0);
         let* supero     = getStringAt(1);
         let* subo       = getStringAt(2);
@@ -65,7 +66,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalManuf(), path)   
 
     def evalManuf(): RowEvaluator[Manuf] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/S4/FileIO/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* manuf      = getStringAt(0);
         let* modl       = getStringAt(1);
         return({manufacturer = manuf, model = modl})
@@ -75,7 +76,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/BuiltinParsers {
         importRows(evalObj(), path)  
 
     def evalObj(): RowEvaluator[Obj] = 
-        use Data/RowReader/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/S4/FileIO/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* objectty   = getStringAt(0);
         let* manuf      = getStringAt(1);
         return({objectType = objectty, manufacturer = manuf})

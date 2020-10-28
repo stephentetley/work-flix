@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-use Data/Transient.DList;
-
-use TextParser.TextParser;
-use Data/RowReader.RowEvaluator;
 
 
-namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
+namespace AssetLib/S4/FileIO/ZTable/Parser {
 
 
+    use Data/Transient.DList;
+    use TextParser.TextParser;
+
+    use AssetLib/S4/FileIO/ZTable.RowEvaluator;
 
     pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], System.Error] & Impure = 
         use Result.flatMap;
@@ -54,7 +54,7 @@ namespace AssetLib/S4/FileIO/ZTable/Raw/Parser {
     def makeLineTextParser(eval: RowEvaluator[row]): TextParser[row, t] = 
         use TextParser.{flatMap, return, liftActionResult};
         use TextParser/Text.{restOfLine};
-        use Data/RowReader/RowEvaluator.{evaluateString};
+        use AssetLib/S4/FileIO/ZTable/RowEvaluator.{evaluateString};
         use AssetLib/Common/Utils.{leadingSepBy};
         let split = s -> leadingSepBy(s, "|");
         let* s0 = restOfLine(true);
