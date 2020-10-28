@@ -31,8 +31,8 @@ namespace AutoLifting/Phase1/TypeMapping {
     pub rel TypeAnswer(category: String, s4Object: String, s4Class: String, fixedOrPortable: String)
 
 
-    pub def getTypeInfo[s](db: #{Distinguished, Ordinary, TypeAnswer | s}, 
-                           x: {s4SiteCode: String, aibEquiName: String, aibEquiType: String}): ReportMonad[{s4TyInfo: S4TypeInfo, s4Floc: String}] = 
+    pub def getTypeInfo[s]( db: #{Distinguished, Ordinary, TypeAnswer | s}
+                          , x: {s4SiteCode: String, aibEquiName: String, aibEquiType: String}): ReportMonad[{s4TyInfo: S4TypeInfo, s4Floc: String}] = 
         use AutoLifting/ReportMonad.{return, throwError};
         match getS4TypeInfo(db, x.aibEquiName, x.aibEquiType) {
             case Some(typ) => { 
@@ -64,7 +64,6 @@ namespace AutoLifting/Phase1/TypeMapping {
 
     def distinguishedMatch[r](db: #{Distinguished, TypeAnswer | r}, srcType: String, srcName: String): List[S4TypeInfo] = 
         let nameContains = (x, pat) -> Text/Regex.contains(x, Text/Regex/Pattern.irrefutablePattern(pat));
-        
         let rules = #{
             TypeAnswer(cat, obj, cls, fop) :- 
                 Distinguished(atyp, pat, cat, obj, cls, fop), 
@@ -85,6 +84,10 @@ namespace AutoLifting/Phase1/TypeMapping {
         fold TypeAnswer Nil ((x, ac) -> typeAnswerToS4TypeInfo(x) :: ac) ans
 
 
+
+
+    /// Build Type Mapping Table...
+
     type alias MappingTableRow = 
         { aibEquipmentType: String
         , nameContains: Option[String]        /// Regex pattern?
@@ -94,7 +97,7 @@ namespace AutoLifting/Phase1/TypeMapping {
         , fixedOrPortable: String
         }
 
-    pub def readTypeMappingFile[r](path: System.FilePath) : ReportMonad[#{Distinguished, Ordinary | r}] = 
+    pub def readTypeMappingFile[s](path: System.FilePath) : ReportMonad[#{Distinguished, Ordinary | s}] = 
         use AutoLifting/ReportMonad.{return, flatMap, liftActionResult, map};
         let* src = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readMappingTable(), path));
         return(makeMappings(src))

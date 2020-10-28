@@ -26,8 +26,8 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
     use SheetIO.SheetWriter;
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
-    use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Row};
-    use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Row.{FlocRow, EquiRow};
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.{IH06Row};
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     type alias ResultRow = 
         { change: String
@@ -158,7 +158,7 @@ namespace AssetLib/AutoLifting/IH06Tree/MatchIH06 {
 
     def setupIH06Db(srcFile: System.FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFileWithBOM => parseIH06File};
+        use AssetLib/S4/FileIO/IH06Tree/Parser.{parseFileWithBOM => parseIH06File};
         let* ih06   = liftActionResult(_ -> parseIH06File(srcFile, Text/Charset.utf_8()));
         let xs      = List.filterMap(extractS4Row, ih06.rows);
         let* _      = buildS4EquiTable(xs);

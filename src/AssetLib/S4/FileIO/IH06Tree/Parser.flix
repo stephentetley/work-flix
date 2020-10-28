@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-    
-use Time.LocalDate;
 
-use TextParser.TextParser;
-use TextParser.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, lookingAts, liftResult};
-use TextParser/Combinators.{tuple2, many1Till, ignore};
-use TextParser/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
-use TextParser/Token1.{symbol, lexeme};
 
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Row.{FlocRow, EquiRow};
+namespace AssetLib/S4/FileIO/IH06Tree/Parser {
 
-namespace AssetLib/S4/FileIO/IH06Tree/Raw/Parser {
+    use Time.LocalDate;
 
+    use TextParser.TextParser;
+    use TextParser.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, lookingAts, liftResult};
+    use TextParser/Combinators.{tuple2, many1Till, ignore};
+    use TextParser/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
+    use TextParser/Token1.{symbol, lexeme};
+
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     /// Always UTF-8? No need to handle utf8+BOM...
     pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, System.Error] & Impure = 

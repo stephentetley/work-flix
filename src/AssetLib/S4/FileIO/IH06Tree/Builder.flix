@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-use Data.{RoseTree, RoseForest};
-use Data.RoseTree.{RoseTree};
 
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06File, IH06Row, IH06Tree, IH06Node, FlocRow, EquiRow};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Row.{FlocRow, EquiRow};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
+namespace AssetLib/S4/FileIO/IH06Tree/Builder {
+        
+    use Data.{RoseTree, RoseForest};
+    use Data.RoseTree.{RoseTree};
 
-namespace AssetLib/S4/FileIO/IH06Tree/Raw/Builder {
-    
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.{IH06File, IH06Row, IH06Tree, IH06Node, FlocRow, EquiRow};
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
+
     /// TODO - this does not work if the source is not a "root"...
     pub def buildIH06Trees(src: IH06File): List[IH06Tree] = match src.rows { 
         case r1 :: _ => { 

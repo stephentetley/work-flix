@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-use FactIO.JdbcExport;
-use FactIO.JdbcWriteList;
-use FactIO.JdbcRowSetter;
-use FactIO/JdbcExport.{PreparedStatement};
-
-use Data.RoseTree.{RoseTree};
-
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node, FlocNode, EquiNode};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile};
 
 namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb { 
+
+    use FactIO.JdbcExport;
+    use FactIO.JdbcWriteList;
+    use FactIO.JdbcRowSetter;
+    use FactIO/JdbcExport.{PreparedStatement};
+
+    use Data.RoseTree.{RoseTree};
+
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.{IH06Tree, IH06Node, FlocNode, EquiNode};
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
+    use AssetLib/S4/FileIO/IH06Tree/Builder.{buildIH06Trees};
+    use AssetLib/S4/FileIO/IH06Tree/Parser.{parseFile};
 
     pub def exportDb(sourceFile: System.FilePath, cs: Text.Charset, outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-use Data.RoseTree;
-use Time.LocalDate;
 
-namespace AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes {
+namespace AssetLib/S4/FileIO/IH06Tree/Datatypes {
+
+    use Data.RoseTree;
+    use Time.LocalDate;
 
     /// Flat representation - not a tree.
     type alias IH06File = { header: Header, rows: List[IH06Row] }

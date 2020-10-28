@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-use Data.RoseTree.{RoseTree};
 
-use FactIO.CsvExport;
-use FactIO.CsvRowSetter;
+namespace AssetLib/S4/FileIO/IH06Tree/ExportCsv {
 
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.{IH06Tree, IH06Node};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Datatypes.IH06Node.{FlocNode, EquiNode};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Builder.{buildIH06Trees};
-use AssetLib/S4/FileIO/IH06Tree/Raw/Parser.{parseFile, parseFileWithBOM};
+    use Data.RoseTree.{RoseTree};
 
-namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportCsv {
+    use FactIO.CsvExport;
+    use FactIO.CsvRowSetter;
+
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.{IH06Tree, IH06Node};
+    use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
+    use AssetLib/S4/FileIO/IH06Tree/Builder.{buildIH06Trees};
+    use AssetLib/S4/FileIO/IH06Tree/Parser.{parseFile, parseFileWithBOM};
 
 
     type alias CsvOutputPaths = 
