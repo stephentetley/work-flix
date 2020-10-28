@@ -23,7 +23,7 @@ namespace AssetLib/S4/FileIO/DownloadFile {
 
 namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
 
-    use System.Error.{IllegalArgumentException, InputMismatchException};
+    use System.Error.{Generic, IllegalArgumentException, InputMismatchException};
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator.{RowEvaluator};
@@ -48,6 +48,17 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
     def apply1(x: RowEvaluator[a], indices: Map[String, Int32], row: Array[String]): Result[a, System.Error] & Impure =
         let RowEvaluator(f) = x;
         f(indices, row)
+
+    pub def throwError(msg: String): RowEvaluator[a] =
+        RowEvaluator((_,_) -> Err(System/Error.Generic(msg)) as & Impure)
+
+    pub def swapError(ma: RowEvaluator[a], msg: String): RowEvaluator[a] =
+        RowEvaluator((ixs, row) ->
+            match apply1(ma, ixs, row) {
+                case Ok(a) => Ok(a)
+                case Err(_) => Err(Generic(msg))
+            }
+        )
 
     pub def map(f: a -> b & ef, x: RowEvaluator[a]): RowEvaluator[b] =
         RowEvaluator((ixs, row) ->
@@ -203,6 +214,15 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
     pub def getS4DateNamed(label: String): RowEvaluator[Time.LocalDate] =
         let* formatter = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"));
         getLocalDateNamed(label, formatter)
+
+    pub def getS4BoolNamed(label: String): RowEvaluator[Bool] =
+        bind( getStringNamed(label)
+            , x -> match x { 
+                case ""     => return(false)
+                case "X"    => return(true)
+                case _      => throwError("getS4BoolNamed('${x}')")
+            })
+
 
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.

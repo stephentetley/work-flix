@@ -21,6 +21,40 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     
 
+    /// EQMLTXT
+
+    type alias EqmltxtRow = 
+        { equi: String
+        , shortText: String
+        , langCode: String
+        , longText: String
+        , moreTextExists: Bool
+        }
+
+    pub def readEqmltxtRows(src: System.FilePath) : Result[List[EqmltxtRow], System.Error] & Impure = 
+        AssetLib/S4/FileIO/DownloadFile/Evaluate.allRows(evalEqmltxtRow(), src)
+
+    
+
+    def evalEqmltxtRow(): RowEvaluator[EqmltxtRow] = 
+        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4BoolNamed};
+        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5) ->
+                { equi              = x1
+                , shortText         = x2
+                , langCode          = x3
+                , longText          = x4
+                , moreTextExists    = x5
+            })
+            <&> getStringNamed("EQUI")
+            <*> getStringNamed("SHORTXT")
+            <*> getStringNamed("LANGUCODE")
+            <*> getStringNamed("EQ_LTXT")
+            <*> getS4BoolNamed("LTXTIND")
+            
+
+
+
     /// CLASSEQUI
 
     type alias ClassEquiRow = 
