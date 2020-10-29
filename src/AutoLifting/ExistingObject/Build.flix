@@ -16,8 +16,9 @@
 
 namespace AutoLifting/ExistingObject/Build {
 
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
+    use BasicDb.DbMonad;
 
+    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AutoLifting/Common.ReportMonad;
 
     type alias BuilderSource = 
@@ -25,6 +26,7 @@ namespace AutoLifting/ExistingObject/Build {
         , classFile: System.FilePath
         , charFile: System.FilePath
         , mltextFile: System.FilePath
+        , dbtempFile: System.FilePath
         }
 
     type alias S4LiftingItem = 
@@ -63,9 +65,20 @@ namespace AutoLifting/ExistingObject/Build {
     pub def build(src: BuilderSource): ReportMonad[Unit] = 
         use AutoLifting/Common/ReportMonad.{flatMap, return, mapM, liftActionResult, liftAction};
         use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use BasicDb/DbMonad.{runSQLite};
         let* xs = liftActionResult(_ -> allRows(equiRowEvaluator(), src.equiFile));
         let* _ = mapM(x -> liftAction(_ -> Console.printLine("${x.equiId} ${x.description}")), xs);
+        let* _ = liftActionResult(_ -> runSQLite(buildDb(src), src.dbtempFile));
         return()
+
+    def buildDb(src: BuilderSource): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* _ = AssetLib/S4/FileIO/DownloadFile/Builtins.storeEqmltxtFile("eqmltext", true, src.mltextFile);
+        let* _ = AssetLib/S4/FileIO/DownloadFile/Builtins.storeClassEquiFile("class_equi", true, src.classFile);
+        let* _ = AssetLib/S4/FileIO/DownloadFile/Builtins.storeValuaEquiFile("valua_equi", true, src.charFile);
+        return()
+
+
 
     /// TODO - this should be a builtin in the S4/FileTypes/DownloadFile namespace
     pub def equiRowEvaluator(): RowEvaluator[EquiAttributes] = 

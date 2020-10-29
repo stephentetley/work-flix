@@ -42,6 +42,14 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , longText: String
         , moreTextExists: Bool
         }
+    
+    pub def storeEqmltxtFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
+        let* xs = liftActionResult(_ -> readEqmltxtRows(src));
+        let* _  = dbWriteEqmltxtRows(tableName, dropTable, xs);
+        return()
+
+    /// Read
 
     pub def readEqmltxtRows(src: System.FilePath) : Result[List[EqmltxtRow], System.Error] & Impure = 
         AssetLib/S4/FileIO/DownloadFile/Evaluate.allRows(evalEqmltxtRow(), src)
@@ -65,6 +73,43 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
             <*> getS4BoolNamed("LTXTIND")
             
 
+    /// Write SQL
+
+    pub def dbWriteEqmltxtRows(tableName: String, dropTable: Bool, xs: List[EqmltxtRow]): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = whenTrue(dropTable, execute("DROP TABLE IF EXISTS ${tableName};"));
+        let* _      = whenTrue(dropTable, execute(createTableEqmltxtRowSql(tableName)));
+        let* pstmt  = prepareStatement(insertEqmltxtRowSql(tableName));
+        let* _      = setAutoCommit(false);
+        let* _      = mapM(x -> psExecuteUpdate(pstmt, setEqmltxtRowPStmt!(x)), xs);
+        let* _      = commit();
+        return()
+    
+    def setEqmltxtRowPStmt!(x: EqmltxtRow): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _ = putStringAt!(0,  x.equi);
+        let* _ = putStringAt!(1,  x.shortText);
+        let* _ = putStringAt!(2,  x.langCode);
+        let* _ = putStringAt!(3,  x.longText);
+        let* _ = putInt32At!(4,  if (x.moreTextExists) 1 else 0);
+        return()
+
+    def insertEqmltxtRowSql(tableName: String): String =
+        "INSERT INTO ${tableName}"
+            + " (equi, short_text, lang_code, long_text, more_text_exists)"
+            + " VALUES(?,?,?, ?,?);"
+
+    def createTableEqmltxtRowSql(tableName: String): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
+                :: "equi                    TEXT NOT NULL,"
+                :: "short_text              TEXT,"
+                :: "lang_code               TEXT NOT NULL,"
+                :: "long_text               TEXT,"
+                :: "more_text_exists        INTEGER NOT NULL"
+                :: ");"
+                :: Nil
+        )
 
 
     /// CLASSEQUI
@@ -76,6 +121,14 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , internalClassNumber: String
         , status: Int32
         }
+
+    
+    pub def storeClassEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
+        let* xs = liftActionResult(_ -> readClassEquiRows(src));
+        let* _  = dbWriteClassEquiRows(tableName, dropTable, xs);
+        return()
+
 
     pub def readClassEquiRows(src: System.FilePath) : Result[List[ClassEquiRow], System.Error] & Impure = 
         AssetLib/S4/FileIO/DownloadFile/Evaluate.allRows(evalClassEquiRow(), src)
@@ -97,6 +150,43 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
             <*> getStringNamed("CLINT")                 /// Internal class no
             <*> getInt32Named("CLSTATUS1")              /// Status
 
+    /// Write SQL
+
+    pub def dbWriteClassEquiRows(tableName: String, dropTable: Bool, xs: List[ClassEquiRow]): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = whenTrue(dropTable, execute("DROP TABLE IF EXISTS ${tableName};"));
+        let* _      = whenTrue(dropTable, execute(createTableClassEquiRowSql(tableName)));
+        let* pstmt  = prepareStatement(insertClassEquiRowSql(tableName));
+        let* _      = setAutoCommit(false);
+        let* _      = mapM(x -> psExecuteUpdate(pstmt, setClassEquiRowPStmt!(x)), xs);
+        let* _      = commit();
+        return()
+    
+    def setClassEquiRowPStmt!(x: ClassEquiRow): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _ = putStringAt!(0,  x.equi);
+        let* _ = putStringAt!(1,  x.className);
+        let* _ = putStringAt!(2,  x.classType);
+        let* _ = putStringAt!(3,  x.internalClassNumber);
+        let* _ = putInt32At!(4,  x.status);
+        return()
+
+    def insertClassEquiRowSql(tableName: String): String =
+        "INSERT INTO ${tableName}"
+            + " (equi, class_name, class_type, internal_class_number, status)"
+            + " VALUES(?,?,?, ?,?);"
+
+    def createTableClassEquiRowSql(tableName: String): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
+                :: "equi                    TEXT NOT NULL,"
+                :: "class_name              TEXT NOT NULL,"
+                :: "class_type              TEXT NOT NULL,"
+                :: "internal_class_number   TEXT,"
+                :: "status                  INTEGER NOT NULL"
+                :: ");"
+                :: Nil
+        )
 
     /// VALUAEQUI
 
@@ -113,9 +203,16 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , valueTo: String
         }
 
+    pub def storeValuaEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
+        let* xs = liftActionResult(_ -> readValuaEquiRows(src));
+        let* _  = dbWriteValuaEquiRows(tableName, dropTable, xs);
+        return()
+
+
     /// Read
 
-    pub def readValuaEquiRow(src: System.FilePath) : Result[List[ValuaEquiRow], System.Error] & Impure = 
+    pub def readValuaEquiRows(src: System.FilePath) : Result[List[ValuaEquiRow], System.Error] & Impure = 
         AssetLib/S4/FileIO/DownloadFile/Evaluate.allRows(evalValuaEquiRow(), src)
 
     def evalValuaEquiRow(): RowEvaluator[ValuaEquiRow] = 
@@ -173,7 +270,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     def insertValuaEquiRowSql(tableName: String): String =
         "INSERT INTO ${tableName}"
-            + " (equi, class_type, char_id, char_value, code, value_description, int_counter_value, int_counter_value, value_from, value_to)"
+            + " (equi, class_type, char_id, char_value, code, value_description, int_counter_value, value_from, value_to)"
             + " VALUES(?,?,?, ?,?,?, ?,?,?)"
 
     def createTableValuaEquiRowSql(tableName: String): String =
