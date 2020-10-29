@@ -18,6 +18,9 @@
 
 namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
+    use BasicDb.DbMonad;
+    use BasicDb.PreparedStatementSetter;
+
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     
     /// CLASSFLOC
@@ -97,6 +100,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     /// VALUAEQUI
 
+
     type alias ValuaEquiRow = 
         { equi: String
         , classType: String
@@ -109,7 +113,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , valueTo: String
         }
 
-    
+    /// Read
+
     pub def readValuaEquiRow(src: System.FilePath) : Result[List[ValuaEquiRow], System.Error] & Impure = 
         AssetLib/S4/FileIO/DownloadFile/Evaluate.allRows(evalValuaEquiRow(), src)
 
@@ -136,5 +141,56 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
             <*> getInt32Named("VALCNT")                 /// Int counter values
             <*> getStringNamed("ATFLV")                 /// Value from
             <*> getStringNamed("ATFLB")                 /// Value to
+
+
+    /// Write SQL
+
+    pub def dbWriteValuaEquiRows(tableName: String, dropTable: Bool, xs: List[ValuaEquiRow]): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = whenTrue(dropTable, execute("DROP TABLE IF EXISTS ${tableName};"));
+        let* _      = whenTrue(dropTable, execute(createTableValuaEquiRowSql(tableName)));
+        let* pstmt  = prepareStatement(insertValuaEquiRowSql(tableName));
+        let* _      = setAutoCommit(false);
+        let* _      = mapM(x -> psExecuteUpdate(pstmt, setValuaEquiRowPStmt!(x)), xs);
+        let* _      = commit();
+        return()
+    
+    def setValuaEquiRowPStmt!(x: ValuaEquiRow): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _ = putStringAt!(0,  x.equi);
+        let* _ = putStringAt!(1,  x.classType);
+        let* _ = putStringAt!(2,  x.charId);
+        let* _ = putStringAt!(3,  x.charValue);
+        let* _ = putInt32At!(4,  x.code);
+        let* _ = putStringAt!(5,  x.valueDescription);
+        let* _ = putInt32At!(6,  x.intCounterValue);
+        let* _ = putStringAt!(7,  x.valueFrom);
+        let* _ = putStringAt!(8,  x.valueTo);
+        return()
+
+
+
+
+    def insertValuaEquiRowSql(tableName: String): String =
+        "INSERT INTO ${tableName}"
+            + " (equi, class_type, char_id, char_value, code, value_description, int_counter_value, int_counter_value, value_from, value_to)"
+            + " VALUES(?,?,?, ?,?,?, ?,?,?)"
+
+    def createTableValuaEquiRowSql(tableName: String): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
+                :: "equi                TEXT NOT NULL,"
+                :: "class_type          TEXT NOT NULL,"
+                :: "char_id             TEXT NOT NULL,"
+                :: "char_value          TEXT,"
+                :: "code                INTEGER NOT NULL,"
+                :: "value_description   TEXT,"
+                :: "int_counter_value   INTEGER NOT NULL,"
+                :: "value_from          TEXT,"
+                :: "value_to            TEXT"
+                :: ")"
+                :: Nil
+        )
+
 
 }
