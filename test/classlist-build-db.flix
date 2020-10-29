@@ -2,7 +2,7 @@ use System.Error.{Generic};
 
 use FactIO.JdbcExport;
 
-use AssetLib/S4/FileIO/ClassList/Raw/ExportDb.{parseFlocClassList, parseEquiClassList, setupTables, outputTables};
+use AssetLib/S4/FileIO/ClassList/ExportDb.{parseFlocClassList, parseEquiClassList, setupTables, outputTables};
 
 pub def main(): Result[Unit, System.Error] & Impure =         
     use FactIO/JdbcExport.{runSQLiteExport};

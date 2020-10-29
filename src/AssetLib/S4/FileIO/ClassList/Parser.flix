@@ -17,7 +17,7 @@
 
 
 
-namespace AssetLib/S4/FileIO/ClassList/Raw/Parser {
+namespace AssetLib/S4/FileIO/ClassList/Parser {
 
 
     use Data/Transient.DList;
@@ -31,10 +31,10 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/Parser {
     use TextParser/Text.{restOfLine, restOfLineLength, content, anchorLine, upperLetters};
     use TextParser/Token1.{lexeme, symbol, int32};
 
-    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{SourceType, ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
-    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{FlocClasses, EquiClasses};
-    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
-    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.{SourceType, ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.SourceType.{FlocClasses, EquiClasses};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
     /// Always UTF-8? no if parsing fails try iso_8859_1()
     pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, System.Error] & Impure = 

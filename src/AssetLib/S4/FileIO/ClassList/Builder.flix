@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-use Data.{RoseTree, RoseForest};
-use Data.RoseTree.{RoseTree};
+namespace AssetLib/S4/FileIO/ClassList/Builder {
 
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Refinement};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
-use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+    use Data.{RoseTree, RoseForest};
+    use Data.RoseTree.{RoseTree};
 
-namespace AssetLib/S4/FileIO/ClassList/Raw/Builder {
-    
+    use AssetLib/S4/FileIO/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.{ClassList, Class, Characteristic, Refinement};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+
+
+
     pub def buildClassList(src: ClassListFile): ClassList = 
         let cs = classesList(src.rows, xs -> xs);
         { dateStamp = src.dateStamp, classes = cs }

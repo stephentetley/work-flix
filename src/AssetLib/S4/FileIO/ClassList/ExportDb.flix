@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb { 
+namespace AssetLib/S4/FileIO/ClassList/ExportDb { 
 
     use FactIO.JdbcExport;
     use FactIO.JdbcWriteList;
     use FactIO.JdbcRowSetter;
 
     use AssetLib/Common/Utils.{foldMapRel};
-    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
-    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
-    use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
-    use AssetLib/S4/FileIO/ClassList/Raw/Parser.{parseFile};
-    use AssetLib/S4/FileIO/ClassList/Raw/Builder.{buildClassList};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
+    use AssetLib/S4/FileIO/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+    use AssetLib/S4/FileIO/ClassList/Parser.{parseFile};
+    use AssetLib/S4/FileIO/ClassList/Builder.{buildClassList};
 
     type alias ClassMember1 = {classType: String, className: String, charName: String}
     
@@ -39,14 +39,14 @@ namespace AssetLib/S4/FileIO/ClassList/Raw/ExportDb {
 
     pub def parseFlocClassList(path: System.FilePath, cs: Text.Charset): JdbcExport[ClassList] = 
         use FactIO/JdbcExport.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{FlocClasses};
+        use AssetLib/S4/FileIO/ClassList/Datatypes.SourceType.{FlocClasses};
         let* ast    = liftActionResult(_ -> parseFile(path, FlocClasses, cs));
         let ans     = buildClassList(ast);
         return(ans)
 
     pub def parseEquiClassList(path: System.FilePath, cs: Text.Charset): JdbcExport[ClassList] = 
         use FactIO/JdbcExport.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/ClassList/Raw/Datatypes.SourceType.{EquiClasses};
+        use AssetLib/S4/FileIO/ClassList/Datatypes.SourceType.{EquiClasses};
         let* ast    = liftActionResult(_ -> parseFile(path, EquiClasses, cs));
         let ans     = buildClassList(ast);
         return(ans)

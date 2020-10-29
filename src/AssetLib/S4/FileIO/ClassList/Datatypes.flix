@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-use Time.LocalDate;
 
-namespace AssetLib/S4/FileIO/ClassList/Raw/Datatypes {
+namespace AssetLib/S4/FileIO/ClassList/Datatypes {
 
+    use Time.LocalDate;
 
     /// Source type indicates minor but important formatting differences in the input files
     pub enum SourceType {
