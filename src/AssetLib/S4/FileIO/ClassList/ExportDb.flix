@@ -16,20 +16,49 @@
 
 namespace AssetLib/S4/FileIO/ClassList/ExportDb { 
 
-    use FactIO.JdbcExport;
-    use FactIO.JdbcWriteList;
-    use FactIO.JdbcRowSetter;
+    use BasicDb.DbMonad;
+    use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/Common/Utils.{foldMapRel};
+
     use AssetLib/S4/FileIO/ClassList/Datatypes.{ClassList, Class, Characteristic, Datatype, Refinement};
     use AssetLib/S4/FileIO/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
     use AssetLib/S4/FileIO/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
     use AssetLib/S4/FileIO/ClassList/Parser.{parseFile};
     use AssetLib/S4/FileIO/ClassList/Builder.{buildClassList};
 
+
+
+    type alias ClassListTableNames = 
+        { classMembers: String
+        , characteristicDefs: String
+        , intRanges: String
+        , decimalRanges: String
+        , selectionValues: String
+        }
+
+    pub def storeFlocClassFile(tableNames: ClassListTableNames, dropTable: Bool, src: System.FilePath, cs: Text.Charset) : DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, whenTrue, setAutoCommit, commit};
+        let* xs     = parseFlocClassList(src, cs);
+        let* _      = whenTrue(dropTable, setupTables(tableNames));
+        let* _      = setAutoCommit(false);
+        let* _      = outputTables(tableNames, "floc", xs);
+        let* _      = commit();
+        return()
+
+    pub def storeEquiClassFile(tableNames: ClassListTableNames, dropTable: Bool, src: System.FilePath, cs: Text.Charset) : DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, whenTrue, setAutoCommit, commit};
+        let* xs     = parseEquiClassList(src, cs);
+        let* _      = whenTrue(dropTable, setupTables(tableNames));
+        let* _      = setAutoCommit(false);
+        let* _      = outputTables(tableNames, "equi", xs);
+        let* _      = commit();
+        return()
+
+
+
     type alias ClassMember1 = {classType: String, className: String, charName: String}
     
-    type alias Characteristic1 = {classType: String, charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32]}
+    type alias CharacteristicDef1 = {classType: String, charName: String, datatype: String, charLength: Int32, decimalPrec: Option[Int32]}
     
     type alias IntRange1 = {classType: String, charName: String, low: Int32, high: Int32}
     
@@ -37,49 +66,52 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
 
     type alias SelectionValue1 = {classType: String, charName: String, value: String}
 
-    pub def parseFlocClassList(path: System.FilePath, cs: Text.Charset): JdbcExport[ClassList] = 
-        use FactIO/JdbcExport.{flatMap, return, liftActionResult};
+
+
+    def parseFlocClassList(path: System.FilePath, cs: Text.Charset): DbMonad[ClassList] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         use AssetLib/S4/FileIO/ClassList/Datatypes.SourceType.{FlocClasses};
         let* ast    = liftActionResult(_ -> parseFile(path, FlocClasses, cs));
         let ans     = buildClassList(ast);
         return(ans)
 
-    pub def parseEquiClassList(path: System.FilePath, cs: Text.Charset): JdbcExport[ClassList] = 
-        use FactIO/JdbcExport.{flatMap, return, liftActionResult};
+    def parseEquiClassList(path: System.FilePath, cs: Text.Charset): DbMonad[ClassList] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         use AssetLib/S4/FileIO/ClassList/Datatypes.SourceType.{EquiClasses};
         let* ast    = liftActionResult(_ -> parseFile(path, EquiClasses, cs));
         let ans     = buildClassList(ast);
         return(ans)
 
 
-    pub def setupTables(): JdbcExport[Unit] =  
-        use FactIO/JdbcExport.{flatMap, return, execute, prepareStatement, foldM, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS classlist_class_members");
-        let* _          = execute(sqlCreateClassMembers());
-        let* _          = execute("DROP TABLE IF EXISTS classlist_characteristics");
-        let* _          = execute(sqlCreateCharacteristics());
-        let* _          = execute("DROP TABLE IF EXISTS classlist_int_ranges");
-        let* _          = execute(sqlCreateIntRanges());
-        let* _          = execute("DROP TABLE IF EXISTS classlist_decimal_ranges");
-        let* _          = execute(sqlCreateDecimalRanges());
-        let* _          = execute("DROP TABLE IF EXISTS classlist_selection_values");
-        let* _          = execute(sqlCreateSelectionValues());
+    def setupTables(x: ClassListTableNames): DbMonad[Unit] =  
+        use BasicDb/DbMonad.{flatMap, return, execute, prepareStatement, foldM, commit};
+        let* _          = execute("DROP TABLE IF EXISTS ${x.classMembers};");
+        let* _          = execute(createTableClassMembersSql(x.classMembers));
+        let* _          = execute("DROP TABLE IF EXISTS ${x.characteristicDefs};");
+        let* _          = execute(createTableCharacteristicDefsSql(x.characteristicDefs));
+        let* _          = execute("DROP TABLE IF EXISTS ${x.intRanges};");
+        let* _          = execute(createTableIntRangeSql(x.intRanges));
+        let* _          = execute("DROP TABLE IF EXISTS ${x.decimalRanges};");
+        let* _          = execute(createTableDecimalRangeSql(x.decimalRanges));
+        let* _          = execute("DROP TABLE IF EXISTS ${x.selectionValues};");
+        let* _          = execute(createTableSelectionValueSql(x.selectionValues));
         return()
 
 
-    pub def outputTables(classType: String, src: ClassList): JdbcExport[Unit] =
-        use FactIO/JdbcExport.{flatMap, return, setAutoCommitOff, close, liftAction};
-        let* _      = setAutoCommitOff();
-        let* _      = liftAction(_ -> Console.printLine("ClassMembers"));
-        let* _      = collectClassMembers(classType, src) |> writeClassMembers;
-        let* _      = liftAction(_ -> Console.printLine("Characteristics"));
-        let* _      = collectCharacteristics(classType, src) |> writeCharacteristics;
-        let* _      = liftAction(_ -> Console.printLine("IntRanges"));
-        let* _      = collectIntRanges(classType, src) |> writeIntRanges;
-        let* _      = liftAction(_ -> Console.printLine("DecimalRanges"));
-        let* _      = collectDecimalRanges(classType, src) |> writeDecimalRanges;
-        let* _      = liftAction(_ -> Console.printLine("SelectionValues"));
-        let* _      = collectSelectionValues(classType, src) |> writeSelectionValues;
+    def outputTables(x: ClassListTableNames, classType: String, src: ClassList): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftAction};
+        let* _      = setAutoCommit(false);
+        let* _      = liftAction(_ -> Console.printLine("${classType} class members"));
+        let* _      = collectClassMembers(classType, src) |> writeClassMembers(x.classMembers);
+        let* _      = liftAction(_ -> Console.printLine("${classType} characteristic defs"));
+        let* _      = collectCharacteristics(classType, src) |> writeCharacteristicDefs(x.characteristicDefs);
+        let* _      = liftAction(_ -> Console.printLine("${classType} int ranges"));
+        let* _      = collectIntRanges(classType, src) |> writeIntRanges(x.intRanges);
+        let* _      = liftAction(_ -> Console.printLine("${classType} decimal ranges"));
+        let* _      = collectDecimalRanges(classType, src) |> writeDecimalRanges(x.decimalRanges);        
+        let* _      = liftAction(_ -> Console.printLine("${classType} selection values"));
+        let* _      = collectSelectionValues(classType, src) |> writeSelectionValues(x.selectionValues);
+        let* _      = commit();
         return()
 
 
@@ -96,16 +128,16 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
         
 
     // Collect Characteristics
-    def collectCharacteristics(ctype: String, src: ClassList): List[Characteristic1] = 
+    def collectCharacteristics(ctype: String, src: ClassList): List[CharacteristicDef1] = 
         let cmp = (x,y) -> x.charName == y.charName && x.datatype == y.datatype;
         List.flatMap(characteristics(ctype), src.classes) |> List.distinctWith(cmp)
 
     // One-to-many
-    def characteristics(ctype: String, src: Class): List[Characteristic1] =
+    def characteristics(ctype: String, src: Class): List[CharacteristicDef1] =
         List.map(characteristic1(ctype), src.characteristics)
 
     // One-to-one
-    def characteristic1(ctype: String,src: Characteristic):  Characteristic1 =
+    def characteristic1(ctype: String,src: Characteristic):  CharacteristicDef1 =
         let (typename, clength, prec) = deconsDatatype(src.datatype);
         {classType = ctype, charName = src.name, datatype = typename, charLength = clength, decimalPrec = prec} 
         
@@ -173,106 +205,106 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
 
     // Class Members
 
-    def writeClassMembers(rows: List[ClassMember1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_class_members(classtype, classname, charname) VALUES(?, ?, ?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, classMemberRowSetter(x)); return(ac+n)}, 0, rows);
+    def writeClassMembers(tableName: String, rows: List[ClassMember1]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, classname, charname) VALUES(?, ?, ?)");
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, classMemberRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
     /// A RowSetter for the body of a ClassMember
-    def classMemberRowSetter(x: ClassMember1): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, x.classType);
-        let* _ = putString!(1, x.className);
-        let* _ = putString!(2, x.charName);
+    def classMemberRowSetter(x: ClassMember1): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
+        let* _ = putStringAt!(0, x.classType);
+        let* _ = putStringAt!(1, x.className);
+        let* _ = putStringAt!(2, x.charName);
         return()
 
 
     // Characteristics
 
-    def writeCharacteristics(rows: List[Characteristic1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_characteristics(classtype, charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, characteristicRowSetter(x)); return(ac+n)}, 0, rows);
+    def writeCharacteristicDefs(tableName: String, rows: List[CharacteristicDef1]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, characteristicDefRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
     /// A RowSetter for the body of a Characteristic
-    def characteristicRowSetter(x: Characteristic1): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!, putOptionInt32!};
-        let* _ = putString!(0, x.classType);
-        let* _ = putString!(1, x.charName);
-        let* _ = putString!(2, x.datatype);
-        let* _ = putInt32!(3, x.charLength);
-        let* _ = putOptionInt32!(4, x.decimalPrec);
+    def characteristicDefRowSetter(x: CharacteristicDef1): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
+        let* _ = putStringAt!(0, x.classType);
+        let* _ = putStringAt!(1, x.charName);
+        let* _ = putStringAt!(2, x.datatype);
+        let* _ = putInt32At!(3, x.charLength);
+        let* _ = putOptionInt32At!(4, x.decimalPrec);
         return()
 
     // Int Ranges
 
-    def writeIntRanges(rows: List[IntRange1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_int_ranges(classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, intRangeRowSetter(x)); return(ac+n)}, 0, rows);
+    def writeIntRanges(tableName: String, rows: List[IntRange1]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, intRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
     /// A RowSetter for IntRange
-    def intRangeRowSetter(x: IntRange1): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!};
-        let* _ = putString!(0, x.classType);
-        let* _ = putString!(1, x.charName);
-        let* _ = putInt32!(2, x.low);
-        let* _ = putInt32!(3, x.high);
+    def intRangeRowSetter(x: IntRange1): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _ = putStringAt!(0, x.classType);
+        let* _ = putStringAt!(1, x.charName);
+        let* _ = putInt32At!(2, x.low);
+        let* _ = putInt32At!(3, x.high);
         return()
 
 
     // Decimal Ranges
 
-    def writeDecimalRanges(rows: List[DecimalRange1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_decimal_ranges(classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, decimalRangeRowSetter(x)); return(ac+n)}, 0, rows);
+    def writeDecimalRanges(tableName: String, rows: List[DecimalRange1]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, decimalRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
     
     /// A RowSetter for DecimalRange1
-    def decimalRangeRowSetter(x: DecimalRange1): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!, putFloat64!};
-        let* _ = putString!(0, x.classType);
-        let* _ = putString!(1, x.charName);
-        let* _ = putFloat64!(2, x.low);
-        let* _ = putFloat64!(3, x.high);
+    def decimalRangeRowSetter(x: DecimalRange1): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putFloat64At!};
+        let* _ = putStringAt!(0, x.classType);
+        let* _ = putStringAt!(1, x.charName);
+        let* _ = putFloat64At!(2, x.low);
+        let* _ = putFloat64At!(3, x.high);
         return()
 
     // Selection Values
 
-    def writeSelectionValues(rows: List[SelectionValue1]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, prepareStatement, foldM, writeRow, commit};
-        let* stmt       = prepareStatement("INSERT OR IGNORE INTO classlist_selection_values(classtype, charname, value) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, selectionValueRowSetter(x)); return(ac+n)}, 0, rows);
+    def writeSelectionValues(tableName: String, rows: List[SelectionValue1]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, value) VALUES(?,?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, selectionValueRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
     /// A RowSetter for SelectionValue1
-    def selectionValueRowSetter(x: SelectionValue1): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, x.classType);
-        let* _ = putString!(1, x.charName);
-        let* _ = putString!(2, x.value);
+    def selectionValueRowSetter(x: SelectionValue1): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
+        let* _ = putStringAt!(0, x.classType);
+        let* _ = putStringAt!(1, x.charName);
+        let* _ = putStringAt!(2, x.value);
         return()
 
 
 
     // SQL DDL
 
-    def sqlCreateClassMembers(): String =
+    def createTableClassMembersSql(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS classlist_class_members ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "classtype       TEXT NOT NULL,"
                 :: "classname       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL,"
@@ -281,9 +313,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
                 :: Nil
         )
 
-    def sqlCreateCharacteristics(): String =
+    def createTableCharacteristicDefsSql(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS classlist_characteristics ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "classtype       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL,"
                 :: "datatype        TEXT NOT NULL,"
@@ -295,9 +327,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
         )
 
 
-    def sqlCreateIntRanges(): String =
+    def createTableIntRangeSql(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS classlist_int_ranges ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "classtype       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL,"
                 :: "range_low       INTEGER NOT NULL,"
@@ -307,9 +339,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
                 :: Nil
         )
 
-    def sqlCreateDecimalRanges(): String =
+    def createTableDecimalRangeSql(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS classlist_decimal_ranges ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "classtype       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL,"
                 :: "range_low       DECIMAL NOT NULL,"
@@ -319,9 +351,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
                 :: Nil
         )
 
-    def sqlCreateSelectionValues(): String =
+    def createTableSelectionValueSql(tableName: String): String =
         String.unwords(
-            "CREATE TABLE classlist_selection_values ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "classtype       TEXT NOT NULL,"
                 :: "charname        TEXT NOT NULL,"
                 :: "value           TEXT NOT NULL,"

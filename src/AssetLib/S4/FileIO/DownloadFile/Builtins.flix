@@ -43,6 +43,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , moreTextExists: Bool
         }
     
+
+    /// DropTable is a parameter as we might want to be loading more than one file
     pub def storeEqmltxtFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         let* xs = liftActionResult(_ -> readEqmltxtRows(src));
