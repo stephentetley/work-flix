@@ -36,6 +36,15 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
         , selectionValues: String
         }
 
+    pub def defaultTableNames(): ClassListTableNames = 
+        { classMembers          = "cf_members"
+        , characteristicDefs    = "cf_char_defs"
+        , intRanges             = "cf_int_ranges"
+        , decimalRanges         = "cf_decimal_ranges"
+        , selectionValues       = "cf_selection_values"
+        }
+
+
     pub def storeFlocClassFile(tableNames: ClassListTableNames, dropTable: Bool, src: System.FilePath, cs: Text.Charset) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, setAutoCommit, commit};
         let* xs     = parseFlocClassList(src, cs);

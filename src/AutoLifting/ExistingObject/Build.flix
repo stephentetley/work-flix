@@ -27,6 +27,7 @@ namespace AutoLifting/ExistingObject/Build {
         , charFile: System.FilePath
         , mltextFile: System.FilePath
         , dbtempFile: System.FilePath
+        , classFacts: System.FilePath
         }
 
     type alias S4LiftingItem = 
@@ -73,9 +74,12 @@ namespace AutoLifting/ExistingObject/Build {
 
     def buildDb(src: BuilderSource): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* _ = AssetLib/S4/FileIO/DownloadFile/Builtins.storeEqmltxtFile("eqmltext", true, src.mltextFile);
-        let* _ = AssetLib/S4/FileIO/DownloadFile/Builtins.storeClassEquiFile("class_equi", true, src.classFile);
-        let* _ = AssetLib/S4/FileIO/DownloadFile/Builtins.storeValuaEquiFile("valua_equi", true, src.charFile);
+        use AssetLib/S4/FileIO/ClassList/ExportDb.{defaultTableNames, storeEquiClassFile};
+        let cfNames = defaultTableNames();
+        let* _      = storeEquiClassFile(cfNames, true, src.classFacts, Text/Charset.iso_8859_1());
+        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeEqmltxtFile("eqmltext", true, src.mltextFile);
+        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeClassEquiFile("class_equi", true, src.classFile);
+        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeValuaEquiFile("valua_equi", true, src.charFile);
         return()
 
 
