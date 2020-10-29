@@ -17,38 +17,56 @@
 
 namespace AssetLib/S4/FileIO/ZTable/ExportDb { 
 
+    use BasicDb.DbMonad;
+    use BasicDb.PreparedStatementSetter;
 
-    use FactIO.JdbcExport;
-    use FactIO.JdbcRowSetter;
-    use FactIO/JdbcExport.{PreparedStatement};
-
-    use AssetLib/Common/Utils.{foldMapRel};
     use AssetLib/S4/FileIO/ZTable/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
-    use AssetLib/S4/FileIO/ZTable/Builtins.{DbPaths};
 
-    pub def outputDb(srcPaths: DbPaths, outPath: System.FilePath): Result[Unit, System.Error] & Impure =         
-        use FactIO/JdbcExport.{runSQLiteExport};
-        runSQLiteExport(writeOutput(srcPaths), outPath)
+    type alias ZTableNames = 
+        { equipmentObject: String
+        , flocDescription: String
+        , flocObject: String
+        , manufModel: String
+        , objectManuf: String
+        }
+
+    pub def defaultTableNames(): ZTableNames = 
+        { equipmentObject   = "zt_eqobjl"
+        , flocDescription   = "zt_flocdes"
+        , flocObject        = "zt_floobjl"
+        , manufModel        = "zt_manuf"
+        , objectManuf       = "zt_obj"
+        }
+
+
+    type alias ZTableSourcePaths = 
+        { eqobjlPath: System.FilePath
+        , flocdesPath: System.FilePath
+        , floobjlPath: System.FilePath
+        , manufPath: System.FilePath
+        , objPath: System.FilePath
+        }
+
         
-    def writeOutput(srcPaths: DbPaths): JdbcExport[Unit] =
-        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftActionResult};
+    pub def storeZTableFiles(tableNames: ZTableNames, srcPaths: ZTableSourcePaths): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult};
         use AssetLib/S4/FileIO/ZTable/Builtins.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
         let* _      = setAutoCommit(false);
-        let* rs1    = liftActionResult(_ -> loadEqobjl(srcPaths.pathOfEqobjl));
+        let* rs1    = liftActionResult(_ -> loadEqobjl(srcPaths.eqobjlPath));
         let* _      = writeTable("Eqobjl", exportEqobjl(rs1));
-        let* rs2    = liftActionResult(_ -> loadFlocdes(srcPaths.pathOfFlocdes));
+        let* rs2    = liftActionResult(_ -> loadFlocdes(srcPaths.flocdesPath));
         let* _      = writeTable("Flocdes", exportFlocdes(rs2));
-        let* rs3    = liftActionResult(_ -> loadFloobjl(srcPaths.pathOfFloobjl));
+        let* rs3    = liftActionResult(_ -> loadFloobjl(srcPaths.floobjlPath));
         let* _      = writeTable("Foobjl", exportFloobjl(rs3));
-        let* rs4    = liftActionResult(_ -> loadManuf(srcPaths.pathOfManuf));
+        let* rs4    = liftActionResult(_ -> loadManuf(srcPaths.manufPath));
         let* _      = writeTable("Manuf", exportManuf(rs4));
-        let* rs5    = liftActionResult(_ -> loadObj(srcPaths.pathOfObj));
-        let* _      = writeTable("Obj", exportObj(rs5));
-        let* _      = close();
+        let* rs5    = liftActionResult(_ -> loadObj(srcPaths.objPath));
+        let* _      = exportObj(tableNames.objectManuf, rs5);
         return()
 
-    def writeTable(name: String, operation: JdbcExport[Int32]): JdbcExport[Unit] = 
-        use FactIO/JdbcExport.{flatMap, return, setAutoCommit, close, liftAction};
+    /// Remove....
+    def writeTable(name: String, operation: DbMonad[Int32]): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine(name));
         let* nrows  = operation;
@@ -56,107 +74,108 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
         return()
 
     // Eqobjl
-    def exportEqobjl(rows: List[Eqobjl]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportEqobjl(rows: List[Eqobjl]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS eqobjl");
         let* _          = execute(sqlCreateEqobjl());
         let* stmt       = prepareStatement("INSERT INTO eqobjl(super_object, sub_object, category) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, eqobjlRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, eqobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
     /// A RowSetter for Eqobjl
-    def eqobjlRowSetter(src: Eqobjl): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, src.superObject);
-        let* _ = putString!(1, src.subObject);
-        let* _ = putString!(2, src.category);
+    def eqobjlRowSetter(src: Eqobjl): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
+        let* _ = putStringAt!(0, src.superObject);
+        let* _ = putStringAt!(1, src.subObject);
+        let* _ = putStringAt!(2, src.category);
         return()
 
 
 
     // Flocdes
 
-    def exportFlocdes(rows: List[Flocdes]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportFlocdes(rows: List[Flocdes]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS flocdes");
         let* _          = execute(sqlCreateFlocdes());
         let* stmt       = prepareStatement("INSERT INTO flocdes(object_type, description) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, flocdesRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, flocdesRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
     /// A RowSetter for Flocdes
-    def flocdesRowSetter(src: Flocdes): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, src.objectType);
-        let* _ = putString!(1, src.description);
+    def flocdesRowSetter(src: Flocdes): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
+        let* _ = putStringAt!(0, src.objectType);
+        let* _ = putStringAt!(1, src.description);
         return()
 
 
     // Floobjl
 
-    def exportFloobjl(rows: List[Floobjl]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportFloobjl(rows: List[Floobjl]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS floobj");
         let* _          = execute(sqlCreateFloobjl());
         let* stmt       = prepareStatement("INSERT INTO floobj(structure, super_object, sub_object) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, floobjlRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, floobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
     /// A RowSetter for Floobjl
-    def floobjlRowSetter(src: Floobjl): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, src.structure);
-        let* _ = putString!(1, src.superObject);
-        let* _ = putString!(2, src.subObject);
+    def floobjlRowSetter(src: Floobjl): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
+        let* _ = putStringAt!(0, src.structure);
+        let* _ = putStringAt!(1, src.superObject);
+        let* _ = putStringAt!(2, src.subObject);
         return()
 
     // Manuf
 
-    def exportManuf(rows: List[Manuf]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
+    def exportManuf(rows: List[Manuf]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS manuf");
         let* _          = execute(sqlCreateManuf());
         let* stmt       = prepareStatement("INSERT INTO manuf(manufacturer, model) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, manufRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, manufRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
     /// A RowSetter for Manuf
-    def manufRowSetter(src: Manuf): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, src.manufacturer);
-        let* _ = putString!(1, src.model);
+    def manufRowSetter(src: Manuf): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
+        let* _ = putStringAt!(0, src.manufacturer);
+        let* _ = putStringAt!(1, src.model);
         return()
 
     // Obj
-
-    def exportObj(rows: List[Obj]): JdbcExport[Int32] =
-        use FactIO/JdbcExport.{flatMap, return, execute, foldM, prepareStatement, writeRow, commit};
-        let* _          = execute("DROP TABLE IF EXISTS obj");
-        let* _          = execute(sqlCreateObj());
-        let* stmt       = prepareStatement("INSERT INTO obj(object_type, manufacturer) VALUES(?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = writeRow(stmt, objRowSetter(x)); return(ac+n)}, 0, rows);
+    
+    /// Always drop table (fresh new data)
+    def exportObj(tableName: String, rows: List[Obj]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _          = execute(createTableObjSql(tableName));
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (object_type, manufacturer) VALUES(?,?)");
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, objRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
 
 
     /// A RowSetter for Obj
-    def objRowSetter(src: Obj): JdbcRowSetter[Unit] = 
-        use FactIO/JdbcRowSetter.{flatMap, return, putString!};
-        let* _ = putString!(0, src.objectType);
-        let* _ = putString!(1, src.manufacturer);
+    def objRowSetter(src: Obj): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
+        let* _ = putStringAt!(0, src.objectType);
+        let* _ = putStringAt!(1, src.manufacturer);
         return()
 
     // SQL DDL
@@ -199,12 +218,13 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
                 :: Nil
         )
 
-    def sqlCreateObj(): String =
+    def createTableObjSql(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS obj ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "object_type     TEXT NOT NULL,"
                 :: "manufacturer    TEXT NOT NULL"                
                 :: ")"
                 :: Nil
         )
+
 } 

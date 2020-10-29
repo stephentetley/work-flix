@@ -22,14 +22,6 @@ namespace AssetLib/S4/FileIO/ZTable/Builtins {
 
     use AssetLib/S4/FileIO/ZTable.RowEvaluator;
 
-    type alias DbPaths = 
-        { pathOfEqobjl: System.FilePath
-        , pathOfFlocdes: System.FilePath
-        , pathOfFloobjl: System.FilePath
-        , pathOfManuf: System.FilePath
-        , pathOfObj: System.FilePath
-        }
-
 
     pub def loadEqobjl(path: System.FilePath): Result[List[Eqobjl], System.Error] & Impure =        
         importRows(evalEqobjl(), path)  

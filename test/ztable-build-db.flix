@@ -1,21 +1,21 @@
 
-use AssetLib/S4/FileIO/ZTable/Builtins.{DbPaths};
-use AssetLib/S4/FileIO/ZTable/ExportDb.{outputDb};
+use AssetLib/S4/FileIO/ZTable/ExportDb.{ZTableSourcePaths, storeZTableFiles, defaultTableNames};
 
 
 
-def paths(): DbPaths = 
-    { pathOfEqobjl  = System/FilePath.new("G:/work/assets/facts/ztables/ztable_eqobjl.txt")
-    , pathOfFlocdes = System/FilePath.new("G:/work/assets/facts/ztables/ztable_flocdes.txt")
-    , pathOfFloobjl = System/FilePath.new("G:/work/assets/facts/ztables/ztable_floobjl.txt")
-    , pathOfManuf   = System/FilePath.new("G:/work/assets/facts/ztables/ztable_manuf.txt")
-    , pathOfObj     = System/FilePath.new("G:/work/assets/facts/ztables/ztable_obj.txt")
+def paths(): ZTableSourcePaths = 
+    { eqobjlPath    = System/FilePath.new("G:/work/assets/facts/ztables/ztable_eqobjl.txt")
+    , flocdesPath   = System/FilePath.new("G:/work/assets/facts/ztables/ztable_flocdes.txt")
+    , floobjlPath   = System/FilePath.new("G:/work/assets/facts/ztables/ztable_floobjl.txt")
+    , manufPath     = System/FilePath.new("G:/work/assets/facts/ztables/ztable_manuf.txt")
+    , objPath       = System/FilePath.new("G:/work/assets/facts/ztables/ztable_obj.txt")
     }
 
 
     
 
 def main(): Result[Unit, System.Error] & Impure = 
-    use Result.{flatMap};
-    let outpath = System/FilePath.new("G:/work/assets/facts/ztables/ztables.sqlite");
-    outputDb(paths(), outpath)
+    use BasicDb/DbMonad.{runSQLite};
+    let outpath = System/FilePath.new("G:/work/assets/facts/ztable_facts.sqlite");
+    let srcpaths = paths();
+    runSQLite(storeZTableFiles(defaultTableNames(), srcpaths), outpath)
