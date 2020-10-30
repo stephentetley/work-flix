@@ -19,7 +19,8 @@ namespace AutoLifting/Phase3/LiftingClassifications {
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
-    use AutoLifting/Common/Datatypes.{S4CharAttributes, EquiClassification};
+    use AssetLib/S4/Simple/Datatypes.{Classification};
+    use AutoLifting/Common/Datatypes.{S4CharAttributes};
     use AutoLifting/Common.ReportMonad;
 
     type alias LiftingMapping = 
@@ -33,21 +34,21 @@ namespace AutoLifting/Phase3/LiftingClassifications {
                                           , parentSaiReference: String
                                           , s4Class: String
                                           , longText: Option[String]
-                                          , charAttributes: S4CharAttributes | r}): ReportMonad[List[EquiClassification]] = 
+                                          , charAttributes: S4CharAttributes | r}): ReportMonad[List[Classification]] = 
         use AutoLifting/Common/ReportMonad.{flatMap, return};
-        let c1   = {equiClass = "EAST_NORTH", characteristicName = "EASTING", value = Int32.toString(x.charAttributes.easting)};
-        let c2   = {equiClass = "EAST_NORTH", characteristicName = "NORTHING", value = Int32.toString(x.charAttributes.northing)};
-        let c3   = {equiClass = "AIB_REFERENCE", characteristicName = "AI2_AIB_REFERENCE", value = x.pliReference};
-        let c4   = {equiClass = "AIB_REFERENCE", characteristicName = "AI2_AIB_REFERENCE", value = x.parentSaiReference};
-        let c5   = {equiClass = "AIB_REFERENCE", characteristicName = "S4_AIB_REFERENCE", value = ""};
-        let c6   = {equiClass = x.s4Class, characteristicName = "UNICLASS_CODE", value = ""};
-        let c7   = {equiClass = x.s4Class, characteristicName = "UNICLASS_DESC", value = ""};
+        let c1   = {className = "EAST_NORTH", charName = "EASTING", datatype = "Int", value = Int32.toString(x.charAttributes.easting)};
+        let c2   = {className = "EAST_NORTH", charName = "NORTHING", datatype = "Int", value = Int32.toString(x.charAttributes.northing)};
+        let c3   = {className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = "Text", value = x.pliReference};
+        let c4   = {className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = "Text", value = x.parentSaiReference};
+        let c5   = {className = "AIB_REFERENCE", charName = "S4_AIB_REFERENCE", datatype = "Text", value = ""};
+        let c6   = {className = x.s4Class, charName = "UNICLASS_CODE", datatype = "Text", value = ""};
+        let c7   = {className = x.s4Class, charName = "UNICLASS_DESC", datatype = "Text", value = ""};
         let rest = match x.longText {
             case Some(s) => { 
                 if (String.length(s) >= 30) 
-                    {equiClass = x.s4Class, characteristicName = "LOCATION_ON_SITE", value = "SEE LONG TEXT"} :: Nil
+                    {className = x.s4Class, charName = "LOCATION_ON_SITE", datatype = "Text", value = "SEE LONG TEXT"} :: Nil
                 else 
-                    {equiClass = x.s4Class, characteristicName = "LOCATION_ON_SITE", value = s} :: Nil
+                    {className = x.s4Class, charName = "LOCATION_ON_SITE", datatype = "Text", value = s} :: Nil
             }
             case None => Nil
         };
@@ -55,15 +56,15 @@ namespace AutoLifting/Phase3/LiftingClassifications {
 
     pub def getWorkLoadClassifications[r](m: Map[String, (String, String)], 
                                           x: { s4Class: String
-                                             , charAttributes: S4CharAttributes | r}): ReportMonad[List[EquiClassification]] = 
+                                             , charAttributes: S4CharAttributes | r}): ReportMonad[List[Classification]] = 
         use AutoLifting/Common/ReportMonad.{flatMap, return, throwError};
         match (x.charAttributes.workLoad, x.charAttributes.workLoadUnits) {
             case (Some(d), s) if !(String.isEmpty(s)) => match Map.get(x.s4Class, m) {
                 case None => throwError("getLiftingClassifications - No mapping for class ${x.s4Class}")
                 case Some(pair) => { 
                     let (loadField, unitField) = pair;
-                    let v1 = {equiClass = x.s4Class, characteristicName = loadField, value = Float64.toString(d)};
-                    let v2 = {equiClass = x.s4Class, characteristicName = unitField, value = s};
+                    let v1 = {className = x.s4Class, charName = loadField, datatype = "Decimal", value = Float64.toString(d)};
+                    let v2 = {className = x.s4Class, charName = unitField, datatype = "Int", value = s};
                     return(v1 :: v2 :: Nil)
                 }
             }

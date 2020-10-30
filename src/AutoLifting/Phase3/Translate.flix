@@ -16,30 +16,27 @@
 
 namespace AutoLifting/Phase3/Translate {
     
-    use AutoLifting/Common/Datatypes.{Phase2FinalWorkItem, Phase3FinalWorkItem, 
-        EquiMultilingualText, EquiData};
+    use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AutoLifting/Common/Datatypes.{Phase2FinalWorkItem};
     use AutoLifting/Common.ReportMonad;
 
 
-    pub def translate(liftingData: Map[String, (String, String)], x: Phase2FinalWorkItem): ReportMonad[Phase3FinalWorkItem] = 
+    pub def translate(liftingData: Map[String, (String, String)], x: Phase2FinalWorkItem): ReportMonad[S4Equipment] = 
         use AutoLifting/Common/ReportMonad.{flatMap, return, genEquiId};
         use AutoLifting/Phase3/LiftingClassifications.{getFixedClassifications, getWorkLoadClassifications};
         let* equiId1    = genEquiId();
-        let* equiData   = getEquiData(x);
+        let* equiAttrs  = getEquiData(x);
         let* mltext     = getMultilingualText(x);
         let* cs1        = getFixedClassifications(x);
         let* cs2        = getWorkLoadClassifications(liftingData, x);
         return(
-            { s4EquiId          = equiId1
-            , s4EquiName        = x.s4EquiName
-            , s4Class           = x.s4Class
-            , equiData          = equiData
-            , multilingualText  = mltext
+            { equiId            = equiId1
+            , attributes        = equiAttrs
+            , longText          = mltext
             , classifications   = cs1 ::: cs2
-            }
-        )
+            })
 
-    def getEquiData(x: Phase2FinalWorkItem): ReportMonad[EquiData] = 
+    def getEquiData(x: Phase2FinalWorkItem): ReportMonad[EquiAttributes] = 
         use AutoLifting/Common/ReportMonad.{return};
         return(
             { category              = x.s4Category
@@ -50,14 +47,22 @@ namespace AutoLifting/Phase3/Translate {
             , model                 = x.equiAttributes.model
             , partNumber            = x.equiAttributes.partNumber
             , serialNumber          = x.equiAttributes.serialNumber
+            , constructionYear      = Time/LocalDate.getYear(x.equiAttributes.installedFrom)
+            , constructionMonth     = Time/LocalDate.getMonth(x.equiAttributes.installedFrom)
+            , maintPlant            = 2100
+            , companyCode           = 2100
+            , costCenter            = 1000
+            , planningPlant         = 2100
             , functionalLocation    = x.s4Floc
+            , superOridinateEqui    = ""
+            , status                = "OPER"
             })
 
     pub def getMultilingualText[r](x: { s4EquiName: String
-                                      , longText: Option[String] | r}): ReportMonad[Option[EquiMultilingualText]] = 
+                                      , longText: Option[String] | r}): ReportMonad[Option[LongText]] = 
         use AutoLifting/Common/ReportMonad.{return};
         match x.longText {
-            case Some(s) if (String.length(s) >= 30) => return(Some({description = x.s4EquiName, longText = s}))
+            case Some(s) if (String.length(s) >= 30) => return(Some({shortText = x.s4EquiName, longText = s}))
             case _ => return(None)
         }
 
