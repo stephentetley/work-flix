@@ -21,7 +21,8 @@ namespace AutoLifting/ExistingObject/Build {
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AssetLib/S4/FileIO/ZTable/ExportDb.ZTableSourcePaths;
-    use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, equiRowEvaluator};
+    use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes};
+    use AssetLib/S4/Simple/EquiBuilder.{equiRowEvaluator};
     use AutoLifting/Common.ReportMonad;
 
     type alias BuilderSource = 
