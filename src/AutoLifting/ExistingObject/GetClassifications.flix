@@ -23,7 +23,7 @@ namespace AutoLifting/ExistingObject/GetClassifications {
 
     use AutoLifting/ExistingObject/Datatypes.{Classification};
 
-    pub def prepareQuery(): DbMonad[PreparedStatement] = 
+    pub def prepareClassificationsQuery(): DbMonad[PreparedStatement] = 
         BasicDb/DbMonad.prepareStatement(getClassificationsSql())
 
     pub def getClassifications(pstmt: PreparedStatement, equiId: String): DbMonad[List[Classification]] = 

@@ -58,7 +58,7 @@ namespace AutoLifting/ExistingObject/Build {
 
     def buildSourceDb(src: BuilderSource): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeEqmltxtFile("eqmltext", true, src.mltextFile);
+        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeEqmltxtFile("eqmltxt", true, src.mltextFile);
         let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeClassEquiFile("class_equi", true, src.classFile);
         let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeValuaEquiFile("valua_equi", true, src.charFile);
         return()

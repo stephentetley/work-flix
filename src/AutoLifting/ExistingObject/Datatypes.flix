@@ -46,6 +46,12 @@ namespace AutoLifting/ExistingObject/Datatypes {
         , status: String
         }
 
+    /// shortTest = description.
+    type alias LongText = 
+        { shortText: String             
+        , longText: String
+        }
+
     type alias Classification = 
         { className: String
         , charName: String
