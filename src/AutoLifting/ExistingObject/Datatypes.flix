@@ -20,8 +20,8 @@ namespace AutoLifting/ExistingObject/Datatypes {
 
 
     type alias S4LiftingItem = 
-        { equi: EquiAtibutes
-        , longText: String
+        { equi: EquiAttributes
+        , longText: Option[LongText]
         , classifications: List[Classification]
         }
 

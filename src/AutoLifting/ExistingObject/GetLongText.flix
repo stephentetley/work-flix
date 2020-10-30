@@ -26,12 +26,12 @@ namespace AutoLifting/ExistingObject/GetLongText {
     pub def prepareLongTextQuery(): DbMonad[PreparedStatement] = 
         BasicDb/DbMonad.prepareStatement(getLongTextSql())
 
-    pub def getLongText(pstmt: PreparedStatement, equiId: String): DbMonad[List[LongText]] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, allRows, rsClose};
+    pub def getLongText(pstmt: PreparedStatement, equiId: String): DbMonad[Option[LongText]] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, optional, firstRow, rsClose};
         let* rs     = psExecuteQuery(pstmt, setLongTextPStmt!(equiId));
-        let* xs     = allRows(rs, evalLongText());
+        let* ans    = optional(firstRow(rs, evalLongText()));
         let* _      = rsClose(rs);
-        return(xs)
+        return(ans)
 
     def getLongTextSql(): String  = 
         String.unwords(
