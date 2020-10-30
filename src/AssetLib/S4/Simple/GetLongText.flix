@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ExistingObject/GetLongText {
+namespace AssetLib/S4/Simple/GetLongText {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AutoLifting/ExistingObject/Datatypes.{LongText};
+    use AssetLib/S4/Simple/Datatypes.{LongText};
 
     pub def prepareLongTextQuery(): DbMonad[PreparedStatement] = 
         BasicDb/DbMonad.prepareStatement(getLongTextSql())

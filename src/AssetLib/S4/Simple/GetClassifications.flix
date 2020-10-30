@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ExistingObject/GetClassifications {
+namespace AssetLib/S4/Simple/GetClassifications {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AutoLifting/ExistingObject/Datatypes.{Classification};
+    use AssetLib/S4/Simple/Datatypes.{Classification};
 
     pub def prepareClassificationsQuery(): DbMonad[PreparedStatement] = 
         BasicDb/DbMonad.prepareStatement(getClassificationsSql())

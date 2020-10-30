@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ExistingObject/Datatypes {
+namespace AssetLib/S4/Simple/Datatypes {
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
 
 
-    type alias S4LiftingItem = 
-        { equi: EquiAttributes
+    type alias S4Equipment = 
+        { equiId: String
+        , attributes: EquiAttributes
         , longText: Option[LongText]
         , classifications: List[Classification]
         }
 
     type alias EquiAttributes = 
-        { equiId: String
-        , category: String          /// Should always be "H" (probably)
+        { category: String          /// Should always be "H" (probably)
         , description: String
         , objectType: String
         , startupDate: Time.LocalDate
@@ -61,28 +61,30 @@ namespace AutoLifting/ExistingObject/Datatypes {
 
 
     /// TODO - this should be a builtin in the S4/FileTypes/DownloadFile namespace
-    pub def equiRowEvaluator(): RowEvaluator[EquiAttributes] = 
+    pub def equiRowEvaluator(): RowEvaluator[{equiId: String, attrs: EquiAttributes}] = 
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4DateNamed, getInt32Named};
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
                 { equiId                = x1
-                , category              = x2
-                , description           = x3
-                , objectType            = x4
-                , startupDate           = x5
-                , manufacturer          = x6
-                , model                 = x7
-                , partNumber            = x8
-                , serialNumber          = x9
-                , constructionYear      = x10
-                , constructionMonth     = x11
-                , maintPlant            = x12
-                , companyCode           = x13
-                , costCenter            = x14
-                , planningPlant         = x15
-                , functionalLocation    = x16
-                , superOridinateEqui    = x17
-                , status                = x18
+                , attrs = 
+                    { category              = x2
+                    , description           = x3
+                    , objectType            = x4
+                    , startupDate           = x5
+                    , manufacturer          = x6
+                    , model                 = x7
+                    , partNumber            = x8
+                    , serialNumber          = x9
+                    , constructionYear      = x10
+                    , constructionMonth     = x11
+                    , maintPlant            = x12
+                    , companyCode           = x13
+                    , costCenter            = x14
+                    , planningPlant         = x15
+                    , functionalLocation    = x16
+                    , superOridinateEqui    = x17
+                    , status                = x18
+                    }
                 })
             <&> getStringNamed("EQUI")                  /// Equipment ID
             <*> getStringNamed("EQTYP")                 /// Equipment Category

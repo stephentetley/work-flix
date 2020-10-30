@@ -27,7 +27,7 @@ def mainResult(): Result[Unit, System.Error] & Impure =
         { equiFile          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_equi_file_download.txt")
         , classFile         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_equiclass_file_download.txt")
         , charFile          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_equichar_file_download.txt")
-        , mltextFile        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_eqmltext_file_download.txt")
+        , mltextFile        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_eqmltxt_file_download.txt")
         , dbtempFile        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_temp.sqlite")
         };
     let* _  = runReportMonad(setupFacts(classFacts(), ztableSourcePaths(), source.dbtempFile));
