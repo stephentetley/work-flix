@@ -19,6 +19,7 @@ namespace AutoLifting/ExistingObject/Build {
     use BasicDb.DbMonad;
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
+    use AssetLib/S4/FileIO/ZTable/ExportDb.ZTableSourcePaths;
     use AutoLifting/Common.ReportMonad;
 
     type alias BuilderSource = 
@@ -27,7 +28,6 @@ namespace AutoLifting/ExistingObject/Build {
         , charFile: System.FilePath
         , mltextFile: System.FilePath
         , dbtempFile: System.FilePath
-        , classFacts: System.FilePath
         }
 
     type alias S4LiftingItem = 
@@ -63,20 +63,33 @@ namespace AutoLifting/ExistingObject/Build {
         , value: String
         }
 
+    pub def setupFacts(classFacts: System.FilePath, zTablePaths: ZTableSourcePaths, dbout: System.FilePath): ReportMonad[Unit] = 
+        use AutoLifting/Common/ReportMonad.{liftActionResult};
+        use BasicDb/DbMonad.{runSQLite};
+        liftActionResult(_ -> runSQLite(setupFactsHelper(classFacts, zTablePaths), dbout))
+        
+
+
+    def setupFactsHelper(classFacts: System.FilePath, zTablePaths: ZTableSourcePaths): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        use AssetLib/S4/FileIO/ClassList/ExportDb.{defaultTableNames => classTableNames, storeEquiClassFile};
+        use AssetLib/S4/FileIO/ZTable/ExportDb.{defaultTableNames => ztableNames, storeZTableFiles};
+        let* _      = storeEquiClassFile(classTableNames(), true, classFacts, Text/Charset.iso_8859_1());
+        let* _      = storeZTableFiles(ztableNames(), zTablePaths);
+        return()
+
+
     pub def build(src: BuilderSource): ReportMonad[Unit] = 
         use AutoLifting/Common/ReportMonad.{flatMap, return, mapM, liftActionResult, liftAction};
         use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
         use BasicDb/DbMonad.{runSQLite};
         let* xs = liftActionResult(_ -> allRows(equiRowEvaluator(), src.equiFile));
         let* _ = mapM(x -> liftAction(_ -> Console.printLine("${x.equiId} ${x.description}")), xs);
-        let* _ = liftActionResult(_ -> runSQLite(buildDb(src), src.dbtempFile));
+        let* _ = liftActionResult(_ -> runSQLite(buildSourceDb(src), src.dbtempFile));
         return()
 
-    def buildDb(src: BuilderSource): DbMonad[Unit] = 
+    def buildSourceDb(src: BuilderSource): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        use AssetLib/S4/FileIO/ClassList/ExportDb.{defaultTableNames, storeEquiClassFile};
-        let cfNames = defaultTableNames();
-        let* _      = storeEquiClassFile(cfNames, true, src.classFacts, Text/Charset.iso_8859_1());
         let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeEqmltxtFile("eqmltext", true, src.mltextFile);
         let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeClassEquiFile("class_equi", true, src.classFile);
         let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeValuaEquiFile("valua_equi", true, src.charFile);
