@@ -49,36 +49,33 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
 
         
     pub def storeZTableFiles(tableNames: ZTableNames, srcPaths: ZTableSourcePaths): DbMonad[Unit] =
-        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult};
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftActionResult};
+        use BasicDb/DbMonad.{>>=};
         use AssetLib/S4/FileIO/ZTable/Builtins.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
         let* _      = setAutoCommit(false);
         let* rs1    = liftActionResult(_ -> loadEqobjl(srcPaths.eqobjlPath));
-        let* _      = writeTable("Eqobjl", exportEqobjl(rs1));
+        let* _      = exportEqobjl(tableNames.equipmentObject, rs1) >>= logResults(tableNames.equipmentObject);
         let* rs2    = liftActionResult(_ -> loadFlocdes(srcPaths.flocdesPath));
-        let* _      = writeTable("Flocdes", exportFlocdes(rs2));
+        let* _      = exportFlocdes(tableNames.flocDescription, rs2) >>= logResults(tableNames.flocDescription);
         let* rs3    = liftActionResult(_ -> loadFloobjl(srcPaths.floobjlPath));
-        let* _      = writeTable("Foobjl", exportFloobjl(rs3));
+        let* _      = exportFloobjl(tableNames.flocObject, rs3) >>= logResults(tableNames.flocObject);
         let* rs4    = liftActionResult(_ -> loadManuf(srcPaths.manufPath));
-        let* _      = writeTable("Manuf", exportManuf(rs4));
+        let* _      = exportManuf(tableNames.manufModel, rs4) >>= logResults(tableNames.manufModel);
         let* rs5    = liftActionResult(_ -> loadObj(srcPaths.objPath));
-        let* _      = exportObj(tableNames.objectManuf, rs5);
+        let* _      = exportObj(tableNames.objectManuf, rs5) >>= logResults(tableNames.objectManuf);
+        let* _      = commit();
         return()
 
-    /// Remove....
-    def writeTable(name: String, operation: DbMonad[Int32]): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftAction};
-        let* _      = setAutoCommit(false);
-        let* _      = liftAction(_ -> Console.printLine(name));
-        let* nrows  = operation;
-        let* _      = liftAction(_ -> Console.printLine("Row count: " + Int32.toString(nrows)));
-        return()
+    def logResults(tableName: String, rowCount: Int32): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{liftAction};
+        liftAction(_ -> Console.printLine("${tableName} wrote ${Int32.toString(rowCount)} rows"))
 
     // Eqobjl
-    def exportEqobjl(rows: List[Eqobjl]): DbMonad[Int32] =
+    def exportEqobjl(tableName: String, rows: List[Eqobjl]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
-        let* _          = execute("DROP TABLE IF EXISTS eqobjl");
-        let* _          = execute(sqlCreateEqobjl());
-        let* stmt       = prepareStatement("INSERT INTO eqobjl(super_object, sub_object, category) VALUES(?,?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _          = execute(sqlCreateEqobjl(tableName));
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (super_object, sub_object, category) VALUES(?,?,?);");
         let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, eqobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -97,11 +94,11 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
 
     // Flocdes
 
-    def exportFlocdes(rows: List[Flocdes]): DbMonad[Int32] =
+    def exportFlocdes(tableName: String, rows: List[Flocdes]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
-        let* _          = execute("DROP TABLE IF EXISTS flocdes");
-        let* _          = execute(sqlCreateFlocdes());
-        let* stmt       = prepareStatement("INSERT INTO flocdes(object_type, description) VALUES(?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _          = execute(sqlCreateFlocdes(tableName));
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (object_type, description) VALUES(?,?);");
         let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, flocdesRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -118,11 +115,11 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
 
     // Floobjl
 
-    def exportFloobjl(rows: List[Floobjl]): DbMonad[Int32] =
+    def exportFloobjl(tableName: String, rows: List[Floobjl]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
-        let* _          = execute("DROP TABLE IF EXISTS floobj");
-        let* _          = execute(sqlCreateFloobjl());
-        let* stmt       = prepareStatement("INSERT INTO floobj(structure, super_object, sub_object) VALUES(?,?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _          = execute(sqlCreateFloobjl(tableName));
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (structure, super_object, sub_object) VALUES(?,?,?);");
         let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, floobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -139,11 +136,11 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
 
     // Manuf
 
-    def exportManuf(rows: List[Manuf]): DbMonad[Int32] =
+    def exportManuf(tableName: String, rows: List[Manuf]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
-        let* _          = execute("DROP TABLE IF EXISTS manuf");
-        let* _          = execute(sqlCreateManuf());
-        let* stmt       = prepareStatement("INSERT INTO manuf(manufacturer, model) VALUES(?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _          = execute(sqlCreateManuf(tableName));
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (manufacturer, model) VALUES(?,?);");
         let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, manufRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -164,7 +161,7 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableObjSql(tableName));
-        let* stmt       = prepareStatement("INSERT INTO ${tableName} (object_type, manufacturer) VALUES(?,?)");
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (object_type, manufacturer) VALUES(?,?);");
         let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, objRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -180,9 +177,9 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
 
     // SQL DDL
     
-    def sqlCreateEqobjl(): String =
+    def sqlCreateEqobjl(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS eqobjl ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "super_object    TEXT NOT NULL,"
                 :: "sub_object      TEXT NOT NULL,"
                 :: "category        TEXT NOT NULL"
@@ -190,18 +187,18 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
                 :: Nil
         )
 
-    def sqlCreateFlocdes(): String =
+    def sqlCreateFlocdes(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS flocdes ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "object_type     TEXT NOT NULL,"
                 :: "description     TEXT NOT NULL"
                 :: ")"
                 :: Nil
         )
 
-    def sqlCreateFloobjl(): String =
+    def sqlCreateFloobjl(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS floobj ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "structure       TEXT NOT NULL,"
                 :: "super_object    TEXT NOT NULL,"
                 :: "sub_object      TEXT NOT NULL"
@@ -209,9 +206,9 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
                 :: Nil
         )
 
-    def sqlCreateManuf(): String =
+    def sqlCreateManuf(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS manuf ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "manufacturer    TEXT NOT NULL,"
                 :: "model           TEXT NOT NULL"
                 :: ")"
