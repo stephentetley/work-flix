@@ -21,16 +21,17 @@ def classFacts(): System.FilePath = System/FilePath.new("G:/work/assets/facts/eq
 
 def mainResult(): Result[Unit, System.Error] & Impure = 
     use Result.{flatMap};
-    use AutoLifting/Common/ReportMonad.{runReportMonad};    
-    use AutoLifting/ExistingObject/Build.{setupFacts, build};
-    let source = 
+    use BasicDb/DbMonad.{runSQLite};    
+    use AssetLib/S4/Simple/EquiDownloadBuilder.{setupFacts, buildS4EquipmentList};
+    let dbtempFile          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_temp.sqlite");
+    let sources = 
         { equiFile          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_equi_file_download.txt")
         , classFile         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_equiclass_file_download.txt")
         , charFile          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_equichar_file_download.txt")
         , mltextFile        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_eqmltxt_file_download.txt")
-        , dbtempFile        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_temp.sqlite")
         };
-    let* _  = runReportMonad(setupFacts(classFacts(), ztableSourcePaths(), source.dbtempFile));
-    let* _  = runReportMonad(build(source));
+    let* _  = runSQLite(setupFacts(classFacts(), ztableSourcePaths()), dbtempFile);
+    let* xs = runSQLite(buildS4EquipmentList(sources), dbtempFile);
+    let _   = List.foreach(x -> Console.printLine("${x.equiId} ${Int32.toString(List.length(x.classifications))} classifications"), xs);
     Ok()
 
