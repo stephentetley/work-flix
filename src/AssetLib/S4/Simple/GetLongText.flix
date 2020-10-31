@@ -23,17 +23,17 @@ namespace AssetLib/S4/Simple/GetLongText {
 
     use AssetLib/S4/Simple/Datatypes.{LongText};
 
-    pub def prepareLongTextQuery(): DbMonad[PreparedStatement] = 
-        BasicDb/DbMonad.prepareStatement(getLongTextSql())
+    pub def prepareEquiLongTextQuery(): DbMonad[PreparedStatement] = 
+        BasicDb/DbMonad.prepareStatement(getEquiLongTextSql())
 
-    pub def getLongText(pstmt: PreparedStatement, equiId: String): DbMonad[Option[LongText]] = 
+    pub def getEquiLongText(pstmt: PreparedStatement, equiId: String): DbMonad[Option[LongText]] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, optional, firstRow, rsClose};
-        let* rs     = psExecuteQuery(pstmt, setLongTextPStmt!(equiId));
+        let* rs     = psExecuteQuery(pstmt, setEquiLongTextPStmt!(equiId));
         let* ans    = optional(firstRow(rs, evalLongText()));
         let* _      = rsClose(rs);
         return(ans)
 
-    def getLongTextSql(): String  = 
+    def getEquiLongTextSql(): String  = 
         String.unwords(
                "SELECT"
             :: "    t.equi, t.short_text, t.long_text"
@@ -44,7 +44,7 @@ namespace AssetLib/S4/Simple/GetLongText {
             :: Nil
         )
 
-    def setLongTextPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
+    def setEquiLongTextPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
         BasicDb/PreparedStatementSetter.putStringAt!(0,  equiId)
 
     def evalLongText(): RowEvaluator[LongText] = 

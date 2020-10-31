@@ -23,17 +23,17 @@ namespace AssetLib/S4/Simple/GetClassifications {
 
     use AssetLib/S4/Simple/Datatypes.{Classification};
 
-    pub def prepareClassificationsQuery(): DbMonad[PreparedStatement] = 
-        BasicDb/DbMonad.prepareStatement(getClassificationsSql())
+    pub def prepareEquiClassificationsQuery(): DbMonad[PreparedStatement] = 
+        BasicDb/DbMonad.prepareStatement(getEquiClassificationsSql())
 
-    pub def getClassifications(pstmt: PreparedStatement, equiId: String): DbMonad[List[Classification]] = 
+    pub def getEquiClassifications(pstmt: PreparedStatement, equiId: String): DbMonad[List[Classification]] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, allRows, rsClose};
-        let* rs     = psExecuteQuery(pstmt, setClassificationPStmt!(equiId));
+        let* rs     = psExecuteQuery(pstmt, setEquiClassificationPStmt!(equiId));
         let* xs     = allRows(rs, evalClassification());
         let* _      = rsClose(rs);
         return(xs)
 
-    def getClassificationsSql(): String  = 
+    def getEquiClassificationsSql(): String  = 
         String.unwords(
                "SELECT"
             :: "    c.equi, c.class_name, cfm.charname, cfcd.datatype, v.value_description, v.value_from"
@@ -50,7 +50,7 @@ namespace AssetLib/S4/Simple/GetClassifications {
             :: Nil
         )
 
-    def setClassificationPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
+    def setEquiClassificationPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
         BasicDb/PreparedStatementSetter.putStringAt!(0,  equiId)
 
     def evalClassification(): RowEvaluator[Classification] = 

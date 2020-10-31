@@ -18,6 +18,27 @@ namespace AssetLib/S4/Simple/Datatypes {
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
 
+    type alias S4Floc = 
+        { functionalLocation: String
+        , attributes: FlocAttributes
+        , longText: Option[LongText]
+        , classifications: List[Classification]
+        }
+
+    type alias FlocAttributes = 
+        { description: String
+        , category: Int32
+        , structureIndicator: String
+        , objectType: String
+        , startupDate: Time.LocalDate
+        , maintPlant: Int32
+        , companyCode: Int32
+        , costCenter: Int32
+        , superiorFloc: String
+        , equipmentInstall: Bool
+        , status: String
+        }
+
 
     type alias S4Equipment = 
         { equiId: String
@@ -27,7 +48,7 @@ namespace AssetLib/S4/Simple/Datatypes {
         }
 
     type alias EquiAttributes = 
-        { category: String          /// Should always be "H" (probably)
+        { category: String
         , description: String
         , objectType: String
         , startupDate: Time.LocalDate

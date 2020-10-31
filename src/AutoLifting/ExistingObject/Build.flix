@@ -68,15 +68,15 @@ namespace AutoLifting/ExistingObject/Build {
 
     pub def buildS4LiftingItems(xs: List[{equiId: String, attrs: EquiAttributes}]): DbMonad[List[S4Equipment]] = 
         use BasicDb/DbMonad.{flatMap, return, mapM};
-        let* ltps   = AssetLib/S4/Simple/GetLongText.prepareLongTextQuery();
-        let* clps   = AssetLib/S4/Simple/GetClassifications.prepareClassificationsQuery();
+        let* ltps   = AssetLib/S4/Simple/GetLongText.prepareEquiLongTextQuery();
+        let* clps   = AssetLib/S4/Simple/GetClassifications.prepareEquiClassificationsQuery();
         let* ys     = mapM(buildS4LiftingItem(ltps, clps), xs);
         return(ys)
 
     def buildS4LiftingItem(ltps: PreparedStatement, clps: PreparedStatement, x: {equiId: String, attrs: EquiAttributes}): DbMonad[S4Equipment] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* longText   = AssetLib/S4/Simple/GetLongText.getLongText(ltps, x.equiId);
-        let* cs         = AssetLib/S4/Simple/GetClassifications.getClassifications(clps, x.equiId);
+        let* longText   = AssetLib/S4/Simple/GetLongText.getEquiLongText(ltps, x.equiId);
+        let* cs         = AssetLib/S4/Simple/GetClassifications.getEquiClassifications(clps, x.equiId);
         return(
             { equiId            = x.equiId
             , attributes        = x.attrs
