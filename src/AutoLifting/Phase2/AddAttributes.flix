@@ -49,13 +49,13 @@ namespace AutoLifting/Phase2/AddAttributes {
         liftActionResult(_ -> toEastingNorthing(ngr1) as & Impure)
 
 
-    pub def loadAttributeLookups(path: System.FilePath): ReportMonad[Map[String, AibAttributeRow]] =
-        use AutoLifting/Common/ReportMonad.{map}; 
-        map(buildAttributeLookups, getAibAttributeRows(path))
+    pub def loadAttributeLookups(paths: List[System.FilePath]): ReportMonad[Map[String, AibAttributeRow]] =
+        use AutoLifting/Common/ReportMonad.{map, foldM}; 
+        foldM((ac, x) -> map(buildAttributeLookups(ac), getAibAttributeRows(x)), Map.empty(), paths)
         
 
-    def buildAttributeLookups(xs: List[AibAttributeRow]): Map[String, AibAttributeRow] = 
-        List.foldLeft((ac, x) ->  Map.insert(x.pliReference, x, ac), Map.empty(), xs)
+    def buildAttributeLookups(start: Map[String, AibAttributeRow], xs: List[AibAttributeRow]): Map[String, AibAttributeRow] = 
+        List.foldLeft((ac, x) ->  Map.insert(x.pliReference, x, ac), start, xs)
 
 
     /// Must be a *.xlsx (OO-XML) file.

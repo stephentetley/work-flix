@@ -28,7 +28,7 @@ namespace AutoLifting/ReportMain {
 
     type alias ReportProperties = 
         { workListPath: System.FilePath
-        , attribsPath: System.FilePath
+        , attribsPaths: List[System.FilePath]
         , memosPaths: List[System.FilePath]
         , reportDescription: String
         , phase2OutPath: System.FilePath
@@ -61,7 +61,7 @@ namespace AutoLifting/ReportMain {
         use AutoLifting/Common/ReportMonad.{flatMap, return, liftAction, mapM};   
         use AutoLifting/Phase2/Translate.{translate};  
         let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(reportProps.memosPaths);
-        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(reportProps.attribsPath);
+        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(reportProps.attribsPaths);
         let* xs1        = mapM(translate(memos, attribs), xs);
         let* xs2        = AutoLifting/Phase2/RewriteValues.renameForS4(xs1);
         let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs2, reportProps.phase2OutPath);
