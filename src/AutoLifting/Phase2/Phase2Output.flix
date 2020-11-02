@@ -33,7 +33,8 @@ namespace AutoLifting/Phase2/Phase2Output {
         allRowsWithHeaders(s1, headers, rows, setPhase2Row!)
 
     def getHeaders(): Array[String] & Impure = 
-        [ "AIB Reference"        
+        [ "Change"
+        , "AIB Reference"
         , "S4 Name"
         , "Equi Category"
         , "S4 Floc"
@@ -59,29 +60,30 @@ namespace AutoLifting/Phase2/Phase2Output {
 
     def setPhase2Row!(x: Phase2FinalWorkItem): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putOptionStringAt!, 
-                putInt32At!, putOptionFloat64At!};
-        let* _      = putStringAt!(0, x.pliReference);
-        let* _      = putStringAt!(1, x.s4EquiName);
-        let* _      = putStringAt!(2, x.s4Category);
-        let* _      = putStringAt!(3, x.s4Floc);
-        let* _      = putStringAt!(4, x.s4Object);
-        let* _      = putStringAt!(5, x.equiAttributes.assetStatus);
-        let* _      = putS4DateAt!(6, x.equiAttributes.installedFrom);
-        let* _      = putStringAt!(7, x.equiAttributes.manufacturer);
-        let* _      = putStringAt!(8, x.equiAttributes.model);
-        let* _      = putStringAt!(9, x.equiAttributes.partNumber);
-        let* _      = putStringAt!(10, x.equiAttributes.serialNumber);
-        let* _      = putOptionStringAt!(11, x.longText); 
-        let* _      = putStringAt!(12, x.s4Class);       
-        let* _      = putStringAt!(13, x.pliReference);
-        let* _      = putStringAt!(14, x.parentSaiReference);
-        let* _      = putInt32At!(15, x.charAttributes.easting);
-        let* _      = putInt32At!(16, x.charAttributes.northing);
-        let* _      = putStringAt!(17, x.charAttributes.locationOnSite);
-        let* _      = putOptionFloat64At!(18, x.charAttributes.workLoad);
-        let* _      = putStringAt!(19, x.charAttributes.workLoadUnits);
-        let* _      = putStringAt!(20, x.charAttributes.statutoryRef);
-        let* _      = putStringAt!(21, x.charAttributes.testCertNum);
+                putInt32At!, putOptionFloat64At!};                
+        let* _      = putStringAt!(0, x.change);
+        let* _      = putStringAt!(1, x.pliReference);
+        let* _      = putStringAt!(2, x.s4EquiName);
+        let* _      = putStringAt!(3, x.s4Category);
+        let* _      = putStringAt!(4, x.s4Floc);
+        let* _      = putStringAt!(5, x.s4Object);
+        let* _      = putStringAt!(6, x.equiAttributes.assetStatus);
+        let* _      = putS4DateAt!(7, x.equiAttributes.installedFrom);
+        let* _      = putStringAt!(8, x.equiAttributes.manufacturer);
+        let* _      = putStringAt!(9, x.equiAttributes.model);
+        let* _      = putStringAt!(10, x.equiAttributes.partNumber);
+        let* _      = putStringAt!(11, x.equiAttributes.serialNumber);
+        let* _      = putOptionStringAt!(12, x.longText); 
+        let* _      = putStringAt!(13, x.s4Class);       
+        let* _      = putStringAt!(14, x.pliReference);
+        let* _      = putStringAt!(15, x.parentSaiReference);
+        let* _      = putInt32At!(16, x.charAttributes.easting);
+        let* _      = putInt32At!(17, x.charAttributes.northing);
+        let* _      = putStringAt!(18, x.charAttributes.locationOnSite);
+        let* _      = putOptionFloat64At!(19, x.charAttributes.workLoad);
+        let* _      = putStringAt!(20, x.charAttributes.workLoadUnits);
+        let* _      = putStringAt!(21, x.charAttributes.statutoryRef);
+        let* _      = putStringAt!(22, x.charAttributes.testCertNum);
 
         return()
 

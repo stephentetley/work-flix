@@ -31,7 +31,7 @@ namespace AutoLifting/Phase2/AddAttributes {
                           pliReference: String): ReportMonad[{charAttributes: S4CharAttributes, equiAttributes: EquiAttributes}] = 
         use AutoLifting/Common/ReportMonad.{flatMap, return, throwError};
         match Map.get(pliReference, attribsMap) {
-            case None => throwError("updateAttributes - No attributes for ${pliReference}")
+            case None => throwError("updateAttributes - No attributes for `${pliReference}`")
             case Some(attrs) => { 
                 let eattrs      = attrs.equiAttributes;
                 let* eastNorth  = getEastingNorthing(attrs.charAttributes.osgb36);
@@ -98,8 +98,8 @@ namespace AutoLifting/Phase2/AddAttributes {
             <*> getStringNamed("AssetStatus")
             <*> getLocalDateNamed("Installed From")
             <*> getStringNamed("Manufacturer")
-            <*> getStringNamed("Model")
-            <*> getStringNamedWithDefault("Specific Model/Frame", "")            
+            <*> getCouldBeNumericalNamed("Model", dfmt)
+            <*> getCouldBeNumericalNamed("Specific Model/Frame", dfmt)
             <*> getCouldBeNumericalNamed("Serial No", dfmt)
             <*> getStringNamed("Loc.Ref.")
             <*> getStringNamedWithDefault("Location On Site", "")
