@@ -120,39 +120,6 @@ namespace AutoLifting/Common/Datatypes {
         , charAttributes: S4CharAttributes
         }
 
-    /// Has the "shape" of a UXL create new item.
-
-    type alias Phase3FinalWorkItem = 
-        { s4EquiId: String
-        , s4EquiName: String
-        , s4Class: String
-        , equiData: EquiData
-        , multilingualText: Option[EquiMultilingualText]
-        , classifications: List[EquiClassification]
-        }
-
-    type alias EquiData = 
-        { category: String
-        , description: String
-        , objectType: String
-        , startupDate: Time.LocalDate
-        , manufacturer: String
-        , model: String
-        , partNumber: String
-        , serialNumber: String 
-        , functionalLocation: String
-        }
-
-    type alias EquiClassification = 
-        { equiClass: String
-        , characteristicName: String
-        , value: String
-        }
-
-   type alias EquiMultilingualText = 
-        { description: String           /// description = s4EquiName
-        , longText: String        
-        }
 
 
 }

@@ -22,18 +22,20 @@ namespace AutoLifting/Phase2/LongText {
     use AutoLifting/Common/Datatypes.{Phase2WorkItem1, Phase2WorkItem2, AibMemoRow};
     use AutoLifting/Common.ReportMonad;
 
+    /// AIB reports are apparently limited to 166 rows, we might have to read multiple files.
+    pub def loadMemoLookups(paths: List[System.FilePath]): ReportMonad[Map[String, String]] =
+        use AutoLifting/Common/ReportMonad.{foldM, map}; 
+        foldM((ac, x) -> map(buildMemoLookups(ac), getAibMemoRows(x)), Map.empty(), paths)
+
 
     pub def getLongText(memosMap: Map[String, String], pliReference: String): ReportMonad[Option[String]] = 
         use AutoLifting/Common/ReportMonad.{return};
         return(Map.get(pliReference, memosMap))
 
-    pub def loadMemoLookups(path: System.FilePath): ReportMonad[Map[String, String]] =
-        use AutoLifting/Common/ReportMonad.{map}; 
-        map(buildMemoLookups, getAibMemoRows(path))
         
 
-    def buildMemoLookups(xs: List[AibMemoRow]): Map[String, String] = 
-        List.foldLeft((ac, x) ->  insertStep(x, ac), Map.empty(), xs)
+    def buildMemoLookups(start: Map[String, String], xs: List[AibMemoRow]): Map[String, String] = 
+        List.foldLeft((ac, x) ->  insertStep(x, ac), start, xs)
 
 
     def insertStep(x: AibMemoRow, ac: Map[String, String]): Map[String, String] = 

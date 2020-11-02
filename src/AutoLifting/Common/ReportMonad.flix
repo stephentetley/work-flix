@@ -174,6 +174,29 @@ namespace AutoLifting/Common/ReportMonad {
                 case Err(e) => fk(e)
                 case Ok((s1, x)) => sequenceHelper(s1, rs, fk, (s2, ks) -> sk(s2, x :: ks))
             }
+
+        }
+    
+    pub def foldM(mf: (b, a) -> ReportMonad[b], start: b, xs: List[a]): ReportMonad[b] =
+        ReportMonad(s ->
+            foldMHelper(s, mf, start, xs, e -> Err(e), (s1, ac) -> Ok(s1, ac))
+        )
+
+    def foldMHelper(s: Int32, 
+                    mf: (b, a) -> ReportMonad[b], 
+                    acc: b, 
+                    xs: List[a], 
+                    fk: System.Error -> Result[(Int32, b), System.Error], 
+                    sk: (Int32, b) -> Result[(Int32, b), System.Error]): Result[(Int32, b), System.Error] & Impure =
+        match xs {
+            case Nil => sk(s, acc)
+            case x :: rs => {
+                let ma = mf(acc, x);
+                match apply1(ma, s) {
+                    case Err(e) => fk(e)
+                    case Ok((s1, acc1)) => foldMHelper(s1, mf, acc1, rs, fk, sk)
+                }
+            }
         }
 
     /// Alias for `bind`
