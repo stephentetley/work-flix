@@ -67,7 +67,7 @@ namespace AssetLib/S4/Simple/Datatypes {
         , status: String
         }
 
-    /// shortTest = description.
+    /// shortText = description.
     type alias LongText = 
         { shortText: String             
         , longText: String
@@ -79,6 +79,7 @@ namespace AssetLib/S4/Simple/Datatypes {
         , datatype: String
         , value: String
         }
+
 
 
 

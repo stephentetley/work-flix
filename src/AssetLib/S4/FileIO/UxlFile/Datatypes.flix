@@ -47,7 +47,16 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , statusProfile: String
         , userStatus: String        
         } 
-    
+
+    type alias FunctionalLocationUpdate = 
+        { functionalLocation: String
+        , description: String
+        , dataChanges: List[DataUpdate]             
+        , classificationChanges: List[FlClassification]
+        }        
+
+
+
     /// `description` should be the same value as description on FunctionalLocationData page.
     /// `longText` is the actual long text
     type alias FlMultilingualText = 
@@ -97,6 +106,14 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , statusOfAnObject: String
         }
 
+    type alias EquipmentUpdate = 
+        { equiId: String
+        , description: String
+        , dataChanges: List[DataUpdate]             
+        , classificationChanges: List[EqClassification]
+        }        
+
+
     /// `description` should be the same value as description on FunctionalLocationData page.
     /// `longText` is the actual long text
     type alias EqMultilingualText = 
@@ -119,6 +136,16 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , charDeleteInd: Bool 
         }
 
+
+    /// Either FunctionLocationData or EquipmentData.
+    type alias DataUpdate = { fieldName: String, fieldIndex: Int32, value: S4Value}
+
+    pub enum S4Value {
+        case Bool(Bool)
+        case Text(String)
+        case Int(Int32)
+        case Decimal(Float64)
+    }
 
 
 }
