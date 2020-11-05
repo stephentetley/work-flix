@@ -32,7 +32,7 @@ namespace AutoLifting/Phase1/Translate {
                         , typeDb: #{Distinguished, Ordinary, TypeAnswer | s}
                         , x: AibExportRow): ReportMonad[Phase1FinalWorkItem] = 
         use AutoLifting/Common/ReportMonad.{flatMap, return, liftActionResult};
-        let* aibNames       = AutoLifting/Phase1/Naming.getAibNames(x);
+        let* aibNames       = AutoLifting/Phase1/AibNames.getAibNames(x.assetName);
         let* s4SiteCode     = AutoLifting/Phase1/SiteMapping.getS4SiteCode(siteCodes, aibNames.siteName);
         let* saiParent      = AutoLifting/Phase1/ParentRef.getSaiParentReference(parentIds, x.newParentName);
         let* typeMap        = AutoLifting/Phase1/TypeMapping.getTypeInfo(typeDb, { s4SiteCode = s4SiteCode

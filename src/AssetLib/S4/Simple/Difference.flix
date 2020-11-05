@@ -16,8 +16,7 @@
     
 
 namespace AssetLib/S4/FileIO/Simple/Difference {
-    
-    /// Should we be working on Simple instead?
+
 
     pub enum DiffValue[v] {
         case Same(v)

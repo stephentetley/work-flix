@@ -16,7 +16,6 @@
 
 namespace AssetLib/S4/Simple/Datatypes {
 
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
 
     type alias S4Floc = 
         { functionalLocation: String

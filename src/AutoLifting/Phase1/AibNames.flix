@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Phase1/Naming {
+namespace AutoLifting/Phase1/AibNames {
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
 
@@ -29,11 +29,11 @@ namespace AutoLifting/Phase1/Naming {
         , siteName: String
         }
 
-    pub def getAibNames(x: AibExportRow): ReportMonad[AibNames] = 
+    pub def getAibNames(aibCommonName: String): ReportMonad[AibNames] = 
         use AutoLifting/Common/ReportMonad.{return, flatMap};
-        let* name       = getAibEquiNameFromCommonName(x.assetName);
-        let* typ        = getAibEquiTypeFromCommonName(x.assetName);
-        let* site       = getAibSiteNameFromCommonName(x.assetName);
+        let* name       = getAibEquiNameFromCommonName(aibCommonName);
+        let* typ        = getAibEquiTypeFromCommonName(aibCommonName);
+        let* site       = getAibSiteNameFromCommonName(aibCommonName);
         return({ equiName   = name
                , equiType   = typ
                , siteName   = site
