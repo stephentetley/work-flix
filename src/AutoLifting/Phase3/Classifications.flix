@@ -80,9 +80,9 @@ namespace AutoLifting/Phase3/LiftingClassifications {
 
 
     def readLiftingMapping() : SheetReader[Map[String, (String, String)]] =
-        use SheetIO/SheetReader.{flatMap, return, getSheetAt, maximalNamedRows}; 
+        use SheetIO/SheetReader.{flatMap, return, getSheetAt, namedRowsFrom}; 
         let* s1     = getSheetAt(0); 
-        let* xs     = maximalNamedRows(s1, 0, 1, evalLiftingMappingRow());
+        let* xs     = namedRowsFrom(s1, 0, 1, evalLiftingMappingRow());
         let m1      = buildLiftingMap(xs);
         return(m1)
 

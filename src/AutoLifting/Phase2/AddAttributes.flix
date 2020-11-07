@@ -65,11 +65,12 @@ namespace AutoLifting/Phase2/AddAttributes {
         
 
     def readAibAttributeRows() : SheetReader[List[AibAttributeRow]] =
-        use SheetIO/SheetReader.{flatMap, return, getSheetAt, liftAction, maximalNamedRows}; 
+        use SheetIO/SheetReader.{flatMap, return, getSheetAt, liftAction, namedRowsFrom}; 
         let* s1 = getSheetAt(0); 
         let* dfmt = liftAction(_ -> SheetIO/DataFormatter.new()); 
-        maximalNamedRows(s1, 0, 1, evalAibAttributeRow(dfmt))
+        namedRowsFrom(s1, 0, 1, evalAibAttributeRow(dfmt))
 
+    /// TODO - this needs to handle "SAI" rows too, ideally by Option...
     def evalAibAttributeRow(dfmt: DataFormatter): NamedRowEvaluator[AibAttributeRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
                 getFloat64Named, getStringNamedWithDefault, optional, getStringNamedWithDataFormatter};
@@ -94,10 +95,10 @@ namespace AutoLifting/Phase2/AddAttributes {
                     , testCertNum       = x13.trim()
                     }
                 })
-            <&> getStringNamed("Reference")
+            <&> logEval(getStringNamed("Reference"))
             <*> getStringNamed("AssetStatus")
             <*> getLocalDateNamed("Installed From")
-            <*> getStringNamed("Manufacturer")
+            <*> getStringNamedWithDefault("Manufacturer", "")
             <*> getCouldBeNumericalNamed("Model", dfmt)
             <*> getCouldBeNumericalNamed("Specific Model/Frame", dfmt)
             <*> getCouldBeNumericalNamed("Serial No", dfmt)
@@ -119,11 +120,11 @@ namespace AutoLifting/Phase2/AddAttributes {
         alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
         
 
-    /// def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
-    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
-    ///     let* ans = ma;
-    ///     let* _ = liftAction(_ -> Console.printLine(ans));
-    ///     return(ans)
+    def logEval(ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+        let* ans = ma;
+        let* _ = liftAction(_ -> Console.printLine(ans));
+        return(ans)
         
 
 }

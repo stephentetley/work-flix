@@ -59,9 +59,9 @@ namespace AutoLifting/Phase2/LongText {
         
 
     def readAibMemoRows() : SheetReader[List[AibMemoRow]] =
-        use SheetIO/SheetReader.{flatMap, return, getSheetAt, maximalNamedRows}; 
+        use SheetIO/SheetReader.{flatMap, return, getSheetAt, namedRowsFrom}; 
         let* s1 = getSheetAt(0); 
-        maximalNamedRows(s1, 0, 1, evalAibMemoRow())
+        namedRowsFrom(s1, 0, 1, evalAibMemoRow())
 
     def evalAibMemoRow(): NamedRowEvaluator[AibMemoRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};

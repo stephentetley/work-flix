@@ -19,11 +19,11 @@ def mainResult(): Result[Unit, System.Error] & Impure =
         , siteTablePath     = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
         , uxlTemplatePath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx")
         };
-    let workListPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/SCARBOROUGH STW.xlsx");
+    let workListPath      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CALDER VALE STW-with-refs.xlsx");
     let reportProps = 
         { workListPath      = workListPath
-        , attribsPaths      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_attribs_export_large.xlsx") :: Nil
-        , memosPaths        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/scarbo_memos_export_large.xlsx") :: Nil
+        , attribsPaths      = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-attribs-export.xlsx") :: Nil
+        , memosPaths        = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-memos-export.xlsx") :: Nil
         , reportDescription = "Site 01 (GC) 16/10/2020 Stephen"
         , phase2OutPath     = makeOutputName(workListPath, "_new_kids.xlsx")
         , uxlOutPath        = makeOutputName(workListPath, "_new_kids_uxl.xlsx")

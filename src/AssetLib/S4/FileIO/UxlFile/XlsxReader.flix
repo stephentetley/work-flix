@@ -28,9 +28,9 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     /// Change Request Details
 
     pub def readChangeRequestDetails(): SheetReader[List[ChangeRequestDetails]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Classification");
-        let* xs     = maximalNamedRows(s1, 4, 6, getChangeRequestDetails());
+        let* xs     = namedRowsFrom(s1, 4, 6, getChangeRequestDetails());
         return(xs)
 
     def getChangeRequestDetails(): NamedRowEvaluator[ChangeRequestDetails] = 
@@ -55,9 +55,9 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     /// Functional Location Data
 
     pub def readFunctionalLocationData(): SheetReader[List[FunctionalLocationData]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Functional Location Data");
-        let* xs     = maximalNamedRows(s1, 4, 6, getFunctionalLocationData());
+        let* xs     = namedRowsFrom(s1, 4, 6, getFunctionalLocationData());
         return(xs)
 
     def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
@@ -101,9 +101,9 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     /// FL-Multilingual Text
 
     pub def readFlMultilingualText(): SheetReader[List[FlMultilingualText]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("FL-Multilingual Text");
-        let* xs     = maximalNamedRows(s1, 4, 6, getFlMultilingualText());
+        let* xs     = namedRowsFrom(s1, 4, 6, getFlMultilingualText());
         return(xs)
 
     def getFlMultilingualText(): NamedRowEvaluator[FlMultilingualText] = 
@@ -129,9 +129,9 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         SheetIO/SheetReader.runXlsx(readFlClassification(), path)
 
     pub def readFlClassification(): SheetReader[List[FlClassification]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("FL-Classification");
-        let* xs     = maximalNamedRows(s1, 4, 6, getFlClassification());
+        let* xs     = namedRowsFrom(s1, 4, 6, getFlClassification());
         return(xs)
 
 
@@ -163,9 +163,9 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         SheetIO/SheetReader.runXlsx(readEquipmentData(), path)
 
     pub def readEquipmentData(): SheetReader[List[EquipmentData]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Equipment Data");
-        let* xs     = maximalNamedRows(s1, 4, 6, getEquipmentData());
+        let* xs     = namedRowsFrom(s1, 4, 6, getEquipmentData());
         return(xs)
 
     def getEquipmentData(): NamedRowEvaluator[EquipmentData] = 
@@ -226,9 +226,9 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     /// EQ-Multilingual Text
 
     pub def readEqMultilingualText(): SheetReader[List[EqMultilingualText]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Multilingual Text");
-        let* xs     = maximalNamedRows(s1, 4, 6, getEqMultilingualText());
+        let* xs     = namedRowsFrom(s1, 4, 6, getEqMultilingualText());
         return(xs)
 
     def getEqMultilingualText(): NamedRowEvaluator[EqMultilingualText] = 
@@ -254,9 +254,9 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         SheetIO/SheetReader.runXlsx(readEqClassification(), path)
 
     pub def readEqClassification(): SheetReader[List[EqClassification]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, maximalNamedRows};      
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Classification");
-        let* xs     = maximalNamedRows(s1, 4, 6, getEqClassification());
+        let* xs     = namedRowsFrom(s1, 4, 6, getEqClassification());
         return(xs)
 
     def getEqClassification(): NamedRowEvaluator[EqClassification] = 

@@ -26,7 +26,8 @@ namespace AutoLifting/Phase1/SiteMapping {
 
 
     
-    /// Use a Map rather than Datalog for this because it is so simple
+    /// Currently using a Map because it is so simple...
+    /// But it would be better in a DB anyway.
     
     pub def getS4SiteCode(m: Map[String, String], aibSiteName: String): ReportMonad[String] = 
         use AutoLifting/Common/ReportMonad.{throwError, return};
