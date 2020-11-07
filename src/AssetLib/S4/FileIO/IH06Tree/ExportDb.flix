@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb { 
+namespace AssetLib/S4/FileIO/IH06Tree/ExportDb { 
 
     use Data.RoseTree.{RoseTree};
     
@@ -28,16 +28,16 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
     use AssetLib/S4/FileIO/IH06Tree/Builder.{buildIH06Trees};
     use AssetLib/S4/FileIO/IH06Tree/Parser.{parseFile};
 
-    pub def exportDb(sourceFile: System.FilePath, cs: Text.Charset, tableNames: IH06TreeTableNames, outputUrl: String): Result[Unit, System.Error] & Impure = 
-        use Result.flatMap;
-        let* ast    = parseFile(sourceFile, cs);
-        let ans     = buildIH06Trees(ast);
-        let* _      = outputDb(tableNames, ans, outputUrl);
-        Ok()
+    /// pub def exportDb(sourceFile: System.FilePath, cs: Text.Charset, tableNames: IH06TreeTableNames, outputUrl: String): Result[Unit, System.Error] & Impure = 
+    ///     use Result.flatMap;
+    ///     let* ast    = parseFile(sourceFile, cs);
+    ///     let ans     = buildIH06Trees(ast);
+    ///     let* _      = outputDb(tableNames, ans, outputUrl);
+    ///     Ok()
 
 
-    pub def outputDb(tableNames: IH06TreeTableNames, xs: List[IH06Tree], url: String): Result[Unit, System.Error] & Impure =         
-        BasicDb/DbMonad.runDbMonad(storeIH06Trees(tableNames, xs), url)
+    /// /// pub def outputDb(tableNames: IH06TreeTableNames, xs: List[IH06Tree], url: String): Result[Unit, System.Error] & Impure =         
+    /// ///     BasicDb/DbMonad.runDbMonad(storeIH06Trees(tableNames, xs), url)
 
     type alias IH06TreeTableNames = 
         { flocNodes: String
@@ -49,15 +49,13 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         , equiNodes     = "iht_equi_nodes"
         }
 
-    pub def storeIH06Trees(tableNames: IH06TreeTableNames, xs: List[IH06Tree]): DbMonad[Unit] =
-        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftAction};
+    pub def storeIH06Trees(tableNames: IH06TreeTableNames, sourceFile: System.FilePath, cs: Text.Charset): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult};
+        let* ast    = liftActionResult(_ -> parseFile(sourceFile, cs));
+        let xs      = buildIH06Trees(ast);
         let* _      = setAutoCommit(false);
-        let* _      = liftAction(_ -> Console.printLine("Flocs..."));
-        let* n1     = exportFlocNodes(tableNames.flocNodes, xs);
-        let* _      = liftAction(_ -> Console.printLine(Int32.toString(n1)));
-        let* _      = liftAction(_ -> Console.printLine("Equi..."));
-        let* n2     = exportEquiNodes(tableNames.equiNodes, xs);
-        let* _      = liftAction(_ -> Console.printLine(Int32.toString(n2)));
+        let* _      = exportFlocNodes(tableNames.flocNodes, xs);
+        let* _      = exportEquiNodes(tableNames.equiNodes, xs);
         return()
 
 
