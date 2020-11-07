@@ -28,35 +28,45 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
     use AssetLib/S4/FileIO/IH06Tree/Builder.{buildIH06Trees};
     use AssetLib/S4/FileIO/IH06Tree/Parser.{parseFile};
 
-    pub def exportDb(sourceFile: System.FilePath, cs: Text.Charset, outputUrl: String): Result[Unit, System.Error] & Impure = 
+    pub def exportDb(sourceFile: System.FilePath, cs: Text.Charset, tableNames: IH06TreeTableNames, outputUrl: String): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;
         let* ast    = parseFile(sourceFile, cs);
         let ans     = buildIH06Trees(ast);
-        let* _      = outputDb(ans, outputUrl);
+        let* _      = outputDb(tableNames, ans, outputUrl);
         Ok()
 
 
-    pub def outputDb(xs: List[IH06Tree], url: String): Result[Unit, System.Error] & Impure =         
-        BasicDb/DbMonad.runDbMonad(storeIH06Trees(xs), url)
-        
-    pub def storeIH06Trees(xs: List[IH06Tree]): DbMonad[Unit] =
+    pub def outputDb(tableNames: IH06TreeTableNames, xs: List[IH06Tree], url: String): Result[Unit, System.Error] & Impure =         
+        BasicDb/DbMonad.runDbMonad(storeIH06Trees(tableNames, xs), url)
+
+    type alias IH06TreeTableNames = 
+        { flocNodes: String
+        , equiNodes: String
+        }
+
+    pub def defaultTableNames(): IH06TreeTableNames = 
+        { flocNodes     = "iht_floc_nodes"
+        , equiNodes     = "iht_equi_nodes"
+        }
+
+    pub def storeIH06Trees(tableNames: IH06TreeTableNames, xs: List[IH06Tree]): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("Flocs..."));
-        let* n1     = addFlocNodes(xs);
+        let* n1     = exportFlocNodes(tableNames.flocNodes, xs);
         let* _      = liftAction(_ -> Console.printLine(Int32.toString(n1)));
         let* _      = liftAction(_ -> Console.printLine("Equi..."));
-        let* n2     = addEquiNodes(xs);
+        let* n2     = exportEquiNodes(tableNames.equiNodes, xs);
         let* _      = liftAction(_ -> Console.printLine(Int32.toString(n2)));
         return()
 
 
     // FlocNodes
-    pub def addFlocNodes(xs: List[IH06Tree]): DbMonad[Int32] =
+    def exportFlocNodes(tableName: String, xs: List[IH06Tree]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, commit};
-        let* _          = execute("DROP TABLE IF EXISTS floc_node");
-        let* _          = execute(sqlCreateFlocNode());
-        let* stmt       = prepareStatement("INSERT INTO floc_node(floc, level, description, parent) VALUES(?,?,?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${tableName}");
+        let* _          = execute(sqlCreateFlocNode(tableName));
+        let* stmt       = prepareStatement("INSERT INTO ${tableName}(floc, level, description, parent) VALUES(?,?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = emitIH06Flocs(stmt, x); return(ac+n)}, 0, xs);
         let* _          = commit();
         return(nrows)
@@ -84,11 +94,11 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
         return()
 
     // EquiNodes
-    pub def addEquiNodes(xs: List[IH06Tree]): DbMonad[Int32] =
+    def exportEquiNodes(tableName: String, xs: List[IH06Tree]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, commit};
-        let* _          = execute("DROP TABLE IF EXISTS equi_node");
-        let* _          = execute(sqlCreateEquiNode());
-        let* stmt       = prepareStatement("INSERT INTO equi_node(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
+        let* _          = execute("DROP TABLE IF EXISTS ${tableName}");
+        let* _          = execute(sqlCreateEquiNode(tableName));
+        let* stmt       = prepareStatement("INSERT INTO ${tableName}(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
         let* nrows      = foldM((ac, x) -> { let* n = emitIH06Equis(stmt, x); return(ac+n)}, 0, xs);
         let* _          = commit();
         return(nrows)
@@ -122,9 +132,9 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
     // SQL DDL
 
 
-    def sqlCreateFlocNode(): String =
+    def sqlCreateFlocNode(tableName: String): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS floc_node ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "floc            TEXT    NOT NULL PRIMARY KEY,"
                 :: "level           INTEGER NOT NULL,"
                 :: "description     TEXT    NOT NULL,"
@@ -133,9 +143,9 @@ namespace AssetLib/S4/FileIO/IH06Tree/Raw/ExportDb {
                 :: Nil
         )
 
-    def sqlCreateEquiNode(): String =
+    def sqlCreateEquiNode(tableName: String): String =
         String.unwords(
-            "CREATE TABLE equi_node ("
+            "CREATE TABLE ${tableName} ("
                 :: "equi_id         TEXT    NOT NULL PRIMARY KEY,"
                 :: "level           INTEGER NOT NULL,"
                 :: "description     TEXT    NOT NULL,"
