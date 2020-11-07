@@ -45,7 +45,7 @@ namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
     def charInClassHelper(classtype: String, charname: String, classname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM classlist_class_members WHERE classtype = ? AND classname = ? AND charname = ?");
+        let* pstmt  = prepareStatement("SELECT COUNT(classname) FROM cf_members WHERE classtype = ? AND classname = ? AND charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPrepStmt!(classtype, charname, classname));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
         let* _      = rsClose(rs);

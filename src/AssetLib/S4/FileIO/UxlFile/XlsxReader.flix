@@ -200,7 +200,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
                 })
             <&> getStringNamed("Equi")                              /// equiId
             <*> getStringNamed("Eqtyp")                             /// equipCategory
-            <*> logged("Txtmi", getStringNamed("Txtmi"))                          /// description
+            <*> getStringNamed("Txtmi")                             /// description
             <*> getStringNamed("EqartEqu")                          /// objectType
             <*> optional(getFloat64Named("Brgew"))                  /// grossWeight
             <*> getStringNamedWithDefault("Gewei", "")              /// unitOfWeight
@@ -312,11 +312,11 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         optional(getLocalDateNamed(label))
 
 
-    def logged(tag: String, fn: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
-        let* ans = fn;
-        let* _ = liftAction(_ -> Console.printLine("${tag}: ${ans}"));
-        return(ans)
+    /// def logged(tag: String, fn: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+    ///     let* ans = fn;
+    ///     let* _ = liftAction(_ -> Console.printLine("${tag}: ${ans}"));
+    ///     return(ans)
 
 ///    def loggedInt32(tag: String, fn: NamedRowEvaluator[Int32]): NamedRowEvaluator[Int32] = 
 ///         use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};

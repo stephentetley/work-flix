@@ -65,7 +65,7 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
 
     def intRangeCheck(classtype: String, charname: String, value: Int32): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM classlist_int_ranges WHERE classtype = ? AND charname = ?");
+        let* pstmt  = prepareStatement("SELECT range_low, range_high FROM cf_int_ranges WHERE classtype = ? AND charname = ?");
         let* rs     = psExecuteQuery(pstmt, setPStmt!(classtype, charname));
         let* orng   = optional(firstRow(rs, evalRow()));
         let* _      = rsClose(rs);

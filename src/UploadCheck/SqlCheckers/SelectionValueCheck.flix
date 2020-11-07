@@ -54,7 +54,7 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
     def isRestricted(classtype: String, charname: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM classlist_selection_values WHERE classtype = ? AND charname = ?;");
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM cf_selection_values WHERE classtype = ? AND charname = ?;");
         let* rs     = psExecuteQuery(pstmt, isRestrictedSetter(classtype,  charname));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
         let* _      = rsClose(rs);
@@ -69,7 +69,7 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
     def isRestrictedValue(classtype: String, charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM classlist_selection_values WHERE classtype = ? AND charname = ? AND value = ?;");
+        let* pstmt  = prepareStatement("SELECT COUNT(value) FROM cf_selection_values WHERE classtype = ? AND charname = ? AND value = ?;");
         let* rs     = psExecuteQuery(pstmt, restrictedValueSetter(classtype, charname, value));
         let* n      = firstRow(rs, BasicDb/RowEvaluator.getInt32At(0));
         let* _      = rsClose(rs);

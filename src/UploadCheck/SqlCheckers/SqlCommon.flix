@@ -31,7 +31,7 @@ namespace UploadCheck/SqlCheckers/SqlCommon {
 
     def getDatatype(classtype: String, charname: String): DbMonad[Option[Datatype]] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* pstmt  = prepareStatement("SELECT DISTINCT datatype FROM classlist_characteristics WHERE classtype = ? AND charname = ?");        
+        let* pstmt  = prepareStatement("SELECT DISTINCT datatype FROM cf_char_defs WHERE classtype = ? AND charname = ?");        
         let* rs     = psExecuteQuery(pstmt, datatypeSetter(classtype,  charname));
         let* ans    = optional(firstRow(rs, BasicDb/RowEvaluator.getStringAt(0)));
         let* _      = rsClose(rs);

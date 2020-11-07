@@ -38,9 +38,9 @@ namespace UploadCheck/Main {
     /// a SQL database of facts rather than a Datalog one.
     type alias CheckerMonad[a] = DbMonad[a]
 
-    pub def runMain(uxlPath: System.FilePath): Unit & Impure = 
+    pub def runMain(dbPath: System.FilePath, uxlPath: System.FilePath): Unit & Impure = 
         Console.printLine("Running...");
-        match runSQLite(checkAll(uxlPath), System/FilePath.new("G:/work/assets/facts/classfile_characteristics2.sqlite")) {
+        match runSQLite(checkAll(uxlPath), dbPath) {
             case Err(e) => Console.printLine(System/Error.toString(e))
             case Ok(ans) => printCheck(ans)
         }
@@ -48,7 +48,7 @@ namespace UploadCheck/Main {
     def checkAll(uxlPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
         use BasicDb/DbMonad.{flatMap, return};
         use DataCheck/Check.{concat};
-        let* a1     = checkFlClassifications(uxlPath);        
+        let* a1     = checkFlClassifications(uxlPath);
         let* a2     = checkEquipmentData(uxlPath);
         let* a3     = checkEqClassifications(uxlPath);
         return(concat(a1 :: a2 :: a3 :: Nil))
