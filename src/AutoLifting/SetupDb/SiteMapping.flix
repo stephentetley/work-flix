@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Setup/SiteMapping {
+namespace AutoLifting/SetupDb/SiteMapping {
     
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
@@ -41,7 +41,7 @@ namespace AutoLifting/Setup/SiteMapping {
 
         
 
-    def readSiteMapTable(): SheetReader[List[SiteMappingRow]] = 
+    def readSiteMappingTable(): SheetReader[List[SiteMappingRow]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
         let* s1     = getSheetNamed("inst to SAP migration");
         let* xs     = allNamedRows(s1, evalSiteMappingRow());
@@ -63,7 +63,7 @@ namespace AutoLifting/Setup/SiteMapping {
     def exportSiteMappingRows(tableName: String, rows: List[SiteMappingRow]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _          = execute(createTableObjSql(tableName));
+        let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (installation_common_name, s4_level1_code) VALUES(?,?);");
         let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, siteMappingRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();

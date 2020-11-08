@@ -55,10 +55,18 @@ namespace AssetLib/S4/FileIO/ZTable/Parser {
         use TextParser.{flatMap, return, liftActionResult};
         use TextParser/Text.{restOfLine};
         use AssetLib/S4/FileIO/ZTable/RowEvaluator.{evaluateString};
-        use AssetLib/Common/Utils.{leadingSepBy};
         let split = s -> leadingSepBy(s, "|");
         let* s0 = restOfLine(true);
         let s1 = Text/Regex.replace(s0, Text/Regex/Pattern.irrefutablePattern("\R"), "");
         liftActionResult(_ -> evaluateString(split, s1, eval))
+
+
+    def leadingSepBy(input: String, sep: String): Array[String] & Impure =
+        use Text/Regex.{split};
+        use Text/Regex/Pattern.{compile, quote};
+        match compile(quote(sep)) {
+            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
+            case Err(_)   => Array.new("", 0)
+        }
 
 }

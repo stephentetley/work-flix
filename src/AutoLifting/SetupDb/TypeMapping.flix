@@ -96,7 +96,7 @@ namespace AutoLifting/SetupDb/TypeMapping {
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "equi_type           TEXT NOT NULL,"
-                :: "name_contains       TEXT"       /// Null => None
+                :: "name_contains       TEXT,"       /// Null => None
                 :: "category            TEXT NOT NULL,"
                 :: "object_type         TEXT NOT NULL,"
                 :: "object_class        TEXT NOT NULL,"
