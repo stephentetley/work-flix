@@ -41,4 +41,11 @@ namespace AutoLifting/SetupDb {
         return()
 
 
+    pub def setupSpecificTables(worklistPath: System.FilePath):  DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        use AutoLifting/SetupDb/ParentRef.{storeParentRefs};
+        let* _  = storeParentRefs("wl_parent_refs", worklistPath);
+        return()
+
+
 }
