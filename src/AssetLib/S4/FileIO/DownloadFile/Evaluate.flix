@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
 
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, DataRow, EntityData};
@@ -31,8 +27,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
 
 
     pub def toEntityData( headers: Array[String]
-                        , eval: RowEvaluator[r]
-                        , src: DownloadFile): Result[EntityData[r], System.Error] & Impure = 
+                        , eval: RowEvaluator[row]
+                        , src: DownloadFile): Result[EntityData[row], System.Error] & Impure = 
         use Result.flatMap;
         let DownloadFile(x1) = src;
         let Headers(arr) = x1.headers;
@@ -57,7 +53,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
         buildRows(rowp, ast)
 
 
-    def buildRows(rowp: RowEvaluator[r], src: DownloadFile): Result[List[r], System.Error] & Impure = 
+    def buildRows(rowp: RowEvaluator[row], src: DownloadFile): Result[List[row], System.Error] & Impure = 
         use Result.flatMap;
         let DownloadFile(x1) = src;
         let Headers(arr) = x1.headers;
@@ -76,24 +72,5 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
 
 
 
-    /// Import rows of a FileDownload
-    /// Builds relations with `<+>`.
-    pub def importRows(rowp: RowEvaluator[#{| reln}], path: System.FilePath): Result[#{| reln}, System.Error] & Impure = 
-        use Result.flatMap;        
-        let* ast = AssetLib/S4/FileIO/DownloadFile/Parser.parseFile(path);
-        buildRelations(rowp, ast)
-
-
-    def buildRelations(rowp: RowEvaluator[#{| reln}], src: DownloadFile): Result[#{| reln}, System.Error] & Impure = 
-        use Result.flatMap;
-        let DownloadFile(x1) = src;
-        let Headers(arr) = x1.headers;
-        let headers = makeHeaders(arr);
-        let accumRow = (ac, x) -> 
-            match evalRow(rowp, headers, x) {
-                case Ok(r1) => Ok(ac <+> r1)
-                case Err(e) => Err(e)
-            };
-        Result.foldLeftM(accumRow, #{ },  x1.dataRows)
     
 }
