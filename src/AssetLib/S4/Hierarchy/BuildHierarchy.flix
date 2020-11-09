@@ -16,7 +16,7 @@
 
 use Data.{RoseTree, RoseForest};
 use Data.RoseTree.{RoseTree};
-use System.Error.{IllegalArgumentException, Generic};
+use System.Error.{Generic};
 
 
 use AssetLib/S4/Hierarchy/Relations.{Node, Root, Child};

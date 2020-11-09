@@ -22,7 +22,7 @@ namespace AssetLib/S4/FileIO/ZTable {
 
 namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
 
-    use System.Error.{IllegalArgumentException, InputMismatchException};
+    use System.Error.{Generic};
 
 
     use AssetLib/S4/FileIO/ZTable.RowEvaluator;
@@ -103,7 +103,7 @@ namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
                 let s = row[ix];
                 Ok(s)
             } else {
-                Err(IllegalArgumentException)
+                Err(Generic("getCell(${Int32.toString(ix)})"))
             }
         )
 
@@ -120,27 +120,27 @@ namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
 
     pub def getInt8At(ix: Int32): RowEvaluator[Int8] =
         let* s = getStringAt(ix);
-        liftResult(Int8.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int8.fromString(s) |> Result.mapErr(_ -> Generic("getInt8At('${Int32.toString(ix)}')")))
 
     pub def getInt16At(ix: Int32): RowEvaluator[Int16] =
         let* s = getStringAt(ix);
-        liftResult(Int16.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int16.fromString(s) |> Result.mapErr(_ -> Generic("getInt16At('${Int32.toString(ix)}')")))
 
     pub def getInt32At(ix: Int32): RowEvaluator[Int32] =
         let* s = getStringAt(ix);
-        liftResult(Int32.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int32.fromString(s) |> Result.mapErr(_ -> Generic("getInt32At('${Int32.toString(ix)}')")))
 
     pub def getInt64At(ix: Int32): RowEvaluator[Int64] =
         let* s = getStringAt(ix);
-        liftResult(Int64.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int64.fromString(s) |> Result.mapErr(_ -> Generic("getInt64At('${Int32.toString(ix)}')")))
 
     pub def getFloat32At(ix: Int32): RowEvaluator[Float32] =
         let* s = getStringAt(ix);
-        liftResult(Float32.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Float32.fromString(s) |> Result.mapErr(_ -> Generic("getFloat32At('${Int32.toString(ix)}')")))
 
     pub def getFloat64At(ix: Int32): RowEvaluator[Float64] =
         let* s = getStringAt(ix);
-        liftResult(Float64.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Float64.fromString(s) |> Result.mapErr(_ -> Generic("getFloat64At('${Int32.toString(ix)}')")))
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);

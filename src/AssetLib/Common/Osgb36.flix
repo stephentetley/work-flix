@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-use System.Error.{IllegalArgumentException, Generic};
 
 namespace AssetLib/Common/Osgb36 {
 
+
+    use System.Error.{Generic};
 
     /// Two letters and 10 digits
     pub opaque type NGR = String
@@ -29,7 +30,7 @@ namespace AssetLib/Common/Osgb36 {
         if (Text/Regex.matches(s1, patt))
             Ok(NGR(s1))
         else 
-            Err(IllegalArgumentException)
+            Err(Generic("parse('${s}')"))
 
     
     pub def toString(x: NGR): String = 
@@ -47,7 +48,7 @@ namespace AssetLib/Common/Osgb36 {
             case 'N'    => Ok((0,          500_000))
             case 'O'    => Ok((500_000,    500_000))
             case 'H'    => Ok((0,          1_000_000))
-            case _      => Err(IllegalArgumentException)
+            case _      => Err(Generic("decodeMajor('${Char.toString(c)}')"))
         }
 
     def decodeMinor (c: Char): Result[(Int32, Int32), System.Error] = 
@@ -77,7 +78,7 @@ namespace AssetLib/Common/Osgb36 {
             case 'X'    => Ok((200_000,    0))
             case 'Y'    => Ok((300_000,    0))
             case 'Z'    => Ok((400_000,    0))
-            case _      => Err(IllegalArgumentException)
+            case _      => Err(Generic("decodeMinor('${Char.toString(c)}')"))
         }
 
     def decodeAlpha(s: Char, t: Char): Result[(Int32, Int32), System.Error] =  
@@ -105,7 +106,7 @@ namespace AssetLib/Common/Osgb36 {
             case (e,n) if e >= 500_000 && e < 1_000_000  && n >= 500_000 && n < 1_000_000   => Ok('O')
             case (e,n) if e >= 0 && e < 500_000          && n >= 1_000_000 && n < 1_500_000 => Ok('H')
             case (e,n) if e >= 500_000 && e < 1_000_000  && n >= 1_000_000 && n < 1_500_000 => Ok('J')
-            case (_,_) => Err(IllegalArgumentException)
+            case (_,_) => Err(Generic("findMajor(...)"))
         }
 
     def minorGrid() : Array[Array[Char]] & Impure = 
@@ -127,7 +128,7 @@ namespace AssetLib/Common/Osgb36 {
             let c = row1[divN];
             Ok(c)
         } else
-            Err(IllegalArgumentException)
+            Err(Generic("findMinor(...)"))
 
 
 

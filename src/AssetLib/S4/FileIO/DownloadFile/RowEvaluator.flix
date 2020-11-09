@@ -23,7 +23,7 @@ namespace AssetLib/S4/FileIO/DownloadFile {
 
 namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
 
-    use System.Error.{Generic, IllegalArgumentException, InputMismatchException};
+    use System.Error.{Generic};
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator.{RowEvaluator};
@@ -151,13 +151,13 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
 
     pub def getCell(label: String): RowEvaluator[String] =
         RowEvaluator((ixs, row) -> match Map.get(label, ixs) {
-            case None => Err(IllegalArgumentException)
+            case None => Err(Generic("getCell('${label}')"))
             case Some(ix) => {
                 if (ix >= 0 && ix < Array.length(row)) {
                     let s = row[ix];
                     Ok(s)
                 } else {
-                    Err(IllegalArgumentException)
+                    Err(Generic("getCell('${label}')"))
                 }
             }
         })
@@ -174,27 +174,27 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
 
     pub def getInt8Named(label: String): RowEvaluator[Int8] =
         let* s = getStringNamed(label);
-        liftResult(Int8.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int8.fromString(s) |> Result.mapErr(_ -> Generic("getInt8Named('${label}')")))
 
     pub def getInt16Named(label: String): RowEvaluator[Int16] =
         let* s = getStringNamed(label);
-        liftResult(Int16.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int16.fromString(s) |> Result.mapErr(_ -> Generic("getInt16Named('${label}')")))
 
     pub def getInt32Named(label: String): RowEvaluator[Int32] =
         let* s = getStringNamed(label);
-        liftResult(Int32.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int32.fromString(s) |> Result.mapErr(_ -> Generic("getInt32Named('${label}')")))
 
     pub def getInt64Named(label: String): RowEvaluator[Int64] =
         let* s = getStringNamed(label);
-        liftResult(Int64.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Int64.fromString(s) |> Result.mapErr(_ -> Generic("getInt64Named('${label}')")))
 
     pub def getFloat32Named(label: String): RowEvaluator[Float32] =
         let* s = getStringNamed(label);
-        liftResult(Float32.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Float32.fromString(s) |> Result.mapErr(_ -> Generic("getFloat32Named('${label}')")))
 
     pub def getFloat64Named(label: String): RowEvaluator[Float64] =
         let* s = getStringNamed(label);
-        liftResult(Float64.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
+        liftResult(Float64.fromString(s) |> Result.mapErr(_ ->Generic("getFloat648Named('${label}')")))
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);

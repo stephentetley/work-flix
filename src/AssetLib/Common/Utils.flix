@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-use System.Error.{IllegalArgumentException, Generic};
+use System.Error.{Generic};
 
 namespace AssetLib/Common/Utils {
 

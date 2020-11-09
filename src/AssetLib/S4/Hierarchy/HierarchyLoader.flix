@@ -17,7 +17,7 @@
 
 namespace AssetLib/S4/Hierarchy/HierarchyLoader {
 
-    use System.Error.{IllegalArgumentException, Generic};
+    use System.Error.{Generic};
 
     use AssetLib/S4/FileIO/DownloadFile/Evaluate.{importRows};
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;

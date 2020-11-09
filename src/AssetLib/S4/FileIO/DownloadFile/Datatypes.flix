@@ -23,6 +23,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Datatypes {
     /// EntityFile - from "File Download" 
     /// Could be created as a "File Upload" but we may not need that (even though we have a pretty printer).
 
+    /// TODO - the "newtypes" here are porbably more trouble than they are worth...
+
     pub opaque type DownloadFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
 
     pub opaque type DataRow = Array[String]

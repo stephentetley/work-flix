@@ -16,7 +16,7 @@
 
 use Data.{RoseTree, RoseForest};
 use Data.RoseTree.{RoseTree};
-use System.Error.{IllegalArgumentException, Generic};
+use System.Error.{Generic};
 
 use Text/HtmlDoc.{Html};
 use Text/HtmlDoc.{writeHtml, concat, html, head, meta, title, body, paragraph, text, link, div, toString, 

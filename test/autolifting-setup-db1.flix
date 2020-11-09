@@ -6,7 +6,7 @@ def main(): Unit & Impure =
     let worklistPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CALDER VALE STW.xlsx");
     let downloads = 
         { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-EQUI-file_download.txt")
-        , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-EQMLTXT-file_download.txt")
+        , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/EQMLTXT1.txt")
         , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-CLASSEQUI-file_download.txt")
         , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-VALUAEQUI-file_download.txt")
         };
