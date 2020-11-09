@@ -41,9 +41,24 @@ namespace AutoLifting/SetupDb {
         return()
 
 
-    pub def setupSpecificTables(worklistPath: System.FilePath):  DbMonad[Unit] = 
+
+    type alias DownloadFilePaths = 
+        { equiPath: System.FilePath
+        , eqmltxtPath: System.FilePath
+        , classEquiPath: System.FilePath
+        , valuaEquiPath: System.FilePath
+        }
+
+
+    pub def setupSpecificTables(worklistPath: System.FilePath, downloads: DownloadFilePaths):  DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
+        use AssetLib/S4/Simple/EquiBuiltin.{storeEquiFile};
+        use AssetLib/S4/FileIO/DownloadFile/Builtins.{storeEqmltxtFile, storeClassEquiFile, storeValuaEquiFile};
         use AutoLifting/SetupDb/ParentRef.{storeParentRefs};
+        let* _  = storeEquiFile("df_equi", true, downloads.equiPath);
+        /// let* _  = storeEqmltxtFile("df_eqmltxt", true, downloads.eqmltxtPath);
+        let* _  = storeClassEquiFile("df_classequi", true, downloads.classEquiPath);
+        /// let* _  = storeValuaEquiFile("df_valuaequi", true, downloads.valuaEquiPath);
         let* _  = storeParentRefs("wl_parent_refs", worklistPath);
         return()
 
