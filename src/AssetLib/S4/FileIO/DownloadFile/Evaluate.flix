@@ -58,7 +58,6 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
         let DownloadFile(x1) = src;
         let Headers(arr) = x1.headers;
         let headers = makeHeaders(arr);
-        let _ = Array.foreach(x -> Console.printLine("column: ${x}"), arr);
         let accumRow = (x, ac) -> 
             match evalRow(rowp, headers, x) {
                 case Ok(r1) => Ok(r1 :: ac)

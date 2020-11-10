@@ -105,7 +105,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , className: String
         , classType: String
         , internalClassNumber: String
-        , status: Int32
+        , status: Option[Int32]
         }
 
     
@@ -117,7 +117,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         return()
     
     def evalClassFlocRow(): RowEvaluator[ClassFlocRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getInt32Named};
+        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { funcloc               = x1
@@ -130,7 +130,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
             <*> getStringNamed("CLASS")                 /// Class 
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CLINT")                 /// Internal class no
-            <*> getInt32Named("CLSTATUS1")              /// Status
+            <*> optional(getInt32Named("CLSTATUS1"))             /// Status
 
     /// Write SQL
 
@@ -145,12 +145,12 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         return()
     
     def setClassFlocRowPStmt!(x: ClassFlocRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
         let* _ = putStringAt!(0,  x.funcloc);
         let* _ = putStringAt!(1,  x.className);
         let* _ = putStringAt!(2,  x.classType);
         let* _ = putStringAt!(3,  x.internalClassNumber);
-        let* _ = putInt32At!(4,  x.status);
+        let* _ = putOptionInt32At!(4,  x.status);
         return()
 
     def insertClassFlocRowSql(tableName: String): String =
@@ -165,7 +165,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
                 :: "class_name              TEXT NOT NULL,"
                 :: "class_type              TEXT NOT NULL,"
                 :: "internal_class_number   TEXT,"
-                :: "status                  INTEGER NOT NULL"
+                :: "status                  INTEGER"
                 :: ");"
                 :: Nil
         )
@@ -179,7 +179,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , classType: String
         , charId: String
         , charValue: String
-        , code: Int32
+        , code: Option[Int32]
         , valueDescription: String
         , intCounterValue: Int32
         , valueFrom: String
@@ -197,7 +197,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
     /// Read
 
     def evalValuaFlocRow(): RowEvaluator[ValuaFlocRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getInt32Named};
+        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getInt32Named, optional};
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
                 { funcloc           = x1
@@ -210,11 +210,11 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
                 , valueFrom         = x8
                 , valueTo           = x9
                 })
-            <&> getStringNamed("FUNCLOC")                  /// Functional Location
+            <&> getStringNamed("FUNCLOC")               /// Functional Location
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CHARID")                /// Characteristic ID
             <*> getStringNamed("ATWRT")                 /// Characteristic Value
-            <*> getInt32Named("ATCOD")                  /// Code
+            <*> optional(getInt32Named("ATCOD"))        /// Code
             <*> getStringNamed("TEXTBEZ")               /// Description
             <*> getInt32Named("VALCNT")                 /// Int counter values
             <*> getStringNamed("ATFLV")                 /// Value from
@@ -234,12 +234,12 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         return()
     
     def setValuaFlocRowPStmt!(x: ValuaFlocRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
         let* _ = putStringAt!(0,  x.funcloc);
         let* _ = putStringAt!(1,  x.classType);
         let* _ = putStringAt!(2,  x.charId);
         let* _ = putStringAt!(3,  x.charValue);
-        let* _ = putInt32At!(4,  x.code);
+        let* _ = putOptionInt32At!(4,  x.code);
         let* _ = putStringAt!(5,  x.valueDescription);
         let* _ = putInt32At!(6,  x.intCounterValue);
         let* _ = putStringAt!(7,  x.valueFrom);
@@ -261,7 +261,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
                 :: "class_type          TEXT NOT NULL,"
                 :: "char_id             TEXT NOT NULL,"
                 :: "char_value          TEXT,"
-                :: "code                INTEGER NOT NULL,"
+                :: "code                INTEGER,"
                 :: "value_description   TEXT,"
                 :: "int_counter_value   INTEGER NOT NULL,"
                 :: "value_from          TEXT,"
@@ -349,12 +349,13 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     /// CLASSEQUI
 
+    /// Note status appears to be optional.
     type alias ClassEquiRow = 
         { equi: String
         , className: String
         , classType: String
         , internalClassNumber: String
-        , status: Int32
+        , status: Option[Int32]
         }
 
     
@@ -366,7 +367,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         return()
     
     def evalClassEquiRow(): RowEvaluator[ClassEquiRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getInt32Named};
+        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { equi                  = x1
@@ -379,7 +380,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
             <*> getStringNamed("CLASS")                 /// Class 
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CLINT")                 /// Internal class no
-            <*> getInt32Named("CLSTATUS1")              /// Status
+            <*> optional(getInt32Named("CLSTATUS1"))              /// Status
 
     /// Write SQL
 
@@ -394,12 +395,12 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         return()
     
     def setClassEquiRowPStmt!(x: ClassEquiRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
         let* _ = putStringAt!(0,  x.equi);
         let* _ = putStringAt!(1,  x.className);
         let* _ = putStringAt!(2,  x.classType);
         let* _ = putStringAt!(3,  x.internalClassNumber);
-        let* _ = putInt32At!(4,  x.status);
+        let* _ = putOptionInt32At!(4,  x.status);
         return()
 
     def insertClassEquiRowSql(tableName: String): String =
@@ -414,7 +415,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
                 :: "class_name              TEXT NOT NULL,"
                 :: "class_type              TEXT NOT NULL,"
                 :: "internal_class_number   TEXT,"
-                :: "status                  INTEGER NOT NULL"
+                :: "status                  INTEGER"
                 :: ");"
                 :: Nil
         )
@@ -427,7 +428,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         , classType: String
         , charId: String
         , charValue: String
-        , code: Int32
+        , code: Option[Int32]
         , valueDescription: String
         , intCounterValue: Int32
         , valueFrom: String
@@ -444,7 +445,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     /// Read
     def evalValuaEquiRow(): RowEvaluator[ValuaEquiRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getInt32Named};
+        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
                 { equi              = x1
@@ -461,7 +462,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CHARID")                /// Characteristic ID
             <*> getStringNamed("ATWRT")                 /// Characteristic Value
-            <*> getInt32Named("ATCOD")                  /// Code
+            <*> optional(getInt32Named("ATCOD"))        /// Code
             <*> getStringNamed("TEXTBEZ")               /// Description
             <*> getInt32Named("VALCNT")                 /// Int counter values
             <*> getStringNamed("ATFLV")                 /// Value from
@@ -481,12 +482,12 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
         return()
     
     def setValuaEquiRowPStmt!(x: ValuaEquiRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
         let* _ = putStringAt!(0,  x.equi);
         let* _ = putStringAt!(1,  x.classType);
         let* _ = putStringAt!(2,  x.charId);
         let* _ = putStringAt!(3,  x.charValue);
-        let* _ = putInt32At!(4,  x.code);
+        let* _ = putOptionInt32At!(4,  x.code);
         let* _ = putStringAt!(5,  x.valueDescription);
         let* _ = putInt32At!(6,  x.intCounterValue);
         let* _ = putStringAt!(7,  x.valueFrom);
@@ -508,7 +509,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
                 :: "class_type          TEXT NOT NULL,"
                 :: "char_id             TEXT NOT NULL,"
                 :: "char_value          TEXT,"
-                :: "code                INTEGER NOT NULL,"
+                :: "code                INTEGER,"
                 :: "value_description   TEXT,"
                 :: "int_counter_value   INTEGER NOT NULL,"
                 :: "value_from          TEXT,"

@@ -56,9 +56,9 @@ namespace AutoLifting/SetupDb {
         use AssetLib/S4/FileIO/DownloadFile/Builtins.{storeEqmltxtFile, storeClassEquiFile, storeValuaEquiFile};
         use AutoLifting/SetupDb/ParentRef.{storeParentRefs};
         let* _  = storeEquiFile("df_equi", true, downloads.equiPath);
-        let* _  = storeEqmltxtFile("df_eqmltxt", true, downloads.eqmltxtPath);
-        /// let* _  = storeClassEquiFile("df_classequi", true, downloads.classEquiPath);
-        /// let* _  = storeValuaEquiFile("df_valuaequi", true, downloads.valuaEquiPath);
+        /// let* _  = storeEqmltxtFile("df_eqmltxt", true, downloads.eqmltxtPath);
+        let* _  = storeClassEquiFile("df_classequi", true, downloads.classEquiPath);
+        let* _  = storeValuaEquiFile("df_valuaequi", true, downloads.valuaEquiPath);
         let* _  = storeParentRefs("wl_parent_refs", worklistPath);
         return()
 
