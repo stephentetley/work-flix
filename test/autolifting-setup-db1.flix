@@ -10,7 +10,6 @@ def main(): Unit & Impure =
         { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-EQUI-file_download.txt")
         , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-EQMLTXT-file_download.txt")
         , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-CLASSEQUI-file_download.txt")
-        /// , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CLASSEQUI1.txt")
         , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-sms-lft-VALUAEQUI-file_download.txt")
         };
     let outpath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");

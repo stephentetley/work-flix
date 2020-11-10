@@ -25,7 +25,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
     use TextParser.TextParser;
     use TextParser.{return, map, failure, alt, choice, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
     use TextParser/Combinators.{ignore, many, manyTill};
-    use TextParser/Text.{many1UpperCase, restOfLine, makePattern};
+    use TextParser/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
     use TextParser/Token1.{symbol, lexeme};
 
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
@@ -56,12 +56,12 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
 
     def pHeader(): TextParser[FileHeader, t] = 
         use TextParser.flatMap;
-        let* ft = pFileType();
-        let* dm = pDataModel();
-        let* et = pEntityType();
-        let* v = pVariant();
-        let* u = pUser();
-        let* dt = pDateTime();
+        let* ft     = pFileType();
+        let* dm     = pDataModel();
+        let* et     = pEntityType();
+        let* v      = pVariant();
+        let* u      = pUser();
+        let* dt     = pDateTime();
         return({ fileType = ft, dataModel = dm, entityType = et, 
                     variant = v, user = u, dateTime = dt })
 
@@ -167,13 +167,23 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
         let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray);
         return(Headers(arr))
 
+    
     /// Note - datarows are `sepEndBy` tab, hence dropRight(1)
     /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
+    /// TODO - this is insufficient for multiline exports like EQMLTXT
+
+    /// def pDataRow(): TextParser[DataRow, t] = 
+    ///     use TextParser.flatMap;
+    ///     let* nl = makePattern("\R");
+    ///     let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
+    ///     let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
+    ///     return(DataRow(arr))
+
     def pDataRow(): TextParser[DataRow, t] = 
-        use TextParser.flatMap;
-        let* nl = makePattern("\R");
-        let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
-        let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
+        use TextParser.{flatMap, lookingAt};
+        let* tabnl  = makePatternWithFlags(".+?\u0009\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
+        let* str    = lookingAt(tabnl);
+        let* arr    = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
         return(DataRow(arr))
 
 
