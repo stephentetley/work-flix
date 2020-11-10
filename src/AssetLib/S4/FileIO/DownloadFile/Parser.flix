@@ -170,15 +170,6 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
     
     /// Note - datarows are `sepEndBy` tab, hence dropRight(1)
     /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
-    /// TODO - this is insufficient for multiline exports like EQMLTXT
-
-    /// def pDataRow(): TextParser[DataRow, t] = 
-    ///     use TextParser.flatMap;
-    ///     let* nl = makePattern("\R");
-    ///     let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
-    ///     let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
-    ///     return(DataRow(arr))
-
     def pDataRow(): TextParser[DataRow, t] = 
         use TextParser.{flatMap, lookingAt};
         let* tabnl  = makePatternWithFlags(".+?\u0009\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
