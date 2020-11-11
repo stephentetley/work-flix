@@ -60,6 +60,7 @@ namespace AutoLifting/SetupDb {
         use BasicDb/DbMonad.{flatMap, return};
         use AssetLib/S4/Simple/EquiBuiltin.{storeEquiFile};
         use AssetLib/S4/FileIO/DownloadFile/Builtins.{storeEqmltxtFile, storeClassEquiFile, storeValuaEquiFile};
+        use AutoLifting/SetupDb/Worklist.{storeWorklist};
         use AutoLifting/SetupDb/ParentRef.{storeParentRefs};
         use AutoLifting/SetupDb/AibAttributes.{storeAibAttributes};
         use AutoLifting/SetupDb/MemoLines.{storeMemoLines};
@@ -67,9 +68,10 @@ namespace AutoLifting/SetupDb {
         let* _  = storeEqmltxtFile("df_eqmltxt", true, downloads.eqmltxtPath);
         let* _  = storeClassEquiFile("df_classequi", true, downloads.classEquiPath);
         let* _  = storeValuaEquiFile("df_valuaequi", true, downloads.valuaEquiPath);
-        let* _  = storeAibAttributes("wl_attributes", worklistPaths.attribsPath); 
-        let* _  = storeMemoLines("wl_memo_lines", worklistPaths.memosPath);        
+        let* _  = storeWorklist("wl_worklist", worklistPaths.worklistPath);
         let* _  = storeParentRefs("wl_parent_refs", worklistPaths.worklistPath);
+        let* _  = storeAibAttributes("wl_attributes", worklistPaths.attribsPath); 
+        let* _  = storeMemoLines("wl_memo_lines", worklistPaths.memosPath);
         return()
 
 

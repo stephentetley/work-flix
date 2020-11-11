@@ -14,47 +14,56 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/SetupDb/ParentRef {
+namespace AutoLifting/SetupDb/Worklist {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
 
+    type alias WorklistRow = 
+        { reference: String
+        , assetName: String
+        , change: String
+        }
 
 
-    pub def storeParentRefs(tableName: String, path: System.FilePath): DbMonad[Unit] =
+    pub def storeWorklist(tableName: String, path: System.FilePath): DbMonad[Unit] =
         use BasicDb/DbMonad.{return, flatMap, liftActionResult}; 
         let* xs         = liftActionResult(_ -> AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path));
-        let  parents    = List.filter(x -> !(String.startsWith(x.reference, "PLI")), xs);
-        let* _          = exportParentRefRows(tableName, parents);
+        let  equis      = List.filter(x -> (String.startsWith(x.reference, "PLI") && x.change != "Child Equal"), xs);
+        let* _          = exportWorklistRows(tableName, equis);
         return()
 
 
 
     /// Always drop table (fresh new data)
-    def exportParentRefRows(tableName: String, rows: List[AibExportRow]): DbMonad[Int32] =
+    def exportWorklistRows(tableName: String, rows: List[AibExportRow]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
-        let* stmt       = prepareStatement("INSERT INTO ${tableName} (asset_name, reference) VALUES(?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, parentRefRowSetter(x)); return(ac+n)}, 0, rows);
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (orderkey, reference, asset_name, change) VALUES(?,?,?, ?);");
+        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, worklistRowSetter(ac, x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
     /// A setter for AibExportRow - just two fields
-    def parentRefRowSetter(x: AibExportRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
-        let* _ = putStringAt!(0, x.assetName);
+    def worklistRowSetter(ix: Int32, x: AibExportRow): PreparedStatementSetter[Unit] = 
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putInt32At!, putStringAt!};        
+        let* _ = putInt32At!(0, ix);
         let* _ = putStringAt!(1, x.reference);
+        let* _ = putStringAt!(2, x.assetName);
+        let* _ = putStringAt!(3, x.change);
         return()
 
 
     def createTableSql(tableName: String): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ("
-                :: "asset_name          TEXT NOT NULL,"
-                :: "reference           TEXT"
+                :: "orderkey        INTEGER NOT NULL PRIMARY KEY,"
+                :: "reference       TEXT NOT NULL,"
+                :: "asset_name      TEXT NOT NULL,"
+                :: "change          TEXT NOT NULL"
                 :: ")"
                 :: Nil
         )
