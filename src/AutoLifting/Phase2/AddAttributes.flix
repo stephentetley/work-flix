@@ -114,7 +114,7 @@ namespace AutoLifting/Phase2/AddAttributes {
         use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
         map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
         
-    /// TODO - this works for the sample data but ideally we would use getStringNamedWithDataFormatter...
+    /// TODO - this works for the sample data but ideally we would just use getStringNamedWithDataFormatter...
     def getCouldBeNumericalNamed(label: String, _dfmt: DataFormatter): NamedRowEvaluator[String] = 
         use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
         alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))

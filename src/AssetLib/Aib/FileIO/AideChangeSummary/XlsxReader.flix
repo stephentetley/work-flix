@@ -46,6 +46,12 @@ namespace AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader {
                 , newParentName = s4
                 } )
 
+    /// def logged(name: String, ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
+    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+    ///     let* ans = ma;
+    ///     let* _ = liftAction(_ -> Console.printLine("${name}: ${ans}"));
+    ///     return(ans)
+
 }
 
 
