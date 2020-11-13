@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/Simple/BuildCommon {
+namespace AssetLib/S4/Simple/Common {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
