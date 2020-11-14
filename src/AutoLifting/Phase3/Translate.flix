@@ -51,7 +51,7 @@ namespace AutoLifting/Phase3/Translate {
             , constructionMonth     = Time/LocalDate.getMonth(x.equiAttributes.installedFrom)
             , maintPlant            = 2100
             , companyCode           = 2100
-            , costCenter            = 1000
+            , controllingArea       = 1000
             , planningPlant         = 2100
             , functionalLocation    = x.s4Floc
             , superOridinateEqui    = ""

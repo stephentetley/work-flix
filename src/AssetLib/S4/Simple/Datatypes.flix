@@ -59,7 +59,7 @@ namespace AssetLib/S4/Simple/Datatypes {
         , constructionMonth: Int32
         , maintPlant: Int32
         , companyCode: Int32
-        , costCenter: Int32
+        , controllingArea: Int32
         , planningPlant: Int32
         , functionalLocation: String
         , superOridinateEqui: String

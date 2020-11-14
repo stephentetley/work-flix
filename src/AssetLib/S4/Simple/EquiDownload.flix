@@ -42,7 +42,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
         , constructionMonth: Int32
         , maintPlant: Int32
         , companyCode: Int32
-        , costCenter: Int32
+        , controllingArea: Int32
         , planningPlant: Int32
         , functionalLocation: String
         , superOridinateEqui: String
@@ -76,7 +76,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
                 , constructionMonth     = x11
                 , maintPlant            = x12
                 , companyCode           = x13
-                , costCenter            = x14
+                , controllingArea       = x14
                 , planningPlant         = x15
                 , functionalLocation    = x16
                 , superOridinateEqui    = x17
@@ -95,7 +95,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
             <*> getInt32Named("BAUMM_EQI")              /// Construction month
             <*> getInt32Named("SWER_EILO")              /// Maintenance Plant
             <*> getInt32Named("BUKR_EILO")              /// Company Code
-            <*> getInt32Named("KOST_EILO")              /// Cost Center
+            <*> getInt32Named("KOKR_EILO")              /// Controlling Area
             <*> getInt32Named("PPLA_EEQZ")              /// Planning Plant
             <*> getStringNamed("TPLN_EILO")             /// Functional Location
             <*> getStringNamed("HEQU_EEQZ")             /// Superord Equipment
@@ -131,7 +131,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
         let* _ = putInt32At!(10, x.constructionMonth);
         let* _ = putInt32At!(11, x.maintPlant);
         let* _ = putInt32At!(12, x.companyCode);
-        let* _ = putInt32At!(13, x.costCenter);
+        let* _ = putInt32At!(13, x.controllingArea);
         let* _ = putInt32At!(14, x.planningPlant);
         let* _ = putStringAt!(15,  x.functionalLocation);
         let* _ = putStringAt!(16,  x.superOridinateEqui);
@@ -145,7 +145,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
                 :: "object_type, startup_date, manufacturer, "
                 :: "model, part_number, serial_number, "
                 :: "construction_year, construction_month, maintenance_plant, "
-                :: "company_code, cost_center, planning_plant, "
+                :: "company_code, controlling_area, planning_plant, "
                 :: "functional_location, superordinate_equi_id, status) "
                 :: "VALUES(?,?,?, ?,?,?, ?,?,?, ?,?,?, ?,?,?, ?,?,?);"
                 :: Nil
@@ -167,7 +167,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
                 :: "construction_month      INTEGER NOT NULL,"
                 :: "maintenance_plant       INTEGER,"
                 :: "company_code            INTEGER,"
-                :: "cost_center             INTEGER,"
+                :: "controlling_area        INTEGER,"
                 :: "planning_plant          INTEGER,"
                 :: "functional_location     TEXT,"
                 :: "superordinate_equi_id   TEXT,"

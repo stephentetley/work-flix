@@ -51,9 +51,28 @@ namespace AutoLifting/ChildNew {
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         let* description        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
         let* longText           = getLongText(pstmts.selectLongText, reference, description);
+        let* aibAttributes      = panic("todo");
         return(
             { equiId            = freshEquiId
-            , attributes        = panic("attributes")
+            , attributes        =
+                { category              = panic("category")
+                , description           = description
+                , objectType            = panic("objectType")
+                , startupDate           = aibAttributes.installedFrom
+                , manufacturer          = aibAttributes.manufacturer
+                , model                 = aibAttributes.model
+                , partNumber            = aibAttributes.partNumber
+                , serialNumber          = aibAttributes.serialNumber
+                , constructionYear      = Time/LocalDate.getYear(aibAttributes.installedFrom)
+                , constructionMonth     = Time/LocalDate.getMonth(aibAttributes.installedFrom)
+                , maintPlant            = 2100
+                , companyCode           = 2100
+                , controllingArea       = 1000
+                , planningPlant         = 1000
+                , functionalLocation    = panic("functionalLocation")
+                , superOridinateEqui    = ""
+                , status                = "OPER"        
+                }
             , longText          = longText
             , classifications   = Nil
             })
@@ -68,7 +87,7 @@ namespace AutoLifting/ChildNew {
         if (Object.isNull(x1)) 
             return(None) 
         else 
-            return(Some({shortText= description, longText = x1}))
+            return(Some({shortText = description, longText = x1}))
 
     def prepareLongTextQuery(): DbMonad[PreparedStatement] = 
         let sql = String.unlines(

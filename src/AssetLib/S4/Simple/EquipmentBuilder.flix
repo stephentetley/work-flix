@@ -85,7 +85,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
                 :: "    e.construction_month,"
                 :: "    e.maintenance_plant,"
                 :: "    e.company_code,"
-                :: "    e.cost_center,"
+                :: "    e.controlling_area,"
                 :: "    e.planning_plant,"
                 :: "    e.functional_location,"
                 :: "    e.superordinate_equi_id,"
@@ -122,7 +122,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
                 , constructionMonth     = x10
                 , maintPlant            = x11
                 , companyCode           = x12
-                , costCenter            = x13
+                , controllingArea       = x13
                 , planningPlant         = x14
                 , functionalLocation    = x15
                 , superOridinateEqui    = x16
@@ -140,7 +140,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
             <*> getInt32Named("construction_month")         /// Construction month
             <*> getInt32Named("maintenance_plant")          /// Maintenance Plant
             <*> getInt32Named("company_code")               /// Company Code
-            <*> getInt32Named("cost_center")                /// Cost Center
+            <*> getInt32Named("controlling_area")           /// Controlling Area
             <*> getInt32Named("planning_plant")             /// Planning Plant
             <*> getStringNamed("functional_location")       /// Functional Location
             <*> getStringNamed("superordinate_equi_id")     /// Superord Equipment
