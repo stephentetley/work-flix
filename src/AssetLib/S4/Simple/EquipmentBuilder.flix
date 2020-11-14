@@ -40,9 +40,9 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
         }
 
     type alias EquipmentPreparedStatements = 
-        { attributesPreparedStatement: PreparedStatement
-        , longTextPreparedStatement: PreparedStatement
-        , classificationsPreparedStatement: PreparedStatement
+        { selectAttributes: PreparedStatement
+        , selectLongText: PreparedStatement
+        , selectClassifications: PreparedStatement
         }
 
     pub def cachePreparedStatements(tableNames: TableNames): DbMonad[EquipmentPreparedStatements] = 
@@ -53,16 +53,16 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
                                                         , tableNames.classFactsCharDefs
                                                         , tableNames.downloadfileClassequi
                                                         , tableNames.downloadfileValuaequi);
-        return({ attributesPreparedStatement        = attrs
-               , longTextPreparedStatement          = longText
-               , classificationsPreparedStatement   = classes
+        return({ selectAttributes       = attrs
+               , selectLongText         = longText
+               , selectClassifications  = classes
             })
 
     pub def buildS4Equipment(cachedStmts: EquipmentPreparedStatements, equiId: String): DbMonad[S4Equipment] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* attrs      = getEquiAttributes(cachedStmts.attributesPreparedStatement, equiId);
-        let* longText   = getEquiLongText(cachedStmts.longTextPreparedStatement, equiId);
-        let* classes    = getEquiClassifications(cachedStmts.classificationsPreparedStatement, equiId);
+        let* attrs      = getEquiAttributes(cachedStmts.selectAttributes, equiId);
+        let* longText   = getEquiLongText(cachedStmts.selectLongText, equiId);
+        let* classes    = getEquiClassifications(cachedStmts.selectClassifications, equiId);
         return(
             { equiId            = equiId
             , attributes        = attrs

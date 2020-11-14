@@ -15,17 +15,89 @@
  */
 
 namespace AutoLifting/ChildNew {
+    
+    use BasicDb.DbMonad;
+    use BasicDb.PreparedStatement;
+    use BasicDb.PreparedStatementSetter;
+    use BasicDb.RowEvaluator;
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
-    use AssetLib/S4/Simple/Datatypes.{S4Equipment};
-    
-    use AutoLifting/Common.ReportMonad;
+    use AssetLib/S4/Simple/Datatypes.{S4Equipment, LongText};
 
-    pub def childNew(x: AibExportRow): ReportMonad[S4Equipment] = 
-        use AutoLifting/Common/ReportMonad.{flatMap};
-        use AutoLifting/Common/ReportMonad.{throwError};
-        let* aibNames       = AutoLifting/Phase1/AibNames.getAibNames(x.assetName);
-        throwError("TODO ${aibNames.equiName}")
+    type alias TableNames = 
+        { aibLongText: String
+        , lookupSiteCode: String
+        }
+
+
+    type alias ChildNewPreparedStatements = 
+        { selectLongText: PreparedStatement
+        , selectS4SiteCode: PreparedStatement
+        }
+
+
+    pub def cachePreparedStatements(tableNames: TableNames): DbMonad[ChildNewPreparedStatements] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* longText      = prepareLongTextQuery(tableNames.aibLongText);
+        let* siteCode      = prepareS4SiteCodeQuery(tableNames.lookupSiteCode);
+        return(
+            { selectLongText        = longText
+            , selectS4SiteCode      = siteCode
+            })
+
+
+    /// Note - fresh name supply is outside DbMonad
+    pub def childNew(reference: String, commonName: String): DbMonad[S4Equipment] = 
+        use BasicDb/DbMonad.{flatMap};
+        use BasicDb/DbMonad.{throwError};
+        // let* aibNames       = AutoLifting/Phase1/AibNames.getAibNames(x.assetName);
+        throwError("TODO ${reference} ${commonName}")
+
+
+    /// Long text
+
+    pub def getLongText(pstmt: PreparedStatement, reference: String, description: String): DbMonad[LongText] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
+        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
+        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("long_text"));
+        let* _      = rsClose(rs);
+        return(
+            { shortText     = description
+            , longText      = if (Object.isNull(x1)) "" else x1
+            })
+
+    def prepareLongTextQuery(tableName: String): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    lt.long_text"
+                :: "FROM ${tableName} lt"
+                :: "WHERE "
+                :: "    lt.reference = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
+
+
+
+    /// S4 Site Code
+
+    pub def getS4SiteCode(pstmt: PreparedStatement, aibSiteName: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
+        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  aibSiteName));
+        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("s4_level1_code"));
+        let* _      = rsClose(rs);
+        return(if (Object.isNull(x1)) "" else x1)
+
+    def prepareS4SiteCodeQuery(tableName: String): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    t.s4_level1_code"
+                :: "FROM ${tableName} t"
+                :: "WHERE "
+                :: "    t.installation_common_name = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
 
 
 }

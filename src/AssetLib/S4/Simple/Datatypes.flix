@@ -68,7 +68,7 @@ namespace AssetLib/S4/Simple/Datatypes {
 
     /// shortText = description.
     type alias LongText = 
-        { shortText: String             
+        { shortText: String
         , longText: String
         }
 
