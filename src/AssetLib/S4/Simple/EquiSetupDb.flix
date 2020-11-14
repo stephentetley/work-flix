@@ -17,7 +17,7 @@
 
 /// Build equipment from Download files + stored facts
 
-namespace AssetLib/S4/Simple/EquiDownloadBuilder {
+namespace AssetLib/S4/Simple/EquiSetupDb {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;

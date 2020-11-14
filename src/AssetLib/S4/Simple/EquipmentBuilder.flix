@@ -15,7 +15,8 @@
  */
 
 
-/// Build equipment from stored facts
+/// Build equipment from stored facts.
+/// This is to replace `EquiDownloadBuilder`.
 
 namespace AssetLib/S4/Simple/EquipmentBuilder {
 
@@ -26,38 +27,50 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
 
     
     use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
-    use AssetLib/S4/Simple/BuildCommon.{evalClassification, evalLongText};
-
-    
-    /// pub def buildS4EquipmentList(sources: EquiBuilderSources): DbMonad[List[S4Equipment]] = 
-    ///     use BasicDb/DbMonad.{flatMap, return, mapM, liftActionResult, liftAction};
-    ///     use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
-    ///     let* _      = buildSourceDb(sources);
-    ///     let* xs     = liftActionResult(_ -> allRows(equiRowEvaluator(), sources.equiFile));
-    ///     let* ys     = buildS4LiftingItems(xs);
-    ///     return(ys)
+    use AssetLib/S4/Simple/Common.{evalClassification, evalLongText};
 
 
+    type alias TableNames = 
+        { simpleEqui: String
+        , downloadfileMltxt: String
+        , downloadfileClassequi: String
+        , downloadfileValuaequi: String
+        , classFactsMembers: String
+        , classFactsCharDefs: String
+        }
 
-    /// def buildS4LiftingItems(xs: List[{equiId: String, attrs: EquiAttributes}]): DbMonad[List[S4Equipment]] = 
-    ///     use BasicDb/DbMonad.{flatMap, return, mapM};
-    ///     let* ltps   = prepareEquiLongTextQuery();
-    ///     let* clps   = prepareEquiClassificationsQuery();
-    ///     let* ys     = mapM(buildS4Equipment1(ltps, clps), xs);
-    ///     return(ys)
+    type alias EquipmentPreparedStatements = 
+        { attributesPreparedStatement: PreparedStatement
+        , longTextPreparedStatement: PreparedStatement
+        , classificationsPreparedStatement: PreparedStatement
+        }
 
-    /// def buildS4Equipment1(ltps: PreparedStatement, clps: PreparedStatement, x: {equiId: String, attrs: EquiAttributes}): DbMonad[S4Equipment] = 
-    ///     use BasicDb/DbMonad.{flatMap, return};
-    ///     let* longText   = getEquiLongText(ltps, x.equiId);
-    ///     let* cs         = getEquiClassifications(clps, x.equiId);
-    ///     return(
-    ///         { equiId            = x.equiId
-    ///         , attributes        = x.attrs
-    ///         , longText          = longText
-    ///         , classifications   = cs
-    ///         })
+    pub def cachePreparedStatements(tableNames: TableNames): DbMonad[EquipmentPreparedStatements] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* attrs      = prepareEquiAttributesQuery(tableNames.simpleEqui);
+        let* longText   = prepareEquiLongTextQuery(tableNames.downloadfileMltxt);
+        let* classes    = prepareEquiClassificationsQuery( tableNames.classFactsMembers
+                                                        , tableNames.classFactsCharDefs
+                                                        , tableNames.downloadfileClassequi
+                                                        , tableNames.downloadfileValuaequi);
+        return({ attributesPreparedStatement        = attrs
+               , longTextPreparedStatement          = longText
+               , classificationsPreparedStatement   = classes
+            })
 
-    pub def prepareEquiAttributesQuery(): DbMonad[PreparedStatement] = 
+    pub def buildS4Equipment(cachedStmts: EquipmentPreparedStatements, equiId: String): DbMonad[S4Equipment] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* attrs      = getEquiAttributes(cachedStmts.attributesPreparedStatement, equiId);
+        let* longText   = getEquiLongText(cachedStmts.longTextPreparedStatement, equiId);
+        let* classes    = getEquiClassifications(cachedStmts.classificationsPreparedStatement, equiId);
+        return(
+            { equiId            = equiId
+            , attributes        = attrs
+            , longText          = longText
+            , classifications   = classes
+            })
+
+    def prepareEquiAttributesQuery(tableName: String): DbMonad[PreparedStatement] = 
         let sql = String.unlines(
                 "SELECT"
                 :: "    e.category,"
@@ -77,14 +90,14 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
                 :: "    e.functional_location,"
                 :: "    e.superordinate_equi_id,"
                 :: "    e.status"
-                :: "FROM df_equi e"
+                :: "FROM ${tableName} e"
                 :: "WHERE "
                 :: "    e.equi_id = ?"
                 :: Nil
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
-   pub def getEquiAttributes(pstmt: PreparedStatement, equiId: String): DbMonad[EquiAttributes] = 
+    def getEquiAttributes(pstmt: PreparedStatement, equiId: String): DbMonad[EquiAttributes] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
         let* rs     = psExecuteQuery(pstmt, setEquiAttributesPStmt!(equiId));
         let* x1     = firstRow(rs, evalEquiAttributes());
@@ -95,7 +108,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
     def evalEquiAttributes(): RowEvaluator[EquiAttributes] = 
         use BasicDb/RowEvaluator.{getStringNamed, getInt32Named};
         use BasicDb/RowEvaluator.{<&>, <*>};
-        use AssetLib/S4/Simple/BuildCommon.{getS4DateNamed};
+        use AssetLib/S4/Simple/Common.{getS4DateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17) ->
                 { category              = x1
                 , description           = x2
@@ -138,17 +151,46 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
     def setEquiAttributesPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
         BasicDb/PreparedStatementSetter.putStringAt!(0,  equiId)
 
+    /// Long Text
+    def prepareEquiLongTextQuery(tableName: String): DbMonad[PreparedStatement] = 
+        let sql = String.unwords(
+               "SELECT"
+            :: "    t.short_text, t.long_text"
+            :: "FROM"
+            :: "    ${tableName} t"
+            :: "WHERE"
+            :: "    t.equi = ?;"
+            :: Nil
+        );
+        BasicDb/DbMonad.prepareStatement(sql)
+
+    def getEquiLongText(pstmt: PreparedStatement, equiId: String): DbMonad[Option[LongText]] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, optional, firstRow, rsClose};
+        let* rs     = psExecuteQuery(pstmt, setEquiLongTextPStmt!(equiId));
+        let* ans    = optional(firstRow(rs, evalLongText()));
+        let* _      = rsClose(rs);
+        return(ans)
+
+    def setEquiLongTextPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
+        BasicDb/PreparedStatementSetter.putStringAt!(0,  equiId)
+
+
 
     /// Classification
-    pub def prepareEquiClassificationsQuery(): DbMonad[PreparedStatement] = 
+
+    /// This query depends on two `fact tables` - cf_members and cf_char_defs. 
+    def prepareEquiClassificationsQuery( classFactsMembers: String
+                                       , classFactsCharDefs: String
+                                       , classEquiTable: String
+                                       , valuaEquiTable: String): DbMonad[PreparedStatement] = 
         let sql = String.unlines(
                "SELECT"
             :: "    c.class_name, cfm.charname, cfcd.datatype, v.value_description, v.value_from"
             :: "FROM"
-            :: "    class_equi c"
-            :: "INNER JOIN  cf_members cfm      ON c.class_name = cfm.classname"
-            :: "JOIN        cf_char_defs cfcd   ON cfm.charname = cfcd.charname"
-            :: "JOIN        valua_equi v        ON c.equi = v.equi AND cfm.charname = v.char_id"
+            :: "    ${classEquiTable} c"
+            :: "INNER JOIN  ${classFactsMembers} cfm        ON c.class_name = cfm.classname"
+            :: "JOIN        ${classFactsCharDefs} cfcd      ON cfm.charname = cfcd.charname"
+            :: "JOIN        ${valuaEquiTable} v             ON c.equi = v.equi AND cfm.charname = v.char_id"
             :: "WHERE"
             :: "    c.equi = ?"
             :: "AND cfm.classtype = 'equi'"
@@ -158,7 +200,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
         );
         BasicDb/DbMonad.prepareStatement(sql)
 
-    pub def getEquiClassifications(pstmt: PreparedStatement, equiId: String): DbMonad[List[Classification]] = 
+    def getEquiClassifications(pstmt: PreparedStatement, equiId: String): DbMonad[List[Classification]] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, allRows, rsClose};
         let* rs     = psExecuteQuery(pstmt, setEquiClassificationPStmt!(equiId));
         let* xs     = allRows(rs, evalClassification());
@@ -167,29 +209,6 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
 
 
     def setEquiClassificationPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
-        BasicDb/PreparedStatementSetter.putStringAt!(0,  equiId)
-
-    /// Long Text
-    pub def prepareEquiLongTextQuery(): DbMonad[PreparedStatement] = 
-        let sql = String.unwords(
-               "SELECT"
-            :: "    t.short_text, t.long_text"
-            :: "FROM"
-            :: "    eqmltxt t"
-            :: "WHERE"
-            :: "    t.equi = ?;"
-            :: Nil
-        );
-        BasicDb/DbMonad.prepareStatement(sql)
-
-    pub def getEquiLongText(pstmt: PreparedStatement, equiId: String): DbMonad[Option[LongText]] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, optional, firstRow, rsClose};
-        let* rs     = psExecuteQuery(pstmt, setEquiLongTextPStmt!(equiId));
-        let* ans    = optional(firstRow(rs, evalLongText()));
-        let* _      = rsClose(rs);
-        return(ans)
-
-    def setEquiLongTextPStmt!(equiId: String): PreparedStatementSetter[Unit] = 
         BasicDb/PreparedStatementSetter.putStringAt!(0,  equiId)
 
 }
