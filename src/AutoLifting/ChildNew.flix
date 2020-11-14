@@ -24,25 +24,25 @@ namespace AutoLifting/ChildNew {
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
     use AssetLib/S4/Simple/Datatypes.{S4Equipment, LongText};
 
-    type alias TableNames = 
-        { aibLongText: String
-        , lookupSiteCode: String
-        }
 
 
     type alias ChildNewPreparedStatements = 
         { selectLongText: PreparedStatement
         , selectS4SiteCode: PreparedStatement
+        , selectParentRef: PreparedStatement
         }
 
+    /// Note table names are fixed - we have built a specific database for this task.
 
-    pub def cachePreparedStatements(tableNames: TableNames): DbMonad[ChildNewPreparedStatements] = 
+    pub def cachePreparedStatements(): DbMonad[ChildNewPreparedStatements] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* longText      = prepareLongTextQuery(tableNames.aibLongText);
-        let* siteCode      = prepareS4SiteCodeQuery(tableNames.lookupSiteCode);
+        let* longText       = prepareLongTextQuery();
+        let* siteCode       = prepareS4SiteCodeQuery();
+        let* parentRef      = prepareParentAibReferenceQuery();
         return(
             { selectLongText        = longText
             , selectS4SiteCode      = siteCode
+            , selectParentRef       = parentRef
             })
 
 
@@ -66,11 +66,11 @@ namespace AutoLifting/ChildNew {
             , longText      = if (Object.isNull(x1)) "" else x1
             })
 
-    def prepareLongTextQuery(tableName: String): DbMonad[PreparedStatement] = 
+    def prepareLongTextQuery(): DbMonad[PreparedStatement] = 
         let sql = String.unlines(
                 "SELECT"
                 :: "    lt.long_text"
-                :: "FROM ${tableName} lt"
+                :: "FROM wl_memo_lines lt"
                 :: "WHERE "
                 :: "    lt.reference = ?"
                 :: Nil
@@ -88,16 +88,37 @@ namespace AutoLifting/ChildNew {
         let* _      = rsClose(rs);
         return(if (Object.isNull(x1)) "" else x1)
 
-    def prepareS4SiteCodeQuery(tableName: String): DbMonad[PreparedStatement] = 
+    def prepareS4SiteCodeQuery(): DbMonad[PreparedStatement] = 
         let sql = String.unlines(
                 "SELECT"
                 :: "    t.s4_level1_code"
-                :: "FROM ${tableName} t"
+                :: "FROM lookup_site t"
                 :: "WHERE "
                 :: "    t.installation_common_name = ?"
                 :: Nil
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
+    /// Parent AIb Reference
+
+    pub def getParentAibReference(pstmt: PreparedStatement, equiCommonName: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};
+        use AutoLifting/ChildNew/DecodeCommonName.{getAibParentNameFromCommonName};
+        let* parent = liftActionResult(_ -> getAibParentNameFromCommonName(equiCommonName));
+        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  parent));
+        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("reference"));
+        let* _      = rsClose(rs);
+        return(if (Object.isNull(x1)) "" else x1)
+
+    def prepareParentAibReferenceQuery(): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    t.reference"
+                :: "FROM wl_parent_refs t"
+                :: "WHERE "
+                :: "    t.asset_name = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
 
 }

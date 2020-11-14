@@ -57,4 +57,11 @@ namespace AutoLifting/ChildNew/DecodeCommonName {
         evalStartsWith(commonName, patt, getCaptureNamed("name"))
 
 
+    pub def getAibParentNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
+        use Result.{flatMap};
+        use Text/Regex.{evalStartsWith};
+        use Text/Regex/MatchEvaluator.{getCaptureNamed};
+        let* patt = Text/Regex/Pattern.compile("(?<name>.*)/EQUIPMENT:");
+        evalStartsWith(commonName, patt, getCaptureNamed("name"))
+
 }

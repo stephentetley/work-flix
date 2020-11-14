@@ -27,6 +27,13 @@ namespace AutoLifting/Common/Datatypes {
     }
 
 
+    pub def readFixedOrPortable(s: String): Result[FixedOrPortable, System.Error] = 
+        match String.trim(String.toLowerCase(s)) {
+            case "fixed" => Ok(Fixed)
+            case "portable" => Ok(Portable)
+            case _ => Err(System/Error.Generic("readFixedOrPortable"))
+        }
+        
     /// Start with (Reference, AssetName, NewParent)
     /// i.e. AibExportRow
   
