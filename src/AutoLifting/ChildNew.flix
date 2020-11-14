@@ -47,24 +47,28 @@ namespace AutoLifting/ChildNew {
 
 
     /// Note - fresh name supply is outside DbMonad
-    pub def childNew(reference: String, commonName: String): DbMonad[S4Equipment] = 
-        use BasicDb/DbMonad.{flatMap};
-        use BasicDb/DbMonad.{throwError};
-        // let* aibNames       = AutoLifting/Phase1/AibNames.getAibNames(x.assetName);
-        throwError("TODO ${reference} ${commonName}")
-
+    pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String, freshEquiId: String): DbMonad[S4Equipment] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
+        let* description        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
+        let* longText           = getLongText(pstmts.selectLongText, reference, description);
+        return(
+            { equiId            = freshEquiId
+            , attributes        = panic("attributes")
+            , longText          = longText
+            , classifications   = Nil
+            })
 
     /// Long text
 
-    pub def getLongText(pstmt: PreparedStatement, reference: String, description: String): DbMonad[LongText] = 
+    def getLongText(pstmt: PreparedStatement, reference: String, description: String): DbMonad[Option[LongText]] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
         let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
         let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("long_text"));
         let* _      = rsClose(rs);
-        return(
-            { shortText     = description
-            , longText      = if (Object.isNull(x1)) "" else x1
-            })
+        if (Object.isNull(x1)) 
+            return(None) 
+        else 
+            return(Some({shortText= description, longText = x1}))
 
     def prepareLongTextQuery(): DbMonad[PreparedStatement] = 
         let sql = String.unlines(

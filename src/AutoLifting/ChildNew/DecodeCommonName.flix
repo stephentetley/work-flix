@@ -16,40 +16,43 @@
 
 namespace AutoLifting/ChildNew/DecodeCommonName {
 
-    type alias AibNames = 
-        { siteName: String
-        , equiName: String
-        , equiType: String
-        }
+    /// type alias AibNames = 
+    ///     { siteName: String
+    ///     , equiName: String
+    ///     , equiType: String
+    ///     }
 
-    pub def getAibNames(aibCommonName: String): Result[AibNames, System.Error] & Impure = 
-        use Result.{flatMap};
-        let* name       = getAibEquiNameFromCommonName(aibCommonName);
-        let* typ        = getAibEquiTypeFromCommonName(aibCommonName);
-        let* site       = getAibSiteNameFromCommonName(aibCommonName);
-        Ok({ equiName   = name
-            , equiType   = typ
-            , siteName   = site
-            })
+    /// pub def getAibNames(aibCommonName: String): Result[AibNames, System.Error] & Impure = 
+    ///     use Result.{flatMap};
+    ///     let* name       = getAibEquiNameFromCommonName(aibCommonName);
+    ///     let* typ        = getAibEquiTypeFromCommonName(aibCommonName);
+    ///     let* site       = getAibSiteNameFromCommonName(aibCommonName);
+    ///     Ok({ equiName   = name
+    ///         , equiType   = typ
+    ///         , siteName   = site
+    ///         })
 
 
-    def getAibEquiNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
+    pub def getAibEquiNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
         use Result.{flatMap};
         use Text/Regex.{evalContains};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
         let* patt   = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
         Text/Regex.evalContains(commonName, patt, getCaptureNamed("name"))
        
+    pub def getS4DescriptionFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
+        use Result.{flatMap};
+        let* s1   = getAibEquiNameFromCommonName(commonName);
+        AutoLifting/Common/Utils.properCaseEquiName(s1)
 
-
-    def getAibEquiTypeFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
+    pub def getAibEquiTypeFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
         use Result.{flatMap};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
         let* patt   = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/.*/(?<name>EQUIPMENT: .*)");
         Text/Regex.evalContains(commonName, patt, getCaptureNamed("name"))
         
 
-    def getAibSiteNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
+    pub def getAibSiteNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
         use Result.{flatMap};
         use Text/Regex.{evalStartsWith};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
