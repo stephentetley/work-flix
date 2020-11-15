@@ -33,6 +33,7 @@ namespace AutoLifting/ChildNew {
         , selectAibAttributes: PreparedStatement
         , selectTyDistinguished: PreparedStatement
         , selectTyOrdinary: PreparedStatement
+        , selectWorkingLoad: PreparedStatement
         }
 
     /// Note table names are fixed - we have built a specific database for this task.
@@ -45,6 +46,7 @@ namespace AutoLifting/ChildNew {
         let* aibAttributes      = AutoLifting/ChildNew/AibAttributes.prepareAibAttributesQuery();
         let* tyDistinguished    = AutoLifting/ChildNew/LiftingTypeMapping.prepareDistinguishedQuery();
         let* tyOrdinary         = AutoLifting/ChildNew/LiftingTypeMapping.prepareOrdinaryQuery();
+        let* workingLoad        = AutoLifting/ChildNew/Classifications.prepareWorkingLoadQuery();
         return(
             { selectLongText        = longText
             , selectS4SiteCode      = siteCode
@@ -52,12 +54,14 @@ namespace AutoLifting/ChildNew {
             , selectAibAttributes   = aibAttributes
             , selectTyDistinguished = tyDistinguished
             , selectTyOrdinary      = tyOrdinary
+            , selectWorkingLoad     = workingLoad
             })
 
 
     /// Note - fresh name supply is outside DbMonad
     pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String, freshEquiId: String): DbMonad[S4Equipment] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult};
+        use AutoLifting/ChildNew/Classifications.{getLiftingClassifications};
         let* description        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
         let* aibEquiName        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
         let* aibSiteName        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getAibSiteNameFromCommonName(commonName));
@@ -69,6 +73,8 @@ namespace AutoLifting/ChildNew {
         let funcLoc             = AutoLifting/Common/Utils.liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
         let* parentRef          = getParentAibReference(pstmts, commonName);
         let aibReferences       = getAibReferenceClassifications(reference, parentRef);
+        let* eastNorth          = liftResult(_ -> getEastingNorthingClassifications(aibAttributes.osgb36));
+        let* liftings           = getLiftingClassifications(pstmts, tymap.s4Class, aibAttributes);
         return(
             { equiId            = freshEquiId
             , attributes        =
@@ -91,7 +97,7 @@ namespace AutoLifting/ChildNew {
                 , status                = aibAttributes.assetStatus       
                 }
             , longText          = longText
-            , classifications   = aibReferences
+            , classifications   = aibReferences ::: eastNorth ::: liftings
             })
 
     /// Long text
@@ -139,6 +145,18 @@ namespace AutoLifting/ChildNew {
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
+    /// Parent AIb Reference
+    def getEastingNorthingClassifications(gridRef: String): Result[List[Classification], System.Error] = 
+        use Result.{flatMap};
+        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+        let* ngr    = parse(gridRef);
+        let* x      = toEastingNorthing(ngr);
+        let c1      = {className = "EAST_NORTH", charName = "EASTING", datatype = "Int", value = Int32.toString(x.easting)};
+        let c2      = {className = "EAST_NORTH", charName = "NORTHING", datatype = "Int", value = Int32.toString(x.northing)};
+        Ok(c1 :: c2 :: Nil)
+
+
+        
     /// Parent AIb Reference
 
     def getAibReferenceClassifications(reference: String, parentRef: String): List[Classification] = 

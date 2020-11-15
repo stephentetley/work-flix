@@ -37,7 +37,7 @@ namespace AssetLib/Common/Osgb36 {
         let NGR(s) = x;
         s
 
-    type alias EastingNorthing = { easting: Int32, northing: Int32 }
+    type alias EastingNorthing = {easting: Int32, northing: Int32}
 
 
    
