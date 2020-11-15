@@ -31,21 +31,27 @@ namespace AutoLifting/ChildNew {
         , selectS4SiteCode: PreparedStatement
         , selectParentRef: PreparedStatement
         , selectAibAttributes: PreparedStatement
+        , selectTyDistinguished: PreparedStatement
+        , selectTyOrdinary: PreparedStatement
         }
 
     /// Note table names are fixed - we have built a specific database for this task.
 
     pub def cachePreparedStatements(): DbMonad[ChildNewPreparedStatements] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* longText       = prepareLongTextQuery();
-        let* siteCode       = prepareS4SiteCodeQuery();
-        let* parentRef      = prepareParentAibReferenceQuery();
-        let* aibAttributes  = AutoLifting/ChildNew/AibAttributes.prepareAibAttributesQuery();
+        let* longText           = prepareLongTextQuery();
+        let* siteCode           = prepareS4SiteCodeQuery();
+        let* parentRef          = prepareParentAibReferenceQuery();
+        let* aibAttributes      = AutoLifting/ChildNew/AibAttributes.prepareAibAttributesQuery();
+        let* tyDistinguished    = AutoLifting/ChildNew/LiftingTypeMapping.prepareDistinguishedQuery();
+        let* tyOrdinary         = AutoLifting/ChildNew/LiftingTypeMapping.prepareOrdinaryQuery();
         return(
             { selectLongText        = longText
             , selectS4SiteCode      = siteCode
             , selectParentRef       = parentRef
             , selectAibAttributes   = aibAttributes
+            , selectTyDistinguished = tyDistinguished
+            , selectTyOrdinary      = tyOrdinary
             })
 
 
@@ -53,14 +59,17 @@ namespace AutoLifting/ChildNew {
     pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String, freshEquiId: String): DbMonad[S4Equipment] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         let* description        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
-        let* longText           = getLongText(pstmts.selectLongText, reference, description);
-        let* aibAttributes      = AutoLifting/ChildNew/AibAttributes.getAibAttributes(pstmts.selectAibAttributes, reference);
+        let* aibEquiName        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
+        let* aibEquiType        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getAibEquiTypeFromCommonName(commonName));
+        let* longText           = getLongText(pstmts, reference, description);
+        let* tymap              = AutoLifting/ChildNew/LiftingTypeMapping.getTypeMapping(pstmts, aibEquiName, aibEquiType);
+        let* aibAttributes      = AutoLifting/ChildNew/AibAttributes.getAibAttributes(pstmts, reference);
         return(
             { equiId            = freshEquiId
             , attributes        =
-                { category              = panic("category")
+                { category              = tymap.category
                 , description           = description
-                , objectType            = panic("objectType")
+                , objectType            = tymap.s4Object
                 , startupDate           = aibAttributes.installedFrom
                 , manufacturer          = aibAttributes.manufacturer
                 , model                 = aibAttributes.model
@@ -74,7 +83,7 @@ namespace AutoLifting/ChildNew {
                 , planningPlant         = 1000
                 , functionalLocation    = panic("functionalLocation")
                 , superOridinateEqui    = ""
-                , status                = "OPER"        
+                , status                = aibAttributes.assetStatus       
                 }
             , longText          = longText
             , classifications   = Nil
@@ -82,9 +91,9 @@ namespace AutoLifting/ChildNew {
 
     /// Long text
 
-    def getLongText(pstmt: PreparedStatement, reference: String, description: String): DbMonad[Option[LongText]] = 
+    def getLongText[r](pstmts: {selectLongText: PreparedStatement| r}, reference: String, description: String): DbMonad[Option[LongText]] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
-        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
+        let* rs     = psExecuteQuery(pstmts.selectLongText, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
         let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("long_text"));
         let* _      = rsClose(rs);
         if (Object.isNull(x1)) 

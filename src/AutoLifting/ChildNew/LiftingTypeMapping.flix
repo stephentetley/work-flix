@@ -23,15 +23,14 @@ namespace AutoLifting/ChildNew/LiftingTypeMapping {
 
     use AutoLifting/Common/Datatypes.{S4TypeInfo, FixedOrPortable, readFixedOrPortable};
 
-    pub def getTypeMapping( distinguishedPStmt: PreparedStatement
-                          , ordinaryPStmt: PreparedStatement
+    pub def getTypeMapping[r](pstmts: { selectTyDistinguished: PreparedStatement, selectTyOrdinary: PreparedStatement | r}
                           , equiName: String
                           , equiType: String): DbMonad[S4TypeInfo] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* ty1    = getDistinguisedTypeMapping(distinguishedPStmt, equiName, equiType);
+        let* ty1    = getDistinguisedTypeMapping(pstmts.selectTyDistinguished, equiName, equiType);
         match ty1 { 
             case Some(ans) => return(ans)
-            case None => getOrdinaryTypeMapping(ordinaryPStmt, equiType)
+            case None => getOrdinaryTypeMapping(pstmts.selectTyOrdinary, equiType)
         }
 
     /// Distinguished Mapping

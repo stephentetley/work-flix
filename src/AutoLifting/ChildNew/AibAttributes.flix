@@ -38,9 +38,9 @@ namespace AutoLifting/ChildNew/AibAttributes {
         }
 
 
-    pub def getAibAttributes(pstmt: PreparedStatement, reference: String): DbMonad[AibAttributes] = 
+    pub def getAibAttributes[r](pstmts: {selectAibAttributes: PreparedStatement | r}, reference: String): DbMonad[AibAttributes] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};
-        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
+        let* rs     = psExecuteQuery(pstmts.selectAibAttributes, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
         let* x1     = firstRow(rs, evalAibAttributes());
         let* _      = rsClose(rs);
         return(x1)
