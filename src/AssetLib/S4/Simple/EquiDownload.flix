@@ -117,7 +117,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
     
     def setEquiRowPStmt!(x: EquiRow): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
-        use AssetLib/S4/Simple/Common.{putS4DateAt!};
+        use AssetLib/S4/Base/BasicDbUtils.{putS4DateAt!};
         let* _ = putStringAt!(0,  x.equiId);
         let* _ = putStringAt!(1,  x.category);
         let* _ = putStringAt!(2,  x.description);

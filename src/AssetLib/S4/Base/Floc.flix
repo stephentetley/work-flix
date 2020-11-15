@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-use AssetLib/S4/Base.Floc;
-use AssetLib/S4/Base.Floc.{Floc};
 
 namespace AssetLib/S4/Base {
 
@@ -24,6 +22,9 @@ namespace AssetLib/S4/Base {
 }    
 
 namespace AssetLib/S4/Base/Floc {
+
+    use AssetLib/S4/Base.Floc;
+    use AssetLib/S4/Base.Floc.{Floc};
 
     pub def new(s: String): Floc = Floc(String.splitOn(s, "-"))
 

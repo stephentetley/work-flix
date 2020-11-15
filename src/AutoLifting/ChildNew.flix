@@ -30,6 +30,7 @@ namespace AutoLifting/ChildNew {
         { selectLongText: PreparedStatement
         , selectS4SiteCode: PreparedStatement
         , selectParentRef: PreparedStatement
+        , selectAibAttributes: PreparedStatement
         }
 
     /// Note table names are fixed - we have built a specific database for this task.
@@ -39,10 +40,12 @@ namespace AutoLifting/ChildNew {
         let* longText       = prepareLongTextQuery();
         let* siteCode       = prepareS4SiteCodeQuery();
         let* parentRef      = prepareParentAibReferenceQuery();
+        let* aibAttributes  = AutoLifting/ChildNew/AibAttributes.prepareAibAttributesQuery();
         return(
             { selectLongText        = longText
             , selectS4SiteCode      = siteCode
             , selectParentRef       = parentRef
+            , selectAibAttributes   = aibAttributes
             })
 
 
@@ -51,7 +54,7 @@ namespace AutoLifting/ChildNew {
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         let* description        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
         let* longText           = getLongText(pstmts.selectLongText, reference, description);
-        let* aibAttributes      = panic("todo");
+        let* aibAttributes      = AutoLifting/ChildNew/AibAttributes.getAibAttributes(pstmts.selectAibAttributes, reference);
         return(
             { equiId            = freshEquiId
             , attributes        =
