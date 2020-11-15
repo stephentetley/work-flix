@@ -43,7 +43,7 @@ namespace AutoLifting/Common/Utils {
         Ok(String.unwords(xs))
 
 
-    pub def flocLocation(root: String, fop: FixedOrPortable): String = match fop { 
+    pub def liftingFunctionalLocation(root: String, fop: FixedOrPortable): String = match fop { 
         case Fixed => root + "-SMS-LFT-FLT-SYS01"
         case Portable => root + "-SMS-LFT-PRL-SYS01"
     }

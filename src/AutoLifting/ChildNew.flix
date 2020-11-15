@@ -22,7 +22,7 @@ namespace AutoLifting/ChildNew {
     use BasicDb.RowEvaluator;
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
-    use AssetLib/S4/Simple/Datatypes.{S4Equipment, LongText};
+    use AssetLib/S4/Simple/Datatypes.{S4Equipment, LongText, Classification};
 
 
 
@@ -60,10 +60,15 @@ namespace AutoLifting/ChildNew {
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         let* description        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
         let* aibEquiName        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
+        let* aibSiteName        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getAibSiteNameFromCommonName(commonName));
         let* aibEquiType        = liftActionResult(_ -> AutoLifting/ChildNew/DecodeCommonName.getAibEquiTypeFromCommonName(commonName));
+        let* flocRoot           = getS4SiteCode(pstmts, aibSiteName);
         let* longText           = getLongText(pstmts, reference, description);
         let* tymap              = AutoLifting/ChildNew/LiftingTypeMapping.getTypeMapping(pstmts, aibEquiName, aibEquiType);
         let* aibAttributes      = AutoLifting/ChildNew/AibAttributes.getAibAttributes(pstmts, reference);
+        let funcLoc             = AutoLifting/Common/Utils.liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
+        let* parentRef          = getParentAibReference(pstmts, commonName);
+        let aibReferences       = getAibReferenceClassifications(reference, parentRef);
         return(
             { equiId            = freshEquiId
             , attributes        =
@@ -81,12 +86,12 @@ namespace AutoLifting/ChildNew {
                 , companyCode           = 2100
                 , controllingArea       = 1000
                 , planningPlant         = 1000
-                , functionalLocation    = panic("functionalLocation")
+                , functionalLocation    = funcLoc
                 , superOridinateEqui    = ""
                 , status                = aibAttributes.assetStatus       
                 }
             , longText          = longText
-            , classifications   = Nil
+            , classifications   = aibReferences
             })
 
     /// Long text
@@ -116,9 +121,9 @@ namespace AutoLifting/ChildNew {
 
     /// S4 Site Code
 
-    pub def getS4SiteCode(pstmt: PreparedStatement, aibSiteName: String): DbMonad[String] = 
+    pub def getS4SiteCode[r](pstmts: {selectS4SiteCode: PreparedStatement | r}, aibSiteName: String): DbMonad[String] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
-        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  aibSiteName));
+        let* rs     = psExecuteQuery(pstmts.selectS4SiteCode, BasicDb/PreparedStatementSetter.putStringAt!(0,  aibSiteName));
         let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("s4_level1_code"));
         let* _      = rsClose(rs);
         return(if (Object.isNull(x1)) "" else x1)
@@ -136,11 +141,17 @@ namespace AutoLifting/ChildNew {
 
     /// Parent AIb Reference
 
-    pub def getParentAibReference(pstmt: PreparedStatement, equiCommonName: String): DbMonad[String] = 
+    def getAibReferenceClassifications(reference: String, parentRef: String): List[Classification] = 
+        let c1   = {className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = "Text", value = reference};
+        let c2   = {className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = "Text", value = parentRef};
+        let c3   = {className = "AIB_REFERENCE", charName = "S4_AIB_REFERENCE", datatype = "Text", value = ""};
+        c1 :: c2 :: c3 :: Nil
+
+    def getParentAibReference[r](pstmts: {selectParentRef: PreparedStatement |r}, equiCommonName: String): DbMonad[String] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};
         use AutoLifting/ChildNew/DecodeCommonName.{getAibParentNameFromCommonName};
         let* parent = liftActionResult(_ -> getAibParentNameFromCommonName(equiCommonName));
-        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.putStringAt!(0,  parent));
+        let* rs     = psExecuteQuery(pstmts.selectParentRef, BasicDb/PreparedStatementSetter.putStringAt!(0,  parent));
         let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("reference"));
         let* _      = rsClose(rs);
         return(if (Object.isNull(x1)) "" else x1)

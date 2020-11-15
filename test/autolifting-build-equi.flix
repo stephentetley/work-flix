@@ -9,6 +9,10 @@ def main(): Unit & Impure =
     match runSQLite(buildExisting("101000608"), dbpath) {
         case Ok(x) => Console.printLine("${x.equiId} ${Int32.toString(List.length(x.classifications))} classifications")
         case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
+    };
+    match runSQLite(buildNew("PLI00773985", "DEIGHTON/STW/STATUTORY/LIFTING EQUIPMENT/YW29301 CHAIN BLOCK/EQUIPMENT: CHAIN BEAM HOIST-HAND"), dbpath) {
+        case Ok(x) => Console.printLine("${x.equiId} ${Int32.toString(List.length(x.classifications))} classifications")
+        case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
     }
 
 
@@ -28,6 +32,13 @@ def buildExisting(equiId: String): DbMonad[S4Equipment] =
     let* pstmts     = cachePreparedStatements(tableNames());
     let* ans        = buildS4Equipment(pstmts, equiId);
     return(ans)
+
+def buildNew(reference: String, commonName: String): DbMonad[S4Equipment] = 
+    use BasicDb/DbMonad.{return, flatMap}; 
+    use AutoLifting/ChildNew.{cachePreparedStatements, childNew};
+    let* pstmts     = cachePreparedStatements();
+    let* ans        = childNew(pstmts, reference, commonName, "$1001");
+    return(ans)    
 
     
 
