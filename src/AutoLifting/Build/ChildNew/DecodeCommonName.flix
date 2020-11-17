@@ -14,24 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ChildNew/DecodeCommonName {
-
-    /// type alias AibNames = 
-    ///     { siteName: String
-    ///     , equiName: String
-    ///     , equiType: String
-    ///     }
-
-    /// pub def getAibNames(aibCommonName: String): Result[AibNames, System.Error] & Impure = 
-    ///     use Result.{flatMap};
-    ///     let* name       = getAibEquiNameFromCommonName(aibCommonName);
-    ///     let* typ        = getAibEquiTypeFromCommonName(aibCommonName);
-    ///     let* site       = getAibSiteNameFromCommonName(aibCommonName);
-    ///     Ok({ equiName   = name
-    ///         , equiType   = typ
-    ///         , siteName   = site
-    ///         })
-
+namespace AutoLifting/Build/ChildNew/DecodeCommonName {
 
     pub def getAibEquiNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
         use Result.{flatMap};

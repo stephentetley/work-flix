@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ChildNew/LiftingTypeMapping {
+namespace AutoLifting/Build/ChildNew/LiftingTypeMapping {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;

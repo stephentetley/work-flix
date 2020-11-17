@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ChildNew/Classifications {
+namespace AutoLifting/Build/ChildNew/Classifications {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
@@ -22,7 +22,7 @@ namespace AutoLifting/ChildNew/Classifications {
     use BasicDb.RowEvaluator;
 
     use AssetLib/S4/Simple/Datatypes.{Classification};
-    use AutoLifting/ChildNew/AibAttributes.{AibAttributes};
+    use AutoLifting/Build/ChildNew/AibAttributes.{AibAttributes};
 
     type alias WorkingLoad = 
         { loadField: String

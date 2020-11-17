@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ChildNew/AibAttributes {
+namespace AutoLifting/Build/ChildNew/AibAttributes {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
