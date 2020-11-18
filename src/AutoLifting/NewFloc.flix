@@ -21,33 +21,33 @@ namespace AutoLifting/NewFloc {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
+    use AssetLib/S4/Base.Floc;
     use AssetLib/S4/Simple.Classifications;
     use AssetLib/S4/Simple/Datatypes.{S4Floc, Classification};
 
     type alias LiftingFloc = 
-        { functionalLocation: String
+        { functionalLocation: Floc
         , description: String
-        , category: Int32
         , objectType: String
         , startupDate: Time.LocalDate
-        , superiorFloc: String
         , equipmentInstall: Bool
         , classifications: Classifications             /// UNICLASS_CODE or SLFSSY
         }
 
     pub def makeS4Floc(x: LiftingFloc): S4Floc = 
         use AssetLib/S4/Simple/Classifications.{getClassifications};
-        { functionalLocation    = x.functionalLocation
+        use AssetLib/S4/Base/Floc.{toString, pop, level};
+        { functionalLocation    = toString(x.functionalLocation)
         , attributes = 
             { description           = x.description
-            , category              = x.category
+            , category              = level(x.functionalLocation)
             , structureIndicator    = "YW-GS"
             , objectType            = x.objectType
             , startupDate           = x.startupDate
             , maintPlant            = 2100
             , companyCode           = 2100
             , controllingArea       = 1000
-            , superiorFloc          = x.superiorFloc
+            , superiorFloc          = toString(pop(x.functionalLocation))
             , equipmentInstall      = x.equipmentInstall
             , status                = "UCON"
             }
@@ -62,17 +62,84 @@ namespace AutoLifting/NewFloc {
                                    , easting: Int32
                                    , northing: Int32
                                    , reference: String): LiftingFloc = 
-        use AssetLib/S4/Simple/Classifications.{append};                                   
-        { functionalLocation    = siteRoot + "-SMS"
+        use AssetLib/S4/Simple/Classifications.{append}; 
+        { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS")
         , description           = "Site Maintenance Services"
-        , category              = 2
         , objectType            = "SMS"
         , startupDate           = startupDate
-        , superiorFloc          = siteRoot
         , equipmentInstall      = false
         , classifications       = aibReference(reference) `append` eastingNorthing(easting, northing) `append` uniclassCode()
         }
 
+    pub def siteLifting( siteRoot: String
+                       , startupDate: Time.LocalDate
+                       , easting: Int32
+                       , northing: Int32
+                       , reference: String): LiftingFloc = 
+        use AssetLib/S4/Simple/Classifications.{append}; 
+        { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT")
+        , description           = "Site Lifting"
+        , objectType            = "LFT"
+        , startupDate           = startupDate
+        , equipmentInstall      = false
+        , classifications       = aibReference(reference) `append` eastingNorthing(easting, northing) `append` uniclassCode()
+        }
+
+    pub def fixedLifting( siteRoot: String
+                        , startupDate: Time.LocalDate
+                        , easting: Int32
+                        , northing: Int32
+                        , reference: String): LiftingFloc = 
+        use AssetLib/S4/Simple/Classifications.{append}; 
+        { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-FLT")
+        , description           = "Fixed Lifting"
+        , objectType            = "LFT"
+        , startupDate           = startupDate
+        , equipmentInstall      = false
+        , classifications       = aibReference(reference) `append` eastingNorthing(easting, northing) `append` uniclassCode()
+        }
+
+    pub def fixedLiftingSystem( siteRoot: String
+                              , startupDate: Time.LocalDate
+                              , easting: Int32
+                              , northing: Int32
+                              , reference: String): LiftingFloc = 
+        use AssetLib/S4/Simple/Classifications.{append}; 
+        { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-FLT-SYS01")
+        , description           = "Fixed Lifting System"
+        , objectType            = "SLFS"
+        , startupDate           = startupDate
+        , equipmentInstall      = false
+        , classifications       = aibReference(reference) `append` eastingNorthing(easting, northing) `append` slfssy("Fixed Lifting System")
+        }
+
+    pub def portableLifting( siteRoot: String
+                           , startupDate: Time.LocalDate
+                           , easting: Int32
+                           , northing: Int32
+                           , reference: String): LiftingFloc = 
+        use AssetLib/S4/Simple/Classifications.{append}; 
+        { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-PRL")
+        , description           = "Portable Lifting"
+        , objectType            = "LFT"
+        , startupDate           = startupDate
+        , equipmentInstall      = false
+        , classifications       = aibReference(reference) `append` eastingNorthing(easting, northing) `append` uniclassCode()
+        }
+
+    pub def portableLiftingSystem( siteRoot: String
+                                 , startupDate: Time.LocalDate
+                                 , easting: Int32
+                                 , northing: Int32
+                                , reference: String): LiftingFloc = 
+        use AssetLib/S4/Simple/Classifications.{append}; 
+        { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-PRL-SYS01")
+        , description           = "Portable Lifting System"
+        , objectType            = "SLFS"
+        , startupDate           = startupDate
+        , equipmentInstall      = false
+        , classifications       = aibReference(reference) `append` eastingNorthing(easting, northing) `append` slfssy("Portable Lifting System")
+        }
 
     def aibReference(reference: String): Classifications = 
         use AssetLib/S4/Simple/Classifications.{append, ai2AibReference, s4AibReference};
@@ -85,5 +152,10 @@ namespace AutoLifting/NewFloc {
     def uniclassCode(): Classifications = 
         use AssetLib/S4/Simple/Classifications.{append, uniclassCode, uniclassDesc};
         uniclassCode("UNICLASS_CODE") `append` uniclassDesc("UNICLASS_CODE")
+
+
+    def slfssy(systemName: String): Classifications =
+        use AssetLib/S4/Simple/Classifications.{singleton};
+        singleton({className = "SLFSSY", charName = "System Type", datatype = "Text", value = systemName})
 
 }

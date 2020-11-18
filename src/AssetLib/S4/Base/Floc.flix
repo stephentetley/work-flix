@@ -28,6 +28,17 @@ namespace AssetLib/S4/Base/Floc {
 
     pub def new(s: String): Floc = Floc(String.splitOn(s, "-"))
 
+    pub def append(x: Floc, y: Floc): Floc = 
+        let Floc(x1) = x;
+        let Floc(y1) = y;
+        Floc(x1 ::: y1)
+
+    pub def snoc(x: Floc, s: String): Floc = 
+        let Floc(x1) = x;
+        let Floc(y1) = new(s);
+        Floc(x1 ::: y1)
+    
+
     pub def toString(x: Floc): String = 
         let Floc(xs1) = x;
         String.intercalate("-", xs1)
@@ -47,5 +58,13 @@ namespace AssetLib/S4/Base/Floc {
     pub def parent(x: Floc): Option[Floc] = 
         let Floc(xs1) = x;
         List.init(xs1) |> Option.map(Floc)
+
+    /// "unsafe" version of parent
+    pub def pop(x: Floc): Floc = 
+        let Floc(xs1) = x;
+        match List.init(xs1) {
+            case Some(xs) => Floc(xs)
+            case None => Floc(Nil)
+        } 
 
 }    
