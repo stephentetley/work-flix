@@ -27,8 +27,14 @@ namespace AssetLib/S4/Simple/EmitUxl {
 
     use AssetLib/S4/Simple/Datatypes.{S4Floc, S4Equipment, FlocAttributes, EquiAttributes, LongText, Classification};
 
+    pub def outputUxl( description: String
+                     , flocs: List[S4Floc]
+                     , equis: List[S4Equipment]
+                     , uxlTemplate: System.FilePath
+                     , outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
+        SheetIO/SheetWriter.runTemplateXssf(emitUxl(description, flocs, equis), uxlTemplate, outpath)
 
-    pub def outputUxl(description: String, flocs: List[S4Floc], equis: List[S4Equipment]): SheetWriter[Unit] = 
+    pub def emitUxl(description: String, flocs: List[S4Floc], equis: List[S4Equipment]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let crDetails   = genChangeRequestDetails(description, flocs, equis);
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crDetails);

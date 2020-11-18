@@ -30,9 +30,8 @@ namespace AutoLifting/Phase3/EmitUxl {
                            , templatePath: System.FilePath
                            , outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/Common/ReportMonad.{liftActionResult};
-        use SheetIO/SheetWriter.{runTemplateXssf};
         use AssetLib/S4/Simple/EmitUxl.{outputUxl};
-        liftActionResult(_ -> runTemplateXssf(outputUxl(description, Nil, xs), templatePath, outPath))
+        liftActionResult(_ -> outputUxl(description, Nil, xs, templatePath, outPath))
 
 
 }
