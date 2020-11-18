@@ -42,12 +42,6 @@ namespace AutoLifting/SetupDb {
 
 
 
-    type alias DownloadFilePaths = 
-        { equiPath: System.FilePath
-        , eqmltxtPath: System.FilePath
-        , classEquiPath: System.FilePath
-        , valuaEquiPath: System.FilePath
-        }
 
     type alias WorklistPaths = 
         { worklistPath: System.FilePath
@@ -55,19 +49,39 @@ namespace AutoLifting/SetupDb {
         , memosPath: System.FilePath
         }
 
+    type alias DownloadFilePaths = 
+        { equiPath: System.FilePath
+        , eqmltxtPath: System.FilePath
+        , classEquiPath: System.FilePath
+        , valuaEquiPath: System.FilePath
+        }
 
-    pub def setupSpecificTables(worklistPaths: WorklistPaths, downloads: DownloadFilePaths):  DbMonad[Unit] = 
+    /// TODO - downloads should be Option[DownloadFilePaths]...
+    pub def setupSpecificTables(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths]):  DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        use AssetLib/S4/Simple/EquiDownload.{storeEquiFile};
-        use AssetLib/S4/FileIO/DownloadFile/Builtins.{storeEqmltxtFile, storeClassEquiFile, storeValuaEquiFile};
+        use AssetLib/S4/Simple/EquiDownload.{initEquiTable, storeEquiFile};
+        use AssetLib/S4/FileIO/DownloadFile/Builtins.{initEqmltxtTable, storeEqmltxtFile, 
+            initClassEquiTable, storeClassEquiFile, initValuaEquiTable, storeValuaEquiFile};
         use AutoLifting/SetupDb/Worklist.{storeWorklist};
         use AutoLifting/SetupDb/ParentRef.{storeParentRefs};
         use AutoLifting/SetupDb/AibAttributes.{storeAibAttributes};
         use AutoLifting/SetupDb/MemoLines.{storeMemoLines};
-        let* _  = storeEquiFile("df_equi", true, downloads.equiPath);
-        let* _  = storeEqmltxtFile("df_eqmltxt", true, downloads.eqmltxtPath);
-        let* _  = storeClassEquiFile("df_classequi", true, downloads.classEquiPath);
-        let* _  = storeValuaEquiFile("df_valuaequi", true, downloads.valuaEquiPath);
+        let*  _ = match downloads {
+            case Some(x) => {
+                let* _  = storeEquiFile("df_equi", true, x.equiPath);
+                let* _  = storeEqmltxtFile("df_eqmltxt", true, x.eqmltxtPath);
+                let* _  = storeClassEquiFile("df_classequi", true, x.classEquiPath);
+                let* _  = storeValuaEquiFile("df_valuaequi", true, x.valuaEquiPath);
+                return()
+            }
+            case None => {
+                let* _  = initEquiTable("df_equi");
+                let* _  = initEqmltxtTable("df_eqmltxt");
+                let* _  = initClassEquiTable("df_classequi");
+                let* _  = initValuaEquiTable("df_valuaequi");
+                return()
+            }
+        };
         let* _  = storeWorklist("wl_worklist", worklistPaths.worklistPath);
         let* _  = storeParentRefs("wl_parent_refs", worklistPaths.worklistPath);
         let* _  = storeAibAttributes("wl_attributes", worklistPaths.attribsPath); 

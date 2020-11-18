@@ -18,12 +18,12 @@ def main(): Unit & Impure =
         };
     let outpath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
     Console.printLine("Running...");
-    match mainHelper(worklistPaths, downloads, outpath) {
+    match mainHelper(worklistPaths, Some(downloads), outpath) {
         case Ok() => Console.printLine("Done.")
         case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
     }
 
-def mainHelper(worklistPaths: WorklistPaths, downloads: DownloadFilePaths, outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
+def mainHelper(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths], dboutpath: System.FilePath): Result[Unit, System.Error] & Impure = 
     use BasicDb/DbMonad.{runSQLite};
     use BasicDb/DbMonad.{flatMap, return};
     use AutoLifting/SetupDb.{setupStaticTables, setupSpecificTables};
@@ -32,7 +32,7 @@ def mainHelper(worklistPaths: WorklistPaths, downloads: DownloadFilePaths, outpa
         let* _ = setupSpecificTables(worklistPaths, downloads);
         return()
     };
-    runSQLite(action(), outpath)
+    runSQLite(action(), dboutpath)
 
 
 def equiClassFacts(): System.FilePath = System/FilePath.new("G:/work/assets/facts/equi-class-export.txt")
