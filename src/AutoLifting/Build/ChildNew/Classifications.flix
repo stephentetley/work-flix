@@ -21,7 +21,7 @@ namespace AutoLifting/Build/ChildNew/Classifications {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/S4/Simple/Datatypes.{Classification};
+    use AssetLib/S4/Simple.Classifications;
     use AutoLifting/Build/ChildNew/AibAttributes.{AibAttributes};
 
     type alias WorkingLoad = 
@@ -31,36 +31,27 @@ namespace AutoLifting/Build/ChildNew/Classifications {
 
     pub def getLiftingClassifications[r](pstmts: {selectWorkingLoad: PreparedStatement | r}
                                         , classification: String
-                                        , aibAttributes: AibAttributes): DbMonad[List[Classification]] = 
+                                        , aibAttributes: AibAttributes): DbMonad[Classifications] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let c1  = {className = classification, charName = "UNICLASS_CODE", datatype = "Text", value = ""};
-        let c2  = {className = classification, charName = "UNICLASS_DESC", datatype = "Text", value = ""};
-        let cs3  = match String.length(aibAttributes.locationOnSite) {
-            case x if x == 0 => Nil
-            case x if x >= 0 => {className = classification, charName = "LOCATION_ON_SITE", datatype = "Text", value = "SEE LONG TEXT"} :: Nil
-            case _           => {className = classification, charName = "LOCATION_ON_SITE", datatype = "Text", value = aibAttributes.locationOnSite} :: Nil
+        use AssetLib/S4/Simple/Classifications.{empty, singleton, append, concat, whenTrue, whenSome, 
+            uniclassCode, uniclassDesc, locationOnSite, statutoryReferenceNumber, testCertNo};
+        let c1  = uniclassCode(classification);
+        let c2  = uniclassDesc(classification);
+        let c3  = match String.length(aibAttributes.locationOnSite) {
+            case x if x == 0    => empty()
+            case x if x >= 30   => locationOnSite(classification, "SEE LONG TEXT")
+            case _              => locationOnSite(classification, aibAttributes.locationOnSite)
             };
         let* x1 = getWorkingLoad(pstmts, classification);
-        let cs4 = match aibAttributes.workLoad {
-            case None => Nil
-            case Some(d) => 
-                    {className = classification, charName = x1.loadField, datatype = "Decimal", value = Float64.toString(d)}
-                ::  {className = classification, charName = x1.unitField, datatype = "Text", value = aibAttributes.workLoadUnits}
-                :: Nil            
-            };
-        let cs5 = { 
-            if (String.isEmpty(aibAttributes.statutoryRef))
-                Nil
-            else 
-                {className = classification, charName = "STATUTORY_REFERENCE_NUMBER", datatype = "Text", value = aibAttributes.statutoryRef} :: Nil
-            };
-        let cs6 = { 
-            if (String.isEmpty(aibAttributes.testCertNum))
-                Nil
-            else 
-                {className = classification, charName = "TEST_CERT_NO", datatype = "Text", value = aibAttributes.testCertNum} :: Nil
-            };
-        return(c1 :: c2 :: cs3 ::: cs4 ::: cs5 ::: cs6)
+        let c4 = 
+            whenSome(aibAttributes.workLoad, 
+                d -> singleton({className = classification, charName = x1.loadField, datatype = "Decimal", value = Float64.toString(d)})
+                        `append` singleton({className = classification, charName = x1.unitField, datatype = "Text", value = aibAttributes.workLoadUnits})
+            );
+        let c5 = whenTrue(!String.isEmpty(aibAttributes.statutoryRef), statutoryReferenceNumber(classification, aibAttributes.statutoryRef));
+        let c6 = whenTrue(!String.isEmpty(aibAttributes.testCertNum), testCertNo(classification, aibAttributes.testCertNum));
+        return(c1 `append` c2 `append` c3 `append` c4 `append` c5 `append` c6)
+
 
     pub def getWorkingLoad[r](pstmts: {selectWorkingLoad: PreparedStatement | r}, classification: String): DbMonad[WorkingLoad] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};

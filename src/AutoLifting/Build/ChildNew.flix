@@ -23,7 +23,7 @@ namespace AutoLifting/Build/ChildNew {
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
     use AssetLib/S4/Simple/Datatypes.{S4Equipment, LongText, Classification};
-
+    use AssetLib/S4/Simple.Classifications;
 
 
     type alias ChildNewPreparedStatements = 
@@ -61,6 +61,8 @@ namespace AutoLifting/Build/ChildNew {
     /// Note - fresh name supply is outside DbMonad
     pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String, freshEquiId: String): DbMonad[S4Equipment] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult};
+        use AssetLib/S4/Simple/Classifications.{append, getClassifications};
+        use AutoLifting/Common/Utils.{getEastingNorthingClassifications};
         use AutoLifting/Build/ChildNew/Classifications.{getLiftingClassifications};
         let* description        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
         let* aibEquiName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
@@ -97,7 +99,7 @@ namespace AutoLifting/Build/ChildNew {
                 , status                = aibAttributes.assetStatus       
                 }
             , longText          = longText
-            , classifications   = aibReferences ::: eastNorth ::: liftings
+            , classifications   = getClassifications(aibReferences `append` eastNorth `append` liftings)
             })
 
     /// Long text
@@ -145,25 +147,26 @@ namespace AutoLifting/Build/ChildNew {
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
-    /// Parent AIb Reference
-    def getEastingNorthingClassifications(gridRef: String): Result[List[Classification], System.Error] = 
-        use Result.{flatMap};
-        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
-        let* ngr    = parse(gridRef);
-        let* x      = toEastingNorthing(ngr);
-        let c1      = {className = "EAST_NORTH", charName = "EASTING", datatype = "Int", value = Int32.toString(x.easting)};
-        let c2      = {className = "EAST_NORTH", charName = "NORTHING", datatype = "Int", value = Int32.toString(x.northing)};
-        Ok(c1 :: c2 :: Nil)
+    /// /// Parent AIb Reference
+    /// def getEastingNorthingClassifications(gridRef: String): Result[List[Classification], System.Error] = 
+    ///     use Result.{flatMap};
+    ///     use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+    ///     let* ngr    = parse(gridRef);
+    ///     let* x      = toEastingNorthing(ngr);
+    ///     let c1      = {className = "EAST_NORTH", charName = "EASTING", datatype = "Int", value = Int32.toString(x.easting)};
+    ///     let c2      = {className = "EAST_NORTH", charName = "NORTHING", datatype = "Int", value = Int32.toString(x.northing)};
+    ///     Ok(c1 :: c2 :: Nil)
 
 
         
     /// Parent AIb Reference
 
-    def getAibReferenceClassifications(reference: String, parentRef: String): List[Classification] = 
-        let c1   = {className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = "Text", value = reference};
-        let c2   = {className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = "Text", value = parentRef};
-        let c3   = {className = "AIB_REFERENCE", charName = "S4_AIB_REFERENCE", datatype = "Text", value = ""};
-        c1 :: c2 :: c3 :: Nil
+    def getAibReferenceClassifications(reference: String, parentRef: String): Classifications = 
+        use AssetLib/S4/Simple/Classifications.{append, s4AibReference, ai2AibReference};
+        let c1   = ai2AibReference(reference);
+        let c2   = ai2AibReference(parentRef);
+        let c3   = s4AibReference();
+        c1 `append` c2 `append` c3
 
     def getParentAibReference[r](pstmts: {selectParentRef: PreparedStatement |r}, equiCommonName: String): DbMonad[String] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};

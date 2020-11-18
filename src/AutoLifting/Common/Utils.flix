@@ -15,7 +15,8 @@
  */
 
 namespace AutoLifting/Common/Utils {
-
+    
+    use AssetLib/S4/Simple.Classifications;
     use AutoLifting/Common/Datatypes.FixedOrPortable;
     use AutoLifting/Common/Datatypes.FixedOrPortable.{Fixed, Portable};
 
@@ -61,5 +62,16 @@ namespace AutoLifting/Common/Utils {
     pub def cwtToKg(cwt: Float64): Float64 = cwt * 50.80234544f64
 
     pub def ukTontoKg(ukton: Float64): Float64 = ukton / 0.00098421
+
+    pub def getEastingNorthingClassifications(gridRef: String): Result[Classifications, System.Error] = 
+        use Result.{flatMap};
+        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+        use AssetLib/S4/Simple/Classifications.{append, easting, northing};
+        let* ngr    = parse(gridRef);
+        let* x      = toEastingNorthing(ngr);
+        let c1      = easting(x.easting);
+        let c2      = northing(x.northing);
+        Ok(c1 `append` c2)
+
 
 }
