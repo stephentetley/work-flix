@@ -21,7 +21,6 @@ namespace AutoLifting/Phase3/EmitUxl {
         EquipmentData, EqMultilingualText, EqClassification};
     
     use AssetLib/S4/Simple/Datatypes.{S4Equipment};
-    use AssetLib/S4/Simple/EmitUxl.{outputS4Equipment};
     use AutoLifting/Common.ReportMonad;
     
 
@@ -32,7 +31,8 @@ namespace AutoLifting/Phase3/EmitUxl {
                            , outPath: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/Common/ReportMonad.{liftActionResult};
         use SheetIO/SheetWriter.{runTemplateXssf};
-        liftActionResult(_ -> runTemplateXssf(outputS4Equipment(description, xs), templatePath, outPath))
+        use AssetLib/S4/Simple/EmitUxl.{outputUxl};
+        liftActionResult(_ -> runTemplateXssf(outputUxl(description, Nil, xs), templatePath, outPath))
 
 
 }
