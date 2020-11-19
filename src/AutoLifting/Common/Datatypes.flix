@@ -28,9 +28,9 @@ namespace AutoLifting/Common/Datatypes {
 
 
     pub def readFixedOrPortable(s: String): Result[FixedOrPortable, System.Error] = 
-        match String.trim(String.toLowerCase(s)) {
-            case "fixed" => Ok(Fixed)
-            case "portable" => Ok(Portable)
+        match String.trim(String.toUpperCase(s)) {
+            case "FIXED" => Ok(Fixed)
+            case "PORTABLE" => Ok(Portable)
             case _ => Err(System/Error.Generic("readFixedOrPortable"))
         }
         
@@ -42,45 +42,6 @@ namespace AutoLifting/Common/Datatypes {
         , fixedOrPortable: FixedOrPortable
         }
 
-
-
-
-    type alias AibAttributeRow = 
-        { pliReference: String
-        , equiAttributes: EquiAttributes
-        , charAttributes: AibCharAttributes
-        }
-
-    
-    type alias EquiAttributes = 
-        { assetStatus: String
-        , installedFrom: Time.LocalDate
-        , manufacturer: String
-        , model: String
-        , partNumber: String
-        , serialNumber: String
-        }
-
-
-
-    type alias AibCharAttributes = 
-        { osgb36: String
-        , locationOnSite: String
-        , workLoad: Option[Float64]
-        , workLoadUnits: String
-        , statutoryRef: String
-        , testCertNum: String
-        }
-
-    type alias S4CharAttributes = 
-        { easting: Int32
-        , northing: Int32
-        , locationOnSite: String
-        , workLoad: Option[Float64]
-        , workLoadUnits: String
-        , statutoryRef: String
-        , testCertNum: String
-        }
 
 
 }

@@ -30,31 +30,27 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , processRequester: String
         }
 
+    
+    
+    
     /// Just fields of interest...
+    /// Note - to support update and not just create, all field must allow null / empty string...
     type alias FunctionalLocationData = 
         { functionalLocation: String
         , maskedFuncLoc: String
         , description: String
-        , functLocCat: Int32
+        , functLocCat: Option[Int32]
         , strIndicator: String
         , objectType: String
         , startupDate: Option[Time.LocalDate]
-        , maintPlant: Int32
-        , companyCode: Int32
-        , coArea: Int32
+        , maintPlant: Option[Int32]
+        , companyCode: Option[Int32]
+        , coArea: Option[Int32]
         , supFunctLoc: String
         , equipInstall: Bool
         , statusProfile: String
         , userStatus: String        
         } 
-
-    type alias FunctionalLocationUpdate = 
-        { functionalLocation: String
-        , description: String
-        , dataChanges: List[DataUpdate]             
-        , classificationChanges: List[FlClassification]
-        }        
-
 
 
     /// `description` should be the same value as description on FunctionalLocationData page.
@@ -80,6 +76,7 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         }
 
     /// Just fields of interest...
+    /// Note - to support update and not just create, all field must allow null / empty string...
     type alias EquipmentData = 
         { equiId: String
         , equipCategory: String
@@ -92,12 +89,12 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , modelNumber: String
         , manufPartNo: String
         , manufSerialNo: String
-        , constructYear: Int32
-        , constructMth: Int32
-        , maintPlant: Int32
-        , companyCode: Int32
-        , coArea: Int32
-        , planningPlant: Int32
+        , constructYear: Option[Int32]
+        , constructMth: Option[Int32]
+        , maintPlant: Option[Int32]
+        , companyCode: Option[Int32]
+        , coArea: Option[Int32]
+        , planningPlant: Option[Int32]
         , functionalLoc: String
         , superordEquip: String
         , position: Option[Int32]
@@ -106,12 +103,6 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , statusOfAnObject: String
         }
 
-    type alias EquipmentUpdate = 
-        { equiId: String
-        , description: String
-        , dataChanges: List[DataUpdate]             
-        , classificationChanges: List[EqClassification]
-        }        
 
 
     /// `description` should be the same value as description on FunctionalLocationData page.
@@ -135,10 +126,6 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , charValue: String
         , charDeleteInd: Bool 
         }
-
-
-    /// Either FunctionLocationData or EquipmentData.
-    type alias DataUpdate = { fieldName: String, fieldIndex: Int32, value: S4Value}
 
     pub enum S4Value {
         case Bool(Bool)
