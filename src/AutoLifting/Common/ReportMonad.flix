@@ -14,24 +14,34 @@
  * limitations under the License.
  */
 
+/// TODO - rename file to `ReportMonad` once we can replace the old one...
 
 namespace AutoLifting/Common {
 
-    /// Assumption - needs name supply for UXL?
+    use BasicDb.DbMonad;
 
-    pub opaque type ReportMonad[a] = Int32 ~> Result[(Int32, a), System.Error]
+    /// Needs name supply for UXL
+
+    pub opaque type ReportMonad[a] = Int32 -> DbMonad[(Int32, a)]
 
 }
 
 
 namespace AutoLifting/Common/ReportMonad {
 
+    use BasicDb.DbMonad;
+
+
     use AutoLifting/Common.ReportMonad;
     use AutoLifting/Common.ReportMonad.{ReportMonad};
 
-    pub def runReportMonad(ma: ReportMonad[a]): Result[a, System.Error] & Impure = 
+    pub def runReportMonad(ma: ReportMonad[a], dbpath: System.FilePath): Result[a, System.Error] & Impure = 
+        use Result.{flatMap};
+        use BasicDb/DbMonad.{runSQLite};
         let n1 = initEquiNumber();
-        Result.map(snd, apply1(ma, n1))
+        let ReportMonad(fn) = ma;
+        let* (_, ans) = runSQLite(fn(n1), dbpath);
+        Ok(ans)
 
 
     def initEquiNumber(): Int32 & Impure = 
@@ -44,72 +54,75 @@ namespace AutoLifting/Common/ReportMonad {
 
 
     pub def return(x: a): ReportMonad[a] =
-        ReportMonad(s -> Ok((s, x)) as & Impure)
+        ReportMonad(s -> BasicDb/DbMonad.return((s, x)))
 
     pub def throwError(msg: String): ReportMonad[a] =
-        ReportMonad(_ -> Err(System/Error.Generic(msg)) as & Impure)        
+        ReportMonad(_ -> BasicDb/DbMonad.throwError(msg))        
 
-    def apply1(x: ReportMonad[a], s: Int32): Result[(Int32, a), System.Error] & Impure =
-        let ReportMonad(f) = x;
+    def apply1(ma: ReportMonad[a], s: Int32): DbMonad[(Int32, a)] =
+        let ReportMonad(f) = ma;
         f(s)
 
-    pub def map(f: a -> b & ef, x: ReportMonad[a]): ReportMonad[b] =
-        ReportMonad(s ->
-            match apply1(x, s) {
-                case Ok((s1, a)) => {
-                    let ans = f(a) as & Impure;
-                    Ok((s1, ans))
-                }
-                case Err(e) => Err(e)
-            }
+    pub def map(f: a -> b & ef, ma: ReportMonad[a]): ReportMonad[b] =
+        use BasicDb/DbMonad.{flatMap, liftAction, return};
+        ReportMonad(s -> 
+            let* (s1, a)    = apply1(ma, s);
+            let* b          = liftAction(_ -> f(a) as & Impure);
+            return((s1, b))
         )
 
     pub def ap(mf: ReportMonad[a -> b & ef], ma: ReportMonad[a]): ReportMonad[b] =
+        use BasicDb/DbMonad.{flatMap, liftAction, return};
         ReportMonad(s ->
-            match apply1(mf, s) {
-                case Ok((s1, f)) => {
-                    match apply1(ma, s1) {
-                        case Ok((s2, a)) => Ok((s2, f(a) as & Impure))
-                        case Err(e2) => Err(e2)
-                    }
-                }
-                case Err(e1) => Err(e1)
-            }
+            let* (s1, f)    = apply1(mf, s);
+            let* (s2, a)    = apply1(ma, s1);
+            let* b          = liftAction(_ -> f(a) as & Impure);
+            return((s2, b))
         )
 
-    pub def bind(x: ReportMonad[a], k: a -> ReportMonad[b]): ReportMonad[b] =
+    pub def bind(ma: ReportMonad[a], k: a -> ReportMonad[b]): ReportMonad[b] =        
+        use BasicDb/DbMonad.{flatMap};
         ReportMonad(s ->
-            match apply1(x, s) {
-                case Ok((s1, a)) => { let ans = k(a); apply1(ans, s1) }
-                case Err(e) => Err(e)
-            }
+            let* (s1, a)    = apply1(ma, s);
+            apply1(k(a), s1)
         )
 
     pub def flatMap(k: a -> ReportMonad[b], x: ReportMonad[a]): ReportMonad[b] = bind(x, k)
 
     pub def liftAction(fn: Unit ~> a): ReportMonad[a] =
+        use BasicDb/DbMonad.{flatMap, return};
         ReportMonad(s -> 
-            let a = fn(); 
-            Ok((s, a)) 
+            let* a = BasicDb/DbMonad.liftAction(fn); 
+            return((s, a)) 
         )
 
     pub def liftResult(fn: Unit -> Result[a, System.Error]): ReportMonad[a] =
-        ReportMonad(s -> match fn() {
-            case Ok(a) => Ok((s, a)) as & Impure
-            case Err(e) => Err(e)
-        })
+        use BasicDb/DbMonad.{flatMap, return};
+        ReportMonad(s ->
+            let* a = BasicDb/DbMonad.liftResult(fn); 
+            return((s, a)) 
+        )
 
 
-    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): ReportMonad[a] =
-        ReportMonad(s -> match fn() {
-            case Ok(a) => Ok((s, a))
-            case Err(e) => Err(e)
-        })
+    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): ReportMonad[a] =    
+        use BasicDb/DbMonad.{flatMap, return};
+        ReportMonad(s -> 
+            let* a = BasicDb/DbMonad.liftActionResult(fn); 
+            return((s, a))
+        )
+
+
+    pub def liftDbMonad(fn: Unit -> DbMonad[a]): ReportMonad[a] =
+        use BasicDb/DbMonad.{flatMap, return};
+        ReportMonad(s ->  
+            let* a = fn();
+            return((s, a))
+        )
 
 
     pub def mapM(mf: a -> ReportMonad[b], xs: List[a]): ReportMonad[List[b]] =
         ReportMonad(s ->
-            mapMHelper(mf, s, xs, e -> Err(e), (s1, ys) -> Ok((s1, ys)))
+            mapMHelper(mf, s, xs, (s1, ys) -> BasicDb/DbMonad.return((s1, ys)))
         )
 
     ///
@@ -118,23 +131,20 @@ namespace AutoLifting/Common/ReportMonad {
     def mapMHelper(mf: a -> ReportMonad[b], 
                    s: Int32, 
                    xs: List[a], 
-                   fk: System.Error -> Result[(Int32, List[b]), System.Error], 
-                   sk: (Int32, List[b]) -> Result[(Int32, List[b]), System.Error]): Result[(Int32, List[b]), System.Error] & Impure =
+                   sk: (Int32, List[b]) -> DbMonad[(Int32, List[b])]): DbMonad[(Int32, List[b])] =
+        use BasicDb/DbMonad.{flatMap, return};
         match xs {
             case Nil => sk(s, Nil)
-            case x :: rs => {
-                let ma = mf(x);
-                match apply1(ma, s) {
-                    case Err(e) => fk(e)
-                    case Ok((s1, x1)) => mapMHelper(mf, s1, rs, fk, (s2, ks) -> sk(s2, x1 :: ks))
-                }
+            case x :: rs => {                
+                let* (s1, a) = apply1(mf(x), s);
+                mapMHelper(mf, s1, rs, (s2, ks) -> sk(s2, a :: ks))
             }
         }
 
 
     pub def mapX(mf: a -> ReportMonad[b], xs: List[a]): ReportMonad[Unit] =
         ReportMonad(s ->
-            mapXHelper(mf, s, xs, e -> Err(e), s1 -> Ok((s1, ())))
+            mapXHelper(mf, s, xs, s1 -> BasicDb/DbMonad.return((s1, ())))
         )
 
     ///
@@ -143,22 +153,19 @@ namespace AutoLifting/Common/ReportMonad {
     def mapXHelper(mf: a -> ReportMonad[b], 
                    s: Int32, 
                    xs: List[a], 
-                   fk: System.Error -> Result[(Int32, Unit), System.Error], 
-                   sk: Int32 -> Result[(Int32, Unit), System.Error]): Result[(Int32, Unit), System.Error] & Impure =
+                   sk: Int32 -> DbMonad[(Int32, Unit)]): DbMonad[(Int32, Unit)] =
+        use BasicDb/DbMonad.{flatMap, return};
         match xs {
             case Nil => sk(s)
             case x :: rs => {
-                let ma = mf(x);
-                match apply1(ma, s) {
-                    case Err(e) => fk(e)
-                    case Ok((s1, _)) => mapXHelper(mf, s1, rs, fk, s2 -> sk(s2))
-                }
+                let* (s1, _) = apply1(mf(x), s);
+                mapXHelper(mf, s1, rs, s2 -> sk(s2))
             }
         }
 
     pub def sequence(xs: List[ReportMonad[a]]): ReportMonad[List[a]] =
         ReportMonad(s ->
-            sequenceHelper(s, xs, e -> Err(e), (s1, ks) -> Ok((s1, ks)))
+            sequenceHelper(s, xs, (s1, ks) -> BasicDb/DbMonad.return((s1, ks)))
         )
 
     ///
@@ -166,36 +173,35 @@ namespace AutoLifting/Common/ReportMonad {
     ///
     def sequenceHelper(s: Int32, 
                        xs: List[ReportMonad[a]], 
-                       fk: System.Error -> Result[(Int32, List[a]), System.Error], 
-                       sk: (Int32, List[a]) -> Result[(Int32, List[a]), System.Error]): Result[(Int32, List[a]), System.Error] & Impure =
+                       sk: (Int32, List[a]) -> DbMonad[(Int32, List[a])]): DbMonad[(Int32, List[a])]=
+        use BasicDb/DbMonad.{flatMap, return};
         match xs {
             case Nil => sk(s, Nil)
-            case mx :: rs => match apply1(mx, s) {
-                case Err(e) => fk(e)
-                case Ok((s1, x)) => sequenceHelper(s1, rs, fk, (s2, ks) -> sk(s2, x :: ks))
+            case mx :: rs => {
+                let* (s1, a) = apply1(mx, s);
+                sequenceHelper(s1, rs, (s2, ks) -> sk(s2, a :: ks))
             }
-
         }
+
+
     
     pub def foldM(mf: (b, a) -> ReportMonad[b], start: b, xs: List[a]): ReportMonad[b] =
         ReportMonad(s ->
-            foldMHelper(s, mf, start, xs, e -> Err(e), (s1, ac) -> Ok(s1, ac))
+            foldMHelper(s, mf, start, xs, (s1, ac) -> BasicDb/DbMonad.return((s1, ac)))
         )
 
     def foldMHelper(s: Int32, 
                     mf: (b, a) -> ReportMonad[b], 
                     acc: b, 
                     xs: List[a], 
-                    fk: System.Error -> Result[(Int32, b), System.Error], 
-                    sk: (Int32, b) -> Result[(Int32, b), System.Error]): Result[(Int32, b), System.Error] & Impure =
+                    sk: (Int32, b) -> DbMonad[(Int32, b)]): DbMonad[(Int32, b)] =
+        use BasicDb/DbMonad.{flatMap, return};
         match xs {
             case Nil => sk(s, acc)
             case x :: rs => {
                 let ma = mf(acc, x);
-                match apply1(ma, s) {
-                    case Err(e) => fk(e)
-                    case Ok((s1, acc1)) => foldMHelper(s1, mf, acc1, rs, fk, sk)
-                }
+                let* (s1, acc1) = apply1(ma, s);
+                foldMHelper(s1, mf, acc1, rs, sk)
             }
         }
 
@@ -209,9 +215,15 @@ namespace AutoLifting/Common/ReportMonad {
 
 
     pub def genEquiId(): ReportMonad[String] =         
-        ReportMonad(s -> Ok((s + 1, "$" + Int32.toString(s))) as & Impure)
+        ReportMonad(s -> BasicDb/DbMonad.return((s + 1, "$" + Int32.toString(s))))
 
     pub def restEquiIdCounter(): ReportMonad[Unit] =
-        ReportMonad(_ -> { let n = initEquiNumber(); Ok((n, ()))})
+        use BasicDb/DbMonad.{flatMap, liftAction, return};
+        ReportMonad(_ -> 
+            let* n = liftAction(_ -> initEquiNumber()); 
+            BasicDb/DbMonad.return((n, ()))
+        )
+
+
 
 }
