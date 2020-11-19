@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Common/Utils {
+namespace AutoLifting/Base/Utils {
     
     use AssetLib/S4/Simple.Classifications;
-    use AutoLifting/Common/Datatypes.FixedOrPortable;
-    use AutoLifting/Common/Datatypes.FixedOrPortable.{Fixed, Portable};
+    use AutoLifting/Base/Datatypes.FixedOrPortable;
+    use AutoLifting/Base/Datatypes.FixedOrPortable.{Fixed, Portable};
 
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"

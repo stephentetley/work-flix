@@ -21,7 +21,7 @@ namespace AutoLifting/Build/ChildNew/LiftingTypeMapping {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AutoLifting/Common/Datatypes.{S4TypeInfo, FixedOrPortable, readFixedOrPortable};
+    use AutoLifting/Base/Datatypes.{S4TypeInfo, FixedOrPortable, readFixedOrPortable};
 
     pub def getTypeMapping[r](pstmts: { selectTyDistinguished: PreparedStatement, selectTyOrdinary: PreparedStatement | r}
                           , equiName: String

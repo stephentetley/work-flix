@@ -26,7 +26,7 @@ namespace AutoLifting/Build/ChildNew/DecodeCommonName {
     pub def getS4DescriptionFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
         use Result.{flatMap};
         let* s1   = getAibEquiNameFromCommonName(commonName);
-        AutoLifting/Common/Utils.properCaseEquiName(s1)
+        AutoLifting/Base/Utils.properCaseEquiName(s1)
 
     pub def getAibEquiTypeFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
         use Result.{flatMap};

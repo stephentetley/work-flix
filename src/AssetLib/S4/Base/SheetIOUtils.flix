@@ -22,9 +22,11 @@ namespace AssetLib/S4/Base/SheetIOUtils {
 
 
     pub def putS4DateAt!(ix: Int32, dt: Time.LocalDate): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, liftActionResult};
-        let* s = liftActionResult(_ -> AutoLifting/Common/Utils.formatDateForS4(dt) as & Impure);
-        putStringAt!(ix, s)
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, liftResult};
+        let* fmt    = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"));
+        let ans     = Time/LocalDate.format(dt, fmt);
+        let* _      = putStringAt!(ix, ans);
+        return()
 
 
 

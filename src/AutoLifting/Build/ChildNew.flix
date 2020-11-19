@@ -62,7 +62,7 @@ namespace AutoLifting/Build/ChildNew {
     pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String, freshEquiId: String): DbMonad[S4Equipment] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult};
         use AssetLib/S4/Simple/Classifications.{append, getClassifications};
-        use AutoLifting/Common/Utils.{getEastingNorthingClassifications};
+        use AutoLifting/Base/Utils.{getEastingNorthingClassifications, liftingFunctionalLocation};
         use AutoLifting/Build/ChildNew/Classifications.{getLiftingClassifications};
         let* description        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
         let* aibEquiName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
@@ -72,7 +72,7 @@ namespace AutoLifting/Build/ChildNew {
         let* longText           = getLongText(pstmts, reference, description);
         let* tymap              = AutoLifting/Build/ChildNew/LiftingTypeMapping.getTypeMapping(pstmts, aibEquiName, aibEquiType);
         let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.getAibAttributes(pstmts, reference);
-        let funcLoc             = AutoLifting/Common/Utils.liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
+        let funcLoc             = liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
         let* parentRef          = getParentAibReference(pstmts, commonName);
         let aibReferences       = getAibReferenceClassifications(reference, parentRef);
         let* eastNorth          = liftResult(_ -> getEastingNorthingClassifications(aibAttributes.osgb36));

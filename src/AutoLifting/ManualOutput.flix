@@ -20,7 +20,7 @@ namespace AutoLifting/ManualOutput {
     use SheetIO.SheetWriter;
 
     use AssetLib/S4/Simple/Datatypes.{S4Equipment};
-    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Base.ReportMonad;
 
 
     /// Note - this would be significantly neater if we were using a tighter immediate form
@@ -28,7 +28,7 @@ namespace AutoLifting/ManualOutput {
 
     pub def writeManualReport(rows: List[S4Equipment], path: System.FilePath): ReportMonad[Unit] =
         use SheetIO/SheetWriter.{runXlsx};
-        AutoLifting/Common/ReportMonad.liftActionResult(_ -> runXlsx(manualReportWriter(rows), path))
+        AutoLifting/Base/ReportMonad.liftActionResult(_ -> runXlsx(manualReportWriter(rows), path))
         
     pub def manualReportWriter(rows: List[S4Equipment]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, createSheet, liftAction, allRowsWithHeaders};

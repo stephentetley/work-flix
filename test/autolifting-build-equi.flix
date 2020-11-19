@@ -5,7 +5,7 @@ use AssetLib/S4/Simple/EquipmentBuilder.{TableNames};
 
 def main(): Unit & Impure = 
     use BasicDb/DbMonad.{runSQLite}; 
-    use AutoLifting/Common/ReportMonad.{runReportMonad};  
+    use AutoLifting/Base/ReportMonad.{runReportMonad};  
     let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
     let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx");
     let manualOutput    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/NewManual1.xlsx");

@@ -16,7 +16,7 @@
 
 /// TODO - rename file to `ReportMonad` once we can replace the old one...
 
-namespace AutoLifting/Common {
+namespace AutoLifting/Base {
 
     use BasicDb.DbMonad;
 
@@ -27,13 +27,12 @@ namespace AutoLifting/Common {
 }
 
 
-namespace AutoLifting/Common/ReportMonad {
+namespace AutoLifting/Base/ReportMonad {
 
     use BasicDb.DbMonad;
 
-
-    use AutoLifting/Common.ReportMonad;
-    use AutoLifting/Common.ReportMonad.{ReportMonad};
+    use AutoLifting/Base.ReportMonad;
+    use AutoLifting/Base.ReportMonad.{ReportMonad};
 
     pub def runReportMonad(ma: ReportMonad[a], dbpath: System.FilePath): Result[a, System.Error] & Impure = 
         use Result.{flatMap};

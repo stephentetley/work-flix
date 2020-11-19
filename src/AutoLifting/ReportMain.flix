@@ -22,12 +22,12 @@ namespace AutoLifting/ReportMain {
     use BasicDb.RowEvaluator;
 
     use AssetLib/S4/Simple/Datatypes.{S4Equipment};
-    use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Base.ReportMonad;
     use AutoLifting/Build/ChildNew.ChildNewPreparedStatements;
 
 
     pub def makeReport(description: String, uxlTemplate: System.FilePath, manualOut: System.FilePath, uxlOut: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/Common/ReportMonad.{return, flatMap, liftActionResult, liftDbMonad, mapM}; 
+        use AutoLifting/Base/ReportMonad.{return, flatMap, liftActionResult, liftDbMonad, mapM}; 
         use AutoLifting/Build/ChildNew.{cachePreparedStatements => childNewPreparedStatements};
         use AssetLib/S4/Simple/EmitUxl.{outputUxl};
         use AutoLifting/ManualOutput.{writeManualReport};
@@ -42,7 +42,7 @@ namespace AutoLifting/ReportMain {
 
 
     pub def buildNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String): ReportMonad[S4Equipment] = 
-        use AutoLifting/Common/ReportMonad.{return, flatMap, genEquiId, liftDbMonad}; 
+        use AutoLifting/Base/ReportMonad.{return, flatMap, genEquiId, liftDbMonad}; 
         use AutoLifting/Build/ChildNew.{childNew};
         let* equiId     = genEquiId();
         let* ans        = liftDbMonad(_ -> childNew(pstmts, reference, commonName, equiId));
