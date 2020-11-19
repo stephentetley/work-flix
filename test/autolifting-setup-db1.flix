@@ -6,19 +6,19 @@ use AutoLifting/SetupDb.{MappingTablePaths, DownloadFilePaths, WorklistPaths};
 
 def main(): Unit & Impure = 
     let worklistPaths =     
-        { worklistPath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/FORGE CLOSE SWPS.xlsx")
-        , attribsPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/forgec-attribs-export.xlsx")
-        , memosPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/forgec-memos-export.xlsx")
+        { worklistPath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CALDER VALE STW.xlsx")
+        , attribsPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-attribs-export.xlsx")
+        , memosPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-memos-export.xlsx")
         };        
-    /// let downloads = 
-    ///     { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hudde-EQUI-file_download.txt")
-    ///     , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hudde-EQMLTXT-file_download.txt")
-    ///     , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hudde-CLASSEQUI-file_download.txt")
-    ///     , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hudde-VALUAEQUI-file_download.txt")
-    ///     };
+    let downloads = 
+        { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-EQUI-file_download.txt")
+        , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-EQMLTXT-file_download.txt")
+        , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-CLASSEQUI-file_download.txt")
+        , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-VALUAEQUI-file_download.txt")
+        };
     let outpath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
     Console.printLine("Running...");
-    match mainHelper(worklistPaths, None, outpath) {
+    match mainHelper(worklistPaths, Some(downloads), outpath) {
         case Ok() => Console.printLine("Done.")
         case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
     }

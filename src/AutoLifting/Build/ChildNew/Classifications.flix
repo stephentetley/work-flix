@@ -55,7 +55,6 @@ namespace AutoLifting/Build/ChildNew/Classifications {
 
     pub def getWorkingLoad[r](pstmts: {selectWorkingLoad: PreparedStatement | r}, classification: String): DbMonad[WorkingLoad] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
-        let* _      = BasicDb/DbMonad.liftAction(_ -> Console.printLine("Classification: ${classification}"));
         let* rs     = psExecuteQuery(pstmts.selectWorkingLoad, BasicDb/PreparedStatementSetter.putStringAt!(0,  classification));
         let* x1     = firstRow(rs, evalWorkingLoad());
         let* _      = rsClose(rs);

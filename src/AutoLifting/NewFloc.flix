@@ -131,7 +131,7 @@ namespace AutoLifting/NewFloc {
                                  , startupDate: Time.LocalDate
                                  , easting: Int32
                                  , northing: Int32
-                                , reference: String): LiftingFloc = 
+                                 , reference: String): LiftingFloc = 
         use AssetLib/S4/Simple/Classifications.{append}; 
         { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-PRL-SYS01")
         , description           = "Portable Lifting System"
