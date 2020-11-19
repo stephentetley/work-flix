@@ -16,74 +16,83 @@
 
 namespace AutoLifting/ReportMain {
 
-    use AutoLifting/Common/Datatypes.{Phase1FinalWorkItem, Phase2FinalWorkItem};
+    use BasicDb.DbMonad;
+    use BasicDb.PreparedStatement;
+    use BasicDb.PreparedStatementSetter;
+    use BasicDb.RowEvaluator;
+
+    use AssetLib/S4/Simple/Datatypes.{S4Equipment};
     use AutoLifting/Common.ReportMonad;
+    use AutoLifting/Build/ChildNew.ChildNewPreparedStatements;
 
-    type alias ReportConfig = 
-        { typeTablePath: System.FilePath
-        , liftingTablePath: System.FilePath
-        , siteTablePath: System.FilePath
-        , uxlTemplatePath: System.FilePath
-        }
 
-    type alias ReportProperties = 
-        { workListPath: System.FilePath
-        , attribsPaths: List[System.FilePath]
-        , memosPaths: List[System.FilePath]
-        , reportDescription: String
-        , phase2OutPath: System.FilePath
-        , uxlOutPath: System.FilePath
-        }
-
-    pub def generateChildNewReport( reportConfig: ReportConfig
-                                  , reportProps: ReportProperties ):  ReportMonad[Unit] = 
-        use AutoLifting/Common/ReportMonad.{return, flatMap, liftAction};
-        let* _          = liftAction(_ -> Console.printLine("Running..."));
-        let* xs1        = reportPhase1(reportConfig, reportProps.workListPath);
-        let* xs2        = reportPhase2(reportProps, xs1);
-        let* _          = reportEmitUxlFile(reportConfig, reportProps, xs2);
+    pub def makeReport(description: String, uxlTemplate: System.FilePath, manualOut: System.FilePath, uxlOut: System.FilePath): ReportMonad[Unit] = 
+        use AutoLifting/Common/ReportMonad.{return, flatMap, liftActionResult, liftDbMonad, mapM}; 
+        use AutoLifting/Build/ChildNew.{cachePreparedStatements => childNewPreparedStatements};
+        use AssetLib/S4/Simple/EmitUxl.{outputUxl};
+        use AutoLifting/ManualOutput.{writeManualReport};
+        let* childPsCache   = liftDbMonad(_ -> childNewPreparedStatements());
+        let* xs             = liftDbMonad(_ -> getWorklist());
+        let news            = List.filter(x -> x.change == "Child New", xs);
+        let* newEquis       = mapM(x -> buildNew(childPsCache, x.reference, x.assetName), news);
+        let* _              = writeManualReport(newEquis, manualOut);
+        let* _              = liftActionResult(_ -> outputUxl(description, Nil, newEquis, uxlTemplate, uxlOut));
         return()
 
-    
-    def reportPhase1(reportConfig: ReportConfig,
-                     workListPath: System.FilePath): ReportMonad[List[Phase1FinalWorkItem]] = 
-        use AutoLifting/Common/ReportMonad.{return, flatMap, mapM};
-        use AutoLifting/Phase1/Translate.{translate};
-        let* items      = AutoLifting/Phase1/Phase1WorkList.getWorkList(workListPath);
-        let* siteCodes  = AutoLifting/Phase1/SiteMapping.loadSiteMapTable(reportConfig.siteTablePath);
-        let* parentIds  = AutoLifting/Phase1/ParentRef.loadSaiReferenceTable(workListPath);
-        let* typeDb     = AutoLifting/Phase1/TypeMapping.readTypeMappingFile(reportConfig.typeTablePath);
-        mapM(translate(siteCodes, parentIds, typeDb), items)
-        
 
-    
-    def reportPhase2(reportProps: ReportProperties, xs: List[Phase1FinalWorkItem]): ReportMonad[List[Phase2FinalWorkItem]] =
-        use AutoLifting/Common/ReportMonad.{flatMap, return, liftAction, mapM};   
-        use AutoLifting/Phase2/Translate.{translate};  
-        let* memos      = AutoLifting/Phase2/LongText.loadMemoLookups(reportProps.memosPaths);
-        let* attribs    = AutoLifting/Phase2/AddAttributes.loadAttributeLookups(reportProps.attribsPaths);
-        let* xs1        = mapM(translate(memos, attribs), xs);
-        let* xs2        = AutoLifting/Phase2/RewriteValues.renameForS4(xs1);
-        let* _          = AutoLifting/Phase2/Phase2Output.writePhase2Report(xs2, reportProps.phase2OutPath);
-        let* _          = liftAction(_ -> List.foreach(x -> Console.printLine(showPhase2FinalWorkItem(x)), xs2));
-        return(xs2)
 
-    def showPhase2FinalWorkItem(x: AutoLifting/Common/Datatypes.Phase2FinalWorkItem): String = 
-        let showOpt = o -> Option.getWithDefault(o, "_");
-        "<${x.pliReference}, ${showOpt(x.longText)}, ${Time/LocalDate.toString(x.equiAttributes.installedFrom)}>"
+    pub def buildNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String): ReportMonad[S4Equipment] = 
+        use AutoLifting/Common/ReportMonad.{return, flatMap, genEquiId, liftDbMonad}; 
+        use AutoLifting/Build/ChildNew.{childNew};
+        let* equiId     = genEquiId();
+        let* ans        = liftDbMonad(_ -> childNew(pstmts, reference, commonName, equiId));
+        return(ans)    
 
-    def reportEmitUxlFile(reportConfig: ReportConfig,
-                          reportProps: ReportProperties, 
-                          xs: List[Phase2FinalWorkItem]): ReportMonad[Unit] =
-        use AutoLifting/Common/ReportMonad.{flatMap, return, mapM}; 
-        use AutoLifting/Phase3/EmitUxl.{writeputUxlFile};
-        let* liftings   = AutoLifting/Phase3/LiftingClassifications.loadLiftingMapping(reportConfig.liftingTablePath);
-        let* xs1        = mapM(AutoLifting/Phase3/Translate.translate(liftings), xs);
-        let* _          = writeputUxlFile(reportProps.reportDescription,
-                                          xs1, 
-                                          reportConfig.uxlTemplatePath,
-                                          reportProps.uxlOutPath);
-        return()
 
+
+
+    /// Read Worklist
+
+    type alias WorkItem = 
+        { reference: String
+        , assetName: String
+        , change: String
+        }
+
+    pub def getWorklist(): DbMonad[List[WorkItem]] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, allRows, rsClose};
+        let* pstmt  = prepareWorklistQuery();
+        let* rs     = psExecuteQuery(pstmt, BasicDb/PreparedStatementSetter.return());
+        let* x1     = allRows(rs, evalWorkItem());
+        let* _      = rsClose(rs);
+        return(x1)
+
+    pub def prepareWorklistQuery(): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    t.reference,"
+                :: "    t.asset_name,"
+                :: "    t.change"
+                :: "FROM" 
+                :: "    wl_worklist t"
+                :: "ORDER BY"
+                :: "    t.orderkey"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
+
+
+    def evalWorkItem(): RowEvaluator[WorkItem] = 
+        use BasicDb/RowEvaluator.{flatMap, return, getStringNamed};
+        use BasicDb/RowEvaluator.{<&>, <*>};
+        use String.{trim};
+        ((x1, x2, x3) ->
+                { reference = x1
+                , assetName = x2
+                , change    = x3
+                })
+            <&> getStringNamed("reference")
+            <*> getStringNamed("asset_name")
+            <*> getStringNamed("change")
 
 }

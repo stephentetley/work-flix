@@ -10,7 +10,7 @@ def main(): Unit & Impure =
     let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx");
     let manualOutput    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/NewManual1.xlsx");
     let uxlOutput       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/NewUxl1.xlsx");
-    match runReportMonad(AutoLifting/NewGenerateReport.makeReport("Lifting Update", uxlTemplate, manualOutput, uxlOutput), dbpath) {
+    match runReportMonad(AutoLifting/ReportMain.makeReport("Lifting Update", uxlTemplate, manualOutput, uxlOutput), dbpath) {
         case Ok() => Console.printLine("Good - see ${System/FilePath.toString(uxlOutput)}")
         case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
     }

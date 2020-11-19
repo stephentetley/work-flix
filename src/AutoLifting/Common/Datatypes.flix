@@ -34,25 +34,6 @@ namespace AutoLifting/Common/Datatypes {
             case _ => Err(System/Error.Generic("readFixedOrPortable"))
         }
         
-    /// Start with (Reference, AssetName, NewParent)
-    /// i.e. AibExportRow
-  
-
-    
-    /// Get parent SAI, remove parentName
-    /// Get S4 Site, remove Aib Site
-    /// Add S4 Type Info and s4Floc
-    type alias Phase1FinalWorkItem = 
-        { aibEquiName: String
-        , aibEquiType: String
-        , pliReference: String
-        , change: String
-        , s4EquiName: String
-        , s4SiteCode: String
-        , parentSaiReference: String
-        , s4TyInfo: S4TypeInfo
-        , s4Floc: String
-        }
 
     type alias S4TypeInfo = 
         { category: String 
@@ -61,18 +42,6 @@ namespace AutoLifting/Common/Datatypes {
         , fixedOrPortable: FixedOrPortable
         }
 
-
-    /// Reference, Parent Reference, S4 Name, S4 Floc, Equi Category, Equi Object, Equi Class
-
-
-    type alias AibMemoRow = 
-        { pliReference: String
-        , memo1: String
-        , memo2: String
-        , memo3: String
-        , memo4: String
-        , memo5: String
-        }
 
 
 
@@ -112,21 +81,6 @@ namespace AutoLifting/Common/Datatypes {
         , statutoryRef: String
         , testCertNum: String
         }
-
-    type alias Phase2FinalWorkItem = 
-        { pliReference: String
-        , parentSaiReference: String
-        , change: String
-        , s4EquiName: String
-        , s4Floc: String
-        , s4Category: String 
-        , s4Object: String
-        , s4Class: String
-        , equiAttributes: EquiAttributes
-        , longText: Option[String]
-        , charAttributes: S4CharAttributes
-        }
-
 
 
 }
