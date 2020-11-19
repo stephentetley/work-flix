@@ -45,9 +45,5 @@ namespace AssetLib/Common/Utils {
         split(input, sep) |> Array.dropLeft(1)
 
 
-    pub def foldRel(xs: List[#{| r}]): #{| r} = List.foldLeft((ac, r1) -> ac <+> r1, #{}, xs)
-
-    pub def foldMapRel(f: a -> #{| r}, xs: List[a]): #{| r} = List.foldLeft((ac, x) -> ac <+> f(x), #{}, xs)
-
 
 }

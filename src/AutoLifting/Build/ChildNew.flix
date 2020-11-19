@@ -147,15 +147,6 @@ namespace AutoLifting/Build/ChildNew {
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
-    /// /// Parent AIb Reference
-    /// def getEastingNorthingClassifications(gridRef: String): Result[List[Classification], System.Error] = 
-    ///     use Result.{flatMap};
-    ///     use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
-    ///     let* ngr    = parse(gridRef);
-    ///     let* x      = toEastingNorthing(ngr);
-    ///     let c1      = {className = "EAST_NORTH", charName = "EASTING", datatype = "Int", value = Int32.toString(x.easting)};
-    ///     let c2      = {className = "EAST_NORTH", charName = "NORTHING", datatype = "Int", value = Int32.toString(x.northing)};
-    ///     Ok(c1 :: c2 :: Nil)
 
 
         

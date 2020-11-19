@@ -26,14 +26,18 @@ namespace AutoLifting/NewGenerateReport {
     use AutoLifting/Build/ChildNew.ChildNewPreparedStatements;
 
 
-    pub def makeReport(description: String, uxlTemplate: System.FilePath, uxlOut: System.FilePath): ReportMonad[Unit] = 
+    pub def makeReport(description: String, uxlTemplate: System.FilePath, manualOut: System.FilePath, uxlOut: System.FilePath): ReportMonad[Unit] = 
         use AutoLifting/Common/ReportMonad.{return, flatMap, liftActionResult, liftDbMonad, mapM}; 
         use AutoLifting/Build/ChildNew.{cachePreparedStatements => childNewPreparedStatements};
+        use AssetLib/S4/Simple/EmitUxl.{outputUxl};
+        use AutoLifting/ManualOutput.{writeManualReport};
         let* childPsCache   = liftDbMonad(_ -> childNewPreparedStatements());
         let* xs             = liftDbMonad(_ -> getWorklist());
         let news            = List.filter(x -> x.change == "Child New", xs);
         let* newEquis       = mapM(x -> buildNew(childPsCache, x.reference, x.assetName), news);
-        liftActionResult(_ -> AssetLib/S4/Simple/EmitUxl.outputUxl(description, Nil, newEquis, uxlTemplate, uxlOut))
+        let* _              = writeManualReport(newEquis, manualOut);
+        let* _              = liftActionResult(_ -> outputUxl(description, Nil, newEquis, uxlTemplate, uxlOut));
+        return()
 
 
 
