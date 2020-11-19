@@ -62,7 +62,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
 
     def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
-                getStringNamedWithDefault, getInt32Named};
+                getStringNamedWithDefault, getOptionInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14) ->
                 { functionalLocation    = x1
@@ -83,13 +83,13 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <&> getStringNamed("Funcloc")               /// functionalLocation
             <*> getStringNamed("FlocRef")               /// maskedFuncLoc
             <*> getStringNamed("Txtmi")                 /// description
-            <*> getInt32Named("Fltyp")                  /// functLocCat
+            <*> getOptionInt32Named("Fltyp")            /// functLocCat
             <*> getStringNamed("TplkzFlc")              /// strIndicator
             <*> getStringNamed("Eqart")                 /// objectType
             <*> getOptionLocalDateNamed("Inbdt")        /// startupDate
-            <*> getInt32Named("SwerkFl")                /// maintPlant
-            <*> getInt32Named("Bukrsfloc")              /// companyCode
-            <*> getInt32Named("KokrFloc")               /// coArea
+            <*> getOptionInt32Named("SwerkFl")          /// maintPlant
+            <*> getOptionInt32Named("Bukrsfloc")        /// companyCode
+            <*> getOptionInt32Named("KokrFloc")         /// coArea
             <*> getStringNamed("Tplma")                 /// supFunctLoc
             <*> getS4BoolNamed("Iequi")                 /// equipInstall
             <*> getStringNamed("StsmFloc")              /// statusProfile
@@ -209,12 +209,12 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getStringNamed("Typbz")                             /// modelNumber
             <*> getStringNamedWithDefault("MapaEeqz", "")           /// manufPartNo
             <*> getStringNamed("Serge")                             /// manufSerialNo
-            <*> getInt32Named("Baujj")                              /// constructYear
-            <*> getPaddedInt32Named("BaummEqi")                     /// constructMth
-            <*> getInt32Named("SwerEilo")                           /// maintPlant 
-            <*> getInt32Named("BukrEilo")                           /// companyCode
-            <*> getInt32Named("KokrEilo")                           /// coArea
-            <*> getInt32Named("PplaEeqz")                           /// planningPlant
+            <*> getOptionInt32Named("Baujj")                        /// constructYear
+            <*> optional(getPaddedInt32Named("BaummEqi"))           /// constructMth
+            <*> getOptionInt32Named("SwerEilo")                     /// maintPlant 
+            <*> getOptionInt32Named("BukrEilo")                     /// companyCode
+            <*> getOptionInt32Named("KokrEilo")                     /// coArea
+            <*> getOptionInt32Named("PplaEeqz")                     /// planningPlant
             <*> getStringNamed("TplnEilo")                          /// functionalLoc
             <*> getStringNamed("HequEeqz")                          /// superordEquip
             <*> getOptionInt32Named("HeqnEeqz")                     /// position
