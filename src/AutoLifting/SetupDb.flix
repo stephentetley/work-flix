@@ -56,9 +56,9 @@ namespace AutoLifting/SetupDb {
         , valuaEquiPath: System.FilePath
         }
 
-    /// TODO - downloads should be Option[DownloadFilePaths]...
+    /// Note - downloads are be Option[DownloadFilePaths] in case we know we only have ChildNew...
     pub def setupSpecificTables(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths]):  DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return};
+        use BasicDb/DbMonad.{flatMap, return, liftAction};
         use AssetLib/S4/Simple/EquiDownload.{initEquiTable, storeEquiFile};
         use AssetLib/S4/FileIO/DownloadFile/Builtins.{initEqmltxtTable, storeEqmltxtFile, 
             initClassEquiTable, storeClassEquiFile, initValuaEquiTable, storeValuaEquiFile};
@@ -84,7 +84,7 @@ namespace AutoLifting/SetupDb {
         };
         let* _  = storeWorklist("wl_worklist", worklistPaths.worklist);
         let* _  = storeParentRefs("wl_parent_refs", worklistPaths.worklist);
-        let* _  = storeAibAttributes("wl_attributes", worklistPaths.attributesExport); 
+        let* _  = storeAibAttributes("wl_attributes", worklistPaths.attributesExport);
         let* _  = storeMemoLines("wl_memo_lines", worklistPaths.memosExport);
         return()
 

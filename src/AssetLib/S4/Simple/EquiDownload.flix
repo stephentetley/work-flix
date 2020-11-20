@@ -105,10 +105,11 @@ namespace AssetLib/S4/Simple/EquiDownload {
 
     /// Write SQL
     pub def initEquiTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
         let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _      = execute(createTableSql(tableName));
-        let* _ = commit();
+        let* _      = commit();
         return()
 
     def dbWriteEquiRows(tableName: String, dropTable: Bool, xs: List[EquiRow]): DbMonad[Unit] = 

@@ -224,5 +224,16 @@ namespace AutoLifting/Base/ReportMonad {
         )
 
 
+    pub def whenTrue(x: Bool, ma: ReportMonad[a]): ReportMonad[Option[a]] = 
+        match x { 
+            case true => map(Some, ma)
+            case false => return(None)
+        }
+
+    pub def whenFalse(x: Bool, ma: ReportMonad[a]): ReportMonad[Option[a]] = 
+        match x { 
+            case true => return(None)
+            case false => map(Some, ma)
+        }
 
 }
