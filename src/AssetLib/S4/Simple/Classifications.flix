@@ -56,14 +56,20 @@ namespace AssetLib/S4/Simple/Classifications {
         case None => empty()
     }
 
-    pub def easting(i: Int32): Classifications = 
-        singleton({className = "EAST_NORTH", charName = "EASTING", datatype = "Int", value = Int32.toString(i)})
+    pub def stringClassification(className: String, charName: String, value: String): Classifications = 
+        singleton({className = className, charName = charName, datatype = "Text", value = value})
 
-    pub def northing(i: Int32): Classifications = 
-        singleton({className = "EAST_NORTH", charName = "NORTHING", datatype = "Int", value = Int32.toString(i)})
+    pub def intClassification(className: String, charName: String, value: Int32): Classifications = 
+        singleton({className = className, charName = charName, datatype = "Decimal", value = Int32.toString(value)})
 
-    pub def s4AibReference(): Classifications =
-        singleton({className = "AIB_REFERENCE", charName = "S4_AIB_REFERENCE", datatype = "Text", value = ""})
+    pub def decimalClassification(className: String, charName: String, value: Float64): Classifications = 
+        singleton({className = className, charName = charName, datatype = "Int", value = Float64.toString(value)})
+
+    pub def easting(i: Int32): Classifications = intClassification("EAST_NORTH", "EASTING", i)
+
+    pub def northing(i: Int32): Classifications = intClassification("EAST_NORTH", "NORTHING", i)
+
+    pub def s4AibReference(): Classifications = stringClassification("AIB_REFERENCE", "S4_AIB_REFERENCE", "")
 
     pub def ai2AibReference(reference: String): Classifications =
         singleton({className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = "Text", value = reference})

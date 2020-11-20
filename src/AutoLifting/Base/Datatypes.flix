@@ -77,7 +77,9 @@ namespace AutoLifting/Base/Datatypes {
         , easting: Int32
         , northing: Int32
         , locationOnSite: String
-        , safeWorkingLoad: Float64
+        , safeWorkingLoadFieldName: String
+        , safeWorkingLoad: Option[Float64]
+        , safeWorkingLoadUnitsFieldName: String
         , safeWorkingLoadUnits: String
         , statutoryReference: String
         , testCertNumber: String

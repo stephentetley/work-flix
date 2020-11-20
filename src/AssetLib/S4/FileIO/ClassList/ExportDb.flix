@@ -49,18 +49,14 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
         use BasicDb/DbMonad.{flatMap, return, whenTrue, setAutoCommit, commit};
         let* xs     = parseFlocClassList(src, cs);
         let* _      = whenTrue(dropTable, setupTables(tableNames));
-        let* _      = setAutoCommit(false);
-        let* _      = outputTables(tableNames, "floc", xs);
-        let* _      = commit();
+        let* _      = populateTables(tableNames, "floc", xs);
         return()
 
     pub def storeEquiClassFile(tableNames: ClassListTableNames, dropTable: Bool, src: System.FilePath, cs: Text.Charset) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, setAutoCommit, commit};
         let* xs     = parseEquiClassList(src, cs);
         let* _      = whenTrue(dropTable, setupTables(tableNames));
-        let* _      = setAutoCommit(false);
-        let* _      = outputTables(tableNames, "equi", xs);
-        let* _      = commit();
+        let* _      = populateTables(tableNames, "equi", xs);
         return()
 
 
@@ -93,21 +89,23 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
 
 
     def setupTables(x: ClassListTableNames): DbMonad[Unit] =  
-        use BasicDb/DbMonad.{flatMap, return, execute, prepareStatement, foldM, commit};
-        let* _          = execute("DROP TABLE IF EXISTS ${x.classMembers};");
-        let* _          = execute(createTableClassMembersSql(x.classMembers));
-        let* _          = execute("DROP TABLE IF EXISTS ${x.characteristicDefs};");
-        let* _          = execute(createTableCharacteristicDefsSql(x.characteristicDefs));
-        let* _          = execute("DROP TABLE IF EXISTS ${x.intRanges};");
-        let* _          = execute(createTableIntRangeSql(x.intRanges));
-        let* _          = execute("DROP TABLE IF EXISTS ${x.decimalRanges};");
-        let* _          = execute(createTableDecimalRangeSql(x.decimalRanges));
-        let* _          = execute("DROP TABLE IF EXISTS ${x.selectionValues};");
-        let* _          = execute(createTableSelectionValueSql(x.selectionValues));
+        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
+        let* _      = execute("DROP TABLE IF EXISTS ${x.classMembers};");
+        let* _      = execute(createTableClassMembersSql(x.classMembers));
+        let* _      = execute("DROP TABLE IF EXISTS ${x.characteristicDefs};");
+        let* _      = execute(createTableCharacteristicDefsSql(x.characteristicDefs));
+        let* _      = execute("DROP TABLE IF EXISTS ${x.intRanges};");
+        let* _      = execute(createTableIntRangeSql(x.intRanges));
+        let* _      = execute("DROP TABLE IF EXISTS ${x.decimalRanges};");
+        let* _      = execute(createTableDecimalRangeSql(x.decimalRanges));
+        let* _      = execute("DROP TABLE IF EXISTS ${x.selectionValues};");
+        let* _      = execute(createTableSelectionValueSql(x.selectionValues));
+        let* _      = commit();
         return()
 
 
-    def outputTables(x: ClassListTableNames, classType: String, src: ClassList): DbMonad[Unit] =
+    def populateTables(x: ClassListTableNames, classType: String, src: ClassList): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftAction};
         let* _      = setAutoCommit(false);
         let* _      = liftAction(_ -> Console.printLine("${classType} class members"));
