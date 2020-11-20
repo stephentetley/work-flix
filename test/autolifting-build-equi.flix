@@ -1,44 +1,63 @@
 use BasicDb.DbMonad;
 use AssetLib/S4/Simple/Datatypes.{S4Equipment};
 use AssetLib/S4/Simple/EquipmentBuilder.{TableNames};
+use AutoLifting/Base.ReportMonad;
+use AutoLifting/SetupDb.{DownloadFilePaths, WorklistPaths};
 
 
-def main(): Unit & Impure = 
-    use BasicDb/DbMonad.{runSQLite}; 
-    use AutoLifting/Base/ReportMonad.{runReportMonad};  
+def main(): Unit & Impure =  
+    use AutoLifting/Base/ReportMonad.{runReportMonad};
     let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
-    let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx");
-    let manualOutput    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/NewManual1.xlsx");
-    let uxlOutput       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/NewUxl1.xlsx");
-    match runReportMonad(AutoLifting/ReportMain.makeReport("Lifting Update", uxlTemplate, manualOutput, uxlOutput), dbpath) {
-        case Ok() => Console.printLine("Good - see ${System/FilePath.toString(uxlOutput)}")
+    let worklistPaths =     
+        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CALDER VALE STW.xlsx")
+        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-attribs-export.xlsx")
+        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-memos-export.xlsx")
+        };        
+    let downloads = 
+        { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-EQUI-file_download.txt")
+        , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-EQMLTXT-file_download.txt")
+        , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-CLASSEQUI-file_download.txt")
+        , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-VALUAEQUI-file_download.txt")
+        };
+    match runReportMonad(mainHelper(worklistPaths, Some(downloads)), dbpath) {
+        case Ok(ans) => {let (x,y) = ans; Console.printLine("Good - see ${System/FilePath.toString(x)} ${System/FilePath.toString(y)}")}
         case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
     }
 
 
 
-/// def tableNames(): TableNames = 
-///     { simpleEqui            = "df_equi"
-///     , downloadfileMltxt     = "df_eqmltxt"
-///     , downloadfileClassequi = "df_classequi"
-///     , downloadfileValuaequi = "df_valuaequi"
-///     , classFactsMembers     = "cf_members"
-///     , classFactsCharDefs    = "cf_char_defs"
-///     }
-
-/// def buildExisting(s4EquiId: String): DbMonad[S4Equipment] = 
-///     use BasicDb/DbMonad.{return, flatMap}; 
-///     use AssetLib/S4/Simple/EquipmentBuilder.{cachePreparedStatements, buildS4Equipment};
-///     let* pstmts     = cachePreparedStatements(tableNames());
-///     let* ans        = buildS4Equipment(pstmts, s4EquiId);
-///     return(ans)
-
-/// def buildNew(reference: String, commonName: String): DbMonad[S4Equipment] = 
-///     use BasicDb/DbMonad.{return, flatMap}; 
-///     use AutoLifting/Build/ChildNew.{cachePreparedStatements, childNew};
-///     let* pstmts     = cachePreparedStatements();
-///     let* ans        = childNew(pstmts, reference, commonName, "$1001");
-///     return(ans)    
-
+def mainHelper(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths]): ReportMonad[(System.FilePath, System.FilePath)] = 
+    use AutoLifting/Base/ReportMonad.{flatMap, return, liftDbMonad};
+    let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx");
+    let manualOutput    = makeOutputName(worklistPaths.worklist, "_new_kids.xlsx");
+    let uxlOutput       = makeOutputName(worklistPaths.worklist, "_new_kids_uxl.xlsx");
+    let* _              = liftDbMonad(_ -> setupFacts());
+    let* _              = liftDbMonad(_ -> AutoLifting/SetupDb.setupSpecificTables(worklistPaths, downloads));
+    let* _              = AutoLifting/ReportMain.makeReport("Lifting Update", uxlTemplate, manualOutput, uxlOutput);
+    return((manualOutput, uxlOutput))
     
 
+def makeOutputName(path: System.FilePath, newSuffix: String): System.FilePath = 
+    let s = Option.getWithDefault(System/FilePath.getBaseName(path), "");
+    let s1 = s + newSuffix;
+    System/FilePath.replaceFileName(path, s1)
+
+def setupFacts(): DbMonad[Unit] = 
+    let equiClassFacts = System/FilePath.new("G:/work/assets/facts/equi-class-export.txt");
+    
+    let ztableSourcePaths = 
+        { eqobjlPath    = System/FilePath.new("G:/work/assets/facts/ztables/ztable_eqobjl.txt")
+        , flocdesPath   = System/FilePath.new("G:/work/assets/facts/ztables/ztable_flocdes.txt")
+        , floobjlPath   = System/FilePath.new("G:/work/assets/facts/ztables/ztable_floobjl.txt")
+        , manufPath     = System/FilePath.new("G:/work/assets/facts/ztables/ztable_manuf.txt")
+        , objPath       = System/FilePath.new("G:/work/assets/facts/ztables/ztable_obj.txt")
+        };
+
+    let mappingTablePaths = 
+        { siteMappingPath           = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
+        , typeMappingPath           = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx")
+        , workingLoadMappingPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/02.working_load_fields.xlsx")
+        };
+    AutoLifting/SetupDb.setupStaticTables(equiClassFacts, ztableSourcePaths, mappingTablePaths)
+
+    

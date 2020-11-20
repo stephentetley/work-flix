@@ -43,5 +43,43 @@ namespace AutoLifting/Base/Datatypes {
         }
 
 
+    /// TODO - special purpose lifting types or not?
 
+    type alias LiftingEquipment = 
+        { equiId: String
+        , category: String
+        , description: String
+        , objectType: String
+        , objectClass: String
+        , attributes: LiftingAttributes
+        , longText: Option[String]
+        , classifications: LiftingClassifications
+        }
+
+    type alias LiftingAttributes = 
+        { startupDate: Time.LocalDate
+        , manufacturer: String
+        , model: String
+        , partNumber: String
+        , serialNumber: String
+        , maintPlant: Int32
+        , companyCode: Int32
+        , controllingArea: Int32
+        , planningPlant: Int32
+        , functionalLocation: String
+        , superOridinateEqui: String
+        , status: String 
+        } 
+
+    type alias LiftingClassifications = 
+        { pliReference: String
+        , saiParentReference: String
+        , easting: Int32
+        , northing: Int32
+        , locationOnSite: String
+        , safeWorkingLoad: Float64
+        , safeWorkingLoadUnits: String
+        , statutoryReference: String
+        , testCertNumber: String
+        }
 }

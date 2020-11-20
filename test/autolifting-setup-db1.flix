@@ -2,13 +2,14 @@
 use AssetLib/S4/FileIO/ZTable/ExportDb.ZTableSourcePaths;
 use AutoLifting/SetupDb.{MappingTablePaths, DownloadFilePaths, WorklistPaths};
 
-/// Warning `calde-sms-lft-EQMLTXT-file_download.txt` has multiline text which breaks the parser...
+/// Warning `calde-sms-lft-EQMLTXT-file_download.txt` has multiline text which used to break the parser...
+/// Should be fixed.
 
 def main(): Unit & Impure = 
     let worklistPaths =     
-        { worklistPath  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CALDER VALE STW.xlsx")
-        , attribsPath   = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-attribs-export.xlsx")
-        , memosPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-memos-export.xlsx")
+        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CALDER VALE STW.xlsx")
+        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-attribs-export.xlsx")
+        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-memos-export.xlsx")
         };        
     let downloads = 
         { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-EQUI-file_download.txt")

@@ -44,9 +44,9 @@ namespace AutoLifting/SetupDb {
 
 
     type alias WorklistPaths = 
-        { worklistPath: System.FilePath
-        , attribsPath: System.FilePath
-        , memosPath: System.FilePath
+        { worklist: System.FilePath
+        , attributesExport: System.FilePath
+        , memosExport: System.FilePath
         }
 
     type alias DownloadFilePaths = 
@@ -82,10 +82,10 @@ namespace AutoLifting/SetupDb {
                 return()
             }
         };
-        let* _  = storeWorklist("wl_worklist", worklistPaths.worklistPath);
-        let* _  = storeParentRefs("wl_parent_refs", worklistPaths.worklistPath);
-        let* _  = storeAibAttributes("wl_attributes", worklistPaths.attribsPath); 
-        let* _  = storeMemoLines("wl_memo_lines", worklistPaths.memosPath);
+        let* _  = storeWorklist("wl_worklist", worklistPaths.worklist);
+        let* _  = storeParentRefs("wl_parent_refs", worklistPaths.worklist);
+        let* _  = storeAibAttributes("wl_attributes", worklistPaths.attributesExport); 
+        let* _  = storeMemoLines("wl_memo_lines", worklistPaths.memosExport);
         return()
 
 
