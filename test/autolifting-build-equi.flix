@@ -19,6 +19,7 @@ def main(): Unit & Impure =
     ///     , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-CLASSEQUI-file_download.txt")
     ///     , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-VALUAEQUI-file_download.txt")
     ///     };
+    Console.printLine("Running...");
     match runReportMonad(mainHelper(worklistPaths, None, false), dbpath) {
         case Ok(ans) => {let (x,y) = ans; Console.printLine("Good - see ${System/FilePath.toString(x)} ${System/FilePath.toString(y)}")}
         case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
@@ -27,12 +28,14 @@ def main(): Unit & Impure =
 
 
 def mainHelper(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths], makeBaseFacts: Bool): ReportMonad[(System.FilePath, System.FilePath)] = 
-    use AutoLifting/Base/ReportMonad.{flatMap, return, liftDbMonad, whenTrue};
+    use AutoLifting/Base/ReportMonad.{flatMap, return, liftDbMonad, whenTrue, liftAction};
     let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx");
     let manualOutput    = makeOutputName(worklistPaths.worklist, "_new_kids.xlsx");
     let uxlOutput       = makeOutputName(worklistPaths.worklist, "_new_kids_uxl.xlsx");
     let* _              = whenTrue(makeBaseFacts, liftDbMonad(_ -> setupFacts()));
+    let* _              = liftAction(_ -> Console.printLine("mainHelper1"));
     let* _              = liftDbMonad(_ -> AutoLifting/SetupDb.setupSpecificTables(worklistPaths, downloads));
+    let* _              = liftAction(_ -> Console.printLine("mainHelper2"));
     let* _              = AutoLifting/ReportMain.makeReport("Lifting Update", uxlTemplate, manualOutput, uxlOutput);
     return((manualOutput, uxlOutput))
     

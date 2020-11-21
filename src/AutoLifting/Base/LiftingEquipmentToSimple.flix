@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/LiftingEquipmentToSimple {
+namespace AutoLifting/Base/LiftingEquipmentToSimple {
 
 
     use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
@@ -23,13 +23,18 @@ namespace AutoLifting/LiftingEquipmentToSimple {
 
 
     pub def translateLiftingEquipment(x: LiftingEquipment): S4Equipment = 
+        let attributes  = translateLiftingAttributes(x.objectType, x.attributes);
+        let longText    = translateLongText(x.attributes.description, x.longText);
+        let classifications   = translateLiftingClassifications(x.objectClass, x.classifications);
         { equiId            = x.equiId
-        , attributes        = translateLiftingAttributes(x.objectType, x.attributes)
-        , longText          = translateLongText(x.attributes.description, x.longText)
-        , classifications   = translateLiftingClassifications(x.objectClass, x.classifications)
+        , attributes        = attributes
+        , longText          = longText
+        , classifications   = classifications
         }
 
     def translateLiftingAttributes(objectType: String, x: LiftingAttributes): EquiAttributes = 
+        let year    = Time/LocalDate.getYear(x.startupDate);
+        let month   = Time/LocalDate.getMonth(x.startupDate);
         { category              = x.category
         , description           = x.description
         , objectType            = objectType
@@ -38,8 +43,8 @@ namespace AutoLifting/LiftingEquipmentToSimple {
         , model                 = x.model
         , partNumber            = x.partNumber
         , serialNumber          = x.serialNumber
-        , constructionYear      = Time/LocalDate.getYear(x.startupDate)
-        , constructionMonth     = Time/LocalDate.getMonth(x.startupDate)
+        , constructionYear      = year
+        , constructionMonth     = month
         , maintPlant            = x.maintPlant
         , companyCode           = x.companyCode
         , controllingArea       = x.controllingArea
@@ -56,22 +61,22 @@ namespace AutoLifting/LiftingEquipmentToSimple {
             Some({shortText = description, longText = longText})
 
     /// TODO if length(locationOnSite) > 30 make it a longtext
-    def translateLiftingClassifications(objectClass: String, x: LiftingClassifications): List[Classification] = 
+    def translateLiftingClassifications(_objectClass: String, x: LiftingClassifications): List[Classification] = 
         use AssetLib/S4/Simple/Classifications.{getClassifications, concat, whenTrue, whenSome, ai2AibReference, 
             easting, northing, uniclassCode, uniclassDesc, locationOnSite, decimalClassification,
             stringClassification, statutoryReferenceNumber, testCertNo};
         concat( 
                 ai2AibReference(x.pliReference) 
-            :: ai2AibReference(x.saiParentReference)
-            :: whenSome(x.easting, i-> easting(i))
-            :: whenSome(x.northing, i -> northing(i))
-            :: uniclassCode(objectClass)
-            :: uniclassDesc(objectClass)
-            :: whenTrue(!String.isEmpty(x.locationOnSite), locationOnSite(objectClass, x.locationOnSite))
-            :: whenSome(x.workingLoad, d -> decimalClassification(objectClass, x.workingLoadFieldName, d))
-            :: whenTrue(!String.isEmpty(x.workingLoadUnits), stringClassification(objectClass, x.workingLoadUnitsFieldName, x.workingLoadUnits))
-            :: whenTrue(!String.isEmpty(x.statutoryReference), statutoryReferenceNumber(objectClass, x.statutoryReference))
-            :: whenTrue(!String.isEmpty(x.testCertNumber), testCertNo(objectClass, x.testCertNumber)) 
+            /// :: ai2AibReference(x.saiParentReference)
+            /// :: whenSome(x.easting, i-> easting(i))
+            /// :: whenSome(x.northing, i -> northing(i))
+            /// :: uniclassCode(objectClass)
+            /// :: uniclassDesc(objectClass)
+            /// :: whenTrue(!String.isEmpty(x.locationOnSite), locationOnSite(objectClass, x.locationOnSite))
+            /// :: whenSome(x.workingLoad, d -> decimalClassification(objectClass, x.workingLoadFieldName, d))
+            /// :: whenTrue(!String.isEmpty(x.workingLoadUnits), stringClassification(objectClass, x.workingLoadUnitsFieldName, x.workingLoadUnits))
+            /// :: whenTrue(!String.isEmpty(x.statutoryReference), statutoryReferenceNumber(objectClass, x.statutoryReference))
+            /// :: whenTrue(!String.isEmpty(x.testCertNumber), testCertNo(objectClass, x.testCertNumber)) 
             :: Nil
         ) |> getClassifications
 

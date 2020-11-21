@@ -16,34 +16,8 @@
 
 namespace AutoLifting/Base/Datatypes {
 
-    pub enum FixedOrPortable { 
-        case Fixed
-        case Portable
-    }
-
-    pub def showFixedOrPortable(x: FixedOrPortable): String =  match x { 
-        case Fixed => "Fixed"
-        case Portable => "Portable"
-    }
-
-
-    pub def readFixedOrPortable(s: String): Result[FixedOrPortable, System.Error] = 
-        match String.trim(String.toUpperCase(s)) {
-            case "FIXED" => Ok(Fixed)
-            case "PORTABLE" => Ok(Portable)
-            case _ => Err(System/Error.Generic("readFixedOrPortable"))
-        }
-        
-
-    type alias S4TypeInfo = 
-        { category: String 
-        , s4Object: String
-        , s4Class: String
-        , fixedOrPortable: FixedOrPortable
-        }
-
-
-    /// TEMP - special purpose lifting types or not?
+    /// LiftingEquipment is essentially a refinement of S4Equipment with
+    /// named fields for classifaction data.
 
     type alias LiftingEquipment = 
         { equiId: String
@@ -84,5 +58,35 @@ namespace AutoLifting/Base/Datatypes {
         , statutoryReference: String
         , testCertNumber: String
         }
+
+    /// Interim datatypes
+
+    pub enum FixedOrPortable { 
+        case Fixed
+        case Portable
+    }
+
+    pub def showFixedOrPortable(x: FixedOrPortable): String =  match x { 
+        case Fixed => "Fixed"
+        case Portable => "Portable"
+    }
+
+
+    pub def readFixedOrPortable(s: String): Result[FixedOrPortable, System.Error] = 
+        match String.trim(String.toUpperCase(s)) {
+            case "FIXED" => Ok(Fixed)
+            case "PORTABLE" => Ok(Portable)
+            case _ => Err(System/Error.Generic("readFixedOrPortable"))
+        }
+        
+
+    type alias S4TypeInfo = 
+        { category: String 
+        , s4Object: String
+        , s4Class: String
+        , fixedOrPortable: FixedOrPortable
+        }
+
+
         
 }
