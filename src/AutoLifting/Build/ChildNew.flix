@@ -23,7 +23,7 @@ namespace AutoLifting/Build/ChildNew {
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
     use AutoLifting/Base/Datatypes.{LiftingEquipment};
-    use AssetLib/S4/Simple.Classifications;
+
 
 
     type alias ChildNewPreparedStatements = 
@@ -46,7 +46,7 @@ namespace AutoLifting/Build/ChildNew {
         let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.prepareAibAttributesQuery();
         let* tyDistinguished    = AutoLifting/Build/ChildNew/LiftingTypeMapping.prepareDistinguishedQuery();
         let* tyOrdinary         = AutoLifting/Build/ChildNew/LiftingTypeMapping.prepareOrdinaryQuery();
-        let* workingLoad        = AutoLifting/Build/ChildNew/Classifications.prepareWorkingLoadQuery();
+        let* workingLoad        = AutoLifting/Build/ChildNew/WorkingLoadFields.prepareWorkingLoadQuery();
         return(
             { selectLongText        = longText
             , selectS4SiteCode      = siteCode
