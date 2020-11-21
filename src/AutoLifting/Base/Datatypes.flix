@@ -43,21 +43,21 @@ namespace AutoLifting/Base/Datatypes {
         }
 
 
-    /// TODO - special purpose lifting types or not?
+    /// TEMP - special purpose lifting types or not?
 
     type alias LiftingEquipment = 
         { equiId: String
-        , category: String
-        , description: String
         , objectType: String
         , objectClass: String
         , attributes: LiftingAttributes
-        , longText: Option[String]
+        , longText: String
         , classifications: LiftingClassifications
         }
 
     type alias LiftingAttributes = 
-        { startupDate: Time.LocalDate
+        { category: String
+        , description: String
+        , startupDate: Time.LocalDate
         , manufacturer: String
         , model: String
         , partNumber: String
@@ -74,14 +74,15 @@ namespace AutoLifting/Base/Datatypes {
     type alias LiftingClassifications = 
         { pliReference: String
         , saiParentReference: String
-        , easting: Int32
-        , northing: Int32
+        , easting: Option[Int32]
+        , northing: Option[Int32]
         , locationOnSite: String
-        , safeWorkingLoadFieldName: String
-        , safeWorkingLoad: Option[Float64]
-        , safeWorkingLoadUnitsFieldName: String
-        , safeWorkingLoadUnits: String
+        , workingLoadFieldName: String
+        , workingLoad: Option[Float64]
+        , workingLoadUnitsFieldName: String
+        , workingLoadUnits: String
         , statutoryReference: String
         , testCertNumber: String
         }
+        
 }

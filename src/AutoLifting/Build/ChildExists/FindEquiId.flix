@@ -24,9 +24,6 @@ namespace AutoLifting/Build/ChildExists/FindEquiId {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-
-
-
     /// find Equi
 
     pub def findEquiId[r](pstmts: {selectS4SiteCode: PreparedStatement | r}, ywRef: String): DbMonad[Option[String]] = 

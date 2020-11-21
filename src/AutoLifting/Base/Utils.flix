@@ -16,6 +16,7 @@
 
 namespace AutoLifting/Base/Utils {
     
+    use AssetLib/Common/Osgb36.EastingNorthing;
     use AssetLib/S4/Simple.Classifications;
     use AutoLifting/Base/Datatypes.FixedOrPortable;
     use AutoLifting/Base/Datatypes.FixedOrPortable.{Fixed, Portable};
@@ -73,5 +74,12 @@ namespace AutoLifting/Base/Utils {
         let c2      = northing(x.northing);
         Ok(c1 `append` c2)
 
+    pub def getEastingNorthing(gridRef: String): Result[EastingNorthing, System.Error] = 
+        use Result.{flatMap};
+        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+        use AssetLib/S4/Simple/Classifications.{append, easting, northing};
+        let* ngr    = parse(gridRef);
+        let* ans      = toEastingNorthing(ngr);
+        Ok(ans)
 
 }

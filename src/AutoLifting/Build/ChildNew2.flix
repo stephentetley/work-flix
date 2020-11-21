@@ -1,0 +1,184 @@
+/*
+ * Copyright 2020 Stephen Tetley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace AutoLifting/Build/ChildNew2 {
+    
+    use BasicDb.DbMonad;
+    use BasicDb.PreparedStatement;
+    use BasicDb.PreparedStatementSetter;
+    use BasicDb.RowEvaluator;
+
+    use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
+    use AutoLifting/Base/Datatypes.{LiftingEquipment};
+    use AssetLib/S4/Simple.Classifications;
+
+
+    type alias ChildNewPreparedStatements = 
+        { selectLongText: PreparedStatement
+        , selectS4SiteCode: PreparedStatement
+        , selectParentRef: PreparedStatement
+        , selectAibAttributes: PreparedStatement
+        , selectTyDistinguished: PreparedStatement
+        , selectTyOrdinary: PreparedStatement
+        , selectWorkingLoad: PreparedStatement
+        }
+
+    /// Note table names are fixed - we have built a specific database for this task.
+
+    pub def cachePreparedStatements(): DbMonad[ChildNewPreparedStatements] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* longText           = prepareLongTextQuery();
+        let* siteCode           = prepareS4SiteCodeQuery();
+        let* parentRef          = prepareParentAibReferenceQuery();
+        let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.prepareAibAttributesQuery();
+        let* tyDistinguished    = AutoLifting/Build/ChildNew/LiftingTypeMapping.prepareDistinguishedQuery();
+        let* tyOrdinary         = AutoLifting/Build/ChildNew/LiftingTypeMapping.prepareOrdinaryQuery();
+        let* workingLoad        = AutoLifting/Build/ChildNew/Classifications.prepareWorkingLoadQuery();
+        return(
+            { selectLongText        = longText
+            , selectS4SiteCode      = siteCode
+            , selectParentRef       = parentRef
+            , selectAibAttributes   = aibAttributes
+            , selectTyDistinguished = tyDistinguished
+            , selectTyOrdinary      = tyOrdinary
+            , selectWorkingLoad     = workingLoad
+            })
+
+
+    /// Note - fresh name supply is outside DbMonad
+    pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String, freshEquiId: String): DbMonad[LiftingEquipment] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult};
+        use AssetLib/S4/Simple/Classifications.{append, getClassifications};
+        use AutoLifting/Base/Utils.{getEastingNorthing, liftingFunctionalLocation};
+        use AutoLifting/Build/ChildNew/WorkingLoadFields.{getWorkingLoadFields};
+        let* description        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
+        let* aibEquiName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
+        let* aibSiteName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibSiteNameFromCommonName(commonName));
+        let* aibEquiType        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiTypeFromCommonName(commonName));
+        let* flocRoot           = getS4SiteCode(pstmts, aibSiteName);
+        let* longText           = getLongText(pstmts, reference);
+        let* tymap              = AutoLifting/Build/ChildNew/LiftingTypeMapping.getTypeMapping(pstmts, aibEquiName, aibEquiType);
+        let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.getAibAttributes(pstmts, reference);
+        let funcLoc             = liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
+        let* parentRef          = getParentAibReference(pstmts, commonName);
+        let* eastNorth          = liftResult(_ -> getEastingNorthing(aibAttributes.osgb36));
+        let* loadFields         = getWorkingLoadFields(pstmts, tymap.s4Class);
+        return(
+            { equiId            = freshEquiId
+            , objectType        = tymap.s4Object
+            , objectClass       = tymap.s4Class
+            , attributes        =
+                { category              = tymap.category
+                , description           = description
+                , startupDate           = aibAttributes.installedFrom
+                , manufacturer          = aibAttributes.manufacturer
+                , model                 = aibAttributes.model
+                , partNumber            = aibAttributes.partNumber
+                , serialNumber          = aibAttributes.serialNumber
+                , maintPlant            = 2100
+                , companyCode           = 2100
+                , controllingArea       = 1000
+                , planningPlant         = 1000
+                , functionalLocation    = funcLoc
+                , superOridinateEqui    = ""
+                , status                = aibAttributes.assetStatus       
+                }
+            , longText          = longText
+            , classifications   = 
+                { pliReference                  = reference
+                , saiParentReference            = parentRef
+                , easting                       = Some(eastNorth.easting)
+                , northing                      = Some(eastNorth.northing)
+                , locationOnSite                = aibAttributes.locationOnSite
+                , workingLoadFieldName          = loadFields.valueFieldName
+                , workingLoad                   = aibAttributes.workLoad
+                , workingLoadUnitsFieldName     = loadFields.unitFieldName
+                , workingLoadUnits              = aibAttributes.workLoadUnits
+                , statutoryReference            = aibAttributes.statutoryRef
+                , testCertNumber                = aibAttributes.testCertNum
+                }
+            })
+
+    /// Long text
+
+    def getLongText[r](pstmts: {selectLongText: PreparedStatement| r}, reference: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
+        let* rs     = psExecuteQuery(pstmts.selectLongText, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
+        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("long_text"));
+        let* _      = rsClose(rs);
+        return(x1)
+
+    def prepareLongTextQuery(): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    lt.long_text"
+                :: "FROM wl_memo_lines lt"
+                :: "WHERE "
+                :: "    lt.reference = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
+
+
+
+    /// S4 Site Code
+
+    pub def getS4SiteCode[r](pstmts: {selectS4SiteCode: PreparedStatement | r}, aibSiteName: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose};
+        let* rs     = psExecuteQuery(pstmts.selectS4SiteCode, BasicDb/PreparedStatementSetter.putStringAt!(0,  aibSiteName));
+        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("s4_level1_code"));
+        let* _      = rsClose(rs);
+        return(if (Object.isNull(x1)) "" else x1)
+
+    def prepareS4SiteCodeQuery(): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    t.s4_level1_code"
+                :: "FROM lookup_site t"
+                :: "WHERE "
+                :: "    t.installation_common_name = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
+
+
+
+        
+    /// Parent AIb Reference
+
+
+
+    def getParentAibReference[r](pstmts: {selectParentRef: PreparedStatement |r}, equiCommonName: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};
+        use AutoLifting/Build/ChildNew/DecodeCommonName.{getAibParentNameFromCommonName};
+        let* parent = liftActionResult(_ -> getAibParentNameFromCommonName(equiCommonName));
+        let* rs     = psExecuteQuery(pstmts.selectParentRef, BasicDb/PreparedStatementSetter.putStringAt!(0,  parent));
+        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("reference"));
+        let* _      = rsClose(rs);
+        return(if (Object.isNull(x1)) "" else x1)
+
+    def prepareParentAibReferenceQuery(): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    t.reference"
+                :: "FROM wl_parent_refs t"
+                :: "WHERE "
+                :: "    t.asset_name = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
+
+}
