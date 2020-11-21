@@ -27,7 +27,7 @@ namespace AutoLifting/ReportMain {
 
 
     pub def makeReport(description: String, uxlTemplate: System.FilePath, manualOut: System.FilePath, uxlOut: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/Base/ReportMonad.{return, flatMap, liftActionResult, liftDbMonad, mapM, liftAction};
+        use AutoLifting/Base/ReportMonad.{return, flatMap, liftActionResult, liftDbMonad, mapM};
         use AutoLifting/Base/LiftingEquipmentToSimple.{translateLiftingEquipment};
         use AutoLifting/Build/ChildNew.{cachePreparedStatements => childNewPreparedStatements};
         use AutoLifting/ManualOutput.{writeManualReport};
@@ -37,9 +37,7 @@ namespace AutoLifting/ReportMain {
         let news            = List.filter(x -> x.change == "Child New", xs);
         let* newEquis       = mapM(x -> buildNew(childPsCache, x.reference, x.assetName), news);
         let* _              = writeManualReport(newEquis, manualOut);
-        let* _              = liftAction(_ -> Console.printLine("006"));
-        let newEquis2       = List.map(translateLiftingEquipment, newEquis);
-        let* _              = liftAction(_ -> Console.printLine("007"));
+        let newEquis2       = List.map(translateLiftingEquipment, newEquis);    
         let* _              = liftActionResult(_ -> outputUxl(description, Nil, newEquis2, uxlTemplate, uxlOut));
         return()
 

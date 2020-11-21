@@ -23,9 +23,9 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
 
 
     pub def translateLiftingEquipment(x: LiftingEquipment): S4Equipment = 
-        let attributes  = translateLiftingAttributes(x.objectType, x.attributes);
-        let longText    = translateLongText(x.attributes.description, x.longText);
-        let classifications   = translateLiftingClassifications(x.objectClass, x.classifications);
+        let attributes          = translateLiftingAttributes(x.objectType, x.attributes);
+        let longText            = translateLongText(x.attributes.description, x.longText);
+        let classifications     = translateLiftingClassifications(x.objectClass, x.classifications);
         { equiId            = x.equiId
         , attributes        = attributes
         , longText          = longText
@@ -61,22 +61,22 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
             Some({shortText = description, longText = longText})
 
     /// TODO if length(locationOnSite) > 30 make it a longtext
-    def translateLiftingClassifications(_objectClass: String, x: LiftingClassifications): List[Classification] = 
+    def translateLiftingClassifications(objectClass: String, x: LiftingClassifications): List[Classification] = 
         use AssetLib/S4/Simple/Classifications.{getClassifications, concat, whenTrue, whenSome, ai2AibReference, 
             easting, northing, uniclassCode, uniclassDesc, locationOnSite, decimalClassification,
             stringClassification, statutoryReferenceNumber, testCertNo};
         concat( 
                 ai2AibReference(x.pliReference) 
-            /// :: ai2AibReference(x.saiParentReference)
-            /// :: whenSome(x.easting, i-> easting(i))
-            /// :: whenSome(x.northing, i -> northing(i))
-            /// :: uniclassCode(objectClass)
-            /// :: uniclassDesc(objectClass)
-            /// :: whenTrue(!String.isEmpty(x.locationOnSite), locationOnSite(objectClass, x.locationOnSite))
-            /// :: whenSome(x.workingLoad, d -> decimalClassification(objectClass, x.workingLoadFieldName, d))
-            /// :: whenTrue(!String.isEmpty(x.workingLoadUnits), stringClassification(objectClass, x.workingLoadUnitsFieldName, x.workingLoadUnits))
-            /// :: whenTrue(!String.isEmpty(x.statutoryReference), statutoryReferenceNumber(objectClass, x.statutoryReference))
-            /// :: whenTrue(!String.isEmpty(x.testCertNumber), testCertNo(objectClass, x.testCertNumber)) 
+            :: ai2AibReference(x.saiParentReference)
+            :: whenSome(x.easting, i-> easting(i))
+            :: whenSome(x.northing, i -> northing(i))
+            :: uniclassCode(objectClass)
+            :: uniclassDesc(objectClass)
+            :: whenTrue(!String.isEmpty(x.locationOnSite), locationOnSite(objectClass, x.locationOnSite))
+            :: whenSome(x.workingLoad, d -> decimalClassification(objectClass, x.workingLoadFieldName, d))
+            :: whenTrue(!String.isEmpty(x.workingLoadUnits), stringClassification(objectClass, x.workingLoadUnitsFieldName, x.workingLoadUnits))
+            :: whenTrue(!String.isEmpty(x.statutoryReference), statutoryReferenceNumber(objectClass, x.statutoryReference))
+            :: whenTrue(!String.isEmpty(x.testCertNumber), testCertNo(objectClass, x.testCertNumber)) 
             :: Nil
         ) |> getClassifications
 
