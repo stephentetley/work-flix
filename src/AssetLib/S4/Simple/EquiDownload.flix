@@ -45,7 +45,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
         , controllingArea: Int32
         , planningPlant: Int32
         , functionalLocation: String
-        , superOridinateEqui: String
+        , superOrdinateEqui: String
         , status: String
         }
 
@@ -79,7 +79,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
                 , controllingArea       = x14
                 , planningPlant         = x15
                 , functionalLocation    = x16
-                , superOridinateEqui    = x17
+                , superOrdinateEqui     = x17
                 , status                = x18
                 })
             <&> getStringNamed("EQUI")                  /// Equipment ID
@@ -140,7 +140,7 @@ namespace AssetLib/S4/Simple/EquiDownload {
         let* _ = putInt32At!(13, x.controllingArea);
         let* _ = putInt32At!(14, x.planningPlant);
         let* _ = putStringAt!(15,  x.functionalLocation);
-        let* _ = putStringAt!(16,  x.superOridinateEqui);
+        let* _ = putStringAt!(16,  x.superOrdinateEqui);
         let* _ = putStringAt!(17,  x.status);
         return()
 

@@ -41,7 +41,7 @@ namespace AutoLifting/Base/Datatypes {
         , controllingArea: Int32
         , planningPlant: Int32
         , functionalLocation: String
-        , superOridinateEqui: String
+        , superOrdinateEqui: String
         , status: String 
         } 
 

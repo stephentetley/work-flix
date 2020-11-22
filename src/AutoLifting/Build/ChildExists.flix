@@ -36,7 +36,7 @@ namespace AutoLifting/Build/ChildExists {
             , controllingArea       = x.attributes.controllingArea
             , planningPlant         = x.attributes.planningPlant
             , functionalLocation    = x.attributes.functionalLocation
-            , superOridinateEqui    = x.attributes.superOridinateEqui
+            , superOrdinateEqui     = x.attributes.superOrdinateEqui
             , status                = x.attributes.status   
             }
         , longText          = getLongText(x)

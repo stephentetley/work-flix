@@ -103,7 +103,7 @@ namespace AssetLib/S4/Simple/EquiSetupDb {
                     , costCenter            = x14
                     , planningPlant         = x15
                     , functionalLocation    = x16
-                    , superOridinateEqui    = x17
+                    , superOrdinateEqui     = x17
                     , status                = x18
                     }
                 })

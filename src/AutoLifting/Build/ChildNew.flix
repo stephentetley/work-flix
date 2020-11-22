@@ -93,7 +93,7 @@ namespace AutoLifting/Build/ChildNew {
                 , controllingArea       = 1000
                 , planningPlant         = 1000
                 , functionalLocation    = funcLoc
-                , superOridinateEqui    = ""
+                , superOrdinateEqui     = ""
                 , status                = aibAttributes.assetStatus       
                 }
             , longText          = longText

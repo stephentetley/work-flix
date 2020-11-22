@@ -125,7 +125,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
                 , controllingArea       = x13
                 , planningPlant         = x14
                 , functionalLocation    = x15
-                , superOridinateEqui    = x16
+                , superOrdinateEqui     = x16
                 , status                = x17                
                 })
             <&> getStringNamed("category")                  /// Equipment Category

@@ -50,7 +50,7 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
         , controllingArea       = x.controllingArea
         , planningPlant         = x.planningPlant
         , functionalLocation    = x.functionalLocation
-        , superOridinateEqui    = x.superOridinateEqui
+        , superOrdinateEqui     = x.superOrdinateEqui
         , status                = x.status
         }
 
