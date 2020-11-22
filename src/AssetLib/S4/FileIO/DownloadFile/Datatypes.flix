@@ -25,14 +25,25 @@ namespace AssetLib/S4/FileIO/DownloadFile/Datatypes {
 
     /// TODO - the "newtypes" here are porbably more trouble than they are worth...
 
-    pub opaque type DownloadFile = { fileHeader: FileHeader, selection: Selection, headers: Headers, dataRows: List[DataRow] }
+    type alias DownloadFile = 
+        { fileHeader: FileHeader
+        , selection: List[String]       /// uninterpreted
+        , headers: Headers
+        , dataRows: List[DataRow]
+        }
 
-    pub opaque type DataRow = Array[String]
+    type alias  DataRow = Array[String]
 
 
 
-    pub type alias FileHeader = { fileType: FileType, dataModel : DataModel, entityType: EntityType, 
-                                    variant: String, user: String, dateTime: LocalDateTime } 
+    type alias FileHeader = 
+        { fileType: FileType
+        , dataModel : DataModel
+        , entityType: EntityType
+        , variant: String
+        , user: String
+        , dateTime: LocalDateTime
+        } 
 
     /// Possibly change to String?
     /// Generally we are now only concerned with Download files
@@ -68,17 +79,18 @@ namespace AssetLib/S4/FileIO/DownloadFile/Datatypes {
         case Eqmltxt    => "EQMLTEXT"
     }
 
-    /// Uninterpreted
-    pub opaque type Selection = List[String]
 
-    pub def emptySelection(): Selection = Selection(Nil)
-
-    pub opaque type Headers = Array[String]
+    /// What direct indexing...
+    type alias Headers = Array[String]
     
 
     /// EntityData
 
 
-    pub opaque type EntityData[row] = { entityType: EntityType, headers: Headers, dataRows: List[row] }
+    type alias EntityData[row] = 
+        { entityType: EntityType
+        , headers: Headers
+        , dataRows: List[row]
+        }
 
 }

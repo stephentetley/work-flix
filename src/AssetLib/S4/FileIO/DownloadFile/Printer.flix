@@ -24,14 +24,10 @@ namespace AssetLib/S4/FileIO/DownloadFile/Printer {
     use Text/SimpleFormat.{<>, <<>>, <!>};
 
 
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DownloadFile.{DownloadFile};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.FileType.{Download, Upload};
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataModel.{U1};
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Headers.{Headers};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Selection.{Selection};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataRow.{DataRow};
 
     pub def writeChangeFile(x: DownloadFile, path: String): Result[Unit, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
@@ -43,12 +39,11 @@ namespace AssetLib/S4/FileIO/DownloadFile/Printer {
 
     
     def ppDownloadFile(x: DownloadFile): Doc & Impure = 
-        let DownloadFile(x1) = x;
         vcat(
-               ppFileHeader(x1.fileHeader)
-            :: ppSelection(x1.selection)
-            :: ppHeaders(x1.headers)
-            :: List.map(ppDataRow, x1.dataRows)
+               ppFileHeader(x.fileHeader)
+            :: ppSelection(x.selection)
+            :: ppHeaders(x.headers)
+            :: List.map(ppDataRow, x.dataRows)
         ) <> line()
 
     def ppFileHeader (x: FileHeader): Doc = 
@@ -107,21 +102,17 @@ namespace AssetLib/S4/FileIO/DownloadFile/Printer {
         Result.getWithDefault(step(), comment("Date: ____ / Time: ____"))   
 
 
-    def ppSelection (x: Selection): Doc = 
-        let Selection(xs) = x;
-        match List.map(comment, xs) {
-            case Nil  => defines("Selection", "")
-            case rows => defines("Selection", "") <!> vcat(rows)
-        }
+    def ppSelection (xs: List[String]): Doc = match List.map(comment, xs) {
+        case Nil  => defines("Selection", "")
+        case rows => defines("Selection", "") <!> vcat(rows)
+    }
         
 
-    def ppHeaders(x: Headers): Doc & Impure = 
-        let Headers(arr) = x;
+    def ppHeaders(arr: Headers): Doc & Impure = 
         let names = punctuate(tab(), List.map(x -> text(x), Array.toList(arr)));
         char('*') <> hcat(names)
 
-    def ppDataRow(x: DataRow): Doc & Impure = 
-        let DataRow(arr) = x;
+    def ppDataRow(arr: DataRow): Doc & Impure = 
         hcat(List.map(x -> text(x) <> tab(), Array.toList(arr)))   
 
 }

@@ -28,14 +28,10 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
     use TextParser/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
     use TextParser/Token1.{symbol, lexeme};
 
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, Selection, DataRow};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DownloadFile.{DownloadFile};
+    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.FileType.{Download, Upload};
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataModel.{U1};
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Headers.{Headers};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Selection.{Selection};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataRow.{DataRow};
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[DownloadFile, System.Error] & Impure = 
@@ -50,7 +46,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
         let* sel = alt(pSelection(), pEmptySelection());        
         let* cols = pColumnHeaders();
         let* rows = manyTill(pDataRow(), endOfInput());
-        return(DownloadFile({ fileHeader = hdr, selection = sel, headers = cols, dataRows = rows }))
+        return({fileHeader = hdr, selection = sel, headers = cols, dataRows = rows})
 
 
 
@@ -62,8 +58,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
         let* v      = pVariant();
         let* u      = pUser();
         let* dt     = pDateTime();
-        return({ fileType = ft, dataModel = dm, entityType = et, 
-                    variant = v, user = u, dateTime = dt })
+        return({ fileType = ft, dataModel = dm, entityType = et
+               , variant = v, user = u, dateTime = dt})
 
                     
     def asterisk(): TextParser[Unit, t] =  
@@ -130,14 +126,14 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
         let* ans = liftResult(Time/LocalDateTime.parse(d + " " + t, fmt));
         return(ans)
 
-    def pEmptySelection(): TextParser[Selection, t] = 
-        return(Selection(Nil))
+    def pEmptySelection(): TextParser[List[String], t] = 
+        return(Nil)
 
-    def pSelection(): TextParser[Selection, t] = 
+    def pSelection(): TextParser[List[String], t] = 
         use TextParser.flatMap;
         let* _ = pSelectionHeader();
         let* xs = pSelectionLines();
-        return(Selection(xs))
+        return(xs)
 
     def pSelectionHeader(): TextParser[Unit, t] = 
         symbol("* Selection:") |> ignore         // blank header, consumes newline
@@ -165,7 +161,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
         let* nl = makePattern("\R");
         let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
         let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray);
-        return(Headers(arr))
+        return(arr)
 
     
     /// Note - datarows are `sepEndBy` tab, hence dropRight(1)
@@ -175,7 +171,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
         let* tabnl  = makePatternWithFlags(".+?\u0009\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
         let* str    = lookingAt(tabnl);
         let* arr    = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
-        return(DataRow(arr))
+        return(arr)
 
 
 

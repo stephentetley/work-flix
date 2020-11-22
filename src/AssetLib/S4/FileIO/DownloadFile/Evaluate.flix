@@ -17,32 +17,24 @@
 namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
 
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, DataRow, EntityData};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DownloadFile.{DownloadFile};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityData.{EntityData};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.Headers.{Headers};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataRow.{DataRow};
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator.{RowEvaluator};
     use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{makeHeaders};
 
 
-    pub def toEntityData( headers: Array[String]
+    pub def toEntityData( outputHeaders: Array[String]
                         , eval: RowEvaluator[row]
-                        , src: DownloadFile): Result[EntityData[row], System.Error] & Impure = 
+                        , x: DownloadFile): Result[EntityData[row], System.Error] & Impure = 
         use Result.flatMap;
-        let DownloadFile(x1) = src;
-        let Headers(arr) = x1.headers;
-        let oheaders = makeHeaders(arr);
-        let* xs = Result.traverse(evalRow(eval, oheaders), x1.dataRows);
-        Ok(EntityData({entityType = x1.fileHeader.entityType, headers = Headers(headers), dataRows = xs}))
+        let oheaders = makeHeaders(x.headers);
+        let* xs = Result.traverse(evalRow(eval, oheaders), x.dataRows);
+        Ok({entityType = x.fileHeader.entityType, headers = outputHeaders, dataRows = xs})
 
     ///
     /// Specialized version of `toEntityData` all rows selected.
     ///
-    pub def toEntityData1(src: DownloadFile): Result[EntityData[DataRow], System.Error] = 
-        use Result.flatMap;
-        let DownloadFile(x1) = src;
-        Ok(EntityData({entityType = x1.fileHeader.entityType, headers = x1.headers, dataRows = x1.dataRows}))
+    pub def toEntityData1(x: DownloadFile): Result[EntityData[DataRow], System.Error] = 
+        Ok({entityType = x.fileHeader.entityType, headers = x.headers, dataRows = x.dataRows})
 
 
     /// Import rows of a FileDownload
@@ -53,22 +45,19 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
         buildRows(rowp, ast)
 
 
-    def buildRows(rowp: RowEvaluator[row], src: DownloadFile): Result[List[row], System.Error] & Impure = 
+    def buildRows(rowp: RowEvaluator[row], x: DownloadFile): Result[List[row], System.Error] & Impure = 
         use Result.flatMap;
-        let DownloadFile(x1) = src;
-        let Headers(arr) = x1.headers;
-        let headers = makeHeaders(arr);
-        let accumRow = (x, ac) -> 
-            match evalRow(rowp, headers, x) {
+        let headers = makeHeaders(x.headers);
+        let accumRow = (x1, ac) -> 
+            match evalRow(rowp, headers, x1) {
                 case Ok(r1) => Ok(r1 :: ac)
                 case Err(e) => Err(e)
             };
-        Result.foldRightM(accumRow, Nil,  x1.dataRows)
+        Result.foldRightM(accumRow, Nil,  x.dataRows)
 
     def evalRow(rowp: RowEvaluator[row], headers: Map[String, Int32], row: DataRow): Result[row, System.Error] & Impure =  
         let RowEvaluator(f) = rowp;
-        let DataRow(r1) = row;
-        f(headers, r1)
+        f(headers, row)
 
 
 
