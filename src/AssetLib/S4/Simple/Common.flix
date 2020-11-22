@@ -21,13 +21,14 @@ namespace AssetLib/S4/Simple/Common {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/S4/Simple/Datatypes.{Classification, LongText};
+    use AssetLib/S4/Simple/Datatypes.{Classification, LongText, ValueType};
+    use AssetLib/S4/Simple/Datatypes.ValueType.{Text, Integer, Decimal};
 
     pub def evalClassification(): RowEvaluator[Classification] = 
         use BasicDb/RowEvaluator.{flatMap, return, getStringNamed, getFloat64Named};
         let* classname  = getStringNamed("class_name");
         let* charname   = getStringNamed("charname");
-        let* datatype   = getStringNamed("datatype");
+        let* datatype   = getValueTypeNamed("datatype");
         let* value      = getValue(datatype);
         return( 
             { className = classname
@@ -36,9 +37,20 @@ namespace AssetLib/S4/Simple/Common {
             , value     = value
             })
 
-    pub def getValue(datatype: String): RowEvaluator[String] =
+    pub def getValueTypeNamed(field: String): RowEvaluator[ValueType] =
+        use BasicDb/RowEvaluator.{flatMap, return, getStringNamed, throwError};
+        let* s  = getStringNamed(field);
+        match String.toUpperCase(s) { 
+            case s1 if (s1 == "TEXT")       => return(Text)
+            case s1 if (s1 == "INTEGER")    => return(Integer)
+            case s1 if (s1 == "DECIMAL")    => return(Decimal)
+            case _                          => throwError("getValueTypeNamed - unrecognized `${s}`")
+        }
+
+
+    pub def getValue(datatype: ValueType): RowEvaluator[String] =
         use BasicDb/RowEvaluator.{map, getStringNamed, getFloat64Named};
-        if (datatype == "Int" || datatype == "Decimal")
+        if (datatype == Integer || datatype == Decimal)
             map(Float64.toString, getFloat64Named("value_from"))
         else
             getStringNamed("value_description")

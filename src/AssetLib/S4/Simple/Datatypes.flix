@@ -75,11 +75,15 @@ namespace AssetLib/S4/Simple/Datatypes {
     type alias Classification = 
         { className: String
         , charName: String
-        , datatype: String
+        , datatype: ValueType
         , value: String
         }
 
-
+    pub enum ValueType {
+        case Text
+        case Integer
+        case Decimal
+    }
 
 
 }

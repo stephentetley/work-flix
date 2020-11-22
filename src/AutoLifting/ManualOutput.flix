@@ -23,8 +23,7 @@ namespace AutoLifting/ManualOutput {
     use AutoLifting/Base.ReportMonad;
 
 
-    /// Note - this would be significantly neater if we were using a tighter immediate form
-    /// than S4Equipment...
+    /// Using LiftingEquipment makes this significantly neater than S4Equipment...
 
     pub def writeManualReport(rows: List[LiftingEquipment], path: System.FilePath): ReportMonad[Unit] =
         use SheetIO/SheetWriter.{runXlsx};
@@ -91,82 +90,5 @@ namespace AutoLifting/ManualOutput {
         let* _      = putStringAt!(22, x.classifications.testCertNumber);
 
         return()
-
-    /// def equipmentLongText(x: S4Equipment): String = match x.longText {
-    ///     case Some(x1) => x1.longText
-    ///     case None => ""
-    /// }
-
-
-    /// def equipmentClass(x: S4Equipment): String = 
-    ///     let fn = c -> String.startsWith(c.className, x.attributes.objectType);
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => x1.className
-    ///         case None => ""
-    ///     }
-
-    /// def pliNumber(x: S4Equipment): String = 
-    ///     let fn = c -> String.startsWith(c.value, "PLI") && c.charName == "AI2_AIB_REFERENCE";
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => x1.value
-    ///         case None => ""
-    ///     }
-
-    /// def saiNumber(x: S4Equipment): String = 
-    ///     let fn = c -> !String.startsWith(c.value, "PLI") && c.charName == "AI2_AIB_REFERENCE";
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => x1.value
-    ///         case None => ""
-    ///     }
-
-    /// def easting(x: S4Equipment): Option[Int32] = 
-    ///     let fn = c -> c.className == "EAST_NORTH" && c.charName == "EASTING";
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => Result.toOption(Int32.fromString(x1.value))
-    ///         case None => None
-    ///     }
-
-    /// def northing(x: S4Equipment): Option[Int32] = 
-    ///     let fn = c -> c.className == "EAST_NORTH" && c.charName == "NORTHING";
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => Result.toOption(Int32.fromString(x1.value))
-    ///         case None => None
-    ///     }
-
-    /// def locationOnSite(x: S4Equipment): String = 
-    ///     let fn = c -> String.startsWith(c.className, x.attributes.objectType) && c.charName == "LOCATION_ON_SITE";
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => x1.value
-    ///         case None => ""
-    ///     }
-
-    /// def workLoad(x: S4Equipment): Option[Float64] = 
-    ///     let fn = c -> String.startsWith(c.className, x.attributes.objectType) && (String.endsWith(c.charName, "_LOAD") || String.endsWith(c.charName, "_RATING"));
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => Result.toOption(Float64.fromString(x1.value))
-    ///         case None => None
-    ///     }
-
-    /// def workLoadUnits(x: S4Equipment): String = 
-    ///     let fn = c -> String.startsWith(c.className, x.attributes.objectType) && String.endsWith(c.charName, "_UNITS");
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => x1.value
-    ///         case None => ""
-    ///     }
-
-    /// def statutoryReferenceNumber(x: S4Equipment): String = 
-    ///     let fn = c -> String.startsWith(c.className, x.attributes.objectType) && c.charName == "STATUTORY_REFERENCE_NUMBER";
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => x1.value
-    ///         case None => ""
-    ///     }
-
-    /// def testCertNo(x: S4Equipment): String = 
-    ///     let fn = c -> String.startsWith(c.className, x.attributes.objectType) && c.charName == "TEST_CERT_NO";
-    ///     match List.find(fn, x.classifications) {
-    ///         case Some(x1) => x1.value
-    ///         case None => ""
-    ///     }
-
 
 }
