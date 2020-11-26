@@ -30,6 +30,7 @@ namespace AutoLifting/Build/ChildNew {
         { selectLongText: PreparedStatement
         , selectS4SiteCode: PreparedStatement
         , selectParentRef: PreparedStatement
+        , selectCommonName: PreparedStatement
         , selectAibAttributes: PreparedStatement
         , selectTyDistinguished: PreparedStatement
         , selectTyOrdinary: PreparedStatement
@@ -43,6 +44,7 @@ namespace AutoLifting/Build/ChildNew {
         let* longText           = prepareLongTextQuery();
         let* siteCode           = prepareS4SiteCodeQuery();
         let* parentRef          = prepareParentAibReferenceQuery();
+        let* commonName         = prepareCommonNameQuery();
         let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.prepareAibAttributesQuery();
         let* tyDistinguished    = AutoLifting/Build/ChildNew/LiftingTypeMapping.prepareDistinguishedQuery();
         let* tyOrdinary         = AutoLifting/Build/ChildNew/LiftingTypeMapping.prepareOrdinaryQuery();
@@ -51,6 +53,7 @@ namespace AutoLifting/Build/ChildNew {
             { selectLongText        = longText
             , selectS4SiteCode      = siteCode
             , selectParentRef       = parentRef
+            , selectCommonName      = commonName
             , selectAibAttributes   = aibAttributes
             , selectTyDistinguished = tyDistinguished
             , selectTyOrdinary      = tyOrdinary
@@ -59,22 +62,31 @@ namespace AutoLifting/Build/ChildNew {
 
 
     /// Note - fresh name supply is outside DbMonad
-    pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String, freshEquiId: String): DbMonad[LiftingEquipment] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult};
+    pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, freshEquiId: String): DbMonad[LiftingEquipment] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult, liftAction};
         use AssetLib/S4/Simple/Classifications.{append, getClassifications};
         use AutoLifting/Base/Utils.{getEastingNorthing, liftingFunctionalLocation};
         use AutoLifting/Build/ChildNew/WorkingLoadFields.{getWorkingLoadFields};
+        let* commonName         = getCommonName(pstmts, reference);
         let* description        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
         let* aibEquiName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
         let* aibSiteName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibSiteNameFromCommonName(commonName));
         let* aibEquiType        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiTypeFromCommonName(commonName));
+        let* _                  = liftAction(_ -> Console.printLine("childNew.001"));
         let* flocRoot           = getS4SiteCode(pstmts, aibSiteName);
+        let* _                  = liftAction(_ -> Console.printLine("childNew.002"));
         let* longText           = getLongText(pstmts, reference);
+        let* _                  = liftAction(_ -> Console.printLine("childNew.003"));
         let* tymap              = AutoLifting/Build/ChildNew/LiftingTypeMapping.getTypeMapping(pstmts, aibEquiName, aibEquiType);
+        let* _                  = liftAction(_ -> Console.printLine("childNew.004"));
         let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.getAibAttributes(pstmts, reference);
+        let* _                  = liftAction(_ -> Console.printLine("childNew.005"));
         let funcLoc             = liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
+        let* _                  = liftAction(_ -> Console.printLine("childNew.006 (${commonName})"));
         let* parentRef          = getParentAibReference(pstmts, commonName);
+        let* _                  = liftAction(_ -> Console.printLine("childNew.007"));
         let* eastNorth          = liftResult(_ -> getEastingNorthing(aibAttributes.osgb36));
+        let* _                  = liftAction(_ -> Console.printLine("childNew.008"));
         let* loadFields         = getWorkingLoadFields(pstmts, tymap.s4Class);
         return(
             { equiId            = freshEquiId
@@ -155,12 +167,26 @@ namespace AutoLifting/Build/ChildNew {
         BasicDb/DbMonad.prepareStatement(sql)
 
 
+    def getCommonName[r](pstmts: {selectCommonName: PreparedStatement |r}, reference: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};
+        let* rs     = psExecuteQuery(pstmts.selectCommonName, BasicDb/PreparedStatementSetter.putStringAt!(0,  reference));
+        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("common_name"));
+        let* _      = rsClose(rs);
+        return(if (Object.isNull(x1)) "" else x1)
 
+    def prepareCommonNameQuery(): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    t.common_name"
+                :: "FROM wl_common_names t"
+                :: "WHERE "
+                :: "    t.reference = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
         
     /// Parent AIb Reference
-
-
-
+    /// Need to have looked up commonName beforehand
     def getParentAibReference[r](pstmts: {selectParentRef: PreparedStatement |r}, equiCommonName: String): DbMonad[String] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};
         use AutoLifting/Build/ChildNew/DecodeCommonName.{getAibParentNameFromCommonName};
@@ -174,9 +200,9 @@ namespace AutoLifting/Build/ChildNew {
         let sql = String.unlines(
                 "SELECT"
                 :: "    t.reference"
-                :: "FROM wl_parent_refs t"
+                :: "FROM wl_common_names t"
                 :: "WHERE "
-                :: "    t.asset_name = ?"
+                :: "    t.common_name = ?"
                 :: Nil
             );
         BasicDb/DbMonad.prepareStatement(sql)

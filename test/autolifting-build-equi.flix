@@ -9,15 +9,15 @@ def main(): Unit & Impure =
     use AutoLifting/Base/ReportMonad.{runReportMonad};
     let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
     let worklistPaths =     
-        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/NORTH DUFFIELD STW.xlsx")
-        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/northd-attribs-export.xlsx")
-        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/northd-memos-export.xlsx")
+        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/HULL STW.xlsx")
+        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull2-attribs-export.xlsx")
+        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull2-memos-export.xlsx")
         };        
     /// let downloads = 
-    ///     { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-EQUI-file_download.txt")
-    ///     , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-EQMLTXT-file_download.txt")
-    ///     , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-CLASSEQUI-file_download.txt")
-    ///     , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-VALUAEQUI-file_download.txt")
+    ///     { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_equi_file_download.txt")
+    ///     , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_eqmltxt_file_download.txt")
+    ///     , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_classequi_file_download.txt")
+    ///     , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_valuaequi_file_download.txt")
     ///     };
     Console.printLine("Running...");
     match runReportMonad(mainHelper(worklistPaths, None, false), dbpath) {
@@ -28,12 +28,13 @@ def main(): Unit & Impure =
 
 
 def mainHelper(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths], makeBaseFacts: Bool): ReportMonad[(System.FilePath, System.FilePath)] = 
-    use AutoLifting/Base/ReportMonad.{flatMap, return, liftDbMonad, whenTrue};
+    use AutoLifting/Base/ReportMonad.{flatMap, return, liftDbMonad, whenTrue, liftAction};
     let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx");
     let manualOutput    = makeOutputName(worklistPaths.worklist, "_new_kids.xlsx");
     let uxlOutput       = makeOutputName(worklistPaths.worklist, "_new_kids_uxl.xlsx");
     let* _              = whenTrue(makeBaseFacts, liftDbMonad(_ -> setupFacts()));
     let* _              = liftDbMonad(_ -> AutoLifting/SetupDb.setupSpecificTables(worklistPaths, downloads));
+    let* _              = liftAction(_ -> Console.printLine("makeReport..."));
     let* _              = AutoLifting/ReportMain.makeReport("Lifting Update", uxlTemplate, manualOutput, uxlOutput);
     return((manualOutput, uxlOutput))
     

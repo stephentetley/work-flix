@@ -63,9 +63,9 @@ namespace AutoLifting/SetupDb {
         use AssetLib/S4/FileIO/DownloadFile/Builtins.{initEqmltxtTable, storeEqmltxtFile, 
             initClassEquiTable, storeClassEquiFile, initValuaEquiTable, storeValuaEquiFile};
         use AutoLifting/SetupDb/Worklist.{storeWorklist};
-        use AutoLifting/SetupDb/ParentRef.{storeParentRefs};
         use AutoLifting/SetupDb/AibAttributes.{storeAibAttributes};
         use AutoLifting/SetupDb/MemoLines.{storeMemoLines};
+        use AutoLifting/SetupDb/CommonNames.{storeCommonNames};
         let*  _ = match downloads {
             case Some(x) => {
                 let* _  = storeEquiFile("df_equi", true, x.equiPath);
@@ -83,7 +83,7 @@ namespace AutoLifting/SetupDb {
             }
         };
         let* _  = storeWorklist("wl_worklist", worklistPaths.worklist);
-        let* _  = storeParentRefs("wl_parent_refs", worklistPaths.worklist);
+        let* _  = storeCommonNames("wl_common_names", worklistPaths.attributesExport);
         let* _  = storeAibAttributes("wl_attributes", worklistPaths.attributesExport);
         let* _  = storeMemoLines("wl_memo_lines", worklistPaths.memosExport);
         return()

@@ -20,17 +20,23 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
     use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
     use AssetLib/S4/Simple.{Classifications};
     use AutoLifting/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
+    use AutoLifting/Base.ReportMonad;
 
-
-    pub def translateLiftingEquipment(x: LiftingEquipment): S4Equipment = 
+    pub def translateLiftingEquipment(x: LiftingEquipment): ReportMonad[S4Equipment] = 
+        use AutoLifting/Base/ReportMonad.{flatMap, return, liftAction};
+        let* _                  = liftAction(_ -> Console.printLine("001"));
         let attributes          = translateLiftingAttributes(x.objectType, x.attributes);
+        let* _                  = liftAction(_ -> Console.printLine("002"));
         let longText            = translateLongText(x.attributes.description, x.longText);
+        let* _                  = liftAction(_ -> Console.printLine("003"));
         let classifications     = translateLiftingClassifications(x.objectClass, x.classifications);
-        { equiId            = x.equiId
-        , attributes        = attributes
-        , longText          = longText
-        , classifications   = classifications
-        }
+        let* _                  = liftAction(_ -> Console.printLine("004"));
+        return(
+            { equiId            = x.equiId
+            , attributes        = attributes
+            , longText          = longText
+            , classifications   = classifications
+            })
 
     def translateLiftingAttributes(objectType: String, x: LiftingAttributes): EquiAttributes = 
         let year    = Time/LocalDate.getYear(x.startupDate);

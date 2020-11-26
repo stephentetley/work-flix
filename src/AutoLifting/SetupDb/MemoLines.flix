@@ -53,11 +53,17 @@ namespace AutoLifting/SetupDb/MemoLines {
                 , longText  = makeLongText(List.map(String.trim, x2 :: x3 :: x4 :: x5 :: x6 :: Nil))
                 })
             <&> getStringNamed("Reference")
-            <*> getStringNamedWithDefault("Memo Line 1", "")
-            <*> getStringNamedWithDefault("Memo Line 2", "")
-            <*> getStringNamedWithDefault("Memo Line 3", "")
-            <*> getStringNamedWithDefault("Memo Line 4", "")
-            <*> getStringNamedWithDefault("Memo Line 5", "")
+            <*> getMemoNamed("Memo Line 1")
+            <*> getMemoNamed("Memo Line 2")
+            <*> getMemoNamed("Memo Line 3")
+            <*> getMemoNamed("Memo Line 4")
+            <*> getMemoNamed("Memo Line 5")
+
+    def getMemoNamed(label: String): NamedRowEvaluator[String] = 
+        use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
+        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
+
+
 
     def makeLongText(xs: List[String]): Option[String] = 
         let text = List.filter(s -> !(String.isEmpty(s)), xs) |> String.intercalate(String.lineSeparator());

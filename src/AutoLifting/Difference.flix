@@ -56,52 +56,23 @@ namespace AutoLifting/Difference {
         if (cmp1(xa, ya) && cmp2(xb, yb)) noDiff() else difference1(delta)
 
 
-    /// pub def difference(x: LiftingEquipment, y: LiftingEquipment): LiftingEquipment = 
-    ///     let attributes      = diffAttributes(x.attributes, y.attributes);
-    ///     let classifications = diffClassifications(x.classifications, y.classifications);
-    ///     { equiId            = y.equiId
-    ///     , objectType        = if (x.objectType == y.objectType) "" else y.objectType
-    ///     , objectClass       = if (x.objectClass == y.objectClass) "" else y.objectClass
-    ///     , attributes        = attributes
-    ///     , longText          = if (x.longText == y.longText) "" else y.longText
-    ///     , classifications   = classifications
-    ///     }
+    /// equiId is immutable
+    pub enum LiftingEquipmentUpdate {
+        case SetObjectType(String)
+        case SetObjectClass(String)
+        case SetAttributes(DiffList[LiftingAttributesUpdate])
+        case SetLongText(String)
+        case SetClassifications(DiffList[LiftingClassificationsUpdate])
+    }
 
-    /// def diffAttributes(x: LiftingAttributes, y: LiftingAttributes): LiftingAttributes = 
-    ///     // let startupDate1 = if (Time/LocalDate.equals(x.startUpDate, y.startupDate)) ;
-    ///     { category              = if (x.category == y.category) "" else y.category
-    ///     , description           = if (x.description == y.description) "" else y.description
-    ///     , startupDate           = y.startupDate         /// TODO - should this be an option or not... ?
-    ///     , manufacturer          = if (x.manufacturer == y.manufacturer) "" else y.manufacturer
-    ///     , model                 = if (x.model == y.model) "" else y.model
-    ///     , partNumber            = if (x.partNumber == y.partNumber) "" else y.partNumber
-    ///     , serialNumber          = if (x.serialNumber == y.serialNumber) "" else y.serialNumber
-    ///     , maintPlant            = if (x.maintPlant == y.maintPlant) "" else y.maintPlant
-    ///     , companyCode           = if (x.companyCode == y.companyCode) "" else y.companyCode
-    ///     , controllingArea       = if (x.controllingArea == y.controllingArea) "" else y.controllingArea
-    ///     , planningPlant         = if (x.planningPlant == y.planningPlant) "" else y.planningPlant
-    ///     , functionalLocation    = if (x.functionalLocation == y.functionalLocation) "" else y.functionalLocation
-    ///     , superOrdinateEqui     = if (x.superOrdinateEqui == y.superOrdinateEqui) "" else y.superOrdinateEqui
-    ///     , status                = if (x.status == y.status) "" else y.status
-    ///     }
-
-    /// def diffClassifications(x: LiftingClassifications, y: LiftingClassifications): LiftingClassifications = 
-    ///     let easting1        = diffOption((x,y) -> x == y, x.easting, y.easting);
-    ///     let northing1       = diffOption((x,y) -> x == y, x.northing, y.northing);
-    ///     let workingLoad1    = diffOption((x,y) -> x == y, x.workingLoad, y.workingLoad);
-    ///     { pliReference              = if (x.pliReference == y.pliReference) "" else y.pliReference
-    ///     , saiParentReference        = if (x.saiParentReference == y.saiParentReference) "" else y.saiParentReference
-    ///     , easting                   = easting1
-    ///     , northing                  = northing1
-    ///     , locationOnSite            = if (x.locationOnSite == y.locationOnSite) "" else y.locationOnSite
-    ///     , workingLoadFieldName      = if (x.workingLoadFieldName == y.workingLoadFieldName) "" else y.workingLoadFieldName
-    ///     , workingLoad               = workingLoad1
-    ///     , workingLoadUnitsFieldName = if (x.workingLoadUnitsFieldName == y.workingLoadUnitsFieldName) "" else y.workingLoadUnitsFieldName
-    ///     , workingLoadUnits          = if (x.workingLoadUnits == y.workingLoadUnits) "" else y.workingLoadUnits
-    ///     , statutoryReference        = if (x.statutoryReference == y.statutoryReference) "" else y.statutoryReference
-    ///     , testCertNumber            = if (x.testCertNumber == y.testCertNumber) "" else y.testCertNumber
-    ///     }
-
+    pub def diffLiftingEquipment(x: LiftingEquipment, y: LiftingEquipment): DiffList[LiftingEquipmentUpdate] = 
+        let attributes1 = diffAttributes(x.attributes, y.attributes);
+        let classifications1 = diffClassifications(x.classifications, y.classifications);
+                    diffEquals(x.objectType, y.objectType, SetObjectType(y.objectType))
+        `append`    diffEquals(x.objectClass, y.objectClass, SetObjectClass(y.objectClass))
+        `append`    difference1(SetAttributes(attributes1))
+        `append`    diffEquals(x.longText, y.longText, SetLongText(y.longText))
+        `append`    difference1(SetClassifications(classifications1))
 
     pub enum LiftingAttributesUpdate {
         case SetCategory(String)

@@ -23,7 +23,6 @@ namespace AutoLifting/SetupDb/Worklist {
 
     type alias WorklistRow = 
         { reference: String
-        , assetName: String
         , change: String
         }
 
@@ -42,7 +41,7 @@ namespace AutoLifting/SetupDb/Worklist {
         use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
-        let* stmt       = prepareStatement("INSERT INTO ${tableName} (orderkey, reference, asset_name, change) VALUES(?,?,?, ?);");
+        let* stmt       = prepareStatement("INSERT INTO ${tableName} (orderkey, reference, change) VALUES(?,?,?);");
         let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, worklistRowSetter(ac, x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
@@ -52,8 +51,7 @@ namespace AutoLifting/SetupDb/Worklist {
         use BasicDb/PreparedStatementSetter.{flatMap, return, putInt32At!, putStringAt!};        
         let* _ = putInt32At!(0, ix);
         let* _ = putStringAt!(1, x.reference);
-        let* _ = putStringAt!(2, x.assetName);
-        let* _ = putStringAt!(3, x.change);
+        let* _ = putStringAt!(2, x.change);
         return()
 
 
@@ -62,7 +60,6 @@ namespace AutoLifting/SetupDb/Worklist {
             "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "orderkey        INTEGER NOT NULL PRIMARY KEY,"
                 :: "reference       TEXT NOT NULL,"
-                :: "asset_name      TEXT NOT NULL,"
                 :: "change          TEXT NOT NULL"
                 :: ")"
                 :: Nil

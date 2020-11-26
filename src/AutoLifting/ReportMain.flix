@@ -27,27 +27,33 @@ namespace AutoLifting/ReportMain {
 
 
     pub def makeReport(description: String, uxlTemplate: System.FilePath, manualOut: System.FilePath, uxlOut: System.FilePath): ReportMonad[Unit] = 
-        use AutoLifting/Base/ReportMonad.{return, flatMap, liftActionResult, liftDbMonad, mapM};
+        use AutoLifting/Base/ReportMonad.{return, flatMap, liftActionResult, liftAction, liftDbMonad, mapM};
         use AutoLifting/Base/LiftingEquipmentToSimple.{translateLiftingEquipment};
         use AutoLifting/Build/ChildNew.{cachePreparedStatements => childNewPreparedStatements};
         use AutoLifting/ManualOutput.{writeManualReport};
         use AssetLib/S4/Simple/EmitUxl.{outputUxl};
+        let* _              = liftAction(_ -> Console.printLine("makeReport.001"));
         let* childPsCache   = liftDbMonad(_ -> childNewPreparedStatements());
+        let* _              = liftAction(_ -> Console.printLine("makeReport.002"));
         let* xs             = liftDbMonad(_ -> getWorklist());
+        let* _              = liftAction(_ -> Console.printLine("makeReport.003"));
         let news            = List.filter(x -> x.change == "Child New", xs);
-        let* newEquis       = mapM(x -> buildNew(childPsCache, x.reference, x.assetName), news);
+        let* _              = liftAction(_ -> Console.printLine("makeReport.004"));
+        let* newEquis       = mapM(x -> buildNew(childPsCache, x.reference), news);
+        let* _              = liftAction(_ -> Console.printLine("makeReport.005"));
         let* _              = writeManualReport(newEquis, manualOut);
-        let newEquis2       = List.map(translateLiftingEquipment, newEquis);    
+        let* _              = liftAction(_ -> Console.printLine("makeReport.006"));
+        let* newEquis2      = mapM(translateLiftingEquipment, newEquis);    
         let* _              = liftActionResult(_ -> outputUxl(description, Nil, newEquis2, uxlTemplate, uxlOut));
         return()
 
 
 
-    pub def buildNew(pstmts: ChildNewPreparedStatements, reference: String, commonName: String): ReportMonad[LiftingEquipment] = 
+    pub def buildNew(pstmts: ChildNewPreparedStatements, reference: String): ReportMonad[LiftingEquipment] = 
         use AutoLifting/Base/ReportMonad.{return, flatMap, genEquiId, liftDbMonad}; 
         use AutoLifting/Build/ChildNew.{childNew};
         let* equiId     = genEquiId();
-        let* ans        = liftDbMonad(_ -> childNew(pstmts, reference, commonName, equiId));
+        let* ans        = liftDbMonad(_ -> childNew(pstmts, reference, equiId));
         return(ans)    
 
 
@@ -57,7 +63,6 @@ namespace AutoLifting/ReportMain {
 
     type alias WorkItem = 
         { reference: String
-        , assetName: String
         , change: String
         }
 
@@ -73,7 +78,6 @@ namespace AutoLifting/ReportMain {
         let sql = String.unlines(
                 "SELECT"
                 :: "    t.reference,"
-                :: "    t.asset_name,"
                 :: "    t.change"
                 :: "FROM" 
                 :: "    wl_worklist t"
@@ -88,13 +92,11 @@ namespace AutoLifting/ReportMain {
         use BasicDb/RowEvaluator.{flatMap, return, getStringNamed};
         use BasicDb/RowEvaluator.{<&>, <*>};
         use String.{trim};
-        ((x1, x2, x3) ->
+        ((x1, x2) ->
                 { reference = x1
-                , assetName = x2
-                , change    = x3
+                , change    = x2
                 })
             <&> getStringNamed("reference")
-            <*> getStringNamed("asset_name")
             <*> getStringNamed("change")
 
 }
