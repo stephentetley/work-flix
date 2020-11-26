@@ -30,7 +30,7 @@ namespace AutoLifting/SetupDb/Worklist {
     pub def storeWorklist(tableName: String, path: System.FilePath): DbMonad[Unit] =
         use BasicDb/DbMonad.{return, flatMap, liftActionResult}; 
         let* xs         = liftActionResult(_ -> AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path));
-        let  equis      = List.filter(x -> (String.startsWith(x.reference, "PLI") && x.change != "Child Equal"), xs);
+        let  equis      = List.filter(x -> (String.startsWith(x.reference, "PLI") and x.change != "Child Equal"), xs);
         let* _          = exportWorklistRows(tableName, equis);
         return()
 

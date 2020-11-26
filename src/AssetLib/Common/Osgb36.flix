@@ -100,12 +100,12 @@ namespace AssetLib/Common/Osgb36 {
 
     def findMajor(easting: Int32, northing: Int32): Result[Char, System.Error] =
         match (easting,northing) {
-            case (e,n) if e >= 0 && e < 500_000          && n >= 0 && n < 500_000           => Ok('S')
-            case (e,n) if e >= 500_000 && e < 1_000_000  && n >= 0 && n < 500_000           => Ok('T')
-            case (e,n) if e >= 0 && e < 500_000          && n >= 500_000 && n < 1_000_000   => Ok('N')
-            case (e,n) if e >= 500_000 && e < 1_000_000  && n >= 500_000 && n < 1_000_000   => Ok('O')
-            case (e,n) if e >= 0 && e < 500_000          && n >= 1_000_000 && n < 1_500_000 => Ok('H')
-            case (e,n) if e >= 500_000 && e < 1_000_000  && n >= 1_000_000 && n < 1_500_000 => Ok('J')
+            case (e,n) if e >= 0 and e < 500_000            and n >= 0 and n < 500_000           => Ok('S')
+            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 0 and n < 500_000           => Ok('T')
+            case (e,n) if e >= 0 and e < 500_000            and n >= 500_000 and n < 1_000_000   => Ok('N')
+            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 500_000 and n < 1_000_000   => Ok('O')
+            case (e,n) if e >= 0 and e < 500_000            and n >= 1_000_000 and n < 1_500_000 => Ok('H')
+            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 1_000_000 and n < 1_500_000 => Ok('J')
             case (_,_) => Err(Generic("findMajor(...)"))
         }
 
@@ -123,7 +123,7 @@ namespace AssetLib/Common/Osgb36 {
         let modN = northing % 500000;
         let divE = modE / 100000;
         let divN = modN / 100000;
-        if (divE >= 0 && divE < 5 && divN >= 0 && divN < 5) {
+        if (divE >= 0 and divE < 5 and divN >= 0 and divN < 5) {
             let row1 = arr2D[divE];
             let c = row1[divN];
             Ok(c)

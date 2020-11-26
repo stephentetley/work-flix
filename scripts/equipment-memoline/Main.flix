@@ -54,7 +54,7 @@ def temp01(): Bool =
     let s1 = "Upgraded on scheme S3953 RTU Asset Replacement (2017) ";
     let s2 = "Upgraded on scheme S3985 RTU Asset Replacement (2019) ";
     let patt = ".*S39(53|85).*";
-    String.isMatch(patt, s1) && String.isMatch(patt, s2)
+    String.isMatch(patt, s1) and String.isMatch(patt, s2)
 
 @test
 def temp02(): Int32 & Impure = 

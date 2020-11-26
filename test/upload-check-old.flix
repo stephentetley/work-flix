@@ -13,7 +13,7 @@ use UploadCheck/DatalogCheckers/IntRangeCheck.{intRangeCheck};
 //     let x1 = characteristicInClassCheck(project ClassMember db, row.className, row.characteristicName);
 //     // let x2 = selectionValueCheck(project SelectionValue db, row.characteristicName, row.charValue);
 //     // let x3 = intRangeCheck(db, row.characteristicName, row.charValue);
-//     x1 // (x1 && x2)
+//     x1 // (x1 and x2)
     
 def runCharacteristicInClassCheck(db: #{ClassMember}, row: EqClassification): Bool = 
     characteristicInClassCheck(project ClassMember db, row.className, row.characteristicName)

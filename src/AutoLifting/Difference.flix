@@ -53,7 +53,7 @@ namespace AutoLifting/Difference {
     pub def diffTuple2(cmp1: (a,a) -> Bool, cmp2: (b,b) -> Bool, x: (a,b), y: (a,b), delta: d): DiffList[d] = 
         let (xa, xb) = x;
         let (ya, yb) = y;
-        if (cmp1(xa, ya) && cmp2(xb, yb)) noDiff() else difference1(delta)
+        if (cmp1(xa, ya) and cmp2(xb, yb)) noDiff() else difference1(delta)
 
 
     /// equiId is immutable

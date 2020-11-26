@@ -50,7 +50,7 @@ namespace AssetLib/S4/Simple/Common {
 
     pub def getValue(datatype: ValueType): RowEvaluator[String] =
         use BasicDb/RowEvaluator.{map, getStringNamed, getFloat64Named};
-        if (datatype == Integer || datatype == Decimal)
+        if (datatype == Integer or datatype == Decimal)
             map(Float64.toString, getFloat64Named("value_from"))
         else
             getStringNamed("value_description")

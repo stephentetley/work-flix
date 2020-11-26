@@ -72,7 +72,7 @@ namespace UploadCheck/SqlCheckers/IntRangeCheck {
         return(inRange(orng, value))
 
     def inRange(orng: Option[(Int32, Int32)], x: Int32): Bool = match orng {
-        case Some((lo, hi)) => lo <= x && x <= hi
+        case Some((lo, hi)) => lo <= x and x <= hi
         case None => true           // No constraints, so true
     }
 

@@ -40,7 +40,7 @@ namespace Work/CommonUtils {
     
     pub def siteFromCommonName(s: String): String & Impure = 
         let arr = String.split(s, "/");
-        if (String.isMatch(".*/SEWER MAINTENANCE/.*", s) && Array.length(arr) == 5) {
+        if (String.isMatch(".*/SEWER MAINTENANCE/.*", s) and Array.length(arr) == 5) {
             let s1 = arr[2];
             let s2 = arr[3];
             s1 + "/" + s2
@@ -52,7 +52,7 @@ namespace Work/CommonUtils {
 
     pub def descriptionFromCommonName(s: String): String & Impure = 
         let arr = String.split(s, "/");
-        if (String.isMatch(".*/SEWER MAINTENANCE/.*", s) && Array.length(arr) == 5) {
+        if (String.isMatch(".*/SEWER MAINTENANCE/.*", s) and Array.length(arr) == 5) {
             "LEVEL MONITORING POINT"
         } else if (Array.length(arr) > 2) {
             let ix = Array.length(arr) - 2;

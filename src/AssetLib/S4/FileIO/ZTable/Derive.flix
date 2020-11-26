@@ -29,7 +29,7 @@ namespace AssetLib/S4/FileIO/ZTable/Derive {
             Up(struct, sub, super, 2) :- Floobjl(struct, super, sub), if super == "SITE".
             Up(struct, sub, super, i+1) :- Floobjl(struct, x, sub), Up(struct,  x, super, i).
         };
-        project Level (solve (rules <+> db <+> #{ Level(s1, x) :- Up(struct1, s1, p, x), if s1 == start && struct1 == sturucture. }))
+        project Level (solve (rules <+> db <+> #{ Level(s1, x) :- Up(struct1, s1, p, x), if s1 == start and struct1 == sturucture. }))
 
     rel Linked(child: String, parent: String)
 

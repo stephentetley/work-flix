@@ -126,7 +126,7 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
 
     // Collect ClassMembers
     def collectClassMembers(ctype: String, src: ClassList): List[ClassMember1] =
-        let cmp = (x,y) -> x.className == y.className && x.charName == y.charName;
+        let cmp = (x,y) -> x.className == y.className and x.charName == y.charName;
         List.flatMap(classMember1(ctype), src.classes) |> List.distinctWith(cmp)
 
     // One-to-many
@@ -136,7 +136,7 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
 
     // Collect Characteristics
     def collectCharacteristics(ctype: String, src: ClassList): List[CharacteristicDef1] = 
-        let cmp = (x,y) -> x.charName == y.charName && x.datatype == y.datatype;
+        let cmp = (x,y) -> x.charName == y.charName and x.datatype == y.datatype;
         List.flatMap(characteristics(ctype), src.classes) |> List.distinctWith(cmp)
 
     // One-to-many

@@ -66,7 +66,7 @@ namespace AutoLifting/SetupDb/MemoLines {
 
 
     def makeLongText(xs: List[String]): Option[String] = 
-        let text = List.filter(s -> !(String.isEmpty(s)), xs) |> String.intercalate(String.lineSeparator());
+        let text = List.filter(s -> not String.isEmpty(s), xs) |> String.intercalate(String.lineSeparator());
         if (String.isEmpty(text)) None else Some(String.trim(text))
 
 

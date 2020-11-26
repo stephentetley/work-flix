@@ -42,7 +42,7 @@ namespace FileMatch {
     pub def commonPrefix(s: Str, t: Str): Str = 
         let len = Int32.min(String.length(s), String.length(t));
         let f = i -> 
-            if (i < len && String.charAt(i, s) == String.charAt(i, t))
+            if (i < len and String.charAt(i, s) == String.charAt(i, t))
                 Some(String.charAt(i, s), i+1)
             else None;
         unfold(f, 0)

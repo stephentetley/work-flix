@@ -20,12 +20,12 @@ namespace EquipmentMemoline {
 
     pub def memoMatch[r](patt: String): #{ Answer, EquipmentInfo, MemoLine | r } =
         let rmatches = src -> String.isMatch(patt, src);
-        let yearmatch = yr -> yr == 2019 || yr == 2020;
+        let yearmatch = yr -> yr == 2019 or yr == 2020;
         #{             
             Answer(pli, longname, text, instyear, serialnum) :- 
                 EquipmentInfo(pli, longname, _, _, serialnum, "OPERATIONAL", instyear), 
                 MemoLine(pli, _, text),
-                if rmatches(text) && yearmatch(instyear).
+                if rmatches(text) and yearmatch(instyear).
 
         }
 

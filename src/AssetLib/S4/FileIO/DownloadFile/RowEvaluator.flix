@@ -153,7 +153,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
         RowEvaluator((ixs, row) -> match Map.get(label, ixs) {
             case None => Err(Generic("getCell('${label}')"))
             case Some(ix) => {
-                if (ix >= 0 && ix < Array.length(row)) {
+                if (ix >= 0 and ix < Array.length(row)) {
                     let s = row[ix];
                     Ok(s)
                 } else {

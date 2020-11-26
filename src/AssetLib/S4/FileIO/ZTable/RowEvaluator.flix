@@ -99,7 +99,7 @@ namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
 
     pub def getCell(ix: Int32): RowEvaluator[String] =
         RowEvaluator(row ->
-            if (ix >= 0 && ix < Array.length(row)) {
+            if (ix >= 0 and ix < Array.length(row)) {
                 let s = row[ix];
                 Ok(s)
             } else {

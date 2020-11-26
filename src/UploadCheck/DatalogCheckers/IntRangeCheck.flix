@@ -21,7 +21,7 @@ use AssetLib/S4/FileIO/ClassList/Relations.{IntRange};
 namespace UploadCheck/DatalogCheckers/IntRangeCheck {
 
     pub def intRangeCheck[r](db: #{IntRange, Restricted | r}, charname: String, value: Int32): Bool = 
-        isRestricted(db, charname) && isRestrictedValue(db, charname, value)
+        isRestricted(db, charname) and isRestrictedValue(db, charname, value)
 
     rel Restricted(charname: String)
 
@@ -34,7 +34,7 @@ namespace UploadCheck/DatalogCheckers/IntRangeCheck {
     
     def isRestrictedValue[r](db: #{IntRange, Restricted | r}, charname: String, value: Int32): Bool = 
         let rules = #{
-            Restricted(name) :- IntRange(name, low, high), if low <= value && value <= high.
+            Restricted(name) :- IntRange(name, low, high), if low <= value and value <= high.
         };
         (solve db <+> rules) |= Restricted(charname).
 

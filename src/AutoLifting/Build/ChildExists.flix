@@ -70,77 +70,77 @@ namespace AutoLifting/Build/ChildExists {
         }
 
     def getPliNumber(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.value, "PLI") && c.charName == "AI2_AIB_REFERENCE";
+        let fn = c -> String.startsWith(c.value, "PLI") and c.charName == "AI2_AIB_REFERENCE";
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.value
             case None => ""
         }
 
     def getSaiNumber(x: S4Equipment): String = 
-        let fn = c -> !String.startsWith(c.value, "PLI") && c.charName == "AI2_AIB_REFERENCE";
+        let fn = c -> (not String.startsWith(c.value, "PLI")) and c.charName == "AI2_AIB_REFERENCE";
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.value
             case None => ""
         }
 
     def getEasting(x: S4Equipment): Option[Int32] = 
-        let fn = c -> c.className == "EAST_NORTH" && c.charName == "EASTING";
+        let fn = c -> c.className == "EAST_NORTH" and c.charName == "EASTING";
         match List.find(fn, x.classifications) {
             case Some(x1) => Result.toOption(Int32.fromString(x1.value))
             case None => None
         }
 
     def getNorthing(x: S4Equipment): Option[Int32] = 
-        let fn = c -> c.className == "EAST_NORTH" && c.charName == "NORTHING";
+        let fn = c -> c.className == "EAST_NORTH" and c.charName == "NORTHING";
         match List.find(fn, x.classifications) {
             case Some(x1) => Result.toOption(Int32.fromString(x1.value))
             case None => None
         }
 
     def getLocationOnSite(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.className, x.attributes.objectType) && c.charName == "LOCATION_ON_SITE";
+        let fn = c -> String.startsWith(c.className, x.attributes.objectType) and c.charName == "LOCATION_ON_SITE";
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.value
             case None => ""
         }
     
     def getWorkLoadField(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.className, x.attributes.objectType) && (String.endsWith(c.charName, "_LOAD") || String.endsWith(c.charName, "_RATING"));
+        let fn = c -> String.startsWith(c.className, x.attributes.objectType) and (String.endsWith(c.charName, "_LOAD") or String.endsWith(c.charName, "_RATING"));
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.charName
             case None => ""
         }
 
     def getWorkLoad(x: S4Equipment): Option[Float64] = 
-        let fn = c -> String.startsWith(c.className, x.attributes.objectType) && (String.endsWith(c.charName, "_LOAD") || String.endsWith(c.charName, "_RATING"));
+        let fn = c -> String.startsWith(c.className, x.attributes.objectType) and (String.endsWith(c.charName, "_LOAD") or String.endsWith(c.charName, "_RATING"));
         match List.find(fn, x.classifications) {
             case Some(x1) => Result.toOption(Float64.fromString(x1.value))
             case None => None
         }
 
     def getWorkLoadUnitsField(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.className, x.attributes.objectType) && String.endsWith(c.charName, "_UNITS");
+        let fn = c -> String.startsWith(c.className, x.attributes.objectType) and String.endsWith(c.charName, "_UNITS");
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.charName
             case None => ""
         }
 
     def getWorkLoadUnits(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.className, x.attributes.objectType) && String.endsWith(c.charName, "_UNITS");
+        let fn = c -> String.startsWith(c.className, x.attributes.objectType) and String.endsWith(c.charName, "_UNITS");
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.value
             case None => ""
         }
 
     def getStatutoryReferenceNumber(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.className, x.attributes.objectType) && c.charName == "STATUTORY_REFERENCE_NUMBER";
+        let fn = c -> String.startsWith(c.className, x.attributes.objectType) and c.charName == "STATUTORY_REFERENCE_NUMBER";
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.value
             case None => ""
         }
 
     def getTestCertNo(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.className, x.attributes.objectType) && c.charName == "TEST_CERT_NO";
+        let fn = c -> String.startsWith(c.className, x.attributes.objectType) and c.charName == "TEST_CERT_NO";
         match List.find(fn, x.classifications) {
             case Some(x1) => x1.value
             case None => ""

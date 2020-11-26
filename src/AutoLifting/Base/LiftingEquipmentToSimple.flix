@@ -78,11 +78,11 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
             :: whenSome(x.northing, i -> northing(i))
             :: uniclassCode(objectClass)
             :: uniclassDesc(objectClass)
-            :: whenTrue(!String.isEmpty(x.locationOnSite), locationOnSite(objectClass, x.locationOnSite))
+            :: whenTrue(not String.isEmpty(x.locationOnSite), locationOnSite(objectClass, x.locationOnSite))
             :: whenSome(x.workingLoad, d -> decimalClassification(objectClass, x.workingLoadFieldName, d))
-            :: whenTrue(!String.isEmpty(x.workingLoadUnits), stringClassification(objectClass, x.workingLoadUnitsFieldName, x.workingLoadUnits))
-            :: whenTrue(!String.isEmpty(x.statutoryReference), statutoryReferenceNumber(objectClass, x.statutoryReference))
-            :: whenTrue(!String.isEmpty(x.testCertNumber), testCertNo(objectClass, x.testCertNumber)) 
+            :: whenTrue(not String.isEmpty(x.workingLoadUnits), stringClassification(objectClass, x.workingLoadUnitsFieldName, x.workingLoadUnits))
+            :: whenTrue(not String.isEmpty(x.statutoryReference), statutoryReferenceNumber(objectClass, x.statutoryReference))
+            :: whenTrue(not String.isEmpty(x.testCertNumber), testCertNo(objectClass, x.testCertNumber)) 
             :: Nil
         ) |> getClassifications
 
