@@ -51,11 +51,10 @@ namespace AutoLifting/SetupDb/AibAttributes {
    def readAibAttributeTable() : SheetReader[List[AibAttributeRow]] =
         use SheetIO/SheetReader.{flatMap, return, getSheetAt, liftAction, namedRowsFrom}; 
         let* s1 = getSheetAt(0); 
-        let* dfmt = liftAction(_ -> SheetIO/DataFormatter.new()); 
-        namedRowsFrom(s1, 0, 1, evalAibAttributeRow(dfmt))
+        namedRowsFrom(s1, 0, 1, evalAibAttributeRow())
 
     /// TODO - this needs to handle "SAI" rows too, ideally by Option...
-    def evalAibAttributeRow(dfmt: DataFormatter): NamedRowEvaluator[AibAttributeRow] = 
+    def evalAibAttributeRow(): NamedRowEvaluator[AibAttributeRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
                 getFloat64Named, getStringNamedWithDefault, optional, getStringNamedWithDataFormatter};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
@@ -79,23 +78,22 @@ namespace AutoLifting/SetupDb/AibAttributes {
             <*> getStringNamed("AssetStatus")
             <*> getLocalDateNamed("Installed From")
             <*> getStringNamedWithDefault("Manufacturer", "")
-            <*> getCouldBeNumericalNamed("Model", dfmt)
-            <*> getCouldBeNumericalNamed("Specific Model/Frame", dfmt)
-            <*> getCouldBeNumericalNamed("Serial No", dfmt)
-            <*> getStringNamed("Loc.Ref.")
+            <*> getCouldBeNumericalNamed("Model")
+            <*> getCouldBeNumericalNamed("Specific Model/Frame")
+            <*> getCouldBeNumericalNamed("Serial No")
+            <*> getStringNamedWithDefault("Loc.Ref.", "")
             <*> getStringNamedWithDefault("Location On Site", "")
             <*> optional(getFloat64Named("Work Load"))
             <*> getStringNamedWithDefault("Work Load Units", "")
-            /// Need to use DataFormatter as the string might actually be seen as a numeric to Excel
-            <*> getCouldBeNumericalNamed("YWRef", dfmt)
-            <*> getCouldBeNumericalNamed("Test Cert No", dfmt)
+            <*> getCouldBeNumericalNamed("YWRef")
+            <*> getCouldBeNumericalNamed("Test Cert No")
 
     def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] = 
         use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
         map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
         
-    /// TODO - this works for the sample data but ideally we would just use getStringNamedWithDataFormatter...
-    def getCouldBeNumericalNamed(label: String, _dfmt: DataFormatter): NamedRowEvaluator[String] = 
+
+    def getCouldBeNumericalNamed(label: String): NamedRowEvaluator[String] = 
         use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
         alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
         
