@@ -34,18 +34,17 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
     
     
     /// Just fields of interest...
-    /// Note - to support update and not just create, all field must allow null / empty string...
-    type alias FunctionalLocationData = 
+    type alias CreateFunctionalLocationData = 
         { functionalLocation: String
         , maskedFuncLoc: String
         , description: String
-        , functLocCat: Option[Int32]
+        , functLocCat: Int32
         , strIndicator: String
         , objectType: String
-        , startupDate: Option[Time.LocalDate]
-        , maintPlant: Option[Int32]
-        , companyCode: Option[Int32]
-        , coArea: Option[Int32]
+        , startupDate: Time.LocalDate
+        , maintPlant: Int32
+        , companyCode: Int32
+        , coArea: Int32
         , supFunctLoc: String
         , equipInstall: Bool
         , statusProfile: String
@@ -76,25 +75,24 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         }
 
     /// Just fields of interest...
-    /// Note - to support update and not just create, all field must allow null / empty string...
-    type alias EquipmentData = 
+    type alias CreateEquipmentData = 
         { equiId: String
         , equipCategory: String
         , description: String
         , objectType: String
         , grossWeight: Option[Float64]
         , unitOfWeight: String
-        , startupDate: Option[Time.LocalDate]
+        , startupDate: Time.LocalDate
         , manufacturer: String
         , modelNumber: String
         , manufPartNo: String
         , manufSerialNo: String
-        , constructYear: Option[Int32]
-        , constructMth: Option[Int32]
-        , maintPlant: Option[Int32]
-        , companyCode: Option[Int32]
-        , coArea: Option[Int32]
-        , planningPlant: Option[Int32]
+        , constructYear: Int32
+        , constructMth: Int32
+        , maintPlant: Int32
+        , companyCode: Int32
+        , coArea: Int32
+        , planningPlant: Int32
         , functionalLoc: String
         , superordEquip: String
         , position: Option[Int32]

@@ -21,8 +21,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
     use SheetIO.SheetWriter;
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails,
-        FunctionalLocationData, FlMultilingualText, FlClassification, 
-        EquipmentData, EqMultilingualText, EqClassification};
+        CreateFunctionalLocationData, FlMultilingualText, FlClassification, 
+        CreateEquipmentData, EqMultilingualText, EqClassification};
 
 
     /// Change Request Details
@@ -53,26 +53,27 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
     /// Functional Location Data
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeFunctionalLocationData(xs: List[FunctionalLocationData]): SheetWriter[Unit] = 
+    pub def writeCreateFunctionalLocationData(xs: List[CreateFunctionalLocationData]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Functional Location Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setFunctionalLocationData!(x)), xs)
+        mapX(x -> appendRow(s1, setCreateFunctionalLocationData!(x)), xs)
 
 
     /// Just write fields of interest...
-    def setFunctionalLocationData!(x: FunctionalLocationData): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putOptionInt32At!};
+    def setCreateFunctionalLocationData!(x: CreateFunctionalLocationData): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use AssetLib/S4/Base/SheetIOUtils.{putS4BoolAt!, putS4DateAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
         let* _      = putStringAt!(1, x.maskedFuncLoc);
         let* _      = putStringAt!(2, x.description);
-        let* _      = putOptionInt32At!(3, x.functLocCat);
+        let* _      = putInt32At!(3, x.functLocCat);
         let* _      = putStringAt!(4, x.strIndicator);
         let* _      = putStringAt!(5, x.objectType);
-        let* _      = putOptionLocalDateAt!(12, x.startupDate);
-        let* _      = putOptionInt32At!(23, x.maintPlant);
-        let* _      = putOptionInt32At!(30, x.companyCode);
-        let* _      = putOptionInt32At!(35, x.coArea);
+        let* _      = putS4DateAt!(12, x.startupDate);
+        let* _      = putInt32At!(23, x.maintPlant);
+        let* _      = putInt32At!(30, x.companyCode);
+        let* _      = putInt32At!(35, x.coArea);
         let* _      = putStringAt!(46, x.supFunctLoc);
         let* _      = putS4BoolAt!(47, x.equipInstall);
         let* _      = putStringAt!(49, x.statusProfile);
@@ -91,6 +92,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     def setFlMultilingualText!(x: FlMultilingualText): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use AssetLib/S4/Base/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
         let* _      = putS4BoolAt!(1, x.deleteIndicator);
         let* _      = putStringAt!(2, x.language);
@@ -110,6 +112,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     def setFlClassification!(x: FlClassification): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use AssetLib/S4/Base/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
         let* _      = putS4BoolAt!(1, x.deletionInd);
         let* _      = putStringAt!(2, x.classType);
@@ -124,33 +127,34 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
     /// Equipment Data
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeEquipmentData(xs: List[EquipmentData]): SheetWriter[Unit] = 
+    pub def writeCreateEquipmentData(xs: List[CreateEquipmentData]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Equipment Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEquipmentData!(x)), xs)
+        mapX(x -> appendRow(s1, setCreateEquipmentData!(x)), xs)
 
 
-    /// Just write fields of interest...
-    def setEquipmentData!(x: EquipmentData): RowSetter[Unit] = 
+    /// Not all fields are written...
+    def setCreateEquipmentData!(x: CreateEquipmentData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
+        use AssetLib/S4/Base/SheetIOUtils.{putS4DateAt!, putPaddedInt32At!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putStringAt!(1, x.equipCategory);
         let* _      = putStringAt!(2, x.description);
         let* _      = putStringAt!(4, x.objectType);
         let* _      = putOptionFloat64At!(7, x.grossWeight);
         let* _      = putStringAt!(8, x.unitOfWeight);
-        let* _      = putOptionLocalDateAt!(10, x.startupDate);
+        let* _      = putS4DateAt!(10, x.startupDate);
         let* _      = putStringAt!(14, x.manufacturer);
         let* _      = putStringAt!(15, x.modelNumber);
         let* _      = putStringAt!(16, x.manufPartNo);
         let* _      = putStringAt!(17, x.manufSerialNo);
-        let* _      = putOptionInt32At!(19, x.constructYear);
-        let* _      = putOptionPaddedInt32At!(20, 2, x.constructMth);
-        let* _      = putOptionInt32At!(21, x.maintPlant);
-        let* _      = putOptionInt32At!(28, x.companyCode);       /// AC BukrEilo
-        let* _      = putOptionInt32At!(33, x.coArea);            // AH 
-        let* _      = putOptionInt32At!(37, x.planningPlant);
+        let* _      = putInt32At!(19, x.constructYear);
+        let* _      = putPaddedInt32At!(20, 2, '0', x.constructMth);
+        let* _      = putInt32At!(21, x.maintPlant);
+        let* _      = putInt32At!(28, x.companyCode);           /// AC BukrEilo
+        let* _      = putInt32At!(33, x.coArea);                /// AH 
+        let* _      = putInt32At!(37, x.planningPlant);
         let* _      = putStringAt!(42, x.functionalLoc);
         let* _      = putStringAt!(43, x.superordEquip);
         let* _      = putOptionInt32At!(44, x.position);
@@ -171,6 +175,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     def setEqMultilingualText!(x: EqMultilingualText): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use AssetLib/S4/Base/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putS4BoolAt!(1, x.deleteIndicator);
         let* _      = putStringAt!(2, x.language);
@@ -190,6 +195,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     def setEqClassification!(x: EqClassification): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use AssetLib/S4/Base/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putS4BoolAt!(1, x.deleteInd);
         let* _      = putStringAt!(2, x.classType);
@@ -203,30 +209,10 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
 
     /// Helpers 
 
-    def putS4BoolAt!(ix: Int32, x: Bool): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{putStringAt!, putBlankAt!};
-        if (x) putStringAt!(ix, "X") else putBlankAt!(ix)
 
 
-    def putOptionPaddedInt32At!(ix: Int32, w: Int32, x: Option[Int32]): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{putStringAt!, return};
-        match x { 
-            case Some(x1) => {
-                let s = String.padLeft(w, '0', Int32.toString(x1));
-                putStringAt!(ix, s)
-            }
-            case None => return()
-        }
 
-    def putOptionLocalDateAt!(ix: Int32, x: Option[Time.LocalDate]): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, liftActionResult, putStringAt!, putBlankAt!};
-        match x {
-            case Some(dt) => { 
-                let* fmt    = liftActionResult(_ -> Time/Format/DateFormatter.fromPattern("dd.MM.yyyy") as & Impure);
-                let s       = Time/LocalDate.format(dt, fmt);
-                putStringAt!(ix, s)
-            }
-            case None => putBlankAt!(ix)
-        }
+
+
 
 }

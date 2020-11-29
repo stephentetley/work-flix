@@ -32,17 +32,11 @@ namespace AutoLifting/ReportMain {
         use AutoLifting/Build/ChildNew.{cachePreparedStatements => childNewPreparedStatements};
         use AutoLifting/ManualOutput.{writeManualReport};
         use AssetLib/S4/Simple/EmitUxl.{outputUxl};
-        let* _              = liftAction(_ -> Console.printLine("makeReport.001"));
         let* childPsCache   = liftDbMonad(_ -> childNewPreparedStatements());
-        let* _              = liftAction(_ -> Console.printLine("makeReport.002"));
         let* xs             = liftDbMonad(_ -> getWorklist());
-        let* _              = liftAction(_ -> Console.printLine("makeReport.003"));
         let news            = List.filter(x -> x.change == "Child New", xs);
-        let* _              = liftAction(_ -> Console.printLine("makeReport.004"));
         let* newEquis       = mapM(x -> buildNew(childPsCache, x.reference), news);
-        let* _              = liftAction(_ -> Console.printLine("makeReport.005"));
         let* _              = writeManualReport(newEquis, manualOut);
-        let* _              = liftAction(_ -> Console.printLine("makeReport.006"));
         let* newEquis2      = mapM(translateLiftingEquipment, newEquis);    
         let* _              = liftActionResult(_ -> outputUxl(description, Nil, newEquis2, uxlTemplate, uxlOut));
         return()

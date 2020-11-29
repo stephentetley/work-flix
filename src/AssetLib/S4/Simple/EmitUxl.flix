@@ -18,10 +18,10 @@ namespace AssetLib/S4/Simple/EmitUxl {
 
     use SheetIO.SheetWriter;
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails => UxlChangeRequestDetails
-        , FunctionalLocationData => UxlFunctionalLocationData
+        , CreateFunctionalLocationData => UxlCreateFunctionalLocationData
         , FlMultilingualText => UxlFlMultilingualText
         , FlClassification => UxlFlClassification
-        , EquipmentData => UxlEquipmentData
+        , CreateEquipmentData => UxlCreateEquipmentData
         , EqMultilingualText => UxlEqMultilingualText
         , EqClassification => UxlEqClassification};
 
@@ -69,8 +69,8 @@ namespace AssetLib/S4/Simple/EmitUxl {
     
     def outputS4Flocs(xs: List[S4Floc]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
-        let flocs       = List.map(x -> genUxlFunctionalLocationData(x.functionalLocation, x.attributes), xs);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
+        let flocs       = List.map(x -> genUxlCreateFunctionalLocationData(x.functionalLocation, x.attributes), xs);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeCreateFunctionalLocationData(flocs);
         let mltexts     = List.flatMap(x -> genUxlFlMultilingualText(x.functionalLocation, x.longText), xs);        
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlMultilingualText(mltexts);
         let classifs    = List.flatMap(x -> genUxlFlClassifications(x.functionalLocation, x.classifications), xs);        
@@ -78,17 +78,17 @@ namespace AssetLib/S4/Simple/EmitUxl {
         return()
 
 
-    def genUxlFunctionalLocationData(floc: String, attrs: FlocAttributes): UxlFunctionalLocationData = 
+    def genUxlCreateFunctionalLocationData(floc: String, attrs: FlocAttributes): UxlCreateFunctionalLocationData = 
         { functionalLocation    = floc
         , maskedFuncLoc         = floc
         , description           = attrs.description
-        , functLocCat           = Some(attrs.category)
+        , functLocCat           = attrs.category
         , strIndicator          = attrs.structureIndicator
         , objectType            = attrs.objectType
-        , startupDate           = Some(attrs.startupDate)
-        , maintPlant            = Some(2100)
-        , companyCode           = Some(2100)
-        , coArea                = Some(1000)
+        , startupDate           = attrs.startupDate
+        , maintPlant            = 2100
+        , companyCode           = 2100
+        , coArea                = 1000
         , supFunctLoc           = attrs.superiorFloc
         , equipInstall          = attrs.equipmentInstall
         , statusProfile         = "ZFLOCST"
@@ -130,15 +130,15 @@ namespace AssetLib/S4/Simple/EmitUxl {
     
     def outputS4Equipment(xs: List[S4Equipment]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
-        let equis       = List.map(x -> genUxlEquipmentData(x.equiId, x.attributes), xs);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEquipmentData(equis);
+        let equis       = List.map(x -> genUxlCreateEquipmentData(x.equiId, x.attributes), xs);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeCreateEquipmentData(equis);
         let mltexts     = List.flatMap(x -> genUxlEqMultilingualText(x.equiId, x.longText), xs);        
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqMultilingualText(mltexts);        
         let classifs    = List.flatMap(x -> genUxlEqClassifications(x.equiId, x.classifications), xs);        
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqClassification(classifs);
         return()
 
-    def genUxlEquipmentData(equiId: String, attrs: EquiAttributes): UxlEquipmentData = 
+    def genUxlCreateEquipmentData(equiId: String, attrs: EquiAttributes): UxlCreateEquipmentData = 
         let f64None : Option[Float64] = None;       /// TODO this should be unnecessary, but it currently fixes a runtime cast error
         let i32None : Option[Int32] = None;       /// TODO this should be unnecessary, but it currently fixes a runtime cast error
         { equiId                = equiId
@@ -147,17 +147,17 @@ namespace AssetLib/S4/Simple/EmitUxl {
         , objectType            = attrs.objectType
         , grossWeight           = f64None
         , unitOfWeight          = ""
-        , startupDate           = Some(attrs.startupDate)
+        , startupDate           = attrs.startupDate
         , manufacturer          = attrs.manufacturer
         , modelNumber           = attrs.model
         , manufPartNo           = attrs.partNumber
         , manufSerialNo         = attrs.serialNumber
-        , constructYear         = Some(Time/LocalDate.getYear(attrs.startupDate))
-        , constructMth          = Some(Time/LocalDate.getMonth(attrs.startupDate))
-        , maintPlant            = Some(2100)
-        , companyCode           = Some(2100)
-        , coArea                = Some(1000)
-        , planningPlant         = Some(2100)
+        , constructYear         = Time/LocalDate.getYear(attrs.startupDate)
+        , constructMth          = Time/LocalDate.getMonth(attrs.startupDate)
+        , maintPlant            = 2100
+        , companyCode           = 2100
+        , coArea                = 1000
+        , planningPlant         = 2100
         , functionalLoc         = attrs.functionalLocation
         , superordEquip         = ""
         , position              = i32None

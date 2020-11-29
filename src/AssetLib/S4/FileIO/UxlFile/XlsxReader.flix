@@ -14,6 +14,11 @@
  * limitations under the License.
  */
     
+///
+/// TODO...
+/// Needs adapting for "update" data (`Functional Location Data` and `Equipment Data` tabs)
+/// 
+
 
 namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
 
@@ -22,8 +27,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     use SheetIO.SheetReader;
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails,
-        FunctionalLocationData, FlMultilingualText, FlClassification, 
-        EquipmentData, EqMultilingualText, EqClassification};
+        CreateFunctionalLocationData, FlMultilingualText, FlClassification, 
+        CreateEquipmentData, EqMultilingualText, EqClassification};
 
     /// Change Request Details
 
@@ -54,16 +59,17 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
 
     /// Functional Location Data
 
-    pub def readFunctionalLocationData(): SheetReader[List[FunctionalLocationData]] = 
+    pub def readFunctionalLocationData(): SheetReader[List[CreateFunctionalLocationData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Functional Location Data");
         let* xs     = namedRowsFrom(s1, 4, 6, getFunctionalLocationData());
         return(xs)
 
-    def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
-                getStringNamedWithDefault, getOptionInt32Named};
+    def getFunctionalLocationData(): NamedRowEvaluator[CreateFunctionalLocationData] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, 
+                getStringNamedWithDefault, getInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use AssetLib/S4/Base/SheetIOUtils.{getS4BoolNamed, getS4LocalDateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14) ->
                 { functionalLocation    = x1
                 , maskedFuncLoc         = x2
@@ -83,13 +89,13 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <&> getStringNamed("Funcloc")               /// functionalLocation
             <*> getStringNamed("FlocRef")               /// maskedFuncLoc
             <*> getStringNamed("Txtmi")                 /// description
-            <*> getOptionInt32Named("Fltyp")            /// functLocCat
+            <*> getInt32Named("Fltyp")                  /// functLocCat
             <*> getStringNamed("TplkzFlc")              /// strIndicator
             <*> getStringNamed("Eqart")                 /// objectType
-            <*> getOptionLocalDateNamed("Inbdt")        /// startupDate
-            <*> getOptionInt32Named("SwerkFl")          /// maintPlant
-            <*> getOptionInt32Named("Bukrsfloc")        /// companyCode
-            <*> getOptionInt32Named("KokrFloc")         /// coArea
+            <*> getS4LocalDateNamed("Inbdt")            /// startupDate
+            <*> getInt32Named("SwerkFl")                /// maintPlant
+            <*> getInt32Named("Bukrsfloc")              /// companyCode
+            <*> getInt32Named("KokrFloc")               /// coArea
             <*> getStringNamed("Tplma")                 /// supFunctLoc
             <*> getS4BoolNamed("Iequi")                 /// equipInstall
             <*> getStringNamed("StsmFloc")              /// statusProfile
@@ -110,6 +116,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
                 getStringNamedWithDefault, getInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use AssetLib/S4/Base/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5) -> 
                 { functionalLocation = x1
                 , deleteIndicator = x2
@@ -139,6 +146,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
                 getStringNamedWithDefault, getInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use AssetLib/S4/Base/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
                 { functionalLocation    = x1
                 , deletionInd           = x2
@@ -159,19 +167,20 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getS4BoolNamed("DeleteCh")
 
     /// Equipment Data
-    pub def loadEquipmentData(path: System.FilePath): Result[List[EquipmentData], System.Error] & Impure =   
+    pub def loadEquipmentData(path: System.FilePath): Result[List[CreateEquipmentData], System.Error] & Impure =   
         SheetIO/SheetReader.runXlsx(readEquipmentData(), path)
 
-    pub def readEquipmentData(): SheetReader[List[EquipmentData]] = 
+    pub def readEquipmentData(): SheetReader[List[CreateEquipmentData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Equipment Data");
         let* xs     = namedRowsFrom(s1, 4, 6, getEquipmentData());
         return(xs)
 
-    def getEquipmentData(): NamedRowEvaluator[EquipmentData] = 
+    def getEquipmentData(): NamedRowEvaluator[CreateEquipmentData] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, 
                 getStringNamedWithDefault, getOptionInt32Named, getInt32Named, getFloat64Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use AssetLib/S4/Base/SheetIOUtils.{getS4LocalDateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, 
             x15, x16, x17, x18, x19, x20, x21, x22, x23) -> 
                 { equiId            = x1
@@ -204,17 +213,17 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getStringNamed("EqartEqu")                          /// objectType
             <*> optional(getFloat64Named("Brgew"))                  /// grossWeight
             <*> getStringNamedWithDefault("Gewei", "")              /// unitOfWeight
-            <*> getOptionLocalDateNamed("Inbdt")                    /// startupDate
+            <*> getS4LocalDateNamed("Inbdt")                          /// startupDate
             <*> getStringNamed("Herst")                             /// manufacturer
             <*> getStringNamed("Typbz")                             /// modelNumber
             <*> getStringNamedWithDefault("MapaEeqz", "")           /// manufPartNo
             <*> getStringNamed("Serge")                             /// manufSerialNo
-            <*> getOptionInt32Named("Baujj")                        /// constructYear
-            <*> optional(getPaddedInt32Named("BaummEqi"))           /// constructMth
-            <*> getOptionInt32Named("SwerEilo")                     /// maintPlant 
-            <*> getOptionInt32Named("BukrEilo")                     /// companyCode
-            <*> getOptionInt32Named("KokrEilo")                     /// coArea
-            <*> getOptionInt32Named("PplaEeqz")                     /// planningPlant
+            <*> getInt32Named("Baujj")                              /// constructYear
+            <*> getPaddedInt32Named("BaummEqi")                     /// constructMth
+            <*> getInt32Named("SwerEilo")                           /// maintPlant 
+            <*> getInt32Named("BukrEilo")                           /// companyCode
+            <*> getInt32Named("KokrEilo")                           /// coArea
+            <*> getInt32Named("PplaEeqz")                           /// planningPlant
             <*> getStringNamed("TplnEilo")                          /// functionalLoc
             <*> getStringNamed("HequEeqz")                          /// superordEquip
             <*> getOptionInt32Named("HeqnEeqz")                     /// position
@@ -235,6 +244,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
                 getStringNamedWithDefault, getInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use AssetLib/S4/Base/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5) -> 
                 { equiId = x1
                 , deleteIndicator = x2
@@ -263,6 +273,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, 
                 getStringNamedWithDefault, getInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use AssetLib/S4/Base/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
                 { equiId                = x1
                 , deleteInd             = x2 
@@ -283,11 +294,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getS4BoolNamed("DeleteCh")
 
 
-    /// Allows blank...
-    def getS4BoolNamed(label: String): NamedRowEvaluator[Bool] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamedWithDefault};
-        let* x = getStringNamedWithDefault(label, "");
-        if (x == "X") return(true) else return(false)
+
 
     def getStatusNamed(label: String): NamedRowEvaluator[String] =  
         use SheetIO/NamedRowEvaluator.{flatMap, map, alt, getInt32Named, getStringNamed};
@@ -300,17 +307,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         let* s = getStringNamed(label);
         liftActionResult(_ -> Result.mapErr(System/Error.Generic, Int32.fromString(s)) as & Impure)
 
-    def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, liftActionResult, getStringNamed};
-        let* fmt    = liftActionResult(_ -> Time/Format/DateFormatter.fromPattern("dd.MM.yyyy") as & Impure);
-        let* s      = getStringNamed(label); 
-        liftActionResult(_ -> Time/LocalDate.parse(s, fmt) as & Impure)
         
-    /// 
-    def getOptionLocalDateNamed(label: String): NamedRowEvaluator[Option[Time.LocalDate]] = 
-        use SheetIO/NamedRowEvaluator.{optional};
-        optional(getLocalDateNamed(label))
-
 
     /// def logged(tag: String, fn: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
     ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
