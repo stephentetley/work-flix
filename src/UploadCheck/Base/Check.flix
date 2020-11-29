@@ -39,7 +39,7 @@ namespace DataCheck/Check {
 
     pub def failure(err: e): Check[e] = Fail(Nel.singleton(err))
 
-    
+    pub def pass(): Check[e] = Pass    
 
     pub def checkBool(x: Bool, err: e): Check[e] = if (x) Pass else Fail(Nel.singleton(err))
 
