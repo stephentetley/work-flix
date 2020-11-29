@@ -51,6 +51,27 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , userStatus: String        
         } 
 
+    /// Updates list is just fields of interest.
+    type alias UpdateFunctionalLocationData = 
+        { functionalLocation: String
+        , updates: List[FlDataUpdate1]
+        }
+
+    pub enum FlDataUpdate1 {
+        case Description(String)
+        case FunctLocCat(Int32)
+        case StrIndicator(String)
+        case ObjectType(String)
+        case StartupDate(Time.LocalDate)
+        case MaintPlant(Int32)
+        case CompanyCode(Int32)
+        case CoArea(Int32)
+        case SupFunctLoc(String)
+        case EquipInstall(Bool)
+        case StatusProfile(String)
+        case UserStatus(String)
+    }
+
 
     /// `description` should be the same value as description on FunctionalLocationData page.
     /// `longText` is the actual long text
@@ -101,7 +122,37 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , statusOfAnObject: String
         }
 
+    /// Updates list is just fields of interest.
+    type alias UpdateEquipmentData = 
+        { equiId: String
+        , updates: List[EqDataUpdate1]
+        }
 
+
+    pub enum EqDataUpdate1 {
+        case EquipCategory(String)
+        case Description(String)
+        case ObjectType(String)
+        case GrossWeight(Float64)
+        case UnitOfWeight(String)
+        case StartupDate(Time.LocalDate)
+        case Manufacturer(String)
+        case ModelNumber(String)
+        case ManufPartNo(String)
+        case ManufSerialNo(String)
+        case ConstructYear(Int32)
+        case ConstructMth(Int32)
+        case MaintPlant(Int32)
+        case CompanyCode(Int32)
+        case CoArea(Int32)
+        case PlanningPlant(Int32)
+        case FunctionalLoc(String)
+        case SuperordEquip(String)
+        case Position(Int32)
+        case TechIdentNo(String)
+        case StatusProfile(String)
+        case StatusOfAnObject(String)
+    }
 
     /// `description` should be the same value as description on FunctionalLocationData page.
     /// `longText` is the actual long text
