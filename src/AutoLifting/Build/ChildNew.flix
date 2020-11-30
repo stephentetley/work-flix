@@ -72,23 +72,15 @@ namespace AutoLifting/Build/ChildNew {
         let* aibEquiName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
         let* aibSiteName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibSiteNameFromCommonName(commonName));
         let* aibEquiType        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiTypeFromCommonName(commonName));
-        let* _                  = liftAction(_ -> Console.printLine("childNew.001"));
         let* flocRoot           = getS4SiteCode(pstmts, aibSiteName);
-        let* _                  = liftAction(_ -> Console.printLine("childNew.002"));
         let* longText           = getLongText(pstmts, reference);
-        let* _                  = liftAction(_ -> Console.printLine("childNew.003"));
         let* tymap              = AutoLifting/Build/ChildNew/LiftingTypeMapping.getTypeMapping(pstmts, aibEquiName, aibEquiType);
-        let* _                  = liftAction(_ -> Console.printLine("childNew.004"));
         let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.getAibAttributes(pstmts, reference);
-        let* _                  = liftAction(_ -> Console.printLine("childNew.005"));
         let funcLoc             = liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
-        let* _                  = liftAction(_ -> Console.printLine("childNew.006 (${commonName})"));
         let* parentRef          = getParentAibReference(pstmts, commonName);
-        let* _                  = liftAction(_ -> Console.printLine("childNew.007"));
         let* eastNorth          = liftResult(_ -> getEastingNorthing(aibAttributes.osgb36));
-        let* _                  = liftAction(_ -> Console.printLine("childNew.008"));
         let* loadFields         = getWorkingLoadFields(pstmts, tymap.s4Class);
-        return(
+        let ans                 = 
             { equiId            = freshEquiId
             , objectType        = tymap.s4Object
             , objectClass       = tymap.s4Class
@@ -122,7 +114,8 @@ namespace AutoLifting/Build/ChildNew {
                 , statutoryReference            = aibAttributes.statutoryRef
                 , testCertNumber                = aibAttributes.testCertNum
                 }
-            })
+            } |> AutoLifting/Build/ChildNew/RewriteValues.renameForS4;
+        return(ans)
 
     /// Long text
 

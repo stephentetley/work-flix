@@ -38,6 +38,7 @@ namespace AutoLifting/ManualOutput {
     def getHeaders(): Array[String] & Impure = 
         [ "Change"
         , "AIB Reference"
+        , "Equi Id"
         , "S4 Name"
         , "Equi Category"
         , "S4 Floc"
@@ -67,27 +68,27 @@ namespace AutoLifting/ManualOutput {
         use AssetLib/S4/Base/SheetIOUtils.{putS4DateAt!};
         let* _      = putStringAt!(0, "Child New");
         let* _      = putStringAt!(1, x.classifications.pliReference);
-        let* _      = putStringAt!(2, x.attributes.description);
-        let* _      = putStringAt!(3, x.attributes.category);
-        let* _      = putStringAt!(4, x.attributes.functionalLocation);
-        let* _      = putStringAt!(5, x.objectType);
-        let* _      = putStringAt!(6, x.attributes.status);
-        let* _      = putS4DateAt!(7, x.attributes.startupDate);
-        let* _      = putStringAt!(8, x.attributes.manufacturer);
-        let* _      = putStringAt!(9, x.attributes.model);
-        let* _      = putStringAt!(10, x.attributes.partNumber);
-        let* _      = putStringAt!(11, x.attributes.serialNumber);
-        let* _      = putStringAt!(12, x.longText); 
-        let* _      = putStringAt!(13, x.objectClass);
-        let* _      = putStringAt!(14, x.classifications.pliReference);
-        let* _      = putStringAt!(15, x.classifications.saiParentReference);
-        let* _      = putOptionInt32At!(16, x.classifications.easting);
-        let* _      = putOptionInt32At!(17, x.classifications.northing);
-        let* _      = putStringAt!(18, x.classifications.locationOnSite);
-        let* _      = putOptionFloat64At!(19, x.classifications.workingLoad);
-        let* _      = putStringAt!(20, x.classifications.workingLoadUnits);
-        let* _      = putStringAt!(21, x.classifications.statutoryReference);
-        let* _      = putStringAt!(22, x.classifications.testCertNumber);
+        let* _      = putStringAt!(3, x.attributes.description);
+        let* _      = putStringAt!(4, x.attributes.category);
+        let* _      = putStringAt!(5, x.attributes.functionalLocation);
+        let* _      = putStringAt!(6, x.objectType);
+        let* _      = putStringAt!(7, x.attributes.status);
+        let* _      = putS4DateAt!(8, x.attributes.startupDate);
+        let* _      = putStringAt!(9, x.attributes.manufacturer);
+        let* _      = putStringAt!(10, x.attributes.model);
+        let* _      = putStringAt!(11, x.attributes.partNumber);
+        let* _      = putStringAt!(12, x.attributes.serialNumber);
+        let* _      = putStringAt!(13, x.longText); 
+        let* _      = putStringAt!(14, x.objectClass);
+        let* _      = putStringAt!(15, x.classifications.pliReference);
+        let* _      = putStringAt!(16, x.classifications.saiParentReference);
+        let* _      = putOptionInt32At!(17, x.classifications.easting);
+        let* _      = putOptionInt32At!(18, x.classifications.northing);
+        let* _      = putStringAt!(19, x.classifications.locationOnSite);
+        let* _      = putOptionFloat64At!(20, x.classifications.workingLoad);
+        let* _      = putStringAt!(21, x.classifications.workingLoadUnits);
+        let* _      = putStringAt!(22, x.classifications.statutoryReference);
+        let* _      = putStringAt!(23, x.classifications.testCertNumber);
 
         return()
 

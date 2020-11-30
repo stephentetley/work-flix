@@ -24,13 +24,9 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
 
     pub def translateLiftingEquipment(x: LiftingEquipment): ReportMonad[S4Equipment] = 
         use AutoLifting/Base/ReportMonad.{flatMap, return, liftAction};
-        let* _                  = liftAction(_ -> Console.printLine("001"));
         let attributes          = translateLiftingAttributes(x.objectType, x.attributes);
-        let* _                  = liftAction(_ -> Console.printLine("002"));
         let longText            = translateLongText(x.attributes.description, x.longText);
-        let* _                  = liftAction(_ -> Console.printLine("003"));
         let classifications     = translateLiftingClassifications(x.objectClass, x.classifications);
-        let* _                  = liftAction(_ -> Console.printLine("004"));
         return(
             { equiId            = x.equiId
             , attributes        = attributes

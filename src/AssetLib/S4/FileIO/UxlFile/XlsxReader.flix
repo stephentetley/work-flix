@@ -16,7 +16,7 @@
     
 ///
 /// TODO...
-/// Needs adapting for "update" data (`Functional Location Data` and `Equipment Data` tabs)
+/// Needs adapting for "update" data - reading the `Functional Location Data` and `Equipment Data` tabs.
 /// 
 
 

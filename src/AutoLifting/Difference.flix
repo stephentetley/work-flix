@@ -17,13 +17,13 @@
 
 namespace AutoLifting/Difference {
 
+
     use AutoLifting/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
 
     use AutoLifting/Base.Delta;
     use AutoLifting/Base/Delta.{append, diff, diffEquals, diffOption, collectDeltas};
     
     def equals(x: a, y:a): Bool = x == y
-
 
 
     /// equiId is immutable
@@ -35,6 +35,7 @@ namespace AutoLifting/Difference {
         case SetClassifications(List[LiftingClassificationsUpdate])
     }
 
+    
     pub enum LiftingAttributesUpdate {
         case SetCategory(String)
         case SetDescription(String)
