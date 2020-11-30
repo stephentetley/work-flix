@@ -59,6 +59,55 @@ namespace AutoLifting/Base/Datatypes {
         , testCertNumber: String
         }
 
+    /// Updates list is just fields of interest.
+    type alias LiftingEquipmentUpdate = 
+        { equiId: String
+        , updates: List[LiftingEqUpdate1]
+        }
+
+    /// equiId is immutable
+    pub enum LiftingEqUpdate1 {
+        case SetObjectType(String)
+        case SetObjectClass(String)
+        case SetAttributes(List[LiftingAttributesUpdate])
+        case SetLongText(String)
+        case SetClassifications(List[LiftingClassificationsUpdate])
+    }
+
+    
+    pub enum LiftingAttributesUpdate {
+        case SetCategory(String)
+        case SetDescription(String)
+        case SetStartupDate(Time.LocalDate)
+        case SetManufacturer(String)
+        case SetModel(String)
+        case SetPartNumber(String)
+        case SetSerialNumber(String)
+        case SetMaintPlant(Int32)
+        case SetCompanyCode(Int32)
+        case SetControllingArea(Int32)
+        case SetPlanningPlant(Int32)
+        case SetFunctionalLocation(String)
+        case SetSuperOrdinateEqui(String)
+        case SetStatus(String)
+    }
+
+    /// A case for each record field
+    pub enum LiftingClassificationsUpdate { 
+        case SetPliReference(String)
+        case SetSaiParentReference(String)
+        case SetEasting(Option[Int32])
+        case SetNorthing(Option[Int32])
+        case SetLocationOnSite(String)
+        case SetWorkingLoadFieldName(String)
+        case SetWorkingLoad(Option[Float64])
+        case SetWorkingLoadUnitsFieldName(String)
+        case SetWorkingLoadUnits(String)
+        case SetStatutoryReference(String)
+        case SetTestCertNumber(String)
+    }
+
+
     /// Interim datatypes
 
     pub enum FixedOrPortable { 

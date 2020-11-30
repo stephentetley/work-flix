@@ -18,7 +18,19 @@
 namespace AutoLifting/Difference {
 
 
-    use AutoLifting/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
+    use AutoLifting/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications, 
+        LiftingEquipmentUpdate, LiftingEqUpdate1, LiftingAttributesUpdate, LiftingClassificationsUpdate};
+        
+    use AutoLifting/Base/Datatypes.LiftingEqUpdate1.{SetObjectType, SetObjectClass, SetAttributes,
+        SetLongText, SetClassifications};
+    use AutoLifting/Base/Datatypes.LiftingAttributesUpdate.{SetCategory, SetDescription,
+        SetStartupDate, SetManufacturer, SetModel, SetPartNumber, SetSerialNumber,
+        SetMaintPlant, SetCompanyCode, SetControllingArea, SetPlanningPlant, SetFunctionalLocation,
+        SetSuperOrdinateEqui, SetStatus};
+    use AutoLifting/Base/Datatypes.LiftingClassificationsUpdate.{SetPliReference, 
+        SetSaiParentReference, SetEasting, SetNorthing, SetLocationOnSite, SetWorkingLoadFieldName,
+        SetWorkingLoad, SetWorkingLoadUnitsFieldName, SetWorkingLoadUnits, SetStatutoryReference,
+        SetTestCertNumber};
 
     use AutoLifting/Base.Delta;
     use AutoLifting/Base/Delta.{append, diff, diffEquals, diffOption, collectDeltas};
@@ -26,49 +38,9 @@ namespace AutoLifting/Difference {
     def equals(x: a, y:a): Bool = x == y
 
 
-    /// equiId is immutable
-    pub enum LiftingEquipmentUpdate {
-        case SetObjectType(String)
-        case SetObjectClass(String)
-        case SetAttributes(List[LiftingAttributesUpdate])
-        case SetLongText(String)
-        case SetClassifications(List[LiftingClassificationsUpdate])
-    }
 
-    
-    pub enum LiftingAttributesUpdate {
-        case SetCategory(String)
-        case SetDescription(String)
-        case SetStartupDate(Time.LocalDate)
-        case SetManufacturer(String)
-        case SetModel(String)
-        case SetPartNumber(String)
-        case SetSerialNumber(String)
-        case SetMaintPlant(Int32)
-        case SetCompanyCode(Int32)
-        case SetControllingArea(Int32)
-        case SetPlanningPlant(Int32)
-        case SetFunctionalLocation(String)
-        case SetSuperOrdinateEqui(String)
-        case SetStatus(String)
-    }
 
-    /// A case for each record field
-    pub enum LiftingClassificationsUpdate { 
-        case SetPliReference(String)
-        case SetSaiParentReference(String)
-        case SetEasting(Option[Int32])
-        case SetNorthing(Option[Int32])
-        case SetLocationOnSite(String)
-        case SetWorkingLoadFieldName(String)
-        case SetWorkingLoad(Option[Float64])
-        case SetWorkingLoadUnitsFieldName(String)
-        case SetWorkingLoadUnits(String)
-        case SetStatutoryReference(String)
-        case SetTestCertNumber(String)
-    }
-
-    pub def diffLiftingEquipment(x: LiftingEquipment, y: LiftingEquipment): Delta[LiftingEquipmentUpdate] = 
+    pub def diffLiftingEquipment1(x: LiftingEquipment, y: LiftingEquipment): Delta[LiftingEqUpdate1] = 
         let attributes1 = diffAttributes(x.attributes, y.attributes);
         let classifications1 = diffClassifications(x.classifications, y.classifications);
                     diffEquals(x.objectType, y.objectType, SetObjectType(y.objectType))

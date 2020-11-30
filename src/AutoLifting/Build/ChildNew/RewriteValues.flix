@@ -19,7 +19,7 @@ namespace AutoLifting/Build/ChildNew/RewriteValues {
     use AutoLifting/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
 
     pub def renameForS4(x: LiftingEquipment): LiftingEquipment = 
-        let rewriteA = renameManufacturer >> renameModel >> renameSerialNumber;
+        let rewriteA = renameManufacturer >> renameModel >> renameSerialNumber >> renameStatus;
         let rewriteC = renameWorkingLoadUnits;
         {attributes = rewriteA(x.attributes), classifications = rewriteC(x.classifications) | x}
 
@@ -40,6 +40,15 @@ namespace AutoLifting/Build/ChildNew/RewriteValues {
             case "" => {serialNumber = "UNKNOWN" | x}
             case _  => x
         } 
+
+    def renameStatus(x: LiftingAttributes): LiftingAttributes = 
+        match String.toUpperCase(x.status) { 
+            case "DISPOSED OF" => {status = "DISP" | x}
+            case "NON OPERATIONAL" => {status = "NOP" | x}
+            case "OPERATIONAL" => {status = "OPER" | x}
+            case _  => x
+        }
+
 
     def renameWorkingLoadUnits(x: LiftingClassifications): LiftingClassifications = 
         match x.workingLoadUnits { 
