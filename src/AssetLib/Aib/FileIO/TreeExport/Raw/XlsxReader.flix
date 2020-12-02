@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 namespace AssetLib/Aib/FileIO/TreeExport/Raw/XlsxReader {
 
     use SheetIO.NamedRowEvaluator;
@@ -29,8 +25,8 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/XlsxReader {
         SheetIO/SheetReader.runXlsx(readAibSheet(), path)
 
     pub def readAibSheet(): SheetReader[List[AibRow]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheet, allNamedRows};      
-        let* s1     = getSheet("Sheet1");
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
+        let* s1     = getSheetNamed("Sheet1");
         let* xs     = allNamedRows(s1, evalAibRow());
         return(xs)
 

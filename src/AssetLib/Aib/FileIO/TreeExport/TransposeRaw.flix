@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-use AssetLib/Common/ExportHtmlTree.{writeHtmlForest};
-use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibTree};
-use AssetLib/Aib/FileIO/TreeExport/Raw/Builder.{buildAibTrees, allTrees};
-use AssetLib/Aib/FileIO/TreeExport/Raw/XlsxReader.{readAibTreeFile};
-use AssetLib/Aib/FileIO/TreeExport/Raw/CsvExport.{exportAibTreesCsv};
 
 
 
 namespace AssetLib/Aib/FileIO/TreeExport/TransposeRaw {
 
 
+    use AssetLib/Common/ExportHtmlTree.{writeHtmlForest};
+    use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibTree};
+    use AssetLib/Aib/FileIO/TreeExport/Raw/Builder.{buildAibTrees, allTrees};
+    use AssetLib/Aib/FileIO/TreeExport/Raw/XlsxReader.{readAibTreeFile};
+    use AssetLib/Aib/FileIO/TreeExport/Raw/CsvExport.{exportAibTreesCsv};
 
     pub def transposeRawInput(sourceFile: System.FilePath, level: Int32, csvOutpath: System.FilePath): Result[Unit, System.Error] & Impure = 
         use Result.flatMap;

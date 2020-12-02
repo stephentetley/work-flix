@@ -26,18 +26,8 @@ namespace AssetLib/S4/FileIO/IH06Tree/ExportDb {
     use AssetLib/S4/FileIO/IH06Tree/Datatypes.{IH06Tree, IH06Node, FlocNode, EquiNode};
     use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
     use AssetLib/S4/FileIO/IH06Tree/Builder.{buildIH06Trees};
-    use AssetLib/S4/FileIO/IH06Tree/Parser.{parseFile};
+    use AssetLib/S4/FileIO/IH06Tree/Parser.{parseFile, parseFileWithBOM};
 
-    /// pub def exportDb(sourceFile: System.FilePath, cs: Text.Charset, tableNames: IH06TreeTableNames, outputUrl: String): Result[Unit, System.Error] & Impure = 
-    ///     use Result.flatMap;
-    ///     let* ast    = parseFile(sourceFile, cs);
-    ///     let ans     = buildIH06Trees(ast);
-    ///     let* _      = outputDb(tableNames, ans, outputUrl);
-    ///     Ok()
-
-
-    /// /// pub def outputDb(tableNames: IH06TreeTableNames, xs: List[IH06Tree], url: String): Result[Unit, System.Error] & Impure =         
-    /// ///     BasicDb/DbMonad.runDbMonad(storeIH06Trees(tableNames, xs), url)
 
     type alias IH06TreeTableNames = 
         { flocNodes: String
@@ -49,9 +39,12 @@ namespace AssetLib/S4/FileIO/IH06Tree/ExportDb {
         , equiNodes     = "iht_equi_nodes"
         }
 
-    pub def storeIH06Trees(tableNames: IH06TreeTableNames, sourceFile: System.FilePath, cs: Text.Charset): DbMonad[Unit] =
+    pub def storeIH06Trees( tableNames: IH06TreeTableNames
+                          , sourceFile: System.FilePath
+                          , cs: Text.Charset
+                          , hasBOM: Bool): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult};
-        let* ast    = liftActionResult(_ -> parseFile(sourceFile, cs));
+        let* ast    = liftActionResult(_ -> if (hasBOM) parseFileWithBOM(sourceFile, cs) else parseFile(sourceFile, cs));
         let xs      = buildIH06Trees(ast);
         let* _      = setAutoCommit(false);
         let* _      = exportFlocNodes(tableNames.flocNodes, xs);
