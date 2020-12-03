@@ -48,7 +48,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/Builder {
     def makeAibNode(level: Int32, parent: String, parentCommonName: String, row: AibRow): AibNode = 
         use Option.{getWithDefault};
         let short = String.stripPrefix(parentCommonName + "/", row.commonName).getWithDefault(row.commonName);
-        { reference = row.reference, level = level, shortName = short, parent = parent, commonName = row.commonName }
+        { reference = row.reference, level = level, shortName = short, parent = parent, commonName = row.commonName, status = row.status }
 
     
     /// Print Html via a rose tree

@@ -33,8 +33,16 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/XlsxReader {
 
     def evalAibRow(): NamedRowEvaluator[AibRow] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed}; 
-        let* reference      = getStringNamed("Reference");
-        let* commonName     = getStringNamed("Common Name");
-        return({reference = reference, commonName = commonName})
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) -> 
+                { reference     = x1
+                , commonName    = x2
+                , status        = x3
+                })
+            <&> getStringNamed("Reference")
+            <*> getStringNamed("Common Name")
+            <*> getStringNamed("AssetStatus")
+        
+        
 
 }

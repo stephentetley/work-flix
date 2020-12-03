@@ -43,7 +43,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/ExportDb {
         let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName}");
         let* _          = execute(sqlCreateEquiNode(tableName));
-        let* stmt       = prepareStatement("INSERT INTO ${tableName}(reference, level, short_name, common_name, parent_ref) VALUES(?,?,?,?,?)");
+        let* stmt       = prepareStatement("INSERT INTO ${tableName}(reference, level, short_name, common_name, parent_ref, status) VALUES(?,?,?, ?,?,?)");
         let* _          = traverseX(emitAibTree(stmt), xs);
         let* _          = commit();
         return()
@@ -56,14 +56,6 @@ namespace AssetLib/Aib/FileIO/TreeExport/ExportDb {
         traverseX(emitAibTree(stmt), kids)
 
 
-    /// def emitAibNode(stmt: PreparedStatement, src: AibNode): DbMonad[Int32] = 
-    ///     use BasicDb/DbMonad.{return, psExecuteUpdate};
-    ///     match src { 
-    ///         case EquiNode(r) => psExecuteUpdate(stmt, aibNodeWriter(r))
-    ///         case _           => return(0)
-    ///     }
-
-
     /// A RowWriter for EquiNode
     def aibNodeWriter(x: AibNode): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
@@ -72,6 +64,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/ExportDb {
         let* _ = putStringAt!(2,  x.shortName);
         let* _ = putStringAt!(3,  x.commonName);
         let* _ = putStringAt!(4,  x.parent);
+        let* _ = putStringAt!(5,  x.status);
         return()
 
 
@@ -82,7 +75,8 @@ namespace AssetLib/Aib/FileIO/TreeExport/ExportDb {
                 :: "level           INTEGER NOT NULL,"
                 :: "short_name      TEXT    NOT NULL,"
                 :: "common_name     TEXT    NOT NULL,"
-                :: "parent_ref      TEXT"
+                :: "parent_ref      TEXT,"
+                :: "status          TEXT"
                 :: ")"
                 :: Nil
         )
