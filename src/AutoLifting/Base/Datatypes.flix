@@ -17,7 +17,7 @@
 namespace AutoLifting/Base/Datatypes {
 
     /// LiftingEquipment is essentially a refinement of S4Equipment with
-    /// named fields for classifaction data.
+    /// named fields for classification data.
 
     type alias LiftingEquipment = 
         { equiId: String
