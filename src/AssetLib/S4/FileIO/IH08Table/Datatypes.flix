@@ -25,7 +25,7 @@ namespace AssetLib/S4/FileIO/IH08Table/Datatypes {
         , functionalLoc: String
         , techIdentNo: String
         , superordEquip: String
-        , position: Int32
+        , position: Option[Int32]
         , manufPartNo: String
         , manufacturer: String
         , manufSerialNo: String

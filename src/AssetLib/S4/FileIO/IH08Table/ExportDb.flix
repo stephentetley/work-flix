@@ -44,14 +44,14 @@ namespace AssetLib/S4/FileIO/IH08Table/ExportDb {
 
     /// A setter for AibAttributeRow
     def aibAttributeRowSetter(x: IH08Row): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt64At!};
+        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionInt64At!};
         let* _  = putStringAt!(0, x.equiId);
         let* _  = putStringAt!(1, x.description);
         let* _  = putInt32At!(2, x.planningPlant);
         let* _  = putStringAt!(3, x.functionalLoc);
         let* _  = putStringAt!(4, x.techIdentNo);
         let* _  = putStringAt!(5, x.superordEquip);
-        let* _  = putInt32At!(6, x.position);
+        let* _  = putOptionInt32At!(6, x.position);
         let* _  = putStringAt!(7, x.manufPartNo);
         let* _  = putStringAt!(8, x.manufacturer);
         let* _  = putStringAt!(9, x.manufSerialNo);

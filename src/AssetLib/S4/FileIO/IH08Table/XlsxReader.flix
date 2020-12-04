@@ -52,26 +52,43 @@ namespace AssetLib/S4/FileIO/IH08Table/XlsxReader {
                 , street            = x14
                 , inventoryNo       = x15
                 })
-            <&> logged(yy -> "EquiId: ${yy}", getStringNamed("Equipment"))
+            <&> getStringNamed("Equipment")
             <*> getStringNamed("Description")
-            <*> logged(yy -> "Planning Plant: ${Int32.toString(yy)}", getInt32Named("Planning Plant"))
+            <*> getInt32StoredAsTextNamed("Planning Plant")
         	<*> getStringNamed("Functional Loc.")
             <*> getStringNamed("TechIdentNo.")
-            <*> logged(yy -> "Superord.Equip.: ${yy}", getStringNamed("Superord.Equip."))
-            <*> getInt32Named("Position")
+            <*> getStringNamed("Superord.Equip.")
+            <*> optional(getInt32StoredAsTextNamed("Position"))
             <*> getCouldBeNumericalNamed("ManufPartNo.")
             <*> getStringNamed("Manufacturer")
             <*> getCouldBeNumericalNamed("ManufSerialNo.")
             <*> getStringNamed("Model number")
             <*> getStringNamed("User status")
             <*> getStringNamed("Object Type")
-            <*> logged(yy -> "Street: ${yy}", getStringNamed("Street"))
-            <*> optional(getInt64Named("Inventory no."))
+            <*> getStringNamed("Street")
+            <*> optional(getInt64StoredAsTextNamed("Inventory no."))
 
     def getCouldBeNumericalNamed(label: String): NamedRowEvaluator[String] = 
         use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
         alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
 
+    /// Candidate for SheetIO...
+    def getInt32StoredAsTextNamed(label: String): NamedRowEvaluator[Int32] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, throwError};
+        let* s1      = getStringNamed(label);
+        match Int32.fromString(s1) {
+            case Ok(i)  => return(i)
+            case Err(_) => throwError("getInt32StoredAsTextNamed('${label}')")
+        }
+
+    /// Candidate for SheetIO...
+    def getInt64StoredAsTextNamed(label: String): NamedRowEvaluator[Int64] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, throwError};
+        let* s1      = getStringNamed(label);
+        match Int64.fromString(s1) {
+            case Ok(i)  => return(i)
+            case Err(_) => throwError("getInt64StoredAsTextNamed('${label}')")
+        }
 
     def logged(message: a -> String, eval1: NamedRowEvaluator[a]): NamedRowEvaluator[a] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
