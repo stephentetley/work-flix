@@ -63,6 +63,7 @@ namespace AssetLib/S4/Simple/Datatypes {
         , planningPlant: Int32
         , functionalLocation: String
         , superOrdinateEqui: String
+        , techIdentNo: String
         , status: String
         }
 

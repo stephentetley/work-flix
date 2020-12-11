@@ -90,10 +90,11 @@ namespace AssetLib/S4/FileIO/IH08Table/XlsxReader {
             case Err(_) => throwError("getInt64StoredAsTextNamed('${label}')")
         }
 
-    def logged(message: a -> String, eval1: NamedRowEvaluator[a]): NamedRowEvaluator[a] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
-        let* ans    = eval1;
-        let* _      = liftAction(_ -> Console.printLine(message(ans)));
-        return(ans)
+    /// Candidate for SheetIO?
+    /// def logged(message: a -> String, eval1: NamedRowEvaluator[a]): NamedRowEvaluator[a] =
+    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+    ///     let* ans    = eval1;
+    ///     let* _      = liftAction(_ -> Console.printLine(message(ans)));
+    ///     return(ans)
 
 }

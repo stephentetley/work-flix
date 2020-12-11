@@ -88,7 +88,8 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
                 :: "    e.controlling_area,"
                 :: "    e.planning_plant,"
                 :: "    e.functional_location,"
-                :: "    e.superordinate_equi_id,"
+                :: "    e.superordinate_equi_id,"                
+                :: "    e.tech_indet_no,"
                 :: "    e.status"
                 :: "FROM ${tableName} e"
                 :: "WHERE "
@@ -109,7 +110,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
         use BasicDb/RowEvaluator.{getStringNamed, getInt32Named};
         use BasicDb/RowEvaluator.{<&>, <*>};
         use AssetLib/S4/Base/BasicDbUtils.{getS4DateNamed};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
                 { category              = x1
                 , description           = x2
                 , objectType            = x3
@@ -126,7 +127,8 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
                 , planningPlant         = x14
                 , functionalLocation    = x15
                 , superOrdinateEqui     = x16
-                , status                = x17                
+                , techIdentNo           = x17
+                , status                = x18
                 })
             <&> getStringNamed("category")                  /// Equipment Category
             <*> getStringNamed("description")               /// Description (medium text)        
@@ -144,6 +146,7 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
             <*> getInt32Named("planning_plant")             /// Planning Plant
             <*> getStringNamed("functional_location")       /// Functional Location
             <*> getStringNamed("superordinate_equi_id")     /// Superord Equipment
+            <*> getStringNamed("tech_ident_no")             /// Techinical IdentNo
             <*> getStringNamed("status")                    /// Status of an object
 
 

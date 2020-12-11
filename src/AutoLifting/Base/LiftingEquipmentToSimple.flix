@@ -53,6 +53,7 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
         , planningPlant         = x.planningPlant
         , functionalLocation    = x.functionalLocation
         , superOrdinateEqui     = x.superOrdinateEqui
+        , techIdentNo           = ""
         , status                = x.status
         }
 

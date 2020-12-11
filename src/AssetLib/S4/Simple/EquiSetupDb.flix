@@ -85,7 +85,7 @@ namespace AssetLib/S4/Simple/EquiSetupDb {
     def equiRowEvaluator(): RowEvaluator[{equiId: String, attrs: EquiAttributes}] = 
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4DateNamed, getInt32Named};
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19) ->
                 { equiId                = x1
                 , attrs = 
                     { category              = x2
@@ -104,7 +104,8 @@ namespace AssetLib/S4/Simple/EquiSetupDb {
                     , planningPlant         = x15
                     , functionalLocation    = x16
                     , superOrdinateEqui     = x17
-                    , status                = x18
+                    , techIdentNo           = x18
+                    , status                = x19
                     }
                 })
             <&> getStringNamed("EQUI")                  /// Equipment ID
@@ -124,6 +125,7 @@ namespace AssetLib/S4/Simple/EquiSetupDb {
             <*> getInt32Named("PPLA_EEQZ")              /// Planning Plant
             <*> getStringNamed("TPLN_EILO")             /// Functional Location
             <*> getStringNamed("HEQU_EEQZ")             /// Superord Equipment
+            <*> getStringNamed("TIDN_EEQZ")             /// Superord Equipment
             <*> getStringNamed("USTW_EQUI")             /// Status of an object
 
 
