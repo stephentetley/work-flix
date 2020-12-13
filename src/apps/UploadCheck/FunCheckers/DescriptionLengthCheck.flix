@@ -21,12 +21,12 @@ namespace UploadCheck/FunCheckers/DescriptionLengthCheck {
     use DataCheck/Check.{failure, mapFail};
 
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, EquipmentData};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{CreateFunctionalLocationData, CreateEquipmentData};
     use UploadCheck/Base/RowCheck.{FunRowChecker};
     use UploadCheck/Base/RowCheck.FunRowChecker.{FunRowChecker};
 
 
-    pub def flocDescriptionLength(): FunRowChecker[FunctionalLocationData] = 
+    pub def flocDescriptionLength(): FunRowChecker[CreateFunctionalLocationData] = 
         FunRowChecker((row, ix) -> 
             mapFail(
                 msg1 -> 
@@ -36,7 +36,7 @@ namespace UploadCheck/FunCheckers/DescriptionLengthCheck {
                       
         )
 
-    pub def equiDescriptionLength(): FunRowChecker[EquipmentData] = 
+    pub def equiDescriptionLength(): FunRowChecker[CreateEquipmentData] = 
         FunRowChecker((row, ix) -> 
             mapFail(
                 msg1 -> 

@@ -23,7 +23,7 @@ namespace UploadCheck/Main {
     use BasicDb.DbMonad;
     use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, mapWithIndexM};
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, EquipmentData, EqClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, CreateEquipmentData, EqClassification};
 
     use UploadCheck/Base/RowCheck.{RowChecker, UxlRowCheck, UxlRowFail, execRowChecker, liftFunRowChecker};
     use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
@@ -75,7 +75,7 @@ namespace UploadCheck/Main {
         let* xs         = mapWithIndexM(execRowChecker(checkEquipmentDataHelper()), rows);
         return(DataCheck/Check.concat(xs))
 
-    def checkEquipmentDataHelper(): RowChecker[EquipmentData] = 
+    def checkEquipmentDataHelper(): RowChecker[CreateEquipmentData] = 
         /// use UploadCheck/Base/RowCheck.{<&&>};
         use UploadCheck/Base/RowCheck.{offsetIndex};
         offsetIndex(7, 
@@ -97,7 +97,13 @@ namespace UploadCheck/Main {
         
 
     def printCheck(checks: UxlRowCheck): Unit & Impure = 
-        let print1 = (rc : UxlRowFail) -> Console.printLine("${rc.sheetName}, row:${Int32.toString(rc.rowIndex)} - ${rc.failMessage}");
+        use ToString.ToString.toString;
+        // let show = (i : Int32) -> toString(i); 
+        let print1 = (rc : UxlRowFail) -> { 
+                let s1 = rc.sheetName;
+                let i2 = rc.rowIndex; 
+                Console.printLine("${s1}, row:${i2} - ${rc.failMessage}")
+        };
         match checks {
             case Pass => Console.printLine("Pass")
             case Fail(xs) => Nel.foreach(print1, xs)

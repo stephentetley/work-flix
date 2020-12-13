@@ -19,12 +19,14 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
 
     use System.Error.{Generic};
 
-    use AssetLib/S4/FileIO/DownloadFile/Evaluate.{importRows};
+    use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AssetLib/S4/Hierarchy/Relations.{Node};
 
     pub def loadEqui[r](path: System.FilePath): Result[#{ Node | r }, System.Error] & Impure =        
-        importRows(equiRowParser(), path)   
+        use Result.flatMap;
+        let* xs = allRows(equiRowParser(), path);
+        Ok(List.foldLeft((ac, r1) -> ac <+> r1, #{ }, xs))
 
     def equiRowParser[r](): RowEvaluator[#{ Node | r }] = 
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{flatMap, return, getStringNamed};
@@ -37,7 +39,9 @@ namespace AssetLib/S4/Hierarchy/HierarchyLoader {
 
 
     pub def loadFloc[r](path: System.FilePath): Result[#{ Node | r }, System.Error] & Impure =
-        importRows(flocRowParser(), path)  
+        use Result.flatMap;
+        let* xs = allRows(flocRowParser(), path);
+        Ok(List.foldLeft((ac, r1) -> ac <+> r1, #{ }, xs))
     
     def flocRowParser[r](): RowEvaluator[#{ Node | r }] = 
         use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{flatMap, return, getStringNamed};

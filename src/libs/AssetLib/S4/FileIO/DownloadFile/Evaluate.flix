@@ -38,7 +38,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
 
 
     /// Import rows of a FileDownload
-    /// Builds relations with in a List.
+    /// Builds relations from the List.
     pub def allRows(rowp: RowEvaluator[r], path: System.FilePath): Result[List[r], System.Error] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/S4/FileIO/DownloadFile/Parser.parseFile(path);
