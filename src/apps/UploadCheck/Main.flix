@@ -21,11 +21,10 @@ namespace UploadCheck/Main {
     use DataCheck.Check.{Pass, Fail};
 
     use BasicDb.DbMonad;
-    use BasicDb/DbMonad.{runSQLite, liftAction, liftActionResult, mapWithIndexM};
-
+    
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, CreateEquipmentData, EqClassification};
 
-    use UploadCheck/Base/RowCheck.{RowChecker, UxlRowCheck, UxlRowFail, execRowChecker, liftFunRowChecker};
+    use UploadCheck/Base/RowCheck.{RowChecker, UxlRowCheck, UxlRowFail, execRowChecker};
     use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
     use UploadCheck/SqlCheckers/IntRangeCheck.{equiIntRange};
     use UploadCheck/SqlCheckers/SelectionValueCheck.{equiSelectionValue};
@@ -39,6 +38,7 @@ namespace UploadCheck/Main {
     type alias CheckerMonad[a] = DbMonad[a]
 
     pub def runMain(dbPath: System.FilePath, uxlPath: System.FilePath): Unit & Impure = 
+        use BasicDb/DbMonad.{runSQLite};
         Console.printLine("Running...");
         match runSQLite(checkAll(uxlPath), dbPath) {
             case Err(e) => Console.printLine(System/Error.toString(e))
@@ -46,18 +46,22 @@ namespace UploadCheck/Main {
         }
 
     def checkAll(uxlPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
-        use BasicDb/DbMonad.{flatMap, return};
+        use BasicDb/DbMonad.{flatMap, return, liftAction};
         use DataCheck/Check.{concat};
+        let* _      = liftAction(_ -> Console.printLine("checkAll.001"));
         let* a1     = checkFlClassifications(uxlPath);
+        let* _      = liftAction(_ -> Console.printLine("checkAll.002"));
         let* a2     = checkEquipmentData(uxlPath);
+        let* _      = liftAction(_ -> Console.printLine("checkAll.003"));
         let* a3     = checkEqClassifications(uxlPath);
+        let* _      = liftAction(_ -> Console.printLine("checkAll.return"));
         return(concat(a1 :: a2 :: a3 :: Nil))
 
 
 
 
     def checkFlClassifications(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
-        use BasicDb/DbMonad.{flatMap, return};
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapWithIndexM};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadFlClassification(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkFlClassificationsHelper()), rows);
         return(DataCheck/Check.concat(xs))
@@ -70,7 +74,7 @@ namespace UploadCheck/Main {
 
         
     def checkEquipmentData(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
-        use BasicDb/DbMonad.{flatMap, return};
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapWithIndexM};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEquipmentData(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkEquipmentDataHelper()), rows);
         return(DataCheck/Check.concat(xs))
@@ -78,12 +82,10 @@ namespace UploadCheck/Main {
     def checkEquipmentDataHelper(): RowChecker[CreateEquipmentData] = 
         /// use UploadCheck/Base/RowCheck.{<&&>};
         use UploadCheck/Base/RowCheck.{offsetIndex};
-        offsetIndex(7, 
-            liftFunRowChecker(equiDescriptionLength())
-        )
+        offsetIndex(7, equiDescriptionLength())
 
     def checkEqClassifications(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
-        use BasicDb/DbMonad.{flatMap, return};
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapWithIndexM};
         let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEqClassification(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkEqClassificationsHelper()), rows);
         return(DataCheck/Check.concat(xs))
@@ -97,7 +99,7 @@ namespace UploadCheck/Main {
         
 
     def printCheck(checks: UxlRowCheck): Unit & Impure = 
-        use ToString.ToString.toString;
+        // use ToString/ToString.toString;
         // let show = (i : Int32) -> toString(i); 
         let print1 = (rc : UxlRowFail) -> { 
                 let s1 = rc.sheetName;

@@ -38,7 +38,7 @@ namespace UploadCheck/SqlCheckers/CharInClassCheck {
 
     pub def equiCharInClass(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
-            let errMsg = "${row.equiId} - equiCharInClass failed - ${row.characteristicName} not in class ${row.className}";
+            let errMsg = "equiCharInClass failed"; /// "${row.equiId} - equiCharInClass failed - ${row.characteristicName} not in class ${row.className}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg}),
                                 charInClassHelper("equi", row.characteristicName, row.className))
         )

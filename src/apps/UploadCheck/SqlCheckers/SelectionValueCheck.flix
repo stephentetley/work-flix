@@ -42,7 +42,7 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
     pub def equiSelectionValue(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
-            let errMsg = "${row.equiId} - equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
+            let errMsg = "equiSelectionValue failed"; /// "${row.equiId} - equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg }), 
                                 equiSelectionValueHelper(row.characteristicName, row.charValue))
         )

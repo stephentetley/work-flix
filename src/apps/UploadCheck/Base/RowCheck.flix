@@ -27,14 +27,11 @@ namespace UploadCheck/Base/RowCheck {
 
     pub opaque type RowChecker[row] = row -> Int32 -> DbMonad[UxlRowCheck]
 
-    /// Possibly Impure but not _in_ a monad.
-    pub opaque type FunRowChecker[row] = row -> Int32 ~> UxlRowCheck
 
-    pub def liftFunRowChecker(chk: FunRowChecker[row]): RowChecker[row] =
-        RowChecker((row, ix) -> {
-            let FunRowChecker(f) = chk;
-            BasicDb/DbMonad.liftAction(_ -> f(row, ix))
-        })
+
+    pub def liftPureChecker(chk: (row, Int32) -> UxlRowCheck): RowChecker[row] =
+        use BasicDb/DbMonad.{return};
+        RowChecker((row, ix) -> {let ans = chk(row, ix); return(ans)})
 
     pub def execRowChecker(chk: RowChecker[row], row: row, ix: Int32): DbMonad[UxlRowCheck] = 
         let RowChecker(f) = chk;

@@ -22,28 +22,27 @@ namespace UploadCheck/FunCheckers/DescriptionLengthCheck {
 
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{CreateFunctionalLocationData, CreateEquipmentData};
-    use UploadCheck/Base/RowCheck.{FunRowChecker};
-    use UploadCheck/Base/RowCheck.FunRowChecker.{FunRowChecker};
+    use UploadCheck/Base/RowCheck.{RowChecker};
 
 
-    pub def flocDescriptionLength(): FunRowChecker[CreateFunctionalLocationData] = 
-        FunRowChecker((row, ix) -> 
+    pub def flocDescriptionLength(): RowChecker[CreateFunctionalLocationData] = 
+        use UploadCheck/Base/RowCheck.{liftPureChecker}; 
+        liftPureChecker((row, ix) -> 
             mapFail(
                 msg1 -> 
-                { sheetName = "Functional Location Data", rowIndex = ix, failMessage = "${row.functionalLocation} - flocDescriptionLength failed -${msg1}"}
+                { sheetName = "Functional Location Data", rowIndex = ix, failMessage = "${row.functionalLocation} - flocDescriptionLength failed - ${msg1}"}
                 ,  descriptionLengthHelper(row.description)
-            ) as & Impure
-                      
+            )            
         )
 
-    pub def equiDescriptionLength(): FunRowChecker[CreateEquipmentData] = 
-        FunRowChecker((row, ix) -> 
+    pub def equiDescriptionLength(): RowChecker[CreateEquipmentData] = 
+        use UploadCheck/Base/RowCheck.{liftPureChecker}; 
+        liftPureChecker((row, ix) -> 
             mapFail(
                 msg1 -> 
-                { sheetName = "Equipment Data", rowIndex = ix, failMessage = "${row.equiId} - flocDescriptionLength failed -${msg1}"}
+                { sheetName = "Equipment Data", rowIndex = ix, failMessage = msg1} /// "${row.equiId} - flocDescriptionLength failed - ${msg1}"}
                 ,  descriptionLengthHelper(row.description)
-            ) as & Impure
-                      
+            ) 
         )
 
     def descriptionLengthHelper(descriptionMedium: String): Check[String] =         

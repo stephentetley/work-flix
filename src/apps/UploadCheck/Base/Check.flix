@@ -75,7 +75,7 @@ namespace DataCheck/Check {
     ///
     pub def mapFail(f: e1 -> e2 & ef, x: Check[e1]): Check[e2] & ef = match x {
         case Pass => Pass
-        case Fail(e) => Fail(Nel.map(f, e))
+        case Fail(e) => {let ans = Nel.map(f, e); Fail(ans)}
     }
 
     
