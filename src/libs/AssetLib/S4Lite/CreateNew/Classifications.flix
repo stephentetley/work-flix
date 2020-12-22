@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/Simple {
+namespace AssetLib/S4Lite/CreateNew {
     
     use Data/Transitional.DList;
-    use AssetLib/S4/Simple/Datatypes.{Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{Classification};
 
     pub opaque type Classifications = Data/Transient.DList[Classification]
 }
 
-namespace AssetLib/S4/Simple/Classifications {
+namespace AssetLib/S4Lite/CreateNew/Classifications {
 
-    use AssetLib/S4/Simple.Classifications;
-    use AssetLib/S4/Simple.Classifications.{Classifications};
-    use AssetLib/S4/Simple/Datatypes.{Classification};
-    use AssetLib/S4/Simple/Datatypes.ValueType.{Text, Integer, Decimal};
+    use AssetLib/S4Lite/CreateNew.Classifications;
+    use AssetLib/S4Lite/CreateNew.Classifications.{Classifications};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.ValueType.{Text, Integer, Decimal};
 
     pub def getClassifications(x: Classifications): List[Classification] = 
         let Classifications(x1) = x;
@@ -89,4 +89,5 @@ namespace AssetLib/S4/Simple/Classifications {
 
     pub def testCertNo(classification: String, reference: String): Classifications =
         singleton({className = classification, charName = "TEST_CERT_NO", datatype = Text, value = reference})
+
 }

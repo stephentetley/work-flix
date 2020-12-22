@@ -17,7 +17,7 @@
 
 /// Build equipment from Download files + stored facts
 
-namespace AssetLib/S4/Simple/EquiSetupDb {
+namespace AssetLib/S4Lite/CreateNew/EquiSetupDb {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
@@ -26,8 +26,8 @@ namespace AssetLib/S4/Simple/EquiSetupDb {
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AssetLib/S4/FileIO/ZTable/ExportDb.ZTableSourcePaths;
 
-    use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
-    use AssetLib/S4/Simple/BuildCommon.{evalClassification, evalLongText};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/BuildCommon.{evalClassification, evalLongText};
 
     /// TODO this is common for Floc and Equi so here isn't the right place...
     pub def setupFacts(classFacts: System.FilePath, zTablePaths: ZTableSourcePaths): DbMonad[Unit] = 

@@ -64,7 +64,7 @@ namespace AutoLifting/Build/ChildNew {
     /// Note - fresh name supply is outside DbMonad
     pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, freshEquiId: String): DbMonad[LiftingEquipment] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult, liftAction};
-        use AssetLib/S4/Simple/Classifications.{append, getClassifications};
+        use AssetLib/S4Lite/CreateNew/Classifications.{append, getClassifications};
         use AutoLifting/Base/Utils.{getEastingNorthing, liftingFunctionalLocation};
         use AutoLifting/Build/ChildNew/WorkingLoadFields.{getWorkingLoadFields};
         let* commonName         = getCommonName(pstmts, reference);

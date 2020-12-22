@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/Simple/FlocDownloadBuilder {
+namespace AssetLib/S4Lite/CreateNew/FlocDownloadBuilder {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/S4/Simple/Datatypes.{LongText};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{LongText};
 
     /// TODO - needs completing, see EquiBuilder 
 

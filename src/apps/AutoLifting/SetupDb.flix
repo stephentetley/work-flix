@@ -59,9 +59,9 @@ namespace AutoLifting/SetupDb {
     /// Note - downloads are be Option[DownloadFilePaths] in case we know we only have ChildNew...
     pub def setupSpecificTables(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths]):  DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftAction};
-        use AssetLib/S4/Simple/EquiDownload.{initEquiTable, storeEquiFile};
         use AssetLib/S4/FileIO/DownloadFile/Builtins.{initEqmltxtTable, storeEqmltxtFile, 
             initClassEquiTable, storeClassEquiFile, initValuaEquiTable, storeValuaEquiFile};
+        use AssetLib/S4Lite/CreateNew/EquiDownload.{initEquiTable, storeEquiFile};
         use AutoLifting/SetupDb/Worklist.{storeWorklist};
         use AutoLifting/SetupDb/AibAttributes.{storeAibAttributes};
         use AutoLifting/SetupDb/MemoLines.{storeMemoLines};

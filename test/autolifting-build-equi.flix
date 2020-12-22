@@ -1,6 +1,6 @@
 use BasicDb.DbMonad;
-use AssetLib/S4/Simple/Datatypes.{S4Equipment};
-use AssetLib/S4/Simple/EquipmentBuilder.{TableNames};
+use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment};
+use AssetLib/S4Lite/CreateNew/EquipmentBuilder.{TableNames};
 use AutoLifting/Base.ReportMonad;
 use AutoLifting/SetupDb.{DownloadFilePaths, WorklistPaths};
 
@@ -9,15 +9,15 @@ def main(): Unit & Impure =
     use AutoLifting/Base/ReportMonad.{runReportMonad};
     let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
     let worklistPaths =     
-        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/HULL STW.xlsx")
-        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull2-attribs-export.xlsx")
-        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/hull2-memos-export.xlsx")
+        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/KETTLEWELL STW.xlsx")
+        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/kettle-attribs-export.xlsx")
+        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/kettle-memos-export.xlsx")
         };        
     /// let downloads = 
-    ///     { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_equi_file_download.txt")
-    ///     , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_eqmltxt_file_download.txt")
-    ///     , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_classequi_file_download.txt")
-    ///     , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/tophi_valuaequi_file_download.txt")
+    ///     { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/oldwh-equi-file_download.txt")
+    ///     , eqmltxtPath       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/oldwh-eqmltxt-file_download.txt")
+    ///     , classEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/oldwh-classequi-file_download.txt")
+    ///     , valuaEquiPath     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/oldwh-valuaequi-file_download.txt")
     ///     };
     Console.printLine("Running...");
     match runReportMonad(mainHelper(worklistPaths, None, false), dbpath) {

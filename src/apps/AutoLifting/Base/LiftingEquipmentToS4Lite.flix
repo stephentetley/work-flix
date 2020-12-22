@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Base/LiftingEquipmentToSimple {
+namespace AutoLifting/Base/LiftingEquipmentToS4Lite {
 
 
-    use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
-    use AssetLib/S4/Simple.{Classifications};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew.{Classifications};
     use AutoLifting/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
     use AutoLifting/Base.ReportMonad;
 
@@ -65,7 +65,7 @@ namespace AutoLifting/Base/LiftingEquipmentToSimple {
 
     /// TODO if length(locationOnSite) > 30 make it a longtext
     def translateLiftingClassifications(objectClass: String, x: LiftingClassifications): List[Classification] = 
-        use AssetLib/S4/Simple/Classifications.{getClassifications, concat, whenTrue, whenSome, ai2AibReference, 
+        use AssetLib/S4Lite/CreateNew/Classifications.{getClassifications, concat, whenTrue, whenSome, ai2AibReference, 
             easting, northing, uniclassCode, uniclassDesc, locationOnSite, decimalClassification,
             stringClassification, statutoryReferenceNumber, testCertNo};
         concat( 

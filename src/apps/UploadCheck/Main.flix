@@ -94,7 +94,8 @@ namespace UploadCheck/Main {
         use UploadCheck/Base/RowCheck.{<&&>};
         use UploadCheck/Base/RowCheck.{offsetIndex};
         offsetIndex(7, 
-            equiTypeCheck() <&&> equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass()
+            /// equiTypeCheck() <&&> equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass()
+            equiIntRange() <&&> equiSelectionValue() <&&> equiCharInClass()
         )
         
 

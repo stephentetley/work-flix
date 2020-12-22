@@ -48,7 +48,7 @@ namespace UploadCheck/SqlCheckers/TypeCheck {
         use BasicDb/DbMonad.{return, flatMap, map};
         RowChecker((row, ix) -> {
             let* tyname = map(getTypeName, getEquiDatatype(row.characteristicName));
-            let errMsg  = "equiTypeCheck failed ${tyname}"; /// "${row.equiId} - equiTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
+            let errMsg  = "${row.equiId} - equiTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
             let* ans    = equiTypeCheckHelper(row.characteristicName, row.charValue);
             if (ans) return(Pass) else return(failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg }))                                
         })

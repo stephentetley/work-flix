@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/Simple/EmitUxl {
+namespace AssetLib/S4Lite/CreateNew/EmitUxl {
 
     use SheetIO.SheetWriter;
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails => UxlChangeRequestDetails
@@ -25,7 +25,7 @@ namespace AssetLib/S4/Simple/EmitUxl {
         , EqMultilingualText => UxlEqMultilingualText
         , EqClassification => UxlEqClassification};
 
-    use AssetLib/S4/Simple/Datatypes.{S4Floc, S4Equipment, FlocAttributes, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc, S4Equipment, FlocAttributes, EquiAttributes, LongText, Classification};
 
     pub def outputUxl( description: String
                      , flocs: List[S4Floc]

@@ -18,7 +18,7 @@
 /// Store a view of an Equi FileDownload.
 /// Only the fields needed for the `Simple` AST are stored
 
-namespace AssetLib/S4/Simple/EquiDownload {
+namespace AssetLib/S4Lite/CreateNew/EquiDownload {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;

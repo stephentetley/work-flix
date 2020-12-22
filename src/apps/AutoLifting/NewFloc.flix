@@ -22,9 +22,9 @@ namespace AutoLifting/NewFloc {
     use BasicDb.RowEvaluator;
 
     use AssetLib/S4/Base.Floc;
-    use AssetLib/S4/Simple.Classifications;
-    use AssetLib/S4/Simple/Datatypes.{S4Floc, Classification};
-    use AssetLib/S4/Simple/Datatypes.ValueType.{Text};
+    use AssetLib/S4Lite/CreateNew.Classifications;
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.ValueType.{Text};
 
     type alias LiftingFloc = 
         { functionalLocation: Floc
@@ -36,8 +36,8 @@ namespace AutoLifting/NewFloc {
         }
 
     pub def makeS4Floc(x: LiftingFloc): S4Floc = 
-        use AssetLib/S4/Simple/Classifications.{getClassifications};
         use AssetLib/S4/Base/Floc.{toString, pop, level};
+        use AssetLib/S4Lite/CreateNew/Classifications.{getClassifications};
         { functionalLocation    = toString(x.functionalLocation)
         , attributes = 
             { description           = x.description
@@ -63,7 +63,7 @@ namespace AutoLifting/NewFloc {
                                    , easting: Int32
                                    , northing: Int32
                                    , reference: String): LiftingFloc = 
-        use AssetLib/S4/Simple/Classifications.{append}; 
+        use AssetLib/S4Lite/CreateNew/Classifications.{append}; 
         { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS")
         , description           = "Site Maintenance Services"
         , objectType            = "SMS"
@@ -77,7 +77,7 @@ namespace AutoLifting/NewFloc {
                        , easting: Int32
                        , northing: Int32
                        , reference: String): LiftingFloc = 
-        use AssetLib/S4/Simple/Classifications.{append}; 
+        use AssetLib/S4Lite/CreateNew/Classifications.{append}; 
         { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT")
         , description           = "Site Lifting"
         , objectType            = "LFT"
@@ -91,7 +91,7 @@ namespace AutoLifting/NewFloc {
                         , easting: Int32
                         , northing: Int32
                         , reference: String): LiftingFloc = 
-        use AssetLib/S4/Simple/Classifications.{append}; 
+        use AssetLib/S4Lite/CreateNew/Classifications.{append}; 
         { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-FLT")
         , description           = "Fixed Lifting"
         , objectType            = "LFT"
@@ -105,7 +105,7 @@ namespace AutoLifting/NewFloc {
                               , easting: Int32
                               , northing: Int32
                               , reference: String): LiftingFloc = 
-        use AssetLib/S4/Simple/Classifications.{append}; 
+        use AssetLib/S4Lite/CreateNew/Classifications.{append}; 
         { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-FLT-SYS01")
         , description           = "Fixed Lifting System"
         , objectType            = "SLFS"
@@ -119,7 +119,7 @@ namespace AutoLifting/NewFloc {
                            , easting: Int32
                            , northing: Int32
                            , reference: String): LiftingFloc = 
-        use AssetLib/S4/Simple/Classifications.{append}; 
+        use AssetLib/S4Lite/CreateNew/Classifications.{append}; 
         { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-PRL")
         , description           = "Portable Lifting"
         , objectType            = "LFT"
@@ -133,7 +133,7 @@ namespace AutoLifting/NewFloc {
                                  , easting: Int32
                                  , northing: Int32
                                  , reference: String): LiftingFloc = 
-        use AssetLib/S4/Simple/Classifications.{append}; 
+        use AssetLib/S4Lite/CreateNew/Classifications.{append}; 
         { functionalLocation    = AssetLib/S4/Base/Floc.new("${siteRoot}-SMS-LFT-PRL-SYS01")
         , description           = "Portable Lifting System"
         , objectType            = "SLFS"
@@ -143,20 +143,20 @@ namespace AutoLifting/NewFloc {
         }
 
     def aibReference(reference: String): Classifications = 
-        use AssetLib/S4/Simple/Classifications.{append, ai2AibReference, s4AibReference};
+        use AssetLib/S4Lite/CreateNew/Classifications.{append, ai2AibReference, s4AibReference};
         ai2AibReference(reference) `append` s4AibReference()
 
     def eastingNorthing(e: Int32, n: Int32): Classifications = 
-        use AssetLib/S4/Simple/Classifications.{append, easting, northing};
+        use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
         easting(e) `append` northing(n)
 
     def uniclassCode(): Classifications = 
-        use AssetLib/S4/Simple/Classifications.{append, uniclassCode, uniclassDesc};
+        use AssetLib/S4Lite/CreateNew/Classifications.{append, uniclassCode, uniclassDesc};
         uniclassCode("UNICLASS_CODE") `append` uniclassDesc("UNICLASS_CODE")
 
 
     def slfssy(systemName: String): Classifications =
-        use AssetLib/S4/Simple/Classifications.{singleton};
+        use AssetLib/S4Lite/CreateNew/Classifications.{singleton};
         singleton({className = "SLFSSY", charName = "System Type", datatype = Text, value = systemName})
 
 }

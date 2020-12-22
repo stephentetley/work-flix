@@ -18,7 +18,7 @@
 /// Build equipment from stored facts.
 /// This is to replace `EquiDownloadBuilder`.
 
-namespace AssetLib/S4/Simple/EquipmentBuilder {
+namespace AssetLib/S4Lite/CreateNew/EquipmentBuilder {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
@@ -26,8 +26,8 @@ namespace AssetLib/S4/Simple/EquipmentBuilder {
     use BasicDb.RowEvaluator;
 
     
-    use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
-    use AssetLib/S4/Simple/Common.{evalClassification, evalLongText};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/Common.{evalClassification, evalLongText};
 
 
     type alias TableNames = 

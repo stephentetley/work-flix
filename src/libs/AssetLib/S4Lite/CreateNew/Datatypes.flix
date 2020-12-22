@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/Simple/Datatypes {
+namespace AssetLib/S4Lite/CreateNew/Datatypes {
 
 
     type alias S4Floc = 

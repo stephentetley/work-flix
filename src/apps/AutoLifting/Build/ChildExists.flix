@@ -16,7 +16,7 @@
 
 namespace AutoLifting/Build/ChildExists {
     
-    use AssetLib/S4/Simple/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
     use AutoLifting/Base/Datatypes.{LiftingEquipment};
 
     pub def translateS4Equipment(x: S4Equipment): LiftingEquipment = 

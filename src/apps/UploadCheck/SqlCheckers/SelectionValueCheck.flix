@@ -42,12 +42,14 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
     pub def equiSelectionValue(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
-            let errMsg = "equiSelectionValue failed"; /// "${row.equiId} - equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
+            /// Binding `s1` stops a runtime error, no idea why...
+            let s1 = if (row.equiId == "x") "x" else row.equiId;
+            let errMsg = "${s1} - equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg }), 
                                 equiSelectionValueHelper(row.characteristicName, row.charValue))
         )
 
-    pub def equiSelectionValueHelper(charname: String, value: String): DbMonad[Bool] = 
+    def equiSelectionValueHelper(charname: String, value: String): DbMonad[Bool] = 
         use BasicDb/DbMonad.{return, flatMap};
         let* a1 = isRestricted("equi", charname);
         if (a1) isRestrictedValue("equi", charname, value) else return(true) 

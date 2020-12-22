@@ -27,11 +27,11 @@ namespace AutoLifting/ReportMain {
 
 
     pub def makeReport(description: String, uxlTemplate: System.FilePath, manualOut: System.FilePath, uxlOut: System.FilePath): ReportMonad[Unit] = 
+        use AssetLib/S4Lite/CreateNew/EmitUxl.{outputUxl};
         use AutoLifting/Base/ReportMonad.{return, flatMap, liftActionResult, liftAction, liftDbMonad, mapM};
-        use AutoLifting/Base/LiftingEquipmentToSimple.{translateLiftingEquipment};
+        use AutoLifting/Base/LiftingEquipmentToS4Lite.{translateLiftingEquipment};
         use AutoLifting/Build/ChildNew.{cachePreparedStatements => childNewPreparedStatements};
         use AutoLifting/ManualOutput.{writeManualReport};
-        use AssetLib/S4/Simple/EmitUxl.{outputUxl};
         let* childPsCache   = liftDbMonad(_ -> childNewPreparedStatements());
         let* xs             = liftDbMonad(_ -> getWorklist());
         let news            = List.filter(x -> x.change == "Child New", xs);

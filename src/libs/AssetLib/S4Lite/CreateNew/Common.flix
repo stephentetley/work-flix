@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/Simple/Common {
+namespace AssetLib/S4Lite/CreateNew/Common {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/S4/Simple/Datatypes.{Classification, LongText, ValueType};
-    use AssetLib/S4/Simple/Datatypes.ValueType.{Text, Integer, Decimal};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{Classification, LongText, ValueType};
+    use AssetLib/S4Lite/CreateNew/Datatypes.ValueType.{Text, Integer, Decimal};
 
     pub def evalClassification(): RowEvaluator[Classification] = 
         use BasicDb/RowEvaluator.{flatMap, return, getStringNamed, getFloat64Named};
