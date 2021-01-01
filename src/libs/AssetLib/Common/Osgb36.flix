@@ -18,19 +18,18 @@
 namespace AssetLib/Common/Osgb36 {
 
 
-    use System.Error.{Generic};
-
+    
     /// Two letters and 10 digits
     pub opaque type NGR = String
 
-    pub def parse(s: String): Result[NGR, System.Error] = 
-        use Result.flatMap;
+    pub def parse(s: String): Option[NGR] = 
+        use Option.flatMap;
         let s1 = String.trim(s);
         let* patt = Text/Regex/Pattern.compile("\p{Alpha}{2}[0-9]{10}");
         if (Text/Regex.matches(s1, patt))
-            Ok(NGR(s1))
+            Some(NGR(s1))
         else 
-            Err(Generic("parse('${s}')"))
+            None
 
     
     pub def toString(x: NGR): String = 
@@ -40,74 +39,40 @@ namespace AssetLib/Common/Osgb36 {
     type alias EastingNorthing = {easting: Int32, northing: Int32}
 
 
-   
-    def decodeMajor(c: Char): Result[(Int32, Int32), System.Error] = 
-        match Char.toUpperCase(c) {
-            case 'S'    => Ok((0,          0))
-            case 'T'    => Ok((500_000,    0))
-            case 'N'    => Ok((0,          500_000))
-            case 'O'    => Ok((500_000,    500_000))
-            case 'H'    => Ok((0,          1_000_000))
-            case _      => Err(Generic("decodeMajor('${Char.toString(c)}')"))
-        }
 
-    def decodeMinor (c: Char): Result[(Int32, Int32), System.Error] = 
-        match Char.toUpperCase(c) {
-            case 'A'    => Ok((0,          400_000))
-            case 'B'    => Ok((100_000,    400_000))
-            case 'C'    => Ok((200_000,    400_000))
-            case 'D'    => Ok((300_000,    400_000))
-            case 'E'    => Ok((400_000,    400_000))
-            case 'F'    => Ok((0,          300_000))
-            case 'G'    => Ok((100_000,    300_000))
-            case 'H'    => Ok((200_000,    300_000))
-            case 'J'    => Ok((300_000,    300_000))
-            case 'K'    => Ok((400_000,    300_000))
-            case 'L'    => Ok((0,          200_000))
-            case 'M'    => Ok((100_000,    200_000))
-            case 'N'    => Ok((200_000,    200_000))
-            case 'O'    => Ok((300_000,    200_000))
-            case 'P'    => Ok((400_000,    200_000))
-            case 'Q'    => Ok((0,          100_000))
-            case 'R'    => Ok((100_000,    100_000))
-            case 'S'    => Ok((200_000,    100_000))
-            case 'T'    => Ok((300_000,    100_000))
-            case 'U'    => Ok((400_000,    100_000))
-            case 'V'    => Ok((0,          0))
-            case 'W'    => Ok((100_000,    0))
-            case 'X'    => Ok((200_000,    0))
-            case 'Y'    => Ok((300_000,    0))
-            case 'Z'    => Ok((400_000,    0))
-            case _      => Err(Generic("decodeMinor('${Char.toString(c)}')"))
-        }
+    pub def toNGR (x: EastingNorthing): Option[NGR] =
+        use Option.flatMap;
+        let* major = findMajor(x.easting, x.northing);
+        let* minor = findMinor(x.easting, x.northing) as & Pure;
+        let smallE = Int32.toString(x.easting % 100000);
+        let smallN = Int32.toString(x.northing % 100000);
+        let s = Char.toString(major) + Char.toString(minor) + String.padLeft(5, '0', smallE) + String.padLeft(5, '0', smallN);
+        Some(NGR(s))
 
-    def decodeAlpha(s: Char, t: Char): Result[(Int32, Int32), System.Error] =  
-        use Result.flatMap;
-        let* (eM, nM) = decodeMajor(s);
-        let* (em, nm) = decodeMinor(t);
-        Ok((eM + em, nM + nm))
-
-
-    pub def toEastingNorthing(x: NGR): Result[EastingNorthing, System.Error] = 
-        use Result.flatMap;
-        let NGR(s) = x;
-        let major = String.charAt(0, s);
-        let minor = String.charAt(1, s);
-        let* e1 = String.slice(s, 2, 7) |> Int32.fromString |> Result.mapErr(Generic);
-        let* n1 = String.slice(s, 7, 12) |> Int32.fromString |> Result.mapErr(Generic);
-        let* (eM, nM) = decodeAlpha(major, minor);
-        Ok({ easting = eM + e1, northing = nM + n1 })
-
-    def findMajor(easting: Int32, northing: Int32): Result[Char, System.Error] =
+    def findMajor(easting: Int32, northing: Int32): Option[Char] =
         match (easting,northing) {
-            case (e,n) if e >= 0 and e < 500_000            and n >= 0 and n < 500_000           => Ok('S')
-            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 0 and n < 500_000           => Ok('T')
-            case (e,n) if e >= 0 and e < 500_000            and n >= 500_000 and n < 1_000_000   => Ok('N')
-            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 500_000 and n < 1_000_000   => Ok('O')
-            case (e,n) if e >= 0 and e < 500_000            and n >= 1_000_000 and n < 1_500_000 => Ok('H')
-            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 1_000_000 and n < 1_500_000 => Ok('J')
-            case (_,_) => Err(Generic("findMajor(...)"))
+            case (e,n) if e >= 0 and e < 500_000            and n >= 0 and n < 500_000           => Some('S')
+            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 0 and n < 500_000           => Some('T')
+            case (e,n) if e >= 0 and e < 500_000            and n >= 500_000 and n < 1_000_000   => Some('N')
+            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 500_000 and n < 1_000_000   => Some('O')
+            case (e,n) if e >= 0 and e < 500_000            and n >= 1_000_000 and n < 1_500_000 => Some('H')
+            case (e,n) if e >= 500_000 and e < 1_000_000    and n >= 1_000_000 and n < 1_500_000 => Some('J')
+            case (_,_) => None
         }
+
+
+    def findMinor (easting: Int32, northing: Int32): Option[Char] & Impure =
+        let arr2D = minorGrid();
+        let modE = easting % 500000;
+        let modN = northing % 500000;
+        let divE = modE / 100000;
+        let divN = modN / 100000;
+        if (divE >= 0 and divE < 5 and divN >= 0 and divN < 5) {
+            let row1 = arr2D[divE];
+            let c = row1[divN];
+            Some(c)
+        } else
+            None
 
     def minorGrid() : Array[Array[Char]] & Impure = 
         [ [ 'V', 'Q', 'L', 'F', 'A' ]
@@ -117,30 +82,63 @@ namespace AssetLib/Common/Osgb36 {
         , [ 'Z', 'U', 'P', 'K', 'E' ]
         ]
 
-    def findMinor (easting: Int32, northing: Int32): Result[Char, System.Error] & Impure =
-        let arr2D = minorGrid();
-        let modE = easting % 500000;
-        let modN = northing % 500000;
-        let divE = modE / 100000;
-        let divN = modN / 100000;
-        if (divE >= 0 and divE < 5 and divN >= 0 and divN < 5) {
-            let row1 = arr2D[divE];
-            let c = row1[divN];
-            Ok(c)
-        } else
-            Err(Generic("findMinor(...)"))
+
+    def decodeMajor(c: Char): Option[(Int32, Int32)] = 
+        match Char.toUpperCase(c) {
+            case 'S'    => Some((0,          0))
+            case 'T'    => Some((500_000,    0))
+            case 'N'    => Some((0,          500_000))
+            case 'O'    => Some((500_000,    500_000))
+            case 'H'    => Some((0,          1_000_000))
+            case _      => None
+        }
+
+    def decodeMinor (c: Char): Option[(Int32, Int32)] = 
+        match Char.toUpperCase(c) {
+            case 'A'    => Some((0,          400_000))
+            case 'B'    => Some((100_000,    400_000))
+            case 'C'    => Some((200_000,    400_000))
+            case 'D'    => Some((300_000,    400_000))
+            case 'E'    => Some((400_000,    400_000))
+            case 'F'    => Some((0,          300_000))
+            case 'G'    => Some((100_000,    300_000))
+            case 'H'    => Some((200_000,    300_000))
+            case 'J'    => Some((300_000,    300_000))
+            case 'K'    => Some((400_000,    300_000))
+            case 'L'    => Some((0,          200_000))
+            case 'M'    => Some((100_000,    200_000))
+            case 'N'    => Some((200_000,    200_000))
+            case 'O'    => Some((300_000,    200_000))
+            case 'P'    => Some((400_000,    200_000))
+            case 'Q'    => Some((0,          100_000))
+            case 'R'    => Some((100_000,    100_000))
+            case 'S'    => Some((200_000,    100_000))
+            case 'T'    => Some((300_000,    100_000))
+            case 'U'    => Some((400_000,    100_000))
+            case 'V'    => Some((0,          0))
+            case 'W'    => Some((100_000,    0))
+            case 'X'    => Some((200_000,    0))
+            case 'Y'    => Some((300_000,    0))
+            case 'Z'    => Some((400_000,    0))
+            case _      => None
+        }
+
+    pub def toEastingNorthing(x: NGR): Option[EastingNorthing] = 
+        use Option.flatMap;
+        use FromString.fromString;
+        let NGR(s) = x;
+        let major = String.charAt(0, s);
+        let minor = String.charAt(1, s);
+        let* e1 = String.slice(s, 2, 7) |> fromString;
+        let* n1 = String.slice(s, 7, 12) |> fromString;
+        let* (eM, nM) = decodeAlpha(major, minor);
+        Some({ easting = eM + e1, northing = nM + n1 })
 
 
-
-    pub def toNGR (x: EastingNorthing): Result[NGR, System.Error] =  
-        use Result.flatMap;
-        let* major = findMajor(x.easting, x.northing);
-        let* minor = findMinor(x.easting, x.northing) as & Pure;
-        let smallE = Int32.toString(x.easting % 100000);
-        let smallN = Int32.toString(x.northing % 100000);
-        let s = Char.toString(major) + Char.toString(minor) + String.padLeft(5, '0', smallE) + String.padLeft(5, '0', smallN);
-        Ok(NGR(s))
-    
-
+    def decodeAlpha(s: Char, t: Char): Option[(Int32, Int32)] =  
+        use Option.flatMap;
+        let* (eM, nM) = decodeMajor(s);
+        let* (em, nm) = decodeMinor(t);
+        Some((eM + em, nM + nm))
 
 }

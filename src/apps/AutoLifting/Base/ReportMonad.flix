@@ -34,7 +34,7 @@ namespace AutoLifting/Base/ReportMonad {
     use AutoLifting/Base.ReportMonad;
     use AutoLifting/Base.ReportMonad.{ReportMonad};
 
-    pub def runReportMonad(ma: ReportMonad[a], dbpath: System.FilePath): Result[a, System.Error] & Impure = 
+    pub def runReportMonad(ma: ReportMonad[a], dbpath: System.FilePath): Result[a, String] & Impure = 
         use Result.{flatMap};
         use BasicDb/DbMonad.{runSQLite};
         let n1 = initEquiNumber();
@@ -95,15 +95,18 @@ namespace AutoLifting/Base/ReportMonad {
             return((s, a)) 
         )
 
-    pub def liftResult(fn: Unit -> Result[a, System.Error]): ReportMonad[a] =
-        use BasicDb/DbMonad.{flatMap, return};
-        ReportMonad(s ->
-            let* a = BasicDb/DbMonad.liftResult(fn); 
-            return((s, a)) 
-        )
+    pub def liftOption(x: Option[a], errMsg: String): ReportMonad[a] = match x {
+        case Some(x1) => return(x1)
+        case None => throwError(errMsg)
+    }
 
+    pub def liftResult(x: Result[a, String]): ReportMonad[a] = match x {
+        case Ok(x1) => return(x1)
+        case Err(msg) => throwError(msg)
+    }
+    
 
-    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): ReportMonad[a] =    
+    pub def liftActionResult(fn: Unit ~> Result[a, String]): ReportMonad[a] =    
         use BasicDb/DbMonad.{flatMap, return};
         ReportMonad(s -> 
             let* a = BasicDb/DbMonad.liftActionResult(fn); 

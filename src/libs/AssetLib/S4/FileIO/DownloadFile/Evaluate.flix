@@ -24,7 +24,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
 
     pub def toEntityData( outputHeaders: Array[String]
                         , eval: RowEvaluator[row]
-                        , x: DownloadFile): Result[EntityData[row], System.Error] & Impure = 
+                        , x: DownloadFile): Result[EntityData[row], String] & Impure = 
         use Result.flatMap;
         let oheaders = makeHeaders(x.headers);
         let* xs = Result.traverse(evalRow(eval, oheaders), x.dataRows);
@@ -33,19 +33,19 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
     ///
     /// Specialized version of `toEntityData` all rows selected.
     ///
-    pub def toEntityData1(x: DownloadFile): Result[EntityData[DataRow], System.Error] = 
+    pub def toEntityData1(x: DownloadFile): Result[EntityData[DataRow], String] = 
         Ok({entityType = x.fileHeader.entityType, headers = x.headers, dataRows = x.dataRows})
 
 
     /// Import rows of a FileDownload
     /// Builds relations from the List.
-    pub def allRows(rowp: RowEvaluator[r], path: System.FilePath): Result[List[r], System.Error] & Impure = 
+    pub def allRows(rowp: RowEvaluator[r], path: System.FilePath): Result[List[r], String] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/S4/FileIO/DownloadFile/Parser.parseFile(path);
         buildRows(rowp, ast)
 
 
-    def buildRows(rowp: RowEvaluator[row], x: DownloadFile): Result[List[row], System.Error] & Impure = 
+    def buildRows(rowp: RowEvaluator[row], x: DownloadFile): Result[List[row], String] & Impure = 
         use Result.flatMap;
         let headers = makeHeaders(x.headers);
         let accumRow = (x1, ac) -> 
@@ -55,7 +55,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
             };
         Result.foldRightM(accumRow, Nil,  x.dataRows)
 
-    def evalRow(rowp: RowEvaluator[row], headers: Map[String, Int32], row: DataRow): Result[row, System.Error] & Impure =  
+    def evalRow(rowp: RowEvaluator[row], headers: Map[String, Int32], row: DataRow): Result[row, String] & Impure =  
         let RowEvaluator(f) = rowp;
         f(headers, row)
 

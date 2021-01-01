@@ -23,7 +23,7 @@ namespace AssetLib/S4/FileIO/ZTable/Builtins {
     use AssetLib/S4/FileIO/ZTable.RowEvaluator;
 
 
-    pub def loadEqobjl(path: System.FilePath): Result[List[Eqobjl], System.Error] & Impure =        
+    pub def loadEqobjl(path: System.FilePath): Result[List[Eqobjl], String] & Impure =        
         importRows(evalEqobjl(), path)  
 
     def evalEqobjl(): RowEvaluator[Eqobjl] = 
@@ -34,7 +34,7 @@ namespace AssetLib/S4/FileIO/ZTable/Builtins {
         return({superObject = supero, subObject = subo, category = cat})
 
 
-    pub def loadFlocdes(path: System.FilePath): Result[List[Flocdes], System.Error] & Impure =
+    pub def loadFlocdes(path: System.FilePath): Result[List[Flocdes], String] & Impure =
         importRows(evalFlocdes(), path)           
 
     def evalFlocdes(): RowEvaluator[Flocdes] = 
@@ -44,7 +44,7 @@ namespace AssetLib/S4/FileIO/ZTable/Builtins {
         return({objectType = objtype, description = desc})
 
 
-    pub def loadFloobjl(path: System.FilePath): Result[List[Floobjl], System.Error] & Impure =
+    pub def loadFloobjl(path: System.FilePath): Result[List[Floobjl], String] & Impure =
         importRows(evalFloobjl(), path)  
 
     def evalFloobjl(): RowEvaluator[Floobjl] = 
@@ -54,7 +54,7 @@ namespace AssetLib/S4/FileIO/ZTable/Builtins {
         let* subo       = getStringAt(2);
         return({structure = struct, superObject = supero, subObject = subo})
 
-    pub def loadManuf(path: System.FilePath): Result[List[Manuf], System.Error] & Impure =
+    pub def loadManuf(path: System.FilePath): Result[List[Manuf], String] & Impure =
         importRows(evalManuf(), path)   
 
     def evalManuf(): RowEvaluator[Manuf] = 
@@ -64,7 +64,7 @@ namespace AssetLib/S4/FileIO/ZTable/Builtins {
         return({manufacturer = manuf, model = modl})
 
 
-    pub def loadObj(path: System.FilePath): Result[List[Obj], System.Error] & Impure =
+    pub def loadObj(path: System.FilePath): Result[List[Obj], String] & Impure =
         importRows(evalObj(), path)  
 
     def evalObj(): RowEvaluator[Obj] = 

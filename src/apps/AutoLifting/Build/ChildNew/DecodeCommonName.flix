@@ -16,38 +16,38 @@
 
 namespace AutoLifting/Build/ChildNew/DecodeCommonName {
 
-    pub def getAibEquiNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
-        use Result.{flatMap};
+    pub def getAibEquiNameFromCommonName(commonName: String): Option[String] = 
+        use Option.{flatMap};
         use Text/Regex.{evalContains};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
-        let* patt   = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
-        Text/Regex.evalContains(commonName, patt, getCaptureNamed("name"))
+        let* patt = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
+        Text/Regex.evalContains(commonName, patt, getCaptureNamed("name")) as & Pure |> Result.toOption
        
-    pub def getS4DescriptionFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
-        use Result.{flatMap};
+    pub def getS4DescriptionFromCommonName(commonName: String): Option[String] = 
+        use Option.{flatMap};
         let* s1   = getAibEquiNameFromCommonName(commonName);
         AutoLifting/Base/Utils.properCaseEquiName(s1)
 
-    pub def getAibEquiTypeFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
-        use Result.{flatMap};
+    pub def getAibEquiTypeFromCommonName(commonName: String): Option[String] = 
+        use Option.{flatMap};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
         let* patt   = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/.*/(?<name>EQUIPMENT: .*)");
-        Text/Regex.evalContains(commonName, patt, getCaptureNamed("name"))
+        Text/Regex.evalContains(commonName, patt, getCaptureNamed("name")) as & Pure |> Result.toOption
         
 
-    pub def getAibSiteNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
-        use Result.{flatMap};
+    pub def getAibSiteNameFromCommonName(commonName: String): Option[String] = 
+        use Option.{flatMap};
         use Text/Regex.{evalStartsWith};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
         let* patt = Text/Regex/Pattern.compile("(?<name>.*)/STATUTORY/");
-        evalStartsWith(commonName, patt, getCaptureNamed("name"))
+        evalStartsWith(commonName, patt, getCaptureNamed("name")) as & Pure |> Result.toOption
 
 
-    pub def getAibParentNameFromCommonName(commonName: String): Result[String, System.Error] & Impure = 
-        use Result.{flatMap};
+    pub def getAibParentNameFromCommonName(commonName: String): Option[String] = 
+        use Option.{flatMap};
         use Text/Regex.{evalStartsWith};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
         let* patt = Text/Regex/Pattern.compile("(?<name>.*)/EQUIPMENT:");
-        evalStartsWith(commonName, patt, getCaptureNamed("name"))
+        evalStartsWith(commonName, patt, getCaptureNamed("name")) as & Pure |> Result.toOption
 
 }

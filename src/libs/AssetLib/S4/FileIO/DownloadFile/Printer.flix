@@ -91,15 +91,15 @@ namespace AssetLib/S4/FileIO/DownloadFile/Printer {
     def ppUser (name : String): Doc = defines("User", name)
 
     def ppDateTime (dt : LocalDateTime) : Doc = 
-        use Result.flatMap;
+        use Option.flatMap;
         let step = () -> {
             let* dfmt = Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd");
             let* tfmt = Time/Format/DateTimeFormatter.fromPattern("HHmmss");
             let date = Time/LocalDateTime.format(dt, dfmt);
             let time = Time/LocalDateTime.format(dt, tfmt);
-            Ok(commentDoc(text("Date:") <<>> text(date) <<>> char('/') <<>> text("Time:") <<>> text(time)))
+            Some(commentDoc(text("Date:") <<>> text(date) <<>> char('/') <<>> text("Time:") <<>> text(time)))
         };
-        Result.getWithDefault(step(), comment("Date: ____ / Time: ____"))   
+        Option.getWithDefault(step(), comment("Date: ____ / Time: ____"))   
 
 
     def ppSelection (xs: List[String]): Doc = match List.map(comment, xs) {

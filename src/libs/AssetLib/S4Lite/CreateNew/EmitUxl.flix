@@ -31,7 +31,7 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
                      , flocs: List[S4Floc]
                      , equis: List[S4Equipment]
                      , uxlTemplate: System.FilePath
-                     , outpath: System.FilePath): Result[Unit, System.Error] & Impure = 
+                     , outpath: System.FilePath): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(emitUxl(description, flocs, equis), uxlTemplate, outpath)
 
     pub def emitUxl(description: String, flocs: List[S4Floc], equis: List[S4Equipment]): SheetWriter[Unit] = 

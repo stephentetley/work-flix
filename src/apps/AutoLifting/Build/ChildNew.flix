@@ -63,22 +63,22 @@ namespace AutoLifting/Build/ChildNew {
 
     /// Note - fresh name supply is outside DbMonad
     pub def childNew(pstmts: ChildNewPreparedStatements, reference: String, freshEquiId: String): DbMonad[LiftingEquipment] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult, liftAction};
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, liftResult, liftOption};
         use AssetLib/S4Lite/CreateNew/Classifications.{append, getClassifications};
         use AutoLifting/Base/Utils.{getEastingNorthing, liftingFunctionalLocation};
         use AutoLifting/Build/ChildNew/WorkingLoadFields.{getWorkingLoadFields};
         let* commonName         = getCommonName(pstmts, reference);
-        let* description        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName));
-        let* aibEquiName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName));
-        let* aibSiteName        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibSiteNameFromCommonName(commonName));
-        let* aibEquiType        = liftActionResult(_ -> AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiTypeFromCommonName(commonName));
+        let* description        = liftOption(AutoLifting/Build/ChildNew/DecodeCommonName.getS4DescriptionFromCommonName(commonName), "getS4DescriptionFromCommonName");
+        let* aibEquiName        = liftOption(AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiNameFromCommonName(commonName), "getAibEquiNameFromCommonName");
+        let* aibSiteName        = liftOption(AutoLifting/Build/ChildNew/DecodeCommonName.getAibSiteNameFromCommonName(commonName), "getAibSiteNameFromCommonName");
+        let* aibEquiType        = liftOption(AutoLifting/Build/ChildNew/DecodeCommonName.getAibEquiTypeFromCommonName(commonName), "getAibEquiTypeFromCommonName");
         let* flocRoot           = getS4SiteCode(pstmts, aibSiteName);
         let* longText           = getLongText(pstmts, reference);
         let* tymap              = AutoLifting/Build/ChildNew/LiftingTypeMapping.getTypeMapping(pstmts, aibEquiName, aibEquiType);
         let* aibAttributes      = AutoLifting/Build/ChildNew/AibAttributes.getAibAttributes(pstmts, reference);
         let funcLoc             = liftingFunctionalLocation(flocRoot, tymap.fixedOrPortable);
         let* parentRef          = getParentAibReference(pstmts, commonName);
-        let* eastNorth          = liftResult(_ -> getEastingNorthing(aibAttributes.osgb36));
+        let* eastNorth          = liftOption(getEastingNorthing(aibAttributes.osgb36), "childNew");
         let* loadFields         = getWorkingLoadFields(pstmts, tymap.s4Class);
         let ans                 = 
             { equiId            = freshEquiId
@@ -181,9 +181,9 @@ namespace AutoLifting/Build/ChildNew {
     /// Parent AIb Reference
     /// Need to have looked up commonName beforehand
     def getParentAibReference[r](pstmts: {selectParentRef: PreparedStatement |r}, equiCommonName: String): DbMonad[String] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, firstRow, rsClose};
+        use BasicDb/DbMonad.{flatMap, return, liftOption, psExecuteQuery, firstRow, rsClose};
         use AutoLifting/Build/ChildNew/DecodeCommonName.{getAibParentNameFromCommonName};
-        let* parent = liftActionResult(_ -> getAibParentNameFromCommonName(equiCommonName));
+        let* parent = liftOption(getAibParentNameFromCommonName(equiCommonName), "getParentAibReference");
         let* rs     = psExecuteQuery(pstmts.selectParentRef, BasicDb/PreparedStatementSetter.putStringAt!(0,  parent));
         let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("reference"));
         let* _      = rsClose(rs);

@@ -21,28 +21,31 @@ namespace AutoLifting/Base/Utils {
     use AutoLifting/Base/Datatypes.FixedOrPortable;
     use AutoLifting/Base/Datatypes.FixedOrPortable.{Fixed, Portable};
 
+
+
+
+    pub def properCaseEquiName(s: String): Option[String] =
+        use Option.{flatMap};
+        let words = String.words(s);
+        let* xs = Option.traverse(toProperCase1, words) as & Pure;
+        Some(String.unwords(xs))
+
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
     /// 
-    def toProperCase1(s: String): Result[String, System.Error] & Impure =
+    def toProperCase1(s: String): Option[String] & Impure =
         use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed};
-        use Result.flatMap;
+        use Option.flatMap;
         let* patt = Text/Regex/Pattern.compile("^(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)$");
         let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
                             );
         if (Text/Regex.matches(s, patt))
-            Text/Regex.rewriteWith(s, patt, eval)
+            Text/Regex.rewriteWith(s, patt, eval) |> Result.toOption
         else 
-            Ok(s)
+            None
 
-
-    pub def properCaseEquiName(s: String): Result[String, System.Error] & Impure =
-        use Result.{flatMap};
-        let words = String.words(s);
-        let* xs     = Result.traverse(toProperCase1, words) ;
-        Ok(String.unwords(xs))
 
 
     pub def liftingFunctionalLocation(root: String, fop: FixedOrPortable): String = match fop { 
@@ -53,33 +56,33 @@ namespace AutoLifting/Base/Utils {
     pub def suffixDELToName(s: String): String = String.take(34, s) + " (Del)"
         
 
-    pub def formatDateForS4(dt: Time.LocalDate): Result[String, System.Error] = 
-        use Result.{flatMap};
+    pub def formatDateForS4(dt: Time.LocalDate): Option[String] = 
+        use Option.{flatMap};
         let* fmt = Time/Format/DateFormatter.fromPattern("dd.MM.yyyy");
         let ans = Time/LocalDate.format(dt, fmt);
-        Ok(ans)
+        Some(ans)
 
 
     pub def cwtToKg(cwt: Float64): Float64 = cwt * 50.80234544f64
 
     pub def ukTontoKg(ukton: Float64): Float64 = ukton / 0.00098421
 
-    pub def getEastingNorthingClassifications(gridRef: String): Result[Classifications, System.Error] = 
-        use Result.{flatMap};
+    pub def getEastingNorthingClassifications(gridRef: String): Option[Classifications] = 
+        use Option.{flatMap};
         use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
         use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
         let* ngr    = parse(gridRef);
         let* x      = toEastingNorthing(ngr);
         let c1      = easting(x.easting);
         let c2      = northing(x.northing);
-        Ok(c1 `append` c2)
+        Some(c1 `append` c2)
 
-    pub def getEastingNorthing(gridRef: String): Result[EastingNorthing, System.Error] = 
-        use Result.{flatMap};
+    pub def getEastingNorthing(gridRef: String): Option[EastingNorthing] = 
+        use Option.{flatMap};
         use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
         use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
         let* ngr    = parse(gridRef);
         let* ans      = toEastingNorthing(ngr);
-        Ok(ans)
+        Some(ans)
 
 }

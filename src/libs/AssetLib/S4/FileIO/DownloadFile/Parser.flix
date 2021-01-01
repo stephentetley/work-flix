@@ -17,8 +17,6 @@
 
 
 namespace AssetLib/S4/FileIO/DownloadFile/Parser {
-    
-    use System.Error.{Generic};
 
     use Time.LocalDateTime;
 
@@ -34,8 +32,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
     use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
     /// Always UTF-8?
-    pub def parseFile(path: System.FilePath) : Result[DownloadFile, System.Error] & Impure = 
-        TextParser.parseFile(downloadFileParser(), path, Text/Charset.utf_8())    
+    pub def parseFile(path: System.FilePath) : Result[DownloadFile, String] & Impure = 
+        TextParser.parsesFile(downloadFileParser(), path, Text/Charset.utf_8())    
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
@@ -119,11 +117,11 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
         return(String.trim(ans))
 
     def pDateTime(): TextParser[LocalDateTime, t] = 
-        use TextParser.flatMap;
+        use TextParser.{flatMap, liftOption};
         let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\d{8}"));
         let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\d{6}"));
-        let* fmt = liftResult(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"));
-        let* ans = liftResult(Time/LocalDateTime.parse(d + " " + t, fmt));
+        let* fmt = liftOption(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"), "pDateTime");
+        let* ans = liftOption(Time/LocalDateTime.parse(d + " " + t, fmt), "pDateTime");
         return(ans)
 
     def pEmptySelection(): TextParser[List[String], t] = 

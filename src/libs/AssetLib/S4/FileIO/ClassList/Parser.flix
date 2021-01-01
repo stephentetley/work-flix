@@ -26,7 +26,7 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
 
 
     use TextParser.TextParser;
-    use TextParser.{parseFile, return, failure, map, alt, lookingAts, liftResult, swapError, parseLine};
+    use TextParser.{parseFile, return, failure, map, alt, lookingAts, liftResult, liftOption, swapError, parseLine};
     use TextParser/Combinators.{optional, manyWith};
     use TextParser/Text.{restOfLine, restOfLineLength, content, anchorLine, upperLetters};
     use TextParser/Token1.{lexeme, symbol, int32};
@@ -37,8 +37,8 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
     use AssetLib/S4/FileIO/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
     /// Always UTF-8? no if parsing fails try iso_8859_1()
-    pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, System.Error] & Impure = 
-        TextParser.parseFile(classListParser(srctype), path, cs) 
+    pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, String] & Impure = 
+        TextParser.parsesFile(classListParser(srctype), path, cs) 
 
 
     def classListParser(srctype: SourceType): TextParser[ClassListFile, t] = 
@@ -54,8 +54,8 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
     def pDateStamp(): TextParser[LocalDate, t] = 
         use TextParser.flatMap;
         let* d = lexeme(lookingAts("\d{2}\.\d{2}\.\d{4}"));
-        let* fmt = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"));
-        let* ans = liftResult(Time/LocalDate.parse(d, fmt));
+        let* fmt = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "pDateStamp");
+        let* ans = liftOption(Time/LocalDate.parse(d, fmt), "pDateStamp");
         return(ans)
         
 

@@ -22,8 +22,8 @@ namespace AssetLib/Common/Utils {
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => split(input, patt)
-            case Err(_)   => Array.new(input, 1)
+            case Some(patt) => split(input, patt)
+            case None   => Array.new(input, 1)
         }
 
     pub def sepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
@@ -35,8 +35,8 @@ namespace AssetLib/Common/Utils {
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
-            case Err(_)   => Array.new("", 0)
+            case Some(patt) => split(input, patt) |> Array.dropLeft(1)
+            case None   => Array.new("", 0)
         }
 
     /// Input starts with sep...

@@ -74,12 +74,12 @@ namespace AssetLib/S4/FileIO/ClassList/Builder {
             case ans => Some(ListOfValues(ans))
         }
 
-    def intRange(src: String): Result[Refinement, System.Error] = intRangeHelper(src) as & Pure 
+    def intRange(src: String): Result[Refinement, String] = intRangeHelper(src) as & Pure 
 
-    def intRangeHelper(src: String): Result[Refinement, System.Error] & Impure = 
+    def intRangeHelper(src: String): Result[Refinement, String] & Impure = 
         use Result.flatMap;
         use Text/Regex/MatchEvaluator.{lift2, getInt32Named};
-        let* patt = Text/Regex/Pattern.compile("(?<start>\d+) \- (?<end>\d+)");
+        let* patt = Text/Regex/Pattern.compile("(?<start>\d+) \- (?<end>\d+)") |> x -> Option.toOk(x, "intRangeHelper");
         let eval = lift2((x,y) -> IntRange(x,y), getInt32Named("start"), getInt32Named("end"));
         Text/Regex.evalContains(src, patt, eval)
 

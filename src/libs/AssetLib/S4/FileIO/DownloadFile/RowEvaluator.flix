@@ -18,12 +18,12 @@
 
 namespace AssetLib/S4/FileIO/DownloadFile {
 
-    pub opaque type RowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, System.Error]
+    pub opaque type RowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, String]
 }
 
 namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
 
-    use System.Error.{Generic};
+    use FromString.fromString;
 
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
     use AssetLib/S4/FileIO/DownloadFile.RowEvaluator.{RowEvaluator};
@@ -32,7 +32,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
     pub def evaluateString(splitter: String ~> Array[String],
                            headers: Map[String, Int32],
                            input: String,
-                           eval: RowEvaluator[a]): Result[a, System.Error] & Impure =
+                           eval: RowEvaluator[a]): Result[a, String] & Impure =
         use Result.{flatMap};
         let arr = splitter(input);
         apply1(eval, headers, arr)
@@ -45,18 +45,18 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
     pub def return(x: a): RowEvaluator[a] =
         RowEvaluator((_,_) -> Ok(x) as & Impure)
 
-    def apply1(x: RowEvaluator[a], indices: Map[String, Int32], row: Array[String]): Result[a, System.Error] & Impure =
+    def apply1(x: RowEvaluator[a], indices: Map[String, Int32], row: Array[String]): Result[a, String] & Impure =
         let RowEvaluator(f) = x;
         f(indices, row)
 
     pub def throwError(msg: String): RowEvaluator[a] =
-        RowEvaluator((_,_) -> Err(System/Error.Generic(msg)) as & Impure)
+        RowEvaluator((_,_) -> Err(msg) as & Impure)
 
     pub def swapError(ma: RowEvaluator[a], msg: String): RowEvaluator[a] =
         RowEvaluator((ixs, row) ->
             match apply1(ma, ixs, row) {
                 case Ok(a) => Ok(a)
-                case Err(_) => Err(Generic(msg))
+                case Err(_) => Err(msg)
             }
         )
 
@@ -137,10 +137,16 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
     pub def liftAction(fn: Unit ~> a): RowEvaluator[a] =
         RowEvaluator((_, _) -> let x = fn(); Ok(x))
 
-    pub def liftResult(x: Result[a, System.Error]): RowEvaluator[a] =
+    pub def liftOption(x: Option[a],  errMsg: String): RowEvaluator[a] = match x { 
+        case Some(x1) => return(x1)
+        case None => throwError(errMsg)
+    }
+        
+
+    pub def liftResult(x: Result[a, String]): RowEvaluator[a] =
         RowEvaluator((_,_) -> x as & Impure)
 
-    pub def liftActionResult(fn: Unit ~> Result[a, System.Error] ): RowEvaluator[a] =
+    pub def liftActionResult(fn: Unit ~> Result[a, String] ): RowEvaluator[a] =
         RowEvaluator((_,_) -> fn())
 
     // Cell readers, by label only
@@ -151,13 +157,13 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
 
     pub def getCell(label: String): RowEvaluator[String] =
         RowEvaluator((ixs, row) -> match Map.get(label, ixs) {
-            case None => Err(Generic("getCell('${label}')"))
+            case None => Err("getCell('${label}')")
             case Some(ix) => {
                 if (ix >= 0 and ix < Array.length(row)) {
                     let s = row[ix];
                     Ok(s)
                 } else {
-                    Err(Generic("getCell('${label}')"))
+                    Err("getCell('${label}')")
                 }
             }
         })
@@ -174,45 +180,42 @@ namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
 
     pub def getInt8Named(label: String): RowEvaluator[Int8] =
         let* s = getStringNamed(label);
-        liftResult(Int8.fromString(s) |> Result.mapErr(_ -> Generic("getInt8Named('${label}')")))
+        liftOption(fromString(s), "getInt8Named('${label}')")
 
     pub def getInt16Named(label: String): RowEvaluator[Int16] =
         let* s = getStringNamed(label);
-        liftResult(Int16.fromString(s) |> Result.mapErr(_ -> Generic("getInt16Named('${label}')")))
+        liftOption(fromString(s), "getInt16Named('${label}')")
 
     pub def getInt32Named(label: String): RowEvaluator[Int32] =
         let* s = getStringNamed(label);
-        liftResult(Int32.fromString(s) |> Result.mapErr(_ -> Generic("getInt32Named('${label}')")))
+        liftOption(fromString(s), "getInt32Named('${label}')")
 
     pub def getInt64Named(label: String): RowEvaluator[Int64] =
         let* s = getStringNamed(label);
-        liftResult(Int64.fromString(s) |> Result.mapErr(_ -> Generic("getInt64Named('${label}')")))
+        liftOption(fromString(s), "getInt64Named('${label}')")
 
     pub def getFloat32Named(label: String): RowEvaluator[Float32] =
         let* s = getStringNamed(label);
-        liftResult(Float32.fromString(s) |> Result.mapErr(_ -> Generic("getFloat32Named('${label}')")))
+        liftOption(fromString(s), "getFloat32Named('${label}')")
 
     pub def getFloat64Named(label: String): RowEvaluator[Float64] =
         let* s = getStringNamed(label);
-        liftResult(Float64.fromString(s) |> Result.mapErr(_ ->Generic("getFloat648Named('${label}')")))
+        liftOption(fromString(s), "getFloat648Named('${label}')")
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
-        return(ans)
+        liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateNamed('${label}')")
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): RowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
-        return(ans)
+        liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed('${label}')")
 
     pub def getLocalTime(label: String, formatter: Time/Format.TimeFormatter): RowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
-        return(ans)
+        liftOption(Time/LocalTime.parse(input, formatter), "getLocalTime('${label}')")
 
     pub def getS4DateNamed(label: String): RowEvaluator[Time.LocalDate] =
-        let* formatter = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"));
+        let* formatter = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "getS4DateNamed('${label}')");
         getLocalDateNamed(label, formatter)
 
     pub def getS4BoolNamed(label: String): RowEvaluator[Bool] =

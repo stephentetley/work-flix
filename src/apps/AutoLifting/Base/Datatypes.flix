@@ -115,19 +115,31 @@ namespace AutoLifting/Base/Datatypes {
         case Portable
     }
 
-    pub def showFixedOrPortable(x: FixedOrPortable): String =  match x { 
-        case Fixed => "Fixed"
-        case Portable => "Portable"
+    instance ToString[FixedOrPortable] {
+        def toString(x: FixedOrPortable): String =  match x { 
+            case Fixed => "Fixed"
+            case Portable => "Portable"
+        }
     }
 
+    instance FromString[FixedOrPortable] {
+        def fromString(s: String): Option[FixedOrPortable] = 
+            match String.trim(String.toUpperCase(s)) {
+                case "FIXED" => Some(Fixed)
+                case "PORTABLE" => Some(Portable)
+                case _ => None
+            }
+    }
 
-    pub def readFixedOrPortable(s: String): Result[FixedOrPortable, System.Error] = 
-        match String.trim(String.toUpperCase(s)) {
-            case "FIXED" => Ok(Fixed)
-            case "PORTABLE" => Ok(Portable)
-            case _ => Err(System/Error.Generic("readFixedOrPortable"))
+    instance Eq[FixedOrPortable] {
+        def eq(x: FixedOrPortable, y: FixedOrPortable): Bool =  match (x, y) { 
+            case (Fixed, Fixed) => true
+            case (Portable, Portable) => true
+            case (_, _) => false
         }
-        
+
+        def neq(x: FixedOrPortable, y: FixedOrPortable): Bool =  not (x ==y)
+    }
 
     type alias S4TypeInfo = 
         { category: String 

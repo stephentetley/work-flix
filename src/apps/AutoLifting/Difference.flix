@@ -35,7 +35,7 @@ namespace AutoLifting/Difference {
     use AutoLifting/Base.Delta;
     use AutoLifting/Base/Delta.{append, diff, diffEquals, diffOption, collectDeltas};
     
-    def equals(x: a, y:a): Bool = x == y
+    def equals[a: Eq](x: a, y:a): Bool = x == y
 
 
 
@@ -53,7 +53,7 @@ namespace AutoLifting/Difference {
     def diffAttributes(x: LiftingAttributes, y: LiftingAttributes): Delta[LiftingAttributesUpdate] =    
                     diffEquals(x.category, y.category, SetCategory(y.category))
         `append`    diffEquals(x.description, y.description, SetDescription(y.description))
-        `append`    diff(Time/LocalDate.equals, x.startupDate, y.startupDate, SetStartupDate(y.startupDate))
+        `append`    diffEquals(x.startupDate, y.startupDate, SetStartupDate(y.startupDate))
         `append`    diffEquals(x.manufacturer, y.manufacturer, SetManufacturer(y.manufacturer))
         `append`    diffEquals(x.model, y.model, SetModel(y.model))
         `append`    diffEquals(x.partNumber, y.partNumber, SetPartNumber(y.partNumber))

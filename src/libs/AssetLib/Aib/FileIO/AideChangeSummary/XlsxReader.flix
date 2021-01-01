@@ -21,7 +21,7 @@ namespace AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader {
 
     use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
 
-    pub def readFile(path: System.FilePath) : Result[List[AibExportRow], System.Error] & Impure = 
+    pub def readFile(path: System.FilePath) : Result[List[AibExportRow], String] & Impure = 
         SheetIO/SheetReader.runXlsx(readAideChanges(), path)
 
     def readAideChanges(): SheetReader[List[AibExportRow]] = 

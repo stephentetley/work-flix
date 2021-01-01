@@ -86,5 +86,22 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
         case Decimal
     }
 
+    instance ToString[ValueType] {        
+        def toString(x: ValueType): String = match x {
+            case Text => "Text"
+            case Integer => "Integer"
+            case Decimal => "Decimal"
+        }
+    }
 
+    instance Eq[ValueType] {
+        def eq(x: ValueType, y: ValueType): Bool = match (x, y) {
+            case (Text, Text) => true
+            case (Integer, Integer) => true
+            case (Decimal, Decimal) => true
+            case (_, _) => false
+        }
+
+        def neq(x: ValueType, y: ValueType): Bool = not (x == y)
+    }
 }

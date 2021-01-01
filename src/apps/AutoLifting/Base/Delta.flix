@@ -57,8 +57,8 @@ namespace AutoLifting/Base/Delta {
         else 
             difference(delta)
 
-    /// Diff types that can use builting equality...
-    pub def diffEquals(x: a, y: a, delta: dt): Delta[dt] = diff((a,b) -> a == b, x, y, delta)
+    /// Diff types that can use Eq typeclass...
+    pub def diffEquals[a: Eq, dt](x: a, y: a, delta: dt): Delta[dt] = diff((a,b) -> a == b, x, y, delta)
 
     pub def diffOption(cmp: (a, a) -> Bool, x: Option[a], y: Option[a], delta: d): Delta[d] = 
         match (x, y) { 

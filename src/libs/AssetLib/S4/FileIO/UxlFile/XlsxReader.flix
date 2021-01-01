@@ -132,7 +132,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
 
     /// FL-Classification
 
-    pub def loadFlClassification(path: System.FilePath): Result[List[FlClassification], System.Error] & Impure =   
+    pub def loadFlClassification(path: System.FilePath): Result[List[FlClassification], String] & Impure =   
         SheetIO/SheetReader.runXlsx(readFlClassification(), path)
 
     pub def readFlClassification(): SheetReader[List[FlClassification]] = 
@@ -167,7 +167,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getS4BoolNamed("DeleteCh")
 
     /// Equipment Data
-    pub def loadEquipmentData(path: System.FilePath): Result[List[CreateEquipmentData], System.Error] & Impure =   
+    pub def loadEquipmentData(path: System.FilePath): Result[List[CreateEquipmentData], String] & Impure =   
         SheetIO/SheetReader.runXlsx(readEquipmentData(), path)
 
     pub def readEquipmentData(): SheetReader[List[CreateEquipmentData]] = 
@@ -260,7 +260,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
 
     /// EQ-Classification
     
-    pub def loadEqClassification(path: System.FilePath): Result[List[EqClassification], System.Error] & Impure =   
+    pub def loadEqClassification(path: System.FilePath): Result[List[EqClassification], String] & Impure =   
         SheetIO/SheetReader.runXlsx(readEqClassification(), path)
 
     pub def readEqClassification(): SheetReader[List[EqClassification]] = 
@@ -305,7 +305,7 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     def getPaddedInt32Named(label: String): NamedRowEvaluator[Int32] = 
         use SheetIO/NamedRowEvaluator.{flatMap, getStringNamed, liftActionResult};
         let* s = getStringNamed(label);
-        liftActionResult(_ -> Result.mapErr(System/Error.Generic, Int32.fromString(s)) as & Impure)
+        liftActionResult(_ -> Int32.fromString(s) as & Impure)
 
         
 

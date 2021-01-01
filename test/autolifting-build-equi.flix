@@ -21,8 +21,8 @@ def main(): Unit & Impure =
     ///     };
     Console.printLine("Running...");
     match runReportMonad(mainHelper(worklistPaths, None, false), dbpath) {
-        case Ok(ans) => {let (x,y) = ans; Console.printLine("Good - see ${System/FilePath.toString(x)} ${System/FilePath.toString(y)}")}
-        case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
+        case Ok(ans) => {let (x,y) = ans; Console.printLine("Good - see ${x} ${y}")}
+        case Err(msg) => Console.printLine("Error: ${msg}")
     }
 
 

@@ -129,8 +129,8 @@ namespace AutoLifting/SetupDb/AibAttributes {
 
 
     def putS4DateAt!(ix: Int32, dt: Time.LocalDate): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, liftActionResult, putStringAt!};
-        let* fmt    = liftActionResult(_ -> Time/Format/DateFormatter.fromPattern("dd.MM.yyyy") as & Impure);
+        use BasicDb/PreparedStatementSetter.{flatMap, return, liftOption, putStringAt!};
+        let* fmt    = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "putS4DateAt!(${ix})");
         let ans     = Time/LocalDate.format(dt, fmt);
         let* _      = putStringAt!(ix, ans);
         return()

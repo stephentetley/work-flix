@@ -24,10 +24,10 @@ namespace AssetLib/S4/FileIO/ZTable/Parser {
 
     use AssetLib/S4/FileIO/ZTable.RowEvaluator;
 
-    pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], System.Error] & Impure = 
+    pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
         use Data/Transient/DList.{toList};
-        let* rows = TextParser.parseFile(importRowsParser(eval), path, Text/Charset.utf_8());
+        let* rows = TextParser.parsesFile(importRowsParser(eval), path, Text/Charset.utf_8());
         Ok(toList(rows))
 
 
@@ -65,8 +65,8 @@ namespace AssetLib/S4/FileIO/ZTable/Parser {
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
-            case Err(_)   => Array.new("", 0)
+            case Some(patt) => split(input, patt) |> Array.dropLeft(1)
+            case None       => Array.new("", 0)
         }
 
 }

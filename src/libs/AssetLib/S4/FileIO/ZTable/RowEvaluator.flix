@@ -17,21 +17,20 @@
 
 namespace AssetLib/S4/FileIO/ZTable {
 
-    pub opaque type RowEvaluator[a] = Array[String] ~> Result[a, System.Error]
+    pub opaque type RowEvaluator[a] = Array[String] ~> Result[a, String]
 }
 
 namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
 
-    use System.Error.{Generic};
-
-
+    use FromString.fromString;
+    
     use AssetLib/S4/FileIO/ZTable.RowEvaluator;
     use AssetLib/S4/FileIO/ZTable.RowEvaluator.{RowEvaluator};
 
 
     pub def evaluateString(splitter: String ~> Array[String],
                            input: String,
-                           eval: RowEvaluator[a]): Result[a, System.Error] & Impure =
+                           eval: RowEvaluator[a]): Result[a, String] & Impure =
         use Result.{flatMap};
         let arr     = splitter(input);
         apply1(eval, arr)
@@ -39,7 +38,10 @@ namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
     pub def return(x: a): RowEvaluator[a] =
         RowEvaluator(_ -> Ok(x) as & Impure)
 
-    def apply1(x: RowEvaluator[a], row: Array[String]): Result[a, System.Error] & Impure =
+    pub def throwError(msg: String): RowEvaluator[a] =
+        RowEvaluator(_ -> Err(msg) as & Impure)
+
+    def apply1(x: RowEvaluator[a], row: Array[String]): Result[a, String] & Impure =
         let RowEvaluator(f) = x;
         f(row)
 
@@ -85,10 +87,15 @@ namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
             }
         )
 
-    pub def liftResult(x: Result[a, System.Error]): RowEvaluator[a] =
+    pub def liftOption(x: Option[a], errMsg: String): RowEvaluator[a] = match x {
+        case Some(x1) => return(x1)
+        case None => throwError(errMsg)
+    }
+
+    pub def liftResult(x: Result[a, String]): RowEvaluator[a] =
         RowEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(fn: Unit ~> Result[a, System.Error]): RowEvaluator[a] =
+    pub def liftOperation(fn: Unit ~> Result[a, String]): RowEvaluator[a] =
         RowEvaluator(_ -> fn())
 
     // Cell readers, by index only
@@ -103,7 +110,7 @@ namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
                 let s = row[ix];
                 Ok(s)
             } else {
-                Err(Generic("getCell(${Int32.toString(ix)})"))
+                Err("getCell(${Int32.toString(ix)})")
             }
         )
 
@@ -120,44 +127,41 @@ namespace AssetLib/S4/FileIO/ZTable/RowEvaluator {
 
     pub def getInt8At(ix: Int32): RowEvaluator[Int8] =
         let* s = getStringAt(ix);
-        liftResult(Int8.fromString(s) |> Result.mapErr(_ -> Generic("getInt8At('${Int32.toString(ix)}')")))
+        liftOption(fromString(s), "getInt8At(${ix})")
 
     pub def getInt16At(ix: Int32): RowEvaluator[Int16] =
         let* s = getStringAt(ix);
-        liftResult(Int16.fromString(s) |> Result.mapErr(_ -> Generic("getInt16At('${Int32.toString(ix)}')")))
+        liftOption(fromString(s), "getInt16At(${ix})")
 
     pub def getInt32At(ix: Int32): RowEvaluator[Int32] =
         let* s = getStringAt(ix);
-        liftResult(Int32.fromString(s) |> Result.mapErr(_ -> Generic("getInt32At('${Int32.toString(ix)}')")))
+        liftOption(fromString(s), "getInt32At(${ix})")
 
     pub def getInt64At(ix: Int32): RowEvaluator[Int64] =
         let* s = getStringAt(ix);
-        liftResult(Int64.fromString(s) |> Result.mapErr(_ -> Generic("getInt64At('${Int32.toString(ix)}')")))
+        liftOption(fromString(s), "getInt64At(${ix})")
 
     pub def getFloat32At(ix: Int32): RowEvaluator[Float32] =
         let* s = getStringAt(ix);
-        liftResult(Float32.fromString(s) |> Result.mapErr(_ -> Generic("getFloat32At('${Int32.toString(ix)}')")))
+        liftOption(fromString(s), "getFloat32At(${ix})")
 
     pub def getFloat64At(ix: Int32): RowEvaluator[Float64] =
         let* s = getStringAt(ix);
-        liftResult(Float64.fromString(s) |> Result.mapErr(_ -> Generic("getFloat64At('${Int32.toString(ix)}')")))
+        liftOption(fromString(s), "getFloat64At('${ix})")
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
-        return(ans)
+        liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateAt(${ix})")
 
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): RowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
-        return(ans)
+        liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeAt(${ix})")
 
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): RowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
-        return(ans)
+        liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt(${ix})")
 
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.

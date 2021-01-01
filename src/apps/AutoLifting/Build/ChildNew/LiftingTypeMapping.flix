@@ -21,7 +21,7 @@ namespace AutoLifting/Build/ChildNew/LiftingTypeMapping {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AutoLifting/Base/Datatypes.{S4TypeInfo, FixedOrPortable, readFixedOrPortable};
+    use AutoLifting/Base/Datatypes.{S4TypeInfo, FixedOrPortable};
 
     pub def getTypeMapping[r](pstmts: { selectTyDistinguished: PreparedStatement, selectTyOrdinary: PreparedStatement | r}
                           , equiName: String
@@ -118,9 +118,9 @@ namespace AutoLifting/Build/ChildNew/LiftingTypeMapping {
             <*> getFixedOrPortable("fixed_or_portable")
 
     def getFixedOrPortable(label: String): RowEvaluator[FixedOrPortable] = 
-        use BasicDb/RowEvaluator.{flatMap, return, liftResult, getStringNamed};
+        use BasicDb/RowEvaluator.{flatMap, return, liftOption, getStringNamed};
         let* s      = getStringNamed(label);
-        let* ans    = liftResult(_ -> readFixedOrPortable(s));
+        let* ans    = liftOption(FromString.fromString(s), "getFixedOrPortable('${label}')");
         return(ans)
 
 
