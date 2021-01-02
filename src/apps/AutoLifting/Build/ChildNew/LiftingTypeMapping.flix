@@ -118,10 +118,18 @@ namespace AutoLifting/Build/ChildNew/LiftingTypeMapping {
             <*> getFixedOrPortable("fixed_or_portable")
 
     def getFixedOrPortable(label: String): RowEvaluator[FixedOrPortable] = 
-        use BasicDb/RowEvaluator.{flatMap, return, liftOption, getStringNamed};
-        let* s      = getStringNamed(label);
-        let* ans    = liftOption(FromString.fromString(s), "getFixedOrPortable('${label}')");
+        use BasicDb/RowEvaluator.{flatMap, return, liftOption, getStringNamed, liftAction};
+        let* s      = getStringNamed(label);        
+        let a1: Option[FixedOrPortable]     = FromString.fromString(s);
+        let* ans    = liftOption(a1, "getFixedOrPortable('${label}') '${s}'");
         return(ans)
 
+    /// def decodeFoP(s: String): Option[FixedOrPortable] = 
+    ///     use AutoLifting/Base/Datatypes.FixedOrPortable.{Fixed, Portable};
+    ///     match String.toUpperCase(String.trim(s)) {
+    ///         case "FIXED" => Some(Fixed)
+    ///         case "PORTABLE" => Some(Portable)
+    ///         case _ => None
+    ///     }
 
 }

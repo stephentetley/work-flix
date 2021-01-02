@@ -41,10 +41,11 @@ namespace AutoLifting/Base/Utils {
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
                             );
-        if (Text/Regex.matches(s, patt))
-            Text/Regex.rewriteWith(s, patt, eval) |> Result.toOption
-        else 
-            None
+        match Text/Regex.rewriteWith(s, patt, eval) { 
+            case Ok(s1) if s1 != "" => Some(s1)
+            case _  => Some(s)
+        }
+
 
 
 

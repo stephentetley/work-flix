@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Build/ChildNew/DecodeCommonName {
+namespace AutoLifting/Base/DecodeCommonName {
 
-    pub def getAibEquiNameFromCommonName(commonName: String): Option[String] = 
+    pub def getAibEquiName(commonName: String): Option[String] = 
         use Option.{flatMap};
         use Text/Regex.{evalContains};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
         let* patt = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/(?<name>.*)/EQUIPMENT");
         Text/Regex.evalContains(commonName, patt, getCaptureNamed("name")) as & Pure |> Result.toOption
        
-    pub def getS4DescriptionFromCommonName(commonName: String): Option[String] = 
+    pub def getS4Description(commonName: String): Option[String] = 
         use Option.{flatMap};
-        let* s1   = getAibEquiNameFromCommonName(commonName);
+        let* s1   = getAibEquiName(commonName);
         AutoLifting/Base/Utils.properCaseEquiName(s1)
 
-    pub def getAibEquiTypeFromCommonName(commonName: String): Option[String] = 
+    pub def getAibEquiType(commonName: String): Option[String] = 
         use Option.{flatMap};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
         let* patt   = Text/Regex/Pattern.compile("LIFTING EQUIPMENT/.*/(?<name>EQUIPMENT: .*)");
         Text/Regex.evalContains(commonName, patt, getCaptureNamed("name")) as & Pure |> Result.toOption
         
 
-    pub def getAibSiteNameFromCommonName(commonName: String): Option[String] = 
+    pub def getAibSiteName(commonName: String): Option[String] = 
         use Option.{flatMap};
         use Text/Regex.{evalStartsWith};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};
@@ -43,7 +43,7 @@ namespace AutoLifting/Build/ChildNew/DecodeCommonName {
         evalStartsWith(commonName, patt, getCaptureNamed("name")) as & Pure |> Result.toOption
 
 
-    pub def getAibParentNameFromCommonName(commonName: String): Option[String] = 
+    pub def getAibParentName(commonName: String): Option[String] = 
         use Option.{flatMap};
         use Text/Regex.{evalStartsWith};
         use Text/Regex/MatchEvaluator.{getCaptureNamed};

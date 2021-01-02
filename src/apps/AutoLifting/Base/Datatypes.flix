@@ -124,7 +124,7 @@ namespace AutoLifting/Base/Datatypes {
 
     instance FromString[FixedOrPortable] {
         def fromString(s: String): Option[FixedOrPortable] = 
-            match String.trim(String.toUpperCase(s)) {
+            match String.toUpperCase(String.trim(s)) {
                 case "FIXED" => Some(Fixed)
                 case "PORTABLE" => Some(Portable)
                 case _ => None
