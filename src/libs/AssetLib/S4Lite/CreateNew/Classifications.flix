@@ -27,7 +27,7 @@ namespace AssetLib/S4Lite/CreateNew/Classifications {
     use AssetLib/S4Lite/CreateNew.Classifications;
     use AssetLib/S4Lite/CreateNew.Classifications.{Classifications};
     use AssetLib/S4Lite/CreateNew/Datatypes.{Classification};
-    use AssetLib/S4Lite/CreateNew/Datatypes.ValueType.{Text, Integer, Decimal};
+    use AssetLib/S4Lite/CreateNew/Datatypes.Value.{Text, Integer, Decimal};
 
     pub def getClassifications(x: Classifications): List[Classification] = 
         let Classifications(x1) = x;
@@ -58,13 +58,13 @@ namespace AssetLib/S4Lite/CreateNew/Classifications {
     }
 
     pub def stringClassification(className: String, charName: String, value: String): Classifications = 
-        singleton({className = className, charName = charName, datatype = Text, value = value})
+        singleton({className = className, charName = charName, value = Text(value)})
 
     pub def intClassification(className: String, charName: String, value: Int32): Classifications = 
-        singleton({className = className, charName = charName, datatype = Decimal, value = Int32.toString(value)})
+        singleton({className = className, charName = charName, value = Integer(value)})
 
     pub def decimalClassification(className: String, charName: String, value: Float64): Classifications = 
-        singleton({className = className, charName = charName, datatype = Integer, value = Float64.toString(value)})
+        singleton({className = className, charName = charName, value = Decimal(value)})
 
     pub def easting(i: Int32): Classifications = intClassification("EAST_NORTH", "EASTING", i)
 
@@ -73,21 +73,21 @@ namespace AssetLib/S4Lite/CreateNew/Classifications {
     pub def s4AibReference(): Classifications = stringClassification("AIB_REFERENCE", "S4_AIB_REFERENCE", "")
 
     pub def ai2AibReference(reference: String): Classifications =
-        singleton({className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", datatype = Text, value = reference})
+        singleton({className = "AIB_REFERENCE", charName = "AI2_AIB_REFERENCE", value = Text(reference)})
 
     pub def uniclassCode(classification: String): Classifications =
-        singleton({className = classification, charName = "UNICLASS_CODE", datatype = Text, value = ""})
+        singleton({className = classification, charName = "UNICLASS_CODE", value = Text("")})
 
     pub def uniclassDesc(classification: String): Classifications =
-        singleton({className = classification, charName = "UNICLASS_DESC", datatype = Text, value = ""})
+        singleton({className = classification, charName = "UNICLASS_DESC", value = Text("")})
 
     pub def locationOnSite(classification: String, location: String): Classifications =
-        singleton({className = classification, charName = "LOCATION_ON_SITE", datatype = Text, value = location})
+        singleton({className = classification, charName = "LOCATION_ON_SITE", value = Text(location)})
 
     pub def statutoryReferenceNumber(classification: String, reference: String): Classifications =
-        singleton({className = classification, charName = "STATUTORY_REFERENCE_NUMBER", datatype = Text, value = reference})
+        singleton({className = classification, charName = "STATUTORY_REFERENCE_NUMBER", value = Text(reference)})
 
     pub def testCertNo(classification: String, reference: String): Classifications =
-        singleton({className = classification, charName = "TEST_CERT_NO", datatype = Text, value = reference})
+        singleton({className = classification, charName = "TEST_CERT_NO", value = Text(reference)})
 
 }

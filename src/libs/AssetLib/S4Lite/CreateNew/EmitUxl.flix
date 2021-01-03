@@ -121,7 +121,7 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
         , className             = x.className
         , status                = "1"
         , characteristicName    = x.charName
-        , charValue             = x.value
+        , charValue             = ToString.toString(x.value)
         , charDeletionInd       = false
         }
 
@@ -192,7 +192,7 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
         , className             = x.className
         , status                = "1"
         , characteristicName    = x.charName
-        , charValue             = x.value
+        , charValue             = ToString.toString(x.value)
         , charDeleteInd         = false
         }
 

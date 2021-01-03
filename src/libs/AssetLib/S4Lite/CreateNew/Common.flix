@@ -21,8 +21,9 @@ namespace AssetLib/S4Lite/CreateNew/Common {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/S4Lite/CreateNew/Datatypes.{Classification, LongText, ValueType};
-    use AssetLib/S4Lite/CreateNew/Datatypes.ValueType.{Text, Integer, Decimal};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{Classification, LongText, Value, ValueType};
+    use AssetLib/S4Lite/CreateNew/Datatypes.Value.{Text, Integer, Decimal};
+    use AssetLib/S4Lite/CreateNew/Datatypes.ValueType.{TextType, IntegerType, DecimalType};
 
     pub def evalClassification(): RowEvaluator[Classification] = 
         use BasicDb/RowEvaluator.{flatMap, return, getStringNamed, getFloat64Named};
@@ -33,7 +34,6 @@ namespace AssetLib/S4Lite/CreateNew/Common {
         return( 
             { className = classname
             , charName  = charname
-            , datatype  = datatype
             , value     = value
             })
 
@@ -41,19 +41,21 @@ namespace AssetLib/S4Lite/CreateNew/Common {
         use BasicDb/RowEvaluator.{flatMap, return, getStringNamed, throwError};
         let* s  = getStringNamed(field);
         match String.toUpperCase(s) { 
-            case s1 if (s1 == "TEXT")       => return(Text)
-            case s1 if (s1 == "INTEGER")    => return(Integer)
-            case s1 if (s1 == "DECIMAL")    => return(Decimal)
+            case s1 if (s1 == "TEXT")       => return(TextType)
+            case s1 if (s1 == "INTEGER")    => return(IntegerType)
+            case s1 if (s1 == "DECIMAL")    => return(DecimalType)
             case _                          => throwError("getValueTypeNamed - unrecognized `${s}`")
         }
 
 
-    pub def getValue(datatype: ValueType): RowEvaluator[String] =
-        use BasicDb/RowEvaluator.{map, getStringNamed, getFloat64Named};
-        if (datatype == Integer or datatype == Decimal)
-            map(Float64.toString, getFloat64Named("value_from"))
-        else
-            getStringNamed("value_description")
+    pub def getValue(datatype: ValueType): RowEvaluator[Value] =
+        use BasicDb/RowEvaluator.{map, getStringNamed, getInt32Named, getFloat64Named};
+        match datatype {
+            case TextType => map(Text, getStringNamed("value_description"))     /// different field!
+            case IntegerType => map(Integer, getInt32Named("value_from"))
+            case DecimalType => map(Decimal, getFloat64Named("value_from"))
+        }
+            
 
     pub def evalLongText(): RowEvaluator[LongText] = 
         use BasicDb/RowEvaluator.{flatMap, return, getStringNamed, getFloat64Named};

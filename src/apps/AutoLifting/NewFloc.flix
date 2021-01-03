@@ -24,7 +24,7 @@ namespace AutoLifting/NewFloc {
     use AssetLib/S4/Base.Floc;
     use AssetLib/S4Lite/CreateNew.Classifications;
     use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc, Classification};
-    use AssetLib/S4Lite/CreateNew/Datatypes.ValueType.{Text};
+    use AssetLib/S4Lite/CreateNew/Datatypes.Value.{Text};
 
     type alias LiftingFloc = 
         { functionalLocation: Floc
@@ -157,6 +157,6 @@ namespace AutoLifting/NewFloc {
 
     def slfssy(systemName: String): Classifications =
         use AssetLib/S4Lite/CreateNew/Classifications.{singleton};
-        singleton({className = "SLFSSY", charName = "System Type", datatype = Text, value = systemName})
+        singleton({className = "SLFSSY", charName = "System Type", value = Text(systemName)})
 
 }

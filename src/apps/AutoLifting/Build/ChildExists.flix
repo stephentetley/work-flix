@@ -16,7 +16,9 @@
 
 namespace AutoLifting/Build/ChildExists {
     
-    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification, Value};
+    use AssetLib/S4Lite/CreateNew/Datatypes.Value.{Text};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{getIntegerValue, getTextValue, getDecimalValue};
     use AutoLifting/Base/Datatypes.{LiftingEquipment};
 
     pub def translateS4Equipment(x: S4Equipment): LiftingEquipment = 
@@ -70,37 +72,42 @@ namespace AutoLifting/Build/ChildExists {
         }
 
     def getPliNumber(x: S4Equipment): String = 
-        let fn = c -> String.startsWith(c.value, "PLI") and c.charName == "AI2_AIB_REFERENCE";
+        let fn = c -> c.charName == "AI2_AIB_REFERENCE" and testPLI(c.value);
         match List.find(fn, x.classifications) {
-            case Some(x1) => x1.value
+            case Some(x1) => Option.getWithDefault(getTextValue(x1.value), "")
             case None => ""
         }
 
     def getSaiNumber(x: S4Equipment): String = 
-        let fn = c -> (not String.startsWith(c.value, "PLI")) and c.charName == "AI2_AIB_REFERENCE";
+        let fn = c -> c.charName == "AI2_AIB_REFERENCE" and (not testPLI(c.value));
         match List.find(fn, x.classifications) {
-            case Some(x1) => x1.value
+            case Some(x1) => Option.getWithDefault(getTextValue(x1.value), "")
             case None => ""
         }
+
+    def testPLI(x: Value): Bool = match x { 
+        case Text(s) if String.startsWith(s, "PLI") => true
+        case _ => false 
+    }
 
     def getEasting(x: S4Equipment): Option[Int32] = 
         let fn = c -> c.className == "EAST_NORTH" and c.charName == "EASTING";
         match List.find(fn, x.classifications) {
-            case Some(x1) => Result.toOption(Int32.fromString(x1.value))
+            case Some(x1) => getIntegerValue(x1.value)
             case None => None
         }
 
     def getNorthing(x: S4Equipment): Option[Int32] = 
         let fn = c -> c.className == "EAST_NORTH" and c.charName == "NORTHING";
         match List.find(fn, x.classifications) {
-            case Some(x1) => Result.toOption(Int32.fromString(x1.value))
+            case Some(x1) => getIntegerValue(x1.value)
             case None => None
         }
 
     def getLocationOnSite(x: S4Equipment): String = 
         let fn = c -> String.startsWith(c.className, x.attributes.objectType) and c.charName == "LOCATION_ON_SITE";
         match List.find(fn, x.classifications) {
-            case Some(x1) => x1.value
+            case Some(x1) => Option.getWithDefault(getTextValue(x1.value), "")
             case None => ""
         }
     
@@ -114,7 +121,7 @@ namespace AutoLifting/Build/ChildExists {
     def getWorkLoad(x: S4Equipment): Option[Float64] = 
         let fn = c -> String.startsWith(c.className, x.attributes.objectType) and (String.endsWith(c.charName, "_LOAD") or String.endsWith(c.charName, "_RATING"));
         match List.find(fn, x.classifications) {
-            case Some(x1) => Result.toOption(Float64.fromString(x1.value))
+            case Some(x1) => getDecimalValue(x1.value)
             case None => None
         }
 
@@ -128,21 +135,21 @@ namespace AutoLifting/Build/ChildExists {
     def getWorkLoadUnits(x: S4Equipment): String = 
         let fn = c -> String.startsWith(c.className, x.attributes.objectType) and String.endsWith(c.charName, "_UNITS");
         match List.find(fn, x.classifications) {
-            case Some(x1) => x1.value
+            case Some(x1) => Option.getWithDefault(getTextValue(x1.value), "")
             case None => ""
         }
 
     def getStatutoryReferenceNumber(x: S4Equipment): String = 
         let fn = c -> String.startsWith(c.className, x.attributes.objectType) and c.charName == "STATUTORY_REFERENCE_NUMBER";
         match List.find(fn, x.classifications) {
-            case Some(x1) => x1.value
+            case Some(x1) => Option.getWithDefault(getTextValue(x1.value), "")
             case None => ""
         }
 
     def getTestCertNo(x: S4Equipment): String = 
         let fn = c -> String.startsWith(c.className, x.attributes.objectType) and c.charName == "TEST_CERT_NO";
         match List.find(fn, x.classifications) {
-            case Some(x1) => x1.value
+            case Some(x1) => Option.getWithDefault(getTextValue(x1.value), "")
             case None => ""
         }
 
