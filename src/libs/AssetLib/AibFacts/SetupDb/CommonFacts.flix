@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace ValveReport/SetupDb/CommonFacts {
+namespace AssetLib/AibFacts/SetupDb/CommonFacts {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
@@ -23,7 +23,7 @@ namespace ValveReport/SetupDb/CommonFacts {
     use SheetIO.DataFormatter;
     use SheetIO.NamedRowEvaluator;
 
-    use ValveReport/SetupDb/TextFact.TextFact;
+    use AssetLib/AibFacts/SetupDb/TextFact.TextFact;
 
     /// Todo "Installed From" , "AssetStatus", "Loc.Ref."
 
@@ -35,12 +35,12 @@ namespace ValveReport/SetupDb/CommonFacts {
 
 
 
-    pub def storeCommonFacts(tableName: String, src: System.FilePath) : DbMonad[Unit] = 
+    pub def storeCommonFacts(textTableName: String, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{return, flatMap, liftActionResult, map};
-        use ValveReport/SetupDb/TextFact.{insertTextFactRows};
+        use AssetLib/AibFacts/SetupDb/TextFact.{insertTextFactRows};
         let* xs     = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readAibBaseTable(), src));
         let xss     = List.flatMap(makeTextFacts, xs);
-        let* _      = insertTextFactRows(tableName, xss);
+        let* _      = insertTextFactRows(textTableName, xss);
         return()
 
    def readAibBaseTable() : SheetReader[List[AibBaseRow]] =
@@ -69,7 +69,7 @@ namespace ValveReport/SetupDb/CommonFacts {
         alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
         
     def makeTextFacts(x: AibBaseRow): List[TextFact] = 
-        use ValveReport/SetupDb/TextFact.{createNonEmpty};
+        use AssetLib/AibFacts/SetupDb/TextFact.{createNonEmpty};
         let o1 = createNonEmpty(x.reference, "Manufacturer", x.manufacturer);
         let o2 = createNonEmpty(x.reference, "Model", x.model);
         List.filterMap(o -> o, o1 :: o2 :: Nil)
