@@ -31,6 +31,9 @@ namespace AssetLib/AibFacts/SetupDb/CommonFacts {
         { reference: String
         , manufacturer: String
         , model: String
+        , installedFrom: Time.LocalDateTime
+        , assetStatus: String
+        , locRef: String
         }
 
 
@@ -50,19 +53,25 @@ namespace AssetLib/AibFacts/SetupDb/CommonFacts {
 
     /// TODO - this needs to handle "SAI" rows too, ideally by Option...
     def evalAibBaseRow(): NamedRowEvaluator[AibBaseRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
-                getFloat64Named, getStringNamedWithDefault, optional, getStringNamedWithDataFormatter};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, 
+            getStringNamedWithDefault, getLocalDateTimeNamed};
+        use AssetLib/S4/Base/SheetIOUtils.{getS4LocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use String.{trim};
-        ((x1, x2, x3) ->
+        ((x1, x2, x3, x4, x5, x6) ->
                 { reference         = x1.trim()
                 , manufacturer      = x2.trim()
                 , model             = x3.trim()
+                , installedFrom     = x4
+                , assetStatus       = x5
+                , locRef            = x6
                 })
             <&> getStringNamed("Reference")
             <*> getStringNamedWithDefault("Manufacturer", "")
             <*> getCouldBeNumericalNamed("Model")
-
+            <*> getLocalDateTimeNamed("Installed From")
+            <*> getStringNamedWithDefault("AssetStatus", "")
+            <*> getCouldBeNumericalNamed("Loc.Ref.")
 
     def getCouldBeNumericalNamed(label: String): NamedRowEvaluator[String] = 
         use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
@@ -72,6 +81,9 @@ namespace AssetLib/AibFacts/SetupDb/CommonFacts {
         use AssetLib/AibFacts/SetupDb/TextFact.{createNonEmpty};
         let o1 = createNonEmpty(x.reference, "Manufacturer", x.manufacturer);
         let o2 = createNonEmpty(x.reference, "Model", x.model);
-        List.filterMap(o -> o, o1 :: o2 :: Nil)
+        let o3 = createNonEmpty(x.reference, "Installed From", ToString.toString(x.installedFrom));
+        let o4 = createNonEmpty(x.reference, "AssetStatus", x.assetStatus);
+        let o5 = createNonEmpty(x.reference, "LocRef", x.locRef);
+        List.filterMap(o -> o, o1 :: o2 :: o3 :: o4 :: o5 :: Nil)
 
 }
