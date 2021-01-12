@@ -5,7 +5,7 @@ use AutoLifting/Base.ReportMonad;
 use AutoLifting/SetupDb.{DownloadFilePaths, WorklistPaths};
 
 
-def main(): Unit & Impure =  
+def main(_: Array[String]): Int32 & Impure =  
     use AutoLifting/Base/ReportMonad.{runReportMonad};
     let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
     let worklistPaths =     
@@ -23,7 +23,8 @@ def main(): Unit & Impure =
     match runReportMonad(mainHelper(worklistPaths, None, false), dbpath) {
         case Ok(ans) => {let (x,y) = ans; Console.printLine("Good - see ${x} ${y}")}
         case Err(msg) => Console.printLine("Error: ${msg}")
-    }
+    };
+    0
 
 
 
