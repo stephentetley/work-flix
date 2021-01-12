@@ -8,8 +8,8 @@ use AssetLib/S4/FileIO/TransferFile.{RowSetter => TFRowSetter};
 def main(_argsv: Array[String]): Int32 & Impure = 
     Console.printLine("Running...");
     let worklist    = System/FilePath.new("G:/work/assets/batch_change/IH08_Orbinox Valves 20201106 editted.xlsx");
-    let download    = System/FilePath.new("G:/work/assets/batch_change/orbinox_qa_file_download.txt");
-    let outpath     = System/FilePath.new("G:/work/assets/batch_change/orbinox_file_upload.txt");
+    let download    = System/FilePath.new("G:/work/assets/batch_change/orbinox_prod_file_download.txt");
+    let outpath     = System/FilePath.new("G:/work/assets/batch_change/orbinox_PROD_file_upload.txt");
     match main1(worklist, download, outpath) { 
         case Err(e) => Console.printLine("Error: ${e}")
         case Ok() => Console.printLine("Wrote: ${outpath}")
@@ -23,11 +23,20 @@ def main1(worklist: System.FilePath, download: System.FilePath, outpath: System.
     use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
     let headers     = outputHeaders();
     let* xs         = runXlsx(readWorklist(), worklist);
-    let* _lookups   = readEquiDownloadFile(download);
-    let* rows       = execMapRowSetter(headers, setOutputRow!, xs);
-    outputUploadFile(Equi, "", "tetleys", headers, rows, outpath)
+    let* lookups    = readEquiDownloadFile(download);
+    let equis       = List.filterMap(x -> makeOutputRow(x, lookups),xs);
+    let* tfrows     = execMapRowSetter(headers, setOutputRow!, equis);
+    outputUploadFile(Equi, "", "tetleys", headers, tfrows, outpath)
 
-type alias SourceRow = 
+type alias WorklistRow = 
+    { equiId: String
+    , manufacturer: String
+    , changeModel: String
+    , changePartNumber: String
+    , changeSerialNumber: String
+    }
+
+type alias EquipmentRow = 
     { equiId: String
     , functionalLocation: String
     , objectType: String
@@ -39,43 +48,51 @@ type alias SourceRow =
     , serialNumber: String
     }
 
-def readWorklist(): SheetReader[List[SourceRow]] = 
+def makeOutputRow(x: WorklistRow, lookups: Map[String, EquipmentRow]): Option[EquipmentRow] = 
+    use Option.{flatMap};
+    let* base = Map.get(x.equiId, lookups);
+    Some({ equiId               = x.equiId
+        , functionalLocation    = base.functionalLocation
+        , objectType            = base.objectType
+        , constructionYear      = base.constructionYear
+        , constructionMonth     = base.constructionMonth
+        , manufacturer          = x.manufacturer
+        , model                 = if (x.changeModel == "") base.model else x.changeModel
+        , partNumber            = if (x.changePartNumber == "") base.partNumber else x.changePartNumber
+        , serialNumber          = if (x.changeSerialNumber == "") base.serialNumber else x.changeSerialNumber
+        })
+
+def readWorklist(): SheetReader[List[WorklistRow]] = 
     use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
     let* s1     = getSheetNamed("IH06_20201109");
     let* xs     = namedRowsFrom(s1, 0, 1, evalWorklistRow());
     return(xs)
 
 
-def evalWorklistRow(): SheetIO.NamedRowEvaluator[SourceRow] = 
+def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] = 
     use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};
     use SheetIO/NamedRowEvaluator.{<&>, <*>};
-    ((x1, x2, x3, x4, x5, x6, x7) -> 
+    ((x1, x2, x3, x4, x5) -> 
             { equiId                = String.trim(x1)
-            , functionalLocation    = String.trim(x2)
-            , objectType            = String.trim(x3)
-            , constructionYear      = 0
-            , constructionMonth     = 0
-            , manufacturer          = String.trim(x4)
-            , model                 = String.trim(x5)
-            , partNumber            = String.trim(x6)
-            , serialNumber          = String.trim(x7)
+            , manufacturer          = String.trim(x2)
+            , changeModel           = String.trim(x3)
+            , changePartNumber      = String.trim(x4)
+            , changeSerialNumber    = String.trim(x5)
             })
         <&> getStringNamed("Equipment")
-        <*> getStringNamedWithDefault("Functional Loc.", "")
-        <*> getStringNamedWithDefault("Object Type", "")
         <*> getStringNamedWithDefault("Manufacturer", "")
         <*> getStringNamedWithDefault("Change model to", "")
         <*> getStringNamedWithDefault("Change Part No to", "")
         <*> getStringNamedWithDefault("Change serial to", "")
 
-def readEquiDownloadFile(path: System.FilePath): Result[Map[String, SourceRow], String] & Impure = 
+def readEquiDownloadFile(path: System.FilePath): Result[Map[String, EquipmentRow], String] & Impure = 
     use Result.{flatMap};
     use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
     let* xs     = readAllRows(evalEquiDownloadRow(), path);
     let ans     = List.foldLeft((ac, x) -> Map.insert(x.equiId, x, ac), Map.empty(), xs);
     Ok(ans)
 
-def evalEquiDownloadRow(): TFRowEvaluator[SourceRow] = 
+def evalEquiDownloadRow(): TFRowEvaluator[EquipmentRow] = 
     use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{flatMap, return, getStringNamed, getInt32Named};
     use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
@@ -102,7 +119,7 @@ def evalEquiDownloadRow(): TFRowEvaluator[SourceRow] =
 
 def outputHeaders(): Array[String] & Impure = ["EQUI", "TPLN_EILO", "EQART_EQU", "BAUJJ", "BAUMM_EQI", "HERST", "TYPBZ", "MAPA_EEQZ", "SERGE"]
 
-def setOutputRow!(x: SourceRow): TFRowSetter[Unit] = 
+def setOutputRow!(x: EquipmentRow): TFRowSetter[Unit] = 
     use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
         putInt32Named!, putPaddedInt32Named!};
     let* _  = putStringNamed!("EQUI", x.equiId);
