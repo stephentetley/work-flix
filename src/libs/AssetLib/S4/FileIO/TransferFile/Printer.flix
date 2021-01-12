@@ -29,12 +29,11 @@ namespace AssetLib/S4/FileIO/TransferFile/Printer {
     use AssetLib/S4/FileIO/TransferFile/Datatypes.DataModel.{U1};
     use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
-    pub def writeChangeFile(x: TransferFile, path: String): Result[Unit, System.Error] & Impure = 
-        let path1 = System/FilePath.new(path);
+    pub def writeTransferFile(x: TransferFile, path: System.FilePath): Result[Unit, String] & Impure = 
         let str = ppTransferFile(x).toString();
-        System/File.writeFile(path1, Text/Charset.utf_8(), str)
+        System/File.writeFile(path, Text/Charset.utf_8(), str) |> Result.mapErr(e -> "${e}")
 
-    pub def printChangeFile(x: TransferFile): String & Impure =         
+    pub def printTransferFile(x: TransferFile): String & Impure =         
         ppTransferFile(x).toString()
 
     

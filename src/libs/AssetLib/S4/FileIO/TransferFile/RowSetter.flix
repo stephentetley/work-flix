@@ -27,19 +27,30 @@ namespace AssetLib/S4/FileIO/TransferFile/RowSetter {
 
     use AssetLib/S4/FileIO/TransferFile.RowSetter;
     use AssetLib/S4/FileIO/TransferFile.RowSetter.{RowSetter};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.{DataRow};
 
-
-    pub def evaluateString(splitter: String ~> Array[String],
-                           headers: Map[String, Int32],
-                           input: String,
-                           eval: RowSetter[a]): Result[a, String] & Impure =
+    /// size must equal Map.size(indices), it is supplied rather than calculated as this function is 
+    /// intended to be used in a loop...
+    pub def runRowSetter(indices: Map[String, Int32],
+                         size: Int32,
+                         action: RowSetter[a]): Result[(a, DataRow), String] & Impure =
         use Result.{flatMap};
-        let arr = splitter(input);
-        apply1(eval, headers, arr)
+        let arr = Array.new("", size);
+        let* ans = apply1(action, indices, arr);
+        Ok((ans, arr))
 
-    pub def makeHeaders(names: Array[String]): Map[String,Int32] & Impure =
+    /// size must equal Map.size(indices), it is supplied rather than calculated as this function is 
+    /// intended to be used in a loop... 
+    pub def execRowSetter(indices: Map[String, Int32],
+                          size: Int32,
+                          action: RowSetter[a]): Result[DataRow, String] & Impure =
+        use Result.{flatMap};
+        let* (_, arr) = runRowSetter(indices, size, action);
+        Ok(arr)
+
+    pub def makeIndices(headers: Array[String]): Map[String,Int32] & Impure =
         let step = (acc, x) -> { let (i, mx) = acc; (i + 1, Map.insert(x, i, mx)) };
-        Array.foldLeft(step, (0, Map.empty()), names) |> snd
+        Array.foldLeft(step, (0, Map.empty()), headers) |> snd
 
 
     pub def return(x: a): RowSetter[a] =

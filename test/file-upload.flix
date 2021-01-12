@@ -5,14 +5,24 @@ use SheetIO.RowEvaluator;
 use AssetLib/S4/FileIO/TransferFile.RowSetter;
 
 def main(_argsv: Array[String]): Int32 & Impure = 
-    use SheetIO/SheetReader.{runXlsx};
     Console.printLine("Running...");
     let worklist = System/FilePath.new("G:/work/assets/batch_change/IH08_Orbinox Valves 20201106.xlsx");
-    match runXlsx(readWorklist(), worklist) { 
+    let outpath = System/FilePath.new("G:/work/assets/batch_change/orbinox_file_upload.txt");
+    match main1(worklist, outpath) { 
         case Err(e) => Console.printLine("Error: ${e}")
-        case Ok(xs) => List.foreach(x ->Console.printLine("${x.equiId}, '${x.newModel}', '${x.newPartNumber}', '${x.newSerialNumber}'") , xs)
+        case Ok() => Console.printLine("Wrote: ${outpath}")
     };
     0
+
+def main1(srcpath: System.FilePath, outpath: System.FilePath): Result[Unit, String] & Impure = 
+    use Result.{flatMap};
+    use SheetIO/SheetReader.{runXlsx};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{Equi};
+    use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
+    let headers     = outputHeaders();
+    let* xs         = runXlsx(readWorklist(), srcpath);
+    let* rows        = execMapRowSetter(headers, setOutputRow!, xs);
+    outputUploadFile( Equi, "", "tetleys", headers, rows, outpath)
 
 type alias SourceRow = 
     { equiId: String
@@ -41,8 +51,10 @@ def evalWorklistRow(): NamedRowEvaluator[SourceRow] =
         <*> getStringNamedWithDefault("Change model to", "")
         <*> getStringNamedWithDefault("Change Part No to", "")
         <*> getStringNamedWithDefault("Change serial to", "")
- 
-def _setOutputRow(x: SourceRow): RowSetter[Unit] = 
+
+def outputHeaders(): Array[String] & Impure = ["EQUI", "TYPBZ", "MAPA_EEQZ", "SERGE"]
+
+def setOutputRow!(x: SourceRow): RowSetter[Unit] = 
     use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!};
     let* _  = putStringNamed!("EQUI", x.equiId);
     let* _  = putStringNamed!("TYPBZ", x.newModel);
