@@ -180,27 +180,27 @@ namespace AssetLib/S4/FileIO/TransferFile/RowEvaluator {
 
     pub def getInt8Named(label: String): RowEvaluator[Int8] =
         let* s = getStringNamed(label);
-        liftOption(fromString(s), "getInt8Named('${label}')")
+        liftOption(fromString(s): Option[Int8], "getInt8Named('${label}')")
 
     pub def getInt16Named(label: String): RowEvaluator[Int16] =
         let* s = getStringNamed(label);
-        liftOption(fromString(s), "getInt16Named('${label}')")
+        liftOption(fromString(s): Option[Int16], "getInt16Named('${label}')")
 
     pub def getInt32Named(label: String): RowEvaluator[Int32] =
         let* s = getStringNamed(label);
-        liftOption(fromString(s), "getInt32Named('${label}')")
+        liftOption(fromString(s): Option[Int32], "getInt32Named('${label}')")
 
     pub def getInt64Named(label: String): RowEvaluator[Int64] =
         let* s = getStringNamed(label);
-        liftOption(fromString(s), "getInt64Named('${label}')")
+        liftOption(fromString(s): Option[Int64], "getInt64Named('${label}')")
 
     pub def getFloat32Named(label: String): RowEvaluator[Float32] =
         let* s = getStringNamed(label);
-        liftOption(fromString(s), "getFloat32Named('${label}')")
+        liftOption(fromString(s): Option[Float32], "getFloat32Named('${label}')")
 
     pub def getFloat64Named(label: String): RowEvaluator[Float64] =
         let* s = getStringNamed(label);
-        liftOption(fromString(s), "getFloat648Named('${label}')")
+        liftOption(fromString(s): Option[Float64], "getFloat64Named('${label}')")
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);

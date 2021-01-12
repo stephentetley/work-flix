@@ -16,10 +16,20 @@
 
 namespace AssetLib/S4/FileIO/TransferFile/Evaluate {
 
-    use AssetLib/S4/FileIO/TransferFile/Datatypes.{TransferFile, DataRow, EntityData};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.{TransferFile, DataRow, EntityType, Headers};
     use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
     use AssetLib/S4/FileIO/TransferFile.RowEvaluator.{RowEvaluator};
     use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{makeHeaders};
+
+
+
+    /// EntityData
+    /// Used by old / Datalog Upload Check - should we remove this?
+    type alias EntityData[row] = 
+        { entityType: EntityType
+        , headers: Headers
+        , dataRows: List[row]
+        }
 
 
     pub def toEntityData( outputHeaders: Array[String]
@@ -39,7 +49,7 @@ namespace AssetLib/S4/FileIO/TransferFile/Evaluate {
 
     /// Import rows of a FileDownload
     /// Builds relations from the List.
-    pub def allRows(rowp: RowEvaluator[r], path: System.FilePath): Result[List[r], String] & Impure = 
+    pub def readAllRows(rowp: RowEvaluator[r], path: System.FilePath): Result[List[r], String] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/S4/FileIO/TransferFile/Parser.parseFile(path);
         buildRows(rowp, ast)
@@ -58,8 +68,5 @@ namespace AssetLib/S4/FileIO/TransferFile/Evaluate {
     def evalRow(rowp: RowEvaluator[row], headers: Map[String, Int32], row: DataRow): Result[row, String] & Impure =  
         let RowEvaluator(f) = rowp;
         f(headers, row)
-
-
-
     
 }

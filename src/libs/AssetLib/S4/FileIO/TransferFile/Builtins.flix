@@ -37,8 +37,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
     /// DropTable is a parameter as we might want to be loading more than one file
     pub def storeIflotxFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
-        let* xs = liftActionResult(_ -> allRows(evalIflotxRow(), src));
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        let* xs = liftActionResult(_ -> readAllRows(evalIflotxRow(), src));
         let* _  = dbWriteIflotxRows(tableName, dropTable, xs);
         return()
 
@@ -116,8 +116,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
     
     pub def storeClassFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
-        let* xs = liftActionResult(_ -> allRows(evalClassFlocRow(), src));
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        let* xs = liftActionResult(_ -> readAllRows(evalClassFlocRow(), src));
         let* _  = dbWriteClassFlocRows(tableName, dropTable, xs);
         return()
     
@@ -198,8 +198,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     pub def storeValuaFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
-        let* xs = liftActionResult(_ -> allRows(evalValuaFlocRow(), src));
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        let* xs = liftActionResult(_ -> readAllRows(evalValuaFlocRow(), src));
         let* _  = dbWriteValuaFlocRows(tableName, dropTable, xs);
         return()
 
@@ -300,8 +300,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
     /// DropTable is a parameter as we might want to be loading more than one file
     pub def storeEqmltxtFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
-        let* xs = liftActionResult(_ -> allRows(evalEqmltxtRow(), src));
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        let* xs = liftActionResult(_ -> readAllRows(evalEqmltxtRow(), src));
         let* _  = dbWriteEqmltxtRows(tableName, dropTable, xs);
         return()
 
@@ -382,8 +382,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
     
     pub def storeClassEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
-        let* xs = liftActionResult(_ -> allRows(evalClassEquiRow(), src));
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        let* xs = liftActionResult(_ -> readAllRows(evalClassEquiRow(), src));
         let* _  = dbWriteClassEquiRows(tableName, dropTable, xs);
         return()
     
@@ -463,8 +463,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     pub def storeValuaEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
-        let* xs = liftActionResult(_ -> allRows(evalValuaEquiRow(), src));
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        let* xs = liftActionResult(_ -> readAllRows(evalValuaEquiRow(), src));
         let* _  = dbWriteValuaEquiRows(tableName, dropTable, xs);
         return()
 

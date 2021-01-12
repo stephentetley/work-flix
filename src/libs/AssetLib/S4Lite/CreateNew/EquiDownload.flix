@@ -16,7 +16,7 @@
 
 
 /// Store a view of an Equi FileDownload.
-/// Only the fields needed for the `Simple` AST are stored
+/// Only the fields needed for the 'Simple AST' are stored
 
 namespace AssetLib/S4Lite/CreateNew/EquiDownload {
 
@@ -50,10 +50,10 @@ namespace AssetLib/S4Lite/CreateNew/EquiDownload {
         }
 
 
-    pub def storeEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
+    pub def storeEquiFile(tableName: String, dropTable: Bool, src: System.FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
-        let* xs = liftActionResult(_ -> allRows(evalEquiRow(), src));
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        let* xs = liftActionResult(_ -> readAllRows(evalEquiRow(), src));
         let* _  = dbWriteEquiRows(tableName, dropTable, xs);
         return()
 

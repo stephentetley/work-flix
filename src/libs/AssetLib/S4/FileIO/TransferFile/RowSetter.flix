@@ -205,6 +205,9 @@ namespace AssetLib/S4/FileIO/TransferFile/RowSetter {
         else 
             putStringNamed!(label, "")
 
+    /// Pads from left with '0'
+    pub def putPaddedInt32Named!(label: String, width: Int32, x: Int32): RowSetter[Unit] =
+        putStringNamed!(label, String.padLeft(width, '0', toString(x))) `swapError` "putInt32Named!('${label}')"
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.
     ///

@@ -81,14 +81,6 @@ namespace AssetLib/S4/FileIO/TransferFile/Datatypes {
     }
 
 
-    
 
-    /// EntityData
-    /// Currently used by AssetLib/S4/FileIO/TransferFile/Evaluate - should we remove this?
-    type alias EntityData[row] = 
-        { entityType: EntityType
-        , headers: Headers
-        , dataRows: List[row]
-        }
 
 }
