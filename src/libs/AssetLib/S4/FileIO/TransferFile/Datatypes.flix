@@ -16,16 +16,15 @@
 
 
 
-namespace AssetLib/S4/FileIO/DownloadFile/Datatypes {
+namespace AssetLib/S4/FileIO/TransferFile/Datatypes {
 
     use Time.LocalDateTime;
 
-    /// EntityFile - from "File Download" 
-    /// Could be created as a "File Upload" but we may not need that (even though we have a pretty printer).
 
-    /// TODO - the "newtypes" here are porbably more trouble than they are worth...
+    /// Potentially we now favour "File Upload" for modifications.
 
-    type alias DownloadFile = 
+
+    type alias TransferFile = 
         { fileHeader: FileHeader
         , selection: List[String]       /// uninterpreted
         , headers: Headers
@@ -45,6 +44,10 @@ namespace AssetLib/S4/FileIO/DownloadFile/Datatypes {
         , dateTime: LocalDateTime
         } 
 
+
+    /// We want direct indexing...
+    type alias Headers = Array[String]
+    
     /// Possibly change to String?
     /// Generally we are now only concerned with Download files
     pub enum FileType {
@@ -80,13 +83,9 @@ namespace AssetLib/S4/FileIO/DownloadFile/Datatypes {
     }
 
 
-    /// What direct indexing...
-    type alias Headers = Array[String]
     
 
     /// EntityData
-
-
     type alias EntityData[row] = 
         { entityType: EntityType
         , headers: Headers

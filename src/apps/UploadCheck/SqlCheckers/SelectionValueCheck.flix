@@ -42,8 +42,8 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
 
     pub def equiSelectionValue(): RowChecker[EqClassification] = 
         RowChecker((row, ix) -> 
-            /// Binding `s1` stops a runtime error, no idea why...
-            let s1 = if (row.equiId == "x") "x" else row.equiId;
+            /// Binding and typing `s1` stops a runtime error, no idea why...
+            let s1 = row.equiId: String; 
             let errMsg = "${s1} - equiSelectionValue failed - `${row.charValue}` not in list of values for ${row.characteristicName}";
             BasicDb/DbMonad.map(x -> if (x) Pass else failure({sheetName = "Eq-Classification", rowIndex = ix, failMessage = errMsg }), 
                                 equiSelectionValueHelper(row.characteristicName, row.charValue))

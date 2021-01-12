@@ -16,17 +16,17 @@
 
 
 
-namespace AssetLib/S4/FileIO/DownloadFile {
+namespace AssetLib/S4/FileIO/TransferFile {
 
     pub opaque type RowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, String]
 }
 
-namespace AssetLib/S4/FileIO/DownloadFile/RowEvaluator {
+namespace AssetLib/S4/FileIO/TransferFile/RowEvaluator {
 
     use FromString.fromString;
 
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator.{RowEvaluator};
+    use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
+    use AssetLib/S4/FileIO/TransferFile.RowEvaluator.{RowEvaluator};
 
 
     pub def evaluateString(splitter: String ~> Array[String],

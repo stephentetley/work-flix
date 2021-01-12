@@ -29,6 +29,7 @@ namespace AssetLib/AibFacts/SetupDb/CommonFacts {
 
     type alias AibBaseRow = 
         { reference: String
+        , commonName: String
         , manufacturer: String
         , model: String
         , installedFrom: Time.LocalDateTime

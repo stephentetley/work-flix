@@ -16,12 +16,12 @@
 
 
 
-namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
+namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
+    use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
     
    /// IFLOTX
 
@@ -37,15 +37,15 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
     /// DropTable is a parameter as we might want to be loading more than one file
     pub def storeIflotxFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
         let* xs = liftActionResult(_ -> allRows(evalIflotxRow(), src));
         let* _  = dbWriteIflotxRows(tableName, dropTable, xs);
         return()
 
     /// Read
     def evalIflotxRow(): RowEvaluator[IflotxRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4BoolNamed};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{getStringNamed, getS4BoolNamed};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { funcloc           = x1
                 , shortText         = x2
@@ -116,14 +116,14 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
     
     pub def storeClassFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
         let* xs = liftActionResult(_ -> allRows(evalClassFlocRow(), src));
         let* _  = dbWriteClassFlocRows(tableName, dropTable, xs);
         return()
     
     def evalClassFlocRow(): RowEvaluator[ClassFlocRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { funcloc               = x1
                 , className             = x2
@@ -198,7 +198,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     pub def storeValuaFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
         let* xs = liftActionResult(_ -> allRows(evalValuaFlocRow(), src));
         let* _  = dbWriteValuaFlocRows(tableName, dropTable, xs);
         return()
@@ -207,8 +207,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
     /// Read
 
     def evalValuaFlocRow(): RowEvaluator[ValuaFlocRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getInt32Named, optional};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{getStringNamed, getInt32Named, optional};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
                 { funcloc           = x1
                 , classType         = x2
@@ -300,15 +300,15 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
     /// DropTable is a parameter as we might want to be loading more than one file
     pub def storeEqmltxtFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
         let* xs = liftActionResult(_ -> allRows(evalEqmltxtRow(), src));
         let* _  = dbWriteEqmltxtRows(tableName, dropTable, xs);
         return()
 
     /// Read
     def evalEqmltxtRow(): RowEvaluator[EqmltxtRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4BoolNamed};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{getStringNamed, getS4BoolNamed};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { equi              = x1
                 , shortText         = x2
@@ -382,14 +382,14 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
     
     pub def storeClassEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
         let* xs = liftActionResult(_ -> allRows(evalClassEquiRow(), src));
         let* _  = dbWriteClassEquiRows(tableName, dropTable, xs);
         return()
     
     def evalClassEquiRow(): RowEvaluator[ClassEquiRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { equi                  = x1
                 , className             = x2
@@ -463,7 +463,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     pub def storeValuaEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
         let* xs = liftActionResult(_ -> allRows(evalValuaEquiRow(), src));
         let* _  = dbWriteValuaEquiRows(tableName, dropTable, xs);
         return()
@@ -471,8 +471,8 @@ namespace AssetLib/S4/FileIO/DownloadFile/Builtins {
 
     /// Read
     def evalValuaEquiRow(): RowEvaluator[ValuaEquiRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{optional, getStringNamed, getInt32Named};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
                 { equi              = x1
                 , classType         = x2

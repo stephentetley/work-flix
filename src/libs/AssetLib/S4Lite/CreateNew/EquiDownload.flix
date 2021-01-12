@@ -24,7 +24,7 @@ namespace AssetLib/S4Lite/CreateNew/EquiDownload {
     use BasicDb.PreparedStatement;
     use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
+    use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
 
 
 
@@ -52,7 +52,7 @@ namespace AssetLib/S4Lite/CreateNew/EquiDownload {
 
     pub def storeEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{allRows};
         let* xs = liftActionResult(_ -> allRows(evalEquiRow(), src));
         let* _  = dbWriteEquiRows(tableName, dropTable, xs);
         return()
@@ -60,8 +60,8 @@ namespace AssetLib/S4Lite/CreateNew/EquiDownload {
 
 
     def evalEquiRow(): RowEvaluator[EquiRow] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4DateNamed, getInt32Named};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{getStringNamed, getS4DateNamed, getInt32Named};
+        use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
                 { equiId                = x1
                 , category              = x2

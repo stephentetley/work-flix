@@ -16,7 +16,7 @@
 
 
 
-namespace AssetLib/S4/FileIO/DownloadFile/Printer {
+namespace AssetLib/S4/FileIO/TransferFile/Printer {
 
     use Time.LocalDateTime;
     use Text/SimpleFormat.{Doc};
@@ -24,21 +24,21 @@ namespace AssetLib/S4/FileIO/DownloadFile/Printer {
     use Text/SimpleFormat.{<>, <<>>, <!>};
 
 
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.FileType.{Download, Upload};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataModel.{U1};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.{TransferFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.FileType.{Download, Upload};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.DataModel.{U1};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
-    pub def writeChangeFile(x: DownloadFile, path: String): Result[Unit, System.Error] & Impure = 
+    pub def writeChangeFile(x: TransferFile, path: String): Result[Unit, System.Error] & Impure = 
         let path1 = System/FilePath.new(path);
-        let str = ppDownloadFile(x).toString();
+        let str = ppTransferFile(x).toString();
         System/File.writeFile(path1, Text/Charset.utf_8(), str)
 
-    pub def printChangeFile(x: DownloadFile): String & Impure =         
-        ppDownloadFile(x).toString()
+    pub def printChangeFile(x: TransferFile): String & Impure =         
+        ppTransferFile(x).toString()
 
     
-    def ppDownloadFile(x: DownloadFile): Doc & Impure = 
+    def ppTransferFile(x: TransferFile): Doc & Impure = 
         vcat(
                ppFileHeader(x.fileHeader)
             :: ppSelection(x.selection)

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
+namespace AssetLib/S4/FileIO/TransferFile/Evaluate {
 
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, DataRow, EntityData};
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator.{RowEvaluator};
-    use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{makeHeaders};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.{TransferFile, DataRow, EntityData};
+    use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
+    use AssetLib/S4/FileIO/TransferFile.RowEvaluator.{RowEvaluator};
+    use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{makeHeaders};
 
 
     pub def toEntityData( outputHeaders: Array[String]
                         , eval: RowEvaluator[row]
-                        , x: DownloadFile): Result[EntityData[row], String] & Impure = 
+                        , x: TransferFile): Result[EntityData[row], String] & Impure = 
         use Result.flatMap;
         let oheaders = makeHeaders(x.headers);
         let* xs = Result.traverse(evalRow(eval, oheaders), x.dataRows);
@@ -33,7 +33,7 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
     ///
     /// Specialized version of `toEntityData` all rows selected.
     ///
-    pub def toEntityData1(x: DownloadFile): Result[EntityData[DataRow], String] = 
+    pub def toEntityData1(x: TransferFile): Result[EntityData[DataRow], String] = 
         Ok({entityType = x.fileHeader.entityType, headers = x.headers, dataRows = x.dataRows})
 
 
@@ -41,11 +41,11 @@ namespace AssetLib/S4/FileIO/DownloadFile/Evaluate {
     /// Builds relations from the List.
     pub def allRows(rowp: RowEvaluator[r], path: System.FilePath): Result[List[r], String] & Impure = 
         use Result.flatMap;        
-        let* ast = AssetLib/S4/FileIO/DownloadFile/Parser.parseFile(path);
+        let* ast = AssetLib/S4/FileIO/TransferFile/Parser.parseFile(path);
         buildRows(rowp, ast)
 
 
-    def buildRows(rowp: RowEvaluator[row], x: DownloadFile): Result[List[row], String] & Impure = 
+    def buildRows(rowp: RowEvaluator[row], x: TransferFile): Result[List[row], String] & Impure = 
         use Result.flatMap;
         let headers = makeHeaders(x.headers);
         let accumRow = (x1, ac) -> 

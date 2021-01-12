@@ -16,7 +16,7 @@
 
 
 
-namespace AssetLib/S4/FileIO/DownloadFile/Parser {
+namespace AssetLib/S4/FileIO/TransferFile/Parser {
 
     use Time.LocalDateTime;
 
@@ -26,19 +26,19 @@ namespace AssetLib/S4/FileIO/DownloadFile/Parser {
     use TextParser/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
     use TextParser/Token1.{symbol, lexeme};
 
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.{DownloadFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.FileType.{Download, Upload};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.DataModel.{U1};
-    use AssetLib/S4/FileIO/DownloadFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.{TransferFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.FileType.{Download, Upload};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.DataModel.{U1};
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
     /// Always UTF-8?
-    pub def parseFile(path: System.FilePath) : Result[DownloadFile, String] & Impure = 
-        TextParser.parsesFile(downloadFileParser(), path, Text/Charset.utf_8())    
+    pub def parseFile(path: System.FilePath) : Result[TransferFile, String] & Impure = 
+        TextParser.parsesFile(transferFileParser(), path, Text/Charset.utf_8())    
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
 
-    pub def downloadFileParser(): TextParser[DownloadFile, t] = 
+    pub def transferFileParser(): TextParser[TransferFile, t] = 
         use TextParser.flatMap;
         let* hdr = pHeader();
         let* sel = alt(pSelection(), pEmptySelection());        

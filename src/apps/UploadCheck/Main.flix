@@ -41,7 +41,7 @@ namespace UploadCheck/Main {
         use BasicDb/DbMonad.{runSQLite};
         Console.printLine("Running...");
         match runSQLite(checkAll(uxlPath), dbPath) {
-            case Err(e) => Console.printLine(System/Error.toString(e))
+            case Err(e) => Console.printLine("Error: ${e}")
             case Ok(ans) => printCheck(ans)
         }
 
