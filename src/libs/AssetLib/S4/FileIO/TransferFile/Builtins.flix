@@ -461,6 +461,12 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
         , valueTo: String
         }
 
+
+    pub def readValuaEquiFile(path: System.FilePath) : Result[List[ValuaEquiRow], String] & Impure =         
+        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        readAllRows(evalValuaEquiRow(), path)
+        
+
     pub def storeValuaEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};

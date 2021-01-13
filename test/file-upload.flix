@@ -1,6 +1,5 @@
 use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
-use SheetIO.RowEvaluator;
 
 use AssetLib/S4/FileIO/TransferFile.{RowEvaluator => TFRowEvaluator};
 use AssetLib/S4/FileIO/TransferFile.{RowSetter => TFRowSetter};

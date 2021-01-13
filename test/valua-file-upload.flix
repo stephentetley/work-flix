@@ -1,0 +1,71 @@
+use SheetIO.SheetReader;
+use SheetIO.NamedRowEvaluator;
+
+use AssetLib/S4/FileIO/TransferFile.{RowSetter};
+use AssetLib/S4/FileIO/TransferFile/Builtins.{ClassEquiRow};
+
+def _solutionId(): String = "B3050170"
+
+def main(_argsv: Array[String]): Int32 & Impure = 
+    Console.printLine("Running...");
+    let worklist    = System/FilePath.new("G:/work/assets/fire_alarms/worklist.xlsx");
+    let classout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_CLASS_file_upload.xlsx");
+    let valuaout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_VALUA_file_upload.xlsx");
+    match main1(worklist, classout, valuaout) { 
+        case Err(e) => {Console.printLine("Error: ${e}") ; 1}
+        case Ok() => {Console.printLine("Done."); 0}
+    }
+
+def main1(worklist: System.FilePath, _classout: System.FilePath, _valuaout: System.FilePath): Result[Unit, String] & Impure = 
+    use Result.{flatMap};
+    use SheetIO/SheetReader.{runXlsx};
+    let* xs         = runXlsx(readWorklist(), worklist);
+    let _       = Console.printLine("${List.length(xs)}");
+    let _cs     = List.filterMap(makeClassEqui, xs);
+    Ok()  
+
+type alias WorklistRow = 
+    { equiId: String
+    , site: String
+    , description: String
+    , floc: String
+    , classType: String
+    , existingSolutionId: String
+    }
+
+def readWorklist(): SheetReader[List[WorklistRow]] = 
+    use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+    let* s1     = getSheetNamed("results2");
+    let* xs     = namedRowsFrom(s1, 0, 1, evalWorklistRow());    
+    return(xs)
+
+
+def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] = 
+    use SheetIO/NamedRowEvaluator.{flatMap, return, alt, map, getStringNamed, 
+        getStringNamedWithDefault, getInt64Named};
+    use SheetIO/NamedRowEvaluator.{<&>, <*>};
+    ((x1, x2, x3, x4, x5, x6) -> 
+            { equiId                = x1
+            , site                  = x2
+            , description           = x3
+            , floc                  = x4
+            , classType             = x5
+            , existingSolutionId    = x6
+            })
+        <&> alt(getStringNamed("equi_id"), map(Int64.toString, getInt64Named("equi_id")))
+        <*> getStringNamedWithDefault("site", "")
+        <*> getStringNamedWithDefault("description", "")
+        <*> getStringNamedWithDefault("floc", "")
+        <*> getStringNamedWithDefault("classtype", "")
+        <*> getStringNamedWithDefault("existing_solution_id", "")
+
+def makeClassEqui(x: WorklistRow): Option[ClassEquiRow] = 
+    if (x.existingSolutionId == "")
+        None
+    else 
+        Some({ equi = x.equiId
+            , className = "SOLUTION_ID"
+            , classType = "002"
+            , internalClassNumber = ""  // Unused
+            , status = Some(1)
+            })

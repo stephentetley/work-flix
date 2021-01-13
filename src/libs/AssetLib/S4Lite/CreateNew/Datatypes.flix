@@ -87,7 +87,7 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
 
     instance ToString[Value] {        
         def toString(x: Value): String = match x {
-            case Text(s) => ToString.toString('"') + s + ToString.toString('"')
+            case Text(s)    => s
             case Integer(i) => ToString.toString(i)
             case Decimal(d) => ToString.toString(d)
         }

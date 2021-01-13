@@ -176,12 +176,12 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         , charDeleteInd: Bool 
         }
 
-    pub enum S4Value {
-        case Bool(Bool)
-        case Text(String)
-        case Int(Int32)
-        case Decimal(Float64)
-    }
+    /// pub enum S4Value {
+    ///     case Bool(Bool)
+    ///     case Text(String)
+    ///     case Int(Int32)
+    ///     case Decimal(Float64)
+    /// }
 
 
 }
