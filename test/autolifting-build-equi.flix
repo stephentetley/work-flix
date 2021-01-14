@@ -4,14 +4,13 @@ use AssetLib/S4Lite/CreateNew/EquipmentBuilder.{TableNames};
 use AutoLifting/Base.ReportMonad;
 use AutoLifting/SetupDb.{DownloadFilePaths, WorklistPaths};
 
-
 def main(_: Array[String]): Int32 & Impure =  
     use AutoLifting/Base/ReportMonad.{runReportMonad};
-    let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
+    let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-2021/db1.sqlite");
     let worklistPaths =     
-        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/KETTLEWELL STW.xlsx")
-        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/kettle-attribs-export.xlsx")
-        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-reports/kettle-memos-export.xlsx")
+        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-2021/SCARBOROUGH STF.xlsx")
+        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-2021/scarbo-attribs-export.xlsx")
+        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-2021/scarbo-memos-export.xlsx")
         };        
     /// let downloads = 
     ///     { equiPath          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/oldwh-equi-file_download.txt")

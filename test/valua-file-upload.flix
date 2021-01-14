@@ -2,26 +2,30 @@ use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
 
 use AssetLib/S4/FileIO/TransferFile.{RowSetter};
-use AssetLib/S4/FileIO/TransferFile/Builtins.{ClassEquiRow};
+use AssetLib/S4/FileIO/TransferFile/Builtins.{ClassEquiRow, ValuaEquiRow};
 
-def _solutionId(): String = "B3050170"
+def solutionId(): String = "B3050170"
 
 def main(_argsv: Array[String]): Int32 & Impure = 
     Console.printLine("Running...");
     let worklist    = System/FilePath.new("G:/work/assets/fire_alarms/worklist.xlsx");
-    let classout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_CLASS_file_upload.xlsx");
-    let valuaout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_VALUA_file_upload.xlsx");
+    let classout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_CLASS_file_upload.txt");
+    let valuaout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_VALUA_file_upload.txt");
     match main1(worklist, classout, valuaout) { 
         case Err(e) => {Console.printLine("Error: ${e}") ; 1}
-        case Ok() => {Console.printLine("Done."); 0}
+        case Ok() => {Console.printLine("Wrote: ${classout}"); Console.printLine("Wrote: ${valuaout}"); 0}
     }
 
-def main1(worklist: System.FilePath, _classout: System.FilePath, _valuaout: System.FilePath): Result[Unit, String] & Impure = 
+def main1(worklist: System.FilePath, classout: System.FilePath, valuaout: System.FilePath): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     use SheetIO/SheetReader.{runXlsx};
-    let* xs         = runXlsx(readWorklist(), worklist);
+    use AssetLib/S4/FileIO/TransferFile/Builtins.{outputClassEquiFile, outputValuaEquiFile};
+    let* xs     = runXlsx(readWorklist(), worklist);
     let _       = Console.printLine("${List.length(xs)}");
-    let _cs     = List.filterMap(makeClassEqui, xs);
+    let cs      = List.filterMap(makeClassEqui, xs);
+    let* _      = outputClassEquiFile("tetleys", cs, classout);
+    let vs      = List.map(makeValuaEqui, xs);
+    let* _      = outputValuaEquiFile("tetleys", vs, valuaout);
     Ok()  
 
 type alias WorklistRow = 
@@ -63,9 +67,21 @@ def makeClassEqui(x: WorklistRow): Option[ClassEquiRow] =
     if (x.existingSolutionId == "")
         None
     else 
-        Some({ equi = x.equiId
-            , className = "SOLUTION_ID"
-            , classType = "002"
-            , internalClassNumber = ""  // Unused
-            , status = Some(1)
+        Some({ equi                 = x.equiId
+            , className             = "SOLUTION_ID"
+            , classType             = "002"
+            , internalClassNumber   = "0000000533"
+            , status                = Some(1)
             })
+
+def makeValuaEqui(x: WorklistRow): ValuaEquiRow = 
+    { equi                          = x.equiId
+    , classType                     = "002"
+    , charId                        = "SOLUTION_ID"
+    , charValue                     = solutionId()
+    , code                          = Some(1)
+    , valueDescription              = solutionId()
+    , intCounterValue               = if (x.existingSolutionId == "") 1 else 2
+    , valueFrom                     = "0"
+    , valueTo                       = "0"
+    }
