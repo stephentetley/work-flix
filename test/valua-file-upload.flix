@@ -64,7 +64,7 @@ def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] =
         <*> getStringNamedWithDefault("existing_solution_id", "")
 
 def makeClassEqui(x: WorklistRow): Option[ClassEquiRow] = 
-    if (x.existingSolutionId == "")
+    if (x.existingSolutionId != "")
         None
     else 
         Some({ equi                 = x.equiId

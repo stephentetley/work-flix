@@ -5,7 +5,7 @@ use AutoLifting/SetupDb.{MappingTablePaths, DownloadFilePaths, WorklistPaths};
 /// Warning `calde-sms-lft-EQMLTXT-file_download.txt` has multiline text which used to break the parser...
 /// Should be fixed.
 
-def main(): Unit & Impure = 
+def main(_argsv: Array[String]): Int32 & Impure = 
     let worklistPaths =     
         { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-reports/CALDER VALE STW.xlsx")
         , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-reports/calde-attribs-export.xlsx")
@@ -20,11 +20,11 @@ def main(): Unit & Impure =
     let outpath         = System/FilePath.new("G:/work/assets/lifting-equipment-reports/db1.sqlite");
     Console.printLine("Running...");
     match mainHelper(worklistPaths, Some(downloads), outpath) {
-        case Ok() => Console.printLine("Done.")
-        case Err(msg) => Console.printLine("Error: " + System/Error.toString(msg))
+        case Ok() => {Console.printLine("Done."); 0}
+        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
     }
 
-def mainHelper(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths], dboutpath: System.FilePath): Result[Unit, System.Error] & Impure = 
+def mainHelper(worklistPaths: WorklistPaths, downloads: Option[DownloadFilePaths], dboutpath: System.FilePath): Result[Unit, String] & Impure = 
     use BasicDb/DbMonad.{runSQLite};
     use BasicDb/DbMonad.{flatMap, return};
     use AutoLifting/SetupDb.{setupStaticTables, setupSpecificTables};
