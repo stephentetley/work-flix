@@ -66,11 +66,12 @@ namespace AutoLifting/Base/LiftingEquipmentToS4Lite {
     /// TODO if length(locationOnSite) > 30 make it a longtext
     def translateLiftingClassifications(objectClass: String, x: LiftingClassifications): List[Classification] = 
         use AssetLib/S4Lite/CreateNew/Classifications.{getClassifications, concat, whenTrue, whenSome, ai2AibReference, 
-            easting, northing, uniclassCode, uniclassDesc, locationOnSite, decimalClassification,
+            s4AibReference, easting, northing, uniclassCode, uniclassDesc, locationOnSite, decimalClassification,
             stringClassification, statutoryReferenceNumber, testCertNo};
         concat( 
                 ai2AibReference(x.pliReference) 
             :: ai2AibReference(x.saiParentReference)
+            :: s4AibReference()
             :: whenSome(x.easting, i-> easting(i))
             :: whenSome(x.northing, i -> northing(i))
             :: uniclassCode(objectClass)
