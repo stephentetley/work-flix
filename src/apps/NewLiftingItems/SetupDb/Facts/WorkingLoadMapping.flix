@@ -62,7 +62,8 @@ namespace NewLiftingItems/SetupDb/Facts/WorkingLoadMapping {
 
     /// Always drop table (fresh new data)
     def exportWorkingLoadMappingRows(tableName: String, rows: List[WorkingLoadMappingRow]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
+        let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (classification, working_load_field, working_load_unit_field) VALUES(?,?,?);");

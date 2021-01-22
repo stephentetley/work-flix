@@ -19,7 +19,7 @@ def main(_args: Array[String]): Int32 & Impure =
     use NewLiftingItems/Base/ReportMonad.{runReportMonad};
     use NewLiftingItems/MakeReport.{mainHelper};
     let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-2021/lifting_db.sqlite");
-    let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-reports/MMOP_uXL.xlsx");
+    let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-2021/MMOP_uXL.xlsx");
     let worklistPaths =     
         { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-2021/LINTON MEADOWS MOD SPS.xlsx")
         , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-2021/linton-attribs-export.xlsx")
