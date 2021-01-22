@@ -13,22 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+use GetOpt.{ArgDescr, OptionDescr};
+use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
-/// TODO use GetOpt
-def main(_args: Array[String]): Int32 & Impure =  
+
+/// --dbpath=%dbpath% --uxltemplate=%uxltemplate% --worklist=%worklist% --attribs=%attribs% --memos=%memos%"
+
+type alias FilePaths = 
+    { dbpath: System.FilePath
+    , uxltemplate: System.FilePath
+    , worklist: System.FilePath
+    , attribs: System.FilePath
+    , memos: System.FilePath    
+    }
+
+def defaultOptions(): FilePaths = 
+    { dbpath = System/FilePath.new("")
+    , uxltemplate = System/FilePath.new("")
+    , worklist = System/FilePath.new("")
+    , attribs = System/FilePath.new("")
+    , memos = System/FilePath.new("")
+    }    
+
+type alias UpdateOptions = FilePaths -> FilePaths    
+
+
+def makeCmdLineOptions(): List[OptionDescr[UpdateOptions]] = 
+       {optionIds = Nil,    optionNames = "dbpath" :: Nil,          argDescriptor = ReqArg(setDbpath, "FILE"),      explanation = "path to SQLite database"}
+    :: {optionIds = Nil,    optionNames = "uxltemplate" :: Nil,     argDescriptor = ReqArg(setUxltemplate, "FILE"), explanation = "path to Excel UXL template"}
+    :: {optionIds = Nil,    optionNames = "worklist" :: Nil,        argDescriptor = ReqArg(setWorklist, "FILE"),    explanation = "path to input worklist"}
+    :: {optionIds = Nil,    optionNames = "attribs" :: Nil,         argDescriptor = ReqArg(setAttribs, "FILE"),    explanation = "path to AI2 attributes export"}
+    :: {optionIds = Nil,    optionNames = "memos" :: Nil,           argDescriptor = ReqArg(setMemos, "FILE"),     explanation = "path to AI2 memo lines export" }
+    :: Nil
+
+def setDbpath(s: String): Option[UpdateOptions] = Some(opts -> {dbpath = System/FilePath.new(s) | opts})
+def setUxltemplate(s: String): Option[UpdateOptions] = Some(opts -> {uxltemplate = System/FilePath.new(s) | opts})
+def setWorklist(s: String): Option[UpdateOptions] = Some(opts -> {worklist = System/FilePath.new(s) | opts})
+def setAttribs(s: String): Option[UpdateOptions] = Some(opts -> {attribs = System/FilePath.new(s) | opts})
+def setMemos(s: String): Option[UpdateOptions] = Some(opts -> {memos = System/FilePath.new(s) | opts})
+
+
+def main(args: Array[String]): Int32 & Impure =  
+    use GetOpt.ArgOrder.{Permute};
+    use GetOpt.{getOpt, usageInfo};
     use NewLiftingItems/Base/ReportMonad.{runReportMonad};
     use NewLiftingItems/MakeReport.{mainHelper};
-    let dbpath          = System/FilePath.new("G:/work/assets/lifting-equipment-2021/lifting_db.sqlite");
-    let uxlTemplate     = System/FilePath.new("G:/work/assets/lifting-equipment-2021/MMOP_uXL.xlsx");
-    let worklistPaths =     
-        { worklist          = System/FilePath.new("G:/work/assets/lifting-equipment-2021/LINTON MEADOWS MOD SPS.xlsx")
-        , attributesExport  = System/FilePath.new("G:/work/assets/lifting-equipment-2021/linton-attribs-export.xlsx")
-        , memosExport       = System/FilePath.new("G:/work/assets/lifting-equipment-2021/linton-memos-export.xlsx")
-        };
     Console.printLine("Running...");
-    match runReportMonad(mainHelper(worklistPaths, uxlTemplate), dbpath) {
-        case Ok(ans) => {let (x,y) = ans; Console.printLine("Good - see ${x} ${y}"); 0}
-        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+    let options1 = makeCmdLineOptions();
+    let header = "Usage: <make-report> [OPTION...]";
+    let args2 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = true}, args);
+    match getOpt(Permute, options1, args2) {
+        case Failure(errs)  => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
+        case Success(updates) => {
+            let r1 = List.foldLeft((ac, f) -> f(ac), defaultOptions(), updates.options);
+            let worklistPaths =     
+                { worklist          = r1.worklist
+                , attributesExport  = r1.attribs
+                , memosExport       = r1.memos
+                };
+            match runReportMonad(mainHelper(worklistPaths, r1.uxltemplate), r1.dbpath) {
+                case Ok(ans) => {let (x,y) = ans; Console.printLine("Good - see ${x} ${y}"); 0}
+                case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+            }
+        }
     }
 
 namespace NewLiftingItems/MakeReport {
