@@ -14,21 +14,64 @@
  * limitations under the License.
  */
 
+use GetOpt.{ArgDescr, OptionDescr};
+use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
+
+/// --args "--dbpath=%dbpath% --sitemap=%sitemap% --typemap=%typemap% --workingloadmap=%workingloadmap%"
+
+type alias InputPaths = 
+    { dbpath: System.FilePath
+    , sitemap: System.FilePath
+    , typemap: System.FilePath
+    , workingloadmap: System.FilePath    
+    }
+
+def defaultInputPaths(): InputPaths = 
+    { dbpath = System/FilePath.new("")
+    , sitemap = System/FilePath.new("")
+    , typemap = System/FilePath.new("")
+    , workingloadmap = System/FilePath.new("")
+    }    
+
+type alias UpdateOptions = InputPaths -> InputPaths    
+
+
+def makeCmdLineOptions(): List[OptionDescr[UpdateOptions]] = 
+       {optionIds = Nil,    optionNames = "dbpath" :: Nil,          argDescriptor = ReqArg(setDbpath, "FILE"),          explanation = "path to SQLite database"}
+    :: {optionIds = Nil,    optionNames = "sitemap" :: Nil,         argDescriptor = ReqArg(setSitemap, "FILE"),         explanation = "path to AI2 to S4 site mapping"}
+    :: {optionIds = Nil,    optionNames = "typemap" :: Nil,         argDescriptor = ReqArg(setTypemap, "FILE"),         explanation = "path to lifting type mapping"}
+    :: {optionIds = Nil,    optionNames = "workingloadmap" :: Nil,  argDescriptor = ReqArg(setWorkingloadmap, "FILE"),  explanation = "path to working load mapping"}
+    :: Nil
+
+def setDbpath(s: String): Option[UpdateOptions] = Some(opts -> {dbpath = System/FilePath.new(s) | opts})
+def setSitemap(s: String): Option[UpdateOptions] = Some(opts -> {sitemap = System/FilePath.new(s) | opts})
+def setTypemap(s: String): Option[UpdateOptions] = Some(opts -> {typemap = System/FilePath.new(s) | opts})
+def setWorkingloadmap(s: String): Option[UpdateOptions] = Some(opts -> {workingloadmap = System/FilePath.new(s) | opts})
+
 /// TODO use GetOpt
-def main(_args: Array[String]): Int32 & Impure =  
+def main(args: Array[String]): Int32 & Impure =  
+    use GetOpt.ArgOrder.{Permute};
+    use GetOpt.{getOpt, usageInfo};
     use BasicDb/DbMonad.{runSQLite};
     use NewLiftingItems/SetupDb.{MappingTablePaths, setupStaticTables};
     Console.printLine("Running...");
-    let outpath         = System/FilePath.new("G:/work/assets/lifting-equipment-2021/lifting_db.sqlite");
-    let mappingTablePaths: MappingTablePaths = 
-        { siteMappingPath           = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
-        , typeMappingPath           = System/FilePath.new("G:/work/assets/lifting-equipment-reports/01.lifting_equipment_types.xlsx")
-        , workingLoadMappingPath    = System/FilePath.new("G:/work/assets/lifting-equipment-reports/02.working_load_fields.xlsx")
-        };
-
-    match runSQLite(setupStaticTables(mappingTablePaths), outpath) { 
-        case Ok() => {Console.printLine("Good - database created ${outpath}"); 0}
-        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+    let options1 = makeCmdLineOptions();
+    let header = "Usage: <make-report> [OPTION...]";
+    let args2 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = true}, args);
+    match getOpt(Permute, options1, args2) {
+        case Failure(errs)  => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
+        case Success(updates) => {
+            let r1 = List.foldLeft((ac, f) -> f(ac), defaultInputPaths(), updates.options);
+            let mappingTablePaths: MappingTablePaths = 
+                { siteMappingPath           = r1.sitemap
+                , typeMappingPath           = r1.typemap
+                , workingLoadMappingPath    = r1.workingloadmap
+                };
+            match runSQLite(setupStaticTables(mappingTablePaths), r1.dbpath) { 
+                case Ok() => {Console.printLine("Good - database created ${r1.dbpath}"); 0}
+                case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+            }
+        }
     }
 
 

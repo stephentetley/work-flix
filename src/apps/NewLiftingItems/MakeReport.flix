@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
 use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
 
 /// --dbpath=%dbpath% --uxltemplate=%uxltemplate% --worklist=%worklist% --attribs=%attribs% --memos=%memos%"
 
-type alias FilePaths = 
+type alias InputPaths = 
     { dbpath: System.FilePath
     , uxltemplate: System.FilePath
     , worklist: System.FilePath
@@ -27,7 +28,7 @@ type alias FilePaths =
     , memos: System.FilePath    
     }
 
-def defaultOptions(): FilePaths = 
+def defaultInputPaths(): InputPaths = 
     { dbpath = System/FilePath.new("")
     , uxltemplate = System/FilePath.new("")
     , worklist = System/FilePath.new("")
@@ -35,7 +36,7 @@ def defaultOptions(): FilePaths =
     , memos = System/FilePath.new("")
     }    
 
-type alias UpdateOptions = FilePaths -> FilePaths    
+type alias UpdateOptions = InputPaths -> InputPaths    
 
 
 def makeCmdLineOptions(): List[OptionDescr[UpdateOptions]] = 
@@ -65,7 +66,7 @@ def main(args: Array[String]): Int32 & Impure =
     match getOpt(Permute, options1, args2) {
         case Failure(errs)  => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
         case Success(updates) => {
-            let r1 = List.foldLeft((ac, f) -> f(ac), defaultOptions(), updates.options);
+            let r1 = List.foldLeft((ac, f) -> f(ac), defaultInputPaths(), updates.options);
             let worklistPaths =     
                 { worklist          = r1.worklist
                 , attributesExport  = r1.attribs
