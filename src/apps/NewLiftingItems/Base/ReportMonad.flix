@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-/// TODO - rename file to `ReportMonad` once we can replace the old one...
 
-namespace AutoLifting/Base {
+namespace NewLiftingItems/Base {
 
     use BasicDb.DbMonad;
 
@@ -27,12 +26,12 @@ namespace AutoLifting/Base {
 }
 
 
-namespace AutoLifting/Base/ReportMonad {
+namespace NewLiftingItems/Base/ReportMonad {
 
     use BasicDb.DbMonad;
 
-    use AutoLifting/Base.ReportMonad;
-    use AutoLifting/Base.ReportMonad.{ReportMonad};
+    use NewLiftingItems/Base.ReportMonad;
+    use NewLiftingItems/Base.ReportMonad.{ReportMonad};
 
     pub def runReportMonad(ma: ReportMonad[a], dbpath: System.FilePath): Result[a, String] & Impure = 
         use Result.{flatMap};

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/SetupDb/Worklist {
+namespace NewLiftingItems/SetupDb/Worklist/Worklist {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
@@ -38,7 +38,8 @@ namespace AutoLifting/SetupDb/Worklist {
 
     /// Always drop table (fresh new data)
     def exportWorklistRows(tableName: String, rows: List[AibExportRow]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (orderkey, reference, change) VALUES(?,?,?);");

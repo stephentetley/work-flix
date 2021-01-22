@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Build/ChildNew/LiftingTypeMapping {
+namespace NewLiftingItems/MakeReport/BuildItems/LiftingTypeMapping {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AutoLifting/Base/Datatypes.{S4TypeInfo, FixedOrPortable};
+    use NewLiftingItems/Base/Datatypes.{S4TypeInfo, FixedOrPortable};
 
     pub def getTypeMapping[r](pstmts: { selectTyDistinguished: PreparedStatement, selectTyOrdinary: PreparedStatement | r}
                           , equiName: String

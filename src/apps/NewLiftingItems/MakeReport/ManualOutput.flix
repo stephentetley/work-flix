@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/ManualOutput {
+namespace NewLiftingItems/MakeReport/ManualOutput {
 
     use SheetIO.RowSetter;
     use SheetIO.SheetWriter;
 
-    use AutoLifting/Base/Datatypes.{LiftingEquipment};
-    use AutoLifting/Base.ReportMonad;
+    use NewLiftingItems/Base/Datatypes.{LiftingEquipment};
+    use NewLiftingItems/Base.ReportMonad;
 
 
     /// Using LiftingEquipment makes this significantly neater than S4Equipment...
 
     pub def writeManualReport(rows: List[LiftingEquipment], path: System.FilePath): ReportMonad[Unit] =
         use SheetIO/SheetWriter.{runXlsx};
-        AutoLifting/Base/ReportMonad.liftActionResult(_ -> runXlsx(manualReportWriter(rows), path))
+        NewLiftingItems/Base/ReportMonad.liftActionResult(_ -> runXlsx(manualReportWriter(rows), path))
         
     pub def manualReportWriter(rows: List[LiftingEquipment]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, createSheet, liftAction, allRowsWithHeaders};

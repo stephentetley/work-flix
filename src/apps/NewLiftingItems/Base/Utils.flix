@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Base/Utils {
+namespace NewLiftingItems/Base/Utils {
     
     use AssetLib/Common/Osgb36.EastingNorthing;
     use AssetLib/S4Lite/CreateNew.Classifications;
-    use AutoLifting/Base/Datatypes.FixedOrPortable;
-    use AutoLifting/Base/Datatypes.FixedOrPortable.{Fixed, Portable};
+    use NewLiftingItems/Base/Datatypes.FixedOrPortable;
+    use NewLiftingItems/Base/Datatypes.FixedOrPortable.{Fixed, Portable};
 
 
 

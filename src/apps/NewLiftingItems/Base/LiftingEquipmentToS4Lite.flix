@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Base/LiftingEquipmentToS4Lite {
+namespace NewLiftingItems/Base/LiftingEquipmentToS4Lite {
 
 
     use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
     use AssetLib/S4Lite/CreateNew.{Classifications};
-    use AutoLifting/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
-    use AutoLifting/Base.ReportMonad;
+    use NewLiftingItems/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
+    use NewLiftingItems/Base.ReportMonad;
 
     pub def translateLiftingEquipment(x: LiftingEquipment): ReportMonad[S4Equipment] = 
-        use AutoLifting/Base/ReportMonad.{flatMap, return, liftAction};
+        use NewLiftingItems/Base/ReportMonad.{flatMap, return, liftAction};
         let attributes          = translateLiftingAttributes(x.objectType, x.attributes);
         let longText            = translateLongText(x.attributes.description, x.longText);
         let classifications     = translateLiftingClassifications(x.objectClass, x.classifications);

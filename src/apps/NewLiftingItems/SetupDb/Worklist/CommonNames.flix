@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /// Note we have to get common names from a query on AIB and not the worklist
 /// The worklist might be wrong.
 
-namespace AutoLifting/SetupDb/CommonNames {
+namespace NewLiftingItems/SetupDb/Worklist/CommonNames {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
@@ -57,7 +57,8 @@ namespace AutoLifting/SetupDb/CommonNames {
             <*> getStringNamed("Common Name")
 
     def exportAibCommonNameRows(tableName: String, rows: List[AibCommonNameRow]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
+        let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement(insertRowSql(tableName));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/Base/DecodeCommonName {
+namespace NewLiftingItems/Base/DecodeCommonName {
 
     pub def getAibEquiName(commonName: String): Option[String] = 
         use Option.{flatMap};
@@ -26,7 +26,7 @@ namespace AutoLifting/Base/DecodeCommonName {
     pub def getS4Description(commonName: String): Option[String] = 
         use Option.{flatMap};
         let* s1   = getAibEquiName(commonName);
-        AutoLifting/Base/Utils.properCaseEquiName(s1)
+        NewLiftingItems/Base/Utils.properCaseEquiName(s1)
 
     pub def getAibEquiType(commonName: String): Option[String] = 
         use Option.{flatMap};

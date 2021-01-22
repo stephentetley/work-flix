@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2021 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AutoLifting/SetupDb/AibAttributes {
+namespace NewLiftingItems/SetupDb/Worklist/AibAttributes {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
