@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace NewLiftingItems/SetupDb/Facts/SiteMapping {
+namespace AssetLib/Facts/SiteMapping {
     
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
@@ -27,10 +27,7 @@ namespace NewLiftingItems/SetupDb/Facts/SiteMapping {
         { installationCommonName: String
         , s4Level1Code: Option[String]
         }
-    
-    /// Currently using a Map because it is so simple...
-    /// But it would be better in a DB anyway.
-    
+        
     
     pub def storeSiteMapping(tableName: String, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{return, flatMap, liftActionResult, map};

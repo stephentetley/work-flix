@@ -48,7 +48,7 @@ def setSitemap(s: String): Option[UpdateOptions] = Some(opts -> {sitemap = Syste
 def setTypemap(s: String): Option[UpdateOptions] = Some(opts -> {typemap = System/FilePath.new(s) | opts})
 def setWorkingloadmap(s: String): Option[UpdateOptions] = Some(opts -> {workingloadmap = System/FilePath.new(s) | opts})
 
-/// TODO use GetOpt
+
 def main(args: Array[String]): Int32 & Impure =  
     use GetOpt.ArgOrder.{Permute};
     use GetOpt.{getOpt, usageInfo};
@@ -87,7 +87,7 @@ namespace NewLiftingItems/SetupDb {
 
     pub def setupStaticTables(mappingTables: MappingTablePaths):  DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* _  = NewLiftingItems/SetupDb/Facts/SiteMapping.storeSiteMapping("lookup_site", mappingTables.siteMappingPath);
+        let* _  = AssetLib/Facts/SiteMapping.storeSiteMapping("lookup_site", mappingTables.siteMappingPath);
         let* _  = NewLiftingItems/SetupDb/Facts/TypeMapping.storeTypeMapping("lookup_lifting_type", mappingTables.typeMappingPath);
         let* _  = NewLiftingItems/SetupDb/Facts/WorkingLoadMapping.storeWorkingLoadMapping("lookup_working_load", mappingTables.workingLoadMappingPath);
         return()
