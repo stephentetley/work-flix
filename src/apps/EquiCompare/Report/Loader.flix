@@ -127,4 +127,40 @@ namespace EquiCompare/Report/Loader {
             <*> getStringNamed("serial_number")
 
 
+    /// Site Mapping
+    
+    type alias SiteMapRow = 
+        { aibInstallation: String
+        , s4Site: String
+        }
+
+    pub def getSiteMapping(tableName: String): DbMonad[List[SiteMapRow]] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, allRows, rsClose};
+        let* ps     = prepareSiteMapRowQuery(tableName);
+        let* rs     = psExecuteQuery(ps, BasicDb/PreparedStatementSetter.return());
+        let* xs     = allRows(rs, evalSiteMapRow());
+        let* _      = rsClose(rs);
+        return(xs)
+
+    def prepareSiteMapRowQuery(tableName: String): DbMonad[PreparedStatement] = 
+        let sql = String.unlines(
+                "SELECT"
+            :: "    t.installation_common_name,"
+            :: "    t.s4_level1_code"
+            :: "FROM"
+            :: "    ${tableName} t"
+            :: Nil
+            );
+        BasicDb/DbMonad.prepareStatement(sql)
+
+    def evalSiteMapRow(): RowEvaluator[SiteMapRow] = 
+        use BasicDb/RowEvaluator.{getStringNamed, getFloat64Named, optional};
+        use BasicDb/RowEvaluator.{<&>, <*>};
+        ((x1, x2) ->
+                { aibInstallation   = x1
+                , s4Site            = x2
+                })
+            <&> getStringNamed("installation_common_name")
+            <*> getStringNamed("s4_level1_code")
+
 }
