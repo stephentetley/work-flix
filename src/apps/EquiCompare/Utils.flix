@@ -16,7 +16,7 @@
 
 /// This is almost common to Outstations and Ultrasonics. `P AND I Tag` is not available to Outstations
 
-namespace EquiCompare/SetupDb/Utils {
+namespace EquiCompare/Utils {
 
     pub def getSheetIOLocalDateNamed(label: String): SheetIO.NamedRowEvaluator[Time.LocalDate] = 
         use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
@@ -24,12 +24,19 @@ namespace EquiCompare/SetupDb/Utils {
 
 
 
-    pub def putPreparedStatementDateAt!(ix: Int32, dt: Time.LocalDate): BasicDb.PreparedStatementSetter[Unit] = 
+    pub def putBasicDbDateAt!(ix: Int32, dt: Time.LocalDate): BasicDb.PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, liftOption, putStringAt!};
         let* fmt    = liftOption(Time/Format/DateFormatter.fromPattern("yyyy-MM-dd"), "putPreparedStatementDateAt!(${ix})");
         let ans     = Time/LocalDate.format(dt, fmt);
         let* _      = putStringAt!(ix, ans);
         return()
+
+    pub def getBasicDbLocalDateNamed(label: String): BasicDb.RowEvaluator[Time.LocalDate] = 
+        use BasicDb/RowEvaluator.{flatMap, return, liftOption, getStringNamed};
+        let* fmt    = liftOption(Time/Format/DateFormatter.fromPattern("yyyy-MM-dd"), "getBasicDbLocalDateNamed!(${label})");
+        let* s      = getStringNamed(label); 
+        let* ans    = liftOption(Time/LocalDate.parse(s, fmt), "getBasicDbLocalDateNamed!(${label})");
+        return(ans)
 
 
 }

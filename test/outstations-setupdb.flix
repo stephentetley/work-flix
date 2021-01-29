@@ -18,13 +18,13 @@ def main(_args: Array[String]): Int32 & Impure =
         , ih08Export = System/FilePath.new("G:/work/assets/outstations/ih08-outstations.xlsx")
         , classequiDownload = System/FilePath.new("G:/work/assets/outstations/netwtl_file_download.txt")
         };
-    match runSQLite(sutupDb(paths), outpath) {
+    match runSQLite(setupDb(paths), outpath) {
         case Ok(_) => {Console.printLine("Wrote: ${outpath}"); 0}
         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
     }
     
 
-def sutupDb(paths: SetupPaths): DbMonad[Unit] = 
+def setupDb(paths: SetupPaths): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};
     let* _  = AssetLib/Facts/SiteMapping.storeSiteMapping("lookup_site", paths.siteMappingTable);
     let* _  = EquiCompare/SetupDb/AibList.storeAibList("aib_equipment", paths.aibExport);

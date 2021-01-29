@@ -84,7 +84,7 @@ namespace EquiCompare/SetupDb/IH08List {
             <*> getStringOrBlankOrNumber("ManufPartNo.")
             <*> getStringOrBlankOrNumber("ManufSerialNo.")
             <*> getStringNamed("User status")
-            <*> EquiCompare/SetupDb/Utils.getSheetIOLocalDateNamed("Start-up date")
+            <*> EquiCompare/Utils.getSheetIOLocalDateNamed("Start-up date")
 
 
     def getStringOrBlankOrNumber(label: String): NamedRowEvaluator[String] = 
@@ -121,7 +121,7 @@ namespace EquiCompare/SetupDb/IH08List {
         let* _ = putStringAt!(7, x.partNumber);
         let* _ = putStringAt!(8, x.serialNumber);
         let* _ = putStringAt!(9, x.userStatus);
-        let* _ = EquiCompare/SetupDb/Utils.putPreparedStatementDateAt!(10, x.startUpDate);
+        let* _ = EquiCompare/Utils.putBasicDbDateAt!(10, x.startUpDate);
         return()
 
 

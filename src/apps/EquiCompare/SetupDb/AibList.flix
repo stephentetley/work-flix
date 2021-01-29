@@ -70,7 +70,7 @@ namespace EquiCompare/SetupDb/AibList {
                 })
             <&> getStringOrBlankOrNumber("Reference")
             <*> getStringOrBlankOrNumber("Common Name")
-            <*> EquiCompare/SetupDb/Utils.getSheetIOLocalDateNamed("Installed From")
+            <*> EquiCompare/Utils.getSheetIOLocalDateNamed("Installed From")
             <*> getStringOrBlankOrNumber("Manufacturer")
             <*> getStringOrBlankOrNumber("Model")
             <*> getStringOrBlankOrNumber("Specific Model/Frame")
@@ -124,7 +124,7 @@ namespace EquiCompare/SetupDb/AibList {
         let* _ = putStringAt!(0, x.reference);
         let* _ = putStringAt!(1, x.commonName);
         let* _ = putStringAt!(2, x.site);
-        let* _ = EquiCompare/SetupDb/Utils.putPreparedStatementDateAt!(3, x.installedFrom);
+        let* _ = EquiCompare/Utils.putBasicDbDateAt!(3, x.installedFrom);
         let* _ = putStringAt!(4, x.manufacturer);
         let* _ = putStringAt!(5, x.model);
         let* _ = putStringAt!(6, x.specificModelFrame);
