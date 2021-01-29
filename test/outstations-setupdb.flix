@@ -11,12 +11,12 @@ type alias SetupPaths =
 def main(_args: Array[String]): Int32 & Impure = 
     use BasicDb/DbMonad.{runSQLite};
     Console.printLine("Running...");
-    let outpath = System/FilePath.new("G:/work/assets/ultrasonics/ultrasonics.sqlite");
+    let outpath = System/FilePath.new("G:/work/assets/outstations/outstations.sqlite");
     let paths = 
         { siteMappingTable = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
-        , aibExport = System/FilePath.new("G:/work/assets/ultrasonics/ai2-ultrasonics-export.xlsx")
-        , ih08Export = System/FilePath.new("G:/work/assets/ultrasonics/lstn-ih08-export.xlsx")
-        , classequiDownload = System/FilePath.new("G:/work/assets/ultrasonics/lstnut-file-download.txt")
+        , aibExport = System/FilePath.new("G:/work/assets/outstations/outstations-aib-export.xlsx")
+        , ih08Export = System/FilePath.new("G:/work/assets/outstations/ih08-outstations.xlsx")
+        , classequiDownload = System/FilePath.new("G:/work/assets/outstations/netwtl_file_download.txt")
         };
     match runSQLite(sutupDb(paths), outpath) {
         case Ok(_) => {Console.printLine("Wrote: ${outpath}"); 0}
@@ -27,8 +27,8 @@ def main(_args: Array[String]): Int32 & Impure =
 def sutupDb(paths: SetupPaths): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};
     let* _  = AssetLib/Facts/SiteMapping.storeSiteMapping("lookup_site", paths.siteMappingTable);
-    let* _  = Ultrasonics/SetupDb/AibList.storeAibList("aib_ultrasonics", paths.aibExport);
-    let* _  = Ultrasonics/SetupDb/IH08List.storeIH08List("s4_ultrasonics", paths.ih08Export);
+    let* _  = EquiCompare/SetupDb/AibList.storeAibList("aib_equipment", paths.aibExport);
+    let* _  = EquiCompare/SetupDb/IH08List.storeIH08List("s4_equipment", paths.ih08Export);
     let* _  = AssetLib/S4/FileIO/TransferFile/Builtins.storeClassEquiFile("s4_classequi", true, paths.classequiDownload);
     return()
 

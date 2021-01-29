@@ -435,9 +435,9 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     def dbWriteClassEquiRows(tableName: String, dropTable: Bool, xs: List[ClassEquiRow]): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = setAutoCommit(false);
         let* _      = whenTrue(dropTable, initClassEquiTable(tableName));
         let* pstmt  = prepareStatement(insertClassEquiRowSql(tableName));
-        let* _      = setAutoCommit(false);
         let* _      = mapM(x -> psExecuteUpdate(pstmt, setClassEquiRowPStmt!(x)), xs);
         let* _      = commit();
         return()
