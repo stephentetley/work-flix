@@ -37,6 +37,7 @@ namespace EquiCompare/SetupDb/IH08List {
         , partNumber: String
         , serialNumber: String
         , userStatus: String
+        , startUpDate: Time.LocalDate
         }
 
 
@@ -61,7 +62,7 @@ namespace EquiCompare/SetupDb/IH08List {
     def evalIH08Row(): NamedRowEvaluator[IH08Row] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> 
                 { equipment = String.trim(x1)
                 , description  = String.trim(x2)
                 , funcloc = String.trim(x3)
@@ -72,6 +73,7 @@ namespace EquiCompare/SetupDb/IH08List {
                 , partNumber = String.trim(x7)
                 , serialNumber = String.trim(x8)
                 , userStatus = String.trim(x9)
+                , startUpDate = x10
                 })
             <&> getStringOrBlankOrNumber("Equipment")
             <*> getStringOrBlankOrNumber("Description")
@@ -82,6 +84,8 @@ namespace EquiCompare/SetupDb/IH08List {
             <*> getStringOrBlankOrNumber("ManufPartNo.")
             <*> getStringOrBlankOrNumber("ManufSerialNo.")
             <*> getStringNamed("User status")
+            <*> EquiCompare/SetupDb/Utils.getSheetIOLocalDateNamed("Start-up date")
+
 
     def getStringOrBlankOrNumber(label: String): NamedRowEvaluator[String] = 
         use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
@@ -117,6 +121,7 @@ namespace EquiCompare/SetupDb/IH08List {
         let* _ = putStringAt!(7, x.partNumber);
         let* _ = putStringAt!(8, x.serialNumber);
         let* _ = putStringAt!(9, x.userStatus);
+        let* _ = EquiCompare/SetupDb/Utils.putPreparedStatementDateAt!(10, x.startUpDate);
         return()
 
 
@@ -132,8 +137,9 @@ namespace EquiCompare/SetupDb/IH08List {
                 :: "model,"
                 :: "part_number,"
                 :: "serial_number,"
-                :: "user_status)"
-                :: "VALUES(?,?,?, ?,?,?, ?,?,?, ?);"
+                :: "user_status, "
+                :: "startup_date)"
+                :: "VALUES(?,?,?,  ?,?,?,  ?,?,?,  ?,?);"
                 :: Nil
         )
 
@@ -149,7 +155,8 @@ namespace EquiCompare/SetupDb/IH08List {
                 :: "model           TEXT,"
                 :: "part_number     TEXT,"
                 :: "serial_number   TEXT,"                
-                :: "user_status   TEXT"
+                :: "user_status     TEXT,"
+                :: "startup_date    TEXT"
                 :: ")"
                 :: Nil
         )

@@ -70,7 +70,7 @@ namespace EquiCompare/SetupDb/AibList {
                 })
             <&> getStringOrBlankOrNumber("Reference")
             <*> getStringOrBlankOrNumber("Common Name")
-            <*> getLocalDateNamed("Installed From")
+            <*> EquiCompare/SetupDb/Utils.getSheetIOLocalDateNamed("Installed From")
             <*> getStringOrBlankOrNumber("Manufacturer")
             <*> getStringOrBlankOrNumber("Model")
             <*> getStringOrBlankOrNumber("Specific Model/Frame")
@@ -94,9 +94,9 @@ namespace EquiCompare/SetupDb/AibList {
             |> String.intercalate(String.lineSeparator())
         
         
-    def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] = 
-        use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
-        map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
+    /// def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] = 
+    ///     use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
+    ///     map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
 
     def getStringOrBlankOrNumber(label: String): NamedRowEvaluator[String] = 
         use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
@@ -124,7 +124,7 @@ namespace EquiCompare/SetupDb/AibList {
         let* _ = putStringAt!(0, x.reference);
         let* _ = putStringAt!(1, x.commonName);
         let* _ = putStringAt!(2, x.site);
-        let* _ = putS4DateAt!(3, x.installedFrom);
+        let* _ = EquiCompare/SetupDb/Utils.putPreparedStatementDateAt!(3, x.installedFrom);
         let* _ = putStringAt!(4, x.manufacturer);
         let* _ = putStringAt!(5, x.model);
         let* _ = putStringAt!(6, x.specificModelFrame);
@@ -133,12 +133,6 @@ namespace EquiCompare/SetupDb/AibList {
         let* _ = putStringAt!(9, x.memoLines);
         return()
 
-    def putS4DateAt!(ix: Int32, dt: Time.LocalDate): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, liftOption, putStringAt!};
-        let* fmt    = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "putS4DateAt!(${ix})");
-        let ans     = Time/LocalDate.format(dt, fmt);
-        let* _      = putStringAt!(ix, ans);
-        return()
 
 
     def insertRowSql(tableName: String): String =
