@@ -21,27 +21,17 @@ namespace EquiCompare/Report/Loader {
     use BasicDb.PreparedStatement;
     use BasicDb.RowEvaluator;
 
+    use EquiCompare/Report/Relations.{AibEquipment, S4Equipment, SiteMap};
 
-
-    type alias EquiRow = 
-        { uid: String
-        , name: String
-        , site: String
-        , installDate: Time.LocalDate
-        , manufacturer: String
-        , modelName: String
-        , serialNumber: String
-        }
-
+    
     /// Aib
-
-    pub def getAibEquis(tableName: String): DbMonad[List[EquiRow]] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, allRows, rsClose};
+    pub def getAibEquipment[r](tableName: String): DbMonad[#{AibEquipment | r}] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, foldAllRows, rsClose};
         let* ps     = prepareAibEquisQuery(tableName);
         let* rs     = psExecuteQuery(ps, BasicDb/PreparedStatementSetter.return());
-        let* xs     = allRows(rs, evalAibEquiRow());
+        let* db     = foldAllRows(rs, (ac,x) -> ac <+> x, #{}, evalAibEquiRow());
         let* _      = rsClose(rs);
-        return(xs)
+        return(solve db)
 
     def prepareAibEquisQuery(tableName: String): DbMonad[PreparedStatement] = 
         let sql = String.unlines(
@@ -59,18 +49,10 @@ namespace EquiCompare/Report/Loader {
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
-    def evalAibEquiRow(): RowEvaluator[EquiRow] = 
+    def evalAibEquiRow[r](): RowEvaluator[#{AibEquipment | r}] = 
         use BasicDb/RowEvaluator.{getStringNamed, getFloat64Named, optional};
         use BasicDb/RowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7) ->
-                { uid           = x1
-                , name          = x2
-                , site          = x3
-                , installDate   = x4
-                , manufacturer  = x5
-                , modelName     = x6
-                , serialNumber  = x7
-                })
+        ((x1, x2, x3, x4, x5, x6, x7) -> AibEquipment(x1, x2, x3, x4, x5, x6, x7). )
             <&> getStringNamed("reference")
             <*> getStringNamed("common_name")
             <*> getStringNamed("site")
@@ -82,13 +64,14 @@ namespace EquiCompare/Report/Loader {
 
     /// S4
     
-    pub def getS4Equis(tableName: String): DbMonad[List[EquiRow]] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, allRows, rsClose};
+
+    pub def getS4Equipment[r](tableName: String): DbMonad[#{S4Equipment | r}] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, foldAllRows, rsClose};
         let* ps     = prepareS4EquisQuery(tableName);
         let* rs     = psExecuteQuery(ps, BasicDb/PreparedStatementSetter.return());
-        let* xs     = allRows(rs, evalS4EquiRow());
+        let* db     = foldAllRows(rs, (ac,x) -> ac <+> x, #{}, evalS4EquiRow());
         let* _      = rsClose(rs);
-        return(xs)
+        return(solve db)
 
     def prepareS4EquisQuery(tableName: String): DbMonad[PreparedStatement] = 
         let sql = String.unlines(
@@ -106,18 +89,10 @@ namespace EquiCompare/Report/Loader {
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
-    def evalS4EquiRow(): RowEvaluator[EquiRow] = 
+    def evalS4EquiRow[r](): RowEvaluator[#{S4Equipment | r}] = 
         use BasicDb/RowEvaluator.{getStringNamed, getFloat64Named, optional};
         use BasicDb/RowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7) ->
-                { uid           = x1
-                , name          = x2
-                , site          = x3
-                , installDate   = x4
-                , manufacturer  = x5
-                , modelName     = x6
-                , serialNumber  = x7
-                })
+        ((x1, x2, x3, x4, x5, x6, x7) -> S4Equipment(x1, x2, x3, x4, x5, x6, x7). )
             <&> getStringNamed("equipment")
             <*> getStringNamed("description")
             <*> getStringNamed("site")
@@ -129,18 +104,13 @@ namespace EquiCompare/Report/Loader {
 
     /// Site Mapping
     
-    type alias SiteMapRow = 
-        { aibInstallation: String
-        , s4Site: String
-        }
-
-    pub def getSiteMapping(tableName: String): DbMonad[List[SiteMapRow]] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, allRows, rsClose};
+    pub def getSiteMap[r](tableName: String): DbMonad[#{SiteMap | r}] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, psExecuteQuery, foldAllRows, rsClose};
         let* ps     = prepareSiteMapRowQuery(tableName);
         let* rs     = psExecuteQuery(ps, BasicDb/PreparedStatementSetter.return());
-        let* xs     = allRows(rs, evalSiteMapRow());
+        let* db     = foldAllRows(rs, (a,b) -> a <+> b, #{}, evalSiteMapRow());
         let* _      = rsClose(rs);
-        return(xs)
+        return(solve db)
 
     def prepareSiteMapRowQuery(tableName: String): DbMonad[PreparedStatement] = 
         let sql = String.unlines(
@@ -153,13 +123,10 @@ namespace EquiCompare/Report/Loader {
             );
         BasicDb/DbMonad.prepareStatement(sql)
 
-    def evalSiteMapRow(): RowEvaluator[SiteMapRow] = 
+    def evalSiteMapRow[r](): RowEvaluator[#{SiteMap | r}] = 
         use BasicDb/RowEvaluator.{getStringNamed, getFloat64Named, optional};
         use BasicDb/RowEvaluator.{<&>, <*>};
-        ((x1, x2) ->
-                { aibInstallation   = x1
-                , s4Site            = x2
-                })
+        ((x1, x2) -> if (String.isEmpty(x2)) #{} else #{ SiteMap(x1, x2). })
             <&> getStringNamed("installation_common_name")
             <*> getStringNamed("s4_level1_code")
 

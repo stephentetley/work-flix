@@ -1,21 +1,21 @@
 use BasicDb.DbMonad;
 
-use EquiCompare/Report/Loader.{EquiRow, SiteMapRow};
+use EquiCompare/Report/Relations.{AibEquipment, S4Equipment, SiteMap};
 
 def main(_args: Array[String]): Int32 & Impure = 
     use BasicDb/DbMonad.{runSQLite};
     Console.printLine("Running...");
     let dppath = System/FilePath.new("G:/work/assets/outstations/outstations.sqlite");
     match runSQLite(getRecords(), dppath) {
-        case Ok(r) => {Console.printLine("Read: AI2 ${List.length(r.aibRows)} rows, S4 ${List.length(r.s4Rows)} rows, Mapping ${List.length(r.mappingRows)} "); 0}
+        case Ok(r) => {Console.printLine(unsafeToString(project SiteMap r)); 0}
         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
     }
     
 
-def getRecords(): DbMonad[{aibRows: List[EquiRow], s4Rows: List[EquiRow], mappingRows: List[SiteMapRow]}] = 
+def getRecords[r](): DbMonad[#{AibEquipment, S4Equipment, SiteMap | r }] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* xs = EquiCompare/Report/Loader.getAibEquis("aib_equipment");
-    let* ys  = EquiCompare/Report/Loader.getS4Equis("s4_equipment");    
-    let* zs  = EquiCompare/Report/Loader.getSiteMapping("lookup_site");
-    return({aibRows = xs, s4Rows = ys, mappingRows = zs})
+    let* x  = EquiCompare/Report/Loader.getAibEquipment("aib_equipment");
+    let* y  = EquiCompare/Report/Loader.getS4Equipment("s4_equipment");    
+    let* z  = EquiCompare/Report/Loader.getSiteMap("lookup_site");
+    return(x <+> y <+> z)
 
