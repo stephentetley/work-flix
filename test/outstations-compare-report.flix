@@ -7,7 +7,7 @@ def main(_args: Array[String]): Int32 & Impure =
     use EquiCompare/Report/Compare.{synced, notMigrated, orphaned};
     Console.printLine("Running...");
     let dppath = System/FilePath.new("G:/work/assets/outstations/outstations.sqlite");
-    let outpath = System/FilePath.new("G:/work/assets/outstations/outstations.sqlite");
+    let outpath = System/FilePath.new("G:/work/assets/outstations/outstations-report.xlsx");
     match main1(dppath, outpath) {
         case Ok() => {Console.printLine("Wrote: ${outpath}"); 0}
         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
@@ -29,15 +29,4 @@ def getRecords[r](): DbMonad[#{AibEquipment, S4Equipment, SiteMap | r}] =
     let* y  = EquiCompare/Report/Loader.getS4Equipment("s4_equipment");    
     let* z  = EquiCompare/Report/Loader.getSiteMap("lookup_site");
     return(x <+> y <+> z)
-
-
-
-/// def report[r](db: #{Synced, NotMigrated, Orphaned, AibEquipment, S4Equipment, SiteMap | r}, outpath: System.FilePath): Int32 & Impure = 
-///     use EquiCompare/Report/Compare.{synced, notMigrated, orphaned};
-///     use EquiCompare/Report/XlsxWriter.{buildSyncedListStep};
-///     let synced = fold Synced buildSyncedListStep Chain.empty() ans;
-///     match SheetIO/SheetWriter.runXssf(writeSyncedSheet(synced), outpath) {
-///         case Ok() => {Console.printLine("Wrote: ${outpath}"); 0}
-///         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
-///     }
 
