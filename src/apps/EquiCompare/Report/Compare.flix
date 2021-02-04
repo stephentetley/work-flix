@@ -26,24 +26,23 @@ namespace EquiCompare/Report/Compare {
     
     pub def notMigrated[r](): #{ NotMigrated, AibEquipment, S4Equipment, SiteMap | r } = #{ 
         NotMigrated(reference, siteAib, commonName) :- 
-            AibEquipment(reference, commonName, siteAib, installDate, manufacturer, modelName, serialNumber),
+            AibEquipment(reference, commonName, siteAib, installDate, manufacturer, _, serialNumber),
             SiteMap(siteAib, siteS4),
-            not S4Equipment(_, _, siteS4, installDate, manufacturer, modelName, serialNumber).
+            not S4Equipment(_, _, siteS4, installDate, manufacturer, _, serialNumber).
     }
 
     pub def synced[r](): #{ Synced, AibEquipment, S4Equipment, SiteMap | r } = #{ 
         Synced(reference, equiId, commonName, description) :- 
-            AibEquipment(reference, commonName, siteAib, installDate, manufacturer, modelName, serialNumber),
+            AibEquipment(reference, commonName, siteAib, installDate, manufacturer, _, serialNumber),
             SiteMap(siteAib, siteS4),
-            S4Equipment(equiId, description, siteS4, installDate, manufacturer, modelName, serialNumber).
+            S4Equipment(equiId, description, siteS4, installDate, manufacturer, _, serialNumber).
     }
 
     pub def orphaned[r](): #{ Orphaned, AibEquipment, S4Equipment, SiteMap | r } = #{ 
         Orphaned(equiId, siteS4, description) :- 
-            S4Equipment(equiId, description, siteS4, installDate, manufacturer, modelName, serialNumber),
+            S4Equipment(equiId, description, siteS4, installDate, manufacturer, _, serialNumber),
             SiteMap(siteAib, siteS4),
-            not AibEquipment(_, _, siteAib, installDate, manufacturer, modelName, serialNumber).    
+            not AibEquipment(_, _, siteAib, installDate, manufacturer, _, serialNumber).    
     }
 
-
-}    
+}

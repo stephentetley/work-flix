@@ -64,17 +64,18 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     /// Write SQL
     pub def initIflotxTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, commit};
-        let* _  = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _  = execute(createTableIflotxRowSql(tableName));
-        let* _  = commit();
+        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
+        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _      = execute(createTableIflotxRowSql(tableName));
+        let* _      = commit();
         return()
 
     def dbWriteIflotxRows(tableName: String, dropTable: Bool, xs: List[IflotxRow]): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = setAutoCommit(false);
         let* _      = whenTrue(dropTable, initIflotxTable(tableName));
         let* pstmt  = prepareStatement(insertIflotxRowSql(tableName));
-        let* _      = setAutoCommit(false);
         let* _      = mapM(x -> psExecuteUpdate(pstmt, setIflotxRowPStmt!(x)), xs);
         let* _      = commit();
         return()
@@ -141,17 +142,18 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     /// Write SQL
     pub def initClassFlocTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, commit};
-        let* _  = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _  = execute(createTableClassFlocRowSql(tableName));
-        let* _  = commit();
+        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
+        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _      = execute(createTableClassFlocRowSql(tableName));
+        let* _      = commit();
         return()
 
     def dbWriteClassFlocRows(tableName: String, dropTable: Bool, xs: List[ClassFlocRow]): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = setAutoCommit(false);
         let* _      = whenTrue(dropTable, initClassFlocTable(tableName));
         let* pstmt  = prepareStatement(insertClassFlocRowSql(tableName));
-        let* _      = setAutoCommit(false);
         let* _      = mapM(x -> psExecuteUpdate(pstmt, setClassFlocRowPStmt!(x)), xs);
         let* _      = commit();
         return()
@@ -235,17 +237,18 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     /// Write SQL
     pub def initValuaFlocTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, commit};
-        let* _  = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _  = execute(createTableValuaFlocRowSql(tableName));
-        let* _  = commit();
+        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
+        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _      = execute(createTableValuaFlocRowSql(tableName));
+        let* _      = commit();
         return()
 
     def dbWriteValuaFlocRows(tableName: String, dropTable: Bool, xs: List[ValuaFlocRow]): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = setAutoCommit(false);
         let* _      = whenTrue(dropTable, initValuaFlocTable(tableName));
         let* pstmt  = prepareStatement(insertValuaFlocRowSql(tableName));
-        let* _      = setAutoCommit(false);
         let* _      = mapM(x -> psExecuteUpdate(pstmt, setValuaFlocRowPStmt!(x)), xs);
         let* _      = commit();
         return()
@@ -328,7 +331,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
     /// Write SQL
 
     pub def initEqmltxtTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, commit};
+        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
         let* _      = execute("DROP TABLE IF EXISTS ${tableName}");
         let* _      = execute(createTableEqmltxtRowSql(tableName));
         let* _      = commit();
@@ -336,9 +340,9 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     def dbWriteEqmltxtRows(tableName: String, dropTable: Bool, xs: List[EqmltxtRow]): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = setAutoCommit(false);
         let* _      = whenTrue(dropTable, initEqmltxtTable(tableName));
         let* pstmt  = prepareStatement(insertEqmltxtRowSql(tableName));
-        let* _      = setAutoCommit(false);
         let* _      = mapM(x -> psExecuteUpdate(pstmt, setEqmltxtRowPStmt!(x)), xs);
         let* _      = commit();
         return()
@@ -427,7 +431,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     /// Write SQL
     pub def initClassEquiTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, commit};
+        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
         let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _      = execute(createTableClassEquiRowSql(tableName));
         let* _      = commit();
@@ -547,7 +552,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     /// Write SQL
     pub def initValuaEquiTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
+        let* _      = setAutoCommit(false);
         let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _      = execute(createTableValuaEquiRowSql(tableName));
         let* _      = commit();
@@ -555,9 +561,9 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
     def dbWriteValuaEquiRows(tableName: String, dropTable: Bool, xs: List[ValuaEquiRow]): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
+        let* _      = setAutoCommit(false);
         let* _      = whenTrue(dropTable, initValuaEquiTable(tableName));
         let* pstmt  = prepareStatement(insertValuaEquiRowSql(tableName));
-        let* _      = setAutoCommit(false);
         let* _      = mapM(x -> psExecuteUpdate(pstmt, setValuaEquiRowPStmt!(x)), xs);
         let* _      = commit();
         return()
