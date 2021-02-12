@@ -20,7 +20,7 @@ namespace AssetLib/S4/FileIO/IH06Tree/Parser {
     use Time.LocalDate;
 
     use TextParser.TextParser;
-    use TextParser.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, lookingAts, liftResult};
+    use TextParser.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, lookingAts, liftResult, liftOption};
     use TextParser/Combinators.{tuple2, many1Till, ignore};
     use TextParser/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
     use TextParser/Token1.{symbol, lexeme};
@@ -29,11 +29,11 @@ namespace AssetLib/S4/FileIO/IH06Tree/Parser {
     use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     /// Always UTF-8? No need to handle utf8+BOM...
-    pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, System.Error] & Impure = 
-        TextParser.parseFile(ih06FileParser(), path, cs) 
+    pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
+        TextParser.parsesFile(ih06FileParser(), path, cs) 
 
-    pub def parseFileWithBOM(path: System.FilePath, cs: Text.Charset) : Result[IH06File, System.Error] & Impure = 
-        TextParser.parseFileWithBOM(ih06FileParser(), path, cs) 
+    pub def parseFileWithBOM(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
+        TextParser.parsesFileWithBOM(ih06FileParser(), path, cs) 
 
 
     pub def ih06FileParser(): TextParser[IH06File, t] = 
@@ -129,8 +129,8 @@ namespace AssetLib/S4/FileIO/IH06Tree/Parser {
     def dateStamp(): TextParser[LocalDate, t] = 
         use TextParser.flatMap;
         let* s = lookingAts("\d{2}\.\d{2}\.\d{2}");
-        let* fmt = liftResult(Time/Format/DateFormatter.fromPattern("dd.MM.yy"));
-        let* ans = liftResult(Time/LocalDate.parse(s, fmt));
+        let* fmt = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yy"),  "DateFormatter.fromPattern failed");
+        let* ans = liftOption(Time/LocalDate.parse(s, fmt), "LocalDate.parse failed");
         return(ans)
 
 

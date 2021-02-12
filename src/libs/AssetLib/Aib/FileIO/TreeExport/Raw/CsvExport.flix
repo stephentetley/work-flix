@@ -24,7 +24,7 @@ use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTree, AibNode};
 namespace AssetLib/Aib/FileIO/TreeExport/Raw/CsvExport {
 
 
-    pub def exportAibTreesCsv(src: List[AibTree], path: System.FilePath): Result[Unit, System.Error] & Impure =
+    pub def exportAibTreesCsv(src: List[AibTree], path: System.FilePath): Result[Unit, String] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
         let headers = characteristicHeaders();

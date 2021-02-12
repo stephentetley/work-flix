@@ -55,8 +55,8 @@ namespace NewLiftingItems/SetupDb/Worklist/AibAttributes {
 
     /// TODO - this needs to handle "SAI" rows too, ideally by Option...
     def evalAibAttributeRow(): NamedRowEvaluator[AibAttributeRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, alt, getStringNamed, 
-                getFloat64Named, getStringNamedWithDefault, optional, getStringNamedWithDataFormatter};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, optional, getContentNamed, 
+                getFloat64Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use String.{trim};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) ->
@@ -74,29 +74,25 @@ namespace NewLiftingItems/SetupDb/Worklist/AibAttributes {
                 , statutoryRef      = x12.trim()
                 , testCertNum       = x13.trim()
                 })
-            <&> getStringNamed("Reference")
-            <*> getStringNamed("AssetStatus")
+            <&> getContentNamed("Reference")
+            <*> getContentNamed("AssetStatus")
             <*> getLocalDateNamed("Installed From")
-            <*> getStringNamedWithDefault("Manufacturer", "")
-            <*> getCouldBeNumericalNamed("Model")
-            <*> getCouldBeNumericalNamed("Specific Model/Frame")
-            <*> getCouldBeNumericalNamed("Serial No")
-            <*> getStringNamedWithDefault("Loc.Ref.", "")
-            <*> getStringNamedWithDefault("Location On Site", "")
+            <*> getContentNamed("Manufacturer")
+            <*> getContentNamed("Model")
+            <*> getContentNamed("Specific Model/Frame")
+            <*> getContentNamed("Serial No")
+            <*> getContentNamed("Loc.Ref.")
+            <*> getContentNamed("Location On Site")
             <*> optional(getFloat64Named("Work Load"))
-            <*> getStringNamedWithDefault("Work Load Units", "")
-            <*> getCouldBeNumericalNamed("YWRef")
-            <*> getCouldBeNumericalNamed("Test Cert No")
+            <*> getContentNamed("Work Load Units")
+            <*> getContentNamed("YWRef")
+            <*> getContentNamed("Test Cert No")
 
     def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] = 
         use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
         map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
         
 
-    def getCouldBeNumericalNamed(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
-        
 
 
 

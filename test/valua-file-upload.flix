@@ -45,7 +45,7 @@ def readWorklist(): SheetReader[List[WorklistRow]] =
 
 
 def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] = 
-    use SheetIO/NamedRowEvaluator.{flatMap, return, alt, map, getStringNamed, 
+    use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed, 
         getStringNamedWithDefault, getInt64Named};
     use SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6) -> 
@@ -56,12 +56,12 @@ def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] =
             , classType             = x5
             , existingSolutionId    = x6
             })
-        <&> alt(getStringNamed("equi_id"), map(Int64.toString, getInt64Named("equi_id")))
-        <*> getStringNamedWithDefault("site", "")
-        <*> getStringNamedWithDefault("description", "")
-        <*> getStringNamedWithDefault("floc", "")
-        <*> getStringNamedWithDefault("classtype", "")
-        <*> getStringNamedWithDefault("existing_solution_id", "")
+        <&> getContentNamed("equi_id")
+        <*> getContentNamed("site")
+        <*> getContentNamed("description")
+        <*> getContentNamed("floc")
+        <*> getContentNamed("classtype")
+        <*> getContentNamed("existing_solution_id")
 
 def makeClassEqui(x: WorklistRow): Option[ClassEquiRow] = 
     if (x.existingSolutionId != "")

@@ -60,7 +60,7 @@ namespace EquiCompare/SetupDb/IH08List {
 
 
     def evalIH08Row(): NamedRowEvaluator[IH08Row] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> 
                 { equipment = String.trim(x1)
@@ -75,21 +75,17 @@ namespace EquiCompare/SetupDb/IH08List {
                 , userStatus = String.trim(x9)
                 , startUpDate = x10
                 })
-            <&> getStringOrBlankOrNumber("Equipment")
-            <*> getStringOrBlankOrNumber("Description")
+            <&> getContentNamed("Equipment")
+            <*> getContentNamed("Description")
             <*> getStringNamed("Functional Loc.")
-            <*> getStringOrBlankOrNumber("TechIdentNo.")
-            <*> getStringOrBlankOrNumber("Manufacturer")
-            <*> getStringOrBlankOrNumber("Model number")
-            <*> getStringOrBlankOrNumber("ManufPartNo.")
-            <*> getStringOrBlankOrNumber("ManufSerialNo.")
+            <*> getContentNamed("TechIdentNo.")
+            <*> getContentNamed("Manufacturer")
+            <*> getContentNamed("Model number")
+            <*> getContentNamed("ManufPartNo.")
+            <*> getContentNamed("ManufSerialNo.")
             <*> getStringNamed("User status")
             <*> EquiCompare/Utils.getSheetIOLocalDateNamed("Start-up date")
 
-
-    def getStringOrBlankOrNumber(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
 
     def getSite(s: String): String = match String.splitOn(s, "-") { 
         case s1 :: _ => s1

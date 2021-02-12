@@ -21,7 +21,7 @@ namespace AssetLib/Aib/FileIO/TreeExport/Raw/XlsxReader {
 
     use AssetLib/Aib/FileIO/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow};
 
-    pub def readAibTreeFile(path: System.FilePath): Result[AibTreeFile, System.Error] & Impure =    
+    pub def readAibTreeFile(path: System.FilePath): Result[AibTreeFile, String] & Impure =    
         SheetIO/SheetReader.runXlsx(readAibSheet(), path)
 
     pub def readAibSheet(): SheetReader[List[AibRow]] = 

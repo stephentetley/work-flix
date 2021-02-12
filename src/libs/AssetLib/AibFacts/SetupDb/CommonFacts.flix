@@ -52,31 +52,28 @@ namespace AssetLib/AibFacts/SetupDb/CommonFacts {
         let* s1 = getSheetAt(0); 
         namedRowsFrom(s1, 0, 1, evalAibBaseRow())
 
-    /// TODO - this needs to handle "SAI" rows too, ideally by Option...
+ 
     def evalAibBaseRow(): NamedRowEvaluator[AibBaseRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, 
-            getStringNamedWithDefault, getLocalDateTimeNamed};
-        use AssetLib/S4/Base/SheetIOUtils.{getS4LocalDateNamed};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateTimeNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use String.{trim};
-        ((x1, x2, x3, x4, x5, x6) ->
+        ((x1, x2, x3, x4, x5, x6, x7) ->
                 { reference         = x1.trim()
-                , manufacturer      = x2.trim()
-                , model             = x3.trim()
-                , installedFrom     = x4
-                , assetStatus       = x5
-                , locRef            = x6
+                , commonName        = x2.trim()
+                , manufacturer      = x3.trim()
+                , model             = x4.trim()
+                , installedFrom     = x5
+                , assetStatus       = x6
+                , locRef            = x7
                 })
-            <&> getStringNamed("Reference")
-            <*> getStringNamedWithDefault("Manufacturer", "")
-            <*> getCouldBeNumericalNamed("Model")
+            <&> getContentNamed("Reference")
+            <*> getContentNamed("Common Name")
+            <*> getContentNamed("Manufacturer")
+            <*> getContentNamed("Model")
             <*> getLocalDateTimeNamed("Installed From")
-            <*> getStringNamedWithDefault("AssetStatus", "")
-            <*> getCouldBeNumericalNamed("Loc.Ref.")
+            <*> getContentNamed("AssetStatus")
+            <*> getContentNamed("Loc.Ref.")
 
-    def getCouldBeNumericalNamed(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
         
     def makeTextFacts(x: AibBaseRow): List[TextFact] = 
         use AssetLib/AibFacts/SetupDb/TextFact.{createNonEmpty};

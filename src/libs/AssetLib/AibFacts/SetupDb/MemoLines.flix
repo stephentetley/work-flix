@@ -30,9 +30,6 @@ namespace AssetLib/AibFacts/SetupDb/MemoLines {
         , longText: String
         }
 
-
-
-
     pub def storeCommonFacts(textTableName: String, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{return, flatMap, liftActionResult, map};
         use AssetLib/AibFacts/SetupDb/TextFact.{insertTextFactRows};
@@ -51,22 +48,18 @@ namespace AssetLib/AibFacts/SetupDb/MemoLines {
 
 
     def evalMemoLineRow(): NamedRowEvaluator[MemoLineRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> 
                 { reference = String.trim(x1)
                 , longText  = makeLongText(List.map(String.trim, x2 :: x3 :: x4 :: x5 :: x6 :: Nil))
                 })
-            <&> getStringNamed("Reference")
-            <*> getMemoNamed("Memo Line 1")
-            <*> getMemoNamed("Memo Line 2")
-            <*> getMemoNamed("Memo Line 3")
-            <*> getMemoNamed("Memo Line 4")
-            <*> getMemoNamed("Memo Line 5")
-
-    def getMemoNamed(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
+            <&> getContentNamed("Reference")
+            <*> getContentNamed("Memo Line 1")
+            <*> getContentNamed("Memo Line 2")
+            <*> getContentNamed("Memo Line 3")
+            <*> getContentNamed("Memo Line 4")
+            <*> getContentNamed("Memo Line 5")
 
 
 

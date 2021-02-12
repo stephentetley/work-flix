@@ -166,4 +166,14 @@ namespace Elaborator/ElaborateMonad {
             }
         }
 
+    def makeKey(equiId: String, charName: String): String = "${equiId}::${charName}"
+
+    pub def getNextCounter(equiId: String, charName: String): ElaborateMonad[Int32] = 
+        ElaborateMonad(s1 -> 
+            let key = makeKey(equiId, charName); 
+            match Map.get(key, s1) {
+                case Some(i) => Ok((Map.insert(key, i + 1, s1), i + 1)) as & Impure
+                case None => Err("Counter not found for ${charName} ${equiId}") as & Impure
+            })
+
 }

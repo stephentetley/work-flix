@@ -22,7 +22,7 @@ namespace AssetLib/S4/FileIO/IH08Table/XlsxReader {
 
     use AssetLib/S4/FileIO/IH08Table/Datatypes.{IH08Row};
 
-    pub def readIH08File(path: System.FilePath): Result[List[IH08Row], System.Error] & Impure =    
+    pub def readIH08File(path: System.FilePath): Result[List[IH08Row], String] & Impure =    
         SheetIO/SheetReader.runXlsx(readIH08Sheet(), path)
 
     pub def readIH08Sheet(): SheetReader[List[IH08Row]] = 
@@ -33,7 +33,7 @@ namespace AssetLib/S4/FileIO/IH08Table/XlsxReader {
 
 
     def evalIH08Row(): NamedRowEvaluator[IH08Row] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getStringNamed, getInt32Named, getInt64Named};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getContentNamed, getInt32Named, getInt64Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) -> 
                 { equiId            = x1
@@ -52,30 +52,28 @@ namespace AssetLib/S4/FileIO/IH08Table/XlsxReader {
                 , street            = x14
                 , inventoryNo       = x15
                 })
-            <&> getStringNamed("Equipment")
-            <*> getStringNamed("Description")
+            <&> getContentNamed("Equipment")
+            <*> getContentNamed("Description")
             <*> getInt32StoredAsTextNamed("Planning Plant")
-        	<*> getStringNamed("Functional Loc.")
-            <*> getStringNamed("TechIdentNo.")
-            <*> getStringNamed("Superord.Equip.")
+        	<*> getContentNamed("Functional Loc.")
+            <*> getContentNamed("TechIdentNo.")
+            <*> getContentNamed("Superord.Equip.")
             <*> optional(getInt32StoredAsTextNamed("Position"))
-            <*> getCouldBeNumericalNamed("ManufPartNo.")
-            <*> getStringNamed("Manufacturer")
-            <*> getCouldBeNumericalNamed("ManufSerialNo.")
-            <*> getStringNamed("Model number")
-            <*> getStringNamed("User status")
-            <*> getStringNamed("Object Type")
-            <*> getStringNamed("Street")
+            <*> getContentNamed("ManufPartNo.")
+            <*> getContentNamed("Manufacturer")
+            <*> getContentNamed("ManufSerialNo.")
+            <*> getContentNamed("Model number")
+            <*> getContentNamed("User status")
+            <*> getContentNamed("Object Type")
+            <*> getContentNamed("Street")
             <*> optional(getInt64StoredAsTextNamed("Inventory no."))
 
-    def getCouldBeNumericalNamed(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{map, alt, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
+
 
     /// Candidate for SheetIO...
     def getInt32StoredAsTextNamed(label: String): NamedRowEvaluator[Int32] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, throwError};
-        let* s1      = getStringNamed(label);
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, throwError};
+        let* s1      = getContentNamed(label);
         match Int32.fromString(s1) {
             case Ok(i)  => return(i)
             case Err(_) => throwError("getInt32StoredAsTextNamed('${label}')")

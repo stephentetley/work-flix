@@ -53,7 +53,7 @@ namespace Ultrasonics/SetupDb/AibList {
 
 
     def evalAibRow(): NamedRowEvaluator[AibRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> 
                 { reference             = String.trim(x1)
@@ -68,26 +68,23 @@ namespace Ultrasonics/SetupDb/AibList {
                 , assetStatus           = String.trim(x9)
                 , memoLines             = x10
                 })
-            <&> getStringOrBlankOrNumber("Reference")
-            <*> getStringOrBlankOrNumber("Common Name")
+            <&> getContentNamed("Reference")
+            <*> getContentNamed("Common Name")
             <*> getLocalDateNamed("Installed From")
-            <*> getStringOrBlankOrNumber("P AND I Tag No")
-            <*> getStringOrBlankOrNumber("Manufacturer")
-            <*> getStringOrBlankOrNumber("Model")
-            <*> getStringOrBlankOrNumber("Specific Model/Frame")
-            <*> getStringOrBlankOrNumber("Serial No")
-            <*> getStringNamed("AssetStatus")
+            <*> getContentNamed("P AND I Tag No")
+            <*> getContentNamed("Manufacturer")
+            <*> getContentNamed("Model")
+            <*> getContentNamed("Specific Model/Frame")
+            <*> getContentNamed("Serial No")
+            <*> getContentNamed("AssetStatus")
             <*> getMemoLines("Memo Line 1" ::  "Memo Line 2":: "Memo Line 3" :: "Memo Line 4" :: Nil)
             
 
     def getMemoLines(labels: List[String]): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, mapM};
-        let* xs = mapM(getMemoNamed1, labels);
+        use SheetIO/NamedRowEvaluator.{flatMap, return, mapM, getContentNamed};
+        let* xs = mapM(getContentNamed, labels);
         return(makeLongText(xs))
 
-    def getMemoNamed1(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
 
     def makeLongText(xs: List[String]): String = 
         List.map(String.trim, xs) 
@@ -99,9 +96,7 @@ namespace Ultrasonics/SetupDb/AibList {
         use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
         map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
 
-    def getStringOrBlankOrNumber(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
+
 
     def getSite(s: String): String = match String.splitOn(s, "/") { 
         case s1 :: s2 :: _ => "${s1}/${s2}"

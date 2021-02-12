@@ -54,7 +54,7 @@ namespace EquiCompare/SetupDb/AibList {
 
 
     def evalAibRow(): NamedRowEvaluator[AibRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
                 { reference             = String.trim(x1)
@@ -68,25 +68,21 @@ namespace EquiCompare/SetupDb/AibList {
                 , assetStatus           = String.trim(x8)
                 , memoLines             = x9
                 })
-            <&> getStringOrBlankOrNumber("Reference")
-            <*> getStringOrBlankOrNumber("Common Name")
+            <&> getContentNamed("Reference")
+            <*> getContentNamed("Common Name")
             <*> EquiCompare/Utils.getSheetIOLocalDateNamed("Installed From")
-            <*> getStringOrBlankOrNumber("Manufacturer")
-            <*> getStringOrBlankOrNumber("Model")
-            <*> getStringOrBlankOrNumber("Specific Model/Frame")
-            <*> getStringOrBlankOrNumber("Serial No")
-            <*> getStringNamed("AssetStatus")
+            <*> getContentNamed("Manufacturer")
+            <*> getContentNamed("Model")
+            <*> getContentNamed("Specific Model/Frame")
+            <*> getContentNamed("Serial No")
+            <*> getContentNamed("AssetStatus")
             <*> getMemoLines("Memo Line 1" ::  "Memo Line 2":: "Memo Line 3" :: "Memo Line 4" :: Nil)
             
 
     def getMemoLines(labels: List[String]): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, mapM};
-        let* xs = mapM(getMemoNamed1, labels);
+        use SheetIO/NamedRowEvaluator.{flatMap, return, mapM, getContentNamed};
+        let* xs = mapM(getContentNamed, labels);
         return(makeLongText(xs))
-
-    def getMemoNamed1(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
 
     def makeLongText(xs: List[String]): String = 
         List.map(String.trim, xs) 
@@ -97,11 +93,7 @@ namespace EquiCompare/SetupDb/AibList {
     /// def getLocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] = 
     ///     use SheetIO/NamedRowEvaluator.{map, getLocalDateTimeNamed};
     ///     map(Time/LocalDateTime.toLocalDate,  getLocalDateTimeNamed(label))
-
-    def getStringOrBlankOrNumber(label: String): NamedRowEvaluator[String] = 
-        use SheetIO/NamedRowEvaluator.{alt, map, getStringNamedWithDefault, getInt64Named};
-        alt(getStringNamedWithDefault(label, ""), map(Int64.toString, getInt64Named(label)))
-
+    
     def getSite(s: String): String = match String.splitOn(s, "/") { 
         case s1 :: s2 :: _ => "${s1}/${s2}"
         case _ => ""
