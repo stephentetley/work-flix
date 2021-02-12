@@ -21,7 +21,7 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{ClassEqui, ValuaEqui};    
+    use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{ClassFloc, ValuaFloc, ClassEqui, ValuaEqui};    
     use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
     use AssetLib/S4/FileIO/TransferFile.RowSetter;
 
@@ -117,6 +117,26 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
         }
 
     
+    pub def outputClassFlocFile(user: String,
+                                rows: List[ClassFlocRow], 
+                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
+        let headers = ["FUNCLOC", "CLASS", "CLASSTYPE", "CLINT", "CLSTATUS1"];
+        let* rows2 = execMapRowSetter(headers, classFlocSetRow!, rows);
+        outputUploadFile(ClassFloc, "", user, headers, rows2, outpath)
+
+    def classFlocSetRow!(x: ClassFlocRow): RowSetter[Unit] = 
+        use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
+            putInt32Named!, putPaddedInt32Named!};
+        let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
+        let* _  = putStringNamed!("CLASS",      x.className);
+        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
+        let* _  = putStringNamed!("CLINT",      x.internalClassNumber);
+        let* _  = putStringNamed!("CLSTATUS1",  Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
+        return()
+
+
     pub def storeClassFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};
         use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
@@ -186,7 +206,7 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
 
 
 
-    /// CLASSFLOC
+    /// VALUAFLOC
 
    type alias ValuaFlocRow = 
         { funcloc: String
@@ -199,6 +219,29 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
         , valueFrom: String
         , valueTo: String
         }
+
+    pub def outputValuaFlocFile(user: String,
+                                rows: List[ValuaFlocRow], 
+                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
+        let headers = ["FUNCLOC", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "VALCNT", "ATFLV", "ATFLB"];
+        let* rows2 = execMapRowSetter(headers, valuaFlocSetRow!, rows);
+        outputUploadFile(ValuaFloc, "", user, headers, rows2, outpath)
+
+    def valuaFlocSetRow!(x: ValuaFlocRow): RowSetter[Unit] = 
+        use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
+            putInt32Named!, putPaddedInt32Named!};
+        let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
+        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
+        let* _  = putStringNamed!("CHARID",     x.charId);
+        let* _  = putStringNamed!("ATWRT",      x.charValue);
+        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
+        let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
+        let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
+        let* _  = putStringNamed!("ATFLV",      x.valueFrom);
+        let* _  = putStringNamed!("ATFLB",      x.valueTo);
+        return()   
 
     pub def storeValuaFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult};

@@ -29,6 +29,17 @@ namespace Elaborator/ElaborateMonad {
     use Elaborator.ElaborateMonad;
     use Elaborator.ElaborateMonad.{ElaborateMonad};
 
+    pub def runElaborateMonad(ma: ElaborateMonad[a], 
+                              x: {equiTableName: String, flocTableName: String}): DbMonad[a] = 
+        use BasicDb/DbMonad.{flatMap};
+        let ElaborateMonad(f) = ma;
+        let action = () -> {
+            let* _  = Elaborator/GetValuaMax.cacheValuaFlocMaxQuery(x.flocTableName);
+            let* _  = Elaborator/GetValuaMax.cacheValuaEquiMaxQuery(x.equiTableName);
+            f(Map.empty())
+        };
+        BasicDb/DbMonad.map(snd, action())
+
     def apply1(ma: ElaborateMonad[a], st: Map[String, Int32]): DbMonad[(Map[String, Int32], a)] = 
         let ElaborateMonad(x1) = ma;
         x1(st)
@@ -155,17 +166,31 @@ namespace Elaborator/ElaborateMonad {
     ///         }
     ///     }
 
-    def makeKey(equiId: String, charName: String): String = "${equiId}::${charName}"
+    def makeEquiKey(equiId: String, charName: String): String = "${equiId}::${charName}"
 
-    pub def getNextCounter(equiId: String, charName: String): ElaborateMonad[Int32] = 
+    pub def nextValuaEquiCounter(equiId: String, charName: String): ElaborateMonad[Int32] = 
         use BasicDb/DbMonad.{flatMap, return};
-        use Elaborator/GetValuaMax.{getValuaEquiMax};
         ElaborateMonad(s1 -> {
-            let key = makeKey(equiId, charName); 
+            let key = makeEquiKey(equiId, charName); 
             match Map.get(key, s1) {
                 case Some(i) => return((Map.insert(key, i + 1, s1), i + 1))
                 case None => {
                     let* i = Elaborator/GetValuaMax.getValuaEquiMax(equiId, charName);
+                    return((Map.insert(key, i + 1, s1), i + 1))
+                }
+            }
+        })
+
+    def makeFlocKey(funcloc: String, charName: String): String = "${funcloc}::${charName}"
+
+    pub def nextValuaFlocCounter(funcloc: String, charName: String): ElaborateMonad[Int32] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        ElaborateMonad(s1 -> {
+            let key = makeFlocKey(funcloc, charName); 
+            match Map.get(key, s1) {
+                case Some(i) => return((Map.insert(key, i + 1, s1), i + 1))
+                case None => {
+                    let* i = Elaborator/GetValuaMax.getValuaFlocMax(funcloc, charName);
                     return((Map.insert(key, i + 1, s1), i + 1))
                 }
             }
