@@ -16,7 +16,7 @@
 
 namespace Elaborator/CreateUploadFile {
     
-    use BasicDb.DbMonad;
+    use Elaborator.ElaborateMonad;
     
     use AssetLib/S4/FileIO/TransferFile/Builtins.{ValuaEquiRow};
 
@@ -32,7 +32,7 @@ namespace Elaborator/CreateUploadFile {
     ///     , valueTo: String
     ///     }
     
-    pub def stringValuaEqui(x: {equiId: String, classType: String, charId: String, counter: Int32, value: String}): ValuaEquiRow = 
+    def stringValuaEqui(x: {equiId: String, classType: String, charId: String, counter: Int32, value: String}): ValuaEquiRow = 
         { equi = x.equiId
         , classType = x.classType
         , charId = x.charId
@@ -44,24 +44,15 @@ namespace Elaborator/CreateUploadFile {
         , valueTo = ""
         }
 
-    /// def nextValuaEqui(equiId: String, charId: String, value: String): DbMonad[ValuaEquiRow] = 
-    ///     use BasicDb/DbMonad.{flatMap, return};
-    ///     let* pstmt  = Elaborator/GetValuaMax.prepareValuaEquiMaxQuery();    /// TODO - cache...
-    ///     let* imax   = Elaborator/GetValuaMax.getValuaEquiMax({valuaEquiMax = pstmt}, equiId, charId);
-
-    ///     stringValuaEqui(
-    ///         { equiId    = equiId
-    ///         , classType = "002"
-    ///         , charId    = "AI2_AIB_REFERENCE"
-    ///         })
-
-
-    /// /// AI2_AIB_REFERENCE
-    /// def addAi2AibReference(equiId: String, value: String): DbMonad[ValuaEquiRow] = 
-    ///     stringValuaEqui(
-    ///         { equiId    = equiId
-    ///         , classType = "002"
-    ///         , charId    = "AI2_AIB_REFERENCE"
-    ///         })
+    pub def nextStringValuaEqui(equiId: String, charId: String, value: String): ElaborateMonad[ValuaEquiRow] = 
+        use Elaborator/ElaborateMonad.{flatMap, return, getNextCounter};
+        let* imax   = getNextCounter(equiId, charId);
+        return(stringValuaEqui(
+                    { equiId    = equiId
+                    , classType = "002"
+                    , charId    = charId
+                    , counter   = imax
+                    , value     = value
+                    }))
 
 }

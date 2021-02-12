@@ -15,102 +15,91 @@
  */
 
 namespace Elaborator {
-    
-    pub opaque type ElaborateMonad[a] = Map[String, Int32] ~> Result[(Map[String, Int32], a), String]
+
+    use BasicDb.DbMonad;
+
+    pub opaque type ElaborateMonad[a] = Map[String, Int32] -> DbMonad[(Map[String, Int32], a)]
 
 }
 
 namespace Elaborator/ElaborateMonad {
     
+    use BasicDb.DbMonad;
+
     use Elaborator.ElaborateMonad;
     use Elaborator.ElaborateMonad.{ElaborateMonad};
 
-    def apply1(ma: ElaborateMonad[a], st: Map[String, Int32]): Result[(Map[String, Int32], a), String] & Impure = 
+    def apply1(ma: ElaborateMonad[a], st: Map[String, Int32]): DbMonad[(Map[String, Int32], a)] = 
         let ElaborateMonad(x1) = ma;
         x1(st)
 
     pub def return(x: a): ElaborateMonad[a] = 
-        ElaborateMonad(s1 -> Ok((s1, x)) as & Impure)
+        ElaborateMonad(s1 -> BasicDb/DbMonad.return((s1, x)))
 
     pub def throwError(msg: String): ElaborateMonad[a] =
-        ElaborateMonad(_ -> Err(msg) as & Impure)
+        ElaborateMonad(_ -> BasicDb/DbMonad.throwError(msg))
 
 
     pub def swapError(ma: ElaborateMonad[a], msg: String): ElaborateMonad[a] =
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, a)) => Ok((s2, a))
-            case Err(_) => Err(msg)
-        })
+        ElaborateMonad(s1 -> BasicDb/DbMonad.swapError(apply1(ma, s1), msg))
+            
 
 
     pub def catchError(ma: ElaborateMonad[a], handle: String -> ElaborateMonad[a]): ElaborateMonad[a] =
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, a)) => Ok((s2, a))
-            case Err(e) => apply1(handle(e), s1)
-        })
+        ElaborateMonad(s1 -> BasicDb/DbMonad.catchError(apply1(ma, s1), msg -> apply1(handle(msg), s1)))
 
     pub def mapError(f: String -> String, ma: ElaborateMonad[a]): ElaborateMonad[a] =
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, a)) => Ok((s2, a))
-            case Err(e) => Err(f(e))
-        })
+        ElaborateMonad(s1 -> BasicDb/DbMonad.mapError(f, apply1(ma, s1)))
+            
 
     /// Needs to allow allow effects (e.g create / access arrays)
     pub def map(fn: a -> b & ef, ma: ElaborateMonad[a]): ElaborateMonad[b] = 
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, a)) => {let ans = fn(a) as & Impure; Ok((s2, ans))}
-            case Err(e) => Err(e)
+        ElaborateMonad(s1 -> BasicDb/DbMonad.map(ans -> {let (s2, a) = ans; (s2, fn(a))}, apply1(ma, s1)))
+            
+
+    
+    pub def ap(mf: ElaborateMonad[a -> b & ef], ma: ElaborateMonad[a]): ElaborateMonad[b] =         
+        use BasicDb/DbMonad.{flatMap, return};
+        ElaborateMonad(s1 -> {
+            let* (s2, f) = apply1(mf, s1); 
+            let* (s3, a) = apply1(ma, s2); 
+            let* ans     = BasicDb/DbMonad.map(f, return(a));
+            return((s3, ans))
         })
 
-    pub def ap(mf: ElaborateMonad[a -> b & ef], ma: ElaborateMonad[a]): ElaborateMonad[b] = 
-        ElaborateMonad(s1 -> match apply1(mf, s1) { 
-            case Ok((s2, f)) => match apply1(ma, s2) { 
-                case Ok((s3, a)) => {let ans = f(a) as & Impure; Ok((s3, ans))}
-                case Err(e) => Err(e)
-            }
-            case Err(e) => Err(e)
-        })
 
 
     pub def seqLeft(ma: ElaborateMonad[a], mb: ElaborateMonad[b]): ElaborateMonad[a] = 
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, a)) => match apply1(mb, s2) {
-                case Ok((s3, _)) => Ok((s3, a))
-                case Err(e) => Err(e)
-            }
-            case Err(e) => Err(e)
-        })
+        let* a = ma;
+        let* _ = mb;
+        return(a)
 
     pub def seqRight(ma: ElaborateMonad[a], mb: ElaborateMonad[b]): ElaborateMonad[b] = 
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, _)) => apply1(mb, s2)
-            case Err(e) => Err(e)
-        })
+        let* _ = ma;
+        let* b = mb;
+        return(b)
 
 
     pub def bind(ma: ElaborateMonad[a], fn: a -> ElaborateMonad[b]): ElaborateMonad[b] = 
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, a)) => apply1(fn(a), s2)
-            case Err(e) => Err(e)
-        })
+        ElaborateMonad(s1 -> 
+            BasicDb/DbMonad.bind(
+                apply1(ma, s1), 
+                ans -> {let (s2, a) = ans; apply1(fn(a), s2)}
+        ))
 
     pub def flatMap(fn: a -> ElaborateMonad[b], ma: ElaborateMonad[a]): ElaborateMonad[b] = bind(ma, fn)
 
     pub def kleisliLeft(f1: a -> ElaborateMonad[b], f2: b -> ElaborateMonad[c], x: a): ElaborateMonad[c] =
-        ElaborateMonad(s1 -> match apply1(f1(x), s1) { 
-            case Ok((s2, b)) => apply1(f2(b), s2)
-            case Err(e) => Err(e)
-        })
+        let* b = f1(x);
+        let* c = f2(b);
+        return(c)
 
     pub def kleisliRight(f1: b -> ElaborateMonad[c], f2: a -> ElaborateMonad[b], x: a): ElaborateMonad[c] =
         kleisliLeft(f2, f1, x)
 
 
     pub def alt(ma: ElaborateMonad[a], mb: ElaborateMonad[a]): ElaborateMonad[a] =
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, a)) => Ok((s2, a))
-            case Err(_) => apply1(mb, s1)
-        })
+        ElaborateMonad(s1 -> BasicDb/DbMonad.alt(apply1(ma, s1), apply1(mb, s1)))
 
     pub def optional(ma: ElaborateMonad[a]): ElaborateMonad[Option[a]] = 
         alt(map(Some, ma), return(None))
@@ -119,10 +108,10 @@ namespace Elaborator/ElaborateMonad {
         alt(ma, return(d))
 
     pub def testM(ma: ElaborateMonad[a]): ElaborateMonad[Bool] =
-        ElaborateMonad(s1 -> match apply1(ma, s1) { 
-            case Ok((s2, _)) => Ok((s2, true))
-            case Err(_) => Ok((s1, false))
-        })
+        ElaborateMonad(s1 -> 
+            BasicDb/DbMonad.catchError( BasicDb/DbMonad.map(ans -> (fst(ans), true), apply1(ma, s1))
+                                      , _ -> BasicDb/DbMonad.return((s1, false)))
+        )
 
     /// For Functor ...
     pub def ignore(mx: ElaborateMonad[a]): ElaborateMonad[Unit] =
@@ -143,37 +132,43 @@ namespace Elaborator/ElaborateMonad {
     pub def <**>(mx: ElaborateMonad[a], f: ElaborateMonad[a -> b & ef]): ElaborateMonad[b] =
         ap(f, mx)
 
-    /// Short circuits on fail...
-    pub def mapM(f: a -> ElaborateMonad[b], xs: List[a]): ElaborateMonad[List[b]] =
-        ElaborateMonad(s1 -> mapMHelper(s1, f, xs, e -> Err(e), (s2, ys) -> Ok((s2, ys))))
+    /// /// Short circuits on fail...
+    /// pub def mapM(f: a -> ElaborateMonad[b], xs: List[a]): ElaborateMonad[List[b]] =
+    ///     ElaborateMonad(s1 -> mapMHelper(s1, f, xs, e -> Err(e), (s2, ys) -> Ok((s2, ys))))
 
-    ///
-    /// Helper function for `mapM`.
-    ///
-    def mapMHelper(s1: Map[String, Int32], 
-                   mf: a -> ElaborateMonad[b], 
-                   xs: List[a], 
-                   fk: String -> Result[(Map[String, Int32], List[b]), String], 
-                   sk: (Map[String, Int32], List[b]) -> Result[(Map[String, Int32], List[b]), String]): Result[(Map[String, Int32], List[b]), String] & Impure =
-        match xs {
-            case Nil => sk(s1, Nil)
-            case x :: rs => {
-                let ma = mf(x);
-                match apply1(ma, s1) {
-                    case Err(e) => fk(e)
-                    case Ok((s2, ans)) => mapMHelper(s2, mf, rs, fk, (s3, ks) -> sk(s3, ans :: ks))
-                }
-            }
-        }
+    /// ///
+    /// /// Helper function for `mapM`.
+    /// ///
+    /// def mapMHelper(s1: Map[String, Int32], 
+    ///                mf: a -> ElaborateMonad[b], 
+    ///                xs: List[a], 
+    ///                fk: String -> Result[(Map[String, Int32], List[b]), String], 
+    ///                sk: (Map[String, Int32], List[b]) -> Result[(Map[String, Int32], List[b]), String]): Result[(Map[String, Int32], List[b]), String] & Impure =
+    ///     match xs {
+    ///         case Nil => sk(s1, Nil)
+    ///         case x :: rs => {
+    ///             let ma = mf(x);
+    ///             match apply1(ma, s1) {
+    ///                 case Err(e) => fk(e)
+    ///                 case Ok((s2, ans)) => mapMHelper(s2, mf, rs, fk, (s3, ks) -> sk(s3, ans :: ks))
+    ///             }
+    ///         }
+    ///     }
 
     def makeKey(equiId: String, charName: String): String = "${equiId}::${charName}"
 
     pub def getNextCounter(equiId: String, charName: String): ElaborateMonad[Int32] = 
-        ElaborateMonad(s1 -> 
+        use BasicDb/DbMonad.{flatMap, return};
+        use Elaborator/GetValuaMax.{getValuaEquiMax};
+        ElaborateMonad(s1 -> {
             let key = makeKey(equiId, charName); 
             match Map.get(key, s1) {
-                case Some(i) => Ok((Map.insert(key, i + 1, s1), i + 1)) as & Impure
-                case None => Err("Counter not found for ${charName} ${equiId}") as & Impure
-            })
+                case Some(i) => return((Map.insert(key, i + 1, s1), i + 1))
+                case None => {
+                    let* i = Elaborator/GetValuaMax.getValuaEquiMax(equiId, charName);
+                    return((Map.insert(key, i + 1, s1), i + 1))
+                }
+            }
+        })
 
 }

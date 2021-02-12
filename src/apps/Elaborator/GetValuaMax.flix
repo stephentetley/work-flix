@@ -25,16 +25,14 @@ namespace Elaborator/GetValuaMax {
     /// the same equi x characteristic...
     /// ... needs to be a state monad.
 
-    pub def getValuaEquiMax[r](pstmts: {valuaEquiMax: PreparedStatement | r}
-                              , equiId: String
-                              , characteristicName: String): DbMonad[Int32] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteQuery, firstRow, rsClose, alt};
-        let* rs     = psExecuteQuery(pstmts.valuaEquiMax, setValuaEquiMaxParams!(equiId,  characteristicName));
+    pub def getValuaEquiMax(equiId: String, characteristicName: String): DbMonad[Int32] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, rsClose, alt};
+        let* rs     = psExecuteCachedQuery("ValuaEquiMax", setValuaEquiMaxParams!(equiId,  characteristicName));
         let* x1     = alt(firstRow(rs, evalValuaEquiMax()), return(0));
         let* _      = rsClose(rs);
         return(x1)
 
-    pub def prepareValuaEquiMaxQuery(): DbMonad[PreparedStatement] = 
+    pub def cacheValuaEquiMaxQuery(): DbMonad[Unit] = 
         let sql = String.unlines(
                "SELECT"
             :: "    max(t1.int_counter_value) AS counter_max"
@@ -44,7 +42,7 @@ namespace Elaborator/GetValuaMax {
             :: "AND t1.char_id = ?"
             :: Nil
         );
-        BasicDb/DbMonad.prepareStatement(sql)
+        BasicDb/DbMonad.cachePreparedStatement("ValuaEquiMax", sql)
 
     def setValuaEquiMaxParams!(equiId: String, characteristicName: String): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
