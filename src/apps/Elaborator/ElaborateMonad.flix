@@ -143,29 +143,59 @@ namespace Elaborator/ElaborateMonad {
     pub def <**>(mx: ElaborateMonad[a], f: ElaborateMonad[a -> b & ef]): ElaborateMonad[b] =
         ap(f, mx)
 
-    /// /// Short circuits on fail...
-    /// pub def mapM(f: a -> ElaborateMonad[b], xs: List[a]): ElaborateMonad[List[b]] =
-    ///     ElaborateMonad(s1 -> mapMHelper(s1, f, xs, e -> Err(e), (s2, ys) -> Ok((s2, ys))))
+    /// Short-circuits on fail, because `DbMonad.mapAccumM` short-circuits on fail.
+    pub def mapM(f: a -> ElaborateMonad[b], xs: List[a]): ElaborateMonad[List[b]] =
+        ElaborateMonad(s1 -> BasicDb/DbMonad.mapAccumM((s2, a) -> apply1(f(a), s2), s1, xs))
 
-    /// ///
-    /// /// Helper function for `mapM`.
-    /// ///
-    /// def mapMHelper(s1: Map[String, Int32], 
-    ///                mf: a -> ElaborateMonad[b], 
-    ///                xs: List[a], 
-    ///                fk: String -> Result[(Map[String, Int32], List[b]), String], 
-    ///                sk: (Map[String, Int32], List[b]) -> Result[(Map[String, Int32], List[b]), String]): Result[(Map[String, Int32], List[b]), String] & Impure =
-    ///     match xs {
-    ///         case Nil => sk(s1, Nil)
-    ///         case x :: rs => {
-    ///             let ma = mf(x);
-    ///             match apply1(ma, s1) {
-    ///                 case Err(e) => fk(e)
-    ///                 case Ok((s2, ans)) => mapMHelper(s2, mf, rs, fk, (s3, ks) -> sk(s3, ans :: ks))
-    ///             }
-    ///         }
-    ///     }
 
+    /// Short-circuits on fail, because `DbMonad.mapAccumM` short-circuits on fail.
+    pub def mapX(f: a -> ElaborateMonad[b], xs: List[a]): ElaborateMonad[Unit] = 
+        ElaborateMonad(s1 -> mapXHelper(s1, f, xs, msg ->  BasicDb/DbMonad.throwError(msg), s2 -> BasicDb/DbMonad.return((s2, ()))))
+            
+    pub def mapXHelper(s1: Map[String, Int32]
+                      , f: a -> ElaborateMonad[b]
+                      , xs: List[a]
+                      , fk: String -> DbMonad[(Map[String, Int32], Unit)]
+                      , sk: Map[String, Int32] -> DbMonad[(Map[String, Int32], Unit)]): DbMonad[(Map[String, Int32], Unit)] = 
+        match xs {
+            case Nil => sk(s1)
+            case x :: rs => BasicDb/DbMonad.continue(apply1(f(x), s1), fk, ans -> {let (s2, _) = ans; mapXHelper(s2, f, rs, fk, sk)})
+        }
+        
+
+    pub def replicateM(n: Int32, ma: ElaborateMonad[a]): ElaborateMonad[List[a]] =
+        ElaborateMonad(s1 ->
+            replicateMHelper(s1, ma, n, msg -> BasicDb/DbMonad.throwError(msg), (s2, ks) -> BasicDb/DbMonad.return((s2, ks)))
+        )
+
+    def replicateMHelper(s1: Map[String, Int32],
+                         ma: ElaborateMonad[a],
+                         n: Int32,
+                         fk: String -> DbMonad[(Map[String, Int32], List[a])],
+                         sk: (Map[String, Int32], List[a]) -> DbMonad[(Map[String, Int32], List[a])]): DbMonad[(Map[String, Int32], List[a])] =
+        if (n <= 0) 
+            sk(s1, Nil)
+        else 
+            BasicDb/DbMonad.continue(apply1(ma, s1), fk, 
+                ans -> {let (s2, a) = ans; replicateMHelper(s2, ma, n - 1, fk, (s3, ks) -> sk(s3, a :: ks))}
+            )
+
+    pub def replicateX(n: Int32, ma: ElaborateMonad[a]): ElaborateMonad[Unit] =
+        ElaborateMonad(s1 ->
+            replicateXHelper(s1, ma, n, msg -> BasicDb/DbMonad.throwError(msg), s2 -> BasicDb/DbMonad.return((s2, ())))
+        )
+
+    def replicateXHelper(s1: Map[String, Int32],
+                         ma: ElaborateMonad[a],
+                         n: Int32,
+                         fk: String -> DbMonad[(Map[String, Int32], Unit)],
+                         sk: Map[String, Int32] -> DbMonad[(Map[String, Int32], Unit)]): DbMonad[(Map[String, Int32], Unit)] =
+        if (n <= 0) 
+            sk(s1)
+        else 
+            BasicDb/DbMonad.continue(apply1(ma, s1), fk, 
+                ans -> {let (s2, _) = ans; replicateXHelper(s2, ma, n - 1, fk, sk)}
+            )
 
     pub def liftAction(fn: Unit ~> a): ElaborateMonad[a] = 
         use BasicDb/DbMonad.{map};
