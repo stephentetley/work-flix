@@ -166,6 +166,12 @@ namespace Elaborator/ElaborateMonad {
     ///         }
     ///     }
 
+
+    pub def liftAction(fn: Unit ~> a): ElaborateMonad[a] = 
+        use BasicDb/DbMonad.{map};
+        ElaborateMonad(s1 -> map(x -> (s1, x), BasicDb/DbMonad.liftAction(fn)))
+
+
     def makeEquiKey(equiId: String, charName: String): String = "${equiId}::${charName}"
 
     pub def nextValuaEquiCounter(equiId: String, charName: String): ElaborateMonad[Int32] = 
