@@ -38,6 +38,7 @@ namespace Skeleton/Datatypes {
 
     type alias FlocInputRow = 
         { s4Floc: String
+        , structure: String
         , description: String
         , objectType: String
         , systemClass: String

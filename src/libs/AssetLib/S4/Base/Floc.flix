@@ -28,6 +28,12 @@ namespace AssetLib/S4/Base/Floc {
 
     pub def new(s: String): Floc = Floc(String.splitOn(s, "-"))
 
+    pub def equals(x: Floc, y: Floc): Bool = 
+        let Floc(xs) = x;
+        let Floc(ys) = y;
+        String.intercalate("-", xs) == String.intercalate("-", ys)
+
+
     pub def append(x: Floc, y: Floc): Floc = 
         let Floc(x1) = x;
         let Floc(y1) = y;

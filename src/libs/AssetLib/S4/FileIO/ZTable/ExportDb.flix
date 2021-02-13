@@ -48,35 +48,37 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
         }
 
         
-    pub def storeZTableFiles(tableNames: ZTableNames, srcPaths: ZTableSourcePaths): DbMonad[Unit] =
-        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftActionResult};
+    pub def storeZTableFiles(tableNames: ZTableNames, paths: ZTableSourcePaths): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, return};
         use BasicDb/DbMonad.{>>=};
-        use AssetLib/S4/FileIO/ZTable/Builtins.{loadEqobjl, loadFlocdes, loadFloobjl, loadManuf, loadObj};
-        let* _      = setAutoCommit(false);
-        let* rs1    = liftActionResult(_ -> loadEqobjl(srcPaths.eqobjlPath));
-        let* _      = exportEqobjl(tableNames.equipmentObject, rs1) >>= logResults(tableNames.equipmentObject);
-        let* rs2    = liftActionResult(_ -> loadFlocdes(srcPaths.flocdesPath));
-        let* _      = exportFlocdes(tableNames.flocDescription, rs2) >>= logResults(tableNames.flocDescription);
-        let* rs3    = liftActionResult(_ -> loadFloobjl(srcPaths.floobjlPath));
-        let* _      = exportFloobjl(tableNames.flocObject, rs3) >>= logResults(tableNames.flocObject);
-        let* rs4    = liftActionResult(_ -> loadManuf(srcPaths.manufPath));
-        let* _      = exportManuf(tableNames.manufModel, rs4) >>= logResults(tableNames.manufModel);
-        let* rs5    = liftActionResult(_ -> loadObj(srcPaths.objPath));
-        let* _      = exportObj(tableNames.objectManuf, rs5) >>= logResults(tableNames.objectManuf);
-        let* _      = commit();
+        let* _  = storeEqobjl(tableNames.equipmentObject, paths.eqobjlPath) >>= logResults(tableNames.equipmentObject);
+        let* _  = storeFlocdes(tableNames.flocDescription, paths.flocdesPath) >>= logResults(tableNames.flocDescription);
+        let* _  = storeFloobjl(tableNames.flocObject, paths.floobjlPath) >>= logResults(tableNames.flocObject);
+        let* _  = storeManuf(tableNames.manufModel, paths.manufPath) >>= logResults(tableNames.manufModel);
+        let* _  = storeObj(tableNames.objectManuf, paths.objPath) >>= logResults(tableNames.objectManuf);
         return()
 
     def logResults(tableName: String, rowCount: Int32): DbMonad[Unit] = 
         use BasicDb/DbMonad.{liftAction};
         liftAction(_ -> Console.printLine("${tableName} wrote ${Int32.toString(rowCount)} rows"))
 
+
     // Eqobjl
+    pub def storeEqobjl(tableName: String, src: System.FilePath): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftActionResult};
+        let* _      = setAutoCommit(false);
+        let* rs1    = liftActionResult(_ -> AssetLib/S4/FileIO/ZTable/Builtins.loadEqobjl(src));
+        let* n1     = exportEqobjl(tableName, rs1);
+        let* _      = commit();
+        return(n1)
+
+
     def exportEqobjl(tableName: String, rows: List[Eqobjl]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(sqlCreateEqobjl(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (super_object, sub_object, category) VALUES(?,?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, eqobjlRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, eqobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
@@ -93,13 +95,20 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
 
 
     // Flocdes
+    pub def storeFlocdes(tableName: String, src: System.FilePath): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftActionResult};
+        let* _      = setAutoCommit(false);
+        let* rs1    = liftActionResult(_ -> AssetLib/S4/FileIO/ZTable/Builtins.loadFlocdes(src));
+        let* n1     = exportFlocdes(tableName, rs1);
+        let* _      = commit();
+        return(n1)
 
     def exportFlocdes(tableName: String, rows: List[Flocdes]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(sqlCreateFlocdes(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (object_type, description) VALUES(?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, flocdesRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, flocdesRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
@@ -114,13 +123,20 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
 
 
     // Floobjl
+    pub def storeFloobjl(tableName: String, src: System.FilePath): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftActionResult};
+        let* _      = setAutoCommit(false);
+        let* rs1    = liftActionResult(_ -> AssetLib/S4/FileIO/ZTable/Builtins.loadFloobjl(src));
+        let* n1     = exportFloobjl(tableName, rs1);
+        let* _      = commit();
+        return(n1)
 
     def exportFloobjl(tableName: String, rows: List[Floobjl]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(sqlCreateFloobjl(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (structure, super_object, sub_object) VALUES(?,?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, floobjlRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, floobjlRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
@@ -135,17 +151,22 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
         return()
 
     // Manuf
+    pub def storeManuf(tableName: String, src: System.FilePath): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftActionResult};
+        let* _      = setAutoCommit(false);
+        let* rs1    = liftActionResult(_ -> AssetLib/S4/FileIO/ZTable/Builtins.loadManuf(src));
+        let* n1     = exportManuf(tableName, rs1);
+        let* _      = commit();
+        return(n1)
 
     def exportManuf(tableName: String, rows: List[Manuf]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(sqlCreateManuf(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (manufacturer, model) VALUES(?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, manufRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, manufRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
-
-
 
     /// A RowSetter for Manuf
     def manufRowSetter(src: Manuf): PreparedStatementSetter[Unit] = 
@@ -154,15 +175,22 @@ namespace AssetLib/S4/FileIO/ZTable/ExportDb {
         let* _ = putStringAt!(1, src.model);
         return()
 
-    // Obj
-    
+    /// Obj
+    pub def storeObj(tableName: String, src: System.FilePath): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, commit, liftActionResult};
+        let* _      = setAutoCommit(false);
+        let* rs1    = liftActionResult(_ -> AssetLib/S4/FileIO/ZTable/Builtins.loadObj(src));
+        let* n1     = exportObj(tableName, rs1);
+        let* _      = commit();
+        return(n1)
+
     /// Always drop table (fresh new data)
     def exportObj(tableName: String, rows: List[Obj]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableObjSql(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (object_type, manufacturer) VALUES(?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, objRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, objRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 

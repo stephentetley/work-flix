@@ -79,13 +79,15 @@ namespace Skeleton/XlsxReader {
     def evalFlocInputRow(): NamedRowEvaluator[FlocInputRow] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4) -> 
+        ((x1, x2, x3, x4, x5) -> 
                 { s4Floc        = x1
-                , description   = x2
-                , objectType    = x3
-                , systemClass   = x4
+                , structure     = x2
+                , description   = x3
+                , objectType    = x4
+                , systemClass   = x5
                 })
             <&> getContentNamed("S4 Floc")
+            <*> getContentNamed("Structure")
             <*> getContentNamed("Description")
             <*> getContentNamed("Object Type")
             <*> getContentNamed("System Class")

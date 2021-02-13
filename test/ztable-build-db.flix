@@ -14,8 +14,11 @@ def paths(): ZTableSourcePaths =
 
     
 
-def main(): Result[Unit, System.Error] & Impure = 
+def main(_args: Array[String]): Int32 & Impure = 
     use BasicDb/DbMonad.{runSQLite};
     let outpath = System/FilePath.new("G:/work/assets/facts/ztable_facts.sqlite");
     let srcpaths = paths();
-    runSQLite(storeZTableFiles(defaultTableNames(), srcpaths), outpath)
+    match runSQLite(storeZTableFiles(defaultTableNames(), srcpaths), outpath) {
+        case Ok() => {Console.printLine("Okay"); 0}
+        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+    }
