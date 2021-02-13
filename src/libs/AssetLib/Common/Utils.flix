@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-use System.Error.{Generic};
 
 namespace AssetLib/Common/Utils {
 
@@ -43,7 +42,5 @@ namespace AssetLib/Common/Utils {
     pub def leadingSepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
         use Text/Regex.{split};
         split(input, sep) |> Array.dropLeft(1)
-
-
 
 }
