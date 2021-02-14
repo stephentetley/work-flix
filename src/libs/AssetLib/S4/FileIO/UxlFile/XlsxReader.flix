@@ -27,8 +27,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
     use SheetIO.SheetReader;
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails,
-        CreateFunctionalLocationData, FlMultilingualText, FlClassification, 
-        CreateEquipmentData, EqMultilingualText, EqClassification};
+        FunctionalLocationData, FlMultilingualText, FlClassification, 
+        EquipmentData, EqMultilingualText, EqClassification};
 
     /// Change Request Details
 
@@ -58,13 +58,13 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
 
     /// Functional Location Data
 
-    pub def readFunctionalLocationData(): SheetReader[List[CreateFunctionalLocationData]] = 
+    pub def readFunctionalLocationData(): SheetReader[List[FunctionalLocationData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Functional Location Data");
         let* xs     = namedRowsFrom(s1, 4, 6, getFunctionalLocationData());
         return(xs)
 
-    def getFunctionalLocationData(): NamedRowEvaluator[CreateFunctionalLocationData] = 
+    def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/S4/Base/SheetIOUtils.{getS4BoolNamed, getS4LocalDateNamed};
@@ -163,16 +163,16 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
             <*> getS4BoolNamed("DeleteCh")
 
     /// Equipment Data
-    pub def loadEquipmentData(path: System.FilePath): Result[List[CreateEquipmentData], String] & Impure =   
+    pub def loadEquipmentData(path: System.FilePath): Result[List[EquipmentData], String] & Impure =   
         SheetIO/SheetReader.runXlsx(readEquipmentData(), path)
 
-    pub def readEquipmentData(): SheetReader[List[CreateEquipmentData]] = 
+    pub def readEquipmentData(): SheetReader[List[EquipmentData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Equipment Data");
         let* xs     = namedRowsFrom(s1, 4, 6, getEquipmentData());
         return(xs)
 
-    def getEquipmentData(): NamedRowEvaluator[CreateEquipmentData] = 
+    def getEquipmentData(): NamedRowEvaluator[EquipmentData] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, 
             getOptionInt32Named, getInt32Named, getFloat64Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};

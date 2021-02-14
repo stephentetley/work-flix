@@ -21,10 +21,8 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
     use SheetIO.SheetWriter;
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails,
-        CreateFunctionalLocationData, UpdateFunctionalLocationData, FlDataUpdate1, 
-        FlMultilingualText, FlClassification, 
-        CreateEquipmentData, UpdateEquipmentData, EqDataUpdate1, 
-        EqMultilingualText, EqClassification};
+        FunctionalLocationData, FlMultilingualText, FlClassification, 
+        EquipmentData, EqMultilingualText, EqClassification};
 
 
     /// Change Request Details
@@ -51,15 +49,15 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
     /// Functional Location Data
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeCreateFunctionalLocationData(xs: List[CreateFunctionalLocationData]): SheetWriter[Unit] = 
+    pub def writeFunctionalLocationData(xs: List[FunctionalLocationData]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Functional Location Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setCreateFunctionalLocationData!(x)), xs)
+        mapX(x -> appendRow(s1, setFunctionalLocationData!(x)), xs)
 
 
     /// Just write fields of interest...
-    def setCreateFunctionalLocationData!(x: CreateFunctionalLocationData): RowSetter[Unit] = 
+    def setFunctionalLocationData!(x: FunctionalLocationData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
         use AssetLib/S4/Base/SheetIOUtils.{putS4BoolAt!, putS4DateAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
@@ -125,15 +123,15 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
     /// Equipment Data
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeCreateEquipmentData(xs: List[CreateEquipmentData]): SheetWriter[Unit] = 
+    pub def writeEquipmentData(xs: List[EquipmentData]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Equipment Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setCreateEquipmentData!(x)), xs)
+        mapX(x -> appendRow(s1, setEquipmentData!(x)), xs)
 
 
     /// Not all fields are written...
-    def setCreateEquipmentData!(x: CreateEquipmentData): RowSetter[Unit] = 
+    def setEquipmentData!(x: EquipmentData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
         use AssetLib/S4/Base/SheetIOUtils.{putS4DateAt!, putPaddedInt32At!};
         let* _      = putStringAt!(0, x.equiId);

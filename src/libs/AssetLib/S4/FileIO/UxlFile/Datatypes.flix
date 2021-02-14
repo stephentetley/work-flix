@@ -34,7 +34,7 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
     
     
     /// Just fields of interest...
-    type alias CreateFunctionalLocationData = 
+    type alias FunctionalLocationData = 
         { functionalLocation: String
         , maskedFuncLoc: String
         , description: String
@@ -75,7 +75,7 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         }
 
     /// Just fields of interest...
-    type alias CreateEquipmentData = 
+    type alias EquipmentData = 
         { equiId: String
         , equipCategory: String
         , description: String
