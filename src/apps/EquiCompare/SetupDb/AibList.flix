@@ -101,12 +101,12 @@ namespace EquiCompare/SetupDb/AibList {
 
     /// Always drop table (fresh new data)
     def exportAibRowRows(tableName: String, rows: List[AibRow]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
         let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement(insertRowSql(tableName));
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, aibRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, aibRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 

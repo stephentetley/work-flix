@@ -33,12 +33,12 @@ namespace AssetLib/S4/FileIO/IH08Table/ExportDb {
 
 
     def exportAibAttributeRows(tableName: String, dropTable: Bool,rows: List[IH08Row]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, whenTrue, foldM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, whenTrue, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
         let* _          = setAutoCommit(false);
         let* _          = whenTrue(dropTable, execute("DROP TABLE IF EXISTS ${tableName};"));
         let* _          = whenTrue(dropTable, execute(createTableSql(tableName)));
         let* stmt       = prepareStatement(insertRowSql(tableName));
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, aibAttributeRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, aibAttributeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 

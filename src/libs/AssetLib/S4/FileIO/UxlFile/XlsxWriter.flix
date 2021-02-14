@@ -78,38 +78,6 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         let* _      = putStringAt!(50, x.userStatus);
         return()
 
-    pub def writeUpdateFunctionalLocationData(xs: List[UpdateFunctionalLocationData]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
-        let* s1     = getSheetNamed("Functional Location Data");
-        let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setUpdateFunctionalLocationData!(x)), xs)
-
-
-    def setUpdateFunctionalLocationData!(x: UpdateFunctionalLocationData): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, mapX};
-        let* _      = putStringAt!(0, x.functionalLocation);
-        mapX(setFlDataUpdate1!, x.updates)
-
-    def setFlDataUpdate1!(x: FlDataUpdate1): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{putStringAt!, putInt32At!};
-        use AssetLib/S4/Base/SheetIOUtils.{putS4DateAt!, putS4BoolAt!};
-        use AssetLib/S4/FileIO/UxlFile/Datatypes.FlDataUpdate1.{Description, FunctLocCat, StrIndicator, 
-            ObjectType, StartupDate, MaintPlant, CompanyCode, CoArea, SupFunctLoc, EquipInstall, 
-            StatusProfile, UserStatus};
-        match x {
-            case Description(s)     => putStringAt!(2, s)
-            case FunctLocCat(i)     => putInt32At!(3, i)
-            case StrIndicator(s)    => putStringAt!(4, s)
-            case ObjectType(s)      => putStringAt!(5, s)
-            case StartupDate(dt)    => putS4DateAt!(12, dt)
-            case MaintPlant(i)      => putInt32At!(23, i)
-            case CompanyCode(i)     => putInt32At!(30, i)
-            case CoArea(i)          => putInt32At!(35, i)
-            case SupFunctLoc(s)     => putStringAt!(46, s)
-            case EquipInstall(b)    => putS4BoolAt!(47, b)
-            case StatusProfile(s)   => putStringAt!(49, s)
-            case UserStatus(s)      => putStringAt!(50, s)
-        }
 
     /// FL-Multilingual Text
 
@@ -192,52 +160,6 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         let* _      = putStringAt!(50, x.statusProfile);
         let* _      = putStringAt!(51, x.statusOfAnObject);
         return()
-
-    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeUpdateEquipmentData(xs: List[UpdateEquipmentData]): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
-        let* s1     = getSheetNamed("Equipment Data");
-        let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setUpdateEquipmentData!(x)), xs)
-
-
-    def setUpdateEquipmentData!(x: UpdateEquipmentData): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, mapX};
-        let* _      = putStringAt!(0, x.equiId);
-        mapX(setEqDataUpdate1!, x.updates)
-
-    def setEqDataUpdate1!(x: EqDataUpdate1): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putFloat64At!};
-        use AssetLib/S4/Base/SheetIOUtils.{putS4DateAt!, putPaddedInt32At!};
-        use AssetLib/S4/FileIO/UxlFile/Datatypes.EqDataUpdate1.{EquipCategory, Description, ObjectType,
-            GrossWeight, UnitOfWeight, StartupDate, Manufacturer, ModelNumber, ManufPartNo, ManufSerialNo,
-            ConstructYear, ConstructMth, MaintPlant, CompanyCode, CoArea, PlanningPlant,  FunctionalLoc, 
-            SuperordEquip, Position, TechIdentNo, StatusProfile, StatusOfAnObject};
-        match x {
-            case EquipCategory(s)       => putStringAt!(1, s)
-            case Description(s)         => putStringAt!(2, s)
-            case ObjectType(s)          => putStringAt!(4, s)
-            case GrossWeight(d)         => putFloat64At!(7, d)
-            case UnitOfWeight(s)        => putStringAt!(8, s)
-            case StartupDate(dt)        => putS4DateAt!(10, dt)
-            case Manufacturer(s)        => putStringAt!(14, s)
-            case ModelNumber(s)         => putStringAt!(15, s)
-            case ManufPartNo(s)         => putStringAt!(16, s)
-            case ManufSerialNo(s)       => putStringAt!(17, s)
-            case ConstructYear(i)       => putInt32At!(19, i)
-            case ConstructMth(i)        => putPaddedInt32At!(20, 2, '0', i)
-            case MaintPlant(i)          => putInt32At!(21, i)
-            case CompanyCode(i)         => putInt32At!(28, i)
-            case CoArea(i)              => putInt32At!(33, i)
-            case PlanningPlant(i)       => putInt32At!(37, i)
-            case FunctionalLoc(s)        => putStringAt!(42, s)
-            case SuperordEquip(s)       => putStringAt!(43, s)
-            case Position(i)            => putInt32At!(44, i)
-            case TechIdentNo(s)         => putStringAt!(45, s)
-            case StatusProfile(s)       => putStringAt!(50, s)
-            case StatusOfAnObject(s)    => putStringAt!(51, s)
-        }
-
 
     /// EQ-Multilingual Text
 

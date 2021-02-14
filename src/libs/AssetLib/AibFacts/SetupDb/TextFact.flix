@@ -51,10 +51,10 @@ namespace AssetLib/AibFacts/SetupDb/TextFact {
     
 
     pub def insertTextFactRows(tableName: String, rows: List[TextFact]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
         let* _          = setAutoCommit(false);
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (aib_reference, aib_field_name, aib_field_value) VALUES(?,?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, textFactRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, textFactRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 

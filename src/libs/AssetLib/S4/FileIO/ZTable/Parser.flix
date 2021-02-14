@@ -24,6 +24,8 @@ namespace AssetLib/S4/FileIO/ZTable/Parser {
 
     use AssetLib/S4/FileIO/ZTable.RowEvaluator;
 
+    /// Note - parser may loop rather than fail if given wrong ztable input source for the RowEvaluator, needs investigating...
+
     pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
         use Data/Transient/DList.{toList};

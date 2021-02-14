@@ -213,9 +213,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
     // Class Members
 
     def writeClassMembers(tableName: String, rows: List[ClassMember1]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldLeftM, psExecuteUpdate, commit};
         let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, classname, charname) VALUES(?, ?, ?)");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, classMemberRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, classMemberRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
@@ -233,9 +233,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
     // Characteristics
 
     def writeCharacteristicDefs(tableName: String, rows: List[CharacteristicDef1]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldLeftM, psExecuteUpdate, commit};
         let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, datatype, num_chars, decimal_places) VALUES(?,?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, characteristicDefRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, characteristicDefRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
@@ -252,9 +252,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
     // Int Ranges
 
     def writeIntRanges(tableName: String, rows: List[IntRange1]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldLeftM, psExecuteUpdate, commit};
         let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, intRangeRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, intRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
@@ -271,9 +271,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
     // Decimal Ranges
 
     def writeDecimalRanges(tableName: String, rows: List[DecimalRange1]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldLeftM, psExecuteUpdate, commit};
         let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, range_low, range_high) VALUES(?,?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, decimalRangeRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, decimalRangeRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
@@ -290,9 +290,9 @@ namespace AssetLib/S4/FileIO/ClassList/ExportDb {
     // Selection Values
 
     def writeSelectionValues(tableName: String, rows: List[SelectionValue1]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldM, psExecuteUpdate, commit};
+        use BasicDb/DbMonad.{flatMap, return, prepareStatement, foldLeftM, psExecuteUpdate, commit};
         let* stmt       = prepareStatement("INSERT OR IGNORE INTO ${tableName} (classtype, charname, value) VALUES(?,?,?)");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, selectionValueRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, selectionValueRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 

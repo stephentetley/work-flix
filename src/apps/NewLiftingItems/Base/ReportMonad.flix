@@ -186,23 +186,23 @@ namespace NewLiftingItems/Base/ReportMonad {
 
 
     
-    pub def foldM(mf: (b, a) -> ReportMonad[b], start: b, xs: List[a]): ReportMonad[b] =
+    pub def foldLeftM(mf: (b, a) -> ReportMonad[b], start: b, xs: List[a]): ReportMonad[b] =
         ReportMonad(s ->
-            foldMHelper(s, mf, start, xs, (s1, ac) -> BasicDb/DbMonad.return((s1, ac)))
+            foldLeftMHelper(s, mf, start, xs, (s1, ac) -> BasicDb/DbMonad.return((s1, ac)))
         )
 
-    def foldMHelper(s: Int32, 
-                    mf: (b, a) -> ReportMonad[b], 
-                    acc: b, 
-                    xs: List[a], 
-                    sk: (Int32, b) -> DbMonad[(Int32, b)]): DbMonad[(Int32, b)] =
+    def foldLeftMHelper(s: Int32, 
+                       mf: (b, a) -> ReportMonad[b], 
+                       acc: b, 
+                       xs: List[a], 
+                       sk: (Int32, b) -> DbMonad[(Int32, b)]): DbMonad[(Int32, b)] =
         use BasicDb/DbMonad.{flatMap, return};
         match xs {
             case Nil => sk(s, acc)
             case x :: rs => {
                 let ma = mf(acc, x);
                 let* (s1, acc1) = apply1(ma, s);
-                foldMHelper(s1, mf, acc1, rs, sk)
+                foldLeftMHelper(s1, mf, acc1, rs, sk)
             }
         }
 

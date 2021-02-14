@@ -66,12 +66,12 @@ namespace NewLiftingItems/SetupDb/Worklist/MemoLines {
 
 
     def exportMemoLineRows(tableName: String, rows: List[MemoLineRow]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
         let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (reference, long_text) VALUES(?,?);");
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, memoLineRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, memoLineRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 

@@ -57,12 +57,12 @@ namespace NewLiftingItems/SetupDb/Worklist/CommonNames {
             <*> getStringNamed("Common Name")
 
     def exportAibCommonNameRows(tableName: String, rows: List[AibCommonNameRow]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
+        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
         let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement(insertRowSql(tableName));
-        let* nrows      = foldM((ac, x) -> { let* n = psExecuteUpdate(stmt, aibCommonNameRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, aibCommonNameRowSetter(x)); return(ac+n)}, 0, rows);
         let* _          = commit();
         return(nrows)
 
