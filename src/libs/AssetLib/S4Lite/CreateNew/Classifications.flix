@@ -20,6 +20,14 @@ namespace AssetLib/S4Lite/CreateNew {
     use AssetLib/S4Lite/CreateNew/Datatypes.{Classification};
 
     pub opaque type Classifications = Data/Transient.DList[Classification]
+
+    instance Monoid[Classifications] {
+        def empty(): Classifications = AssetLib/S4Lite/CreateNew/Classifications.empty()
+
+        def combine(xs: Classifications, ys: Classifications): Classifications = 
+            AssetLib/S4Lite/CreateNew/Classifications.append(xs, ys)
+    }
+
 }
 
 namespace AssetLib/S4Lite/CreateNew/Classifications {
