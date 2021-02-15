@@ -31,6 +31,10 @@ namespace Skeleton/GenS4Lite {
     ///     , classifications: List[Classification]
     ///     }
     pub def genS4Floc(x: FlocInputRow): GenMonad[S4Funcloc] = 
+        genS4Floc1(x) 
+            /// |> addEastNorth()
+
+    def genS4Floc1(x: FlocInputRow): GenMonad[S4Funcloc] = 
         use Skeleton/GenMonad.{<&>, <*>};
         (x1 -> 
             { functionalLocation    = ToString.toString(x.s4Floc)
@@ -39,7 +43,6 @@ namespace Skeleton/GenS4Lite {
             , classifications       = Nil
             })
             <&> genFlocAttributes(x)
-         
 
     /// Is adding EastNorth a rewrite rule ?
 
