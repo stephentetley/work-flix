@@ -17,7 +17,7 @@
 
 namespace Skeleton/GenS4Lite {
 
-    use AssetLib/S4Lite/CreateNew/Datatypes.{FlocAttributes};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc => S4Funcloc, FlocAttributes, Classification};
     use AssetLib/S4Lite/CreateNew.Classifications;
     use Skeleton.S4Floc;
     use Skeleton/Datatypes.{FlocInputRow, AibInputRow};
@@ -30,6 +30,44 @@ namespace Skeleton/GenS4Lite {
     ///     , longText: Option[LongText]
     ///     , classifications: List[Classification]
     ///     }
+    pub def genS4Floc(x: FlocInputRow): GenMonad[S4Funcloc] = 
+        use Skeleton/GenMonad.{<&>, <*>};
+        (x1 -> 
+            { functionalLocation    = ToString.toString(x.s4Floc)
+            , attributes            = x1
+            , longText              = None
+            , classifications       = Nil
+            })
+            <&> genFlocAttributes(x)
+         
+
+    /// Is adding EastNorth a rewrite rule ?
+
+    type alias Rewrite[a] = a -> GenMonad[a]
+
+    def updateClassifications(xs: List[Classification], ys: Classifications): List[Classification] = 
+        let ys1 = AssetLib/S4Lite/CreateNew/Classifications.getClassifications(ys);
+        List.append(xs, ys1)
+
+    pub def addEastNorth(gridRef: String): Rewrite[S4Funcloc] = x -> 
+        use Skeleton/GenMonad.{flatMap, return};
+        let* x1 = genEastNorth(gridRef);
+        return({ classifications = updateClassifications(x.classifications, x1) | x})
+
+    pub def addAibReference(reference: String): Rewrite[S4Funcloc] = x -> 
+        use Skeleton/GenMonad.{flatMap, return};
+        let* x1 = genAibReference1(reference);
+        return({ classifications = updateClassifications(x.classifications, x1) | x})
+
+    pub def addSystemType(systemClass: String, description: String): Rewrite[S4Funcloc] = x -> 
+        use Skeleton/GenMonad.{flatMap, return};
+        let floc = Skeleton/S4Floc.new(x.functionalLocation);
+        if (Skeleton/S4Floc.category(floc) != 5) 
+            return(x)
+        else {
+            let* x1 = genLevel5System(systemClass, description);
+            return({ classifications = updateClassifications(x.classifications, x1) | x})
+        }
 
     pub def genFlocAttributes(x: FlocInputRow): GenMonad[FlocAttributes] = 
         use Skeleton/GenMonad.{flatMap, return};
@@ -42,11 +80,23 @@ namespace Skeleton/GenS4Lite {
             , maintPlant            = 2100
             , companyCode           = 2100
             , controllingArea       = 1000
-            , superiorFloc          = Skeleton/S4Floc.parent(x.s4Floc) |> Option.map(ToString.toString) |> x1 -> Option.getWithDefault(x1, "")
-            , equipmentInstall      = true /// TODO - refine
+            , superiorFloc          = getSuperiorFlocPath(x.s4Floc)
+            , equipmentInstall      = equipmentInstall(x.structure, x.s4Floc)
             , status                = "UCON"
             })
 
+
+    def getSuperiorFlocPath(x: S4Floc): String = 
+        Skeleton/S4Floc.parent(x) 
+            |> Option.map(ToString.toString) 
+            |> x1 -> Option.getWithDefault(x1, "")
+
+    def equipmentInstall(structure: String, floc: S4Floc): Bool = 
+        match structure { 
+            case "YW-GS" => Skeleton/S4Floc.category(floc) >= 5
+            case "YW-ES" => Skeleton/S4Floc.category(floc) >= 2
+            case _ => false
+        }
 
     /// /// Category is in ztable eqobjl but it is non-deterministic.
     /// pub def genEquiAttributes(category: String): GenMonad[EquiAttributes] = 
@@ -90,6 +140,16 @@ namespace Skeleton/GenS4Lite {
         let y   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(reference);
         return(Monoid.combine(x, y))
 
+    /// For Equipment - two AI2 references
+    pub def genAibReference2(reference: String, parent: String): GenMonad[Classifications] = 
+        use Skeleton/GenMonad.{flatMap, return};
+        let x   = AssetLib/S4Lite/CreateNew/Classifications.s4AibReference();
+        let y   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(reference);
+        let z   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(parent);
+        return(Monoid.combineAll(x :: y :: z :: Nil))
+
+
+
     /// For Flocs (except level 5)
     pub def genUniclassCode(): GenMonad[Classifications] = 
         use Skeleton/GenMonad.{flatMap, return};
@@ -100,14 +160,6 @@ namespace Skeleton/GenS4Lite {
     pub def genLevel5System(systemClass: String, description: String): GenMonad[Classifications] = 
         use Skeleton/GenMonad.{return};
         return(AssetLib/S4Lite/CreateNew/Classifications.stringClassification(systemClass, "SYSTEM_TYPE", description))
-
-    /// For Flocs - single AI2 reference
-    pub def genAibReference2(reference: String, parent: String): GenMonad[Classifications] = 
-        use Skeleton/GenMonad.{flatMap, return};
-        let x   = AssetLib/S4Lite/CreateNew/Classifications.s4AibReference();
-        let y   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(reference);
-        let z   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(parent);
-        return(Monoid.combineAll(x :: y :: z :: Nil))
 
     pub def genEquiSystemClass(systemClass: String): GenMonad[Classifications] = 
         use Skeleton/GenMonad.{flatMap, return};
