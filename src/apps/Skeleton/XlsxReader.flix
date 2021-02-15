@@ -34,7 +34,7 @@ namespace Skeleton/XlsxReader {
 
 
     def evalAibInputRow(): NamedRowEvaluator[AibInputRow] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed, map}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) -> 
                 { reference             = x1
@@ -53,7 +53,7 @@ namespace Skeleton/XlsxReader {
                 })
             <&> getContentNamed("Reference")
             <*> getContentNamed("Common Name")
-            <*> getContentNamed("S4 Floc")
+            <*> map(Skeleton/S4Floc.new, getContentNamed("S4 Floc"))
             <*> getContentNamed("Equipment Type")
             <*> getContentNamed("Equipment Class")
             <*> getContentNamed("Superior Equipment")
@@ -77,7 +77,7 @@ namespace Skeleton/XlsxReader {
 
 
     def evalFlocInputRow(): NamedRowEvaluator[FlocInputRow] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, map}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
                 { s4Floc        = x1
@@ -86,7 +86,7 @@ namespace Skeleton/XlsxReader {
                 , objectType    = x4
                 , systemClass   = x5
                 })
-            <&> getContentNamed("S4 Floc")
+            <&> map(Skeleton/S4Floc.new, getContentNamed("S4 Floc"))
             <*> getContentNamed("Structure")
             <*> getContentNamed("Description")
             <*> getContentNamed("Object Type")

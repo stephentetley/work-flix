@@ -29,6 +29,10 @@ namespace Skeleton {
         def toString(x: S4Floc): String = Skeleton/S4Floc.toString(x)
     }
 
+    instance FromString[S4Floc] {
+        def fromString(x: String): Option[S4Floc] = Some(Skeleton/S4Floc.new(x))
+    }
+
     instance Hash[S4Floc] {
         def hash(x: S4Floc): Int32 = Hash.hash(Skeleton/S4Floc.toString(x))
     }
@@ -65,6 +69,10 @@ namespace Skeleton/S4Floc {
     pub def objectType(x: S4Floc): String = 
         let S4Floc(xs) = x;
         List.last(xs) |> ans -> Option.getWithDefault(ans, "")
+
+    pub def category(x: S4Floc): Int32 = 
+        let S4Floc(xs) = x;
+        List.length(xs)
 
 
     pub def getDescription(x: S4Floc): DbMonad[String] = 

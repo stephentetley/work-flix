@@ -16,6 +16,8 @@
 
 namespace Skeleton/Datatypes {
 
+    use Skeleton.S4Floc;
+
     /// Reference	Common Name	S4 Floc	Superior Equipment	Installed From	
     /// Manufacturer	Model	Hierarchy Key	AssetStatus	Loc.Ref.	
     /// Asset in AIDE ?	Serial No	Specific Model/Frame
@@ -23,7 +25,7 @@ namespace Skeleton/Datatypes {
     type alias AibInputRow = 
         { reference: String
         , commonName: String
-        , s4Floc: String
+        , s4Floc: S4Floc
         , s4EquiType: String
         , s4EquiClass: String
         , superiorEquipment: String
@@ -37,7 +39,7 @@ namespace Skeleton/Datatypes {
         }
 
     type alias FlocInputRow = 
-        { s4Floc: String
+        { s4Floc: S4Floc
         , structure: String
         , description: String
         , objectType: String
