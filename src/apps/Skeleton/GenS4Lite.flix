@@ -52,13 +52,14 @@ namespace Skeleton/GenS4Lite {
 
 
     def genFlocAttributes(x: FlocInputRow): DbMonad[FlocAttributes] = 
+       use BasicDb/DbMonad.{alt};
        use BasicDb/DbMonad.{<&>, <*>};
-        (x1 -> 
-            { description           = x.description
+        ((x1, x2, x3) -> 
+            { description           = x1
             , category              = Skeleton/S4Floc.category(x.s4Floc)
             , structureIndicator    = x.structure
-            , objectType            = x.objectType
-            , startupDate           = x1
+            , objectType            = x2
+            , startupDate           = x3
             , maintPlant            = 2100
             , companyCode           = 2100
             , controllingArea       = 1000
@@ -66,10 +67,16 @@ namespace Skeleton/GenS4Lite {
             , equipmentInstall      = equipmentInstall(x.structure, x.s4Floc)
             , status                = "UCON"
             })
-            <&> Skeleton/DbQueries.getFlocStartupDate(x.s4Floc)
+            <&> genDescriptionWithDefault(x.s4Floc, x.description)
+            <*> genObjectTypeWithDefault(x.s4Floc, x.objectType)
+            <*> Skeleton/DbQueries.getFlocStartupDate(x.s4Floc)
 
-
-
+    /// Helper for writing functions where user might have supplied optional data...
+    pub def nonBlank(s: String): DbMonad[String] = 
+        if (String.isEmpty(s))
+            BasicDb/DbMonad.throwError("nonBlank - blank")
+        else 
+            BasicDb/DbMonad.return("nonBlank - blank")
 
 
     def getSuperiorFlocPath(x: S4Floc): String = 
@@ -82,6 +89,22 @@ namespace Skeleton/GenS4Lite {
             case "YW-GS" => Skeleton/S4Floc.category(floc) >= 5
             case "YW-ES" => Skeleton/S4Floc.category(floc) >= 2
             case _ => false
+        }
+
+    def genDescriptionWithDefault(x: S4Floc, dflt: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* desc = Skeleton/DbQueries.getDescription(x);
+        if (String.isEmpty(desc)) 
+            return(dflt)
+        else 
+            return(desc)
+
+
+    def genObjectTypeWithDefault(x: S4Floc, dflt: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{return};
+        match Skeleton/S4Floc.objectType(x) {
+            case Some(x1) if not String.isEmpty(x1) => return(x1)
+            case _ => return(dflt)
         }
 
     /// /// Category is in ztable eqobjl but it is non-deterministic.

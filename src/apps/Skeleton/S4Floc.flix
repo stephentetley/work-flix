@@ -66,34 +66,17 @@ namespace Skeleton/S4Floc {
         let S4Floc(xs) = x;
         List.init(xs) |> Option.map(S4Floc)
 
-    pub def objectType(x: S4Floc): String = 
-        let S4Floc(xs) = x;
-        List.last(xs) |> ans -> Option.getWithDefault(ans, "")
+    /// Only approprite for `level(x) < 5`.
+    pub def objectType(x: S4Floc): Option[String] = match level(x) {
+        case x1 if x1 == 1 => Some("SITE")
+        case x1 if x1 > 1 and x1 < 5 => {let S4Floc(xs) = x; List.last(xs)}
+        case _ => None
+    }
 
-    pub def category(x: S4Floc): Int32 = 
-        let S4Floc(xs) = x;
-        List.length(xs)
-
-
-    pub def getDescription(x: S4Floc): DbMonad[String] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, rsClose, alt};
-        use BasicDb/PreparedStatementSetter.{putStringAt!};
-        let* rs     = psExecuteCachedQuery("GetS4FlocDescription", putStringAt!(0, objectType(x)));
-        let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("description")) `alt` return("");
-        let* _      = rsClose(rs);
-        return(x1)
+    pub def category(x: S4Floc): Int32 = level(x)
 
 
-    pub def cacheGetDescriptionQuery(): DbMonad[Unit] = 
-        let sql = String.unlines(
-               "SELECT"
-            :: "    max(t1.int_counter_value) AS description"
-            :: "FROM ztable_flocdes t1"
-            :: "WHERE "
-            :: "    t1.object_type= ?"
-            :: Nil
-        );
-        BasicDb/DbMonad.cachePreparedStatement("GetS4FlocDescription", sql)
+
 
 
 }    

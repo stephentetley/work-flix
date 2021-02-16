@@ -97,4 +97,30 @@ namespace Skeleton/DbQueries {
         )
 
 
+    pub def getDescription(x: S4Floc): DbMonad[String] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQueryAndCachePS, firstRow, rsClose, alt};
+        use BasicDb/PreparedStatementSetter.{putStringAt!};
+        match Skeleton/S4Floc.objectType(x) {
+            case Some(objType) => {
+                let* rs     = psExecuteQueryAndCachePS("GetS4FlocDescription", getDescriptionSql(), putStringAt!(0, objType));
+                let* x1     = firstRow(rs, BasicDb/RowEvaluator.getStringNamed("description")) `alt` return("");
+                let* _      = rsClose(rs);
+                return(x1)
+            } 
+            case None => return("")
+        }
+        
+
+    def getDescriptionSql(): String = 
+        String.unlines(
+               "SELECT"
+            :: "    max(t1.description) AS description"
+            :: "FROM ztable_flocdes t1"
+            :: "WHERE "
+            :: "    t1.object_type= ?"
+            :: Nil
+        )
+
+
+
 }    
