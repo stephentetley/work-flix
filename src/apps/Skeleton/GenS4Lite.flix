@@ -50,7 +50,7 @@ namespace Skeleton/GenS4Lite {
             })
             <&> genFlocAttributes(x)
             <*> (Skeleton/DbQueries.getFlocGridRef(x.s4Floc) >>= genEastNorth)
-            <*> (Skeleton/DbQueries.getFlocReference(x.s4Floc) >>= genAibReference1)
+            <*> (Skeleton/DbQueries.getFlocReference(x.s4Floc) >>= genFlocAibReference)
             <*> genSystemTypeOrUniclassCode(x.s4Floc, x.systemClass, x.description)
 
 
@@ -74,14 +74,7 @@ namespace Skeleton/GenS4Lite {
             <*> genObjectTypeWithDefault(x.s4Floc, x.objectType)
             <*> Skeleton/DbQueries.getFlocStartupDate(x.s4Floc)
 
-    /// /// Helper for writing functions where user might have supplied optional data...
-    /// pub def nonBlank(s: String): DbMonad[String] = 
-    ///     if (String.isEmpty(s))
-    ///         BasicDb/DbMonad.throwError("nonBlank - blank")
-    ///     else 
-    ///         BasicDb/DbMonad.return("nonBlank - blank")
-
-
+    
     def getSuperiorFlocPath(x: S4Floc): String = 
         Skeleton/S4Floc.parent(x) 
             |> Option.map(ToString.toString) 
@@ -115,25 +108,25 @@ namespace Skeleton/GenS4Lite {
     /// Initially generate with AIB equiId then do a replace with fresh ids...
     pub def genS4Equipment(x: AibInputRow): DbMonad[S4Equipment] = 
         use BasicDb/DbMonad.{<&>, <*>};
-        ((x1, c1) -> 
+        ((x1, c1, c2, c3) -> 
             { equiId                = x.reference
             , attributes            = x1
             , longText              = None
             , classifications       = 
-                AssetLib/S4Lite/CreateNew/Classifications.getClassifications(Monoid.combineAll(c1 :: Nil))
+                AssetLib/S4Lite/CreateNew/Classifications.getClassifications(Monoid.combineAll(c1 :: c2 :: c3 :: Nil))
             })
             <&> genEquiAttributes(x)
             <*> genEastNorth(x.locRef)
-            /// <*> (Skeleton/DbQueries.getFlocReference(x.s4Floc) >>= genAibReference1)
-            /// <*> genSystemTypeOrUniclassCode(x.s4Floc, x.systemClass, x.description)
+            <*> genEquiAibReference(x.commonName, x.reference)
+            <*> genEquiSystemClass(x.s4EquiClass)
 
 
     /// Category is in ztable eqobjl but it is non-deterministic.
-    pub def genEquiAttributes(x: AibInputRow): DbMonad[EquiAttributes] = 
+    def genEquiAttributes(x: AibInputRow): DbMonad[EquiAttributes] = 
         use BasicDb/DbMonad.{<&>, <*>};
         (x1 ->
             { category              = x.s4Category
-            , description           = x1
+            , description           = x.s4Description
             , objectType            = x.s4EquiType
             , startupDate           = x.installedFrom
             , manufacturer          = x.manufacturer
@@ -149,14 +142,22 @@ namespace Skeleton/GenS4Lite {
             , functionalLocation    = ToString.toString(x.s4Floc)
             , superOrdinateEqui     = x.superiorEquipment
             , techIdentNo           = ""
-            , status                = x.assetStatus
+            , status                = x1
             })
-            <&> BasicDb/DbMonad.return("**Description**")
+            <&> rewriteAssetStatus(x.assetStatus)
+
+    /// At some point this should be a db lookup...
+    def rewriteAssetStatus(s: String): DbMonad[String] = 
+        use BasicDb/DbMonad.{return};
+        match s {
+            case "OPERATIONAL" => return("OPER")
+            case _ => return(s)
+        }
 
     /// Classifications
 
     
-    pub def genEastNorth(gridRef: String): DbMonad[Classifications] = 
+    def genEastNorth(gridRef: String): DbMonad[Classifications] = 
         use BasicDb/DbMonad.{flatMap, return, liftOption};
         let* ngr    = liftOption(AssetLib/Common/Osgb36.parse(gridRef), "Osgb36.parse");
         let* en     = liftOption(AssetLib/Common/Osgb36.toEastingNorthing(ngr), "Osgb36.toEastingNorthing");
@@ -165,18 +166,18 @@ namespace Skeleton/GenS4Lite {
         return(Monoid.combine(x, y))
 
     /// For Flocs - single AI2 reference
-    pub def genAibReference1(reference: String): DbMonad[Classifications] = 
+    def genFlocAibReference(reference: String): DbMonad[Classifications] = 
         use BasicDb/DbMonad.{flatMap, return};
         let x   = AssetLib/S4Lite/CreateNew/Classifications.s4AibReference();
         let y   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(reference);
         return(Monoid.combine(x, y))
 
     /// For Equipment - two AI2 references
-    pub def genAibReference2(x: AibInputRow): DbMonad[Classifications] = 
+    def genEquiAibReference(commonName: String, reference: String): DbMonad[Classifications] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* parent = Skeleton/DbQueries.getParentReference(x.commonName);
+        let* parent = Skeleton/DbQueries.getParentReference(commonName);
         let c1  = AssetLib/S4Lite/CreateNew/Classifications.s4AibReference();
-        let c2  = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(x.reference);
+        let c2  = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(reference);
         let c3  = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(parent);
         return(Monoid.combineAll(c1 :: c2 :: c3 :: Nil))
 
@@ -201,7 +202,7 @@ namespace Skeleton/GenS4Lite {
         use BasicDb/DbMonad.{return};
         return(AssetLib/S4Lite/CreateNew/Classifications.stringClassification(systemClass, "SYSTEM_TYPE", description))
 
-    pub def genEquiSystemClass(systemClass: String): DbMonad[Classifications] = 
+    def genEquiSystemClass(systemClass: String): DbMonad[Classifications] = 
         use BasicDb/DbMonad.{flatMap, return};
         let x   = AssetLib/S4Lite/CreateNew/Classifications.uniclassCode(systemClass);
         let y   = AssetLib/S4Lite/CreateNew/Classifications.uniclassDesc(systemClass);

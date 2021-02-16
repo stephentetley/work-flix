@@ -27,6 +27,7 @@ namespace Skeleton/Datatypes {
         , commonName: String
         , s4Floc: S4Floc
         , s4Category: String
+        , s4Description: String
         , s4EquiType: String
         , s4EquiClass: String
         , superiorEquipment: String

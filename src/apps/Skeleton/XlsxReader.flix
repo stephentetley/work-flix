@@ -41,26 +41,28 @@ namespace Skeleton/XlsxReader {
     def evalAibInputRow(): NamedRowEvaluator[AibInputRow] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed, map}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14) -> 
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) -> 
                 { reference             = x1
                 , commonName            = x2
                 , s4Floc                = x3
                 , s4Category            = x4
-                , s4EquiType            = x5
-                , s4EquiClass           = x6
-                , superiorEquipment     = x7
-                , installedFrom         = x8
-                , manufacturer          = x9
-                , model                 = x10
-                , specificModelFrame    = x11
-                , serialNumber          = x12
-                , locRef                = x13
-                , assetStatus           = x14
+                , s4Description         = x5
+                , s4EquiType            = x6
+                , s4EquiClass           = x7
+                , superiorEquipment     = x8
+                , installedFrom         = x9
+                , manufacturer          = x10
+                , model                 = x11
+                , specificModelFrame    = x12
+                , serialNumber          = x13
+                , locRef                = x14
+                , assetStatus           = x15
                 })
             <&> getContentNamed("Reference")
             <*> getContentNamed("Common Name")
             <*> map(Skeleton/S4Floc.new, getContentNamed("S4 Floc"))
             <*> getContentNamed("Category")
+            <*> getContentNamed("Description")
             <*> getContentNamed("Equipment Type")
             <*> getContentNamed("Equipment Class")
             <*> getContentNamed("Superior Equipment")

@@ -159,9 +159,9 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
         , coArea                = 1000
         , planningPlant         = 2100
         , functionalLoc         = attrs.functionalLocation
-        , superordEquip         = ""
+        , superordEquip         = attrs.superOrdinateEqui
         , position              = i32None
-        , techIdentNo           = ""
+        , techIdentNo           = attrs.techIdentNo
         , statusProfile         = "ZEQUIPST"
         , statusOfAnObject      = "OPER"
         }
