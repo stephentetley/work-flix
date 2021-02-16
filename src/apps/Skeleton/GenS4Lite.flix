@@ -17,69 +17,48 @@
 
 namespace Skeleton/GenS4Lite {
 
+    use BasicDb.DbMonad;
+
     use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc => S4Funcloc, FlocAttributes, Classification};
     use AssetLib/S4Lite/CreateNew.Classifications;
     use Skeleton.S4Floc;
     use Skeleton/Datatypes.{FlocInputRow, AibInputRow};
-    use Skeleton.GenMonad;
+    
+
+    pub def outputUxl( description: String
+                     , flocs: List[FlocInputRow]
+                    ///  , equis: List[S4Equipment]
+                     , uxlTemplate: System.FilePath
+                     , outpath: System.FilePath): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapM};
+        let* s4flocs    = mapM(genS4Floc, flocs);
+        let* _          = liftActionResult(_ -> AssetLib/S4Lite/CreateNew/EmitUxl.outputUxl(description, s4flocs, Nil, uxlTemplate, outpath));
+        return()
 
 
-    /// type alias S4Floc = 
-    ///     { functionalLocation: String
-    ///     , attributes: FlocAttributes
-    ///     , longText: Option[LongText]
-    ///     , classifications: List[Classification]
-    ///     }
-    pub def genS4Floc(x: FlocInputRow): GenMonad[S4Funcloc] = 
-        genS4Floc1(x) 
-            /// |> addEastNorth()
-
-    def genS4Floc1(x: FlocInputRow): GenMonad[S4Funcloc] = 
-        use Skeleton/GenMonad.{<&>, <*>};
-        (x1 -> 
+    pub def genS4Floc(x: FlocInputRow): DbMonad[S4Funcloc] = 
+        use BasicDb/DbMonad.{<&>, <*>, >>=};
+        ((x1, c1, c2, c3) -> 
             { functionalLocation    = ToString.toString(x.s4Floc)
             , attributes            = x1
             , longText              = None
-            , classifications       = Nil
+            , classifications       = 
+                AssetLib/S4Lite/CreateNew/Classifications.getClassifications(Monoid.combineAll(c1 :: c2 :: c3 :: Nil))
             })
             <&> genFlocAttributes(x)
+            <*> (Skeleton/DbQueries.getFlocGridRef(x.s4Floc) >>= genEastNorth)
+            <*> (Skeleton/DbQueries.getFlocReference(x.s4Floc) >>= genAibReference1)
+            <*> genSystemTypeOrUniclassCode(x.s4Floc, x.systemClass, x.description)
 
-    /// Is adding EastNorth a rewrite rule ?
 
-    type alias Rewrite[a] = a -> GenMonad[a]
-
-    def updateClassifications(xs: List[Classification], ys: Classifications): List[Classification] = 
-        let ys1 = AssetLib/S4Lite/CreateNew/Classifications.getClassifications(ys);
-        List.append(xs, ys1)
-
-    pub def addEastNorth(gridRef: String): Rewrite[S4Funcloc] = x -> 
-        use Skeleton/GenMonad.{flatMap, return};
-        let* x1 = genEastNorth(gridRef);
-        return({ classifications = updateClassifications(x.classifications, x1) | x})
-
-    pub def addAibReference(reference: String): Rewrite[S4Funcloc] = x -> 
-        use Skeleton/GenMonad.{flatMap, return};
-        let* x1 = genAibReference1(reference);
-        return({ classifications = updateClassifications(x.classifications, x1) | x})
-
-    pub def addSystemType(systemClass: String, description: String): Rewrite[S4Funcloc] = x -> 
-        use Skeleton/GenMonad.{flatMap, return};
-        let floc = Skeleton/S4Floc.new(x.functionalLocation);
-        if (Skeleton/S4Floc.category(floc) != 5) 
-            return(x)
-        else {
-            let* x1 = genLevel5System(systemClass, description);
-            return({ classifications = updateClassifications(x.classifications, x1) | x})
-        }
-
-    pub def genFlocAttributes(x: FlocInputRow): GenMonad[FlocAttributes] = 
-        use Skeleton/GenMonad.{flatMap, return};
-        return(
+    def genFlocAttributes(x: FlocInputRow): DbMonad[FlocAttributes] = 
+       use BasicDb/DbMonad.{<&>, <*>};
+        (x1 -> 
             { description           = x.description
             , category              = Skeleton/S4Floc.category(x.s4Floc)
             , structureIndicator    = x.structure
             , objectType            = x.objectType
-            , startupDate           = panic("startupDate")
+            , startupDate           = x1
             , maintPlant            = 2100
             , companyCode           = 2100
             , controllingArea       = 1000
@@ -87,6 +66,10 @@ namespace Skeleton/GenS4Lite {
             , equipmentInstall      = equipmentInstall(x.structure, x.s4Floc)
             , status                = "UCON"
             })
+            <&> Skeleton/DbQueries.getFlocStartupDate(x.s4Floc)
+
+
+
 
 
     def getSuperiorFlocPath(x: S4Floc): String = 
@@ -128,8 +111,8 @@ namespace Skeleton/GenS4Lite {
 
 
     
-    pub def genEastNorth(gridRef: String): GenMonad[Classifications] = 
-        use Skeleton/GenMonad.{flatMap, return, liftOption};
+    pub def genEastNorth(gridRef: String): DbMonad[Classifications] = 
+        use BasicDb/DbMonad.{flatMap, return, liftOption};
         let* ngr    = liftOption(AssetLib/Common/Osgb36.parse(gridRef), "Osgb36.parse");
         let* en     = liftOption(AssetLib/Common/Osgb36.toEastingNorthing(ngr), "Osgb36.toEastingNorthing");
         let x       = AssetLib/S4Lite/CreateNew/Classifications.easting(en.easting);
@@ -137,35 +120,44 @@ namespace Skeleton/GenS4Lite {
         return(Monoid.combine(x, y))
 
     /// For Flocs - single AI2 reference
-    pub def genAibReference1(reference: String): GenMonad[Classifications] = 
-        use Skeleton/GenMonad.{flatMap, return};
+    pub def genAibReference1(reference: String): DbMonad[Classifications] = 
+        use BasicDb/DbMonad.{flatMap, return};
         let x   = AssetLib/S4Lite/CreateNew/Classifications.s4AibReference();
         let y   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(reference);
         return(Monoid.combine(x, y))
 
     /// For Equipment - two AI2 references
-    pub def genAibReference2(reference: String, parent: String): GenMonad[Classifications] = 
+    pub def genAibReference2(x: AibInputRow): DbMonad[Classifications] = 
+        use BasicDb/DbMonad.{flatMap, return};
+        let* parent = Skeleton/DbQueries.getParentReference(x.commonName);
+        let c1  = AssetLib/S4Lite/CreateNew/Classifications.s4AibReference();
+        let c2  = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(x.reference);
+        let c3  = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(parent);
+        return(Monoid.combineAll(c1 :: c2 :: c3 :: Nil))
+
+
+    def genSystemTypeOrUniclassCode(floc: S4Floc, systemClass: String, description: String): DbMonad[Classifications] = 
         use Skeleton/GenMonad.{flatMap, return};
-        let x   = AssetLib/S4Lite/CreateNew/Classifications.s4AibReference();
-        let y   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(reference);
-        let z   = AssetLib/S4Lite/CreateNew/Classifications.ai2AibReference(parent);
-        return(Monoid.combineAll(x :: y :: z :: Nil))
+        if (Skeleton/S4Floc.category(floc) != 5) 
+            genUniclassCode()
+        else 
+            genLevel5System(systemClass, description)
 
 
 
     /// For Flocs (except level 5)
-    pub def genUniclassCode(): GenMonad[Classifications] = 
-        use Skeleton/GenMonad.{flatMap, return};
+    def genUniclassCode(): DbMonad[Classifications] = 
+        use BasicDb/DbMonad.{flatMap, return};
         let x   = AssetLib/S4Lite/CreateNew/Classifications.uniclassCode("UNICLASS_CODE");
         let y   = AssetLib/S4Lite/CreateNew/Classifications.uniclassDesc("UNICLASS_CODE");
         return(Monoid.combine(x, y))
 
-    pub def genLevel5System(systemClass: String, description: String): GenMonad[Classifications] = 
-        use Skeleton/GenMonad.{return};
+    def genLevel5System(systemClass: String, description: String): DbMonad[Classifications] = 
+        use BasicDb/DbMonad.{return};
         return(AssetLib/S4Lite/CreateNew/Classifications.stringClassification(systemClass, "SYSTEM_TYPE", description))
 
-    pub def genEquiSystemClass(systemClass: String): GenMonad[Classifications] = 
-        use Skeleton/GenMonad.{flatMap, return};
+    pub def genEquiSystemClass(systemClass: String): DbMonad[Classifications] = 
+        use BasicDb/DbMonad.{flatMap, return};
         let x   = AssetLib/S4Lite/CreateNew/Classifications.uniclassCode(systemClass);
         let y   = AssetLib/S4Lite/CreateNew/Classifications.uniclassDesc(systemClass);
         return(Monoid.combine(x, y))        

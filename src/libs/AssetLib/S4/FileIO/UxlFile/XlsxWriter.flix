@@ -66,14 +66,14 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxWriter {
         let* _      = putInt32At!(3, x.functLocCat);
         let* _      = putStringAt!(4, x.strIndicator);
         let* _      = putStringAt!(5, x.objectType);
-        let* _      = putS4DateAt!(12, x.startupDate);
-        let* _      = putInt32At!(23, x.maintPlant);
-        let* _      = putInt32At!(30, x.companyCode);
-        let* _      = putInt32At!(35, x.coArea);
-        let* _      = putStringAt!(46, x.supFunctLoc);
-        let* _      = putS4BoolAt!(47, x.equipInstall);
-        let* _      = putStringAt!(49, x.statusProfile);
-        let* _      = putStringAt!(50, x.userStatus);
+        let* _      = putS4DateAt!(11, x.startupDate);
+        let* _      = putInt32At!(21, x.maintPlant);
+        let* _      = putInt32At!(19, x.companyCode);
+        let* _      = putInt32At!(34, x.coArea);
+        let* _      = putStringAt!(45, x.supFunctLoc);
+        let* _      = putS4BoolAt!(46, x.equipInstall);     /// Do we need to write this?
+        let* _      = putStringAt!(48, x.statusProfile);
+        let* _      = putStringAt!(19, x.userStatus);
         return()
 
 

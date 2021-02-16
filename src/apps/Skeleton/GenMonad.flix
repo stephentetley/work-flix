@@ -19,6 +19,8 @@ namespace Skeleton {
 
     use BasicDb.DbMonad;
     
+    /// TODO - generating equiIds could be done by a traversal, a Monad won't help
+    /// with superior equis...
     pub opaque type GenMonad[a] = Int32 -> DbMonad[(Int32, a)]
 
 }
@@ -102,6 +104,12 @@ namespace Skeleton/GenMonad {
         case Some(a) => return(a)
         case None => throwError(errMsg)
     }
+
+
+    pub def liftDbMonad(ma: DbMonad[a]): GenMonad[a] = 
+        GenMonad(s1 -> BasicDb/DbMonad.bind(ma, x -> BasicDb/DbMonad.return((s1, x))))
+                
+
 
     /// For Functor ...
     pub def ignore(mx: GenMonad[a]): GenMonad[Unit] =
