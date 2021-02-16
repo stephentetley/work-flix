@@ -19,7 +19,8 @@ namespace Skeleton/GenS4Lite {
 
     use BasicDb.DbMonad;
 
-    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc => S4Funcloc, FlocAttributes, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc => S4Funcloc, FlocAttributes, 
+        S4Equipment, EquiAttributes, Classification};
     use AssetLib/S4Lite/CreateNew.Classifications;
     use Skeleton.S4Floc;
     use Skeleton/Datatypes.{FlocInputRow, AibInputRow};
@@ -27,14 +28,16 @@ namespace Skeleton/GenS4Lite {
 
     pub def outputUxl( description: String
                      , flocs: List[FlocInputRow]
-                    ///  , equis: List[S4Equipment]
+                     , equis: List[AibInputRow]
                      , uxlTemplate: System.FilePath
                      , outpath: System.FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapM};
         let* s4flocs    = mapM(genS4Floc, flocs);
-        let* _          = liftActionResult(_ -> AssetLib/S4Lite/CreateNew/EmitUxl.outputUxl(description, s4flocs, Nil, uxlTemplate, outpath));
+        let* s4Equis    = mapM(genS4Equipment, equis);
+        let* _          = liftActionResult(_ -> AssetLib/S4Lite/CreateNew/EmitUxl.outputUxl(description, s4flocs, s4Equis, uxlTemplate, outpath));
         return()
 
+    /// ## Flocs
 
     pub def genS4Floc(x: FlocInputRow): DbMonad[S4Funcloc] = 
         use BasicDb/DbMonad.{<&>, <*>, >>=};
@@ -71,12 +74,12 @@ namespace Skeleton/GenS4Lite {
             <*> genObjectTypeWithDefault(x.s4Floc, x.objectType)
             <*> Skeleton/DbQueries.getFlocStartupDate(x.s4Floc)
 
-    /// Helper for writing functions where user might have supplied optional data...
-    pub def nonBlank(s: String): DbMonad[String] = 
-        if (String.isEmpty(s))
-            BasicDb/DbMonad.throwError("nonBlank - blank")
-        else 
-            BasicDb/DbMonad.return("nonBlank - blank")
+    /// /// Helper for writing functions where user might have supplied optional data...
+    /// pub def nonBlank(s: String): DbMonad[String] = 
+    ///     if (String.isEmpty(s))
+    ///         BasicDb/DbMonad.throwError("nonBlank - blank")
+    ///     else 
+    ///         BasicDb/DbMonad.return("nonBlank - blank")
 
 
     def getSuperiorFlocPath(x: S4Floc): String = 
@@ -107,31 +110,50 @@ namespace Skeleton/GenS4Lite {
             case _ => return(dflt)
         }
 
-    /// /// Category is in ztable eqobjl but it is non-deterministic.
-    /// pub def genEquiAttributes(category: String): GenMonad[EquiAttributes] = 
-    ///     use Skeleton/GenMonad.{flatMap, return};
-    ///     return(
-    ///         { category              = category
-    ///         , description           = "**name**"
-    ///         , objectType: String
-    ///         , startupDate: Time.LocalDate
-    ///         , manufacturer: String
-    ///         , model: String
-    ///         , partNumber: String
-    ///         , serialNumber: String
-    ///         , constructionYear: Int32
-    ///         , constructionMonth: Int32
-    ///         , maintPlant: Int32
-    ///         , companyCode: Int32
-    ///         , controllingArea: Int32
-    ///         , planningPlant: Int32
-    ///         , functionalLocation: String
-    ///         , superOrdinateEqui: String
-    ///         , techIdentNo: String
-    ///         , status: String
-    ///         })
-        
+    /// ## Equipment
 
+    /// Initially generate with AIB equiId then do a replace with fresh ids...
+    pub def genS4Equipment(x: AibInputRow): DbMonad[S4Equipment] = 
+        use BasicDb/DbMonad.{<&>, <*>};
+        ((x1, c1) -> 
+            { equiId                = x.reference
+            , attributes            = x1
+            , longText              = None
+            , classifications       = 
+                AssetLib/S4Lite/CreateNew/Classifications.getClassifications(Monoid.combineAll(c1 :: Nil))
+            })
+            <&> genEquiAttributes(x)
+            <*> genEastNorth(x.locRef)
+            /// <*> (Skeleton/DbQueries.getFlocReference(x.s4Floc) >>= genAibReference1)
+            /// <*> genSystemTypeOrUniclassCode(x.s4Floc, x.systemClass, x.description)
+
+
+    /// Category is in ztable eqobjl but it is non-deterministic.
+    pub def genEquiAttributes(x: AibInputRow): DbMonad[EquiAttributes] = 
+        use BasicDb/DbMonad.{<&>, <*>};
+        (x1 ->
+            { category              = x.s4Category
+            , description           = x1
+            , objectType            = x.s4EquiType
+            , startupDate           = x.installedFrom
+            , manufacturer          = x.manufacturer
+            , model                 = x.model
+            , partNumber            = x.specificModelFrame
+            , serialNumber          = x.serialNumber
+            , constructionYear      = Time/LocalDate.getYear(x.installedFrom)
+            , constructionMonth     = Time/LocalDate.getMonth(x.installedFrom)
+            , maintPlant            = 2100
+            , companyCode           = 2100
+            , controllingArea       = 1000
+            , planningPlant         = 2100
+            , functionalLocation    = ToString.toString(x.s4Floc)
+            , superOrdinateEqui     = x.superiorEquipment
+            , techIdentNo           = ""
+            , status                = x.assetStatus
+            })
+            <&> BasicDb/DbMonad.return("**Description**")
+
+    /// Classifications
 
     
     pub def genEastNorth(gridRef: String): DbMonad[Classifications] = 

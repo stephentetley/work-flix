@@ -30,8 +30,9 @@ def main1(): Result[Unit, String] & Impure =
 
 def genItems(paths: SourcePaths): DbMonad[Unit] =  
     use BasicDb/DbMonad.{flatMap, return, mapM, mapX, liftAction, liftActionResult};
-    let* flocs = liftActionResult(_ -> Skeleton/XlsxReader.readFlocHierarchy(paths.sourceXlsx));
-    let* _      = Skeleton/GenS4Lite.outputUxl("Sample upload file", flocs, paths.uxlTemplate, paths.outpath);
+    let* flocs = liftActionResult(_ -> Skeleton/XlsxReader.readFlocHierarchy(paths.sourceXlsx));    
+    let* equis = liftActionResult(_ -> Skeleton/XlsxReader.readEquipmentItems(paths.sourceXlsx));
+    let* _      = Skeleton/GenS4Lite.outputUxl("Sample upload file", flocs, equis, paths.uxlTemplate, paths.outpath);
     return()
 
 def setupDb(paths: SourcePaths): DbMonad[Unit] = 
