@@ -32,8 +32,9 @@ namespace Skeleton/GenS4Lite {
                      , uxlTemplate: System.FilePath
                      , outpath: System.FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapM};
+        use BasicDb/DbMonad.{>>=};
         let* s4flocs    = mapM(genS4Floc, flocs);
-        let* s4Equis    = mapM(genS4Equipment, equis);
+        let* s4Equis    = mapM(genS4Equipment, equis) >>= relabelEquipment;
         let* _          = liftActionResult(_ -> AssetLib/S4Lite/CreateNew/EmitUxl.outputUxl(description, s4flocs, s4Equis, uxlTemplate, outpath));
         return()
 
@@ -104,6 +105,27 @@ namespace Skeleton/GenS4Lite {
         }
 
     /// ## Equipment
+
+    def relabelEquipment(xs: List[S4Equipment]): DbMonad[List[S4Equipment]]  = 
+        use BasicDb/DbMonad.{return, flatMap, liftAction};
+        let* start = liftAction(_ -> Hash.hash(Time/LocalDateTime.now()));
+        return(relabelEquipmentHelper(start, Map.empty(), xs, ks -> ks))
+
+    def relabelEquipmentHelper(n: Int32, labels: Map[String, String], xs: List[S4Equipment], cont: List[S4Equipment] -> List[S4Equipment]): List[S4Equipment] = 
+        match xs {
+            case Nil => cont(Nil)
+            case x :: rs => { 
+                let oldId = x.equiId;
+                let newId = "$${n}";
+                let x1 = relabel1(newId, labels, x);
+                relabelEquipmentHelper(n + 1, Map.insert(oldId, newId, labels), rs, ks -> cont(x1 :: ks))
+            }
+        }
+
+    def relabel1(newId: String, labels: Map[String, String], x: S4Equipment): S4Equipment = 
+        let oldSuper = x.attributes.superOrdinateEqui;
+        let newSuper = Option.getWithDefault(Map.get(oldSuper, labels), "");
+        {equiId = newId, attributes = {superOrdinateEqui = newSuper | x.attributes} | x}
 
     /// Initially generate with AIB equiId then do a replace with fresh ids...
     pub def genS4Equipment(x: AibInputRow): DbMonad[S4Equipment] = 
