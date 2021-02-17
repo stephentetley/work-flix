@@ -28,7 +28,16 @@ namespace Skeleton/XlsxReader {
 
 
     pub def readEquipmentItems(path: System.FilePath): Result[List[AibInputRow], String] & Impure =    
-        readAnnotatedAibExport(path) |> Result.map(List.filter(x -> String.contains(x.commonName, "/EQUIPMENT: ")))
+        readAnnotatedAibExport(path) 
+            |> Result.map(List.filter(x -> String.contains(x.commonName, "/EQUIPMENT: ")))
+            |> Result.map(List.sortWith((x1, y1) -> compareEquipment(x1, y1) |> Order.toInt))
+
+    /// sub ordinates must come after superordinates...
+    def compareEquipment(x: AibInputRow, y: AibInputRow): Comparison = 
+        match Order.compare(ToString.toString(x.s4Floc), ToString.toString(y.s4Floc)) {
+            case EqualTo => Order.compare(x.superiorEquipment, y.superiorEquipment)
+            case ans => ans
+        }
 
 
     pub def readAibInputRows(): SheetReader[List[AibInputRow]] = 
@@ -54,7 +63,7 @@ namespace Skeleton/XlsxReader {
                 , manufacturer          = x10
                 , model                 = x11
                 , specificModelFrame    = x12
-                , serialNumber          = x13
+                , serialNumber          = String.trim(x13)
                 , locRef                = x14
                 , assetStatus           = x15
                 })

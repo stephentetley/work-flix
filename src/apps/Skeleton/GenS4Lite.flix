@@ -109,7 +109,7 @@ namespace Skeleton/GenS4Lite {
     /// Two traversals...
     def relabelEquipment(xs: List[S4Equipment]): DbMonad[List[S4Equipment]]  = 
         use BasicDb/DbMonad.{return, flatMap, liftAction};
-        let* start = liftAction(_ -> Hash.hash(Time/LocalDateTime.now()));
+        let* start = liftAction(_ -> Int32.abs(Hash.hash(Time/LocalDateTime.now())));
         let (s1, xs1) = mapAccumLeft(relabelStep1, (start, Map.empty()), xs);
         let (_, labels) = s1;
         let xs2 = List.map(relabelSuper(labels), xs1);
@@ -159,7 +159,7 @@ namespace Skeleton/GenS4Lite {
             , manufacturer          = x.manufacturer
             , model                 = x.model
             , partNumber            = x.specificModelFrame
-            , serialNumber          = x.serialNumber
+            , serialNumber          = if (String.isEmpty(x.serialNumber)) "UNKNOWN" else x.serialNumber
             , constructionYear      = Time/LocalDate.getYear(x.installedFrom)
             , constructionMonth     = Time/LocalDate.getMonth(x.installedFrom)
             , maintPlant            = 2100
