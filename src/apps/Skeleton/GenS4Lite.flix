@@ -106,26 +106,31 @@ namespace Skeleton/GenS4Lite {
 
     /// ## Equipment
 
+    /// Two traversals...
     def relabelEquipment(xs: List[S4Equipment]): DbMonad[List[S4Equipment]]  = 
         use BasicDb/DbMonad.{return, flatMap, liftAction};
         let* start = liftAction(_ -> Hash.hash(Time/LocalDateTime.now()));
-        return(relabelEquipmentHelper(start, Map.empty(), xs, ks -> ks))
+        let (s1, xs1) = mapAccumLeft(relabelStep1, (start, Map.empty()), xs);
+        let (_, labels) = s1;
+        let xs2 = List.map(relabelSuper(labels), xs1);
+        return(xs2)
 
-    def relabelEquipmentHelper(n: Int32, labels: Map[String, String], xs: List[S4Equipment], cont: List[S4Equipment] -> List[S4Equipment]): List[S4Equipment] = 
-        match xs {
-            case Nil => cont(Nil)
-            case x :: rs => { 
-                let oldId = x.equiId;
-                let newId = "$${n}";
-                let x1 = relabel1(newId, labels, x);
-                relabelEquipmentHelper(n + 1, Map.insert(oldId, newId, labels), rs, ks -> cont(x1 :: ks))
-            }
-        }
+    /// Use two passes to relabel equipment then super-refs.
+    /// First pass relabels equiId and builds a label map.
+    def relabelStep1(ac: (Int32, Map[String, String]), x: S4Equipment): ((Int32, Map[String, String]), S4Equipment) = 
+        let (n, labels) = ac;
+        let oldId = x.equiId;
+        let newId = "$${n}";
+        let x1 = {equiId = newId | x};
+        ((n + 1, Map.insert(oldId, newId, labels)), x1)
 
-    def relabel1(newId: String, labels: Map[String, String], x: S4Equipment): S4Equipment = 
+        
+
+    /// Second pass relabels super-refs with a map lookup...
+    def relabelSuper(labels: Map[String, String], x: S4Equipment): S4Equipment = 
         let oldSuper = x.attributes.superOrdinateEqui;
         let newSuper = Option.getWithDefault(Map.get(oldSuper, labels), "");
-        {equiId = newId, attributes = {superOrdinateEqui = newSuper | x.attributes} | x}
+        {attributes = {superOrdinateEqui = newSuper | x.attributes} | x}
 
     /// Initially generate with AIB equiId then do a replace with fresh ids...
     pub def genS4Equipment(x: AibInputRow): DbMonad[S4Equipment] = 
@@ -173,6 +178,7 @@ namespace Skeleton/GenS4Lite {
         use BasicDb/DbMonad.{return};
         match s {
             case "OPERATIONAL" => return("OPER")
+            case "NON OPERATIONAL" => return("NOP")
             case _ => return(s)
         }
 
@@ -229,5 +235,20 @@ namespace Skeleton/GenS4Lite {
         let x   = AssetLib/S4Lite/CreateNew/Classifications.uniclassCode(systemClass);
         let y   = AssetLib/S4Lite/CreateNew/Classifications.uniclassDesc(systemClass);
         return(Monoid.combine(x, y))        
+
+
+    pub def mapAccumLeft(f: (s, a) -> (s, b) & ef, start: s, xs: List[a]): (s, List[b]) & ef = 
+        mapAccumLeftHelper(f, start, xs, (s1, ks) -> (s1, ks))
+
+    def mapAccumLeftHelper(f: (s, a) -> (s, b) & ef, s1: s, xs: List[a], k: (s, List[b]) -> (s, List[b])): (s, List[b]) & ef = 
+        match xs { 
+            case Nil => k(s1, Nil)
+            case x :: rs => {
+                let (s2, x1) = f(s1, x);
+                mapAccumLeftHelper(f, s2, rs, (s3, ks) -> k(s3, x1 :: ks))
+            }
+
+        }
+
 
 }    
