@@ -116,23 +116,21 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
         , status: Option[Int32]
         }
 
-    
+    /// Don't write "CLINT" (internalClassNumber)
     pub def outputClassFlocFile(user: String,
                                 rows: List[ClassFlocRow], 
                                 outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
-        let headers = ["FUNCLOC", "CLASS", "CLASSTYPE", "CLINT", "CLSTATUS1"];
+        let headers = ["FUNCLOC", "CLASS", "CLASSTYPE", "CLSTATUS1"];
         let* rows2 = execMapRowSetter(headers, classFlocSetRow!, rows);
         outputUploadFile(ClassFloc, "", user, headers, rows2, outpath)
 
     def classFlocSetRow!(x: ClassFlocRow): RowSetter[Unit] = 
-        use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
-            putInt32Named!, putPaddedInt32Named!};
+        use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!};
         let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
         let* _  = putStringNamed!("CLASS",      x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
-        let* _  = putStringNamed!("CLINT",      x.internalClassNumber);
         let* _  = putStringNamed!("CLSTATUS1",  Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
         return()
 
@@ -428,23 +426,21 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
         , status: Option[Int32]
         }
 
-    
+    /// Don't write "CLINT" (internalClassNumber)
     pub def outputClassEquiFile(user: String,
                                 rows: List[ClassEquiRow], 
                                 outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
-        let headers = ["EQUI", "CLASS", "CLASSTYPE", "CLINT", "CLSTATUS1"];
+        let headers = ["EQUI", "CLASS", "CLASSTYPE", "CLSTATUS1"];
         let* rows2 = execMapRowSetter(headers, classEquiSetRow!, rows);
         outputUploadFile(ClassEqui, "", user, headers, rows2, outpath)
 
     def classEquiSetRow!(x: ClassEquiRow): RowSetter[Unit] = 
-        use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
-            putInt32Named!, putPaddedInt32Named!};
+        use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!};
         let* _  = putStringNamed!("EQUI",       x.equi);
         let* _  = putStringNamed!("CLASS",  x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
-        let* _  = putStringNamed!("CLINT",  x.internalClassNumber);
         let* _  = putStringNamed!("CLSTATUS1",      Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
         return()
 

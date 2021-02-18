@@ -18,7 +18,20 @@ namespace Elaborator/CreateUploadRow {
     
     use Elaborator.ElaborateMonad;
     
-    use AssetLib/S4/FileIO/TransferFile/Builtins.{ValuaFlocRow, ValuaEquiRow};
+    use AssetLib/S4/FileIO/TransferFile/Builtins.{ClassEquiRow, ValuaFlocRow, ValuaEquiRow};
+
+    /// ClassEqui
+
+    pub def classEqui(x: {equiId: String, className: String}): ElaborateMonad[ClassEquiRow] = 
+        use Elaborator/ElaborateMonad.{return};
+        return(
+            { equi                  = x.equiId
+            , className             = x.className
+            , classType             = "002"
+            , internalClassNumber   = ""            /// Set to blank - not printed
+            , status                = Some(1)
+            })
+
 
     /// ValuaFloc
 
