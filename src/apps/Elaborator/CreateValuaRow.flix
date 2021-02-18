@@ -165,7 +165,7 @@ namespace Elaborator/CreateUploadRow {
         , code = Some(1)
         , valueDescription = ""
         , intCounterValue = x.counter
-        , valueFrom = toDecimalString(5, x.value)
+        , valueFrom = toDecimalString(2, x.value)
         , valueTo = "0"
         }
 
@@ -181,11 +181,11 @@ namespace Elaborator/CreateUploadRow {
     def toDecimalStringHelper(decimalPlaces: Int32, x: Float64): String & Impure =
         import new java.text.DecimalFormat() as newDecimalFormat;
         import java.text.DecimalFormat.applyPattern(String);
-        import java.text.DecimalFormat.setMaximumFractionDigits(Int32);
+        import java.text.DecimalFormat.setMinimumFractionDigits(Int32);
         import java.text.NumberFormat.format(Float64);
         let df = newDecimalFormat();
         df.applyPattern("###.###");
-        df.setMaximumFractionDigits(decimalPlaces);
+        df.setMinimumFractionDigits(decimalPlaces);
         let nf = df as ##java.text.NumberFormat;
         nf.format(x)
 

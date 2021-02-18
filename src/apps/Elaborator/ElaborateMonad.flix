@@ -29,15 +29,13 @@ namespace Elaborator/ElaborateMonad {
     use Elaborator.ElaborateMonad;
     use Elaborator.ElaborateMonad.{ElaborateMonad};
 
-    pub def runElaborateMonad(ma: ElaborateMonad[a], 
-                              x: {equiTableName: String, flocTableName: String}): DbMonad[a] = 
+    pub def runElaborateMonadSQLite(ma: ElaborateMonad[a], dbpath: System.FilePath): Result[a, String] & Impure = 
+        BasicDb/DbMonad.runSQLite(runElaborateMonad(ma), dbpath)
+
+    pub def runElaborateMonad(ma: ElaborateMonad[a]): DbMonad[a] = 
         use BasicDb/DbMonad.{flatMap};
         let ElaborateMonad(f) = ma;
-        let action = () -> {
-            let* _  = Elaborator/GetValuaMax.cacheValuaFlocMaxQuery(x.flocTableName);
-            let* _  = Elaborator/GetValuaMax.cacheValuaEquiMaxQuery(x.equiTableName);
-            f(Map.empty())
-        };
+        let action = () -> f(Map.empty());
         BasicDb/DbMonad.map(snd, action())
 
     def apply1(ma: ElaborateMonad[a], st: Map[String, Int32]): DbMonad[(Map[String, Int32], a)] = 
@@ -200,6 +198,18 @@ namespace Elaborator/ElaborateMonad {
     pub def liftAction(fn: Unit ~> a): ElaborateMonad[a] = 
         use BasicDb/DbMonad.{map};
         ElaborateMonad(s1 -> map(x -> (s1, x), BasicDb/DbMonad.liftAction(fn)))
+
+    pub def liftDbMonad(ma: DbMonad[a]): ElaborateMonad[a] = 
+        use BasicDb/DbMonad.{map};
+        ElaborateMonad(s1 -> map(x -> (s1, x), ma))
+
+
+    pub def storeValuaEquiFile(src: System.FilePath): ElaborateMonad[Unit] =         
+        liftDbMonad(AssetLib/S4/FileIO/TransferFile/Builtins.storeValuaEquiFile("valuaequi", true, src))
+
+
+    pub def storeValuaFlocFile(src: System.FilePath): ElaborateMonad[Unit] =         
+        liftDbMonad(AssetLib/S4/FileIO/TransferFile/Builtins.storeValuaFlocFile("valuafloc", true, src))
 
 
     def makeEquiKey(equiId: String, charName: String): String = "${equiId}::${charName}"

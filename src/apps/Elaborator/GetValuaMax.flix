@@ -23,25 +23,25 @@ namespace Elaborator/GetValuaMax {
 
     /// FLOC
 
-    pub def cacheValuaFlocMaxQuery(tableName: String): DbMonad[Unit] = 
-        let sql = String.unlines(
-               "SELECT"
-            :: "    max(t1.int_counter_value) AS counter_max"
-            :: "FROM ${tableName} t1"
-            :: "WHERE "
-            :: "    t1.funcloc = ?"
-            :: "AND t1.char_id = ?"
-            :: Nil
-        );
-        BasicDb/DbMonad.cachePreparedStatement("ValuaFlocMax", sql)
-
+    
     pub def getValuaFlocMax(funcloc: String, characteristicName: String): DbMonad[Int32] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, rsClose, alt};
-        let* rs     = psExecuteCachedQuery("ValuaFlocMax", setValuaFlocMaxParams!(funcloc,  characteristicName));
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQueryAndCachePS, firstRow, rsClose, alt};
+        let* rs     = psExecuteQueryAndCachePS("ValuaFlocMax", valuaFlocMaxQuerySql(), setValuaFlocMaxParams!(funcloc, characteristicName));
         let* x1     = alt(firstRow(rs, BasicDb/RowEvaluator.getInt32Named("counter_max")), return(0));
         let* _      = rsClose(rs);
         return(x1)
 
+
+    def valuaFlocMaxQuerySql(): String = 
+        String.unlines(
+               "SELECT"
+            :: "    max(t1.int_counter_value) AS counter_max"
+            :: "FROM valuafloc t1"
+            :: "WHERE "
+            :: "    t1.funcloc = ?"
+            :: "AND t1.char_id = ?"
+            :: Nil
+        )
 
     def setValuaFlocMaxParams!(funcloc: String, characteristicName: String): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
@@ -51,25 +51,24 @@ namespace Elaborator/GetValuaMax {
 
 
     /// EQUI
-    pub def cacheValuaEquiMaxQuery(tableName: String): DbMonad[Unit] = 
-        let sql = String.unlines(
-               "SELECT"
-            :: "    max(t1.int_counter_value) AS counter_max"
-            :: "FROM ${tableName} t1"
-            :: "WHERE "
-            :: "    t1.equi = ?"
-            :: "AND t1.char_id = ?"
-            :: Nil
-        );
-        BasicDb/DbMonad.cachePreparedStatement("ValuaEquiMax", sql)
 
     pub def getValuaEquiMax(equiId: String, characteristicName: String): DbMonad[Int32] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, rsClose, alt};
-        let* rs     = psExecuteCachedQuery("ValuaEquiMax", setValuaEquiMaxParams!(equiId,  characteristicName));
+        use BasicDb/DbMonad.{flatMap, return, psExecuteQueryAndCachePS, firstRow, rsClose, alt};
+        let* rs     = psExecuteQueryAndCachePS("ValuaEquiMax", valuaEquiMaxQuerySql(), setValuaEquiMaxParams!(equiId,  characteristicName));
         let* x1     = alt(firstRow(rs, BasicDb/RowEvaluator.getInt32Named("counter_max")), return(0));
         let* _      = rsClose(rs);
         return(x1)
 
+    def valuaEquiMaxQuerySql(): String = 
+        String.unlines(
+               "SELECT"
+            :: "    max(t1.int_counter_value) AS counter_max"
+            :: "FROM valuaequi t1"
+            :: "WHERE "
+            :: "    t1.equi = ?"
+            :: "AND t1.char_id = ?"
+            :: Nil
+        )
 
     def setValuaEquiMaxParams!(equiId: String, characteristicName: String): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!};
