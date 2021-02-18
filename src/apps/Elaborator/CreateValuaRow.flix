@@ -64,7 +64,7 @@ namespace Elaborator/CreateUploadRow {
         , charId            = x.charId
         , charValue         = ""
         , code              = Some(1)
-        , valueDescription  = ""
+        , valueDescription  = Int32.toString(x.value)
         , intCounterValue   = x.counter
         , valueFrom         = Int32.toString(x.value)
         , valueTo           = "0"
@@ -87,9 +87,9 @@ namespace Elaborator/CreateUploadRow {
         , charId            = x.charId
         , charValue         = ""
         , code              = Some(1)
-        , valueDescription  = ""
+        , valueDescription  = toDecimalString(2, x.value)
         , intCounterValue   = x.counter
-        , valueFrom         = toDecimalString(5, x.value)
+        , valueFrom         = toDecimalString(2, x.value)
         , valueTo           = "0"
         }
 
@@ -139,7 +139,7 @@ namespace Elaborator/CreateUploadRow {
         , charId = x.charId
         , charValue = ""
         , code = Some(1)
-        , valueDescription = ""
+        , valueDescription = Int32.toString(x.value)
         , intCounterValue = x.counter
         , valueFrom = Int32.toString(x.value)
         , valueTo = "0"
@@ -163,7 +163,7 @@ namespace Elaborator/CreateUploadRow {
         , charId = x.charId
         , charValue = ""
         , code = Some(1)
-        , valueDescription = ""
+        , valueDescription = toDecimalString(2, x.value)        /// We need TEXTBEZ and ATFLV!
         , intCounterValue = x.counter
         , valueFrom = toDecimalString(2, x.value)
         , valueTo = "0"
