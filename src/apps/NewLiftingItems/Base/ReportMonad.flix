@@ -104,6 +104,11 @@ namespace NewLiftingItems/Base/ReportMonad {
         case Err(msg) => throwError(msg)
     }
     
+    pub def liftValidation(x: Validation[a, e], genError: List[e] -> String): ReportMonad[a] = match x {
+        case Success(x1) => return(x1)
+        case Failure(es) => throwError(genError(Nel.toList(es)))
+    }
+
 
     pub def liftActionResult(fn: Unit ~> Result[a, String]): ReportMonad[a] =    
         use BasicDb/DbMonad.{flatMap, return};

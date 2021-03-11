@@ -26,7 +26,7 @@ namespace AssetLib/S4Lite/CreateNew/EquipmentBuilder {
     use BasicDb.RowEvaluator;
 
     
-    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{EquiDatum, EquiAttributes, LongText, Classification};
     use AssetLib/S4Lite/CreateNew/Common.{evalClassification, evalLongText};
 
 
@@ -58,7 +58,7 @@ namespace AssetLib/S4Lite/CreateNew/EquipmentBuilder {
                , selectClassifications  = classes
             })
 
-    pub def buildS4Equipment(cachedStmts: EquipmentPreparedStatements, equiId: String): DbMonad[S4Equipment] = 
+    pub def buildS4Equipment(cachedStmts: EquipmentPreparedStatements, equiId: String): DbMonad[EquiDatum] = 
         use BasicDb/DbMonad.{flatMap, return};
         let* attrs      = getEquiAttributes(cachedStmts.selectAttributes, equiId);
         let* longText   = getEquiLongText(cachedStmts.selectLongText, equiId);

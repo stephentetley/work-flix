@@ -19,8 +19,8 @@ namespace Skeleton/GenS4Lite {
 
     use BasicDb.DbMonad;
 
-    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc => S4Funcloc, FlocAttributes, 
-        S4Equipment, EquiAttributes, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{FlocDatum, FlocAttributes, 
+        EquiDatum, EquiAttributes, Classification};
     use AssetLib/S4Lite/CreateNew.Classifications;
     use Skeleton.S4Floc;
     use Skeleton/Datatypes.{FlocInputRow, AibInputRow};
@@ -34,13 +34,13 @@ namespace Skeleton/GenS4Lite {
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapM};
         use BasicDb/DbMonad.{>>=};
         let* s4flocs    = mapM(genS4Floc, flocs);
-        let* s4Equis    = mapM(genS4Equipment, equis) >>= relabelEquipment;
+        let* s4Equis    = mapM(genEquiDatum, equis) >>= relabelEquipment;
         let* _          = liftActionResult(_ -> AssetLib/S4Lite/CreateNew/EmitUxl.outputUxl(description, s4flocs, s4Equis, uxlTemplate, outpath));
         return()
 
     /// ## Flocs
 
-    pub def genS4Floc(x: FlocInputRow): DbMonad[S4Funcloc] = 
+    pub def genS4Floc(x: FlocInputRow): DbMonad[FlocDatum] = 
         use BasicDb/DbMonad.{<&>, <*>, >>=};
         ((x1, x2) -> 
             { functionalLocation    = ToString.toString(x.s4Floc)
@@ -114,7 +114,7 @@ namespace Skeleton/GenS4Lite {
     /// ## Equipment
 
     /// Two traversals...
-    def relabelEquipment(xs: List[S4Equipment]): DbMonad[List[S4Equipment]]  = 
+    def relabelEquipment(xs: List[EquiDatum]): DbMonad[List[EquiDatum]]  = 
         use BasicDb/DbMonad.{return, flatMap, liftAction};
         let* start = liftAction(_ -> Int32.abs(Hash.hash(Time/LocalDateTime.now())));
         let (s1, xs1) = mapAccumLeft(relabelStep1, (start, Map.empty()), xs);
@@ -124,7 +124,7 @@ namespace Skeleton/GenS4Lite {
 
     /// Use two passes to relabel equipment then super-refs.
     /// First pass relabels equiId and builds a label map.
-    def relabelStep1(ac: (Int32, Map[String, String]), x: S4Equipment): ((Int32, Map[String, String]), S4Equipment) = 
+    def relabelStep1(ac: (Int32, Map[String, String]), x: EquiDatum): ((Int32, Map[String, String]), EquiDatum) = 
         let (n, labels) = ac;
         let oldId = x.equiId;
         let newId = "$${n}";
@@ -134,13 +134,13 @@ namespace Skeleton/GenS4Lite {
         
 
     /// Second pass relabels super-refs with a map lookup...
-    def relabelSuper(labels: Map[String, String], x: S4Equipment): S4Equipment = 
+    def relabelSuper(labels: Map[String, String], x: EquiDatum): EquiDatum = 
         let oldSuper = x.attributes.superOrdinateEqui;
         let newSuper = Option.getWithDefault(Map.get(oldSuper, labels), "");
         {attributes = {superOrdinateEqui = newSuper | x.attributes} | x}
 
     /// Initially generate with AIB equiId then do a replace with fresh ids...
-    pub def genS4Equipment(x: AibInputRow): DbMonad[S4Equipment] = 
+    pub def genEquiDatum(x: AibInputRow): DbMonad[EquiDatum] = 
         use BasicDb/DbMonad.{<&>, <*>};
         ((x1, x2) -> 
             { equiId                = x.reference

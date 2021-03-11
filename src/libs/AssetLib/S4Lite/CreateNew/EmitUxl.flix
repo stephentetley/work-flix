@@ -25,16 +25,16 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
         , EqMultilingualText => UxlEqMultilingualText
         , EqClassification => UxlEqClassification};
 
-    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Floc, S4Equipment, FlocAttributes, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{FlocDatum, EquiDatum, FlocAttributes, EquiAttributes, LongText, Classification};
 
     pub def outputUxl( description: String
-                     , flocs: List[S4Floc]
-                     , equis: List[S4Equipment]
+                     , flocs: List[FlocDatum]
+                     , equis: List[EquiDatum]
                      , uxlTemplate: System.FilePath
                      , outpath: System.FilePath): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(emitUxl(description, flocs, equis), uxlTemplate, outpath)
 
-    pub def emitUxl(description: String, flocs: List[S4Floc], equis: List[S4Equipment]): SheetWriter[Unit] = 
+    pub def emitUxl(description: String, flocs: List[FlocDatum], equis: List[EquiDatum]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let crDetails   = genChangeRequestDetails(description, flocs, equis);
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crDetails);
@@ -44,7 +44,7 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
     
 
 
-    pub def genChangeRequestDetails(description: String, flocs: List[S4Floc], equis: List[S4Equipment]): List[UxlChangeRequestDetails] = 
+    pub def genChangeRequestDetails(description: String, flocs: List[FlocDatum], equis: List[EquiDatum]): List[UxlChangeRequestDetails] = 
         let xs  = List.map(x -> genChangeRequestDetails1(x.functionalLocation, ""), flocs);
         let ys  = List.map(x -> genChangeRequestDetails1("", x.equiId), equis);
         updateFront(description, xs ::: ys)
@@ -67,7 +67,7 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
 
     /// Functional Locations
     
-    def outputS4Flocs(xs: List[S4Floc]): SheetWriter[Unit] = 
+    def outputS4Flocs(xs: List[FlocDatum]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let flocs       = List.map(x -> genUxlFunctionalLocationData(x.functionalLocation, x.attributes), xs);
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
@@ -128,7 +128,7 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
 
     /// Equipment
     
-    def outputS4Equipment(xs: List[S4Equipment]): SheetWriter[Unit] = 
+    def outputS4Equipment(xs: List[EquiDatum]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let equis       = List.map(x -> genUxlEquipmentData(x.equiId, x.attributes), xs);
         let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEquipmentData(equis);

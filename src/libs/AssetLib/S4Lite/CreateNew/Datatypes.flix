@@ -17,7 +17,7 @@
 namespace AssetLib/S4Lite/CreateNew/Datatypes {
 
 
-    type alias S4Floc = 
+    type alias FlocDatum = 
         { functionalLocation: String
         , attributes: FlocAttributes
         , longText: Option[LongText]
@@ -39,7 +39,7 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
         }
 
 
-    type alias S4Equipment = 
+    type alias EquiDatum = 
         { equiId: String
         , attributes: EquiAttributes
         , longText: Option[LongText]

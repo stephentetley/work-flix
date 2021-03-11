@@ -17,16 +17,16 @@
 namespace NewLiftingItems/Base/LiftingEquipmentToS4Lite {
 
 
-    use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
+    use AssetLib/S4Lite/CreateNew/Datatypes.{EquiDatum, EquiAttributes, LongText, Classification};
     use AssetLib/S4Lite/CreateNew.{Classifications};
     use NewLiftingItems/Base/Datatypes.{LiftingEquipment, LiftingAttributes, LiftingClassifications};
     use NewLiftingItems/Base.ReportMonad;
 
-    pub def translateLiftingEquipment(x: LiftingEquipment): ReportMonad[S4Equipment] = 
-        use NewLiftingItems/Base/ReportMonad.{flatMap, return, liftAction};
+    pub def translateLiftingEquipment(x: LiftingEquipment): ReportMonad[EquiDatum] = 
+        use NewLiftingItems/Base/ReportMonad.{flatMap, return, liftValidation};
         let attributes          = translateLiftingAttributes(x.objectType, x.attributes);
         let longText            = translateLongText(x.attributes.description, x.longText);
-        let classifications     = translateLiftingClassifications(x.objectClass, x.classifications);
+        let* classifications    = liftValidation(translateLiftingClassifications(x.objectClass, x.classifications), String.intercalate("; "));
         return(
             { equiId            = x.equiId
             , attributes        = attributes
@@ -64,7 +64,7 @@ namespace NewLiftingItems/Base/LiftingEquipmentToS4Lite {
             Some({shortText = description, longText = longText})
 
     /// TODO if length(locationOnSite) > 30 make it a longtext
-    def translateLiftingClassifications(objectClass: String, x: LiftingClassifications): List[Classification] = 
+    def translateLiftingClassifications(objectClass: String, x: LiftingClassifications): Validation[List[Classification], String] = 
         use AssetLib/S4Lite/CreateNew/Classifications.{getClassifications, concat, whenTrue, whenSome, ai2AibReference, 
             s4AibReference, easting, northing, uniclassCode, uniclassDesc, locationOnSite, decimalClassification,
             stringClassification, statutoryReferenceNumber, testCertNo};
@@ -82,7 +82,7 @@ namespace NewLiftingItems/Base/LiftingEquipmentToS4Lite {
             :: whenTrue(not String.isEmpty(x.statutoryReference), statutoryReferenceNumber(objectClass, x.statutoryReference))
             :: whenTrue(not String.isEmpty(x.testCertNumber), testCertNo(objectClass, x.testCertNumber)) 
             :: Nil
-        ) |> getClassifications
+        ) |> getClassifications 
 
 
 }

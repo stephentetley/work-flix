@@ -116,11 +116,18 @@ namespace AssetLib/S4Lite/CreateNew/Classifications {
         ai2AibReference(reference) <<>> ai2AibReference(parent) <<>> s4AibReference()
 
 
-    pub def uniclassCode(classification: String): Classifications =
-        singleton({className = classification, charName = "UNICLASS_CODE", value = Text("")})
+    pub def uniclassCode(className: String): Classifications =
+        singleton({className = className, charName = "UNICLASS_CODE", value = Text("")})
 
-    pub def uniclassDesc(classification: String): Classifications =
-        singleton({className = classification, charName = "UNICLASS_DESC", value = Text("")})
+    pub def uniclassDesc(className: String): Classifications =
+        singleton({className = className, charName = "UNICLASS_DESC", value = Text("")})
+
+    pub def flocUniclassCode(): Classifications = 
+        uniclassCode("UNICLASS_CODE") <<>> uniclassDesc("UNICLASS_CODE")
+
+    pub def flocLevel5SystemType(className: String, systemName: String): Classifications = 
+        singleton({className = className, charName = "SYSTEM_TYPE", value = Text(systemName)})
+
 
     pub def locationOnSite(classification: String, location: String): Classifications =
         singleton({className = classification, charName = "LOCATION_ON_SITE", value = Text(location)})
