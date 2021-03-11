@@ -19,6 +19,12 @@ namespace AssetLib/S4/Base {
 
     pub opaque type Floc = List[String]
 
+    instance ToString[Floc] { 
+        pub def toString(x: Floc): String = 
+            let Floc(x1) = x;
+            String.intercalate("-", x1)
+    }
+
 }    
 
 namespace AssetLib/S4/Base/Floc {
