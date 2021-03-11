@@ -20,8 +20,8 @@ def main1(): Result[Unit, String] & Impure =
     let srcpaths = 
         { ztableFlocdes     = System/FilePath.new("G:/work/assets/facts/ztables/ztable_flocdes.txt")
         , uxlTemplate       = System/FilePath.new("G:/work/assets/skeleton/MMOP uXL.xlsx")
-        , sourceXlsx        = System/FilePath.new("G:/work/assets/skeleton/rivelin-sirofloc-skeleton.xlsx")
-        , outpath           = System/FilePath.new("G:/work/assets/skeleton/rivelin-sirofloc-skeleton_uxl.xlsx")
+        , sourceXlsx        = System/FilePath.new("G:/work/assets/skeleton/rivelin-sirofloc-skeleton-v2.xlsx")
+        , outpath           = System/FilePath.new("G:/work/assets/skeleton/rivelin-sirofloc-skeleton-v2_uxl.xlsx")
         };
     let dbpath  = System/FilePath.new("G:/work/assets/skeleton/skeleton_db.sqlite");
     let* _      = BasicDb/DbMonad.runSQLite(setupDb(srcpaths), dbpath);  

@@ -25,6 +25,28 @@ namespace AssetLib/S4/Base {
             String.intercalate("-", x1)
     }
 
+    instance FromString[Floc] { 
+        pub def fromString(x: String): Option[Floc] = AssetLib/S4/Base/Floc.new(x)
+    }
+
+    instance Eq[Floc] { 
+        pub def eq(x: Floc, y: Floc): Bool = ToString.toString(x) == ToString.toString(y)
+        
+        pub def neq(x: Floc, y: Floc): Bool = not (x == y)
+    }
+
+    instance Order[Floc] {
+        def less(x: Floc, y: Floc): Bool = ToString.toString(x) < ToString.toString(y)
+        def lessEqual(x: Floc, y: Floc): Bool = ToString.toString(x) <= ToString.toString(y)
+        def greater(x: Floc, y: Floc): Bool = ToString.toString(x) > ToString.toString(y)
+        def greaterEqual(x: Floc, y: Floc): Bool = ToString.toString(x) >= ToString.toString(y)
+        def compare(x: Floc, y: Floc): Comparison = Order.compare(ToString.toString(x), ToString.toString(y))
+    }
+
+    instance Hash[Floc] {
+        def hash(x: Floc): Int32 = Hash.hash(ToString.toString(x))
+    }
+
 }    
 
 namespace AssetLib/S4/Base/Floc {
@@ -32,7 +54,13 @@ namespace AssetLib/S4/Base/Floc {
     use AssetLib/S4/Base.Floc;
     use AssetLib/S4/Base.Floc.{Floc};
 
-    pub def new(s: String): Floc = Floc(String.splitOn(s, "-"))
+    /// `s` cannot be empty.
+    pub def new(s: String): Option[Floc] = 
+        if (String.isEmpty(s))
+            None
+        else
+            Some(Floc(String.splitOn(s, "-")))
+                
 
     pub def equals(x: Floc, y: Floc): Bool = 
         let Floc(xs) = x;
@@ -40,15 +68,15 @@ namespace AssetLib/S4/Base/Floc {
         String.intercalate("-", xs) == String.intercalate("-", ys)
 
 
-    pub def append(x: Floc, y: Floc): Floc = 
-        let Floc(x1) = x;
-        let Floc(y1) = y;
-        Floc(x1 ::: y1)
+    /// pub def append(x: Floc, y: Floc): Floc = 
+    ///     let Floc(x1) = x;
+    ///     let Floc(y1) = y;
+    ///     Floc(x1 ::: y1)
 
     pub def snoc(x: Floc, s: String): Floc = 
         let Floc(x1) = x;
-        let Floc(y1) = new(s);
-        Floc(x1 ::: y1)
+        let ys = String.splitOn(s, "-");
+        Floc(x1 ::: ys)
     
 
     pub def toString(x: Floc): String = 
@@ -62,14 +90,27 @@ namespace AssetLib/S4/Base/Floc {
 
 
     /// suffix
-    pub def suffix(x: Floc): Option[String] = 
+    pub def getSuffix(x: Floc): Option[String] = 
         let Floc(xs1) = x;
         List.last(xs1)
+
+
+    /// Prefix
+    pub def getSiteCode(x: Floc): Option[String] = 
+        let Floc(xs1) = x;
+        List.head(xs1)
 
     /// parent
     pub def parent(x: Floc): Option[Floc] = 
         let Floc(xs1) = x;
         List.init(xs1) |> Option.map(Floc)
+
+    /// Only approprite for `level(x) < 5`.
+    pub def objectType(x: Floc): Option[String] = match level(x) {
+        case x1 if x1 == 1 => Some("SITE")
+        case x1 if x1 > 1 and x1 < 5 => {let Floc(xs) = x; List.last(xs)}
+        case _ => None
+    }
 
     /// "unsafe" version of parent
     pub def pop(x: Floc): Floc = 
