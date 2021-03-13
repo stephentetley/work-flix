@@ -86,7 +86,7 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
     }
 
     instance ToString[Value] {        
-        def toString(x: Value): String = match x {
+        pub def toString(x: Value): String = match x {
             case Text(s)    => s
             case Integer(i) => ToString.toString(i)
             case Decimal(d) => ToString.toString(d)
@@ -94,14 +94,14 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
     }
 
     instance Eq[Value] {
-        def eq(x: Value, y: Value): Bool = match (x, y) {
+        pub def eq(x: Value, y: Value): Bool = match (x, y) {
             case (Text(s1), Text(s2)) => s1 == s2
             case (Integer(i1), Integer(i2)) => i1 == i2
             case (Decimal(d1), Decimal(d2)) => d1 == d2
             case (_, _) => false
         }
 
-        def neq(x: Value, y: Value): Bool = not (x == y)
+        pub def neq(x: Value, y: Value): Bool = not (x == y)
     }
 
     pub def getTextValue(x: Value): Option[String] = match x { 
@@ -126,7 +126,7 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
     }
 
     instance ToString[ValueType] {        
-        def toString(x: ValueType): String = match x {
+        pub def toString(x: ValueType): String = match x {
             case TextType => "TextType"
             case IntegerType => "IntegerType"
             case DecimalType => "DecimalType"
@@ -134,14 +134,14 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
     }
 
     instance Eq[ValueType] {
-        def eq(x: ValueType, y: ValueType): Bool = match (x, y) {
+        pub def eq(x: ValueType, y: ValueType): Bool = match (x, y) {
             case (TextType, TextType) => true
             case (IntegerType, IntegerType) => true
             case (DecimalType, DecimalType) => true
             case (_, _) => false
         }
 
-        def neq(x: ValueType, y: ValueType): Bool = not (x == y)
+        pub def neq(x: ValueType, y: ValueType): Bool = not (x == y)
     }
 
 }

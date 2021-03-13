@@ -22,9 +22,9 @@ namespace AssetLib/S4Lite/CreateNew {
     pub opaque type Classifications = Validation[Chain[Classification], String]
 
     instance Monoid[Classifications] {
-        def empty(): Classifications = AssetLib/S4Lite/CreateNew/Classifications.empty()
+        pub def empty(): Classifications = AssetLib/S4Lite/CreateNew/Classifications.empty()
 
-        def combine(xs: Classifications, ys: Classifications): Classifications = 
+        pub def combine(xs: Classifications, ys: Classifications): Classifications = 
             AssetLib/S4Lite/CreateNew/Classifications.append(xs, ys)
     }
 

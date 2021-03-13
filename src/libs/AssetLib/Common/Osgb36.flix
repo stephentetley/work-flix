@@ -23,26 +23,26 @@ namespace AssetLib/Common/Osgb36 {
     pub opaque type NGR = String
 
     instance ToString[NGR] {
-        def toString(x: NGR): String = 
+        pub def toString(x: NGR): String = 
             let NGR(x1) = x;
             x1
     }
 
     instance FromString[NGR] {
-        def fromString(s: String): Option[NGR] = parse(s)
+        pub def fromString(s: String): Option[NGR] = parse(s)
     }
 
     instance Eq[NGR] {
-        def eq(x: NGR, y: NGR): Bool = 
+        pub def eq(x: NGR, y: NGR): Bool = 
             let NGR(x1) = x;
             let NGR(y1) = y;
             x1 == y1
         
-        def neq(x: NGR, y: NGR): Bool = not (x == y)
+        pub def neq(x: NGR, y: NGR): Bool = not (x == y)
     }
 
     instance Hash[NGR] {
-        def hash(x: NGR): Int32 = 
+        pub def hash(x: NGR): Int32 = 
             let NGR(x1) = x;
             Hash.hash(x1)
     }

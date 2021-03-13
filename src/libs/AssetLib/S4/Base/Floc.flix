@@ -36,15 +36,15 @@ namespace AssetLib/S4/Base {
     }
 
     instance Order[Floc] {
-        def less(x: Floc, y: Floc): Bool = ToString.toString(x) < ToString.toString(y)
-        def lessEqual(x: Floc, y: Floc): Bool = ToString.toString(x) <= ToString.toString(y)
-        def greater(x: Floc, y: Floc): Bool = ToString.toString(x) > ToString.toString(y)
-        def greaterEqual(x: Floc, y: Floc): Bool = ToString.toString(x) >= ToString.toString(y)
-        def compare(x: Floc, y: Floc): Comparison = Order.compare(ToString.toString(x), ToString.toString(y))
+        pub def less(x: Floc, y: Floc): Bool = ToString.toString(x) < ToString.toString(y)
+        pub def lessEqual(x: Floc, y: Floc): Bool = ToString.toString(x) <= ToString.toString(y)
+        pub def greater(x: Floc, y: Floc): Bool = ToString.toString(x) > ToString.toString(y)
+        pub def greaterEqual(x: Floc, y: Floc): Bool = ToString.toString(x) >= ToString.toString(y)
+        pub def compare(x: Floc, y: Floc): Comparison = Order.compare(ToString.toString(x), ToString.toString(y))
     }
 
     instance Hash[Floc] {
-        def hash(x: Floc): Int32 = Hash.hash(ToString.toString(x))
+        pub def hash(x: Floc): Int32 = Hash.hash(ToString.toString(x))
     }
 
 }    

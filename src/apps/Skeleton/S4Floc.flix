@@ -20,21 +20,21 @@ namespace Skeleton {
     pub opaque type S4Floc = List[String]
 
     instance Eq[S4Floc] {
-        def eq(x: S4Floc, y: S4Floc): Bool = Skeleton/S4Floc.equals(x, y)
+        pub def eq(x: S4Floc, y: S4Floc): Bool = Skeleton/S4Floc.equals(x, y)
 
-        def neq(x: S4Floc, y: S4Floc): Bool = not (x == y)
+        pub def neq(x: S4Floc, y: S4Floc): Bool = not (x == y)
     }
 
     instance ToString[S4Floc] {
-        def toString(x: S4Floc): String = Skeleton/S4Floc.toString(x)
+        pub def toString(x: S4Floc): String = Skeleton/S4Floc.toString(x)
     }
 
     instance FromString[S4Floc] {
-        def fromString(x: String): Option[S4Floc] = Some(Skeleton/S4Floc.new(x))
+        pub def fromString(x: String): Option[S4Floc] = Some(Skeleton/S4Floc.new(x))
     }
 
     instance Hash[S4Floc] {
-        def hash(x: S4Floc): Int32 = Hash.hash(Skeleton/S4Floc.toString(x))
+        pub def hash(x: S4Floc): Int32 = Hash.hash(Skeleton/S4Floc.toString(x))
     }
 
 }    
