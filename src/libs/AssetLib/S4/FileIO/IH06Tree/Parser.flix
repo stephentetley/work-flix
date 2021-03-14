@@ -19,38 +19,39 @@ namespace AssetLib/S4/FileIO/IH06Tree/Parser {
 
     use Time.LocalDate;
 
-    use TextParser.TextParser;
-    use TextParser.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, lookingAts, liftResult, liftOption};
-    use TextParser/Combinators.{tuple2, many1Till, ignore};
-    use TextParser/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
-    use TextParser/Token1.{symbol, lexeme};
+    use FlixParsec.Parser;
+    use FlixParsec/Prim.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, liftResult, liftOption};
+    use FlixParsec/Regex.{lookingAts};
+    use FlixParsec/Combinators.{tuple2, many1Till, ignore};
+    use FlixParsec/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
+    use FlixParsec/Token1.{symbol, lexeme};
 
     use AssetLib/S4/FileIO/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
     use AssetLib/S4/FileIO/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     /// Always UTF-8? No need to handle utf8+BOM...
     pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
-        TextParser.parsesFile(ih06FileParser(), path, cs) 
+        FlixParsec/Prim.parsesFile(ih06FileParser(), 4, path, cs) 
 
     pub def parseFileWithBOM(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
-        TextParser.parsesFileWithBOM(ih06FileParser(), path, cs) 
+        FlixParsec/Prim.parsesFileWithBOM(ih06FileParser(), 4, path, cs) 
 
 
-    pub def ih06FileParser(): TextParser[IH06File, t] = 
-        use TextParser.flatMap;
+    pub def ih06FileParser(): Parser[t1, IH06File] = 
+        use FlixParsec/Prim.{flatMap};
         let* h1 = header();
         let* rows = many1Till(ih06Row(), endOfInput());
         return({ header = h1, rows = rows })
 
-    def header(): TextParser[Header, t] = 
-        use TextParser.flatMap;
+    def header(): Parser[t1, Header] = 
+        use FlixParsec/Prim.{flatMap};
         let* (floc, date) = funcLocHeaderLine();
         let* desc = descriptionHeaderLine();
         let* _ = restOfLine(true);      // one blank line
         return({ floc = floc, description = desc, validForm = date })
 
-    def ih06Row(): TextParser[IH06Row, t] = 
-        use TextParser.flatMap;
+    def ih06Row(): Parser[t1, IH06Row] = 
+        use FlixParsec/Prim.{flatMap};
         let* _ = indenting(); 
         choice(    (equiLine() |> map(EquiRow))
                 :: (flocLine() |> map(FlocRow))
@@ -59,8 +60,8 @@ namespace AssetLib/S4/FileIO/IH06Tree/Parser {
 
 
     /// May or may not contain a parent floc
-    def flocLine(): TextParser[FlocRow, t] = 
-        use TextParser.flatMap;       
+    def flocLine(): Parser[t1, FlocRow] = 
+        use FlixParsec/Prim.{flatMap};
         let* floc = bounded(41, funcloc());
         let* rest = peekRestOfLine() |> map(String.length);
         if (rest <= 41)
@@ -68,20 +69,20 @@ namespace AssetLib/S4/FileIO/IH06Tree/Parser {
         else
             flocLine3(floc)
 
-    def flocLine2(floc: String): TextParser[FlocRow, t] = 
-        use TextParser.flatMap;
+    def flocLine2(floc: String): Parser[t1, FlocRow] = 
+        use FlixParsec/Prim.{flatMap};
         let* desc = restOfLine(true) |> map(String.trim);
         return({ floc = floc, description = desc, parent = "" })
         
 
-    def flocLine3(floc: String): TextParser[FlocRow, t] = 
-        use TextParser.flatMap;
+    def flocLine3(floc: String): Parser[t1, FlocRow] = 
+        use FlixParsec/Prim.{flatMap};
         let* desc = content(41);
         let* parent = restOfLine(true) |> map(String.trim);
         return({ floc = floc, description = desc, parent = parent })
     
-    def equiLine(): TextParser[EquiRow, t] = 
-        use TextParser.flatMap;
+    def equiLine(): Parser[t1, EquiRow] = 
+        use FlixParsec/Prim.{flatMap};
         let* equiId = bounded(19, equipmentId());
         let* desc = content(41);
         let* rest = peekRestOfLine() |> map(String.length);
@@ -91,43 +92,43 @@ namespace AssetLib/S4/FileIO/IH06Tree/Parser {
             equiLine4(equiId, desc)
 
 
-    def equiLine3(equiId: String, desc: String): TextParser[EquiRow, t] = 
-        use TextParser.flatMap;
+    def equiLine3(equiId: String, desc: String): Parser[t1, EquiRow] = 
+        use FlixParsec/Prim.{flatMap};
         let* floc = restOfLine(true) |> map(String.trim);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = "" })
 
 
-    def equiLine4(equiId: String, desc: String): TextParser[EquiRow, t] = 
-        use TextParser.flatMap;
+    def equiLine4(equiId: String, desc: String): Parser[t1, EquiRow] = 
+        use FlixParsec/Prim.{flatMap};
         let* floc = content(41);
         let* supero = restOfLine(true) |> map(String.trim);
         return({ equiId = equiId, description = desc, floc = floc, superordinate = supero })
 
 
-    def validFrom(): TextParser[LocalDate, t] = 
+    def validFrom(): Parser[t1, LocalDate] = 
         symbol("Valid From") `seqRight` lexeme(dateStamp())
 
-    def indenting(): TextParser[Unit, t] = 
+    def indenting(): Parser[t1, Unit] = 
         ignore(lookingAts("(\||\-|\s)+")) `swapError` "indenting"
     
-    def equipmentId(): TextParser[String, t] = 
+    def equipmentId(): Parser[t1, String] = 
         lookingAts("\$?\d+") `swapError` "equipmentId"
 
-    pub def funcLocHeaderLine(): TextParser[(String, LocalDate), t] = 
-        use TextParser.flatMap;
+    pub def funcLocHeaderLine(): Parser[t1, (String, LocalDate)] = 
+        use FlixParsec/Prim.{flatMap};
         let* _ = symbol("Functional Location");
         let* floc = funcloc();
         let* dt = validFrom();
         return((floc, dt))
 
-    def descriptionHeaderLine(): TextParser[String, t] = 
+    def descriptionHeaderLine(): Parser[t1, String] = 
         symbol("Description") `seqRight` map(String.trim, restOfLine(true))
     
-    pub def funcloc(): TextParser[String, t] = 
+    pub def funcloc(): Parser[t1, String] = 
         (lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme) `swapError` "funcloc"
 
-    def dateStamp(): TextParser[LocalDate, t] = 
-        use TextParser.flatMap;
+    def dateStamp(): Parser[t1, LocalDate] = 
+        use FlixParsec/Prim.{flatMap};
         let* s = lookingAts("\d{2}\.\d{2}\.\d{2}");
         let* fmt = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yy"),  "DateFormatter.fromPattern failed");
         let* ans = liftOption(Time/LocalDate.parse(s, fmt), "LocalDate.parse failed");
