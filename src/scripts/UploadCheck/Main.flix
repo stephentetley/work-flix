@@ -22,7 +22,7 @@ namespace UploadCheck/Main {
 
     use BasicDb.DbMonad;
     
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, CreateEquipmentData, EqClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, EquipmentData, EqClassification};
 
     use UploadCheck/Base/RowCheck.{RowChecker, UxlRowCheck, UxlRowFail, execRowChecker};
     use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
@@ -79,7 +79,7 @@ namespace UploadCheck/Main {
         let* xs         = mapWithIndexM(execRowChecker(checkEquipmentDataHelper()), rows);
         return(DataCheck/Check.concat(xs))
 
-    def checkEquipmentDataHelper(): RowChecker[CreateEquipmentData] = 
+    def checkEquipmentDataHelper(): RowChecker[EquipmentData] = 
         /// use UploadCheck/Base/RowCheck.{<&&>};
         use UploadCheck/Base/RowCheck.{offsetIndex};
         offsetIndex(7, equiDescriptionLength())

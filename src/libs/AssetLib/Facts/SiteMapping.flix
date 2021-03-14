@@ -22,6 +22,7 @@ namespace AssetLib/Facts/SiteMapping {
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
+    /// Set up DB
 
     type alias SiteMappingRow = 
         { installationCommonName: String
@@ -31,21 +32,19 @@ namespace AssetLib/Facts/SiteMapping {
     
     pub def storeSiteMapping(tableName: String, src: System.FilePath) : DbMonad[Unit] = 
         use BasicDb/DbMonad.{return, flatMap, liftActionResult, map};
-        let* xs     = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readSiteMappingTable(), src));
+        let* xs     = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readXlsSiteMappingTable(), src));
         let* _      = exportSiteMappingRows(tableName, xs);
         return()
 
 
-        
-
-    def readSiteMappingTable(): SheetReader[List[SiteMappingRow]] = 
+    def readXlsSiteMappingTable(): SheetReader[List[SiteMappingRow]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
         let* s1     = getSheetNamed("inst to SAP migration");
-        let* xs     = allNamedRows(s1, evalSiteMappingRow());
+        let* xs     = allNamedRows(s1, evalXlsSiteMappingRow());
         return(xs)
 
     
-    def evalSiteMappingRow(): NamedRowEvaluator[SiteMappingRow] = 
+    def evalXlsSiteMappingRow(): NamedRowEvaluator[SiteMappingRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use String.{trim};
@@ -83,5 +82,27 @@ namespace AssetLib/Facts/SiteMapping {
                 :: ")"
                 :: Nil
         )
+
+    /// Query Site Mapping...
+
+    pub def cacheS4SiteCodeQuery(tableName: String): DbMonad[Unit] = 
+        let sql = String.unlines(
+                "SELECT"
+                :: "    t.s4_level1_code"
+                :: "FROM ${tableName} t"
+                :: "WHERE "
+                :: "    t.installation_common_name = ?"
+                :: Nil
+            );
+        BasicDb/DbMonad.cachePreparedStatement("getS4SiteCode", sql)
+
+
+    pub def getS4SiteCode(aibSiteName: String): DbMonad[Option[String]] = 
+        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, optional, rsClose};
+        let* rs     = psExecuteCachedQuery("getS4SiteCode", BasicDb/PreparedStatementSetter.putStringAt!(0,  aibSiteName));
+        let* x1     = optional(firstRow(rs, BasicDb/RowEvaluator.getStringNamed("s4_level1_code")));        
+        let* _      = rsClose(rs);
+        return(x1)
+
 
 }
