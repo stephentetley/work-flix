@@ -68,10 +68,6 @@ namespace AssetLib/S4/Base/Floc {
         String.intercalate("-", xs) == String.intercalate("-", ys)
 
 
-    /// pub def append(x: Floc, y: Floc): Floc = 
-    ///     let Floc(x1) = x;
-    ///     let Floc(y1) = y;
-    ///     Floc(x1 ::: y1)
 
     pub def snoc(x: Floc, s: String): Floc = 
         let Floc(x1) = x;
@@ -99,6 +95,57 @@ namespace AssetLib/S4/Base/Floc {
     pub def getSiteCode(x: Floc): Option[String] = 
         let Floc(xs1) = x;
         List.head(xs1)
+
+
+    /// 
+    pub def getFunctionCode(x: Floc): Option[String] =
+        let Floc(xs1) = x;
+        at(1, xs1)
+        
+    pub def getProcessGroupCode(x: Floc): Option[String] =
+        let Floc(xs1) = x;
+        at(2, xs1)
+    
+    pub def getProcessCode(x: Floc): Option[String] =
+        let Floc(xs1) = x;
+        at(3, xs1)
+    
+    pub def getSystemCode(x: Floc): Option[String] =
+        let Floc(xs1) = x;
+        at(4, xs1)
+    
+    pub def getSystemIndex(x: Floc): Option[Int32] =
+        use Option.{flatMap};
+        use Text/Regex/MatchEvaluator.{getInt32At};
+        let* s = getSystemCode(x);
+        let* patt = Text/Regex/Pattern.compile("SYS(\d{2})");
+        Result.toOption(Text/Regex.evalMatches(s, patt, getInt32At(0))) as & Pure
+        
+    pub def getSubsystemCode(x: Floc): Option[String] =
+        let Floc(xs1) = x;
+        at(5, xs1)
+    
+    pub def getSubsystemTag(x: Floc): Option[String] =
+        use Option.{flatMap};
+        use Text/Regex/MatchEvaluator.{getCaptureAt};
+        let* s = getSubsystemCode(x);
+        let* patt = Text/Regex/Pattern.compile("(\p{Upper}{3})\d{2}");
+        Result.toOption(Text/Regex.evalMatches(s, patt, getCaptureAt(0))) as & Pure
+    
+    pub def getSubsystemIndex(x: Floc): Option[Int32] =
+        use Option.{flatMap};
+        use Text/Regex/MatchEvaluator.{getInt32At};        
+        let* s = getSubsystemCode(x);
+        let* patt = Text/Regex/Pattern.compile("\p{Upper}{3}(\d{2})");
+        Result.toOption(Text/Regex.evalMatches(s, patt, getInt32At(0))) as & Pure
+        
+
+    def at(i: Int32, xs: List[a]): Option[a] = match (i, xs) {
+        case (0, x :: _) => Some(x)
+        case (p, _ :: rs) if p > 0 => at(p - 1, rs)
+        case _ => None
+    }
+
 
     /// parent
     pub def parent(x: Floc): Option[Floc] = 

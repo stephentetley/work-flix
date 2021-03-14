@@ -98,11 +98,15 @@ namespace AssetLib/Facts/SiteMapping {
 
 
     pub def getS4SiteCode(aibSiteName: String): DbMonad[Option[String]] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, optional, rsClose};
+        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, optional, rsClose, map};
         let* rs     = psExecuteCachedQuery("getS4SiteCode", BasicDb/PreparedStatementSetter.putStringAt!(0,  aibSiteName));
-        let* x1     = optional(firstRow(rs, BasicDb/RowEvaluator.getStringNamed("s4_level1_code")));        
+        let* x1     = map(optionNotNull, optional(firstRow(rs, BasicDb/RowEvaluator.getStringNamed("s4_level1_code"))));
         let* _      = rsClose(rs);
         return(x1)
 
+    def optionNotNull(x: Option[String]): Option[String] = match x { 
+        case Some(s1) => if (Object.isNull(s1)) None else Some(s1)
+        case None => None
+    }
 
 }
