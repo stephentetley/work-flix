@@ -20,7 +20,7 @@ namespace AssetLib/S4/FileIO/ZTable/Parser {
 
 
     use Data/Transient.DList;
-    use TextParser.TextParser;
+    use FlixParsec.Parser;
 
     use AssetLib/S4/FileIO/ZTable.RowEvaluator;
 
@@ -29,33 +29,34 @@ namespace AssetLib/S4/FileIO/ZTable/Parser {
     pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
         use Data/Transient/DList.{toList};
-        let* rows = TextParser.parsesFile(importRowsParser(eval), path, Text/Charset.utf_8());
+        let* rows = FlixParsec/Prim.parsesFile(importRowsParser(eval), 4, path, Text/Charset.utf_8());
         Ok(toList(rows))
 
 
-    def importRowsParser(eval: RowEvaluator[row]): TextParser[DList[row], t] = 
+    def importRowsParser(eval: RowEvaluator[row]): Parser[t1, DList[row]] = 
         use Data/Transient/DList.{empty, snoc};
-        use TextParser.{flatMap, return};
-        use TextParser/Combinators.{manyTill, manyTillWith, count};
-        use TextParser/Text.{skipLine};
+        use FlixParsec/Prim.{flatMap, return};
+        use FlixParsec/Combinators.{manyTill, manyTillWith, count};
+        use FlixParsec/Text.{skipLine};
         let* _      = manyTill(skipLine(), separatingLine());
         let* _      = count(2, skipLine());
-        let row1    = makeLineTextParser(eval);
+        let row1    = makeLineParser(eval);
         let* rows   = manyTillWith((x,ac) -> snoc(ac, x), empty(), row1, separatingLine()); 
         return(rows)
 
     /// Line of many '-' chars.
-    def separatingLine(): TextParser[Unit, t] = 
-        use TextParser.{flatMap, return, skippingAts};
-        use TextParser/Text.{newline};
+    def separatingLine(): Parser[t1, Unit] = 
+        use FlixParsec/Prim.{flatMap, return};
+        use FlixParsec/Regex.{skippingAts};
+        use FlixParsec/Text.{newline};
         let* _  = skippingAts("^\-+");
         let* _  = newline();
         return()
 
 
-    def makeLineTextParser(eval: RowEvaluator[row]): TextParser[row, t] = 
-        use TextParser.{flatMap, return, liftActionResult};
-        use TextParser/Text.{restOfLine};
+    def makeLineParser(eval: RowEvaluator[row]): Parser[t1, row] = 
+        use FlixParsec/Prim.{flatMap, return, liftActionResult};
+        use FlixParsec/Text.{restOfLine};
         use AssetLib/S4/FileIO/ZTable/RowEvaluator.{evaluateString};
         let split = s -> leadingSepBy(s, "|");
         let* s0 = restOfLine(true);
