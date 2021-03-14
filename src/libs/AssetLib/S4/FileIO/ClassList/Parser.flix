@@ -25,11 +25,12 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
     use Time.LocalDate;
 
 
-    use TextParser.TextParser;
-    use TextParser.{parseFile, return, failure, map, alt, lookingAts, liftResult, liftOption, swapError, parseLine};
-    use TextParser/Combinators.{optional, manyWith};
-    use TextParser/Text.{restOfLine, restOfLineLength, content, anchorLine, upperLetters};
-    use TextParser/Token1.{lexeme, symbol, int32};
+    use FlixParsec.Parser;
+    use FlixParsec/Prim.{parseFile, return, failure, map, alt, liftResult, liftOption, swapError};
+    use FlixParsec/Regex.{lookingAts};
+    use FlixParsec/Combinators.{optional, manyWith};
+    use FlixParsec/Text.{parseLine, restOfLine, restOfLineLength, content, anchorLine, upperLetters};
+    use FlixParsec/Token1.{lexeme, symbol, int32};
 
     use AssetLib/S4/FileIO/ClassList/Datatypes.{SourceType, ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
     use AssetLib/S4/FileIO/ClassList/Datatypes.SourceType.{FlocClasses, EquiClasses};
@@ -38,11 +39,11 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
 
     /// Always UTF-8? no if parsing fails try iso_8859_1()
     pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, String] & Impure = 
-        TextParser.parsesFile(classListParser(srctype), path, cs) 
+        FlixParsec/Prim.parsesFile(classListParser(srctype), 4, path, cs) 
 
 
-    def classListParser(srctype: SourceType): TextParser[ClassListFile, t] = 
-        use TextParser.flatMap;
+    def classListParser(srctype: SourceType): Parser[t1, ClassListFile] = 
+        use FlixParsec/Prim.{flatMap};
         use Data/Transient/DList.{empty, toList};
         let* _  = symbol("Class List");
         let* d  = pDateStamp();
@@ -51,16 +52,16 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
         let* rows = manyWith(append, empty(), parseLine(classListRow(srctype), true));
         return({ dateStamp = d, rows = toList(rows)})
 
-    def pDateStamp(): TextParser[LocalDate, t] = 
-        use TextParser.flatMap;
+    def pDateStamp(): Parser[t1, LocalDate] = 
+        use FlixParsec/Prim.{flatMap};
         let* d = lexeme(lookingAts("\d{2}\.\d{2}\.\d{4}"));
         let* fmt = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "pDateStamp");
         let* ans = liftOption(Time/LocalDate.parse(d, fmt), "pDateStamp");
         return(ans)
         
 
-    def classListRow(srctype: SourceType): TextParser[Option[ClassListRow], t] = 
-        use TextParser.flatMap;        
+    def classListRow(srctype: SourceType): Parser[t1, Option[ClassListRow]] = 
+        use FlixParsec/Prim.{flatMap};        
         let* indent = indentingLevel();
         match indent { 
             case 11 => optional(map(ClassRow, classLine(srctype)))
@@ -69,8 +70,8 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
             case _  => return(None)
         }
 
-    def classLine(srctype: SourceType): TextParser[ClassRow, t] =
-        use TextParser.{flatMap};
+    def classLine(srctype: SourceType): Parser[t1, ClassRow] =
+        use FlixParsec/Prim.{flatMap};
         let namelen = getNameSize(srctype);
         let desclen = getClassDescSize(srctype);
         let* ctype  = content(4);
@@ -79,8 +80,8 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
         let* desc   = if (len > desclen) content(desclen) else restOfLine(false);
         return({ classType = ctype, name = name, description = desc })
 
-    def characteristicLine(srctype: SourceType): TextParser[CharacteristicRow, t] =
-        use TextParser.{flatMap};
+    def characteristicLine(srctype: SourceType): Parser[t1, CharacteristicRow] =
+        use FlixParsec/Prim.{flatMap};
         let namelen = getNameSize(srctype);
         let desclen = getCharacteristicDescSize(srctype);
         let* name   = content(namelen);
@@ -88,8 +89,8 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
         let* dtype  = datatype();
         return({ name = name, description = desc, datatype = dtype})
 
-    def datatype(): TextParser[Datatype, t] = 
-        use TextParser.{flatMap};
+    def datatype(): Parser[t1, Datatype] = 
+        use FlixParsec/Prim.{flatMap};
         let* tyname = lexeme(upperLetters());
         let* length = int32();
         let* dprec  = optional(int32());
@@ -101,11 +102,11 @@ namespace AssetLib/S4/FileIO/ClassList/Parser {
             case _                  => failure("Unknown datatype: " + tyname)
         }
 
-    def valueLine(): TextParser[String, t] = 
+    def valueLine(): Parser[t1, String] = 
         map(String.trim, restOfLine(false))
 
 
-    def indentingLevel(): TextParser[Int32, t] = 
+    def indentingLevel(): Parser[t1, Int32] = 
         map(String.length, lookingAts("(\||\-|\s)+")) `swapError` "indentingLevel"
 
     /// Utils
