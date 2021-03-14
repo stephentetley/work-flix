@@ -20,11 +20,12 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
 
     use Time.LocalDateTime;
 
-    use TextParser.TextParser;
-    use TextParser.{return, map, failure, alt, choice, seqRight, lookingAts, endOfInput, liftAction, liftResult, string};
-    use TextParser/Combinators.{ignore, many, manyTill};
-    use TextParser/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
-    use TextParser/Token1.{symbol, lexeme};
+    use FlixParsec.Parser;
+    use FlixParsec/Prim.{return, map, failure, alt, choice, endOfInput, liftAction, liftResult, string, seqRight};
+    use FlixParsec/Regex.{lookingAts};
+    use FlixParsec/Combinators.{ignore, many, manyTill};
+    use FlixParsec/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
+    use FlixParsec/Token1.{symbol, lexeme};
 
     use AssetLib/S4/FileIO/TransferFile/Datatypes.{TransferFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
     use AssetLib/S4/FileIO/TransferFile/Datatypes.FileType.{Download, Upload};
@@ -33,13 +34,13 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[TransferFile, String] & Impure = 
-        TextParser.parsesFile(transferFileParser(), path, Text/Charset.utf_8())    
+        FlixParsec/Prim.parsesFile(transferFileParser(), 4, path, Text/Charset.utf_8())
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
 
-    pub def transferFileParser(): TextParser[TransferFile, t] = 
-        use TextParser.flatMap;
+    pub def transferFileParser(): Parser[t1, TransferFile] = 
+        use FlixParsec/Prim.{flatMap};
         let* hdr = pHeader();
         let* sel = alt(pSelection(), pEmptySelection());        
         let* cols = pColumnHeaders();
@@ -48,8 +49,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
 
 
 
-    def pHeader(): TextParser[FileHeader, t] = 
-        use TextParser.flatMap;
+    def pHeader(): Parser[t1, FileHeader] = 
+        use FlixParsec/Prim.{flatMap};
         let* ft     = pFileType();
         let* dm     = pDataModel();
         let* et     = pEntityType();
@@ -60,13 +61,13 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
                , variant = v, user = u, dateTime = dt})
 
                     
-    def asterisk(): TextParser[Unit, t] =  
+    def asterisk(): Parser[t1, Unit] =  
         symbol("*") |> ignore
     
 
 
-    def pFileType(): TextParser[FileType, t] = 
-        use TextParser.flatMap;
+    def pFileType(): Parser[t1, FileType] = 
+        use FlixParsec/Prim.{flatMap};
         let body = () -> {
             choice( 
                    (symbol("Download")  `seqRight` return(Download))
@@ -78,15 +79,15 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
         body()
         
 
-    def pDataModel(): TextParser[DataModel, t] = 
-        use TextParser.flatMap;
+    def pDataModel(): Parser[t1, DataModel] = 
+        use FlixParsec/Prim.{flatMap};
         let body = () -> symbol("U1") `seqRight` return(U1);
         let* _ = symbol("* Data Model:"); 
         body()
         
 
-    def pEntityType(): TextParser[EntityType, t] =
-        use TextParser.flatMap;
+    def pEntityType(): Parser[t1, EntityType] =
+        use FlixParsec/Prim.{flatMap};
         let body = () -> {
             let* s = lexeme(lookingAts("\p{Upper}+"));
             match s {
@@ -104,42 +105,42 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
         let* _ = symbol("* Entity Type:");
         body()
 
-    def pVariant(): TextParser[String, t] = 
-        use TextParser.flatMap;
+    def pVariant(): Parser[t1, String] = 
+        use FlixParsec/Prim.{flatMap};
         let* _ = string("* Variant:");      // use `string` so we don't consume newline
         let* ans = restOfLine(true);
         return(String.trim(ans))
     
-    def pUser(): TextParser[String, t] =
-        use TextParser.flatMap;
+    def pUser(): Parser[t1, String] =
+        use FlixParsec/Prim.{flatMap};
         let* _ = symbol("* User:");
         let* ans = restOfLine(true);
         return(String.trim(ans))
 
-    def pDateTime(): TextParser[LocalDateTime, t] = 
-        use TextParser.{flatMap, liftOption};
+    def pDateTime(): Parser[t1, LocalDateTime] = 
+        use FlixParsec/Prim.{flatMap, liftOption};
         let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\d{8}"));
         let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\d{6}"));
         let* fmt = liftOption(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"), "pDateTime");
         let* ans = liftOption(Time/LocalDateTime.parse(d + " " + t, fmt), "pDateTime");
         return(ans)
 
-    def pEmptySelection(): TextParser[List[String], t] = 
+    def pEmptySelection(): Parser[t1, List[String]] = 
         return(Nil)
 
-    def pSelection(): TextParser[List[String], t] = 
-        use TextParser.flatMap;
+    def pSelection(): Parser[t1, List[String]] = 
+        use FlixParsec/Prim.{flatMap};
         let* _ = pSelectionHeader();
         let* xs = pSelectionLines();
         return(xs)
 
-    def pSelectionHeader(): TextParser[Unit, t] = 
+    def pSelectionHeader(): Parser[t1, Unit] = 
         symbol("* Selection:") |> ignore         // blank header, consumes newline
         
 
 
-    def pSelectionLines(): TextParser[List[String], t] = 
-        use TextParser.flatMap;
+    def pSelectionLines(): Parser[t1, List[String]] = 
+        use FlixParsec/Prim.{flatMap};
         let selection1  = () -> {
             let* _ = symbol("* ");
             let* s = restOfLine(true);
@@ -153,8 +154,8 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
     /// because `asterisk` can only see a token and there is no whitespace.
     /// Note - headers are `sepBy` tab
     /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
-    def pColumnHeaders(): TextParser[Headers, t] = 
-        use TextParser.flatMap;
+    def pColumnHeaders(): Parser[t1, Headers] = 
+        use FlixParsec/Prim.{flatMap};
         let* _ = asterisk();
         let* nl = makePattern("\R");
         let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
@@ -164,8 +165,9 @@ namespace AssetLib/S4/FileIO/TransferFile/Parser {
     
     /// Note - datarows are `sepEndBy` tab, hence dropRight(1)
     /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
-    def pDataRow(): TextParser[DataRow, t] = 
-        use TextParser.{flatMap, lookingAt};
+    def pDataRow(): Parser[t1, DataRow] = 
+        use FlixParsec/Prim.{flatMap};
+        use FlixParsec/Regex.{lookingAt};
         let* tabnl  = makePatternWithFlags(".+?\u0009\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
         let* str    = lookingAt(tabnl);
         let* arr    = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));

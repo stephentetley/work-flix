@@ -116,14 +116,14 @@ namespace NewLiftingItems/Base/Datatypes {
     }
 
     instance ToString[FixedOrPortable] {
-        def toString(x: FixedOrPortable): String =  match x { 
+        pub def toString(x: FixedOrPortable): String =  match x { 
             case Fixed => "Fixed"
             case Portable => "Portable"
         }
     }
 
     instance FromString[FixedOrPortable] {
-        def fromString(s: String): Option[FixedOrPortable] = 
+        pub def fromString(s: String): Option[FixedOrPortable] = 
             match String.toUpperCase(String.trim(s)) {
                 case "FIXED" => Some(Fixed)
                 case "PORTABLE" => Some(Portable)
@@ -132,13 +132,13 @@ namespace NewLiftingItems/Base/Datatypes {
     }
 
     instance Eq[FixedOrPortable] {
-        def eq(x: FixedOrPortable, y: FixedOrPortable): Bool =  match (x, y) { 
+        pub def eq(x: FixedOrPortable, y: FixedOrPortable): Bool =  match (x, y) { 
             case (Fixed, Fixed) => true
             case (Portable, Portable) => true
             case (_, _) => false
         }
 
-        def neq(x: FixedOrPortable, y: FixedOrPortable): Bool =  not (x ==y)
+        pub def neq(x: FixedOrPortable, y: FixedOrPortable): Bool =  not (x ==y)
     }
 
     type alias S4TypeInfo = 
@@ -147,7 +147,5 @@ namespace NewLiftingItems/Base/Datatypes {
         , s4Class: String
         , fixedOrPortable: FixedOrPortable
         }
-
-
-        
+                
 }
