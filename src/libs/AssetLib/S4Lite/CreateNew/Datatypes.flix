@@ -47,7 +47,7 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
         }
 
     type alias EquiAttributes = 
-        { category: String
+        { category: String              /// e.g "M", "I", "E"
         , description: String
         , objectType: String
         , startupDate: Time.LocalDate
