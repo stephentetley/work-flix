@@ -21,6 +21,19 @@ namespace DwfOverflow/Rules {
     use AssetLib/Facts/SiteMapping.{SiteMapping};
     use DwfOverflow/Relations.{AibSite, WorkListItem, Floc, FlocDatum, Characteristic};
 
+    pub def loadFileData[r](worklist: System.FilePath, 
+                            siteMappingFile: System.FilePath, 
+                            allSitesFile: System.FilePath): Option[#{WorkListItem, SiteMapping, AibSite | r}] & Impure = 
+        use Option.{flatMap};
+        let* r1 = DwfOverflow/Rules/ExcelLoader.readWorkList(worklist);
+        let* r2 = Result.toOption(AssetLib/Facts/SiteMapping.getSiteMapping(siteMappingFile));    
+        let* r3 = DwfOverflow/Rules/ExcelLoader.readAibSites(allSitesFile);
+        Some(r1 <+> r2 <+> r3)
+
+
+    pub def getFlocs[r](db: #{Floc, WorkListItem, SiteMapping, AibSite | r}): #{ Floc | r } = 
+        project Floc solve (level4Funcloc6x() <+> level5Funcloc6x() <+> db)
+
 
     pub def level4Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
         Floc(level4Floc6x(siteCode),"Flow Spilling", sainumber, "6XDWF OVERFLOW", 4, ngr, "FLS") :-
@@ -42,10 +55,6 @@ namespace DwfOverflow/Rules {
     def level4Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS"
     def level5Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS-SYS01"
 
-    def flocs[r](): #{Floc | r} = #{
-        Floc("SITE1-WWT-SOF-FLS", "Flow Spilling", "SAI00075", "3XDWF OVERFLOW PROC", 4, "SE4652816720", "FLS").
-        Floc("SITE1-WWT-SOF-FLS-SYS01", "6xDWF Overflow System", "SAI00076", "6XDWF OVERFLOW", 5, "SK4451594282", "SCIV").
-    }
 
     def is3XDWF(s: String): Bool = String.startsWith(s, "3XDWF")
 
@@ -63,8 +72,8 @@ namespace DwfOverflow/Rules {
 
     /// FlocData
 
-    pub def getFlocData[r](): #{ FlocDatum | r } = 
-        project FlocDatum solve (flocDatum() <+> flocs())
+    pub def getFlocData[r](db: #{Floc, FlocDatum | r}): #{ FlocDatum | r } = 
+        project FlocDatum solve (flocDatum() <+> db)
 
 
     def flocDatum[r](): #{FlocDatum, Floc | r} = #{
@@ -77,12 +86,12 @@ namespace DwfOverflow/Rules {
     def defaultDate(): Time.LocalDate = Time/LocalDate.new({dayOfMonth = 1, month = 1, year = 1970})
 
     /// Characteristics
-    pub def getCharacteristics[r](): #{ Characteristic | r } = 
-        let db = { 
+    pub def getCharacteristics[r](db: #{Floc, Characteristic | r}): #{ Characteristic | r } = 
+        let goal = { 
             ai2AibReference() <+> s4AibReference() <+> easting() <+> northing() <+> systemType() 
-                    <+> uniclassCode() <+> uniclassDesc() <+> flocs()
+                    <+> uniclassCode() <+> uniclassDesc() <+> db
         };
-        project Characteristic solve db
+        project Characteristic solve goal
         
 
     def ai2AibReference[r](): #{Characteristic, Floc | r} = #{

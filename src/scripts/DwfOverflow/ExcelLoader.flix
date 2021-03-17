@@ -18,7 +18,11 @@ namespace DwfOverflow/Rules/ExcelLoader {
 
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
-    use DwfOverflow/Relations.{WorkListItem};
+    use DwfOverflow/Relations.{WorkListItem, AibSite};
+
+
+    /// WorkList
+
 
     type alias WorkListRow1 = 
         { reference: String
@@ -44,7 +48,6 @@ namespace DwfOverflow/Rules/ExcelLoader {
         return(xs)
 
 
-
     def evalWorkListRow(): NamedRowEvaluator[WorkListRow1] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
@@ -63,5 +66,42 @@ namespace DwfOverflow/Rules/ExcelLoader {
             case x :: y :: _ => "${x}/${y}"
             case _ => commonName
         }
+
+    /// All sites list
+    type alias AibSite1 = 
+        { commonName: String 
+        , installedFrom: Time.LocalDate
+        , ngr: String
+        }
+    /// pub rel AibSite(siteName: String, installedFrom: Time.LocalDate, ngr: String)
+    pub def readAibSites[r](src: System.FilePath): Option[#{AibSite | r}] & Impure =
+        let step = (ac, x) -> {
+            let x1 = #{ AibSite(x.commonName, x.installedFrom, x.ngr). };
+            x1 <+> ac
+        };
+        match  SheetIO/SheetReader.runXlsx(readAibSiteSheet(), src) {
+            case Ok(xs) => Some(solve List.foldLeft(step, #{}, xs))
+            case Err(_) => None
+        }
+        
+
+    def readAibSiteSheet() : SheetReader[List[AibSite1]] =
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom}; 
+        let* s1     = getSheetNamed("Sheet1"); 
+        let* xs     = namedRowsFrom(s1, 0, 1, evalSiteListRow());
+        return(xs)
+
+
+    def evalSiteListRow(): NamedRowEvaluator[AibSite1] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) -> 
+            { commonName = x1
+            , installedFrom = x2
+            , ngr = x3
+            })
+            <&> getContentNamed("CommonName")
+            <*> getLocalDateNamed("Installed From")
+            <*> getContentNamed("Loc.Ref.")
 
 }
