@@ -164,4 +164,25 @@ namespace AssetLib/Common/Osgb36 {
         let* (em, nm) = decodeMinor(t);
         Some((eM + em, nM + nm))
 
+    /// This is for Datalog hence failure is signalled by `-1` rather than an Option type.
+    pub def eastingfromOsgb36(s: String): Int32 = 
+        use Option.{flatMap};
+        let step = () -> {
+            let* ngr    = parse(s);
+            let* en     = toEastingNorthing(ngr);
+            Some(en.easting)
+        };
+        Option.getWithDefault(step(), -1)
+
+    /// This is for Datalog hence failure is signalled by `-1` rather than an Option type.
+    pub def northingfromOsgb36(s: String): Int32 = 
+        use Option.{flatMap};
+        let step = () -> {
+            let* ngr    = parse(s);
+            let* en     = toEastingNorthing(ngr);
+            Some(en.northing)
+        };
+        Option.getWithDefault(step(), -1)
+
+
 }

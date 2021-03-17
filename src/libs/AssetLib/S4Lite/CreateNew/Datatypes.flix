@@ -17,6 +17,8 @@
 namespace AssetLib/S4Lite/CreateNew/Datatypes {
 
 
+    /// Tree representation (uses nesting)
+
     type alias FlocDatum = 
         { functionalLocation: String
         , attributes: FlocAttributes

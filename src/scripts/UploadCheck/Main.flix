@@ -69,8 +69,7 @@ namespace UploadCheck/Main {
     def checkFlClassificationsHelper(): RowChecker[FlClassification] = 
         /// use UploadCheck/Base/RowCheck.{<&&>};
         use UploadCheck/Base/RowCheck.{offsetIndex};
-        offsetIndex(7, 
-            flocTypeCheck())
+        offsetIndex(7, flocTypeCheck())
 
         
     def checkEquipmentData(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 

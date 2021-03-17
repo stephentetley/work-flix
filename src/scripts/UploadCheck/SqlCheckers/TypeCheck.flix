@@ -36,10 +36,13 @@ namespace UploadCheck/SqlCheckers/TypeCheck {
 
     pub def flocTypeCheck(): RowChecker[FlClassification] = 
         use BasicDb/DbMonad.{return, flatMap, map};
-        RowChecker((row, ix) -> {
+        RowChecker((row, ix) -> {            
             let* tyname = map(getTypeName, getEquiDatatype(row.characteristicName));
-            let errMsg  = "${row.functionalLocation} - flocTypeCheck failed - `${row.charValue}` not is not a ${tyname} for ${row.characteristicName}";
-            let* ans    = flocTypeCheckHelper(row.characteristicName, row.charValue);
+            let floc    = row.functionalLocation;
+            let cval    = row.charValue;
+            let cname   = row.characteristicName;
+            let errMsg  = floc + " - flocTypeCheck failed - `${cval}` not is not a ${tyname} for ${cname}";
+            let* ans    = flocTypeCheckHelper(cname, cval);
             if (ans) return(Pass) else return(failure({sheetName = "Fl-Classification", rowIndex = ix, failMessage = errMsg})) 
         })
 
