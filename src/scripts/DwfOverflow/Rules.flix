@@ -26,7 +26,7 @@ namespace DwfOverflow/Rules {
 
     def flocs[r](): #{Floc | r} = #{
         Floc("SITE1-WWT-SOF-FLS", "Flow Spilling", "SAI00075", "3XDWF OVERFLOW PROC", 4, "SE4652816720", "FLS").
-        Floc("SITE1-WWT-SOF-FLAS-SYS01", "6xDWF Overflow System", "SAI00076", "6XDWF OVERFLOW", 5, "SK4451594282", "SCIV").
+        Floc("SITE1-WWT-SOF-FLS-SYS01", "6xDWF Overflow System", "SAI00076", "6XDWF OVERFLOW", 5, "SK4451594282", "SCIV").
     }
 
     def is3XDWF(s: String): Bool = String.startsWith(s, "3XDWF")
@@ -98,7 +98,7 @@ namespace DwfOverflow/Rules {
     }
 
     def systemType[r](): #{Characteristic, Floc | r} = #{
-        Characteristic(floc, "003", "SCIVS", 1, "SYSTEM_TYPE", if(is3XDWF(overflow)) "3 X DWF OVERFLOW" else "6 X DWF OVERFLOW") :- 
+        Characteristic(floc, "003", "SCIVCS", 1, "SYSTEM_TYPE", if(is3XDWF(overflow)) "3 X DWF OVERFLOW" else "6 X DWF OVERFLOW") :- 
             Floc(floc, _, _, overflow, level, _, _), 
             if level == 5.
     }

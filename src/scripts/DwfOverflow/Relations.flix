@@ -19,6 +19,9 @@ namespace DwfOverflow/Relations {
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, FunctionalLocationData, FlClassification};
 
+
+    /// Note much of this is common code which merits being put in a library...
+
     /// Arity 5 - if Floc `funcloc` has data, `equiId` is empty; if Equi `funcloc` is empty and `equiId` has data.
     pub rel ChangeRequestItem(description: String, crType: String, funcloc: String, equiId: String, processReq: String)
 
