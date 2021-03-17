@@ -19,18 +19,16 @@ namespace DwfOverflow/Rules {
 
     use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
     use AssetLib/Facts/SiteMapping.{SiteMapping};
-    use DwfOverflow/Relations.{AibSite, WorkListItem, Floc, FlocDatum, Characteristic};
+    use DwfOverflow/Relations.{AibSite, WorkListItem, Floc, FlocDatum, Characteristic, OverflowType};
+    use DwfOverflow/Relations.OverflowType.{X3_DWF, X6_DWF};
 
     pub def loadFileData[r](worklist: System.FilePath, 
                             siteMappingFile: System.FilePath, 
                             allSitesFile: System.FilePath): Result[#{WorkListItem, SiteMapping, AibSite | r}, String] & Impure = 
         use Result.{flatMap};
         let* r1 = DwfOverflow/Rules/ExcelLoader.readWorkList(worklist);
-        let _   = r1 |> unsafeToString |> println;
         let* r2 = AssetLib/Facts/SiteMapping.getSiteMapping(siteMappingFile);
-        let _   = r2 |> unsafeToString |> println;
         let* r3 = DwfOverflow/Rules/ExcelLoader.readAibSites(allSitesFile);
-        let _   = r3 |> unsafeToString |> println;
         Ok(r1 <+> r2 <+> r3)
 
 
@@ -39,7 +37,7 @@ namespace DwfOverflow/Rules {
 
 
     pub def level4Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
-        Floc(level4Floc6x(siteCode),"Flow Spilling", sainumber, "6XDWF OVERFLOW", 4, ngr, "FLS") :-
+        Floc(level4Floc6x(siteCode),"Flow Spilling", sainumber, X6_DWF, 4, ngr, "FLS") :-
             WorkListItem(sainumber, commonName, assetType, aibSite),
             SiteMapping(aibSite, siteCode),
             AibSite(aibSite, _installedFrom, ngr),
@@ -47,21 +45,19 @@ namespace DwfOverflow/Rules {
     }
 
     pub def level5Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
-        Floc(level5Floc6x(siteCode),"6xDWF Overflow System", sainumber, "6XDWF OVERFLOW", 5, ngr, "SCIV") :-
+        Floc(level5Floc6x(siteCode),"6xDWF Overflow System", sainumber, X6_DWF, 5, ngr, "SCIV") :-
             WorkListItem(sainumber, commonName, assetType, aibSite),
             SiteMapping(aibSite, siteCode),
             AibSite(aibSite, _installedFrom, ngr),
             if is6XDWF(assetType).
     }
 
+    def _is3XDWF(s: String): Bool = String.startsWith(s, "3XDWF")
+    def is6XDWF(s: String): Bool = String.startsWith(s, "6XDWF")
 
     def level4Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS"
     def level5Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS-SYS01"
 
-
-    def is3XDWF(s: String): Bool = String.startsWith(s, "3XDWF")
-
-    def is6XDWF(s: String): Bool = String.startsWith(s, "6XDWF")
 
     def superior(s: String): String = 
         use Option.{flatMap};
@@ -118,9 +114,11 @@ namespace DwfOverflow/Rules {
     }
 
     def systemType[r](): #{Characteristic, Floc | r} = #{
-        Characteristic(floc, "003", "SCIVCS", 1, "SYSTEM_TYPE", if(is3XDWF(overflow)) "3 X DWF OVERFLOW" else "6 X DWF OVERFLOW") :- 
-            Floc(floc, _, _, overflow, level, _, _), 
-            if level == 5.
+        Characteristic(floc, "003", "SCIVCS", 1, "SYSTEM_TYPE", "3 X DWF OVERFLOW") :- 
+            Floc(floc, _, _, X3_DWF, 5, _, _).
+
+        Characteristic(floc, "003", "SCIVCS", 1, "SYSTEM_TYPE", "6 X DWF OVERFLOW") :- 
+            Floc(floc, _, _, X6_DWF, 5, _, _).
     }
         
     def uniclassCode[r](): #{Characteristic, Floc | r} = #{

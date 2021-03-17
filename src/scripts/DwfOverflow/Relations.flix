@@ -21,9 +21,34 @@ namespace DwfOverflow/Relations {
 
     pub rel WorkListItem(reference: String, commonName: String, assetType: String, siteName: String)
 
-    pub rel Floc(floc: String, name: String, sainum: String, overflowType: String, level: Int32, ngr: String, objType: String)
+    pub rel Floc(floc: String, name: String, sainum: String, overflowType: OverflowType, level: Int32, ngr: String, objType: String)
 
     pub rel AibSite(siteName: String, installedFrom: Time.LocalDate, ngr: String)
+
+    pub enum OverflowType { 
+        case X3_DWF
+        case X6_DWF
+    }
+
+    instance ToString[OverflowType] { 
+        pub def toString(x: OverflowType): String = match x {
+            case X3_DWF => "3xDWF"
+            case X6_DWF => "6xDWF"
+        }
+    }
+
+    instance Eq[OverflowType] { 
+        pub def eq(x: OverflowType, y: OverflowType): Bool = match (x, y) { 
+            case (X3_DWF, X3_DWF) => true
+            case (X6_DWF, X6_DWF) => true
+            case (_, _) => false
+        }
+        pub def neq(x: OverflowType, y: OverflowType): Bool = not (x == y)
+    }
+
+    instance Hash[OverflowType] { 
+        pub def hash(x: OverflowType): Int32 = Hash.hash(ToString.toString(x))
+    }
 
     /// Note - much of this is common code which merits being put in a library...
 

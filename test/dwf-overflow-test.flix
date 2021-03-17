@@ -14,6 +14,7 @@ def main(_args: Array[String]): Int32 & Impure =
         , sitemapping       = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
         , sitefacts         = System/FilePath.new("G:/work/assets/dwf-overflows/aib_stw_export.xlsx")
         };
+    Console.printLine("Running...");
     match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts) { 
         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
         case Ok(db) => {
