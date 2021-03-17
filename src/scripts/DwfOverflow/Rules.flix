@@ -23,12 +23,15 @@ namespace DwfOverflow/Rules {
 
     pub def loadFileData[r](worklist: System.FilePath, 
                             siteMappingFile: System.FilePath, 
-                            allSitesFile: System.FilePath): Option[#{WorkListItem, SiteMapping, AibSite | r}] & Impure = 
-        use Option.{flatMap};
+                            allSitesFile: System.FilePath): Result[#{WorkListItem, SiteMapping, AibSite | r}, String] & Impure = 
+        use Result.{flatMap};
         let* r1 = DwfOverflow/Rules/ExcelLoader.readWorkList(worklist);
-        let* r2 = Result.toOption(AssetLib/Facts/SiteMapping.getSiteMapping(siteMappingFile));    
+        let _   = r1 |> unsafeToString |> println;
+        let* r2 = AssetLib/Facts/SiteMapping.getSiteMapping(siteMappingFile);
+        let _   = r2 |> unsafeToString |> println;
         let* r3 = DwfOverflow/Rules/ExcelLoader.readAibSites(allSitesFile);
-        Some(r1 <+> r2 <+> r3)
+        let _   = r3 |> unsafeToString |> println;
+        Ok(r1 <+> r2 <+> r3)
 
 
     pub def getFlocs[r](db: #{Floc, WorkListItem, SiteMapping, AibSite | r}): #{ Floc | r } = 

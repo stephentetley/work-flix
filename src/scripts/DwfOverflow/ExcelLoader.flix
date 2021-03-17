@@ -30,15 +30,12 @@ namespace DwfOverflow/Rules/ExcelLoader {
         , assetType: String
         }
 
-    pub def readWorkList[r](src: System.FilePath): Option[#{WorkListItem | r}] & Impure =
+    pub def readWorkList[r](src: System.FilePath): Result[#{WorkListItem | r}, String] & Impure =
         let step = (ac, x) -> {
             let x1 = #{ WorkListItem(x.reference, x.commonName, x.assetType, siteName(x.commonName)). };
             x1 <+> ac
         };
-        match  SheetIO/SheetReader.runXlsx(readWorkListSheet(), src) {
-            case Ok(xs) => Some(solve List.foldLeft(step, #{}, xs))
-            case Err(_) => None
-        }
+        Result.map(xs -> solve List.foldLeft(step, #{}, xs), SheetIO/SheetReader.runXlsx(readWorkListSheet(), src))
         
 
     def readWorkListSheet() : SheetReader[List[WorkListRow1]] =
@@ -74,15 +71,12 @@ namespace DwfOverflow/Rules/ExcelLoader {
         , ngr: String
         }
     /// pub rel AibSite(siteName: String, installedFrom: Time.LocalDate, ngr: String)
-    pub def readAibSites[r](src: System.FilePath): Option[#{AibSite | r}] & Impure =
+    pub def readAibSites[r](src: System.FilePath): Result[#{AibSite | r}, String] & Impure =
         let step = (ac, x) -> {
             let x1 = #{ AibSite(x.commonName, x.installedFrom, x.ngr). };
             x1 <+> ac
         };
-        match  SheetIO/SheetReader.runXlsx(readAibSiteSheet(), src) {
-            case Ok(xs) => Some(solve List.foldLeft(step, #{}, xs))
-            case Err(_) => None
-        }
+        Result.map(xs -> solve List.foldLeft(step, #{}, xs), SheetIO/SheetReader.runXlsx(readAibSiteSheet(), src))
         
 
     def readAibSiteSheet() : SheetReader[List[AibSite1]] =
@@ -100,7 +94,7 @@ namespace DwfOverflow/Rules/ExcelLoader {
             , installedFrom = x2
             , ngr = x3
             })
-            <&> getContentNamed("CommonName")
+            <&> getContentNamed("Common Name")
             <*> getLocalDateNamed("Installed From")
             <*> getContentNamed("Loc.Ref.")
 

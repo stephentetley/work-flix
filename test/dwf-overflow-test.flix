@@ -14,18 +14,19 @@ def main(_args: Array[String]): Int32 & Impure =
         , sitemapping       = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
         , sitefacts         = System/FilePath.new("G:/work/assets/dwf-overflows/aib_stw_export.xlsx")
         };
-    let db = Option.getWithDefault(DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts), #{});
-    let flocs = DwfOverflow/Rules.getFlocs(db);
-    Console.printLine("Flocs...");
-    flocs |> unsafeToString |> println;
-    /// rest 
-    let r1 = DwfOverflow/Rules.getFlocData(flocs);
-    r1 |> unsafeToString |> println;
-    let r2 = DwfOverflow/Rules.getCharacteristics(flocs);
-    r2|> unsafeToString |> println;
-    let _ = DwfOverflow/EmitUxl.outputNewFlocsUxl("DWF Batch 3", r1, r2, srcpaths.uxlTemplate, srcpaths.outpath);    
-    0 // exit code
-
-
-
+    match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts) { 
+        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+        case Ok(db) => {
+            let flocs = DwfOverflow/Rules.getFlocs(db);
+            Console.printLine("Flocs...");
+            flocs |> unsafeToString |> println;
+            /// rest 
+            let r1 = DwfOverflow/Rules.getFlocData(flocs);
+            r1 |> unsafeToString |> println;
+            let r2 = DwfOverflow/Rules.getCharacteristics(flocs);
+            r2|> unsafeToString |> println;
+            let _ = DwfOverflow/EmitUxl.outputNewFlocsUxl("DWF Batch 3", r1, r2, srcpaths.uxlTemplate, srcpaths.outpath);    
+            0 // exit code
+        }
+    }
 
