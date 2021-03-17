@@ -17,13 +17,11 @@
 
 namespace DwfOverflow/Relations {
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, FunctionalLocationData, FlClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlClassification};
 
 
     /// Note much of this is common code which merits being put in a library...
 
-    /// Arity 5 - if Floc `funcloc` has data, `equiId` is empty; if Equi `funcloc` is empty and `equiId` has data.
-    pub rel ChangeRequestItem(description: String, crType: String, funcloc: String, equiId: String, processReq: String)
 
     /// Arity 14
     pub rel FlocDatum(funcloc: String, maskedFuncloc: String, description: String, 
@@ -39,46 +37,6 @@ namespace DwfOverflow/Relations {
 
 
     /// To Uxl...
-    pub def toChangeRequestDetails[r](src: #{ ChangeRequestItem | r }): List[ChangeRequestDetails] = 
-        let buildStep = (x, ac) -> changeRequestItemToUxl(x) :: ac;
-        let xs = { fold ChangeRequestItem Nil buildStep src };
-        List.sortWith(changeRequestDetailsSortStep, xs) |> coalesce
-
-    def changeRequestDetailsSortStep(x: ChangeRequestDetails, y: ChangeRequestDetails): Int32 = 
-        let xkey = if (not String.isEmpty(x.flFunctionalLocation)) "A:{x.flFunctionalLocation}" else "Z:{$x.eqEquipment}";
-        let ykey = if (not String.isEmpty(y.flFunctionalLocation)) "A:{y.flFunctionalLocation}" else "Z:{$y.eqEquipment}";
-        Order.compare(xkey, ykey) |> Order.toInt
-
-    def coalesce(xs: List[ChangeRequestDetails]): List[ChangeRequestDetails] = match xs {
-        case x :: rs => coalesceHelper(x.description, x.changeRequestType, rs, ks -> x :: ks)
-        case Nil => Nil
-    }
-        
-    def coalesceHelper(description: String, 
-                        changeRequestType : String, 
-                        xs: List[ChangeRequestDetails], 
-                        k: List[ChangeRequestDetails] -> List[ChangeRequestDetails]): List[ChangeRequestDetails] = 
-    match xs {
-        case x :: rs => { 
-            if (x.description == description and x.changeRequestType == changeRequestType) { 
-                let x1 = { description = "", changeRequestType = "" | x};
-                coalesceHelper(description, changeRequestType, rs, ks -> k(x1 :: ks))
-            } else 
-                coalesceHelper(description, changeRequestType, rs, ks -> k(x :: ks))
-        }
-        case Nil => k(Nil)        
-    }                        
-
-
-    def changeRequestItemToUxl(x: (String, String, String, String, String)): ChangeRequestDetails = 
-        let (x1, x2, x3, x4, x5) = x;
-        { description           = x1
-        , changeRequestType     = x2
-        , flFunctionalLocation  = x3
-        , eqEquipment           = x4
-        , processRequester      = x5
-        }
-
     pub def toFunctionalLocationData[r](src: #{ FlocDatum | r }): List[FunctionalLocationData] = 
         let buildStep = (x, ac) -> flocDatumToUxl(x) :: ac;
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;

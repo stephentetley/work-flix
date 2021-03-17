@@ -42,16 +42,6 @@ namespace DwfOverflow/Rules {
         };
         Option.getWithDefault(step(), "")
 
-    /// CR Items
-
-    pub def getChangeRequestItems[r](changeRequestName: String): #{ ChangeRequestItem | r } = 
-        project ChangeRequestItem solve (changeRequestItem(changeRequestName) <+> flocs())
-
-
-    def changeRequestItem[r](changeRequestName: String): #{ChangeRequestItem, Floc | r} = #{
-        ChangeRequestItem(changeRequestName, "AIWEAM0P", floc, "", "ASSET DATA") :- 
-            Floc(floc, _, _, _, _, _, _).
-    }
 
     /// FlocData
 
