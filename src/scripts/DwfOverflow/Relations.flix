@@ -19,8 +19,13 @@ namespace DwfOverflow/Relations {
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlClassification};
 
+    pub rel WorkListItem(reference: String, commonName: String, assetType: String, siteName: String)
 
-    /// Note much of this is common code which merits being put in a library...
+    pub rel Floc(floc: String, name: String, sainum: String, overflowType: String, level: Int32, ngr: String, objType: String)
+
+    pub rel AibSite(siteName: String, installedFrom: Time.LocalDate, ngr: String)
+
+    /// Note - much of this is common code which merits being put in a library...
 
 
     /// Arity 14

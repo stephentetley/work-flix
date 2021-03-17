@@ -18,11 +18,29 @@
 namespace DwfOverflow/Rules {
 
     use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
-    use DwfOverflow/Relations.{ChangeRequestItem, FlocDatum, Characteristic};
+    use AssetLib/Facts/SiteMapping.{SiteMapping};
+    use DwfOverflow/Relations.{AibSite, WorkListItem, Floc, FlocDatum, Characteristic};
 
-    pub rel Floc(floc: String, name: String, sainum: String, overflowType: String, level: Int32, ngr: String, objType: String)
+
+    pub def level4Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
+        Floc(level4Floc6x(siteCode),"Flow Spilling", sainumber, "6XDWF OVERFLOW", 4, ngr, "FLS") :-
+            WorkListItem(sainumber, commonName, assetType, aibSite),
+            SiteMapping(aibSite, siteCode),
+            AibSite(aibSite, _installedFrom, ngr),
+            if is6XDWF(assetType).
+    }
+
+    pub def level5Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
+        Floc(level5Floc6x(siteCode),"6xDWF Overflow System", sainumber, "6XDWF OVERFLOW", 5, ngr, "SCIV") :-
+            WorkListItem(sainumber, commonName, assetType, aibSite),
+            SiteMapping(aibSite, siteCode),
+            AibSite(aibSite, _installedFrom, ngr),
+            if is6XDWF(assetType).
+    }
 
 
+    def level4Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS"
+    def level5Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS-SYS01"
 
     def flocs[r](): #{Floc | r} = #{
         Floc("SITE1-WWT-SOF-FLS", "Flow Spilling", "SAI00075", "3XDWF OVERFLOW PROC", 4, "SE4652816720", "FLS").
@@ -31,7 +49,7 @@ namespace DwfOverflow/Rules {
 
     def is3XDWF(s: String): Bool = String.startsWith(s, "3XDWF")
 
-    def _is6XDWF(s: String): Bool = String.startsWith(s, "6XDWF")
+    def is6XDWF(s: String): Bool = String.startsWith(s, "6XDWF")
 
     def superior(s: String): String = 
         use Option.{flatMap};

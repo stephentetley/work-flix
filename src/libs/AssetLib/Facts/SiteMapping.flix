@@ -109,4 +109,18 @@ namespace AssetLib/Facts/SiteMapping {
         case None => None
     }
 
+
+    /// Datalog
+
+    pub rel SiteMapping(aibInst: String, s4Site: String)
+
+    pub def getSiteMapping[r](src: System.FilePath) : Result[#{SiteMapping |r}, String] & Impure = 
+        use Result.{flatMap};
+        let* xs = SheetIO/SheetReader.runXlsx(readXlsSiteMappingTable(), src);
+        let step = (ac, x) -> {
+            let x1 = #{ SiteMapping(x.installationCommonName, Option.getWithDefault(x.s4Level1Code, "")). };
+            x1 <+> ac
+        };
+        Ok(solve List.foldLeft(step, #{}, xs))   
+
 }
