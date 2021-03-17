@@ -17,6 +17,8 @@
 
 namespace DwfOverflow/Relations {
 
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, FunctionalLocationData, FlClassification};
+
     /// Arity 5 - if Floc `funcloc` has data, `equiId` is empty; if Equi `funcloc` is empty and `equiId` has data.
     pub rel ChangeRequestItem(description: String, crType: String, funcloc: String, equiId: String, processReq: String)
 
@@ -31,5 +33,96 @@ namespace DwfOverflow/Relations {
     pub rel Characteristic(floc: String, classType: String, className: String, status: Int32, charName: String, charValue: String)
 
 
+
+
+    /// To Uxl...
+    pub def toChangeRequestDetails[r](src: #{ ChangeRequestItem | r }): List[ChangeRequestDetails] = 
+        let buildStep = (x, ac) -> changeRequestItemToUxl(x) :: ac;
+        let xs = { fold ChangeRequestItem Nil buildStep src };
+        List.sortWith(changeRequestDetailsSortStep, xs) |> coalesce
+
+    def changeRequestDetailsSortStep(x: ChangeRequestDetails, y: ChangeRequestDetails): Int32 = 
+        let xkey = if (not String.isEmpty(x.flFunctionalLocation)) "A:{x.flFunctionalLocation}" else "Z:{$x.eqEquipment}";
+        let ykey = if (not String.isEmpty(y.flFunctionalLocation)) "A:{y.flFunctionalLocation}" else "Z:{$y.eqEquipment}";
+        Order.compare(xkey, ykey) |> Order.toInt
+
+    def coalesce(xs: List[ChangeRequestDetails]): List[ChangeRequestDetails] = match xs {
+        case x :: rs => coalesceHelper(x.description, x.changeRequestType, rs, ks -> x :: ks)
+        case Nil => Nil
+    }
+        
+    def coalesceHelper(description: String, 
+                        changeRequestType : String, 
+                        xs: List[ChangeRequestDetails], 
+                        k: List[ChangeRequestDetails] -> List[ChangeRequestDetails]): List[ChangeRequestDetails] = 
+    match xs {
+        case x :: rs => { 
+            if (x.description == description and x.changeRequestType == changeRequestType) { 
+                let x1 = { description = "", changeRequestType = "" | x};
+                coalesceHelper(description, changeRequestType, rs, ks -> k(x1 :: ks))
+            } else 
+                coalesceHelper(description, changeRequestType, rs, ks -> k(x :: ks))
+        }
+        case Nil => k(Nil)        
+    }                        
+
+
+    def changeRequestItemToUxl(x: (String, String, String, String, String)): ChangeRequestDetails = 
+        let (x1, x2, x3, x4, x5) = x;
+        { description           = x1
+        , changeRequestType     = x2
+        , flFunctionalLocation  = x3
+        , eqEquipment           = x4
+        , processRequester      = x5
+        }
+
+    pub def toFunctionalLocationData[r](src: #{ FlocDatum | r }): List[FunctionalLocationData] = 
+        let buildStep = (x, ac) -> flocDatumToUxl(x) :: ac;
+        let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
+        let xs = { fold FlocDatum Nil buildStep src };
+        List.sortWith(sortStep, xs)
+
+
+    def flocDatumToUxl(x: (String, String, String, Int32, String, String, 
+                            Time.LocalDate, Int32, Int32, Int32, String, Bool, 
+                            String, String)): FunctionalLocationData = 
+        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14) = x;
+        { functionalLocation    = x1
+        , maskedFuncLoc         = x2
+        , description           = x3
+        , functLocCat           = x4
+        , strIndicator          = x5
+        , objectType            = x6
+        , startupDate           = x7
+        , maintPlant            = x8
+        , companyCode           = x9
+        , coArea                = x10
+        , supFunctLoc           = x11
+        , equipInstall          = x12
+        , statusProfile         = x13
+        , userStatus            = x14
+        }
+
+
+    pub def toFlClassifications[r](src: #{ Characteristic | r }): List[FlClassification] = 
+        let buildStep = (x, ac) -> characteristicToUxl(x) :: ac;
+        let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
+            case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
+            case ans => Order.toInt(ans)
+        };
+        let xs = { fold Characteristic Nil buildStep src };
+        List.sortWith(sortStep, xs)
+
+    def characteristicToUxl(x: (String, String, String, Int32, String, String)): FlClassification = 
+        let (x1, x2, x3, x4, x5, x6) = x;
+        { functionalLocation    = x1 
+        , deletionInd           = false
+        , classType             = x2
+        , className             = x3
+        , status                = ToString.toString(x4)
+        , characteristicName    = x5
+        , charValue             = x6
+        , charDeletionInd       = false
+        }
 
 }
