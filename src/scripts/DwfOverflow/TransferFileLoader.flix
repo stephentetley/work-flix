@@ -15,11 +15,14 @@
  */
 
 namespace DwfOverflow/Rules/TransferFileLoader {
+    
+    use Text/Regex.MatchEvaluator;
 
     use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
-    use DwfOverflow/Relations.{ExistingFloc};
+    use DwfOverflow/Relations.{ExistingFloc, FreeSettlementSysIndex};
 
-
+    /// General flocs (levels 2-4).
+    /// "RIL01-WWT-SOF-FLS" becomes `ExistingFloc("RIL01", "WWT-SOF-FLS")`
     pub def readFlocTransferFile[r](src: System.FilePath): Result[#{ExistingFloc | r}, String] & Impure = 
         use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
         let step = (ac, x) -> {
@@ -28,7 +31,7 @@ namespace DwfOverflow/Rules/TransferFileLoader {
                 case None => ac
             }            
         };
-        Result.map(xs -> solve List.foldLeft(step, #{}, xs), readAllRows(evalFuncLocRow(), src))
+        Result.map(xs -> List.foldLeft(step, #{}, xs), readAllRows(evalFuncLocRow(), src))
 
     def evalFuncLocRow(): RowEvaluator[String] = 
         AssetLib/S4/FileIO/TransferFile/RowEvaluator.getStringNamed("FUNCLOC")
@@ -38,5 +41,37 @@ namespace DwfOverflow/Rules/TransferFileLoader {
             case s1 :: rs => Some((s1, String.intercalate("-", rs)))
             case _ => None
         }
+
+    pub def readSysFlocTransferFile[r](src: System.FilePath): Result[#{FreeSettlementSysIndex | r}, String] & Impure = 
+        use Result.{flatMap};
+        let* xs     = AssetLib/S4/FileIO/TransferFile/Evaluate.readAllRows(evalFuncLocRow(), src);
+        let* splits = Option.toOk(Option.traverse(splitName, xs), "malformed splits");
+        let groups  = List.groupBy((x,y) -> fst(x) == fst(y), splits);
+        let gaps    = List.filterMap(findGap, groups);
+        let step    = (ac, p) -> {let (s, num) = p; let x1 = #{ FreeSettlementSysIndex(s, num). }; x1 <+> ac };
+        let relns   = List.foldLeft((step), #{}, gaps);
+        Ok(relns)
         
+    def findGap(xs: List[(String, String)]): Option[(String, Int)] & Impure = 
+        use Option.{flatMap};
+        use Text/Regex.{evalContains};
+        use Text/Regex/MatchEvaluator.{getInt32At};
+        let* patt = Text/Regex/Pattern.compile("SYS(\d+2))");
+        let* (site, suffixes) = unpair(xs);
+        let* ixs = Result.toOption(Result.traverse(s -> evalContains(s, patt, getInt32At(0)), suffixes));
+        let ix1 = firstHole(1, ixs);
+        Some((site, ix1))
+
+    def unpair(xs: List[(String, String)]): Option[(String, List[String])] = match xs {
+        case x1 :: rs => { let (site, suffix1) = x1; Some((site, suffix1 :: List.map(snd, rs))) }
+        case _ => None
+    }
+        
+    def firstHole(n: Int32, ixs: List[Int32]): Int32 = match ixs {
+        case ix :: _ if n < ix => n
+        case ix :: rs if n == ix => firstHole(n+1, rs)
+        case ix :: rs if n >= ix => firstHole(n, rs)        /// This shouldnt occur as ixs is ordered
+        case Nil => n
+    }
+    
 }

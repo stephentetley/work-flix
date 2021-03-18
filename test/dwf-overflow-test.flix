@@ -9,23 +9,24 @@ use DwfOverflow/Relations.{Floc};
 def main(_args: Array[String]): Int32 & Impure =
     let srcpaths = 
         { uxlTemplate       = System/FilePath.new("G:/work/assets/dwf-overflows/MMOP uXL.xlsx")
-        , outpath           = System/FilePath.new("G:/work/assets/dwf-overflows/flix-output_uxl.xlsx")
+        , outpath           = System/FilePath.new("G:/work/assets/dwf-overflows/flix-output_uxl_3xDWF.xlsx")
         , worklist          = System/FilePath.new("G:/work/assets/dwf-overflows/DWF_worklist_for_uxl_gen.xlsx")
         , sitemapping       = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
         , sitefacts         = System/FilePath.new("G:/work/assets/dwf-overflows/aib-export-stws-with-constr-year.xlsx")
+        , sysFlocs          = System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF-SET-SYSxx.txt")
         };
     let flocDownloads = 
            System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT.txt")
         :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF.txt")
         :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF-SET.txt")
-        :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF-SET-SYSxx.txt")
+        
         :: Nil ;
     Console.printLine("Running...");
-    match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts, flocDownloads) { 
+    match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts, srcpaths.sysFlocs, flocDownloads) { 
         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
         case Ok(db) => {
-            let flocs = DwfOverflow/Rules.getFlocs(db);
-            Console.printLine("Flocs...");
+            let flocs = DwfOverflow/Rules.get3xDwfFlocs(db);
+            Console.printLine("3xFlocs...");
             flocs |> unsafeToString |> println;
             /// rest 
             let r1 = DwfOverflow/Rules.getFlocData(flocs);

@@ -28,6 +28,8 @@ namespace DwfOverflow/Relations {
 
     pub rel ExistingFloc(site: String, floc: String)
 
+    pub rel FreeSettlementSysIndex(site: String, number: Int32)
+
     pub enum OverflowType { 
         case X3_DWF
         case X6_DWF
