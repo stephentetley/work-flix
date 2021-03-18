@@ -65,13 +65,19 @@ namespace DwfOverflow/Rules/TransferFileLoader {
         let ix1 = firstHole(1, ixs);
         Some((site, ix1))
 
-    def unpair(xs: List[(String, String)]): Option[(String, List[String])] = match xs {
-        case x1 :: rs => { let (site, suffix1) = x1; Some((site, suffix1 :: List.map(snd, rs))) }
-        case _ => None
-    }
+    def unpair(xs: List[(String, String)]): Option[(String, List[String])] = 
+        let cmp = (x, y) -> Order.compare(x,y) |> Order.toInt;
+        match xs {
+            case x1 :: rs => { 
+                let (site, suffix1) = x1; 
+                let suffixes = List.sortWith(cmp, suffix1 :: List.map(snd, rs));
+                Some((site, suffixes)) 
+            }
+            case _ => None
+        }
         
     def firstHole(n: Int32, ixs: List[Int32]): Int32 = match ixs {
-        case ix :: _ if n < ix => n
+        case ix :: _  if n < ix => n
         case ix :: rs if n == ix => firstHole(n+1, rs)
         case ix :: rs if n >= ix => firstHole(n, rs)        /// This shouldnt occur as ixs is ordered
         case Nil => n

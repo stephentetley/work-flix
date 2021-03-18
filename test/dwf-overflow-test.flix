@@ -29,7 +29,7 @@ def main(_args: Array[String]): Int32 & Impure =
             r1 |> unsafeToString |> println;
             let r2 = DwfOverflow/Rules.getCharacteristics(flocs);
             r2|> unsafeToString |> println;
-            let _ = DwfOverflow/EmitUxl.outputNewFlocsUxl("DWF Batch 3", r1, r2, srcpaths.uxlTemplate, srcpaths.outpath);    
+            let _ = DwfOverflow/EmitUxl.outputNewFlocsUxl("DWF Batch 4 3xDWF (GC)", r1, r2, srcpaths.uxlTemplate, srcpaths.outpath);    
             0 // exit code
         }
     }
