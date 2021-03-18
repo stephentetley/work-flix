@@ -14,8 +14,14 @@ def main(_args: Array[String]): Int32 & Impure =
         , sitemapping       = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
         , sitefacts         = System/FilePath.new("G:/work/assets/dwf-overflows/aib-export-stws-with-constr-year.xlsx")
         };
+    let flocDownloads = 
+           System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT.txt")
+        :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF.txt")
+        :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF-SET.txt")
+        :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF-SET-SYSxx.txt")
+        :: Nil ;
     Console.printLine("Running...");
-    match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts) { 
+    match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts, flocDownloads) { 
         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
         case Ok(db) => {
             let flocs = DwfOverflow/Rules.getFlocs(db);

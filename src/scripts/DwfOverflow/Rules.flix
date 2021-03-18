@@ -19,25 +19,42 @@ namespace DwfOverflow/Rules {
 
     use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
     use AssetLib/Facts/SiteMapping.{SiteMapping};
-    use DwfOverflow/Relations.{AibSite, WorkListItem, Floc, FlocDatum, Characteristic, OverflowType};
+    use DwfOverflow/Relations.{AibSite, WorkListItem, Floc, FlocDatum, Characteristic, ExistingFloc, OverflowType};
     use DwfOverflow/Relations.OverflowType.{X3_DWF, X6_DWF};
 
     pub def loadFileData[r](worklist: System.FilePath, 
                             siteMappingFile: System.FilePath, 
-                            allSitesFile: System.FilePath): Result[#{WorkListItem, SiteMapping, AibSite | r}, String] & Impure = 
+                            allSitesFile: System.FilePath,
+                            flocFiles: List[System.FilePath]): Result[#{WorkListItem, SiteMapping, AibSite, ExistingFloc | r}, String] & Impure = 
         use Result.{flatMap};
         let* r1 = DwfOverflow/Rules/ExcelLoader.readWorkList(worklist);
         let* r2 = AssetLib/Facts/SiteMapping.getSiteMapping(siteMappingFile);
         let* r3 = DwfOverflow/Rules/ExcelLoader.readAibSites(allSitesFile);
-        Ok(r1 <+> r2 <+> r3)
+        let* r4 = loadFlocTransferFiles(flocFiles);
+        Ok(r1 <+> r2 <+> r3 <+> r4)
+
+    def loadFlocTransferFiles[r](srcs: List[System.FilePath]): Result[#{ExistingFloc | r}, String] & Impure = 
+        use Result.{flatMap};
+        let* xs     = Result.traverse(DwfOverflow/Rules/TransferFileLoader.readFlocTransferFile, srcs);
+        let relns   = List.foldLeft((ac, r1) -> r1 <+> ac, #{}, xs);
+        Ok(relns)
 
 
-    pub def getFlocs[r](db: #{Floc, WorkListItem, SiteMapping, AibSite | r}): #{ Floc | r } = 
-        project Floc solve (level4Funcloc6x() <+> level5Funcloc6x() <+> db)
 
+    pub def getFlocs[r](db: #{Floc, WorkListItem, SiteMapping, AibSite, ExistingFloc | r}): #{ Floc | r } = 
+        project Floc solve (level3Funcloc6x() <+> level4Funcloc6x() <+> level5Funcloc6x() <+> db)
+
+    pub def level3Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite, ExistingFloc | r} = #{
+        Floc(level3Floc6x(siteCode), "Storm Overflow", sainumber, X6_DWF, 3, ngr, "SOF", constrYear) :-
+            WorkListItem(sainumber, commonName, assetType, aibSite),
+            SiteMapping(aibSite, siteCode),
+            AibSite(aibSite, constrYear, ngr),
+            not ExistingFloc(siteCode, "WWT-SOF"),
+            if is6XDWF(assetType).
+    }
 
     pub def level4Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
-        Floc(level4Floc6x(siteCode),"Flow Spilling", sainumber, X6_DWF, 4, ngr, "FLS", constrYear) :-
+        Floc(level4Floc6x(siteCode), "Flow Spilling", sainumber, X6_DWF, 4, ngr, "FLS", constrYear) :-
             WorkListItem(sainumber, commonName, assetType, aibSite),
             SiteMapping(aibSite, siteCode),
             AibSite(aibSite, constrYear, ngr),
@@ -55,6 +72,7 @@ namespace DwfOverflow/Rules {
     def _is3XDWF(s: String): Bool = String.startsWith(s, "3XDWF")
     def is6XDWF(s: String): Bool = String.startsWith(s, "6XDWF")
 
+    def level3Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF"
     def level4Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS"
     def level5Floc6x(siteCode: String): String = "${siteCode}-WWT-SOF-FLS-SYS01"
 

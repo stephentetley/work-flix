@@ -26,6 +26,8 @@ namespace DwfOverflow/Relations {
 
     pub rel AibSite(siteName: String, constructionYear: Int32, ngr: String)
 
+    pub rel ExistingFloc(site: String, floc: String)
+
     pub enum OverflowType { 
         case X3_DWF
         case X6_DWF
