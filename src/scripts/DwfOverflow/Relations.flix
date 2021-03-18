@@ -21,9 +21,10 @@ namespace DwfOverflow/Relations {
 
     pub rel WorkListItem(reference: String, commonName: String, assetType: String, siteName: String)
 
-    pub rel Floc(floc: String, name: String, sainum: String, overflowType: OverflowType, level: Int32, ngr: String, objType: String)
+    pub rel Floc(floc: String, name: String, sainum: String, overflowType: OverflowType, level: Int32, 
+                    ngr: String, objType: String, constructionYear: Int32)
 
-    pub rel AibSite(siteName: String, installedFrom: Time.LocalDate, ngr: String)
+    pub rel AibSite(siteName: String, constructionYear: Int32, ngr: String)
 
     pub enum OverflowType { 
         case X3_DWF

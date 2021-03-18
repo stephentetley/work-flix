@@ -67,13 +67,13 @@ namespace DwfOverflow/Rules/ExcelLoader {
     /// All sites list
     type alias AibSite1 = 
         { commonName: String 
-        , installedFrom: Time.LocalDate
+        , constructionYear: Int32
         , ngr: String
         }
     /// pub rel AibSite(siteName: String, installedFrom: Time.LocalDate, ngr: String)
     pub def readAibSites[r](src: System.FilePath): Result[#{AibSite | r}, String] & Impure =
         let step = (ac, x) -> {
-            let x1 = #{ AibSite(x.commonName, x.installedFrom, x.ngr). };
+            let x1 = #{ AibSite(x.commonName, x.constructionYear, x.ngr). };
             x1 <+> ac
         };
         Result.map(xs -> solve List.foldLeft(step, #{}, xs), SheetIO/SheetReader.runXlsx(readAibSiteSheet(), src))
@@ -87,15 +87,15 @@ namespace DwfOverflow/Rules/ExcelLoader {
 
 
     def evalSiteListRow(): NamedRowEvaluator[AibSite1] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, optionWithDefault, getContentNamed, getInt32Named};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) -> 
-            { commonName = x1
-            , installedFrom = x2
-            , ngr = x3
+            { commonName        = x1
+            , constructionYear  = x2
+            , ngr               = x3
             })
             <&> getContentNamed("Common Name")
-            <*> getLocalDateNamed("Installed From")
+            <*> optionWithDefault(getInt32Named("Year Of Construction"), 1970)
             <*> getContentNamed("Loc.Ref.")
 
 }

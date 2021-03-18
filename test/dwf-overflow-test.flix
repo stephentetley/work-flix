@@ -12,7 +12,7 @@ def main(_args: Array[String]): Int32 & Impure =
         , outpath           = System/FilePath.new("G:/work/assets/dwf-overflows/flix-output_uxl.xlsx")
         , worklist          = System/FilePath.new("G:/work/assets/dwf-overflows/DWF_worklist_for_uxl_gen.xlsx")
         , sitemapping       = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
-        , sitefacts         = System/FilePath.new("G:/work/assets/dwf-overflows/aib_stw_export.xlsx")
+        , sitefacts         = System/FilePath.new("G:/work/assets/dwf-overflows/aib-export-stws-with-constr-year.xlsx")
         };
     Console.printLine("Running...");
     match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts) { 

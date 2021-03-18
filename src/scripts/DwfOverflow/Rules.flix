@@ -37,18 +37,18 @@ namespace DwfOverflow/Rules {
 
 
     pub def level4Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
-        Floc(level4Floc6x(siteCode),"Flow Spilling", sainumber, X6_DWF, 4, ngr, "FLS") :-
+        Floc(level4Floc6x(siteCode),"Flow Spilling", sainumber, X6_DWF, 4, ngr, "FLS", constrYear) :-
             WorkListItem(sainumber, commonName, assetType, aibSite),
             SiteMapping(aibSite, siteCode),
-            AibSite(aibSite, _installedFrom, ngr),
+            AibSite(aibSite, constrYear, ngr),
             if is6XDWF(assetType).
     }
 
     pub def level5Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite | r} = #{
-        Floc(level5Floc6x(siteCode),"6xDWF Overflow System", sainumber, X6_DWF, 5, ngr, "SCIV") :-
+        Floc(level5Floc6x(siteCode),"6xDWF Overflow System", sainumber, X6_DWF, 5, ngr, "SCIV", constrYear) :-
             WorkListItem(sainumber, commonName, assetType, aibSite),
             SiteMapping(aibSite, siteCode),
-            AibSite(aibSite, _installedFrom, ngr),
+            AibSite(aibSite, constrYear, ngr),
             if is6XDWF(assetType).
     }
 
@@ -77,12 +77,14 @@ namespace DwfOverflow/Rules {
 
     def flocDatum[r](): #{FlocDatum, Floc | r} = #{
         FlocDatum(floc, floc, description, level, "YW-GS", 
-                    objType, defaultDate(), 2100, 2100, 1000, superior(floc), level >= 5, "ZFLOCST", "UCON") :- 
-            Floc(floc, description, _, _, level, _, objType).
+                    objType, date1OfYear(year), 2100, 2100, 1000, superior(floc), level >= 5, "ZFLOCST", "UCON") :- 
+            Floc(floc, description, _, _, level, _, objType, year).
     }
 
-
-    def defaultDate(): Time.LocalDate = Time/LocalDate.new({dayOfMonth = 1, month = 1, year = 1970})
+    /// Never below 1970
+    def date1OfYear(year: Int32): Time.LocalDate = 
+        let y1 = Int32.max(1970, year);
+        Time/LocalDate.new({dayOfMonth = 1, month = 1, year = y1})
 
     /// Characteristics
     pub def getCharacteristics[r](db: #{Floc, Characteristic | r}): #{ Characteristic | r } = 
@@ -95,41 +97,41 @@ namespace DwfOverflow/Rules {
 
     def ai2AibReference[r](): #{Characteristic, Floc | r} = #{
         Characteristic(floc, "003", "AIB_REFERENCE", 1, "AI2_AIB_REFERENCE", sainum) :- 
-            Floc(floc, _, sainum, _, _, _, _).
+            Floc(floc, _, sainum, _, _, _, _, _).
     }
 
     def s4AibReference[r](): #{Characteristic, Floc | r} = #{
         Characteristic(floc, "003", "AIB_REFERENCE", 1, "S4_AIB_REFERENCE", "") :- 
-            Floc(floc, _, _, _, _, _, _).
+            Floc(floc, _, _, _, _, _, _, _).
     }
 
     def easting[r](): #{Characteristic, Floc | r} = #{
         Characteristic(floc, "003", "EAST_NORTH", 1, "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
-            Floc(floc, _, _, _, _, ngr, _).
+            Floc(floc, _, _, _, _, ngr, _, _).
     }
 
     def northing[r](): #{Characteristic, Floc | r} = #{
         Characteristic(floc, "003", "EAST_NORTH", 1, "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
-            Floc(floc, _, _, _, _, ngr, _).
+            Floc(floc, _, _, _, _, ngr, _, _).
     }
 
     def systemType[r](): #{Characteristic, Floc | r} = #{
         Characteristic(floc, "003", "SCIVCS", 1, "SYSTEM_TYPE", "3 X DWF OVERFLOW") :- 
-            Floc(floc, _, _, X3_DWF, 5, _, _).
+            Floc(floc, _, _, X3_DWF, 5, _, _, _).
 
         Characteristic(floc, "003", "SCIVCS", 1, "SYSTEM_TYPE", "6 X DWF OVERFLOW") :- 
-            Floc(floc, _, _, X6_DWF, 5, _, _).
+            Floc(floc, _, _, X6_DWF, 5, _, _, _).
     }
         
     def uniclassCode[r](): #{Characteristic, Floc | r} = #{
         Characteristic(floc, "003", "UNICLASS_CODE", 1, "UNICLASS_CODE", "") :- 
-            Floc(floc, _, _, _, level, _, _), 
+            Floc(floc, _, _, _, level, _, _, _), 
             if level != 5.
     }
 
     def uniclassDesc[r](): #{Characteristic, Floc | r} = #{
         Characteristic(floc, "003", "UNICLASS_CODE", 1, "UNICLASS_DESC", "") :- 
-            Floc(floc, _, _, _, level, _, _), 
+            Floc(floc, _, _, _, level, _, _, _), 
             if level != 5.
     }
 
