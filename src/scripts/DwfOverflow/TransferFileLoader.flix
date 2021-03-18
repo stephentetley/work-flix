@@ -42,11 +42,14 @@ namespace DwfOverflow/Rules/TransferFileLoader {
             case _ => None
         }
 
+    /// System Flocs (level 5).
+    /// "RIL01-WWT-SOF-FLS-SYS01" :: "RIL01-WWT-SOF-FLS-SYS03" :: Nil becomes `FreeSettlementSysIndex("RIL01", 2)`
+
     pub def readSysFlocTransferFile[r](src: System.FilePath): Result[#{FreeSettlementSysIndex | r}, String] & Impure = 
         use Result.{flatMap};
         let* xs     = AssetLib/S4/FileIO/TransferFile/Evaluate.readAllRows(evalFuncLocRow(), src);
         let* splits = Option.toOk(Option.traverse(splitName, xs), "malformed splits");
-        let groups  = List.groupBy((x,y) -> fst(x) == fst(y), splits);
+        let groups  = List.groupBy((x,y) -> fst(x) == fst(y), splits);        
         let gaps    = List.filterMap(findGap, groups);
         let step    = (ac, p) -> {let (s, num) = p; let x1 = #{ FreeSettlementSysIndex(s, num). }; x1 <+> ac };
         let relns   = List.foldLeft((step), #{}, gaps);
@@ -56,7 +59,7 @@ namespace DwfOverflow/Rules/TransferFileLoader {
         use Option.{flatMap};
         use Text/Regex.{evalContains};
         use Text/Regex/MatchEvaluator.{getInt32At};
-        let* patt = Text/Regex/Pattern.compile("SYS(\d+2))");
+        let* patt = Text/Regex/Pattern.compile("SYS(\d{2})");
         let* (site, suffixes) = unpair(xs);
         let* ixs = Result.toOption(Result.traverse(s -> evalContains(s, patt, getInt32At(0)), suffixes));
         let ix1 = firstHole(1, ixs);

@@ -1,10 +1,7 @@
 
 use DwfOverflow/Relations.{Floc};
 
-/// def flocs[r](): #{Floc | r} = #{
-///         Floc("SITE1-WWT-SOF-FLS", "Flow Spilling", "SAI00075", "3XDWF OVERFLOW PROC", 4, "SE4652816720", "FLS").
-///         Floc("SITE1-WWT-SOF-FLS-SYS01", "6xDWF Overflow System", "SAI00076", "6XDWF OVERFLOW", 5, "SK4451594282", "SCIV").
-///     }
+
 
 def main(_args: Array[String]): Int32 & Impure =
     let srcpaths = 
@@ -19,7 +16,6 @@ def main(_args: Array[String]): Int32 & Impure =
            System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT.txt")
         :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF.txt")
         :: System/FilePath.new("G:/work/assets/dwf-overflows/file_download-all-WWT-SOF-SET.txt")
-        
         :: Nil ;
     Console.printLine("Running...");
     match DwfOverflow/Rules.loadFileData(srcpaths.worklist, srcpaths.sitemapping, srcpaths.sitefacts, srcpaths.sysFlocs, flocDownloads) { 

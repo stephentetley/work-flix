@@ -27,12 +27,14 @@ namespace DwfOverflow/Rules {
                             siteMappingFile: System.FilePath, 
                             allSitesFile: System.FilePath,
                             sysFlocFile: System.FilePath,
-                            flocFiles: List[System.FilePath]): Result[#{WorkListItem, SiteMapping, AibSite, ExistingFloc | r}, String] & Impure = 
+                            flocFiles: List[System.FilePath]): Result[#{WorkListItem, SiteMapping, AibSite, ExistingFloc, FreeSettlementSysIndex | r}, String] & Impure = 
         use Result.{flatMap};
         let* r1 = DwfOverflow/Rules/ExcelLoader.readWorkList(worklist);
         let* r2 = AssetLib/Facts/SiteMapping.getSiteMapping(siteMappingFile);
         let* r3 = DwfOverflow/Rules/ExcelLoader.readAibSites(allSitesFile);
         let* r4 = DwfOverflow/Rules/TransferFileLoader.readSysFlocTransferFile(sysFlocFile);
+        let _   = Console.printLine("FreeSettlementSysIndex...");
+        let _   = r4 |> unsafeToString |> println;
         let* r5 = loadFlocTransferFiles(flocFiles);
         Ok(r1 <+> r2 <+> r3 <+> r4 <+> r5)
 
@@ -62,7 +64,7 @@ namespace DwfOverflow/Rules {
     
     def level5Floc3x(siteCode: String, ix: Int32): String = 
         let ixs = String.padLeft(2, '0', Int32.toString(ix));
-        "${siteCode}-WWT-SOF-FLS-SYS${ixs}"
+        "${siteCode}-WWT-SOF-SET-SYS${ixs}"
 
     /// 6xDWF
 
