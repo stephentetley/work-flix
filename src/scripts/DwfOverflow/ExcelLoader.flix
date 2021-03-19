@@ -30,17 +30,17 @@ namespace DwfOverflow/Rules/ExcelLoader {
         , assetType: String
         }
 
-    pub def readWorkList[r](src: System.FilePath): Result[#{WorkListItem | r}, String] & Impure =
+    pub def readWorkList[r](sheetName: String, src: System.FilePath): Result[#{WorkListItem | r}, String] & Impure =
         let step = (ac, x) -> {
             let x1 = #{ WorkListItem(x.reference, x.commonName, x.assetType, siteName(x.commonName)). };
             x1 <+> ac
         };
-        Result.map(xs -> solve List.foldLeft(step, #{}, xs), SheetIO/SheetReader.runXlsx(readWorkListSheet(), src))
+        Result.map(xs -> solve List.foldLeft(step, #{}, xs), SheetIO/SheetReader.runXlsx(readWorkListSheet(sheetName), src))
         
 
-    def readWorkListSheet() : SheetReader[List[WorkListRow1]] =
+    def readWorkListSheet(sheetName: String) : SheetReader[List[WorkListRow1]] =
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom}; 
-        let* s1     = getSheetNamed("Stephen"); 
+        let* s1     = getSheetNamed(sheetName); 
         let* xs     = namedRowsFrom(s1, 0, 1, evalWorkListRow());
         return(xs)
 

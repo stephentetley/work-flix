@@ -23,13 +23,14 @@ namespace DwfOverflow/Rules {
         FreeSettlementSysIndex, OverflowType};
     use DwfOverflow/Relations.OverflowType.{X3_DWF, X6_DWF};
 
-    pub def loadFileData[r](worklist: System.FilePath, 
+    pub def loadFileData[r](worklistSheetName: String, 
+                            worklist: System.FilePath, 
                             siteMappingFile: System.FilePath, 
                             allSitesFile: System.FilePath,
                             sysFlocFile: System.FilePath,
                             flocFiles: List[System.FilePath]): Result[#{WorkListItem, SiteMapping, AibSite, ExistingFloc, FreeSettlementSysIndex | r}, String] & Impure = 
         use Result.{flatMap};
-        let* r1 = DwfOverflow/Rules/ExcelLoader.readWorkList(worklist);
+        let* r1 = DwfOverflow/Rules/ExcelLoader.readWorkList(worklistSheetName, worklist);
         let* r2 = AssetLib/Facts/SiteMapping.getSiteMapping(siteMappingFile);
         let* r3 = DwfOverflow/Rules/ExcelLoader.readAibSites(allSitesFile);
         let* r4 = DwfOverflow/Rules/TransferFileLoader.readSysFlocTransferFile(sysFlocFile);
