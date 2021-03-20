@@ -18,7 +18,7 @@
 namespace FmpSkeleton/Rules {
     
     use AssetLib/Facts/SiteMapping.{SiteMapping};
-    use AssetLib/S4Rel/Relations.{EquiDatum};
+    use AssetLib/S4Rel/Relations.{EquiDatum, EquiCharacteristic};
 
     /// TODO - move into a common lib...
     pub rel AibEquipment(aibref: String, 
@@ -30,28 +30,38 @@ namespace FmpSkeleton/Rules {
                             model: String, 
                             partNumber: String, 
                             serialNumber: String, 
+                            gridRef: String,
                             pandiNumber: String, 
                             status: String)
 
-    pub def distdb[r](): #{EquiDatum, SiteMapping, Status | r} = #{
-        EquiDatum(aibref, 
-                        "E",              /// e.g "M", "I", "E"
-                        description: String,
-                        "DIST",
-                        installedFrom,
-                        manufacturer,           
-                        model,
-                        partNumber,
-                        serialNumber,
-                        "${siteCode}-E-LV",
-                        "",
-                        pandi,
-                        s4Status) :- 
-            AibEquipment(aibref, aibSite, description, "EQUIPMENT: DISTRIBUTION BOARD", installedFrom, manufacturer, model, partNumber, serialNumber, pandi, status), 
-            SiteMapping(aibSite, siteCode), 
-            Status(status, s4Status).
+    pub def distdb[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+        use AssetLib/Common/Utils.{properCaseName};
+        #{
+            EquiDatum(aibref, 
+                            "E",
+                            properCaseName(description),
+                            "DIST",
+                            installedFrom,
+                            manufacturer,           
+                            model,
+                            partNumber,
+                            serialNumber,
+                            "${siteCode}-E-LV",
+                            "",
+                            pandi,
+                            s4Status) :- 
+                AibEquipment(aibref, aibSite, description, "EQUIPMENT: DISTRIBUTION BOARD", 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                SiteMapping(aibSite, siteCode), 
+                Status(status, s4Status).
 
-    }
+            EquiCharacteristic(aibref, "002", "DISTBD", "UNICLASS_CODE", "") :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _).
+
+            EquiCharacteristic(aibref, "002", "DISTBD", "UNICLASS_DESC", "") :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _).
+
+        }
 
     pub rel Status(aib: String, s4: String)
 
@@ -60,6 +70,27 @@ namespace FmpSkeleton/Rules {
         Status("OPERATIONAL", "OPER").
         Status("NON-OPERATIONAL", "NOP").
     }
+
+    pub def equiEastNorth[r](): #{EquiCharacteristic, AibEquipment | r} = 
+        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        #{
+            EquiCharacteristic(aibref, "003", "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+
+            EquiCharacteristic(aibref, "003", "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+        }
+
+
+    pub def equiAibReference[r](): #{EquiCharacteristic, AibEquipment | r} = 
+        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        #{
+            EquiCharacteristic(aibref, "003", "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+
+            EquiCharacteristic(aibref, "003", "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+        }
 
 
 }

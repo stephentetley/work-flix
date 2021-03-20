@@ -17,6 +17,33 @@
 
 namespace AssetLib/Common/Utils {
 
+    ///
+    /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
+    /// 
+    pub def properCaseName(s: String): String =
+        use Option.{flatMap};
+        let words = String.words(s);
+        let xs = Option.traverse(toProperCase1, words) as & Pure;
+        Option.getWithDefault(xs, s :: Nil) |> String.unwords
+
+    ///
+    /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
+    /// 
+    def toProperCase1(s: String): Option[String] & Impure =
+        use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed};
+        use Option.flatMap;
+        let* patt = Text/Regex/Pattern.compile("^(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)$");
+        let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
+                            , getCaptureNamed("first")
+                            , getCaptureNamed("rest")
+                            );
+        match Text/Regex.rewriteWith(s, patt, eval) { 
+            case Ok(s1) if s1 != "" => Some(s1)
+            case _  => Some(s)
+        }
+
+
+
     pub def sepBy(input: String, sep: String): Array[String] & Impure =
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
