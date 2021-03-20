@@ -102,8 +102,6 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
             case (Decimal(d1), Decimal(d2)) => d1 == d2
             case (_, _) => false
         }
-
-        pub def neq(x: Value, y: Value): Bool = not (x == y)
     }
 
     pub def getTextValue(x: Value): Option[String] = match x { 
@@ -142,8 +140,6 @@ namespace AssetLib/S4Lite/CreateNew/Datatypes {
             case (DecimalType, DecimalType) => true
             case (_, _) => false
         }
-
-        pub def neq(x: ValueType, y: ValueType): Bool = not (x == y)
     }
 
 }

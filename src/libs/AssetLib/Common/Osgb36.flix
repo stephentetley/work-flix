@@ -37,8 +37,6 @@ namespace AssetLib/Common/Osgb36 {
             let NGR(x1) = x;
             let NGR(y1) = y;
             x1 == y1
-        
-        pub def neq(x: NGR, y: NGR): Bool = not (x == y)
     }
 
     instance Hash[NGR] {

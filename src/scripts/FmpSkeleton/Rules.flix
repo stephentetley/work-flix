@@ -45,7 +45,7 @@ namespace FmpSkeleton/Rules {
                             manufacturer,           
                             model,
                             partNumber,
-                            serialNumber,
+                            stringWithDefault(serialNumber, "UNKNOWN"),
                             "${siteCode}-E-LV",
                             "",
                             pandi,
@@ -62,6 +62,8 @@ namespace FmpSkeleton/Rules {
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _).
 
         }
+
+    def stringWithDefault(s: String, d: String): String = if (String.isEmpty(s)) d else s
 
     pub rel Status(aib: String, s4: String)
 

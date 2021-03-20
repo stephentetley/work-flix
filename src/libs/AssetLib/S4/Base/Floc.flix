@@ -30,9 +30,10 @@ namespace AssetLib/S4/Base {
     }
 
     instance Eq[Floc] { 
-        pub def eq(x: Floc, y: Floc): Bool = ToString.toString(x) == ToString.toString(y)
-        
-        pub def neq(x: Floc, y: Floc): Bool = not (x == y)
+        pub def eq(x: Floc, y: Floc): Bool = 
+            let Floc(x1) = x;
+            let Floc(y1) = y;
+            x1 == y1
     }
 
     instance Order[Floc] {
