@@ -20,21 +20,17 @@ namespace AssetLib/S4Rel/Relations {
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlClassification, EquipmentData, EqClassification};
 
 
-    /// Arity 11
+    /// Arity 7
     pub rel FlocDatum(funcloc: String, 
-                        maskedFuncloc: String, 
                         description: String, 
-                        category: Int32, 
                         strIndicator: String, 
                         objectType: String, 
                         startupDate: Time.LocalDate, 
-                        supFunctLoc: String, 
                         equipInstall: Bool, 
-                        statusProfile: String, 
                         userStatus: String)
 
-    /// Arity 6
-    pub rel FlocCharacteristic(floc: String, classType: String, className: String, charName: String, charValue: String)
+    /// Arity 4
+    pub rel FlocCharacteristic(floc: String, className: String, charName: String, charValue: String)
 
     /// Arity 13
     pub rel EquiDatum(equiId: String, 
@@ -51,8 +47,8 @@ namespace AssetLib/S4Rel/Relations {
                         techIdentNo: String,
                         status: String)
 
-    /// Arity 6
-    pub rel EquiCharacteristic(equiId: String, classType: String, className: String, charName: String, charValue: String)
+    /// Arity 4
+    pub rel EquiCharacteristic(equiId: String, className: String, charName: String, charValue: String)
 
 
     /// To Uxl...
@@ -63,23 +59,23 @@ namespace AssetLib/S4Rel/Relations {
         List.sortWith(sortStep, xs)
 
 
-    def flocDatumToUxl(x: (String, String, String, Int32, String, String, 
-                            Time.LocalDate, String, Bool, String, String)): FunctionalLocationData = 
-        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) = x;
+    def flocDatumToUxl(x: (String, String, String, String, 
+                            Time.LocalDate, Bool, String)): FunctionalLocationData = 
+        let (x1, x2, x3, x4, x5, x6, x7) = x;
         { functionalLocation    = x1
-        , maskedFuncLoc         = x2
-        , description           = x3
-        , functLocCat           = x4
-        , strIndicator          = x5
-        , objectType            = x6
-        , startupDate           = x7
+        , maskedFuncLoc         = x1
+        , description           = x2
+        , functLocCat           = Option.getWithDefault(Option.map(AssetLib/S4/Base/Floc.level, AssetLib/S4/Base/Floc.new(x1)), 0)
+        , strIndicator          = x3
+        , objectType            = x4
+        , startupDate           = x5
         , maintPlant            = 2100
         , companyCode           = 2100
         , coArea                = 1000
-        , supFunctLoc           = x8
-        , equipInstall          = x9
-        , statusProfile         = x10
-        , userStatus            = x11
+        , supFunctLoc           = Option.getWithDefault(Option.map(AssetLib/S4/Base/Floc.pop >> ToString.toString, AssetLib/S4/Base/Floc.new(x1)), "")
+        , equipInstall          = x6
+        , statusProfile         = "ZEQUIPST"
+        , userStatus            = x7
         }
 
 
@@ -92,15 +88,15 @@ namespace AssetLib/S4Rel/Relations {
         let xs = { fold FlocCharacteristic Nil buildStep src };
         List.sortWith(sortStep, xs)
 
-    def flocCharacteristicToUxl(x: (String, String, String, String, String)): FlClassification = 
-        let (x1, x2, x3, x4, x5) = x;
+    def flocCharacteristicToUxl(x: (String, String, String, String)): FlClassification = 
+        let (x1, x2, x3, x4) = x;
         { functionalLocation    = x1 
         , deletionInd           = false
-        , classType             = x2
-        , className             = x3
+        , classType             = "003"
+        , className             = x2
         , status                = "1"
-        , characteristicName    = x4
-        , charValue             = x5
+        , characteristicName    = x3
+        , charValue             = x4
         , charDeletionInd       = false
         }
 
@@ -113,15 +109,15 @@ namespace AssetLib/S4Rel/Relations {
         let xs = { fold EquiCharacteristic Nil buildStep src };
         List.sortWith(sortStep, xs)
 
-    def equiCharacteristicToUxl(x: (String, String, String, String, String)): EqClassification = 
-        let (x1, x2, x3, x4, x5) = x;
+    def equiCharacteristicToUxl(x: (String, String, String, String)): EqClassification = 
+        let (x1, x2, x3, x4) = x;
         { equiId                = x1 
         , deleteInd             = false
-        , classType             = x2
-        , className             = x3
+        , classType             = "002"
+        , className             = x2
         , status                = "1"
-        , characteristicName    = x4
-        , charValue             = x5
+        , characteristicName    = x3
+        , charValue             = x4
         , charDeleteInd         = false
         }
 

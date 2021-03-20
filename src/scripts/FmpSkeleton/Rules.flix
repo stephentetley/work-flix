@@ -18,7 +18,10 @@
 namespace FmpSkeleton/Rules {
     
     use AssetLib/Facts/SiteMapping.{SiteMapping};
-    use AssetLib/S4Rel/Relations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
+
+    /// TODO - move into a common lib...
+    pub rel AibFloc(aibref: String, commonName: String, aibSite: String, node: String, installedFrom: Time.LocalDate)
 
     /// TODO - move into a common lib...
     pub rel AibEquipment(aibref: String, 
@@ -55,15 +58,39 @@ namespace FmpSkeleton/Rules {
                 SiteMapping(aibSite, siteCode), 
                 Status(status, s4Status).
 
-            EquiCharacteristic(aibref, "002", "DISTBD", "UNICLASS_CODE", "") :- 
+            EquiCharacteristic(aibref, "DISTBD", "UNICLASS_CODE", "") :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _).
 
-            EquiCharacteristic(aibref, "002", "DISTBD", "UNICLASS_DESC", "") :- 
+            EquiCharacteristic(aibref, "DISTBD", "UNICLASS_DESC", "") :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _).
 
         }
 
+    /// Level 2
+    pub def electricalPowerSupply[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
+        FlocDatum("${siteCode}-E", "Electrical Power Supply", "YW-ES", "EPS", installedFrom, false, s4Status) :-
+            AibFloc(sainumber, commonName, aibSite, "ELECTRICAL SERVICES", installedFrom),
+            SiteMapping(aibSite, siteCode),
+            Status(status, s4Status).
+    }
+
+    /// Level 3
+    pub def lowVoltageDistribution[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
+        FlocDatum("${siteCode}-E-LV", "Low Voltage Distribution", "YW-ES", "LVD", installedFrom, true, s4Status) :-
+            AibFloc(sainumber, commonName, aibSite, "ELECTRICITY SUPPLY", installedFrom),
+            SiteMapping(aibSite, siteCode),
+            Status(status, s4Status).
+    }
+
+
+
     def stringWithDefault(s: String, d: String): String = if (String.isEmpty(s)) d else s
+    
+    /// /// Never below 1970
+    /// def date1OfYear(year: Int32): Time.LocalDate = 
+    ///     let y1 = Int32.max(1970, year);
+    ///     Time/LocalDate.new({dayOfMonth = 1, month = 1, year = y1})
+
 
     pub rel Status(aib: String, s4: String)
 
@@ -76,10 +103,21 @@ namespace FmpSkeleton/Rules {
     pub def equiEastNorth[r](): #{EquiCharacteristic, AibEquipment | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
-            EquiCharacteristic(aibref, "003", "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
+            EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
 
-            EquiCharacteristic(aibref, "003", "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
+            EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+        }
+
+    /// TODO - not AibEquipment
+    pub def flocEastNorth[r](): #{FlocCharacteristic, AibEquipment | r} = 
+        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        #{
+            FlocCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+
+            FlocCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
         }
 
@@ -87,10 +125,10 @@ namespace FmpSkeleton/Rules {
     pub def equiAibReference[r](): #{EquiCharacteristic, AibEquipment | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
-            EquiCharacteristic(aibref, "003", "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
+            EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
 
-            EquiCharacteristic(aibref, "003", "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
+            EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
         }
 
