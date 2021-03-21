@@ -17,7 +17,8 @@
 
 namespace AssetLib/S4Rel/Relations {
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlClassification, EquipmentData, EqClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
+        FlClassification, EquipmentData, EqMultilingualText, EqClassification};
 
 
     /// Arity 7
@@ -28,6 +29,10 @@ namespace AssetLib/S4Rel/Relations {
                         startupDate: Time.LocalDate, 
                         equipInstall: Bool, 
                         userStatus: String)
+
+    pub rel FlocLongText(funcloc: String, 
+                        description: String, 
+                        longText: String)
 
     /// Arity 4
     pub rel FlocCharacteristic(floc: String, className: String, charName: String, charValue: String)
@@ -46,6 +51,11 @@ namespace AssetLib/S4Rel/Relations {
                         superOrdinateEqui: String,
                         techIdentNo: String,
                         status: String)
+
+    pub rel EquiLongText(funcloc: String, 
+                        description: String, 
+                        longText: String)
+
 
     /// Arity 4
     pub rel EquiCharacteristic(equiId: String, className: String, charName: String, charValue: String)
@@ -79,6 +89,22 @@ namespace AssetLib/S4Rel/Relations {
         }
 
 
+    pub def toFlMultilingualText[r](src: #{ FlocLongText | r }): List[FlMultilingualText] = 
+        let buildStep = (x, ac) -> flocLongTextToUxl(x) :: ac;
+        let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
+        let xs = { fold FlocLongText Nil buildStep src };
+        List.sortWith(sortStep, xs)
+
+    def flocLongTextToUxl(x: (String, String, String)): FlMultilingualText = 
+        let (x1, x2, x3) = x;
+        { functionalLocation    = x1
+        , deleteIndicator       = false
+        , language              = "EN"
+        , description           = x2
+        , longText              = x3
+        }
+
+
     pub def toFlClassifications[r](src: #{ FlocCharacteristic | r }): List[FlClassification] = 
         let buildStep = (x, ac) -> flocCharacteristicToUxl(x) :: ac;
         let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
@@ -99,6 +125,61 @@ namespace AssetLib/S4Rel/Relations {
         , charValue             = x4
         , charDeletionInd       = false
         }
+
+    pub def toEquipmentData[r](src: #{ EquiDatum | r }): List[EquipmentData] = 
+        let buildStep = (x, ac) -> equiDatumToUxl(x) :: ac;
+        let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
+        let xs = { fold EquiDatum Nil buildStep src };
+        List.sortWith(sortStep, xs)
+
+
+    def equiDatumToUxl(x: (String, String, String,
+                            String, Time.LocalDate, String,
+                            String, String, String,
+                            String, String, String, 
+                            String)): EquipmentData = 
+        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) = x;
+        { equiId            = x1
+        , equipCategory     = x2
+        , description       = x3
+        , objectType        = x4
+        , grossWeight       = None
+        , unitOfWeight      = ""
+        , startupDate       = x5
+        , manufacturer      = x6
+        , modelNumber       = x7
+        , manufPartNo       = x8
+        , manufSerialNo     = x9
+        , constructYear     = Time/LocalDate.getYear(x5)
+        , constructMth      = Time/LocalDate.getMonth(x5)
+        , maintPlant        = 2100
+        , companyCode       = 2100
+        , coArea            = 1000
+        , planningPlant     = 2100
+        , functionalLoc     = x10
+        , superordEquip     = x11
+        , position          = None
+        , techIdentNo       = x12
+        , statusProfile     = "ZEQUIPST"
+        , statusOfAnObject  = x13
+        }
+
+
+    pub def toEqMultilingualText[r](src: #{ EquiLongText | r }): List[EqMultilingualText] = 
+        let buildStep = (x, ac) -> equiLongTextToUxl(x) :: ac;
+        let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
+        let xs = { fold EquiLongText Nil buildStep src };
+        List.sortWith(sortStep, xs)
+
+    def equiLongTextToUxl(x: (String, String, String)): EqMultilingualText = 
+        let (x1, x2, x3) = x;
+        { equiId                = x1
+        , deleteIndicator       = false
+        , language              = "EN"
+        , description           = x2
+        , longText              = x3
+        }
+
 
     pub def toEqClassifications[r](src: #{ EquiCharacteristic | r }): List[EqClassification] = 
         let buildStep = (x, ac) -> equiCharacteristicToUxl(x) :: ac;
