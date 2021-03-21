@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+/// Note - Datalog produces a bag of answers, not a set.
+/// If we are generating flocs from equipment we can expect duplicates
 
 namespace FmpSkeleton/Rules {
     
@@ -59,12 +61,142 @@ namespace FmpSkeleton/Rules {
                 Status(status, s4Status).
 
             EquiCharacteristic(aibref, "DISTBD", "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: DISTRIBUTION BOARD", _, _,  _, _, _,  _, _, _).
 
             EquiCharacteristic(aibref, "DISTBD", "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: DISTRIBUTION BOARD", _, _,  _, _, _,  _, _, _).
 
         }
+
+    pub def kiskki[r](): #{FlocDatum, EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+        use AssetLib/Common/Utils.{properCaseName};
+        #{
+            EquiDatum(aibref, 
+                            "C",
+                            properCaseName(description),
+                            "KISK",
+                            installedFrom,
+                            manufacturer,           
+                            model,
+                            partNumber,
+                            stringWithDefault(serialNumber, "UNKNOWN"),
+                            "${siteCode}-SIF-STM-BLG-SYS01",
+                            "",
+                            pandi,
+                            s4Status) :- 
+                AibEquipment(aibref, aibSite, description, "EQUIPMENT: KIOSK", 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                SiteMapping(aibSite, siteCode), 
+                Status(status, s4Status).
+
+            EquiCharacteristic(aibref, "KISKKI", "UNICLASS_CODE", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: KIOSK", _, _,  _, _, _,  _, _, _).
+
+            EquiCharacteristic(aibref, "KISKKI", "UNICLASS_DESC", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: KIOSK", _, _,  _, _, _,  _, _, _).
+
+
+            FlocDatum("${siteCode}-SIF", 
+                            "Control and Automation",
+                            "YW-GS",
+                            "SIF",
+                            installedFrom,           
+                            false,
+                            "UCON") :- 
+                AibEquipment(_, aibSite, _, "EQUIPMENT: KIOSK", 
+                    installedFrom, _, _, _, _, _, _, _), 
+                SiteMapping(aibSite, siteCode).
+                
+
+            FlocDatum("${siteCode}-SIF-STM", 
+                            "Networks",
+                            "YW-GS",
+                            "NET",
+                            installedFrom,           
+                            false,
+                            "UCON") :- 
+                AibEquipment(_, aibSite, _, "EQUIPMENT: KIOSK", 
+                    installedFrom, _, _, _, _, _, _, _), 
+                SiteMapping(aibSite, siteCode).
+
+        }
+
+    pub def netwtl[r](): #{FlocDatum, EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+        use AssetLib/Common/Utils.{properCaseName};
+        #{
+            EquiDatum(aibref, 
+                            "I",
+                            properCaseName(description),
+                            "NETW",
+                            installedFrom,
+                            manufacturer,           
+                            model,
+                            partNumber,
+                            stringWithDefault(serialNumber, "UNKNOWN"),
+                            "${siteCode}-CAA-NET-TEL-SYS01",
+                            "",
+                            pandi,
+                            s4Status) :- 
+                AibEquipment(aibref, aibSite, description, "EQUIPMENT: TELEMETRY OUTSTATION", 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                SiteMapping(aibSite, siteCode), 
+                Status(status, s4Status).
+
+            EquiCharacteristic(aibref, "NETWTL", "UNICLASS_CODE", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: TELEMETRY OUTSTATION", _, _,  _, _, _,  _, _, _).
+
+            EquiCharacteristic(aibref, "NETWTL", "UNICLASS_DESC", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: TELEMETRY OUTSTATION", _, _,  _, _, _,  _, _, _).
+
+            FlocDatum("${siteCode}-CAA", 
+                            "Control and Automation",
+                            "YW-GS",
+                            "CAA",
+                            installedFrom,           
+                            false,
+                            "UCON") :- 
+                AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
+                    installedFrom, _, _, _, _, _, _, _), 
+                SiteMapping(aibSite, siteCode).
+            
+
+            FlocDatum("${siteCode}-CAA-NET", 
+                            "Networks",
+                            "YW-GS",
+                            "NET",
+                            installedFrom,           
+                            false,
+                            "UCON") :- 
+                AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
+                    installedFrom, _, _, _, _, _, _, _), 
+                SiteMapping(aibSite, siteCode).
+            
+            FlocDatum("${siteCode}-CAA-NET-TEL", 
+                            "Telemetry",
+                            "YW-GS",
+                            "TEL",
+                            installedFrom,           
+                            false,
+                            "UCON") :- 
+                AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
+                    installedFrom, _, _, _, _, _, _, _), 
+                SiteMapping(aibSite, siteCode).
+            
+            FlocDatum("${siteCode}-CAA-NET-TEL-SYS01", 
+                            "Telemetry Outstation System",                            
+                            "YW-GS",
+                            "CTOS",
+                            installedFrom,       
+                            true,
+                            "UCON") :- 
+                AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
+                    installedFrom, _, _, _, _, _, _, _), 
+                SiteMapping(aibSite, siteCode).
+
+
+        }
+
+
 
     /// Level 2
     pub def electricalPowerSupply[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
