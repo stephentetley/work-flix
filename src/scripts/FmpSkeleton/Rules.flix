@@ -20,7 +20,7 @@
 namespace FmpSkeleton/Rules {
     
     use AssetLib/Facts/SiteMapping.{SiteMapping};
-    use AssetLib/AibRel/Relations.{AibFloc, AibEquipment};
+    use AssetLib/AibRel/HierarchicalRelations.{AibFloc, AibEquipment};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
 
 
@@ -42,15 +42,15 @@ namespace FmpSkeleton/Rules {
                             pandi,
                             s4Status) :- 
                 AibEquipment(aibref, aibSite, description, "EQUIPMENT: DISTRIBUTION BOARD", 
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 SiteMapping(aibSite, siteCode), 
                 Status(status, s4Status).
 
             EquiCharacteristic(aibref, "DISTBD", "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: DISTRIBUTION BOARD", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: DISTRIBUTION BOARD", _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "DISTBD", "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: DISTRIBUTION BOARD", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: DISTRIBUTION BOARD", _, _,  _, _, _,  _, _, _,  _).
 
         }
 
@@ -72,15 +72,15 @@ namespace FmpSkeleton/Rules {
                             pandi,
                             s4Status) :- 
                 AibEquipment(aibref, aibSite, description, "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", 
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 SiteMapping(aibSite, siteCode), 
                 Status(status, s4Status).
 
             EquiCharacteristic(aibref, "FSTNEM", "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "FSTNEM", "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", _, _,  _, _, _,  _, _, _,  _).
 
         }
 
@@ -101,15 +101,15 @@ namespace FmpSkeleton/Rules {
                             pandi,
                             s4Status) :- 
                 AibEquipment(aibref, aibSite, description, "EQUIPMENT: KIOSK", 
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _),
                 SiteMapping(aibSite, siteCode), 
                 Status(status, s4Status).
 
             EquiCharacteristic(aibref, "KISKKI", "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: KIOSK", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: KIOSK", _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "KISKKI", "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: KIOSK", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: KIOSK", _, _,  _, _, _,  _, _, _,  _).
 
 
             FlocDatum("${siteCode}-SIF", 
@@ -120,7 +120,7 @@ namespace FmpSkeleton/Rules {
                             false,
                             "UCON") :- 
                 AibEquipment(_, aibSite, _, "EQUIPMENT: KIOSK", 
-                    installedFrom, _, _, _, _, _, _, _), 
+                    installedFrom, _, _, _, _, _, _, _, _), 
                 SiteMapping(aibSite, siteCode).
                 
 
@@ -132,7 +132,7 @@ namespace FmpSkeleton/Rules {
                             false,
                             "UCON") :- 
                 AibEquipment(_, aibSite, _, "EQUIPMENT: KIOSK", 
-                    installedFrom, _, _, _, _, _, _, _), 
+                    installedFrom, _, _, _, _, _, _, _, _), 
                 SiteMapping(aibSite, siteCode).
 
         }
@@ -154,15 +154,15 @@ namespace FmpSkeleton/Rules {
                             pandi,
                             s4Status) :- 
                 AibEquipment(aibref, aibSite, description, "EQUIPMENT: TELEMETRY OUTSTATION", 
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 SiteMapping(aibSite, siteCode), 
                 Status(status, s4Status).
 
             EquiCharacteristic(aibref, "NETWTL", "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: TELEMETRY OUTSTATION", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: TELEMETRY OUTSTATION", _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "NETWTL", "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: TELEMETRY OUTSTATION", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: TELEMETRY OUTSTATION", _, _,  _, _, _,  _, _, _,  _).
 
             FlocDatum("${siteCode}-CAA", 
                             "Control and Automation",
@@ -172,7 +172,7 @@ namespace FmpSkeleton/Rules {
                             false,
                             "UCON") :- 
                 AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
-                    installedFrom, _, _, _, _, _, _, _), 
+                    installedFrom, _, _, _, _, _, _, _, _), 
                 SiteMapping(aibSite, siteCode).
             
 
@@ -184,7 +184,7 @@ namespace FmpSkeleton/Rules {
                             false,
                             "UCON") :- 
                 AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
-                    installedFrom, _, _, _, _, _, _, _), 
+                    installedFrom, _, _, _, _, _, _, _, _), 
                 SiteMapping(aibSite, siteCode).
             
             FlocDatum("${siteCode}-CAA-NET-TEL", 
@@ -195,7 +195,7 @@ namespace FmpSkeleton/Rules {
                             false,
                             "UCON") :- 
                 AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
-                    installedFrom, _, _, _, _, _, _, _), 
+                    installedFrom, _, _, _, _, _, _, _, _), 
                 SiteMapping(aibSite, siteCode).
             
             FlocDatum("${siteCode}-CAA-NET-TEL-SYS01", 
@@ -206,7 +206,7 @@ namespace FmpSkeleton/Rules {
                             true,
                             "UCON") :- 
                 AibEquipment(_, aibSite, _, "EQUIPMENT: TELEMETRY OUTSTATION", 
-                    installedFrom, _, _, _, _, _, _, _), 
+                    installedFrom, _, _, _, _, _, _, _, _), 
                 SiteMapping(aibSite, siteCode).
 
 
@@ -230,15 +230,15 @@ namespace FmpSkeleton/Rules {
                             pandi,
                             s4Status) :- 
                 AibEquipment(aibref, aibSite, description, "EQUIPMENT: POWER SUPPLY", 
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 SiteMapping(aibSite, siteCode), 
                 Status(status, s4Status).
 
             EquiCharacteristic(aibref, "PODETU", "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: POWER SUPPLY", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: POWER SUPPLY", _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "PODETU", "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: POWER SUPPLY", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: POWER SUPPLY", _, _,  _, _, _,  _, _, _,  _).
 
         }
 
@@ -259,22 +259,22 @@ namespace FmpSkeleton/Rules {
                             pandi,
                             s4Status) :- 
                 AibEquipment(aibref, aibSite, description, "EQUIPMENT: PRESSURE INSTRUMENT", 
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 SiteMapping(aibSite, siteCode), 
                 Status(status, s4Status).
 
             EquiCharacteristic(aibref, "PSTNDI", "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: PRESSURE INSTRUMENT", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: PRESSURE INSTRUMENT", _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "PSTNDI", "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  "EQUIPMENT: PRESSURE INSTRUMENT", _, _,  _, _, _,  _, _, _).
+                AibEquipment(aibref, _, _,  "EQUIPMENT: PRESSURE INSTRUMENT", _, _,  _, _, _,  _, _, _,  _).
 
         }
 
     /// Level 2
     pub def electricalPowerSupply[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
         FlocDatum("${siteCode}-E", "Electrical Power Supply", "YW-ES", "EPS", installedFrom, false, s4Status) :-
-            AibFloc(sainumber, commonName, aibSite, "ELECTRICAL SERVICES", installedFrom),
+            AibFloc(sainumber, commonName, aibSite, "ELECTRICAL SERVICES", installedFrom, _),
             SiteMapping(aibSite, siteCode),
             Status(status, s4Status).
     }
@@ -282,7 +282,7 @@ namespace FmpSkeleton/Rules {
     /// Level 3
     pub def lowVoltageDistribution[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
         FlocDatum("${siteCode}-E-LV", "Low Voltage Distribution", "YW-ES", "LVD", installedFrom, true, s4Status) :-
-            AibFloc(sainumber, commonName, aibSite, "ELECTRICITY SUPPLY", installedFrom),
+            AibFloc(sainumber, commonName, aibSite, "ELECTRICITY SUPPLY", installedFrom, _),
             SiteMapping(aibSite, siteCode),
             Status(status, s4Status).
     }
@@ -309,10 +309,10 @@ namespace FmpSkeleton/Rules {
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _).
 
             EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _).
         }
 
     /// TODO - not AibEquipment
@@ -320,10 +320,10 @@ namespace FmpSkeleton/Rules {
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             FlocCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _).
 
             FlocCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _).
         }
 
 
@@ -331,10 +331,10 @@ namespace FmpSkeleton/Rules {
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _).
 
             EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _).
         }
 
 

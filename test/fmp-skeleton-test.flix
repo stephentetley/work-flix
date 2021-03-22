@@ -1,4 +1,4 @@
-use AssetLib/AibRel/Relations.{AibFloc, AibEquipment};
+use AssetLib/AibRel/HierarchicalRelations.{AibSite, AibFloc, AibEquipment};
 use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
 
 
@@ -21,6 +21,7 @@ def main(_args: Array[String]): Int32 & Impure =
     r2 |> unsafeToString |> println;
     let r3 = project FlocDatum solns;
     r3 |> unsafeToString |> println;
+    temp01();
     0
 
 def getWorklist[r](): #{AibEquipment | r} = #{
@@ -29,19 +30,38 @@ def getWorklist[r](): #{AibEquipment | r} = #{
         "BROADWAY/(D450) FMP",  "DISTRIBUTION BOARD", "EQUIPMENT: DISTRIBUTION BOARD", 
         Time/LocalDate.new({year = 2001, month = 1, dayOfMonth = 1}),
         "UNKNOWN MANUFACTURER", "UNSPECIFIED", "", "", 
-        "SE6503208176", "", "OPERATIONAL").
+        "SE6503208176", "", "OPERATIONAL", "todo").
 
     AibEquipment("PLI00890075", 
         "BROADWAY/(D450) FMP",  "LUCI PILLAR", "EQUIPMENT: KIOSK", 
         Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1}),
         "UNKNOWN MANUFACTURER", "UNSPECIFIED", "", "", 
-        "SE6503208176", "", "OPERATIONAL").
+        "SE6503208176", "", "OPERATIONAL", "todo").
 
     AibEquipment("PLI00359982", 
         "BROADWAY/(D450) FMP",  "TELEMETRY OUTSTATION", "EQUIPMENT: TELEMETRY OUTSTATION", 
         Time/LocalDate.new({year = 2001, month = 1, dayOfMonth = 1}),
         "METASPHERE", "POINT BLUE", "", "11134501", 
-        "SE6503208176", "", "OPERATIONAL").
+        "SE6503208176", "", "OPERATIONAL", "todo").
 
 }
 
+
+/// def getEquipmentType(equiCommonName: String): String = 
+///     String.breakOnLeft("EQUIPMENT: ", equiCommonName) |> snd
+
+/// def getEquipmentName(parent: String, equiCommonName: String): String = 
+///     let s1 = String.breakOnRight("/EQUIPMENT: ", equiCommonName) |> fst
+///     breakOnLeft
+
+def temp01(): Unit & Impure = 
+    let path = System/FilePath.new("G:/work/assets/fmp-new-sites/sites/aib-export-deepcar-man-rd.xlsx");
+    let facts1 = AssetLib/AibRel/HierarchicalRelations.readAibSiteFacts(path);
+    let facts = solve Result.getWithDefault(facts1, #{});
+    let r1 = project AibSite facts;  
+    r1 |> unsafeToString |> println;
+    let r2 = project AibFloc facts;
+    r2 |> unsafeToString |> println;
+    let r3 = project AibEquipment facts;
+    r3 |> unsafeToString |> println;
+    ()
