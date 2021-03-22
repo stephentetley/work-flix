@@ -20,24 +20,10 @@
 namespace FmpSkeleton/Rules {
     
     use AssetLib/Facts/SiteMapping.{SiteMapping};
+    use AssetLib/AibRel/Relations.{AibFloc, AibEquipment};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
 
-    /// TODO - move into a common lib...
-    pub rel AibFloc(aibref: String, commonName: String, aibSite: String, node: String, installedFrom: Time.LocalDate)
 
-    /// TODO - move into a common lib...
-    pub rel AibEquipment(aibref: String, 
-                            aibSite : String, 
-                            description: String, 
-                            equipmentType: String, 
-                            installedFrom: Time.LocalDate, 
-                            manufacturer: String, 
-                            model: String, 
-                            partNumber: String, 
-                            serialNumber: String, 
-                            gridRef: String,
-                            pandiNumber: String, 
-                            status: String)
 
     pub def distdb[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
@@ -65,6 +51,36 @@ namespace FmpSkeleton/Rules {
 
             EquiCharacteristic(aibref, "DISTBD", "UNICLASS_DESC", "") :- 
                 AibEquipment(aibref, _, _,  "EQUIPMENT: DISTRIBUTION BOARD", _, _,  _, _, _,  _, _, _).
+
+        }
+
+
+    pub def fstnem[r](): #{FlocDatum, EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+        use AssetLib/Common/Utils.{properCaseName};
+        #{
+            EquiDatum(aibref, 
+                            "I",
+                            properCaseName(description),
+                            "FSTN",
+                            installedFrom,
+                            manufacturer,           
+                            model,
+                            partNumber,
+                            stringWithDefault(serialNumber, "UNKNOWN"),
+                            "${siteCode}-PWD-PDM-PCO-SYS01",
+                            "",
+                            pandi,
+                            s4Status) :- 
+                AibEquipment(aibref, aibSite, description, "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                SiteMapping(aibSite, siteCode), 
+                Status(status, s4Status).
+
+            EquiCharacteristic(aibref, "FSTNEM", "UNICLASS_CODE", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", _, _,  _, _, _,  _, _, _).
+
+            EquiCharacteristic(aibref, "FSTNEM", "UNICLASS_DESC", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: MAGNETIC FLOW INSTRUMENT", _, _,  _, _, _,  _, _, _).
 
         }
 
@@ -197,6 +213,63 @@ namespace FmpSkeleton/Rules {
         }
 
 
+    pub def podetu[r](): #{FlocDatum, EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+        use AssetLib/Common/Utils.{properCaseName};
+        #{
+            EquiDatum(aibref, 
+                            "E",
+                            properCaseName(description),
+                            "PODE",
+                            installedFrom,
+                            manufacturer,           
+                            model,
+                            partNumber,
+                            stringWithDefault(serialNumber, "UNKNOWN"),
+                            "${siteCode}-CAA-NET-TEL-SYS01",
+                            "",
+                            pandi,
+                            s4Status) :- 
+                AibEquipment(aibref, aibSite, description, "EQUIPMENT: POWER SUPPLY", 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                SiteMapping(aibSite, siteCode), 
+                Status(status, s4Status).
+
+            EquiCharacteristic(aibref, "PODETU", "UNICLASS_CODE", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: POWER SUPPLY", _, _,  _, _, _,  _, _, _).
+
+            EquiCharacteristic(aibref, "PODETU", "UNICLASS_DESC", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: POWER SUPPLY", _, _,  _, _, _,  _, _, _).
+
+        }
+
+    pub def pstnem[r](): #{FlocDatum, EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+        use AssetLib/Common/Utils.{properCaseName};
+        #{
+            EquiDatum(aibref, 
+                            "I",
+                            properCaseName(description),
+                            "PSTN",
+                            installedFrom,
+                            manufacturer,           
+                            model,
+                            partNumber,
+                            stringWithDefault(serialNumber, "UNKNOWN"),
+                            "${siteCode}-PWD-PDM-PCO-SYS01",
+                            "",
+                            pandi,
+                            s4Status) :- 
+                AibEquipment(aibref, aibSite, description, "EQUIPMENT: PRESSURE INSTRUMENT", 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status), 
+                SiteMapping(aibSite, siteCode), 
+                Status(status, s4Status).
+
+            EquiCharacteristic(aibref, "PSTNDI", "UNICLASS_CODE", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: PRESSURE INSTRUMENT", _, _,  _, _, _,  _, _, _).
+
+            EquiCharacteristic(aibref, "PSTNDI", "UNICLASS_DESC", "") :- 
+                AibEquipment(aibref, _, _,  "EQUIPMENT: PRESSURE INSTRUMENT", _, _,  _, _, _,  _, _, _).
+
+        }
 
     /// Level 2
     pub def electricalPowerSupply[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{

@@ -1,6 +1,6 @@
-
+use AssetLib/AibRel/Relations.{AibFloc, AibEquipment};
 use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
-use FmpSkeleton/Rules.{AibEquipment};
+
 
 def main(_args: Array[String]): Int32 & Impure =
     Console.printLine("Running...");
