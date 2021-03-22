@@ -128,11 +128,11 @@ namespace AssetLib/AibRel/HierarchicalRelations {
             let (parent, stack1) = getParent(x.commonName, stack);
             let r1 = { 
                 if (String.contains(x.commonName, "EQUIPMENT:"))
-                    #{ AibEquipment(x.reference, siteName, getNodeName(x.commonName, stack1),
-                                getParentName(stack1), 
-                                x.installedFrom, x.manufacturer, x.model, 
-                                x.specificModelFrame, x.serialNumber, x.gridRef,
-                                x.pandiTag, x.assetStatus, parent.reference). }
+                    #{ AibEquipment(x.reference, siteName, getParentName(stack1),
+                                    getNodeName(x.commonName, stack1),                                 
+                                    x.installedFrom, x.manufacturer, x.model, 
+                                    x.specificModelFrame, x.serialNumber, x.gridRef,
+                                    x.pandiTag, x.assetStatus, parent.reference). }
                 else
                     #{ AibFloc(x.reference, siteName, x.commonName, getNodeName(x.commonName, stack1), x.installedFrom, parent.reference). }
             };

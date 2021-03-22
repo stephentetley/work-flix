@@ -25,7 +25,7 @@ namespace FmpSkeleton/Rules {
 
 
 
-    pub def distdb[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def distbd[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
