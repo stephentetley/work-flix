@@ -45,16 +45,14 @@ namespace FmpSkeleton/Main {
             None
 
     def processSiteFile[r](siteMapping: #{SiteMapping, AibSite, AibFloc, AibEquipment, FlocDatum, 
-                                            EquiDatum, EquiCharacteristic, Status, EqRecognized | r}, 
+                                            EquiDatum, EquiCharacteristic, Status | r}, 
                             src: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* facts  = AssetLib/AibRel/HierarchicalRelations.readAibSiteFacts(src);
         let solns   = solve (FmpSkeleton/Rules.equiRules() <+> FmpSkeleton/Rules.status() <+> siteMapping <+> facts);
-        let r1      = project AibSite solns;
-        let _       = r1 |> unsafeToString |> println;
-        let r2      = project AibEquipment solns;
-        let _       = r2 |> unsafeToString |> println;
-        let _       = project EquiDatum solns |> unsafeToString |> println;
+        let _       = (project AibSite solns) |> unsafeToString |> println;
+        let _       = (project AibEquipment solns) |> unsafeToString |> println;
+        let _       = (project EquiDatum solns) |> unsafeToString |> println;
         let _       = (project EquiCharacteristic solns) |> unsafeToString |> println;
         Ok()
 

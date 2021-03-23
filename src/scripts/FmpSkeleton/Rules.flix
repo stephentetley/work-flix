@@ -23,9 +23,9 @@ namespace FmpSkeleton/Rules {
     use AssetLib/AibRel/HierarchicalRelations.{AibFloc, AibEquipment};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
 
-    pub def equiRules[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status, EqRecognized | r} = 
+    pub def equiRules[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         eqDISTBD() <+> eqFSTNEM() <+> eqKISKKI() <+> eqNETWTL() <+> eqPODETU() <+> eqPSTNEM() 
-            <+> eqRecognized() <+> eqEAST_NORTH() <+> eqAIB_REFERENCE()
+            <+> eqEAST_NORTH() <+> eqAIB_REFERENCE()
     
     pub rel Status(aib: String, s4: String)
 
@@ -36,18 +36,6 @@ namespace FmpSkeleton/Rules {
         Status("NON-OPERATIONAL", "NOP").
     }
 
-    pub rel EqRecognized(equiType: String)
-
-    /// Mapping is total.
-    /// Don't map "DISPOSED OF"
-    pub def eqRecognized[r](): #{EqRecognized | r} = #{
-        EqRecognized("EQUIPMENT: DISTRIBUTION BOARD").
-        EqRecognized("EQUIPMENT: MAGNETIC FLOW INSTRUMENT").
-        EqRecognized("EQUIPMENT: KIOSK").
-        EqRecognized("EQUIPMENT: TELEMETRY OUTSTATION").
-        EqRecognized("EQUIPMENT: POWER SUPPLY").
-        EqRecognized("EQUIPMENT: PRESSURE INSTRUMENT").
-    }
 
 
     pub def eqDISTBD[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
@@ -225,28 +213,28 @@ namespace FmpSkeleton/Rules {
         }
 
 
-    pub def eqEAST_NORTH[r](): #{EquiCharacteristic, AibEquipment, EqRecognized | r} = 
+    pub def eqEAST_NORTH[r](): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
                 AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  ngr, _, _,  _),
-                EqRecognized(equiType).
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  ngr, _, _,  _),
-                EqRecognized(equiType).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
         }
 
-    pub def eqAIB_REFERENCE[r](): #{EquiCharacteristic, AibEquipment, EqRecognized | r} = 
+    pub def eqAIB_REFERENCE[r](): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                EqRecognized(equiType).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                EqRecognized(equiType).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
         }
 
 
