@@ -52,7 +52,7 @@ namespace AssetLib/S4Rel/Relations {
                         techIdentNo: String,
                         status: String)
 
-    pub rel EquiLongText(funcloc: String, 
+    pub rel EquiLongText(equiId: String, 
                         description: String, 
                         longText: String)
 
