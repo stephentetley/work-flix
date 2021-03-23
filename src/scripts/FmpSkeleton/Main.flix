@@ -19,7 +19,7 @@ namespace FmpSkeleton/Main {
     use AssetLib/Facts/SiteMapping.{SiteMapping};
     use AssetLib/AibRel/HierarchicalRelations.{AibSite, AibFloc, AibEquipment};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
-    use FmpSkeleton/Rules.{Status};
+    use FmpSkeleton/Rules.{Status, EqRecognized};
 
     type alias Config = 
         { siteMappingFile: System.FilePath
@@ -44,15 +44,18 @@ namespace FmpSkeleton/Main {
         else 
             None
 
-    def processSiteFile[r](siteMapping: #{SiteMapping, AibSite, AibFloc, AibEquipment, FlocDatum, EquiDatum, EquiCharacteristic, Status | r}, 
+    def processSiteFile[r](siteMapping: #{SiteMapping, AibSite, AibFloc, AibEquipment, FlocDatum, 
+                                            EquiDatum, EquiCharacteristic, Status, EqRecognized | r}, 
                             src: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* facts = AssetLib/AibRel/HierarchicalRelations.readAibSiteFacts(src);
-        let solns   = solve (FmpSkeleton/Rules.distbd() <+> FmpSkeleton/Rules.kiskki() <+> siteMapping <+> facts);
-        let r1      = project AibEquipment solns;
+        let* facts  = AssetLib/AibRel/HierarchicalRelations.readAibSiteFacts(src);
+        let solns   = solve (FmpSkeleton/Rules.equiRules() <+> FmpSkeleton/Rules.status() <+> siteMapping <+> facts);
+        let r1      = project AibSite solns;
         let _       = r1 |> unsafeToString |> println;
-        let r2      = project EquiDatum solns;
+        let r2      = project AibEquipment solns;
         let _       = r2 |> unsafeToString |> println;
+        let _       = project EquiDatum solns |> unsafeToString |> println;
+        let _       = (project EquiCharacteristic solns) |> unsafeToString |> println;
         Ok()
 
 
