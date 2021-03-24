@@ -17,8 +17,7 @@
 
 namespace AssetLib/S4Rel/Renumber {
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
-        FlClassification, EquipmentData, EqMultilingualText, EqClassification};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
 
     /// 9-digit
     pub def start(): Int32 & Impure = 

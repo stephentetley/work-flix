@@ -19,27 +19,43 @@ namespace AssetLib/S4Rel/EmitUxl {
 
     use SheetIO.SheetWriter;
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, FunctionalLocationData, FlClassification};
-    use AssetLib/S4Rel/Relations.{FlocDatum, FlocLongText, FlocCharacteristic};
+    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
+        FunctionalLocationData, FlMultilingualText, FlClassification, 
+        EquipmentData, EqMultilingualText, EqClassification};
+    use AssetLib/S4Rel/Relations.{FlocDatum, FlocLongText, FlocCharacteristic, 
+        EquiDatum, EquiLongText, EquiCharacteristic};
 
     /// TODO include Equi...
 
     pub def outputUxl[r](changeRequestName: String,
-                            solutions: #{FlocDatum, FlocCharacteristic | r},
+                            solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
+                                            EquiDatum, EquiLongText, EquiCharacteristic | r},
                             uxlTemplate: System.FilePath,
                             outpath: System.FilePath): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(emitUxl(changeRequestName, solutions), uxlTemplate, outpath)
 
 
     pub def emitUxl[r](changeRequestName: String,
-                        solutions: #{FlocDatum, FlocCharacteristic | r}): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, return};
-        let xs      = AssetLib/S4Rel/Relations.toFunctionalLocationData(solutions);
-        let crs     = makeChangeRequestDetails(changeRequestName, List.map(x -> x.functionalLocation, xs), Nil);
-        let* _      = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crs);        
-        let* _      = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFunctionalLocationData(xs);
-        let ys      = AssetLib/S4Rel/Relations.toFlClassifications(solutions);
-        let* _      = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlClassification(ys);
+                        solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
+                                        EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, return, liftAction};
+        let flocs       = AssetLib/S4Rel/Relations.toFunctionalLocationData(solutions);
+        let flmltxts    = AssetLib/S4Rel/Relations.toFlMultilingualText(solutions);
+        let flchars     = AssetLib/S4Rel/Relations.toFlClassifications(solutions);
+        let equis       = AssetLib/S4Rel/Relations.toEquipmentData(solutions);
+        let eqmltxts    = AssetLib/S4Rel/Relations.toEqMultilingualText(solutions);
+        let eqchars     = AssetLib/S4Rel/Relations.toEqClassifications(solutions);
+        let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/S4Rel/Renumber.renumber(equis, eqmltxts, eqchars));
+        let flocNames   = List.map(x -> x.functionalLocation, flocs);
+        let equiNames   = List.map(x -> x.equiId, equis1);
+        let crs         = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crs);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlMultilingualText(flmltxts);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlClassification(flchars);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEquipmentData(equis1);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqMultilingualText(eqmltxts1);
+        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqClassification(eqchar1s);
         return()
 
 
