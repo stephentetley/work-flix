@@ -45,6 +45,7 @@ namespace AssetLib/S4Rel/EmitUxl {
         let equis       = AssetLib/S4Rel/Relations.toEquipmentData(solutions);
         let eqmltxts    = AssetLib/S4Rel/Relations.toEqMultilingualText(solutions);
         let eqchars     = AssetLib/S4Rel/Relations.toEqClassifications(solutions);
+        let* _          = liftAction(_ -> Console.printLine("**** equi count: ${List.length(equis)}"));
         let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/S4Rel/Renumber.renumber(equis, eqmltxts, eqchars));
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
         let equiNames   = List.map(x -> x.equiId, equis1);

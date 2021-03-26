@@ -25,6 +25,10 @@ namespace AssetLib/S4/FileIO/TransferFile/Builtins {
     use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
     use AssetLib/S4/FileIO/TransferFile.RowSetter;
 
+
+    /// Note - it doesn't make sense to have outputters for Funcloc and Equi files.
+    /// An update will use a use-case specific subset of the columns.
+
     /// IFLOTX
 
     type alias IflotxRow = 
