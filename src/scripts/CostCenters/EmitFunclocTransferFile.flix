@@ -56,8 +56,8 @@ namespace CostCenters/EmitFunclocTransferFile {
         }
     }
 
-    instance Hash[Floc] {
-        pub def hash(x: Floc): Int32 = Hash.hash(ToString.toString(x))
+    instance Hash[Origin] {
+        pub def hash(x: Origin): Int32 = Hash.hash(ToString.toString(x))
     }
 
 
