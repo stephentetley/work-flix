@@ -19,19 +19,19 @@ namespace CostCenters/Main {
 
     use CostCenters/EmitFunclocTransferFile.CCUpdateRow;
 
-    pub def main1(src: System.FilePath, destDir: System.FilePath, groupSize: Int32): Result[Unit, String] & Impure = 
+    pub def main1(src: System.FilePath, destDir: System.FilePath, groupSize: Int32, fileNameBase: String): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* xs     = CostCenters/ReadDataSheet.readCostCentersFile(src);
         let _       = Console.printLine("List length xs: ${List.length(xs)}");
         let gss     = groupsOf(groupSize, xs);
-        let output1 = (gs1, n) -> outputBatch("tetleys", destDir, n + 1, gs1);
+        let output1 = (gs1, n) -> outputBatch("tetleys", destDir, fileNameBase, n + 1, gs1);
         let _       = foreachWithIndex(output1, gss);
         Ok()
 
 
-    def outputBatch(user: String, outputDir: System.FilePath, n: Int32, xs: List[CCUpdateRow]): Unit & Impure = 
+    def outputBatch(user: String, outputDir: System.FilePath, fileNameBase: String, n: Int32, xs: List[CCUpdateRow]): Unit & Impure = 
         let suffix  = String.padLeft(3, '0', ToString.toString(n)); 
-        let name    = "cc_upload_batch_${suffix}.txt";
+        let name    = "${fileNameBase}_${suffix}.txt";
         let path    = System/FilePath.append(outputDir, System/FilePath.new(name));
         match CostCenters/EmitFunclocTransferFile.outputFunclocFile(user, xs, path) { 
             case Err(msg) => Console.printLine("Error: ${msg}")
