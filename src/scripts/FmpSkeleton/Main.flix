@@ -32,9 +32,9 @@ namespace FmpSkeleton/Main {
         use Result.{flatMap};
         let* siteMapping    = AssetLib/Facts/SiteMapping.getSiteMapping(config.siteMappingFile);
         let _               = Console.printLine("Site map has been read...");
-        let* xs             = Option.toOk(System/Directory.contents(config.sourceDir), "fail1");
+        let* xs             = System/Directory.contents(config.sourceDir) |> Cursor.toList;
         let files           = List.filterMap(checkIsSourceFile, xs);
-        let* _              = Result.traverseX(processSiteFile(siteMapping, config.uxlTemplate), files);
+        let* _              = Result.traverseX(processSiteFile(siteMapping, config.uxlTemplate, "Sheet1"), files);
         Ok()
 
     def checkIsSourceFile(x: System.FilePath): Option[System.FilePath] = 
@@ -50,9 +50,10 @@ namespace FmpSkeleton/Main {
                                             FlocDatum, FlocLongText, FlocCharacteristic,
                                             EquiDatum, EquiLongText, EquiCharacteristic, Status | r},
                             uxlTemplate: System.FilePath, 
+                            sheetName: String,
                             src: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* facts      = AssetLib/AibRel/HierarchicalRelations.readAibSiteFacts(src);
+        let* facts      = AssetLib/AibRel/HierarchicalRelations.readAibSiteFacts(sheetName, src);
         let solns       = solve (FmpSkeleton/Rules.equiRules() <+> FmpSkeleton/Rules.status() <+> siteMapping <+> facts);        
         let siteName    = (x, _) -> {let (_, name, _) = x; name};
         let longname    = fold AibSite "temp" siteName solns;

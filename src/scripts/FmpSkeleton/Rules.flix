@@ -294,7 +294,7 @@ namespace FmpSkeleton/Rules {
     /// Level 2
     pub def electricalPowerSupply[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
         FlocDatum("${siteCode}-E", "Electrical Power Supply", "YW-ES", "EPS", installedFrom, false, s4Status) :-
-            AibFloc(sainumber, commonName, aibSite, "ELECTRICAL SERVICES", installedFrom, _),
+            AibFloc(sainumber, commonName, aibSite, "ELECTRICAL SERVICES", installedFrom, _, _),
             SiteMapping(aibSite, siteCode),
             Status(status, s4Status).
     }
@@ -302,7 +302,7 @@ namespace FmpSkeleton/Rules {
     /// Level 3
     pub def lowVoltageDistribution[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
         FlocDatum("${siteCode}-E-LV", "Low Voltage Distribution", "YW-ES", "LVD", installedFrom, true, s4Status) :-
-            AibFloc(sainumber, commonName, aibSite, "ELECTRICITY SUPPLY", installedFrom, _),
+            AibFloc(sainumber, commonName, aibSite, "ELECTRICITY SUPPLY", installedFrom, _, _),
             SiteMapping(aibSite, siteCode),
             Status(status, s4Status).
     }

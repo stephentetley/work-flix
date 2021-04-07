@@ -22,12 +22,17 @@ namespace AssetLib/AibRel/HierarchicalRelations {
 
     pub rel AibSite(aibref: String, name: String, gridref: String)
 
-    /// Arity 6
+
+    /// TODO - I don't think we should have `aibSite` as a Floc or Equi field
+    /// as it can't be derived from a system is root (rather than a site is root) export.
+
+    /// Arity 7
     pub rel AibFloc(aibref: String, 
                     aibSite: String, 
                     commonName: String, 
                     nodeName: String, 
                     installedFrom: Time.LocalDate, 
+                    gridRef: String,
                     parentRef: String)
 
     /// Arity 13
@@ -61,17 +66,17 @@ namespace AssetLib/AibRel/HierarchicalRelations {
         , specificModelFrame: String
         }
 
-    pub def readAibSiteFacts[r](path: System.FilePath): Result[#{AibSite, AibFloc, AibEquipment | r}, String] & Impure =
+    pub def readAibSiteFacts[r](sheetName: String, path: System.FilePath): Result[#{AibSite, AibFloc, AibEquipment | r}, String] & Impure =
         use Result.{flatMap, map};
         let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName) |> Order.toInt;
-        let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(), path) |> map(List.sortWith(cmp));
-        let facts = extractFacts(xs);
+        let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(sheetName), path) |> map(List.sortWith(cmp));
+        let facts = extractSiteFacts(xs);
         Ok(facts)
 
 
-    pub def readAibSheet(): SheetReader[List[AibRow]] = 
+    pub def readAibSheet(sheetName: String): SheetReader[List[AibRow]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
-        let* s1     = getSheetNamed("Sheet1");
+        let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(s1, evalAibRow());
         return(xs)
 
@@ -102,7 +107,7 @@ namespace AssetLib/AibRel/HierarchicalRelations {
             <*> withDefault(getContentNamed("Serial No"), "")
             <*> withDefault(getContentNamed("Specific Model/Frame"), "")
 
-    def extractFacts[r](xs: List[AibRow]): #{AibSite, AibFloc, AibEquipment |r} = 
+    def extractSiteFacts[r](xs: List[AibRow]): #{AibSite, AibFloc, AibEquipment |r} = 
         getSite(xs) <+> getDescendants(xs)
         
 
@@ -113,7 +118,7 @@ namespace AssetLib/AibRel/HierarchicalRelations {
     }
     
     /// First node is site
-    /// Spelling reminder - descendants with "dants" (things which descend from)
+    /// Spelling reminder for me - descendants with "dants" (things which descend from)
     def getDescendants[r](xs: List[AibRow]): #{AibFloc, AibEquipment |r} = match xs {
         case x :: rs => getDescendantsHelper(x.commonName, Nel(x, Nil), #{}, rs)
         case Nil => #{}
@@ -134,7 +139,13 @@ namespace AssetLib/AibRel/HierarchicalRelations {
                                     x.specificModelFrame, x.serialNumber, x.gridRef,
                                     x.pandiTag, x.assetStatus, parent.reference). }
                 else
-                    #{ AibFloc(x.reference, siteName, x.commonName, getNodeName(x.commonName, stack1), x.installedFrom, parent.reference). }
+                    #{ AibFloc(x.reference, 
+                                siteName, 
+                                x.commonName, 
+                                getNodeName(x.commonName, stack1), 
+                                x.installedFrom, 
+                                x.gridRef,
+                                parent.reference). }
             };
             getDescendantsHelper(siteName, Nel.cons(x, stack1), r1 <+> ac, rs)
         }
