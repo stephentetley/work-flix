@@ -17,7 +17,8 @@
 namespace ValveReport/Rules {
 
     use AssetLib/AibRel/HierarchicalRelations.{AibFloc, AibEquipment};
-    use AssetLib/AibRel/Agasp.{AssetCondition, ConditionGrade, ConditionGradeReason};
+    use AssetLib/AibRel/AssetCondition.{ConditionGrade, ConditionGradeReason, 
+        PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
     use ValveReport/Relations.{ValveAttribs, ValveUserData};
 

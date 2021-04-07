@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/AibRel/Agasp {
+namespace AssetLib/AibRel/AssetCondition {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
@@ -36,24 +36,24 @@ namespace AssetLib/AibRel/Agasp {
     /// Read from Aib file...
 
 
-    pub def readAgaspFacts[r](sheetName: String, 
+    pub def readAgaspFile[r](sheetName: String, 
                                 path: System.FilePath): Result[#{ConditionGrade, ConditionGradeReason, 
                                                                 PerformanceGrade, PerformanceGradeReason, 
                                                                 LoadingFactor, LoadingFactorReason, SurveyYear| r}, String] & Impure =
-        SheetIO/SheetReader.runXlsx(readAibSheet(sheetName), path)
+        SheetIO/SheetReader.runXlsx(readAgaspSheet(sheetName), path)
         
 
-    pub def readAibSheet[r](sheetName: String): SheetReader[#{ConditionGrade, ConditionGradeReason, 
+    pub def readAgaspSheet[r](sheetName: String): SheetReader[#{ConditionGrade, ConditionGradeReason, 
                                                                 PerformanceGrade, PerformanceGradeReason, 
                                                                 LoadingFactor, LoadingFactorReason, SurveyYear| r}] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, evalAibRow());
+        let* xs     = allNamedRows(s1, evalRow());
         let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
         return(relns)
 
 
-    def evalAibRow[r](): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
+    def evalRow[r](): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
                                             PerformanceGrade, PerformanceGradeReason, 
                                             LoadingFactor, LoadingFactorReason, SurveyYear| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, optional, getContentNamed, getInt32Named}; 
