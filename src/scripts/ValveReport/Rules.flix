@@ -17,6 +17,7 @@
 namespace ValveReport/Rules {
 
     use AssetLib/AibRel/HierarchicalRelations.{AibFloc, AibEquipment};
+    use AssetLib/AibRel/Agasp.{AssetCondition, ConditionGrade, ConditionGradeReason};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
     use ValveReport/Relations.{ValveAttribs, ValveUserData};
 
@@ -29,7 +30,10 @@ namespace ValveReport/Rules {
     def stringWithDefault(s: String, d: String): String = if (String.isEmpty(s)) d else s
 
 
-    pub def eqVALV[r](): #{ValveTypeMap3, ValveAttribs, ValveUserData, EquiDatum, EquiCharacteristic, AibEquipment | r} = 
+    pub def eqVALV[r](): #{AssertIsValve, ValveTypeMap3, 
+                            ValveAttribs, ValveUserData, 
+                            ConditionGrade,
+                            EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiDatum(aibref, 
@@ -51,7 +55,7 @@ namespace ValveReport/Rules {
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
                 AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                ValveAttribs(aibref, valveType, _, _,),
+                ValveAttribs(aibref, valveType, _, _),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_DESC", "") :- 
@@ -96,14 +100,24 @@ namespace ValveReport/Rules {
 
             EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
                 AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                ValveAttribs(aibref, valveType, _, _),
-                ValveTypeMap3(equiType, valveType, _).
+                AssetIsValve(aibref).    
 
             /// TODO "AIB_REFERENCE", "AI2_AIB_REFERENCE" Parent (SAI)
 
+            EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE", ToString.toString(grade)) :- 
+                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
+                AssetIsValve(aibref), 
+                ConditionGrade(aibref, grade).
+
+            /// Does this work?
+            AssertIsValve(aibref) :- 
+                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
+                ValveAttribs(aibref, valveType, _, _),
+                ValveTypeMap3(equiType, valveType, _).
 
         }
+
+    rel AssertIsValve(aibref: String)
 
     rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
 
