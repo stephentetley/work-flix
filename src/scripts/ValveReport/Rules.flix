@@ -31,7 +31,7 @@ namespace ValveReport/Rules {
     def stringWithDefault(s: String, d: String): String = if (String.isEmpty(s)) d else s
 
 
-    pub def eqVALV(): #{AssertIsValve, ValveTypeMap3, 
+    pub def eqVALV(): #{ValveTypeMap3, 
                         ValveAttribs, ValveUserData, 
                         ConditionGrade,
                         EquiDatum, EquiCharacteristic, AibEquipment | r} = 
@@ -50,75 +50,72 @@ namespace ValveReport/Rules {
                             "",
                             pandi,
                             s4Status(status)) :- 
-                AibEquipment(aibref, aibSite, description, equiType, 
+                AibEquipment(aibref, description, equiType, 
                     installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 ValveUserData(aibref, s4Name, suppliedFloc, _).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, _),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_DESC", "") :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, _),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "LOCATION_ON_SITE", locationOnSite) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, locationOnSite),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", ToString.toString(sizeMM)) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, sizeMM, _),
                 ValveTypeMap3(equiType, valveType, valvClass).                
 
-            /// EAST_NORTH
+            /// The rules below should be "modular" - they use EquiDatum as an existence test to prevent 
+            /// firing for all types of equipment not just valves which are made by the above rules.
+            /// The could be moved into a separate files (if they fire as expected...)
+
+            /// EAST_NORTH (generate if have generated EquiDatum from AibEquipment)
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  ngr, _, _,  _),
-                ValveAttribs(aibref, valveType, _, _),
-                ValveTypeMap3(equiType, valveType, _).
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  ngr, _, _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
             EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  ngr, _, _,  _),
-                ValveAttribs(aibref, valveType, _, _),
-                ValveTypeMap3(equiType, valveType, _).
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  ngr, _, _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
             /// SOLUTION_ID
-            EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionnId) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  ngr, _, _,  _),
-                ValveUserData(aibref, _, _, solutionnId),
-                ValveAttribs(aibref, valveType, _, _),
-                ValveTypeMap3(equiType, valveType, _).
+            EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+                ValveUserData(aibref, _, _, solutionId),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
-            /// AIB_REFERENCE
+            /// AIB_REFERENCE (item)
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                ValveAttribs(aibref, valveType, _, _),
-                ValveTypeMap3(equiType, valveType, _).
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
+            /// AI2_AIB_REFERENCE (parent)
+            EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", parent) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, parent),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
+
+            /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                AssetIsValve(aibref).    
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
-            /// TODO "AIB_REFERENCE", "AI2_AIB_REFERENCE" Parent (SAI)
-
+            /// ASSET_CONDITION
             EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE", ToString.toString(grade)) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                AssetIsValve(aibref), 
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 ConditionGrade(aibref, grade).
-
-            /// Does this work?
-            AssertIsValve(aibref) :- 
-                AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  _, _, _,  _),
-                ValveAttribs(aibref, valveType, _, _),
-                ValveTypeMap3(equiType, valveType, _).
 
         }
 
-    rel AssertIsValve(aibref: String)
 
     rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
 

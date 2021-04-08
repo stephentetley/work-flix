@@ -24,21 +24,20 @@ namespace AssetLib/AibRel/HierarchicalRelations {
     pub rel RootNode(aibref: String, name: String, gridref: String)
 
 
-    /// TODO - I don't think we should have `aibSite` as a Floc or Equi field
-    /// as it can't be derived from a system is root (rather than a site is root) export.
+    /// Note - I don't think we should have `aibSite` as a Floc or Equi field
+    /// as it can't be derived from an export when a system is root rather than 
+    /// when a site is root.
 
-    /// Arity 7
+    /// Arity 6
     pub rel AibFloc(aibref: String, 
-                    aibSite: String, 
                     commonName: String, 
                     nodeName: String, 
                     installedFrom: Time.LocalDate, 
                     gridRef: String,
                     parentRef: String)
 
-    /// Arity 13
+    /// Arity 12
     pub rel AibEquipment(aibref: String, 
-                        aibSite: String, 
                         description: String, 
                         equipmentType: String, 
                         installedFrom: Time.LocalDate, 
@@ -122,34 +121,39 @@ namespace AssetLib/AibRel/HierarchicalRelations {
     /// First node is root which we put on a a stack...
     /// Spelling reminder for me - descendants with "dants" (things which descend from)
     def getDescendants(xs: List[AibRow]): #{AibFloc, AibEquipment |r} = match xs {
-        case x :: rs => getDescendantsHelper(x.commonName, Nel(x, Nil), #{}, rs)
+        case x :: rs => getDescendantsHelper(Nel(x, Nil), #{}, rs)
         case Nil => #{}
     }
     
     /// Parent or stack of parents?
-    def getDescendantsHelper(siteName: String, 
-                             stack: Nel[AibRow], 
+    def getDescendantsHelper(stack: Nel[AibRow], 
                              ac: #{AibFloc, AibEquipment |r}, 
                              xs: List[AibRow]): #{AibFloc, AibEquipment |r} = match xs {
         case x :: rs => { 
             let (parent, stack1) = getParent(x.commonName, stack);
             let r1 = { 
                 if (String.contains(x.commonName, "EQUIPMENT:"))
-                    #{ AibEquipment(x.reference, siteName, getParentName(stack1),
+                    #{ AibEquipment(x.reference, 
+                                    getParentName(stack1),
                                     getNodeName(x.commonName, stack1),                                 
-                                    x.installedFrom, x.manufacturer, x.model, 
-                                    x.specificModelFrame, x.serialNumber, x.gridRef,
-                                    x.pandiTag, x.assetStatus, parent.reference). }
+                                    x.installedFrom, 
+                                    x.manufacturer, 
+                                    x.model, 
+                                    x.specificModelFrame, 
+                                    x.serialNumber, 
+                                    x.gridRef,
+                                    x.pandiTag, 
+                                    x.assetStatus, 
+                                    parent.reference). }
                 else
                     #{ AibFloc(x.reference, 
-                                siteName, 
                                 x.commonName, 
                                 getNodeName(x.commonName, stack1), 
                                 x.installedFrom, 
                                 x.gridRef,
                                 parent.reference). }
             };
-            getDescendantsHelper(siteName, Nel.cons(x, stack1), r1 <+> ac, rs)
+            getDescendantsHelper(Nel.cons(x, stack1), r1 <+> ac, rs)
         }
         case Nil => ac
     }
