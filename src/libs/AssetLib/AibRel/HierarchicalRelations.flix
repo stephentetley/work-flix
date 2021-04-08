@@ -20,7 +20,8 @@ namespace AssetLib/AibRel/HierarchicalRelations {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    pub rel AibSite(aibref: String, name: String, gridref: String)
+    /// May be a Site or a "process"
+    pub rel RootNode(aibref: String, name: String, gridref: String)
 
 
     /// TODO - I don't think we should have `aibSite` as a Floc or Equi field
@@ -66,11 +67,12 @@ namespace AssetLib/AibRel/HierarchicalRelations {
         , specificModelFrame: String
         }
 
-    pub def readAibSiteFacts[r](sheetName: String, path: System.FilePath): Result[#{AibSite, AibFloc, AibEquipment | r}, String] & Impure =
+    pub def readHierarchyFacts(sheetName: String, 
+                                path: System.FilePath): Result[#{RootNode, AibFloc, AibEquipment | r}, String] & Impure =
         use Result.{flatMap, map};
         let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName) |> Order.toInt;
         let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(sheetName), path) |> map(List.sortWith(cmp));
-        let facts = extractSiteFacts(xs);
+        let facts = extractHierarchyFacts(xs);
         Ok(facts)
 
 
@@ -107,28 +109,28 @@ namespace AssetLib/AibRel/HierarchicalRelations {
             <*> withDefault(getContentNamed("Serial No"), "")
             <*> withDefault(getContentNamed("Specific Model/Frame"), "")
 
-    def extractSiteFacts[r](xs: List[AibRow]): #{AibSite, AibFloc, AibEquipment |r} = 
-        getSite(xs) <+> getDescendants(xs)
+    def extractHierarchyFacts(xs: List[AibRow]): #{RootNode, AibFloc, AibEquipment |r} = 
+        getRootNode(xs) <+> getDescendants(xs)
         
 
     /// First node is site
-    def getSite[r](xs: List[AibRow]): #{AibSite |r} = match xs {
+    def getRootNode(xs: List[AibRow]): #{RootNode |r} = match xs {
         case x :: _ => #{ AibSite(x.reference, x.commonName, x.gridRef). }
         case Nil => #{}
     }
     
-    /// First node is site
+    /// First node is root which we put on a a stack...
     /// Spelling reminder for me - descendants with "dants" (things which descend from)
-    def getDescendants[r](xs: List[AibRow]): #{AibFloc, AibEquipment |r} = match xs {
+    def getDescendants(xs: List[AibRow]): #{AibFloc, AibEquipment |r} = match xs {
         case x :: rs => getDescendantsHelper(x.commonName, Nel(x, Nil), #{}, rs)
         case Nil => #{}
     }
     
     /// Parent or stack of parents?
-    def getDescendantsHelper[r](siteName: String, 
-                                stack: Nel[AibRow], 
-                                ac: #{AibFloc, AibEquipment |r}, 
-                                xs: List[AibRow]): #{AibFloc, AibEquipment |r} = match xs {
+    def getDescendantsHelper(siteName: String, 
+                             stack: Nel[AibRow], 
+                             ac: #{AibFloc, AibEquipment |r}, 
+                             xs: List[AibRow]): #{AibFloc, AibEquipment |r} = match xs {
         case x :: rs => { 
             let (parent, stack1) = getParent(x.commonName, stack);
             let r1 = { 

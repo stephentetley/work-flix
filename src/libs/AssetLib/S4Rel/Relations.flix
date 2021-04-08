@@ -62,7 +62,7 @@ namespace AssetLib/S4Rel/Relations {
 
 
     /// To Uxl...
-    pub def toFunctionalLocationData[r](src: #{ FlocDatum | r }): List[FunctionalLocationData] = 
+    pub def toFunctionalLocationData(src: #{ FlocDatum | r }): List[FunctionalLocationData] = 
         let buildStep = (x, ac) -> flocDatumToUxl(x) :: ac;
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
         let xs = { fold FlocDatum Nil buildStep src };
@@ -89,7 +89,7 @@ namespace AssetLib/S4Rel/Relations {
         }
 
 
-    pub def toFlMultilingualText[r](src: #{ FlocLongText | r }): List[FlMultilingualText] = 
+    pub def toFlMultilingualText(src: #{ FlocLongText | r }): List[FlMultilingualText] = 
         let buildStep = (x, ac) -> flocLongTextToUxl(x) :: ac;
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
         let xs = { fold FlocLongText Nil buildStep src };
@@ -105,7 +105,7 @@ namespace AssetLib/S4Rel/Relations {
         }
 
 
-    pub def toFlClassifications[r](src: #{ FlocCharacteristic | r }): List[FlClassification] = 
+    pub def toFlClassifications(src: #{ FlocCharacteristic | r }): List[FlClassification] = 
         let buildStep = (x, ac) -> flocCharacteristicToUxl(x) :: ac;
         let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
             case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
@@ -126,7 +126,7 @@ namespace AssetLib/S4Rel/Relations {
         , charDeletionInd       = false
         }
 
-    pub def toEquipmentData[r](src: #{ EquiDatum | r }): List[EquipmentData] = 
+    pub def toEquipmentData(src: #{ EquiDatum | r }): List[EquipmentData] = 
         let buildStep = (x, ac) -> equiDatumToUxl(x) :: ac;
         let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
         let xs = { fold EquiDatum Nil buildStep src };
@@ -167,7 +167,7 @@ namespace AssetLib/S4Rel/Relations {
         }
 
 
-    pub def toEqMultilingualText[r](src: #{ EquiLongText | r }): List[EqMultilingualText] = 
+    pub def toEqMultilingualText(src: #{ EquiLongText | r }): List[EqMultilingualText] = 
         let buildStep = (x, ac) -> equiLongTextToUxl(x) :: ac;
         let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
         let xs = { fold EquiLongText Nil buildStep src };
@@ -183,7 +183,7 @@ namespace AssetLib/S4Rel/Relations {
         }
 
 
-    pub def toEqClassifications[r](src: #{ EquiCharacteristic | r }): List[EqClassification] = 
+    pub def toEqClassifications(src: #{ EquiCharacteristic | r }): List[EqClassification] = 
         let buildStep = (x, ac) -> equiCharacteristicToUxl(x) :: ac;
         let sortStep = (x, y) -> match Order.compare(x.equiId, y.equiId) { 
             case EqualTo => Order.compare(x.className, y.className) |> Order.toInt

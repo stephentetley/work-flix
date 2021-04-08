@@ -27,17 +27,17 @@ namespace AssetLib/S4Rel/EmitUxl {
 
     /// TODO include Equi...
 
-    pub def outputUxl[r](changeRequestName: String,
-                            solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
-                                            EquiDatum, EquiLongText, EquiCharacteristic | r},
-                            uxlTemplate: System.FilePath,
-                            outpath: System.FilePath): Result[Unit, String] & Impure = 
+    pub def outputUxl(changeRequestName: String,
+                        solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
+                                    EquiDatum, EquiLongText, EquiCharacteristic | r},
+                        uxlTemplate: System.FilePath,
+                        outpath: System.FilePath): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(emitUxl(changeRequestName, solutions), uxlTemplate, outpath)
 
 
-    pub def emitUxl[r](changeRequestName: String,
-                        solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
-                                        EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
+    pub def emitUxl(changeRequestName: String,
+                    solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
+                                 EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
         let flocs       = AssetLib/S4Rel/Relations.toFunctionalLocationData(solutions);
         let flmltxts    = AssetLib/S4Rel/Relations.toFlMultilingualText(solutions);

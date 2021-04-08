@@ -114,7 +114,7 @@ namespace AssetLib/Facts/SiteMapping {
 
     pub rel SiteMapping(aibInst: String, s4Site: String)
 
-    pub def getSiteMapping[r](src: System.FilePath) : Result[#{SiteMapping |r}, String] & Impure = 
+    pub def getSiteMapping(src: System.FilePath) : Result[#{SiteMapping |r}, String] & Impure = 
         use Result.{flatMap};
         let* xs = SheetIO/SheetReader.runXlsx(readXlsSiteMappingTable(), src);
         let step = (ac, x) -> {

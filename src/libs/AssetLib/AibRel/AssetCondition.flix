@@ -36,14 +36,14 @@ namespace AssetLib/AibRel/AssetCondition {
     /// Read from Aib file...
 
 
-    pub def readAgaspFile[r](sheetName: String, 
-                                path: System.FilePath): Result[#{ConditionGrade, ConditionGradeReason, 
-                                                                PerformanceGrade, PerformanceGradeReason, 
-                                                                LoadingFactor, LoadingFactorReason, SurveyYear| r}, String] & Impure =
+    pub def readAgaspFile(sheetName: String, 
+                          path: System.FilePath): Result[#{ConditionGrade, ConditionGradeReason, 
+                                                            PerformanceGrade, PerformanceGradeReason, 
+                                                            LoadingFactor, LoadingFactorReason, SurveyYear| r}, String] & Impure =
         SheetIO/SheetReader.runXlsx(readAgaspSheet(sheetName), path)
         
 
-    pub def readAgaspSheet[r](sheetName: String): SheetReader[#{ConditionGrade, ConditionGradeReason, 
+    pub def readAgaspSheet(sheetName: String): SheetReader[#{ConditionGrade, ConditionGradeReason, 
                                                                 PerformanceGrade, PerformanceGradeReason, 
                                                                 LoadingFactor, LoadingFactorReason, SurveyYear| r}] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
@@ -53,9 +53,9 @@ namespace AssetLib/AibRel/AssetCondition {
         return(relns)
 
 
-    def evalRow[r](): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
-                                            PerformanceGrade, PerformanceGradeReason, 
-                                            LoadingFactor, LoadingFactorReason, SurveyYear| r}] =
+    def evalRow(): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
+                                        PerformanceGrade, PerformanceGradeReason, 
+                                        LoadingFactor, LoadingFactorReason, SurveyYear| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, optional, getContentNamed, getInt32Named}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8) -> { 

@@ -23,7 +23,7 @@ namespace FmpSkeleton/Rules {
     use AssetLib/AibRel/HierarchicalRelations.{AibFloc, AibEquipment};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
 
-    pub def equiRules[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def equiRules(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         eqDISTBD() <+> eqFSTNEM() <+> eqKISKKI() <+> eqNETWTL() <+> eqPODETU() <+> eqPSTNEM() 
             <+> eqEAST_NORTH() <+> eqAIB_REFERENCE()
     
@@ -31,14 +31,14 @@ namespace FmpSkeleton/Rules {
 
     /// Mapping is total.
     /// Don't map "DISPOSED OF"
-    pub def status[r](): #{Status | r} = #{
+    pub def status(): #{Status | r} = #{
         Status("OPERATIONAL", "OPER").
         Status("NON-OPERATIONAL", "NOP").
     }
 
 
 
-    pub def eqDISTBD[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def eqDISTBD(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
@@ -68,7 +68,7 @@ namespace FmpSkeleton/Rules {
         }
 
 
-    pub def eqFSTNEM[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def eqFSTNEM(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
@@ -97,7 +97,7 @@ namespace FmpSkeleton/Rules {
 
         }
 
-    pub def eqKISKKI[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def eqKISKKI(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
@@ -125,7 +125,7 @@ namespace FmpSkeleton/Rules {
                 AibEquipment(aibref, _, _,  "EQUIPMENT: KIOSK", _, _,  _, _, _,  _, _, _,  _).
         }
 
-    pub def eqNETWTL[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def eqNETWTL(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
@@ -154,7 +154,7 @@ namespace FmpSkeleton/Rules {
         }
 
 
-    pub def eqPODETU[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def eqPODETU(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
@@ -183,7 +183,7 @@ namespace FmpSkeleton/Rules {
 
         }
 
-    pub def eqPSTNEM[r](): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def eqPSTNEM(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         use AssetLib/Common/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
@@ -213,7 +213,7 @@ namespace FmpSkeleton/Rules {
         }
 
 
-    pub def eqEAST_NORTH[r](): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
+    pub def eqEAST_NORTH(): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
@@ -225,7 +225,7 @@ namespace FmpSkeleton/Rules {
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
         }
 
-    pub def eqAIB_REFERENCE[r](): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
+    pub def eqAIB_REFERENCE(): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
@@ -243,7 +243,7 @@ namespace FmpSkeleton/Rules {
     /// 
 
 
-    pub def flocCAA[r](): #{FlocDatum, EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
+    pub def flocCAA(): #{FlocDatum, EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
         #{
             FlocDatum("${siteCode}-CAA", 
                             "Control and Automation",
@@ -292,7 +292,7 @@ namespace FmpSkeleton/Rules {
 
         }
     /// Level 2
-    pub def electricalPowerSupply[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
+    pub def electricalPowerSupply(): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
         FlocDatum("${siteCode}-E", "Electrical Power Supply", "YW-ES", "EPS", installedFrom, false, s4Status) :-
             AibFloc(sainumber, commonName, aibSite, "ELECTRICAL SERVICES", installedFrom, _, _),
             SiteMapping(aibSite, siteCode),
@@ -300,7 +300,7 @@ namespace FmpSkeleton/Rules {
     }
 
     /// Level 3
-    pub def lowVoltageDistribution[r](): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
+    pub def lowVoltageDistribution(): #{FlocDatum, AibFloc, SiteMapping, Status | r} = #{
         FlocDatum("${siteCode}-E-LV", "Low Voltage Distribution", "YW-ES", "LVD", installedFrom, true, s4Status) :-
             AibFloc(sainumber, commonName, aibSite, "ELECTRICITY SUPPLY", installedFrom, _, _),
             SiteMapping(aibSite, siteCode),
@@ -320,7 +320,7 @@ namespace FmpSkeleton/Rules {
 
 
     /// TODO - not AibEquipment
-    pub def flEAST_NORTH[r](): #{FlocCharacteristic, AibEquipment | r} = 
+    pub def flEAST_NORTH(): #{FlocCharacteristic, AibEquipment | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             FlocCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 

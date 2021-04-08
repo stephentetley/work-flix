@@ -17,7 +17,7 @@
 namespace FmpSkeleton/Main {
     
     use AssetLib/Facts/SiteMapping.{SiteMapping};
-    use AssetLib/AibRel/HierarchicalRelations.{AibSite, AibFloc, AibEquipment};
+    use AssetLib/AibRel/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocLongText, FlocCharacteristic, 
         EquiDatum, EquiLongText, EquiCharacteristic};
     use FmpSkeleton/Rules.{Status, EqRecognized};
@@ -46,14 +46,14 @@ namespace FmpSkeleton/Main {
         else 
             None
 
-    def processSiteFile[r](siteMapping: #{SiteMapping, AibSite, AibFloc, AibEquipment, 
-                                            FlocDatum, FlocLongText, FlocCharacteristic,
-                                            EquiDatum, EquiLongText, EquiCharacteristic, Status | r},
+    def processSiteFile(siteMapping: #{SiteMapping, RootNode, AibFloc, AibEquipment, 
+                                        FlocDatum, FlocLongText, FlocCharacteristic,
+                                        EquiDatum, EquiLongText, EquiCharacteristic, Status | r},
                             uxlTemplate: System.FilePath, 
                             sheetName: String,
                             src: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* facts      = AssetLib/AibRel/HierarchicalRelations.readAibSiteFacts(sheetName, src);
+        let* facts      = AssetLib/AibRel/HierarchicalRelations.readHierarchyFacts(sheetName, src);
         let solns       = solve (FmpSkeleton/Rules.equiRules() <+> FmpSkeleton/Rules.status() <+> siteMapping <+> facts);        
         let siteName    = (x, _) -> {let (_, name, _) = x; name};
         let longname    = fold AibSite "temp" siteName solns;

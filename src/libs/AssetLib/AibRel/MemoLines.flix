@@ -27,12 +27,12 @@ namespace AssetLib/AibRel/MemoLines {
     /// Read from Aib xlsx export file...
 
 
-    pub def readMemosFile[r](sheetName: String, 
+    pub def readMemosFile(sheetName: String, 
                                 path: System.FilePath): Result[#{MemoText| r}, String] & Impure =
         SheetIO/SheetReader.runXlsx(readMemosSheet(sheetName), path)
         
 
-    pub def readMemosSheet[r](sheetName: String): SheetReader[#{MemoText| r}] = 
+    pub def readMemosSheet(sheetName: String): SheetReader[#{MemoText| r}] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(s1, evalRow());
@@ -44,7 +44,7 @@ namespace AssetLib/AibRel/MemoLines {
     ///
     /// Note - this is a genuine use of `optional` as file may not contain column "Memo Line 3" etc.
     /// 
-    def evalRow[r](): NamedRowEvaluator[#{MemoText| r}] =
+    def evalRow(): NamedRowEvaluator[#{MemoText| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, optional, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 

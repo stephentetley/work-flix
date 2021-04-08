@@ -31,10 +31,10 @@ namespace ValveReport/Rules {
     def stringWithDefault(s: String, d: String): String = if (String.isEmpty(s)) d else s
 
 
-    pub def eqVALV[r](): #{AssertIsValve, ValveTypeMap3, 
-                            ValveAttribs, ValveUserData, 
-                            ConditionGrade,
-                            EquiDatum, EquiCharacteristic, AibEquipment | r} = 
+    pub def eqVALV(): #{AssertIsValve, ValveTypeMap3, 
+                        ValveAttribs, ValveUserData, 
+                        ConditionGrade,
+                        EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiDatum(aibref, 
@@ -122,7 +122,7 @@ namespace ValveReport/Rules {
 
     rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
 
-    pub def valveTypeMap3[r](): #{ValveTypeMap3 | r} = #{
+    pub def valveTypeMap3(): #{ValveTypeMap3 | r} = #{
         ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",        "VALVNR").
         ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",    "VALVBA").
         ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Gate",    "VALVGA").
