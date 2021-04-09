@@ -99,4 +99,35 @@ namespace AssetLib/AibRel/AssetCondition {
         case _ => None
     }
 
+    
+    pub def s4ConditionGrade(i: Int32): String = match i { 
+        case 1 => "1 - GOOD"
+        case 2 => "2 - FAIR"
+        case 3 => "3 - ADEQUATE"
+        case 4 => "4 - POOR"
+        case 5 => "5 - AWFUL"
+        case _ => ""
+    }
+
+
+    pub def s4LoadingFactor(i: Int32): String = match i { 
+        case 1 => "1 - SIGNIFICANTLY UNDER LOADED"
+        case 2 => "2 - UNDER LOADED"
+        case 3 => "3 - SATISFACTORY"
+        case 4 => "4 - OVERLOADED"
+        case 5 => "5 - UNACCEPTABLE"
+        case _ => ""
+    }
+
+    pub def s4PerformanceGrade(i: Int32): String = match i { 
+        case 1 => "1 - AVAILABILITY 95%"
+        case 2 => "2 - AVAILABILITY 90% - 94%"
+        case 3 => "3 - AVAILABILITY 80% - 89%"
+        case 4 => "4 - AVAILABILITY 50% - 79%"
+        case 5 => "5 - AVAILABILITY 49%"
+        case _ => ""
+    }
+
+    
+
 }
