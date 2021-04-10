@@ -83,7 +83,7 @@ namespace AssetLib/AibRel/HierarchicalRelations {
 
 
     def evalAibRow(): NamedRowEvaluator[AibRow] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed, withDefault}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed, withDefault, swapErrorWithRowNum}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> 
                 { reference             = x1
@@ -114,7 +114,7 @@ namespace AssetLib/AibRel/HierarchicalRelations {
 
     /// First node is site
     def getRootNode(xs: List[AibRow]): #{RootNode |r} = match xs {
-        case x :: _ => #{ AibSite(x.reference, x.commonName, x.gridRef). }
+        case x :: _ => #{ RootNode(x.reference, x.commonName, x.gridRef). }
         case Nil => #{}
     }
     

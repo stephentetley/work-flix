@@ -22,6 +22,7 @@ namespace ValveReport/Relations {
 
     pub rel ValveWorkItem(aibref: String, s4Name: String, s4Floc: String)
     
+    /// sizeMillimeters may not have been specified so has to be an Option
     pub rel ValveAttribs(aibref: String, valveType: String, sizeMillimeters: Option[Float64], locationOnSite: String)
 
 
@@ -62,14 +63,17 @@ namespace ValveReport/Relations {
 
     def evalValveAttribsRow(): NamedRowEvaluator[#{ValveAttribs| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed, getOptionFloat64Named}; 
+        use SheetIO/NamedRowEvaluator.{optional, getFloat64Named}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> { 
-                let sizeMM = Option.map(flip(decodeSize, x4), x3);
-                #{ ValveWorkItem(x1, x2, sizeMM, x5). }
+                let sizeMM: Option[Float64] = Option.flatMap(flip(decodeSize, x4), x3);
+                #{ ValveAttribs(x1, x2, sizeMM, x5). }
             })
             <&> getContentNamed("Reference")
             <*> getContentNamed("Valve Type")
-            <*> getOptionFloat64Named("Size")
+            /// `getOptionFloat64Named` does not seem to be working problem - to investigate...
+            /// <*> getOptionFloat64Named("Size")
+            <*> optional(getFloat64Named("Size"))
             <*> getContentNamed("Size Units")
             <*> getContentNamed("Location On Site")
 

@@ -19,7 +19,7 @@ namespace ValveReport/Rules {
     use AssetLib/AibRel/HierarchicalRelations.{AibFloc, AibEquipment};
     use AssetLib/AibRel/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
-    use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
+    use AssetLib/S4Rel/Relations.{EquiDatum, EquiCharacteristic};
     use ValveReport/Relations.{ValveAttribs, ValveWorkItem};
 
     pub def s4Status(x: String): String = match x {
@@ -67,13 +67,16 @@ namespace ValveReport/Rules {
                 ValveAttribs(aibref, valveType, _, locationOnSite),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
-            EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", ToString.toString(sizeMM)) :- 
+            EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", getSizeValue(osize)) :- 
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                ValveAttribs(aibref, valveType, sizeMM, _),
-                ValveTypeMap3(equiType, valveType, valvClass).                
-
+                ValveAttribs(aibref, valveType, osize, _),
+                ValveTypeMap3(equiType, valveType, valvClass),
+                if not Option.isEmpty(osize).
 
         }
+
+    def getSizeValue(x: Option[Float64]): String = 
+        Option.getWithDefault(Option.map(ToString.toString, x), "")
 
 
     rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
