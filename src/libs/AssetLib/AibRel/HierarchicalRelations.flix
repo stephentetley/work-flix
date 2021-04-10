@@ -66,8 +66,8 @@ namespace AssetLib/AibRel/HierarchicalRelations {
         , specificModelFrame: String
         }
 
-    pub def readHierarchyFacts(sheetName: String, 
-                                path: System.FilePath): Result[#{RootNode, AibFloc, AibEquipment | r}, String] & Impure =
+    pub def readHierarchyRelations(sheetName: String, 
+                                    path: System.FilePath): Result[#{RootNode, AibFloc, AibEquipment | r}, String] & Impure =
         use Result.{flatMap, map};
         let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName) |> Order.toInt;
         let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(sheetName), path) |> map(List.sortWith(cmp));

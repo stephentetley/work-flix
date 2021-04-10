@@ -20,7 +20,7 @@ namespace ValveReport/Rules {
     use AssetLib/AibRel/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocCharacteristic, EquiDatum, EquiCharacteristic};
-    use ValveReport/Relations.{ValveAttribs, ValveUserData};
+    use ValveReport/Relations.{ValveAttribs, ValveWorkItem};
 
     pub def s4Status(x: String): String = match x {
         case "OPERATIONAL" =>  "OPER"
@@ -32,8 +32,7 @@ namespace ValveReport/Rules {
 
 
     pub def eqVALV(): #{ValveTypeMap3, 
-                        ValveAttribs, ValveUserData, 
-                        ConditionGrade, ConditionGradeReason,
+                        ValveAttribs, ValveWorkItem, 
                         EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         #{
             EquiDatum(aibref, 
@@ -51,7 +50,7 @@ namespace ValveReport/Rules {
                             s4Status(status)) :- 
                 AibEquipment(aibref, description, equiType, 
                     installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
-                ValveUserData(aibref, s4Name, suppliedFloc, _).
+                ValveWorkItem(aibref, s4Name, suppliedFloc).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
@@ -73,11 +72,22 @@ namespace ValveReport/Rules {
                 ValveAttribs(aibref, valveType, sizeMM, _),
                 ValveTypeMap3(equiType, valveType, valvClass).                
 
-            /// The rules below should be "modular" - they use EquiDatum as an existence test to prevent 
-            /// firing for all types of equipment not just valves which are made by the above rules.
-            /// The could be moved into a separate files (if they fire as expected...)
+
         }
 
+
+    rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
+
+    pub def valveTypeMap3(): #{ValveTypeMap3 | r} = #{
+        ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",        "VALVNR").
+        ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",    "VALVBA").
+        ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Gate",    "VALVGA").
+    }
+
+    /// The rules below should be "modular" - they use EquiDatum as an existence test to prevent 
+    /// firing for all types of equipment not just valves which are made by the above rules.
+    /// They will be moved into a separate files (if they fire as expected...)
+    
     pub def equiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
@@ -91,12 +101,15 @@ namespace ValveReport/Rules {
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
         }
 
+
     pub def equiSolutionId(solutionId: String): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
         #{
             /// SOLUTION_ID
             EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                if String.isEmpty(solutionId) == false.
+            
         }
 
     pub def equiAibReference(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
@@ -163,12 +176,5 @@ namespace ValveReport/Rules {
         }
 
 
-    rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
-
-    pub def valveTypeMap3(): #{ValveTypeMap3 | r} = #{
-        ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",        "VALVNR").
-        ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",    "VALVBA").
-        ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Gate",    "VALVGA").
-    }
 
 }

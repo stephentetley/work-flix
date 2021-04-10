@@ -25,9 +25,7 @@ namespace AssetLib/AibRel/MemoLines {
     pub rel MemoText(aibref: String, text: String)
 
     /// Read from Aib xlsx export file...
-
-
-    pub def readMemosFile(sheetName: String, 
+    pub def readMemosData(sheetName: String, 
                                 path: System.FilePath): Result[#{MemoText| r}, String] & Impure =
         SheetIO/SheetReader.runXlsx(readMemosSheet(sheetName), path)
         

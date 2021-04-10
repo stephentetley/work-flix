@@ -36,7 +36,7 @@ namespace AssetLib/AibRel/AssetCondition {
     /// Read from Aib file...
 
 
-    pub def readAgaspFile(sheetName: String, 
+    pub def readAgaspData(sheetName: String, 
                           path: System.FilePath): Result[#{ConditionGrade, ConditionGradeReason, 
                                                             PerformanceGrade, PerformanceGradeReason, 
                                                             LoadingFactor, LoadingFactorReason, SurveyYear| r}, String] & Impure =
