@@ -20,9 +20,19 @@ namespace AssetLib/Translate/MemoLines {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    
+    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiLongText};
 
     pub rel MemoText(aibref: String, text: String)
+
+
+    pub def equiLongText(): #{MemoText, EquiLongText, EquiDatum | r} = 
+        #{
+            EquiLongText(aibref, description, longText) :- 
+                /// AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, description, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                MemoText(aibref, longText).
+
+        }
 
     /// Read from Aib xlsx export file...
     pub def readMemoData(sheetName: String, 

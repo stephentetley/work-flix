@@ -17,10 +17,9 @@
 namespace ValveReport/Main {
 
     use AssetLib/Translate/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
-    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiCharacteristic};
-    use AssetLib/Translate/AssetCondition.{ConditionGrade, ConditionGradeReason, 
-                                        PerformanceGrade, PerformanceGradeReason, 
-                                        LoadingFactor, LoadingFactorReason, SurveyYear};
+    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiCharacteristic, EquiLongText};
+    use AssetLib/Translate/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
+        PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
     use AssetLib/Translate/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
 
@@ -41,12 +40,14 @@ namespace ValveReport/Main {
     /// Empty string for no solution id.
     pub def main1(sourceFiles: SourceFiles, solutionId: String): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/Translate/AssetCondition.{assetCondition};
+        use AssetLib/Translate/Characteristics/AssetCondition.{assetCondition};
+        use AssetLib/Translate/MemoLines.{equiLongText};
         use ValveReport/Rules.{eqVALV, equiSolutionId, equiEastNorth, equiAibReference};
         let* baseRelns = ValveReport/Main.loadRelations(sourceFiles);
-        let answers = solve equiSolutionId(solutionId) <+> assetCondition() <+> equiAibReference() <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
+        let answers = solve equiSolutionId(solutionId) <+> equiLongText() <+>  assetCondition() <+> equiAibReference() <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;
+        (project EquiLongText answers) |> unsafeToString |> println;
         Ok()
 
 
@@ -58,7 +59,7 @@ namespace ValveReport/Main {
         use Result.{flatMap};
         let* hrelns         = AssetLib/Translate/Aib/HierarchicalRelations.readHierarchyRelations(src.aibHierarchyExport.sheet, src.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(src.aibValveExport.sheet, src.aibValveExport.file);
-        let* agasp          = AssetLib/Translate/AssetCondition.readAgaspData(src.aibAgaspExport.sheet, src.aibAgaspExport.file);
+        let* agasp          = AssetLib/Translate/Characteristics/AssetCondition.readAgaspData(src.aibAgaspExport.sheet, src.aibAgaspExport.file);
         let* memos          = AssetLib/Translate/MemoLines.readMemoData(src.aibMemosExport.sheet, src.aibMemosExport.file);
         let* workitems      = ValveReport/Relations.readWorkItemData(src.worklist.sheet, src.worklist.file);
         Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)

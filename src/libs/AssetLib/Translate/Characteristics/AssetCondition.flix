@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/Translate/AssetCondition {
+namespace AssetLib/Translate/Characteristics/AssetCondition {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
@@ -37,97 +37,41 @@ namespace AssetLib/Translate/AssetCondition {
     pub rel LoadingFactorReason(aibref: String, reason: String)
     pub rel SurveyYear(aibref: String, year: Int32)
 
-    /// Read from Aib file...
 
-
-    pub def readAgaspData(sheetName: String, 
-                          path: System.FilePath): Result[#{ConditionGrade, ConditionGradeReason, 
-                                                            PerformanceGrade, PerformanceGradeReason, 
-                                                            LoadingFactor, LoadingFactorReason, SurveyYear| r}, String] & Impure =
-        SheetIO/SheetReader.runXlsx(readAgaspSheet(sheetName), path)
-        
-
-    pub def readAgaspSheet(sheetName: String): SheetReader[#{ConditionGrade, ConditionGradeReason, 
-                                                                PerformanceGrade, PerformanceGradeReason, 
-                                                                LoadingFactor, LoadingFactorReason, SurveyYear| r}] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
-        let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, evalRow());
-        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
-        return(relns)
-
-
-    def evalRow(): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
-                                        PerformanceGrade, PerformanceGradeReason, 
-                                        LoadingFactor, LoadingFactorReason, SurveyYear| r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, optional, getContentNamed, getInt32Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8) -> { 
-                let r1 = makeOptional(i -> #{ ConditionGrade(x1, i). }, x2, #{});
-                let r2 = if (String.isEmpty(x3)) #{} else #{ ConditionGradeReason(x1, x3). };
-                let r3 = makeOptional(i -> #{ PerformanceGrade(x1, i). }, x4, #{});
-                let r4 = if (String.isEmpty(x5)) #{} else #{ PerformanceGradeReason(x1, x5). };
-                let r5 = makeOptional(i -> #{ LoadingFactor(x1, i). }, x6, #{});
-                let r6 = if (String.isEmpty(x7)) #{} else #{ LoadingFactorReason(x1, x7). };
-                let r7 = makeOptional(i -> #{ SurveyYear(x1, i). }, x8, #{});
-                r1 <+> r6 <+> r5 <+> r4 <+> r3 <+> r2 <+> r7
-                })
-            <&> getContentNamed("Reference")
-            <*> map(decodeConditionGrade, getContentNamed("Condition Grade"))
-            <*> getContentNamed("Condition Grade Reason")
-            <*> map(decodePerformanceGrade, getContentNamed("Performance Grade"))
-            <*> getContentNamed("Performance Grade Reason")
-            <*> map(decodeLoadingFactor, getContentNamed("Loading Factor"))
-            <*> getContentNamed("Loading Factor Reason")
-            <*> optional(getInt32Named("AGASP Survey Year"))
-
-    def makeOptional(f: a -> reln, x: Option[a], d: reln): reln = match x {
-        case Some(x1) => f(x1)
-        case None => d
-    }
-        
 
     pub def assetCondition(): #{ConditionGrade, ConditionGradeReason,
                                 PerformanceGrade, PerformanceGradeReason,
                                 LoadingFactor, LoadingFactorReason,
                                 SurveyYear,
-                                EquiDatum, EquiCharacteristic, AibEquipment | r} = 
-        use AssetLib/Translate/AssetCondition.{s4ConditionGrade, s4PerformanceGrade, s4LoadingFactor};
+                                EquiDatum, EquiCharacteristic | r} = 
         #{
     
             /// ASSET_CONDITION
             EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE", s4ConditionGrade(grade)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 ConditionGrade(aibref, grade).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE_REASON", String.toUpperCase(reason)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 ConditionGradeReason(aibref, reason).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE", s4PerformanceGrade(grade)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 PerformanceGrade(aibref, grade).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", String.toUpperCase(reason)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 PerformanceGradeReason(aibref, reason).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR", s4LoadingFactor(factor)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 LoadingFactor(aibref, factor).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR_REASON", String.toUpperCase(reason)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 LoadingFactorReason(aibref, reason).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "SURVEY_DATE", ToString.toString(year)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 SurveyYear(aibref, year).
         }
@@ -177,6 +121,54 @@ namespace AssetLib/Translate/AssetCondition {
         case _ => ""
     }
 
-    
+
+    /// Read from Aib file...
+
+
+    pub def readAgaspData(sheetName: String, 
+                          path: System.FilePath): Result[#{ConditionGrade, ConditionGradeReason, 
+                                                            PerformanceGrade, PerformanceGradeReason, 
+                                                            LoadingFactor, LoadingFactorReason, SurveyYear| r}, String] & Impure =
+        SheetIO/SheetReader.runXlsx(readAgaspSheet(sheetName), path)
+        
+
+    pub def readAgaspSheet(sheetName: String): SheetReader[#{ConditionGrade, ConditionGradeReason, 
+                                                                PerformanceGrade, PerformanceGradeReason, 
+                                                                LoadingFactor, LoadingFactorReason, SurveyYear| r}] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
+        let* s1     = getSheetNamed(sheetName);
+        let* xs     = allNamedRows(s1, evalRow());
+        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
+        return(relns)
+
+
+    def evalRow(): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
+                                        PerformanceGrade, PerformanceGradeReason, 
+                                        LoadingFactor, LoadingFactorReason, SurveyYear| r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, optional, getContentNamed, getInt32Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5, x6, x7, x8) -> { 
+                let r1 = makeOptional(i -> #{ ConditionGrade(x1, i). }, x2, #{});
+                let r2 = if (String.isEmpty(x3)) #{} else #{ ConditionGradeReason(x1, x3). };
+                let r3 = makeOptional(i -> #{ PerformanceGrade(x1, i). }, x4, #{});
+                let r4 = if (String.isEmpty(x5)) #{} else #{ PerformanceGradeReason(x1, x5). };
+                let r5 = makeOptional(i -> #{ LoadingFactor(x1, i). }, x6, #{});
+                let r6 = if (String.isEmpty(x7)) #{} else #{ LoadingFactorReason(x1, x7). };
+                let r7 = makeOptional(i -> #{ SurveyYear(x1, i). }, x8, #{});
+                r1 <+> r6 <+> r5 <+> r4 <+> r3 <+> r2 <+> r7
+                })
+            <&> getContentNamed("Reference")
+            <*> map(decodeConditionGrade, getContentNamed("Condition Grade"))
+            <*> getContentNamed("Condition Grade Reason")
+            <*> map(decodePerformanceGrade, getContentNamed("Performance Grade"))
+            <*> getContentNamed("Performance Grade Reason")
+            <*> map(decodeLoadingFactor, getContentNamed("Loading Factor"))
+            <*> getContentNamed("Loading Factor Reason")
+            <*> optional(getInt32Named("AGASP Survey Year"))
+
+    def makeOptional(f: a -> reln, x: Option[a], d: reln): reln = match x {
+        case Some(x1) => f(x1)
+        case None => d
+    }    
 
 }
