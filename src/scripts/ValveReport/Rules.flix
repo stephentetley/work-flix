@@ -16,10 +16,10 @@
 
 namespace ValveReport/Rules {
 
-    use AssetLib/AibRel/HierarchicalRelations.{AibFloc, AibEquipment};
-    use AssetLib/AibRel/AssetCondition.{ConditionGrade, ConditionGradeReason, 
+    use AssetLib/Translate/Aib/HierarchicalRelations.{AibFloc, AibEquipment};
+    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/Translate/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
-    use AssetLib/S4Rel/Relations.{EquiDatum, EquiCharacteristic};
     use ValveReport/Relations.{ValveAttribs, ValveWorkItem};
 
     pub def s4Status(x: String): String = match x {
@@ -149,7 +149,7 @@ namespace ValveReport/Rules {
                                 LoadingFactor, LoadingFactorReason,
                                 SurveyYear,
                                 EquiDatum, EquiCharacteristic, AibEquipment | r} = 
-        use AssetLib/AibRel/AssetCondition.{s4ConditionGrade, s4PerformanceGrade, s4LoadingFactor};
+        use AssetLib/Translate/AssetCondition.{s4ConditionGrade, s4PerformanceGrade, s4LoadingFactor};
         #{
     
             /// ASSET_CONDITION

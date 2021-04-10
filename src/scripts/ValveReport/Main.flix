@@ -16,11 +16,12 @@
 
 namespace ValveReport/Main {
 
-    use AssetLib/AibRel/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
-    use AssetLib/AibRel/AssetCondition.{ConditionGrade, ConditionGradeReason, 
+    use AssetLib/Translate/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
+    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/Translate/AssetCondition.{ConditionGrade, ConditionGradeReason, 
                                         PerformanceGrade, PerformanceGradeReason, 
                                         LoadingFactor, LoadingFactorReason, SurveyYear};
-    use AssetLib/AibRel/MemoLines.{MemoText};
+    use AssetLib/Translate/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
 
     type alias XlsxSource = 
@@ -37,16 +38,27 @@ namespace ValveReport/Main {
         , worklist: XlsxSource
         }
 
+    /// Empty string for no solution id.
+    pub def main1(sourceFiles: SourceFiles, solutionId: String): Result[Unit, String] & Impure = 
+        use Result.{flatMap};        
+        use ValveReport/Rules.{eqVALV, equiSolutionId, equiEastNorth, equiAibReference, assetCondition};
+        let* baseRelns = ValveReport/Main.loadRelations(sourceFiles);
+        let answers = solve equiSolutionId(solutionId) <+> assetCondition() <+> equiAibReference() <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
+        (project EquiDatum answers) |> unsafeToString |> println;
+        (project EquiCharacteristic answers) |> unsafeToString |> println;
+        Ok()
+
+
     pub def loadRelations(src: SourceFiles): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
                                                         MemoText, 
                                                         ConditionGrade, ConditionGradeReason, 
                                                         PerformanceGrade, PerformanceGradeReason, 
                                                         LoadingFactor, LoadingFactorReason, SurveyYear | r}, String] & Impure = 
         use Result.{flatMap};
-        let* hrelns         = AssetLib/AibRel/HierarchicalRelations.readHierarchyRelations(src.aibHierarchyExport.sheet, src.aibHierarchyExport.file);
+        let* hrelns         = AssetLib/Translate/Aib/HierarchicalRelations.readHierarchyRelations(src.aibHierarchyExport.sheet, src.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(src.aibValveExport.sheet, src.aibValveExport.file);
-        let* agasp          = AssetLib/AibRel/AssetCondition.readAgaspData(src.aibAgaspExport.sheet, src.aibAgaspExport.file);
-        let* memos          = AssetLib/AibRel/MemoLines.readMemoData(src.aibMemosExport.sheet, src.aibMemosExport.file);
+        let* agasp          = AssetLib/Translate/AssetCondition.readAgaspData(src.aibAgaspExport.sheet, src.aibAgaspExport.file);
+        let* memos          = AssetLib/Translate/MemoLines.readMemoData(src.aibMemosExport.sheet, src.aibMemosExport.file);
         let* workitems      = ValveReport/Relations.readWorkItemData(src.worklist.sheet, src.worklist.file);
         Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)
 

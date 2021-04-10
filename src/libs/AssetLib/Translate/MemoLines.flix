@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/AibRel/MemoLines {
+namespace AssetLib/Translate/MemoLines {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;

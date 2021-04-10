@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/AibRel/AssetCondition {
+namespace AssetLib/Translate/AssetCondition {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;

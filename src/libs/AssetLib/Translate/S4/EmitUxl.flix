@@ -15,14 +15,14 @@
  */
 
 
-namespace AssetLib/S4Rel/EmitUxl {
+namespace AssetLib/Translate/S4/EmitUxl {
 
     use SheetIO.SheetWriter;
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
-    use AssetLib/S4Rel/Relations.{FlocDatum, FlocLongText, FlocCharacteristic, 
+    use AssetLib/Translate/S4/Relations.{FlocDatum, FlocLongText, FlocCharacteristic, 
         EquiDatum, EquiLongText, EquiCharacteristic};
 
     /// TODO include Equi...
@@ -39,14 +39,14 @@ namespace AssetLib/S4Rel/EmitUxl {
                     solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
                                  EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
-        let flocs       = AssetLib/S4Rel/Relations.toFunctionalLocationData(solutions);
-        let flmltxts    = AssetLib/S4Rel/Relations.toFlMultilingualText(solutions);
-        let flchars     = AssetLib/S4Rel/Relations.toFlClassifications(solutions);
-        let equis       = AssetLib/S4Rel/Relations.toEquipmentData(solutions);
-        let eqmltxts    = AssetLib/S4Rel/Relations.toEqMultilingualText(solutions);
-        let eqchars     = AssetLib/S4Rel/Relations.toEqClassifications(solutions);
+        let flocs       = AssetLib/Translate/S4/Relations.toFunctionalLocationData(solutions);
+        let flmltxts    = AssetLib/Translate/S4/Relations.toFlMultilingualText(solutions);
+        let flchars     = AssetLib/Translate/S4/Relations.toFlClassifications(solutions);
+        let equis       = AssetLib/Translate/S4/Relations.toEquipmentData(solutions);
+        let eqmltxts    = AssetLib/Translate/S4/Relations.toEqMultilingualText(solutions);
+        let eqchars     = AssetLib/Translate/S4/Relations.toEqClassifications(solutions);
         let* _          = liftAction(_ -> Console.printLine("**** equi count: ${List.length(equis)}"));
-        let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/S4Rel/Renumber.renumber(equis, eqmltxts, eqchars));
+        let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/Translate/S4/Renumber.renumber(equis, eqmltxts, eqchars));
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
         let equiNames   = List.map(x -> x.equiId, equis1);
         let crs         = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);

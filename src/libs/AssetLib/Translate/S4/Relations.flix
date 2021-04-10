@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/S4Rel/Relations {
+namespace AssetLib/Translate/S4/Relations {
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
         FlClassification, EquipmentData, EqMultilingualText, EqClassification};
