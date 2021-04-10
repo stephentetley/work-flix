@@ -98,53 +98,6 @@ namespace ValveReport/Rules {
 
 
 
-    /// The rules below should be "modular" - they use EquiDatum as an existence test to prevent 
-    /// firing for all types of equipment not just valves which are made by the above rules.
-    /// They will be moved into a separate files (if they fire as expected...)
-    
-    pub def equiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
-        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
-        #{
-            /// EAST_NORTH (generate if have generated EquiDatum from AibEquipment)
-            EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-
-            EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr))) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-        }
-
-
-    pub def equiSolutionId(solutionId: String): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
-        #{
-            /// SOLUTION_ID
-            EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                if String.isEmpty(solutionId) == false.
-            
-        }
-
-    pub def equiAibReference(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
-        #{
-            /// AIB_REFERENCE (item)
-            EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-
-            /// AI2_AIB_REFERENCE (parent)
-            EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", parent) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, parent),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-
-            /// S4_AIB_REFERENCE (blank)
-            EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-        }
-
-
 
 
 

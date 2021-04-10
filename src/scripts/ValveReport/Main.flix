@@ -40,11 +40,16 @@ namespace ValveReport/Main {
     /// Empty string for no solution id.
     pub def main1(sourceFiles: SourceFiles, solutionId: String): Result[Unit, String] & Impure = 
         use Result.{flatMap};
+        use AssetLib/Translate/Characteristics/AibReference.{equiAibReference};
         use AssetLib/Translate/Characteristics/AssetCondition.{assetCondition};
+        use AssetLib/Translate/Characteristics/EastNorth.{equiEastNorth};
+        use AssetLib/Translate/Characteristics/SolutionId.{equiSolutionId};
         use AssetLib/Translate/MemoLines.{equiLongText};
-        use ValveReport/Rules.{eqVALV, equiSolutionId, equiEastNorth, equiAibReference};
+        use ValveReport/Rules.{eqVALV};
         let* baseRelns = ValveReport/Main.loadRelations(sourceFiles);
-        let answers = solve equiSolutionId(solutionId) <+> equiLongText() <+>  assetCondition() <+> equiAibReference() <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
+        let answers = solve equiSolutionId(solutionId) <+> equiLongText() 
+                                <+>  assetCondition() <+> equiAibReference() 
+                                <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;
         (project EquiLongText answers) |> unsafeToString |> println;
