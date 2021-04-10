@@ -14,6 +14,7 @@ def main1(): Result[Unit, String] & Impure =
     use Result.{flatMap};
     use ValveReport/Rules.{eqVALV};
     use AssetLib/S4Rel/Relations.{EquiDatum, EquiCharacteristic};
+    use ValveReport/Relations.{ValveAttribs};
     let sourceFiles = 
         { uxlTemplate = System/FilePath.new("G:/work/assets/valves/MMOP uXL.xlsx")
         , aibHierarchyExport = 
@@ -41,4 +42,7 @@ def main1(): Result[Unit, String] & Impure =
     let answers = solve eqVALV() <+> baseRelns;
     (project EquiDatum answers) |> unsafeToString |> println;
     (project EquiCharacteristic answers) |> unsafeToString |> println;
+    
+    /// (project ValveAttribs answers) |> unsafeToString |> println; 
+    /// (project AibEquipment answers) |> unsafeToString |> println; 
     Ok()

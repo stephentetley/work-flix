@@ -65,11 +65,14 @@ namespace ValveReport/Relations {
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed, getOptionFloat64Named}; 
         use SheetIO/NamedRowEvaluator.{optional, getFloat64Named}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5) -> { 
-                let sizeMM: Option[Float64] = Option.flatMap(flip(decodeSize, x4), x3);
-                #{ ValveAttribs(x1, x2, sizeMM, x5). }
+        ((x1, x2, x3, x4, x5, x6) -> { 
+                if (isValveCommonName(x2)) {
+                    let sizeMM: Option[Float64] = Option.flatMap(flip(decodeSize, x5), x4);
+                    #{ ValveAttribs(x1, x3, sizeMM, x6). }
+                } else #{}
             })
             <&> getContentNamed("Reference")
+            <*> getContentNamed("Common Name")
             <*> getContentNamed("Valve Type")
             /// `getOptionFloat64Named` does not seem to be working problem - to investigate...
             /// <*> getOptionFloat64Named("Size")
@@ -77,6 +80,13 @@ namespace ValveReport/Relations {
             <*> getContentNamed("Size Units")
             <*> getContentNamed("Location On Site")
 
+    def isValveCommonName(x: String): Bool = 
+        use Option.flatMap;
+        let step = () -> {
+            let* patt = Text/Regex/Pattern.compile(".*/EQUIPMENT:.*VALVE.*");
+            Some(Text/Regex.matches(x, patt))
+        };
+        Option.getWithDefault(step(), false)
 
     def decodeSize(size: Float64, units: String): Option[Float64] = match units { 
         case "MILLIMETRES" => Some(size)

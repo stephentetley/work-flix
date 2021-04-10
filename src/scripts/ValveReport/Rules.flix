@@ -30,14 +30,27 @@ namespace ValveReport/Rules {
 
     def stringWithDefault(s: String, d: String): String = if (String.isEmpty(s)) d else s
 
+    rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
+
+
 
     pub def eqVALV(): #{ValveTypeMap3, 
                         ValveAttribs, ValveWorkItem, 
                         EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         #{
+            
+            /// Define the typemap here.
+            /// There aren't any modularity benefits to defining it outside 
+            /// this block and there is the downside that if defined oustide 
+            /// it is easy to forget to instntiate it.
+            ///
+            ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",        "VALVNR").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",    "VALVBA").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Gate",    "VALVGA").
+
             EquiDatum(aibref, 
                             "M",
-                            s4Name,
+                            String.takeLeft(40, s4Name),
                             "VALV",
                             installedFrom,
                             manufacturer,
@@ -52,22 +65,27 @@ namespace ValveReport/Rules {
                     installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 ValveWorkItem(aibref, s4Name, suppliedFloc).
 
+
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, _),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_DESC", "") :- 
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, _),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "LOCATION_ON_SITE", locationOnSite) :- 
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, locationOnSite),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", getSizeValue(osize)) :- 
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, osize, _),
                 ValveTypeMap3(equiType, valveType, valvClass),
@@ -79,13 +97,6 @@ namespace ValveReport/Rules {
         Option.getWithDefault(Option.map(ToString.toString, x), "")
 
 
-    rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
-
-    pub def valveTypeMap3(): #{ValveTypeMap3 | r} = #{
-        ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",        "VALVNR").
-        ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",    "VALVBA").
-        ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Gate",    "VALVGA").
-    }
 
     /// The rules below should be "modular" - they use EquiDatum as an existence test to prevent 
     /// firing for all types of equipment not just valves which are made by the above rules.
