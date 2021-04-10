@@ -25,12 +25,12 @@ namespace AssetLib/AibRel/MemoLines {
     pub rel MemoText(aibref: String, text: String)
 
     /// Read from Aib xlsx export file...
-    pub def readMemosData(sheetName: String, 
+    pub def readMemoData(sheetName: String, 
                                 path: System.FilePath): Result[#{MemoText| r}, String] & Impure =
-        SheetIO/SheetReader.runXlsx(readMemosSheet(sheetName), path)
+        SheetIO/SheetReader.runXlsx(readMemoSheet(sheetName), path)
         
 
-    pub def readMemosSheet(sheetName: String): SheetReader[#{MemoText| r}] = 
+    pub def readMemoSheet(sheetName: String): SheetReader[#{MemoText| r}] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(s1, evalRow());

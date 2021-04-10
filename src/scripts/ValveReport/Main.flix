@@ -17,6 +17,10 @@
 namespace ValveReport/Main {
 
     use AssetLib/AibRel/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
+    use AssetLib/AibRel/AssetCondition.{ConditionGrade, ConditionGradeReason, 
+                                        PerformanceGrade, PerformanceGradeReason, 
+                                        LoadingFactor, LoadingFactorReason, SurveyYear};
+    use AssetLib/AibRel/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
 
     type alias XlsxSource = 
@@ -33,11 +37,17 @@ namespace ValveReport/Main {
         , worklist: XlsxSource
         }
 
-    pub def loadRelations(src: SourceFiles): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment | r}, String] & Impure = 
+    pub def loadRelations(src: SourceFiles): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
+                                                        MemoText, 
+                                                        ConditionGrade, ConditionGradeReason, 
+                                                        PerformanceGrade, PerformanceGradeReason, 
+                                                        LoadingFactor, LoadingFactorReason, SurveyYear | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/AibRel/HierarchicalRelations.readHierarchyRelations(src.aibHierarchyExport.sheet, src.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(src.aibValveExport.sheet, src.aibValveExport.file);
+        let* agasp          = AssetLib/AibRel/AssetCondition.readAgaspData(src.aibAgaspExport.sheet, src.aibAgaspExport.file);
+        let* memos          = AssetLib/AibRel/MemoLines.readMemoData(src.aibMemosExport.sheet, src.aibMemosExport.file);
         let* workitems      = ValveReport/Relations.readWorkItemData(src.worklist.sheet, src.worklist.file);
-        Ok(hrelns <+> valveAttribs <+> workitems)
+        Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)
 
 }

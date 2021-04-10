@@ -90,7 +90,7 @@ namespace AssetLib/AibRel/AssetCondition {
 
 
     def decodeLoadingFactor(s: String): Option[Int32] = match String.trim(s) { 
-        case "3 - Satisfactory" => Some(1)
+        case "3 - Satisfactory" => Some(3)
         case _ => None
     }
 

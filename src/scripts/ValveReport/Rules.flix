@@ -106,12 +106,12 @@ namespace ValveReport/Rules {
         use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             /// EAST_NORTH (generate if have generated EquiDatum from AibEquipment)
-            EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  ngr, _, _),
+            EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
 
-            EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr)) ) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  ngr, _, _),
+            EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr))) :- 
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
         }
 

@@ -12,7 +12,7 @@ def main(_args: Array[String]): Int32 & Impure =
 
 def main1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
-    use ValveReport/Rules.{eqVALV};
+    use ValveReport/Rules.{eqVALV, equiEastNorth, equiAibReference, assetCondition};
     use AssetLib/S4Rel/Relations.{EquiDatum, EquiCharacteristic};
     use ValveReport/Relations.{ValveAttribs};
     let sourceFiles = 
@@ -39,10 +39,7 @@ def main1(): Result[Unit, String] & Impure =
             }
         };
     let* baseRelns = ValveReport/Main.loadRelations(sourceFiles);
-    let answers = solve eqVALV() <+> baseRelns;
+    let answers = solve assetCondition() <+> equiAibReference() <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
     (project EquiDatum answers) |> unsafeToString |> println;
     (project EquiCharacteristic answers) |> unsafeToString |> println;
-    
-    /// (project ValveAttribs answers) |> unsafeToString |> println; 
-    /// (project AibEquipment answers) |> unsafeToString |> println; 
     Ok()
