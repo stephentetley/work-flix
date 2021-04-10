@@ -144,50 +144,7 @@ namespace ValveReport/Rules {
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
         }
 
-    pub def assetCondition(): #{ConditionGrade, ConditionGradeReason,
-                                PerformanceGrade, PerformanceGradeReason,
-                                LoadingFactor, LoadingFactorReason,
-                                SurveyYear,
-                                EquiDatum, EquiCharacteristic, AibEquipment | r} = 
-        use AssetLib/Translate/AssetCondition.{s4ConditionGrade, s4PerformanceGrade, s4LoadingFactor};
-        #{
-    
-            /// ASSET_CONDITION
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE", s4ConditionGrade(grade)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                ConditionGrade(aibref, grade).
 
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE_REASON", String.toUpperCase(reason)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                ConditionGradeReason(aibref, reason).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE", s4PerformanceGrade(grade)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                PerformanceGrade(aibref, grade).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", String.toUpperCase(reason)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                PerformanceGradeReason(aibref, reason).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR", s4LoadingFactor(factor)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                LoadingFactor(aibref, factor).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR_REASON", String.toUpperCase(reason)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                LoadingFactorReason(aibref, reason).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "SURVEY_DATE", ToString.toString(year)) :- 
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                SurveyYear(aibref, year).
-        }
 
 
 
