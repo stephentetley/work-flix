@@ -37,8 +37,13 @@ namespace ValveReport/Main {
         , worklist: XlsxSource
         }
 
+    type alias Config = 
+        { solutionId: String
+        , changeRequestName: String
+        }
+
     /// Empty string for no solution id.
-    pub def main1(sourceFiles: SourceFiles, solutionId: String): Result[Unit, String] & Impure = 
+    pub def main1(sourceFiles: SourceFiles, config: Config, outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/Translate/Characteristics/AibReference.{equiAibReference};
         use AssetLib/Translate/Characteristics/AssetCondition.{assetCondition};
@@ -47,16 +52,17 @@ namespace ValveReport/Main {
         use AssetLib/Translate/MemoLines.{equiLongText};
         use ValveReport/Rules.{eqVALV};
         let* baseRelns = ValveReport/Main.loadRelations(sourceFiles);
-        let answers = solve equiSolutionId(solutionId) <+> equiLongText() 
+        let answers = solve equiSolutionId(config.solutionId) <+> equiLongText() 
                                 <+>  assetCondition() <+> equiAibReference() 
                                 <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;
         (project EquiLongText answers) |> unsafeToString |> println;
+        let* _          = AssetLib/Translate/S4/EmitUxl.outputUxl(config.changeRequestName, answers, sourceFiles.uxlTemplate, outpath);
         Ok()
 
 
-    pub def loadRelations(src: SourceFiles): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
+    def loadRelations(src: SourceFiles): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
                                                         MemoText, 
                                                         ConditionGrade, ConditionGradeReason, 
                                                         PerformanceGrade, PerformanceGradeReason, 

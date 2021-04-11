@@ -27,8 +27,12 @@ def main(_args: Array[String]): Int32 & Impure =
             , sheet = "Sheet1"
             }
         };
-    
-    match ValveReport/Main.main1(sourceFiles, "B7950000") { 
+    let config = 
+        { solutionId = "B7950000"
+        , changeRequestName = "New Valves"
+        }; 
+    let outpath = System/FilePath.new("G:/work/assets/valves/output-uxl1.xlsx");
+    match ValveReport/Main.main1(sourceFiles, config, outpath) { 
         case Ok() => 0
         case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
     }
