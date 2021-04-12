@@ -78,17 +78,29 @@ namespace AssetLib/Translate/Characteristics/AssetCondition {
 
     def decodeConditionGrade(s: String): Option[Int32] = match String.trim(s) { 
         case "1 - Good" => Some(1)
+        case "2 - Fair" => Some(2)
+        case "3 - Adequate" => Some(3)
+        case "4 - Poor" => Some(4)
+        case "5 - Awful" => Some(5)
         case _ => None
     }
 
 
     def decodeLoadingFactor(s: String): Option[Int32] = match String.trim(s) { 
+        case "1 - Significantly Under Loaded" => Some(1)
+        case "2 - Under Loaded" => Some(2)
         case "3 - Satisfactory" => Some(3)
+        case "4 - Overloaded" => Some(4)
+        case "5 - Unacceptable" => Some(5)
         case _ => None
     }
 
     def decodePerformanceGrade(s: String): Option[Int32] = match String.trim(s) { 
         case "1 - Availability  95%" => Some(1)
+        case "2 - Availability  90% - 94%" => Some(2)
+        case "3 - Availability  80% - 89%" => Some(3)
+        case "4 - Availability  50% - 79%" => Some(4)
+        case "5 - Availability  49%" => Some(5)
         case _ => None
     }
 

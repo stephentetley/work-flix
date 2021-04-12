@@ -44,9 +44,13 @@ namespace ValveReport/Rules {
             /// this block and there is the downside that if defined oustide 
             /// it is easy to forget to instntiate it.
             ///
-            ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",        "VALVNR").
-            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",    "VALVBA").
-            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Gate",    "VALVGA").
+            ValveTypeMap3("EQPT: PRESSURE REDUCING VALVE (WATER)", "",      "VALVPR").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",            "VALVBA").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Butterfly",       "VALVBP").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Knife Gate",      "VALVGA").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Wedge Gate",      "VALVGA").
+            ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",                "VALVNR").
+            ValveTypeMap3("EQUIPMENT: RELIEF/SAFETY VALVE", "",             "VALVSF").
 
             EquiDatum(aibref, 
                             "M",
@@ -97,8 +101,5 @@ namespace ValveReport/Rules {
         Option.getWithDefault(Option.map(ToString.toString, x), "")
 
 
-
-
-
-
 }
+
