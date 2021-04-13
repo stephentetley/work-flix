@@ -20,7 +20,13 @@ namespace ValveReport/Relations {
     use SheetIO.SheetReader;
 
 
-    pub rel ValveWorkItem(aibref: String, s4Name: String, s4Floc: String, s4Category: String, s4EquiType: String, s4EquiClass: String)
+    pub rel ValveWorkItem(aibref: String, 
+                            s4Name: String, 
+                            s4Floc: String, 
+                            superEqui: String, 
+                            s4Category: String, 
+                            s4EquiType: String, 
+                            s4EquiClass: String)
     
     /// sizeMillimeters may not have been specified so has to be an Option
     pub rel ValveAttribs(aibref: String, valveType: String, sizeMillimeters: Option[Float64], locationOnSite: String)
@@ -43,17 +49,18 @@ namespace ValveReport/Relations {
     def evalValveWorkItemRow(): NamedRowEvaluator[#{ValveWorkItem| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6) -> 
+        ((x1, x2, x3, x4, x5, x6, x7) -> 
                 if (String.isEmpty(x2) or String.isEmpty(x3)) 
                     #{} 
                 else 
-                    #{ ValveWorkItem(x1, x2, x3, x4, x5, x6). })
+                    #{ ValveWorkItem(x1, x2, x3, x4, x5, x6, x7). })
             <&> getContentNamed("Reference")
-            <*> getContentNamed("S4 Equi Name")
-            <*> getContentNamed("S4 Floc")
-            <*> getContentNamed("S4 Category")
-            <*> getContentNamed("Equi Type")
-            <*> getContentNamed("Equi Class")
+            <*> map(String.trim, getContentNamed("S4 Equi Name"))
+            <*> map(String.trim, getContentNamed("S4 Floc"))
+            <*> map(String.trim, getContentNamed("Super Equi"))
+            <*> map(String.trim, getContentNamed("S4 Category"))
+            <*> map(String.trim, getContentNamed("Equi Type"))
+            <*> map(String.trim, getContentNamed("Equi Class"))
 
 
 

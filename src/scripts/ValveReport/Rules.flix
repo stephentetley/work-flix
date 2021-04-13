@@ -66,12 +66,12 @@ namespace ValveReport/Rules {
                             partNumber,
                             s4SerialNumber(serialNumber),
                             suppliedFloc,
-                            "",
+                            superEqui,
                             pandi,
                             s4Status(status)) :- 
                 AibEquipment(aibref, description, equiType, 
                     installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
-                ValveWorkItem(aibref, s4Name, suppliedFloc, "M", "VALV", _).
+                ValveWorkItem(aibref, s4Name, suppliedFloc, superEqui, "M", "VALV", _).
 
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
@@ -117,24 +117,24 @@ namespace ValveReport/Rules {
                             partNumber,
                             s4SerialNumber(serialNumber),
                             suppliedFloc,
-                            "",
+                            superEqui,
                             pandi,
                             s4Status(status)) :- 
                 AibEquipment(aibref, description, equiType, 
                     installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
-                ValveWorkItem(aibref, s4Name, suppliedFloc, s4Category, s4EquiType, _),
-                if s4EquiType != "VALV".
+                ValveWorkItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, s4EquiClass),
+                if s4EquiType != "VALV" and not String.isEmpty(s4EquiClass).
 
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                ValveWorkItem(aibref, _, _, _, s4EquiType, s4EquiClass),
-                if s4EquiType != "VALV".
+                ValveWorkItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
+                if s4EquiType != "VALV" and not String.isEmpty(s4EquiClass).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                ValveWorkItem(aibref, _, _, _, s4EquiType, s4EquiClass),
-                if s4EquiType != "VALV".
+                ValveWorkItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
+                if s4EquiType != "VALV" and not String.isEmpty(s4EquiClass).
 
 
         }
