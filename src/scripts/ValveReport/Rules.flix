@@ -28,15 +28,19 @@ namespace ValveReport/Rules {
         case _ => x
     }
 
-    def stringWithDefault(s: String, d: String): String = if (String.isEmpty(s)) d else s
+    def s4SerialNumber(s: String): String = match s { 
+        case "N/A" => "NOT APPLICABLE"
+        case s1 if (String.isEmpty(s1)) => "UNKNOWN"
+        case s1 => s1
+    }
 
     rel ValveTypeMap3(equiType: String, aibType: String, ans: String)
 
 
 
-    pub def eqVALV(): #{ValveTypeMap3, 
-                        ValveAttribs, ValveWorkItem, 
-                        EquiDatum, EquiCharacteristic, AibEquipment | r} = 
+    pub def equiVALV(): #{ValveTypeMap3, 
+                            ValveAttribs, ValveWorkItem, 
+                            EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         #{
             
             /// Define the typemap here.
@@ -60,14 +64,14 @@ namespace ValveReport/Rules {
                             manufacturer,
                             model,
                             partNumber,
-                            stringWithDefault(serialNumber, "UNKNOWN"),
+                            s4SerialNumber(serialNumber),
                             suppliedFloc,
                             "",
                             pandi,
                             s4Status(status)) :- 
                 AibEquipment(aibref, description, equiType, 
                     installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
-                ValveWorkItem(aibref, s4Name, suppliedFloc).
+                ValveWorkItem(aibref, s4Name, suppliedFloc, "M", "VALV", _).
 
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
@@ -99,6 +103,41 @@ namespace ValveReport/Rules {
 
     def getSizeValue(x: Option[Float64]): String = 
         Option.getWithDefault(Option.map(ToString.toString, x), "")
+
+
+    pub def equiOther(): #{ValveWorkItem, EquiDatum, EquiCharacteristic, AibEquipment | r} = 
+        #{
+            EquiDatum(aibref, 
+                            s4Category,
+                            String.takeLeft(40, s4Name),
+                            s4EquiType,
+                            installedFrom,
+                            manufacturer,
+                            model,
+                            partNumber,
+                            s4SerialNumber(serialNumber),
+                            suppliedFloc,
+                            "",
+                            pandi,
+                            s4Status(status)) :- 
+                AibEquipment(aibref, description, equiType, 
+                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
+                ValveWorkItem(aibref, s4Name, suppliedFloc, s4Category, s4EquiType, _),
+                if s4EquiType != "VALV".
+
+
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                ValveWorkItem(aibref, _, _, _, s4EquiType, s4EquiClass),
+                if s4EquiType != "VALV".
+
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                ValveWorkItem(aibref, _, _, _, s4EquiType, s4EquiClass),
+                if s4EquiType != "VALV".
+
+
+        }
 
 
 }

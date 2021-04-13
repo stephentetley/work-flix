@@ -20,7 +20,7 @@ namespace ValveReport/Relations {
     use SheetIO.SheetReader;
 
 
-    pub rel ValveWorkItem(aibref: String, s4Name: String, s4Floc: String)
+    pub rel ValveWorkItem(aibref: String, s4Name: String, s4Floc: String, s4Category: String, s4EquiType: String, s4EquiClass: String)
     
     /// sizeMillimeters may not have been specified so has to be an Option
     pub rel ValveAttribs(aibref: String, valveType: String, sizeMillimeters: Option[Float64], locationOnSite: String)
@@ -43,10 +43,19 @@ namespace ValveReport/Relations {
     def evalValveWorkItemRow(): NamedRowEvaluator[#{ValveWorkItem| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> if (String.isEmpty(x2) or String.isEmpty(x3)) #{} else #{ ValveWorkItem(x1, x2, x3). })
+        ((x1, x2, x3, x4, x5, x6) -> 
+                if (String.isEmpty(x2) or String.isEmpty(x3)) 
+                    #{} 
+                else 
+                    #{ ValveWorkItem(x1, x2, x3, x4, x5, x6). })
             <&> getContentNamed("Reference")
             <*> getContentNamed("S4 Equi Name")
             <*> getContentNamed("S4 Floc")
+            <*> getContentNamed("S4 Category")
+            <*> getContentNamed("Equi Type")
+            <*> getContentNamed("Equi Class")
+
+
 
     /// Read from Aib xlsx export file...
     pub def readValveAttribsData(sheetName: String, 

@@ -121,11 +121,12 @@ namespace ValveReport/Main {
         use AssetLib/Translate/Characteristics/EastNorth.{equiEastNorth};
         use AssetLib/Translate/Characteristics/SolutionId.{equiSolutionId};
         use AssetLib/Translate/MemoLines.{equiLongText};
-        use ValveReport/Rules.{eqVALV};
+        use ValveReport/Rules.{equiVALV, equiOther};
         let* baseRelns = ValveReport/Main.loadRelations(args);
         let answers = solve equiSolutionId(args.solutionId) <+> equiLongText() 
                                 <+>  assetCondition() <+> equiAibReference() 
-                                <+> equiEastNorth() <+> eqVALV() <+> baseRelns;
+                                <+> equiEastNorth() <+> equiOther() 
+                                <+> equiVALV() <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;
         (project EquiLongText answers) |> unsafeToString |> println;

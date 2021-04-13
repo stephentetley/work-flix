@@ -29,7 +29,7 @@ namespace AssetLib/Translate/MemoLines {
         #{
             EquiLongText(aibref, description, longText) :- 
                 /// AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, description, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _),
                 MemoText(aibref, longText).
 
         }
