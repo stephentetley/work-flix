@@ -83,7 +83,7 @@ namespace ValveReport/Relations {
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 
                 if (isValveCommonName(x2)) {
-                    let sizeMM: Option[Float64] = Option.flatMap(flip(decodeSize, x5), x4);
+                    let sizeMM: Option[Float64] = Option.flatMap(flip(decodeSizeMM, x5), x4);
                     #{ ValveAttribs(x1, x3, sizeMM, x6). }
                 } else #{}
             })
@@ -104,8 +104,10 @@ namespace ValveReport/Relations {
         };
         Option.getWithDefault(step(), false)
 
-    def decodeSize(size: Float64, units: String): Option[Float64] = match units { 
+    def decodeSizeMM(size: Float64, units: String): Option[Float64] = match units { 
         case "MILLIMETRES" => Some(size)
+        case "INCH" => Some(25.4f64 * size)
+        case "UNKNOWN UNIT" => None
         case _ => None
     }
 

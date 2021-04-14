@@ -46,13 +46,15 @@ namespace ValveReport/Rules {
             /// Define the typemap here.
             /// There aren't any modularity benefits to defining it outside 
             /// this block and there is the downside that if defined oustide 
-            /// it is easy to forget to instntiate it.
+            /// it is easy to forget to instantiate it.
             ///
             ValveTypeMap3("EQPT: PRESSURE REDUCING VALVE (WATER)", "",      "VALVPR").
+            ValveTypeMap3("EQUIPMENT: AIR RELIEF VALVE", "",                "VALVAV").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",            "VALVBA").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Butterfly",       "VALVBP").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Knife Gate",      "VALVGA").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Wedge Gate",      "VALVGA").
+            ValveTypeMap3("EQUIPMENT: MULTI-WAY VALVE", "",                 "VALVMW").
             ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",                "VALVNR").
             ValveTypeMap3("EQUIPMENT: RELIEF/SAFETY VALVE", "",             "VALVSF").
 
