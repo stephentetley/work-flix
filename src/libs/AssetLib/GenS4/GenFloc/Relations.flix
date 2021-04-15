@@ -24,7 +24,8 @@ namespace AssetLib/GenS4/GenFloc/Relations {
                         description: String, 
                         level: Int32, 
                         objectType: String, 
-                        systemType: String,     /// Level 5 flocs only
+                        systemClass: String,        /// Level 5 flocs only
+                        systemType: String,         /// Level 5 flocs only
                         gridRef: String
                         )
 
@@ -47,17 +48,18 @@ namespace AssetLib/GenS4/GenFloc/Relations {
     def evalValveWorkItemRow(): NamedRowEvaluator[#{FlocWorkItem| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5) -> 
+        ((x1, x2, x3, x4, x5, x6) -> 
                 if (String.isEmpty(x1) or String.isEmpty(x2)) 
                     #{} 
                 else {
                     let ofloc = AssetLib/S4/Base/Floc.new(x1);
                     let level = Option.getWithDefault(Option.map(AssetLib/S4/Base/Floc.level, ofloc), 0);
-                    #{ FlocWorkItem(x1, x2, level, x3, x4, x5). }
+                    #{ FlocWorkItem(x1, x2, level, x3, x4, x5, x6). }
                 })                    
             <&> map(String.trim, getContentNamed("Functional Location"))
             <*> map(String.trim, getContentNamed("Description"))
             <*> map(String.trim, getContentNamed("Object Type"))
+            <*> map(String.trim, getContentNamed("System Class"))
             <*> map(String.trim, getContentNamed("System Type"))
             <*> map(String.trim, getContentNamed("NGR"))
 
