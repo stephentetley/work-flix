@@ -15,12 +15,12 @@
  */
 
 
-namespace AssetLib/Translate/MemoLines {
+namespace AssetLib/GenS4/MemoLines {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiLongText};
+    use AssetLib/GenS4/S4Relations.{EquiDatum, EquiLongText};
 
     pub rel MemoText(aibref: String, text: String)
 

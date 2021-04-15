@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/Translate/Characteristics/AssetCondition {
+namespace AssetLib/GenS4/Characteristics/AssetCondition {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/Translate/Aib/HierarchicalRelations.{AibEquipment};
-    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/GenS4/Aib/HierarchicalRelations.{AibEquipment};
+    use AssetLib/GenS4/S4Relations.{EquiDatum, EquiCharacteristic};
 
 
     /// Are these better as binary facts?

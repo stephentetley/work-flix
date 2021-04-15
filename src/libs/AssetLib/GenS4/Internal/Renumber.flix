@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/Translate/S4/Renumber {
+namespace AssetLib/GenS4/Internal/Renumber {
 
     use AssetLib/S4/FileIO/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
 

@@ -21,11 +21,11 @@ namespace ValveReport/Main {
 
 
 
-    use AssetLib/Translate/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
-    use AssetLib/Translate/S4/Relations.{EquiDatum, EquiCharacteristic, EquiLongText};
-    use AssetLib/Translate/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
+    use AssetLib/GenS4/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
+    use AssetLib/GenS4/S4/Relations.{EquiDatum, EquiCharacteristic, EquiLongText};
+    use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
-    use AssetLib/Translate/MemoLines.{MemoText};
+    use AssetLib/GenS4/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
 
 
@@ -116,11 +116,11 @@ namespace ValveReport/Main {
     /// Empty string for no solution id.
     pub def main2(args: ProgramArguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/Translate/Characteristics/AibReference.{equiAibReference};
-        use AssetLib/Translate/Characteristics/AssetCondition.{assetCondition};
-        use AssetLib/Translate/Characteristics/EastNorth.{equiEastNorth};
-        use AssetLib/Translate/Characteristics/SolutionId.{equiSolutionId};
-        use AssetLib/Translate/MemoLines.{equiLongText};
+        use AssetLib/GenS4/Characteristics/AibReference.{equiAibReference};
+        use AssetLib/GenS4/Characteristics/AssetCondition.{assetCondition};
+        use AssetLib/GenS4/Characteristics/EastNorth.{equiEastNorth};
+        use AssetLib/GenS4/Characteristics/SolutionId.{equiSolutionId};
+        use AssetLib/GenS4/MemoLines.{equiLongText};
         use ValveReport/Rules.{equiVALV, equiOther};
         let* baseRelns = ValveReport/Main.loadRelations(args);
         let answers = solve equiSolutionId(args.solutionId) <+> equiLongText() 
@@ -130,7 +130,7 @@ namespace ValveReport/Main {
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;
         (project EquiLongText answers) |> unsafeToString |> println;
-        let* _      = AssetLib/Translate/S4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
+        let* _      = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 
     def decodeXlsxSource(s: String): XlsxSource = match String.breakOnLeft("##", s) {
@@ -144,10 +144,10 @@ namespace ValveReport/Main {
                                                         PerformanceGrade, PerformanceGradeReason, 
                                                         LoadingFactor, LoadingFactorReason, SurveyYear | r}, String] & Impure = 
         use Result.{flatMap};
-        let* hrelns         = AssetLib/Translate/Aib/HierarchicalRelations.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
+        let* hrelns         = AssetLib/GenS4/Aib/HierarchicalRelations.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(args.aibValveExport.sheet, args.aibValveExport.file);
-        let* agasp          = AssetLib/Translate/Characteristics/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
-        let* memos          = AssetLib/Translate/MemoLines.readMemoData(args.aibMemosExport.sheet, args.aibMemosExport.file);
+        let* agasp          = AssetLib/GenS4/Characteristics/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
+        let* memos          = AssetLib/GenS4/MemoLines.readMemoData(args.aibMemosExport.sheet, args.aibMemosExport.file);
         let* workitems      = ValveReport/Relations.readWorkItemData(args.worklist.sheet, args.worklist.file);
         Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)
 

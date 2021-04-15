@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Translate/GenFloc/Relations {
+namespace AssetLib/GenS4/GenFloc/Relations {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
