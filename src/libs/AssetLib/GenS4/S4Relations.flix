@@ -62,12 +62,12 @@ namespace AssetLib/GenS4/S4Relations {
 
 
     /// To Uxl...
-    pub def toFunctionalLocationData(src: #{ FlocDatum | r }): List[FunctionalLocationData] = 
-        let buildStep = (x, ac) -> flocDatumToUxl(x) :: ac;
+    pub def toFunctionalLocationData(src: #{FlocDatum | r}): List[FunctionalLocationData] & Impure = 
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
-        let xs = { fold FlocDatum Nil buildStep src };
-        List.sortWith(sortStep, xs)
-
+        query src select (x1, x2, x3, x4, x5, x6, x7) from FlocDatum(x1, x2, x3, x4, x5, x6, x7) 
+            |> Array.toList 
+            |> List.map(flocDatumToUxl)
+            |> List.sortWith(sortStep)
 
     def flocDatumToUxl(x: (String, String, String, String, 
                             Time.LocalDate, Bool, String)): FunctionalLocationData = 
@@ -89,11 +89,13 @@ namespace AssetLib/GenS4/S4Relations {
         }
 
 
-    pub def toFlMultilingualText(src: #{ FlocLongText | r }): List[FlMultilingualText] = 
-        let buildStep = (x, ac) -> flocLongTextToUxl(x) :: ac;
+    pub def toFlMultilingualText(src: #{FlocLongText | r}): List[FlMultilingualText] & Impure = 
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
-        let xs = { fold FlocLongText Nil buildStep src };
-        List.sortWith(sortStep, xs)
+        query src select (x1, x2, x3) from FlocLongText(x1, x2, x3) 
+            |> Array.toList 
+            |> List.map(flocLongTextToUxl)
+            |> List.sortWith(sortStep)
+
 
     def flocLongTextToUxl(x: (String, String, String)): FlMultilingualText = 
         let (x1, x2, x3) = x;
@@ -105,14 +107,15 @@ namespace AssetLib/GenS4/S4Relations {
         }
 
 
-    pub def toFlClassifications(src: #{ FlocCharacteristic | r }): List[FlClassification] = 
-        let buildStep = (x, ac) -> flocCharacteristicToUxl(x) :: ac;
+    pub def toFlClassifications(src: #{FlocCharacteristic | r}): List[FlClassification] & Impure = 
         let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
             case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
             case ans => Order.toInt(ans)
         };
-        let xs = { fold FlocCharacteristic Nil buildStep src };
-        List.sortWith(sortStep, xs)
+        query src select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4) 
+            |> Array.toList 
+            |> List.map(flocCharacteristicToUxl)
+            |> List.sortWith(sortStep)
 
     def flocCharacteristicToUxl(x: (String, String, String, String)): FlClassification = 
         let (x1, x2, x3, x4) = x;
@@ -126,11 +129,12 @@ namespace AssetLib/GenS4/S4Relations {
         , charDeletionInd       = false
         }
 
-    pub def toEquipmentData(src: #{ EquiDatum | r }): List[EquipmentData] = 
-        let buildStep = (x, ac) -> equiDatumToUxl(x) :: ac;
+    pub def toEquipmentData(src: #{EquiDatum | r}): List[EquipmentData] & Impure = 
         let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
-        let xs = { fold EquiDatum Nil buildStep src };
-        List.sortWith(sortStep, xs)
+        query src select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) from EquiDatum(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) 
+            |> Array.toList 
+            |> List.map(equiDatumToUxl)
+            |> List.sortWith(sortStep)
 
 
     def equiDatumToUxl(x: (String, String, String,
@@ -167,11 +171,13 @@ namespace AssetLib/GenS4/S4Relations {
         }
 
 
-    pub def toEqMultilingualText(src: #{ EquiLongText | r }): List[EqMultilingualText] = 
-        let buildStep = (x, ac) -> equiLongTextToUxl(x) :: ac;
+    pub def toEqMultilingualText(src: #{EquiLongText | r}): List[EqMultilingualText] & Impure = 
         let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
-        let xs = { fold EquiLongText Nil buildStep src };
-        List.sortWith(sortStep, xs)
+        query src select (x1, x2, x3) from EquiLongText(x1, x2, x3) 
+            |> Array.toList 
+            |> List.map(equiLongTextToUxl)
+            |> List.sortWith(sortStep)
+
 
     def equiLongTextToUxl(x: (String, String, String)): EqMultilingualText = 
         let (x1, x2, x3) = x;
@@ -183,14 +189,15 @@ namespace AssetLib/GenS4/S4Relations {
         }
 
 
-    pub def toEqClassifications(src: #{ EquiCharacteristic | r }): List[EqClassification] = 
-        let buildStep = (x, ac) -> equiCharacteristicToUxl(x) :: ac;
+    pub def toEqClassifications(src: #{EquiCharacteristic | r}): List[EqClassification] & Impure = 
         let sortStep = (x, y) -> match Order.compare(x.equiId, y.equiId) { 
             case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
             case ans => Order.toInt(ans)
         };
-        let xs = { fold EquiCharacteristic Nil buildStep src };
-        List.sortWith(sortStep, xs)
+        query src select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4) 
+            |> Array.toList 
+            |> List.map(equiCharacteristicToUxl)
+            |> List.sortWith(sortStep)
 
     def equiCharacteristicToUxl(x: (String, String, String, String)): EqClassification = 
         let (x1, x2, x3, x4) = x;
