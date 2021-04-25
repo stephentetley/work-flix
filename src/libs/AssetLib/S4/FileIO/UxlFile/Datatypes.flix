@@ -79,6 +79,7 @@ namespace AssetLib/S4/FileIO/UxlFile/Datatypes {
         { equiId: String
         , equipCategory: String
         , description: String
+        , validFrom: Time.LocalDate
         , objectType: String
         , grossWeight: Option[Float64]
         , unitOfWeight: String

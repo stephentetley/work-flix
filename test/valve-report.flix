@@ -2,4 +2,6 @@
 
 def main(args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    ValveReport/Main.main1(args) 
+    let ans = ValveReport/Main.main1(args);
+    Console.printLine("Done... ${Time/LocalTime.now()}");
+    ans

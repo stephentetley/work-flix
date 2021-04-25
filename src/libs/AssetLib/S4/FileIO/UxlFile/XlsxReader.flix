@@ -178,34 +178,36 @@ namespace AssetLib/S4/FileIO/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/S4/Base/SheetIOUtils.{getS4LocalDateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, 
-            x15, x16, x17, x18, x19, x20, x21, x22, x23) -> 
+            x15, x16, x17, x18, x19, x20, x21, x22, x23, x24) -> 
                 { equiId            = x1
                 , equipCategory     = x2
                 , description       = x3
-                , objectType        = x4
-                , grossWeight       = x5
-                , unitOfWeight      = x6
-                , startupDate       = x7
-                , manufacturer      = x8
-                , modelNumber       = x9
-                , manufPartNo       = x10
-                , manufSerialNo     = x11
-                , constructYear     = x12
-                , constructMth      = x13
-                , maintPlant        = x14
-                , companyCode       = x15
-                , coArea            = x16
-                , planningPlant     = x17
-                , functionalLoc     = x18
-                , superordEquip     = x19
-                , position          = x20
-                , techIdentNo       = x21
-                , statusProfile     = x22
-                , statusOfAnObject  = x23
+                , validFrom         = x4
+                , objectType        = x5
+                , grossWeight       = x6
+                , unitOfWeight      = x7
+                , startupDate       = x8
+                , manufacturer      = x9
+                , modelNumber       = x10
+                , manufPartNo       = x11
+                , manufSerialNo     = x12
+                , constructYear     = x13
+                , constructMth      = x14
+                , maintPlant        = x15
+                , companyCode       = x16
+                , coArea            = x17
+                , planningPlant     = x18
+                , functionalLoc     = x19
+                , superordEquip     = x20
+                , position          = x21
+                , techIdentNo       = x22
+                , statusProfile     = x23
+                , statusOfAnObject  = x24
                 })
             <&> getContentNamed("Equi")                             /// equiId
             <*> getContentNamed("Eqtyp")                            /// equipCategory
             <*> getContentNamed("Txtmi")                            /// description
+            <*> getS4LocalDateNamed("DATA_EEQZ")                    /// validFrom
             <*> getContentNamed("EqartEqu")                         /// objectType
             <*> optional(getFloat64Named("Brgew"))                  /// grossWeight
             <*> getContentNamed("Gewei")                            /// unitOfWeight

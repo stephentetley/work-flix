@@ -141,13 +141,14 @@ namespace AssetLib/GenS4/S4Relations {
                             String, Time.LocalDate, String,
                             String, String, String,
                             String, String, String, 
-                            String)): EquipmentData = 
+                            String)): EquipmentData & Impure = 
         let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) = x;
         let nonef64: Option[Float64] = None;    /// Avoids a typing problem with using None directly...
         let nonei32: Option[Int32] = None;
         { equiId            = x1
         , equipCategory     = x2
         , description       = x3
+        , validFrom         = Time/LocalDate.now()
         , objectType        = x4
         , grossWeight       = nonef64
         , unitOfWeight      = ""
