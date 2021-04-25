@@ -17,7 +17,7 @@
 use TextParser.RowWithHeadersParser;
 use TextParser/RowWithHeadersParser.{return, getString, getInt32, map};
 
-use AssetLib/S4/FileIO/EntityFile/Datatypes.{EntityData};
+use AssetLib/FileIO/S4/EntityFile/Datatypes.{EntityData};
 
 namespace UploadCheck/EntityTypes/Eqmltxt {
 
@@ -36,8 +36,8 @@ namespace UploadCheck/EntityTypes/Eqmltxt {
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[EqmltxtFile, System.Error] & Impure = 
         use Result.flatMap;
-        let* ast = AssetLib/S4/FileIO/ChangeFile/Parser.parseFile(path);
-        let* ans = AssetLib/S4/FileIO/ChangeFile/Evaluate.transform(evaluateRow(), ast);
+        let* ast = AssetLib/FileIO/S4/ChangeFile/Parser.parseFile(path);
+        let* ans = AssetLib/FileIO/S4/ChangeFile/Evaluate.transform(evaluateRow(), ast);
         Ok(ans)
 
     

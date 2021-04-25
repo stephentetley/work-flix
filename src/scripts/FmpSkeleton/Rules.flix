@@ -39,7 +39,7 @@ namespace FmpSkeleton/Rules {
 
 
     pub def eqDISTBD(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
-        use AssetLib/Common/Utils.{properCaseName};
+        use AssetLib/Base/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
                             "E",
@@ -69,7 +69,7 @@ namespace FmpSkeleton/Rules {
 
 
     pub def eqFSTNEM(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
-        use AssetLib/Common/Utils.{properCaseName};
+        use AssetLib/Base/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
                             "I",
@@ -98,7 +98,7 @@ namespace FmpSkeleton/Rules {
         }
 
     pub def eqKISKKI(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
-        use AssetLib/Common/Utils.{properCaseName};
+        use AssetLib/Base/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
                             "C",
@@ -126,7 +126,7 @@ namespace FmpSkeleton/Rules {
         }
 
     pub def eqNETWTL(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
-        use AssetLib/Common/Utils.{properCaseName};
+        use AssetLib/Base/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
                             "I",
@@ -155,7 +155,7 @@ namespace FmpSkeleton/Rules {
 
 
     pub def eqPODETU(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
-        use AssetLib/Common/Utils.{properCaseName};
+        use AssetLib/Base/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
                             "E",
@@ -184,7 +184,7 @@ namespace FmpSkeleton/Rules {
         }
 
     pub def eqPSTNEM(): #{EquiDatum, EquiCharacteristic, AibEquipment, SiteMapping, Status | r} = 
-        use AssetLib/Common/Utils.{properCaseName};
+        use AssetLib/Base/Utils.{properCaseName};
         #{
             EquiDatum(aibref, 
                             "I",
@@ -214,7 +214,7 @@ namespace FmpSkeleton/Rules {
 
 
     pub def eqEAST_NORTH(): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
-        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
                 AibEquipment(aibref, _, _,  equiType, _, _,  _, _, _,  ngr, _, _,  _),
@@ -226,7 +226,7 @@ namespace FmpSkeleton/Rules {
         }
 
     pub def eqAIB_REFERENCE(): #{EquiCharacteristic, AibEquipment, EquiDatum | r} = 
-        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
@@ -321,7 +321,7 @@ namespace FmpSkeleton/Rules {
 
     /// TODO - not AibEquipment
     pub def flEAST_NORTH(): #{FlocCharacteristic, AibEquipment | r} = 
-        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             FlocCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr)) ) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  ngr, _, _,  _).

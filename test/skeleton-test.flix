@@ -38,7 +38,7 @@ def genItems(paths: SourcePaths): DbMonad[Unit] =
 
 def setupDb(paths: SourcePaths): DbMonad[Unit] = 
     use BasicDb/DbMonad.{flatMap, return};
-    let* _ = AssetLib/S4/FileIO/ZTable/ExportDb.storeFlocdes("ztable_flocdes", paths.ztableFlocdes);
+    let* _ = AssetLib/FileIO/S4/ZTable/ExportDb.storeFlocdes("ztable_flocdes", paths.ztableFlocdes);
     let* _ = Skeleton/SetupDb/StoreAibFacts.storeAibInputRows(paths.sourceXlsx);
     let* _ = Skeleton/SetupDb/StoreAibFacts.storeFlocMappingRows(paths.sourceXlsx);
     return()

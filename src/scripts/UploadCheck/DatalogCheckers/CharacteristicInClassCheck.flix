@@ -16,7 +16,7 @@
 
 use Text/Regex/Pattern.{irrefutablePattern};
 
-use AssetLib/S4/FileIO/ClassList/Relations.{ClassMember};
+use AssetLib/FileIO/S4/ClassList/Relations.{ClassMember};
 
 namespace UploadCheck/DatalogCheckers/CharacteristicInClassCheck {
 

@@ -21,7 +21,7 @@ namespace NewLiftingItems/MakeReport/ChildNew {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.{AibExportRow};
+    use AssetLib/FileIO/Aib/AideChangeSummary/Datatypes.{AibExportRow};
     use NewLiftingItems/Base/Datatypes.{LiftingEquipment};
 
 

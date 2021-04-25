@@ -24,7 +24,7 @@ namespace UploadCheck/SqlCheckers/SelectionValueCheck {
     use BasicDb/DbMonad.{prepareStatement, psExecuteQuery, firstRow, rsClose};
     use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{EqClassification, FlClassification};
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{EqClassification, FlClassification};
     use UploadCheck/Base/RowCheck.{RowCheck, RowChecker};
     use UploadCheck/Base/RowCheck.RowChecker.{RowChecker};
 

@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/S4Relations {
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
         FlClassification, EquipmentData, EqMultilingualText, EqClassification};
 
 
@@ -76,14 +76,14 @@ namespace AssetLib/GenS4/S4Relations {
         { functionalLocation    = x1
         , maskedFuncLoc         = x1
         , description           = x2
-        , functLocCat           = Option.getWithDefault(Option.map(AssetLib/S4/Base/Floc.level, AssetLib/S4/Base/Floc.new(x1)), 0)
+        , functLocCat           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, AssetLib/Base/S4/Floc.new(x1)), 0)
         , strIndicator          = x3
         , objectType            = x4
         , startupDate           = x5
         , maintPlant            = 2100
         , companyCode           = 2100
         , coArea                = 1000
-        , supFunctLoc           = Option.getWithDefault(Option.map(AssetLib/S4/Base/Floc.pop >> ToString.toString, AssetLib/S4/Base/Floc.new(x1)), "")
+        , supFunctLoc           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, AssetLib/Base/S4/Floc.new(x1)), "")
         , equipInstall          = x6
         , statusProfile         = "ZEQUIPST"
         , userStatus            = x7

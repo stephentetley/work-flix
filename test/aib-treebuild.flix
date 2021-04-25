@@ -1,5 +1,5 @@
 
-use AssetLib/Aib/FileIO/TreeExport/TransposeRaw.{transposeRawInput, generateHtml};
+use AssetLib/FileIO/Aib/TreeExport/TransposeRaw.{transposeRawInput, generateHtml};
    
 
 @test

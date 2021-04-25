@@ -71,7 +71,7 @@ namespace NewLiftingItems/MakeReport/BuildItems/AibAttributes {
     def evalAibAttributes(): RowEvaluator[AibAttributes] = 
         use BasicDb/RowEvaluator.{getStringNamed, getFloat64Named, optional};
         use BasicDb/RowEvaluator.{<&>, <*>};
-        use AssetLib/S4/Base/BasicDbUtils.{getS4DateNamed};
+        use AssetLib/Base/S4/BasicDbUtils.{getS4DateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12) ->
                 { assetStatus       = x1
                 , installedFrom     = x2

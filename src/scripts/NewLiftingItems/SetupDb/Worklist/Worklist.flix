@@ -19,7 +19,7 @@ namespace NewLiftingItems/SetupDb/Worklist/Worklist {
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/Aib/FileIO/AideChangeSummary/Datatypes.AibExportRow;
+    use AssetLib/FileIO/Aib/AideChangeSummary/Datatypes.AibExportRow;
 
     type alias WorklistRow = 
         { reference: String
@@ -29,7 +29,7 @@ namespace NewLiftingItems/SetupDb/Worklist/Worklist {
 
     pub def storeWorklist(tableName: String, path: System.FilePath): DbMonad[Unit] =
         use BasicDb/DbMonad.{return, flatMap, liftActionResult}; 
-        let* xs         = liftActionResult(_ -> AssetLib/Aib/FileIO/AideChangeSummary/XlsxReader.readFile(path));
+        let* xs         = liftActionResult(_ -> AssetLib/FileIO/Aib/AideChangeSummary/XlsxReader.readFile(path));
         let  equis      = List.filter(x -> (String.startsWith(x.reference, "PLI") and x.change != "Child Equal"), xs);
         let* _          = exportWorklistRows(tableName, equis);
         return()

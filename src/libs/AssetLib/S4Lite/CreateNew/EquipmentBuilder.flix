@@ -109,7 +109,7 @@ namespace AssetLib/S4Lite/CreateNew/EquipmentBuilder {
     def evalEquiAttributes(): RowEvaluator[EquiAttributes] = 
         use BasicDb/RowEvaluator.{getStringNamed, getInt32Named};
         use BasicDb/RowEvaluator.{<&>, <*>};
-        use AssetLib/S4/Base/BasicDbUtils.{getS4DateNamed};
+        use AssetLib/Base/S4/BasicDbUtils.{getS4DateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
                 { category              = x1
                 , description           = x2

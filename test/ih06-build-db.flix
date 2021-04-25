@@ -1,6 +1,6 @@
-use AssetLib/S4/FileIO/IH06Tree/ExportDb.{defaultTableNames, storeIH06Trees};
-use AssetLib/S4/FileIO/IH08Table/ExportDb.{storeIH08Table};
-use AssetLib/Aib/FileIO/TreeExport/ExportDb.{storeTreeExport};
+use AssetLib/FileIO/S4/IH06Tree/ExportDb.{defaultTableNames, storeIH06Trees};
+use AssetLib/FileIO/S4/IH08Table/ExportDb.{storeIH08Table};
+use AssetLib/FileIO/Aib/TreeExport/ExportDb.{storeTreeExport};
 
 def main(_args: Array[String]): Int32 & Impure =
     use Result.flatMap;

@@ -17,7 +17,7 @@
 namespace AssetLib/S4Lite/CreateNew/EmitUxl {
 
     use SheetIO.SheetWriter;
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails => UxlChangeRequestDetails
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{ChangeRequestDetails => UxlChangeRequestDetails
         , FunctionalLocationData => UxlFunctionalLocationData
         , FlMultilingualText => UxlFlMultilingualText
         , FlClassification => UxlFlClassification
@@ -37,7 +37,7 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
     pub def emitUxl(description: String, flocs: List[FlocDatum], equis: List[EquiDatum]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let crDetails   = genChangeRequestDetails(description, flocs, equis);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crDetails);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeChangeRequestDetails(crDetails);
         let* _          = outputS4Flocs(flocs);
         let* _          = outputS4Equipment(equis);
         return()
@@ -70,11 +70,11 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
     def outputS4Flocs(xs: List[FlocDatum]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let flocs       = List.map(x -> genUxlFunctionalLocationData(x.functionalLocation, x.attributes), xs);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
         let mltexts     = List.flatMap(x -> genUxlFlMultilingualText(x.functionalLocation, x.longText), xs);        
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlMultilingualText(mltexts);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlMultilingualText(mltexts);
         let classifs    = List.flatMap(x -> genUxlFlClassifications(x.functionalLocation, x.classifications), xs);        
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlClassification(classifs);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlClassification(classifs);
         return()
 
 
@@ -131,11 +131,11 @@ namespace AssetLib/S4Lite/CreateNew/EmitUxl {
     def outputS4Equipment(xs: List[EquiDatum]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return};
         let equis       = List.map(x -> genUxlEquipmentData(x.equiId, x.attributes), xs);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEquipmentData(equis);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEquipmentData(equis);
         let mltexts     = List.flatMap(x -> genUxlEqMultilingualText(x.equiId, x.longText), xs);        
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqMultilingualText(mltexts);        
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqMultilingualText(mltexts);        
         let classifs    = List.flatMap(x -> genUxlEqClassifications(x.equiId, x.classifications), xs);        
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqClassification(classifs);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqClassification(classifs);
         return()
 
     def genUxlEquipmentData(equiId: String, attrs: EquiAttributes): UxlEquipmentData = 

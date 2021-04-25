@@ -17,7 +17,7 @@
 
 namespace DwfOverflow/Relations {
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, FlClassification};
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{FunctionalLocationData, FlClassification};
 
     pub rel WorkListItem(reference: String, commonName: String, assetType: String, siteName: String)
 

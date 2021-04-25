@@ -208,8 +208,8 @@ namespace Skeleton/GenS4Lite {
     
     /// def genEastNorth(gridRef: String): DbMonad[Classifications] = 
     ///     use BasicDb/DbMonad.{flatMap, return, liftOption};
-    ///     let* ngr    = liftOption(AssetLib/Common/Osgb36.parse(gridRef), "Osgb36.parse");
-    ///     let* en     = liftOption(AssetLib/Common/Osgb36.toEastingNorthing(ngr), "Osgb36.toEastingNorthing");
+    ///     let* ngr    = liftOption(AssetLib/Base/Osgb36.parse(gridRef), "Osgb36.parse");
+    ///     let* en     = liftOption(AssetLib/Base/Osgb36.toEastingNorthing(ngr), "Osgb36.toEastingNorthing");
     ///     let x       = AssetLib/S4Lite/CreateNew/Classifications.easting(en.easting);
     ///     let y       = AssetLib/S4Lite/CreateNew/Classifications.northing(en.northing);
     ///     return(Monoid.combine(x, y))

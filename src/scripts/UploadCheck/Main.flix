@@ -22,7 +22,7 @@ namespace UploadCheck/Main {
 
     use BasicDb.DbMonad;
     
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FlClassification, EquipmentData, EqClassification};
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{FlClassification, EquipmentData, EqClassification};
 
     use UploadCheck/Base/RowCheck.{RowChecker, UxlRowCheck, UxlRowFail, execRowChecker};
     use UploadCheck/SqlCheckers/CharInClassCheck.{equiCharInClass};
@@ -62,7 +62,7 @@ namespace UploadCheck/Main {
 
     def checkFlClassifications(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapWithIndexM};
-        let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadFlClassification(xlsxPath));
+        let* rows       = liftActionResult(_ -> AssetLib/FileIO/S4/UxlFile/XlsxReader.loadFlClassification(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkFlClassificationsHelper()), rows);
         return(DataCheck/Check.concat(xs))
 
@@ -74,7 +74,7 @@ namespace UploadCheck/Main {
         
     def checkEquipmentData(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapWithIndexM};
-        let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEquipmentData(xlsxPath));
+        let* rows       = liftActionResult(_ -> AssetLib/FileIO/S4/UxlFile/XlsxReader.loadEquipmentData(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkEquipmentDataHelper()), rows);
         return(DataCheck/Check.concat(xs))
 
@@ -85,7 +85,7 @@ namespace UploadCheck/Main {
 
     def checkEqClassifications(xlsxPath: System.FilePath): CheckerMonad[UxlRowCheck] = 
         use BasicDb/DbMonad.{flatMap, return, liftActionResult, mapWithIndexM};
-        let* rows       = liftActionResult(_ -> AssetLib/S4/FileIO/UxlFile/XlsxReader.loadEqClassification(xlsxPath));
+        let* rows       = liftActionResult(_ -> AssetLib/FileIO/S4/UxlFile/XlsxReader.loadEqClassification(xlsxPath));
         let* xs         = mapWithIndexM(execRowChecker(checkEqClassificationsHelper()), rows);
         return(DataCheck/Check.concat(xs))
 

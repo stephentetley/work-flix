@@ -52,8 +52,8 @@ namespace AssetLib/GenS4/GenFloc/Relations {
                 if (String.isEmpty(x1) or String.isEmpty(x2)) 
                     #{} 
                 else {
-                    let ofloc = AssetLib/S4/Base/Floc.new(x1);
-                    let level = Option.getWithDefault(Option.map(AssetLib/S4/Base/Floc.level, ofloc), 0);
+                    let ofloc = AssetLib/Base/S4/Floc.new(x1);
+                    let level = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
                     #{ FlocWorkItem(x1, x2, level, x3, x4, x5, x6). }
                 })                    
             <&> map(String.trim, getContentNamed("Functional Location"))

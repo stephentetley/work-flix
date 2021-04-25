@@ -1,8 +1,8 @@
 use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
 
-use AssetLib/S4/FileIO/TransferFile.{RowEvaluator => TFRowEvaluator};
-use AssetLib/S4/FileIO/TransferFile.{RowSetter => TFRowSetter};
+use AssetLib/FileIO/S4/TransferFile.{RowEvaluator => TFRowEvaluator};
+use AssetLib/FileIO/S4/TransferFile.{RowSetter => TFRowSetter};
 
 def main(_argsv: Array[String]): Int32 & Impure = 
     Console.printLine("Running...");
@@ -18,8 +18,8 @@ def main(_argsv: Array[String]): Int32 & Impure =
 def main1(worklist: System.FilePath, download: System.FilePath, outpath: System.FilePath): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     use SheetIO/SheetReader.{runXlsx};
-    use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{Equi};
-    use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
+    use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{Equi};
+    use AssetLib/FileIO/S4/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
     let headers     = outputHeaders();
     let* xs         = runXlsx(readWorklist(), worklist);
     let* lookups    = readEquiDownloadFile(download);
@@ -86,14 +86,14 @@ def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] =
 
 def readEquiDownloadFile(path: System.FilePath): Result[Map[String, EquipmentRow], String] & Impure = 
     use Result.{flatMap};
-    use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+    use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
     let* xs     = readAllRows(evalEquiDownloadRow(), path);
     let ans     = List.foldLeft((ac, x) -> Map.insert(x.equiId, x, ac), Map.empty(), xs);
     Ok(ans)
 
 def evalEquiDownloadRow(): TFRowEvaluator[EquipmentRow] = 
-    use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{flatMap, return, getStringNamed, getInt32Named};
-    use AssetLib/S4/FileIO/TransferFile/RowEvaluator.{<&>, <*>};
+    use AssetLib/FileIO/S4/TransferFile/RowEvaluator.{flatMap, return, getStringNamed, getInt32Named};
+    use AssetLib/FileIO/S4/TransferFile/RowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
             { equiId                = x1
             , functionalLocation    = x2
@@ -119,7 +119,7 @@ def evalEquiDownloadRow(): TFRowEvaluator[EquipmentRow] =
 def outputHeaders(): Array[String] & Impure = ["EQUI", "TPLN_EILO", "EQART_EQU", "BAUJJ", "BAUMM_EQI", "HERST", "TYPBZ", "MAPA_EEQZ", "SERGE"]
 
 def setOutputRow!(x: EquipmentRow): TFRowSetter[Unit] = 
-    use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
+    use AssetLib/FileIO/S4/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
         putInt32Named!, putPaddedInt32Named!};
     let* _  = putStringNamed!("EQUI", x.equiId);
     let* _  = putStringNamed!("TPLN_EILO", x.functionalLocation);

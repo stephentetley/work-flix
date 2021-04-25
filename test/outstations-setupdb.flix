@@ -29,6 +29,6 @@ def setupDb(paths: SetupPaths): DbMonad[Unit] =
     let* _  = AssetLib/Facts/SiteMapping.storeSiteMapping("lookup_site", paths.siteMappingTable);
     let* _  = EquiCompare/SetupDb/AibList.storeAibList("aib_equipment", paths.aibExport);
     let* _  = EquiCompare/SetupDb/IH08List.storeIH08List("s4_equipment", paths.ih08Export);
-    let* _  = AssetLib/S4/FileIO/TransferFile/Builtins.storeClassEquiFile("s4_classequi", true, paths.classequiDownload);
+    let* _  = AssetLib/FileIO/S4/TransferFile/Builtins.storeClassEquiFile("s4_classequi", true, paths.classequiDownload);
     return()
 

@@ -21,7 +21,7 @@ namespace Skeleton/SetupDb/ZTables {
 
     pub def setupZTables(flocdesPath: System.FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* _  = AssetLib/S4/FileIO/ZTable/ExportDb.storeEqobjl("ztable_flocdes", flocdesPath);
+        let* _  = AssetLib/FileIO/S4/ZTable/ExportDb.storeEqobjl("ztable_flocdes", flocdesPath);
         return()
 
 }

@@ -1,5 +1,5 @@
 
-use AssetLib/S4/FileIO/ZTable/ExportDb.{ZTableSourcePaths, storeZTableFiles, defaultTableNames};
+use AssetLib/FileIO/S4/ZTable/ExportDb.{ZTableSourcePaths, storeZTableFiles, defaultTableNames};
 
 
 

@@ -15,7 +15,7 @@
  */
 
 
-use AssetLib/S4/FileIO/ClassList/Relations.{SelectionValue};
+use AssetLib/FileIO/S4/ClassList/Relations.{SelectionValue};
 
 
 namespace UploadCheck/DatalogCheckers/SelectionValueCheck {

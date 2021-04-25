@@ -17,8 +17,8 @@
 
 namespace CostCenters/EmitFunclocTransferFile {
 
-    use AssetLib/S4/FileIO/TransferFile.RowSetter;
-    use AssetLib/S4/FileIO/TransferFile/Datatypes.EntityType.{FuncLoc};
+    use AssetLib/FileIO/S4/TransferFile.RowSetter;
+    use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{FuncLoc};
 
     type alias CCUpdateRow = 
         { funcloc: String
@@ -65,13 +65,13 @@ namespace CostCenters/EmitFunclocTransferFile {
                                 rows: List[CCUpdateRow], 
                                 outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/S4/FileIO/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
+        use AssetLib/FileIO/S4/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
         let headers = ["FUNCLOC", "KOST_FLOC", "KOSTLI", "TXTMI", "USTW_FLOC"];
         let* rows2 = execMapRowSetter(headers, funclocSetRow!, rows);
         outputUploadFile(FuncLoc, "", user, headers, rows2, outpath)
 
     def funclocSetRow!(x: CCUpdateRow): RowSetter[Unit] = 
-        use AssetLib/S4/FileIO/TransferFile/RowSetter.{flatMap, return, putStringNamed!};
+        use AssetLib/FileIO/S4/TransferFile/RowSetter.{flatMap, return, putStringNamed!};
         let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
         let* _  = putStringNamed!("KOST_FLOC",  x.costCenter);
         let* _  = putStringNamed!("KOSTLI",     ToString.toString(x.costCenterOrigin));

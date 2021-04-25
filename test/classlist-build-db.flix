@@ -2,7 +2,7 @@ use System.Error.{Generic};
 
 use BasicDb.DbMonad;
 
-use AssetLib/S4/FileIO/ClassList/ExportDb.{defaultTableNames, storeFlocClassFile, storeEquiClassFile};
+use AssetLib/FileIO/S4/ClassList/ExportDb.{defaultTableNames, storeFlocClassFile, storeEquiClassFile};
 
 pub def main(_args: Array[String]): Int32 & Impure =         
     use BasicDb/DbMonad.{runSQLite};

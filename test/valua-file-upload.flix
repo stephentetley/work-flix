@@ -1,8 +1,8 @@
 use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
 
-use AssetLib/S4/FileIO/TransferFile.{RowSetter};
-use AssetLib/S4/FileIO/TransferFile/Builtins.{ClassEquiRow, ValuaEquiRow};
+use AssetLib/FileIO/S4/TransferFile.{RowSetter};
+use AssetLib/FileIO/S4/TransferFile/Builtins.{ClassEquiRow, ValuaEquiRow};
 
 def solutionId(): String = "B3050170"
 
@@ -19,7 +19,7 @@ def main(_argsv: Array[String]): Int32 & Impure =
 def main1(worklist: System.FilePath, classout: System.FilePath, valuaout: System.FilePath): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     use SheetIO/SheetReader.{runXlsx};
-    use AssetLib/S4/FileIO/TransferFile/Builtins.{outputClassEquiFile, outputValuaEquiFile};
+    use AssetLib/FileIO/S4/TransferFile/Builtins.{outputClassEquiFile, outputValuaEquiFile};
     let* xs     = runXlsx(readWorklist(), worklist);
     let _       = Console.printLine("${List.length(xs)}");
     let cs      = List.filterMap(makeClassEqui, xs);

@@ -19,7 +19,7 @@ namespace AssetLib/GenS4/EmitUxl {
 
     use SheetIO.SheetWriter;
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, 
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{ChangeRequestDetails, 
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
     use AssetLib/GenS4/S4Relations.{FlocDatum, FlocLongText, FlocCharacteristic, 
@@ -50,13 +50,13 @@ namespace AssetLib/GenS4/EmitUxl {
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
         let equiNames   = List.map(x -> x.equiId, equis1);
         let crs         = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crs);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlMultilingualText(flmltxts);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlClassification(flchars);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEquipmentData(equis1);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqMultilingualText(eqmltxts1);
-        let* _          = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeEqClassification(eqchar1s);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeChangeRequestDetails(crs);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlMultilingualText(flmltxts);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlClassification(flchars);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEquipmentData(equis1);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqMultilingualText(eqmltxts1);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqClassification(eqchar1s);
         return()
 
 

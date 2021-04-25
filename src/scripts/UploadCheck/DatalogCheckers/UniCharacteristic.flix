@@ -15,9 +15,9 @@
  */
 
 
-use AssetLib/S4/FileIO/ClassList/Relations.{Characteristic};
-use AssetLib/S4/FileIO/ClassList/Relations.Datatype; 
-use AssetLib/S4/FileIO/ClassList/Relations.Datatype.{Text, IntNum, DecimalNum, Date};
+use AssetLib/FileIO/S4/ClassList/Relations.{Characteristic};
+use AssetLib/FileIO/S4/ClassList/Relations.Datatype; 
+use AssetLib/FileIO/S4/ClassList/Relations.Datatype.{Text, IntNum, DecimalNum, Date};
 use UploadCheck/EntityTypes/ValuaFloc.{ValuaFloc};
 use UploadCheck/EntityTypes/ValuaEqui.{ValuaEqui};
 

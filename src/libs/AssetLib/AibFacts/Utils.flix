@@ -16,7 +16,7 @@
 
 namespace AssetLib/AibFacts/Utils {
     
-    use AssetLib/Common/Osgb36.{EastingNorthing};
+    use AssetLib/Base/Osgb36.{EastingNorthing};
 
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
@@ -60,7 +60,7 @@ namespace AssetLib/AibFacts/Utils {
 
     /// pub def getEastingNorthingClassifications(gridRef: String): Option[Classifications] = 
     ///     use Option.{flatMap};
-    ///     use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+    ///     use AssetLib/Base/Osgb36.{parse, toEastingNorthing};
     ///     use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
     ///     let* ngr    = parse(gridRef);
     ///     let* x      = toEastingNorthing(ngr);
@@ -70,7 +70,7 @@ namespace AssetLib/AibFacts/Utils {
 
     pub def getEastingNorthing(gridRef: String): Option[EastingNorthing] = 
         use Option.{flatMap};
-        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+        use AssetLib/Base/Osgb36.{parse, toEastingNorthing};
         use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
         let* ngr    = parse(gridRef);
         let* ans      = toEastingNorthing(ngr);

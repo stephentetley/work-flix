@@ -205,11 +205,11 @@ namespace Elaborator/ElaborateMonad {
 
 
     pub def storeValuaEquiFile(src: System.FilePath): ElaborateMonad[Unit] =         
-        liftDbMonad(AssetLib/S4/FileIO/TransferFile/Builtins.storeValuaEquiFile("valuaequi", true, src))
+        liftDbMonad(AssetLib/FileIO/S4/TransferFile/Builtins.storeValuaEquiFile("valuaequi", true, src))
 
 
     pub def storeValuaFlocFile(src: System.FilePath): ElaborateMonad[Unit] =         
-        liftDbMonad(AssetLib/S4/FileIO/TransferFile/Builtins.storeValuaFlocFile("valuafloc", true, src))
+        liftDbMonad(AssetLib/FileIO/S4/TransferFile/Builtins.storeValuaFlocFile("valuafloc", true, src))
 
 
     def makeEquiKey(equiId: String, charName: String): String = "${equiId}::${charName}"

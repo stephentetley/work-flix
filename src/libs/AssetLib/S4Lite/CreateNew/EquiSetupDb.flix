@@ -23,8 +23,8 @@ namespace AssetLib/S4Lite/CreateNew/EquiSetupDb {
     use BasicDb.PreparedStatement;
     use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/S4/FileIO/DownloadFile.RowEvaluator;
-    use AssetLib/S4/FileIO/ZTable/ExportDb.ZTableSourcePaths;
+    use AssetLib/FileIO/S4/DownloadFile.RowEvaluator;
+    use AssetLib/FileIO/S4/ZTable/ExportDb.ZTableSourcePaths;
 
     use AssetLib/S4Lite/CreateNew/Datatypes.{S4Equipment, EquiAttributes, LongText, Classification};
     use AssetLib/S4Lite/CreateNew/BuildCommon.{evalClassification, evalLongText};
@@ -32,8 +32,8 @@ namespace AssetLib/S4Lite/CreateNew/EquiSetupDb {
     /// TODO this is common for Floc and Equi so here isn't the right place...
     pub def setupFacts(classFacts: System.FilePath, zTablePaths: ZTableSourcePaths): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        use AssetLib/S4/FileIO/ClassList/ExportDb.{defaultTableNames => classTableNames, storeEquiClassFile};
-        use AssetLib/S4/FileIO/ZTable/ExportDb.{defaultTableNames => ztableNames, storeZTableFiles};
+        use AssetLib/FileIO/S4/ClassList/ExportDb.{defaultTableNames => classTableNames, storeEquiClassFile};
+        use AssetLib/FileIO/S4/ZTable/ExportDb.{defaultTableNames => ztableNames, storeZTableFiles};
         let* _      = storeEquiClassFile(classTableNames(), true, classFacts, Text/Charset.iso_8859_1());
         let* _      = storeZTableFiles(ztableNames(), zTablePaths);
         return()
@@ -49,7 +49,7 @@ namespace AssetLib/S4Lite/CreateNew/EquiSetupDb {
 
     pub def buildS4EquipmentList(sources: EquiBuilderSources): DbMonad[List[S4Equipment]] = 
         use BasicDb/DbMonad.{flatMap, return, mapM, liftActionResult, liftAction};
-        use AssetLib/S4/FileIO/DownloadFile/Evaluate.{allRows};
+        use AssetLib/FileIO/S4/DownloadFile/Evaluate.{allRows};
         let* _      = buildSourceDb(sources);
         let* xs     = liftActionResult(_ -> allRows(equiRowEvaluator(), sources.equiFile));
         let* ys     = buildS4LiftingItems(xs);
@@ -57,9 +57,9 @@ namespace AssetLib/S4Lite/CreateNew/EquiSetupDb {
 
     def buildSourceDb(sources: EquiBuilderSources): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, return};
-        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeEqmltxtFile("eqmltxt", true, sources.mltextFile);
-        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeClassEquiFile("class_equi", true, sources.classFile);
-        let* _      = AssetLib/S4/FileIO/DownloadFile/Builtins.storeValuaEquiFile("valua_equi", true, sources.charFile);
+        let* _      = AssetLib/FileIO/S4/DownloadFile/Builtins.storeEqmltxtFile("eqmltxt", true, sources.mltextFile);
+        let* _      = AssetLib/FileIO/S4/DownloadFile/Builtins.storeClassEquiFile("class_equi", true, sources.classFile);
+        let* _      = AssetLib/FileIO/S4/DownloadFile/Builtins.storeValuaEquiFile("valua_equi", true, sources.charFile);
         return()
 
 
@@ -83,8 +83,8 @@ namespace AssetLib/S4Lite/CreateNew/EquiSetupDb {
 
 
     def equiRowEvaluator(): RowEvaluator[{equiId: String, attrs: EquiAttributes}] = 
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{getStringNamed, getS4DateNamed, getInt32Named};
-        use AssetLib/S4/FileIO/DownloadFile/RowEvaluator.{<&>, <*>};
+        use AssetLib/FileIO/S4/DownloadFile/RowEvaluator.{getStringNamed, getS4DateNamed, getInt32Named};
+        use AssetLib/FileIO/S4/DownloadFile/RowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19) ->
                 { equiId                = x1
                 , attrs = 

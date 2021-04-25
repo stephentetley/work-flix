@@ -20,7 +20,7 @@ namespace AssetLib/Facts/ZTableQueries {
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
-    use AssetLib/S4/Base.{Floc};
+    use AssetLib/Base/S4.{Floc};
 
     /// Query Site Mapping...
 
@@ -38,7 +38,7 @@ namespace AssetLib/Facts/ZTableQueries {
 
     pub def getFlocDescription(floc: Floc): DbMonad[Option[String]] = 
         use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, optional, liftOption, rsClose};
-        let* suffix = liftOption(AssetLib/S4/Base/Floc.getSuffix(floc), "getFlocDescription - invalid floc - ${floc}");
+        let* suffix = liftOption(AssetLib/Base/S4/Floc.getSuffix(floc), "getFlocDescription - invalid floc - ${floc}");
         let* rs     = psExecuteCachedQuery("getFlocDescription", BasicDb/PreparedStatementSetter.putStringAt!(0,  suffix));
         let* x1     = optional(firstRow(rs, BasicDb/RowEvaluator.getStringNamed("description")));        
         let* _      = rsClose(rs);

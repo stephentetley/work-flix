@@ -18,13 +18,13 @@ namespace DwfOverflow/Rules/TransferFileLoader {
     
     use Text/Regex.MatchEvaluator;
 
-    use AssetLib/S4/FileIO/TransferFile.RowEvaluator;
+    use AssetLib/FileIO/S4/TransferFile.RowEvaluator;
     use DwfOverflow/Relations.{ExistingFloc, FreeSettlementSysIndex};
 
     /// General flocs (levels 2-4).
     /// "RIL01-WWT-SOF-FLS" becomes `ExistingFloc("RIL01", "WWT-SOF-FLS")`
     pub def readFlocTransferFile[r](src: System.FilePath): Result[#{ExistingFloc | r}, String] & Impure = 
-        use AssetLib/S4/FileIO/TransferFile/Evaluate.{readAllRows};
+        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
         let step = (ac, x) -> {
             match splitName(x) { 
                 case Some((s, s1)) => {let x1 = #{ ExistingFloc(s, s1). }; x1 <+> ac }
@@ -34,7 +34,7 @@ namespace DwfOverflow/Rules/TransferFileLoader {
         Result.map(xs -> List.foldLeft(step, #{}, xs), readAllRows(evalFuncLocRow(), src))
 
     def evalFuncLocRow(): RowEvaluator[String] = 
-        AssetLib/S4/FileIO/TransferFile/RowEvaluator.getStringNamed("FUNCLOC")
+        AssetLib/FileIO/S4/TransferFile/RowEvaluator.getStringNamed("FUNCLOC")
 
     def splitName(s: String): Option[(String, String)] = 
         match String.splitOn(s, "-") {
@@ -47,7 +47,7 @@ namespace DwfOverflow/Rules/TransferFileLoader {
 
     pub def readSysFlocTransferFile[r](src: System.FilePath): Result[#{FreeSettlementSysIndex | r}, String] & Impure = 
         use Result.{flatMap};
-        let* xs     = AssetLib/S4/FileIO/TransferFile/Evaluate.readAllRows(evalFuncLocRow(), src);
+        let* xs     = AssetLib/FileIO/S4/TransferFile/Evaluate.readAllRows(evalFuncLocRow(), src);
         let* splits = Option.toOk(Option.traverse(splitName, xs), "malformed splits");
         let groups  = List.groupBy((x,y) -> fst(x) == fst(y), splits);        
         let gaps    = List.filterMap(findGap, groups);

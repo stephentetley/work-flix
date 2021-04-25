@@ -65,7 +65,7 @@ namespace NewLiftingItems/MakeReport/ManualOutput {
     def setManualReportRow!(x: LiftingEquipment): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!,
                 putOptionInt32At!, putOptionFloat64At!};
-        use AssetLib/S4/Base/SheetIOUtils.{putS4DateAt!};
+        use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!};
         let* _      = putStringAt!(0, "Child New");
         let* _      = putStringAt!(1, x.classifications.pliReference);
         let* _      = putStringAt!(3, x.attributes.description);

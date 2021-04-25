@@ -13,7 +13,7 @@ def main(_args: Array[String]): Int32 & Impure =
 
 /// This is just a dummy, need to the dataset to do real work...
 def elaborateAib(valuaEqui: System.FilePath, outpath: System.FilePath): ElaborateMonad[Unit] = 
-    use AssetLib/S4/FileIO/TransferFile/Builtins.{outputValuaEquiFile};
+    use AssetLib/FileIO/S4/TransferFile/Builtins.{outputValuaEquiFile};
     use Elaborator/ElaborateMonad.{flatMap, return, liftAction, storeValuaEquiFile};
     let* _  = storeValuaEquiFile(valuaEqui);
     let* r1 = Elaborator/CreateUploadRow.nextStringValuaEqui("101000245", "AI2_AIB_REFERENCE", "XXYZ000001");

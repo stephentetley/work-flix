@@ -16,7 +16,7 @@
 
 namespace NewLiftingItems/Base/Utils {
     
-    use AssetLib/Common/Osgb36.EastingNorthing;
+    use AssetLib/Base/Osgb36.EastingNorthing;
     use AssetLib/S4Lite/CreateNew.Classifications;
     use NewLiftingItems/Base/Datatypes.FixedOrPortable;
     use NewLiftingItems/Base/Datatypes.FixedOrPortable.{Fixed, Portable};
@@ -70,7 +70,7 @@ namespace NewLiftingItems/Base/Utils {
 
     pub def getEastingNorthingClassifications(gridRef: String): Option[Classifications] = 
         use Option.{flatMap};
-        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+        use AssetLib/Base/Osgb36.{parse, toEastingNorthing};
         use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
         let* ngr    = parse(gridRef);
         let* x      = toEastingNorthing(ngr);
@@ -80,7 +80,7 @@ namespace NewLiftingItems/Base/Utils {
 
     pub def getEastingNorthing(gridRef: String): Option[EastingNorthing] = 
         use Option.{flatMap};
-        use AssetLib/Common/Osgb36.{parse, toEastingNorthing};
+        use AssetLib/Base/Osgb36.{parse, toEastingNorthing};
         use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
         let* ngr    = parse(gridRef);
         let* ans      = toEastingNorthing(ngr);

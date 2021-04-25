@@ -17,7 +17,7 @@
 
 namespace DwfOverflow/Rules {
 
-    use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+    use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
     use AssetLib/Facts/SiteMapping.{SiteMapping};
     use DwfOverflow/Relations.{AibSite, WorkListItem, Floc, FlocDatum, Characteristic, ExistingFloc,
         FreeSettlementSysIndex, OverflowType};
@@ -108,8 +108,8 @@ namespace DwfOverflow/Rules {
     def superior(s: String): String = 
         use Option.{flatMap};
         let step : Unit -> Option[String] = () -> {
-            let* floc   = AssetLib/S4/Base/Floc.new(s);
-            let* sup    = AssetLib/S4/Base/Floc.parent(floc);
+            let* floc   = AssetLib/Base/S4/Floc.new(s);
+            let* sup    = AssetLib/Base/S4/Floc.parent(floc);
             Some(ToString.toString(sup))
         };
         Option.getWithDefault(step(), "")

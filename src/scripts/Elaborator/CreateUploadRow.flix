@@ -18,7 +18,7 @@ namespace Elaborator/CreateUploadRow {
     
     use Elaborator.ElaborateMonad;
     
-    use AssetLib/S4/FileIO/TransferFile/Builtins.{ClassEquiRow, ValuaFlocRow, ValuaEquiRow};
+    use AssetLib/FileIO/S4/TransferFile/Builtins.{ClassEquiRow, ValuaFlocRow, ValuaEquiRow};
 
     /// ClassEqui
 

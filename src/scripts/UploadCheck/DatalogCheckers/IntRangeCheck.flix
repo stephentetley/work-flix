@@ -15,7 +15,7 @@
  */
 
 
-use AssetLib/S4/FileIO/ClassList/Relations.{IntRange};
+use AssetLib/FileIO/S4/ClassList/Relations.{IntRange};
 
 
 namespace UploadCheck/DatalogCheckers/IntRangeCheck {

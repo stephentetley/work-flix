@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Characteristics/EastNorth {
     use AssetLib/GenS4/S4Relations.{EquiDatum, EquiCharacteristic};
 
     pub def equiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
-        use AssetLib/Common/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             /// EAST_NORTH (generate if we have generated EquiDatum from AibEquipment)
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 

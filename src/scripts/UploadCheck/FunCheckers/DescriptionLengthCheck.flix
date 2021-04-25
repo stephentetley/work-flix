@@ -21,7 +21,7 @@ namespace UploadCheck/FunCheckers/DescriptionLengthCheck {
     use DataCheck/Check.{failure, mapFail};
 
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{FunctionalLocationData, EquipmentData};
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{FunctionalLocationData, EquipmentData};
     use UploadCheck/Base/RowCheck.{RowChecker};
 
 

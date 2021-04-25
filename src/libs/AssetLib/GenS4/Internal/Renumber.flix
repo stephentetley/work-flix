@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/Internal/Renumber {
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
 
     /// 9-digit
     pub def start(): Int32 & Impure = 

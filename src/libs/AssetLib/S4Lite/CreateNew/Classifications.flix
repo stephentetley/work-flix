@@ -93,8 +93,8 @@ namespace AssetLib/S4Lite/CreateNew/Classifications {
     pub def eastNorthWithGridRef(gridRef: String): Classifications = 
         use Option.flatMap;
         let step = () -> {
-            let* ngr    = AssetLib/Common/Osgb36.parse(gridRef);
-            let* en     = AssetLib/Common/Osgb36.toEastingNorthing(ngr);
+            let* ngr    = AssetLib/Base/Osgb36.parse(gridRef);
+            let* en     = AssetLib/Base/Osgb36.toEastingNorthing(ngr);
             Some(en)
         };
         match step() { 

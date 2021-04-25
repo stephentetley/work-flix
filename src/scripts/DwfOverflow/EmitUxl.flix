@@ -19,7 +19,7 @@ namespace DwfOverflow/EmitUxl {
 
     use SheetIO.SheetWriter;
 
-    use AssetLib/S4/FileIO/UxlFile/Datatypes.{ChangeRequestDetails, FunctionalLocationData, FlClassification};
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{ChangeRequestDetails, FunctionalLocationData, FlClassification};
     use DwfOverflow/Relations.{ChangeRequestItem, FlocDatum, Characteristic};
 
     /// TODO add version for Flocs and Equi...
@@ -38,10 +38,10 @@ namespace DwfOverflow/EmitUxl {
         use SheetIO/SheetWriter.{flatMap, return};
         let xs      = DwfOverflow/Relations.toFunctionalLocationData(flocs);
         let crs     = makeChangeRequestDetails(changeRequestName, List.map(x -> x.functionalLocation, xs), Nil);
-        let* _      = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeChangeRequestDetails(crs);        
-        let* _      = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFunctionalLocationData(xs);
+        let* _      = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeChangeRequestDetails(crs);        
+        let* _      = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFunctionalLocationData(xs);
         let ys      = DwfOverflow/Relations.toFlClassifications(flocClasses);
-        let* _      = AssetLib/S4/FileIO/UxlFile/XlsxWriter.writeFlClassification(ys);
+        let* _      = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlClassification(ys);
         return()
 
 
