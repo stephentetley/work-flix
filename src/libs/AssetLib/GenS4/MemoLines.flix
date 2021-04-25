@@ -28,8 +28,7 @@ namespace AssetLib/GenS4/MemoLines {
     pub def equiLongText(): #{MemoText, EquiLongText, EquiDatum | r} = 
         #{
             EquiLongText(aibref, description, longText) :- 
-                /// AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 MemoText(aibref, longText).
 
         }

@@ -48,31 +48,31 @@ namespace AssetLib/GenS4/Characteristics/AssetCondition {
     
             /// ASSET_CONDITION
             EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE", s4ConditionGrade(grade)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 ConditionGrade(aibref, grade).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE_REASON", String.toUpperCase(reason)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 ConditionGradeReason(aibref, reason).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE", s4PerformanceGrade(grade)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 PerformanceGrade(aibref, grade).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", String.toUpperCase(reason)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 PerformanceGradeReason(aibref, reason).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR", s4LoadingFactor(factor)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 LoadingFactor(aibref, factor).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR_REASON", String.toUpperCase(reason)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 LoadingFactorReason(aibref, reason).
 
             EquiCharacteristic(aibref, "ASSET_CONDITION", "SURVEY_DATE", ToString.toString(year)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 SurveyYear(aibref, year).
         }
 

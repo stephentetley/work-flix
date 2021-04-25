@@ -39,7 +39,7 @@ namespace ValveReport/Rules {
 
 
 
-    pub def equiVALV(): #{ValveTypeMap3, 
+    pub def equiVALV(today: Time.LocalDate): #{ValveTypeMap3, 
                             ValveAttribs, ValveWorkItem, 
                             EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         #{
@@ -62,6 +62,7 @@ namespace ValveReport/Rules {
             EquiDatum(aibref, 
                             "M",
                             String.takeLeft(40, s4Name),
+                            today,
                             "VALV",
                             installedFrom,
                             manufacturer,
@@ -78,25 +79,25 @@ namespace ValveReport/Rules {
 
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, _),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_DESC", "") :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, _),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "LOCATION_ON_SITE", locationOnSite) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, _, locationOnSite),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", getSizeValue(osize)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
                 ValveAttribs(aibref, valveType, osize, _),
                 ValveTypeMap3(equiType, valveType, valvClass),
@@ -108,34 +109,35 @@ namespace ValveReport/Rules {
         Option.getWithDefault(Option.map(ToString.toString, x), "")
 
 
-    pub def equiOther(): #{ValveWorkItem, EquiDatum, EquiCharacteristic, AibEquipment | r} = 
+    pub def equiOther(today: Time.LocalDate): #{ValveWorkItem, EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         #{
             EquiDatum(aibref, 
-                            s4Category,
-                            String.takeLeft(40, s4Name),
-                            s4EquiType,
-                            installedFrom,
-                            manufacturer,
-                            model,
-                            partNumber,
-                            s4SerialNumber(serialNumber),
-                            suppliedFloc,
-                            superEqui,
-                            pandi,
-                            s4Status(status)) :- 
-                AibEquipment(aibref, description, equiType, 
+                        s4Category,
+                        String.takeLeft(40, s4Name),
+                        today,
+                        s4EquiType,
+                        installedFrom,
+                        manufacturer,
+                        model,
+                        partNumber,
+                        s4SerialNumber(serialNumber),
+                        suppliedFloc,
+                        superEqui,
+                        pandi,
+                        s4Status(status)) :- 
+                AibEquipment(aibref, description, equiType,
                     installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
                 ValveWorkItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV" and not String.isEmpty(s4EquiClass).
 
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 ValveWorkItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV" and not String.isEmpty(s4EquiClass).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 ValveWorkItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV" and not String.isEmpty(s4EquiClass).
 

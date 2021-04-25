@@ -123,13 +123,14 @@ namespace ValveReport/Main {
         use AssetLib/GenS4/MemoLines.{equiLongText};
         use ValveReport/Rules.{equiVALV, equiOther};
         let* baseRelns = ValveReport/Main.loadRelations(args);
+        let today   = Time/LocalDate.now();
         let answers = solve equiSolutionId(args.solutionId) <+> equiLongText() 
                                 <+>  assetCondition() <+> equiAibReference() 
-                                <+> equiEastNorth() <+> equiOther() 
-                                <+> equiVALV() <+> baseRelns;
-        query answers select (x1,x2, x3) from EquiDatum(x1, x2, x3, _, _, _, _, _, _, _, _ , _, _) |> Array.foreach(println);
-        /// (project EquiCharacteristic answers) |> unsafeToString |> println;
-        /// (project EquiLongText answers) |> unsafeToString |> println;
+                                <+> equiEastNorth() <+> equiOther(today) 
+                                <+> equiVALV(today) <+> baseRelns;
+        (project EquiDatum answers) |> unsafeToString |> println;
+        (project EquiCharacteristic answers) |> unsafeToString |> println;
+        (project EquiLongText answers) |> unsafeToString |> println;
         let* _      = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 
