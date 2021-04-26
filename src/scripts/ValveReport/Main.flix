@@ -20,7 +20,7 @@ namespace ValveReport/Main {
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
 
-
+    use AssetLib/GenS4.XlsxSource;
     use AssetLib/GenS4/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
     use AssetLib/GenS4/S4/Relations.{EquiDatum, EquiCharacteristic, EquiLongText};
     use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
@@ -45,10 +45,6 @@ namespace ValveReport/Main {
 
 
 
-    type alias XlsxSource = 
-        { file: System.FilePath
-        , sheet: String
-        }
 
 
 
@@ -78,23 +74,33 @@ namespace ValveReport/Main {
         :: {optionIds = Nil,    optionNames = "outpath" :: Nil,                 argDescriptor = ReqArg(setOutpath, "FILE"),                     explanation = "path to UXL output"}
         :: Nil
 
-    def setUxlTemplate(s: String): Option[UpdateProgramArguments] = Some(opts -> {uxlTemplate = System/FilePath.new(s) | opts})
+    def setUxlTemplate(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {uxlTemplate = System/FilePath.new(s) | opts})
     
-    def setAibHierarchyExport(s: String): Option[UpdateProgramArguments] = Some(opts -> {aibHierarchyExport = decodeXlsxSource(s) | opts})
+    def setAibHierarchyExport(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {aibHierarchyExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
     
-    def setAibValveExport(s: String): Option[UpdateProgramArguments] = Some(opts -> {aibValveExport = decodeXlsxSource(s) | opts})
+    def setAibValveExport(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {aibValveExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
     
-    def setAibAgaspExport(s: String): Option[UpdateProgramArguments] = Some(opts -> {aibAgaspExport = decodeXlsxSource(s) | opts})
+    def setAibAgaspExport(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {aibAgaspExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
     
-    def setAibMemosExport(s: String): Option[UpdateProgramArguments] = Some(opts -> {aibMemosExport = decodeXlsxSource(s) | opts})
+    def setAibMemosExport(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {aibMemosExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
     
-    def setWorklist(s: String): Option[UpdateProgramArguments] = Some(opts -> {worklist = decodeXlsxSource(s) | opts})
+    def setWorklist(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {worklist = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
     
-    def setSolutionId(s: String): Option[UpdateProgramArguments] = Some(opts -> {solutionId = s | opts})
+    def setSolutionId(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {solutionId = s | opts})
     
-    def setChangeRequestName(s: String): Option[UpdateProgramArguments] = Some(opts -> {changeRequestName = s | opts})
+    def setChangeRequestName(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {changeRequestName = s | opts})
     
-    def setOutpath(s: String): Option[UpdateProgramArguments] = Some(opts -> {outpath = System/FilePath.new(s) | opts})
+    def setOutpath(s: String): Option[UpdateProgramArguments] = 
+        Some(opts -> {outpath = System/FilePath.new(s) | opts})
+
 
     pub def main1(args: Array[String]): Int32 & Impure = 
         use GetOpt.ArgOrder.{Permute};
@@ -134,10 +140,6 @@ namespace ValveReport/Main {
         let* _      = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 
-    def decodeXlsxSource(s: String): XlsxSource = match String.breakOnLeft("##", s) {
-        case (s1, s2) if String.isEmpty(s2) => {file = System/FilePath.new(s1), sheet = "Sheet1"}
-        case (s1, s2) => {file = System/FilePath.new(s1), sheet = Option.getWithDefault(String.stripPrefix("##", s2), "")}
-    }
 
     def loadRelations(args: ProgramArguments): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
                                                         MemoText, 
