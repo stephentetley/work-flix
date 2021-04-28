@@ -17,9 +17,9 @@
 namespace AssetLib/FileIO/S4/TransferFile/Evaluate {
 
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{TransferFile, DataRow, EntityType, Headers};
-    use AssetLib/FileIO/S4/TransferFile.RowEvaluator;
-    use AssetLib/FileIO/S4/TransferFile.RowEvaluator.{RowEvaluator};
-    use AssetLib/FileIO/S4/TransferFile/RowEvaluator.{makeHeaders};
+    use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator;
+    use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator.{DownloadRowEvaluator};
+    use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{makeHeaders};
 
 
 
@@ -33,7 +33,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Evaluate {
 
 
     pub def toEntityData( outputHeaders: Array[String]
-                        , eval: RowEvaluator[row]
+                        , eval: DownloadRowEvaluator[row]
                         , x: TransferFile): Result[EntityData[row], String] & Impure = 
         use Result.flatMap;
         let oheaders = makeHeaders(x.headers);
@@ -49,13 +49,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Evaluate {
 
     /// Import rows of a FileDownload
     /// Builds relations from the List.
-    pub def readAllRows(rowp: RowEvaluator[r], path: System.FilePath): Result[List[r], String] & Impure = 
+    pub def readAllRows(rowp: DownloadRowEvaluator[r], path: System.FilePath): Result[List[r], String] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/FileIO/S4/TransferFile/Parser.parseFile(path);
         buildRows(rowp, ast)
 
 
-    def buildRows(rowp: RowEvaluator[row], x: TransferFile): Result[List[row], String] & Impure = 
+    def buildRows(rowp: DownloadRowEvaluator[row], x: TransferFile): Result[List[row], String] & Impure = 
         use Result.flatMap;
         let headers = makeHeaders(x.headers);
         let accumRow = (x1, ac) -> 
@@ -65,8 +65,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Evaluate {
             };
         Result.foldRightM(accumRow, Nil,  x.dataRows)
 
-    def evalRow(rowp: RowEvaluator[row], headers: Map[String, Int32], row: DataRow): Result[row, String] & Impure =  
-        let RowEvaluator(f) = rowp;
+    def evalRow(rowp: DownloadRowEvaluator[row], headers: Map[String, Int32], row: DataRow): Result[row, String] & Impure =  
+        let DownloadRowEvaluator(f) = rowp;
         f(headers, row)
     
 }

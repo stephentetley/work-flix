@@ -115,6 +115,38 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
     
 
 
+    type alias ClassFlocRow = 
+        { funcloc: String
+        , className: String
+        , classType: String
+        , internalClassNumber: String
+        , status: Option[Int32]
+        }
+
+
+   type alias ValuaFlocRow = 
+        { funcloc: String
+        , classType: String
+        , charId: String
+        , charValue: String
+        , code: Option[Int32]
+        , valueDescription: String
+        , intCounterValue: Int32
+        , valueFrom: String
+        , valueTo: String
+        }
+
+        
+    /// Note status appears to be optional.
+    type alias ClassEquiRow = 
+        { equi: String
+        , className: String
+        , classType: String
+        , internalClassNumber: String
+        , status: Option[Int32]
+        }
+
+
     type alias ValuaEquiRow = 
         { equi: String
         , classType: String
