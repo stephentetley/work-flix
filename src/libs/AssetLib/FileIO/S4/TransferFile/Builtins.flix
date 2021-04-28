@@ -25,7 +25,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ValuaEquiRow};
 
     use AssetLib/FileIO/S4/TransferFile.RowEvaluator;
-    use AssetLib/FileIO/S4/TransferFile.RowSetter;
+    use AssetLib/FileIO/S4/TransferFile.UploadRowSetter;
 
 
     /// Note - it doesn't make sense to have outputters for Funcloc and Equi files.
@@ -127,13 +127,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                                 rows: List[ClassFlocRow], 
                                 outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapRowSetter};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
         let headers = ["FUNCLOC", "CLASS", "CLASSTYPE", "CLSTATUS1"];
-        let* rows2 = execMapRowSetter(headers, classFlocSetRow!, rows);
+        let* rows2 = execMapUploadRowSetter(headers, classFlocSetRow!, rows);
         outputUploadFile(ClassFloc, None, user, headers, rows2, outpath)
 
-    def classFlocSetRow!(x: ClassFlocRow): RowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/RowSetter.{flatMap, return, putStringNamed!};
+    def classFlocSetRow!(x: ClassFlocRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!};
         let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
         let* _  = putStringNamed!("CLASS",      x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
@@ -228,13 +228,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                                 rows: List[ValuaFlocRow], 
                                 outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapRowSetter};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
         let headers = ["FUNCLOC", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "VALCNT", "ATFLV", "ATFLB"];
-        let* rows2 = execMapRowSetter(headers, valuaFlocSetRow!, rows);
+        let* rows2 = execMapUploadRowSetter(headers, valuaFlocSetRow!, rows);
         outputUploadFile(ValuaFloc, None, user, headers, rows2, outpath)
 
-    def valuaFlocSetRow!(x: ValuaFlocRow): RowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
+    def valuaFlocSetRow!(x: ValuaFlocRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
             putInt32Named!, putPaddedInt32Named!};
         let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
@@ -437,13 +437,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                                 rows: List[ClassEquiRow], 
                                 outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapRowSetter};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
         let headers = ["EQUI", "CLASS", "CLASSTYPE", "CLSTATUS1"];
-        let* rows2 = execMapRowSetter(headers, classEquiSetRow!, rows);
+        let* rows2 = execMapUploadRowSetter(headers, classEquiSetRow!, rows);
         outputUploadFile(ClassEqui, None, user, headers, rows2, outpath)
 
-    def classEquiSetRow!(x: ClassEquiRow): RowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/RowSetter.{flatMap, return, putStringNamed!};
+    def classEquiSetRow!(x: ClassEquiRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!};
         let* _  = putStringNamed!("EQUI",       x.equi);
         let* _  = putStringNamed!("CLASS",  x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
@@ -521,30 +521,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// VALUAEQUI
 
 
-
-    pub def outputValuaEquiFile(user: String,
-                                rows: List[ValuaEquiRow], 
-                                outpath: System.FilePath): Result[Unit, String] & Impure = 
-        use Result.{flatMap};
-        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapRowSetter};
-        let headers = ["EQUI", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "ATZIS", "VALCNT","ATFLV", "ATFLB"];
-        let* rows2 = execMapRowSetter(headers, valuaEquiSetRow!, rows);
-        outputUploadFile(ValuaEqui, None, user, headers, rows2, outpath)
-
-    def valuaEquiSetRow!(x: ValuaEquiRow): RowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
-            putInt32Named!, putPaddedInt32Named!};
-        let* _  = putStringNamed!("EQUI",       x.equi);
-        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
-        let* _  = putStringNamed!("CHARID",     x.charId);
-        let* _  = putStringNamed!("ATWRT",      x.charValue);
-        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
-        let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
-        let* _  = putPaddedInt32Named!("ATZIS", 3, x.intCounterValue);
-        let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
-        let* _  = putStringNamed!("ATFLV",      x.valueFrom);
-        let* _  = putStringNamed!("ATFLB",      x.valueTo);
-        return()    
 
     pub def readValuaEquiFile(path: System.FilePath) : Result[List[ValuaEquiRow], String] & Impure =         
         use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};

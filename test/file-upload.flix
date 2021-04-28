@@ -1,8 +1,7 @@
 use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
 
-use AssetLib/FileIO/S4/TransferFile.{RowEvaluator => TFRowEvaluator};
-use AssetLib/FileIO/S4/TransferFile.{RowSetter => TFRowSetter};
+use AssetLib/FileIO/S4/TransferFile.{UploadRowSetter, RowEvaluator => TFRowEvaluator};
 
 def main(_argsv: Array[String]): Int32 & Impure = 
     Console.printLine("Running...");
@@ -19,12 +18,12 @@ def main1(worklist: System.FilePath, download: System.FilePath, outpath: System.
     use Result.{flatMap};
     use SheetIO/SheetReader.{runXlsx};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{Equi};
-    use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapRowSetter};
+    use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
     let headers     = outputHeaders();
     let* xs         = runXlsx(readWorklist(), worklist);
     let* lookups    = readEquiDownloadFile(download);
     let equis       = List.filterMap(x -> makeOutputRow(x, lookups),xs);
-    let* tfrows     = execMapRowSetter(headers, setOutputRow!, equis);
+    let* tfrows     = execMapUploadRowSetter(headers, setOutputRow!, equis);
     outputUploadFile(Equi, None, "tetleys", headers, tfrows, outpath)
 
 type alias WorklistRow = 
@@ -118,8 +117,8 @@ def evalEquiDownloadRow(): TFRowEvaluator[EquipmentRow] =
 
 def outputHeaders(): Array[String] & Impure = ["EQUI", "TPLN_EILO", "EQART_EQU", "BAUJJ", "BAUMM_EQI", "HERST", "TYPBZ", "MAPA_EEQZ", "SERGE"]
 
-def setOutputRow!(x: EquipmentRow): TFRowSetter[Unit] = 
-    use AssetLib/FileIO/S4/TransferFile/RowSetter.{flatMap, return, putStringNamed!, 
+def setOutputRow!(x: EquipmentRow): UploadRowSetter[Unit] = 
+    use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
         putInt32Named!, putPaddedInt32Named!};
     let* _  = putStringNamed!("EQUI", x.equiId);
     let* _  = putStringNamed!("TPLN_EILO", x.functionalLocation);

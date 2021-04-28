@@ -16,10 +16,11 @@
 
 namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
 
-    use AssetLib/FileIO/S4/TransferFile/Datatypes.{EntityType, DataRow};
+    use AssetLib/FileIO/S4/TransferFile/Datatypes.{EntityType, DataRow, ValuaEquiRow};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.FileType.{Upload};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.DataModel.{U1};
-    use AssetLib/FileIO/S4/TransferFile.RowSetter;
+    use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{ValuaEqui};
+    use AssetLib/FileIO/S4/TransferFile.UploadRowSetter;
 
     pub def outputUploadFile( entityType: EntityType
                             , variant: Option[String]
@@ -44,11 +45,36 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
             };
         writeTransferFile(transfer, outpath)
 
-    pub def execMapRowSetter(headers: Array[String], makeRow: a -> RowSetter[b], xs: List[a]): Result[List[DataRow], String] & Impure = 
-        use AssetLib/FileIO/S4/TransferFile/RowSetter.{makeIndices, execRowSetter};
+    pub def execMapUploadRowSetter(headers: Array[String], makeRow: a -> UploadRowSetter[b], xs: List[a]): Result[List[DataRow], String] & Impure = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{makeIndices, execUploadRowSetter};
         let size = Array.length(headers);
         let indices = makeIndices(headers);
-        Result.traverse(x -> execRowSetter(indices, size, makeRow(x)), xs)
+        Result.traverse(x -> execUploadRowSetter(indices, size, makeRow(x)), xs)
+
+    pub def writeValuaEquiFile(user: String,
+                                rows: List[ValuaEquiRow], 
+                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
+        let headers = ["EQUI", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "ATZIS", "VALCNT","ATFLV", "ATFLB"];
+        let* rows2 = execMapUploadRowSetter(headers, valuaEquiSetRow!, rows);
+        outputUploadFile(ValuaEqui, None, user, headers, rows2, outpath)
+
+    def valuaEquiSetRow!(x: ValuaEquiRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
+            putInt32Named!, putPaddedInt32Named!};
+        let* _  = putStringNamed!("EQUI",       x.equi);
+        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
+        let* _  = putStringNamed!("CHARID",     x.charId);
+        let* _  = putStringNamed!("ATWRT",      x.charValue);
+        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
+        let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
+        let* _  = putPaddedInt32Named!("ATZIS", 3, x.intCounterValue);
+        let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
+        let* _  = putStringNamed!("ATFLV",      x.valueFrom);
+        let* _  = putStringNamed!("ATFLB",      x.valueTo);
+        return()    
+
 
 
 }
