@@ -19,13 +19,13 @@ def main1(worklist: System.FilePath, download: System.FilePath, outpath: System.
     use Result.{flatMap};
     use SheetIO/SheetReader.{runXlsx};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{Equi};
-    use AssetLib/FileIO/S4/TransferFile/EmitUploadFile.{outputUploadFile, execMapRowSetter};
+    use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapRowSetter};
     let headers     = outputHeaders();
     let* xs         = runXlsx(readWorklist(), worklist);
     let* lookups    = readEquiDownloadFile(download);
     let equis       = List.filterMap(x -> makeOutputRow(x, lookups),xs);
     let* tfrows     = execMapRowSetter(headers, setOutputRow!, equis);
-    outputUploadFile(Equi, "", "tetleys", headers, tfrows, outpath)
+    outputUploadFile(Equi, None, "tetleys", headers, tfrows, outpath)
 
 type alias WorklistRow = 
     { equiId: String

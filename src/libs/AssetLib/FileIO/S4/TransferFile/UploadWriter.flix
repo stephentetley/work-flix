@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/FileIO/S4/TransferFile/EmitUploadFile {
+namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
 
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{EntityType, DataRow};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.FileType.{Upload};
@@ -22,7 +22,7 @@ namespace AssetLib/FileIO/S4/TransferFile/EmitUploadFile {
     use AssetLib/FileIO/S4/TransferFile.RowSetter;
 
     pub def outputUploadFile( entityType: EntityType
-                            , variant: String
+                            , variant: Option[String]
                             , user: String
                             , headers: Array[String]
                             , rows: List[DataRow]
@@ -32,7 +32,7 @@ namespace AssetLib/FileIO/S4/TransferFile/EmitUploadFile {
             { fileType      = Upload
             , dataModel     = U1
             , entityType    = entityType
-            , variant       = variant
+            , variant       = Option.getWithDefault(variant, "")
             , user          = user
             , dateTime      = Time/LocalDateTime.now()
             };

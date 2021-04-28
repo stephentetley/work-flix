@@ -49,7 +49,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
     /// Possibly change to String?
     /// Generally we are now only concerned with Download files
     pub enum FileType {
-        case Download,
+        case Download
         case Upload
     }
 
@@ -58,29 +58,75 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
     }
 
     pub enum EntityType {
-        case FuncLoc,
-        case ClassFloc,
-        case ValuaFloc,
-        case Iflotx,
-        case Equi,
-        case ClassEqui,
-        case ValuaEqui,
+        case FuncLoc
+        case ClassFloc
+        case ValuaFloc
+        case Iflotx
+        case Equi
+        case ClassEqui
+        case ValuaEqui
         case Eqmltxt
     }
 
-
-    pub def showEntityType(x: EntityType): String = match x {
-        case FuncLoc    => "FUNCLOC"
-        case ClassFloc  => "CLASSFLOC"
-        case ValuaFloc  => "VALUAFLOC"
-        case Iflotx     => "IFLOTX"
-        case Equi       => "EQUI"
-        case ClassEqui  => "CLASSEQUI"
-        case ValuaEqui  => "VALUAEQUI"
-        case Eqmltxt    => "EQMLTEXT"
+    instance ToString[EntityType] {
+        pub def toString(x: EntityType): String = match x {
+            case FuncLoc    => "FUNCLOC"
+            case ClassFloc  => "CLASSFLOC"
+            case ValuaFloc  => "VALUAFLOC"
+            case Iflotx     => "IFLOTX"
+            case Equi       => "EQUI"
+            case ClassEqui  => "CLASSEQUI"
+            case ValuaEqui  => "VALUAEQUI"
+            case Eqmltxt    => "EQMLTEXT"
+        }
     }
 
+    instance FromString[EntityType] {
+        pub def fromString(x: String): Option[EntityType] = match x {
+            case "FUNCLOC" => Some(FuncLoc)
+            case "CLASSFLOC" => Some(ClassFloc)
+            case "VALUAFLOC" => Some(ValuaFloc)
+            case "IFLOTX" => Some(Iflotx)
+            case "EQUI" => Some(Equi)
+            case "CLASSEQUI" => Some(ClassEqui)
+            case "VALUAEQUI" => Some(ValuaEqui)
+            case "EQMLTEXT" => Some(Eqmltxt)
+            case _ => None
+        }
+    }
 
+    instance Eq[EntityType] {
+        pub def eq(x: EntityType, y: EntityType): Bool = match (x, y) {
+            case (FuncLoc, FuncLoc) => true
+            case (ClassFloc, ClassFloc) => true
+            case (ValuaFloc, ValuaFloc) => true
+            case (Iflotx, Iflotx) => true
+            case (Equi, Equi) => true
+            case (ClassEqui, ClassEqui) => true
+            case (ValuaEqui, ValuaEqui) => true
+            case (Eqmltxt, Eqmltxt) => true
+            case (_, _) => false
+        }
+    }
+
+    instance Hash[EntityType] {
+        pub def hash(x: EntityType): Int32 = Hash.hash(ToString.toString(x))
+    }
+    
+
+
+    type alias ValuaEquiRow = 
+        { equi: String
+        , classType: String
+        , charId: String
+        , charValue: String
+        , code: Option[Int32]
+        , valueDescription: String
+        , instanceCounter: Int32
+        , intCounterValue: Int32
+        , valueFrom: String
+        , valueTo: String
+        }
 
 
 }
