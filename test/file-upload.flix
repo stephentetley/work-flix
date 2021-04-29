@@ -1,7 +1,7 @@
 use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
 
-use AssetLib/FileIO/S4/TransferFile.{UploadRowSetter, RowEvaluator => TFRowEvaluator};
+use AssetLib/FileIO/S4/TransferFile.{UploadRowSetter, DownloadRowEvaluator};
 
 def main(_argsv: Array[String]): Int32 & Impure = 
     Console.printLine("Running...");
@@ -90,9 +90,9 @@ def readEquiDownloadFile(path: System.FilePath): Result[Map[String, EquipmentRow
     let ans     = List.foldLeft((ac, x) -> Map.insert(x.equiId, x, ac), Map.empty(), xs);
     Ok(ans)
 
-def evalEquiDownloadRow(): TFRowEvaluator[EquipmentRow] = 
-    use AssetLib/FileIO/S4/TransferFile/RowEvaluator.{flatMap, return, getStringNamed, getInt32Named};
-    use AssetLib/FileIO/S4/TransferFile/RowEvaluator.{<&>, <*>};
+def evalEquiDownloadRow(): DownloadRowEvaluator[EquipmentRow] = 
+    use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{flatMap, return, getStringNamed, getInt32Named};
+    use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
             { equiId                = x1
             , functionalLocation    = x2

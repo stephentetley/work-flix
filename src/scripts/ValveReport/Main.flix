@@ -22,7 +22,7 @@ namespace ValveReport/Main {
 
     use AssetLib/GenS4.XlsxSource;
     use AssetLib/GenS4/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
-    use AssetLib/GenS4/S4/Relations.{EquiDatum, EquiCharacteristic, EquiLongText};
+    use AssetLib/GenS4/S4Relations.{EquiSortOrder};
     use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
     use AssetLib/GenS4/MemoLines.{MemoText};
@@ -41,12 +41,6 @@ namespace ValveReport/Main {
         , changeRequestName: String
         , outpath: System.FilePath
         }
-
-
-
-
-
-
 
     type alias UpdateProgramArguments = ProgramArguments -> ProgramArguments
 
@@ -123,7 +117,7 @@ namespace ValveReport/Main {
     pub def main2(args: ProgramArguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/GenS4/Characteristics/AibReference.{equiAibReference};
-        use AssetLib/GenS4/Characteristics/AssetCondition.{assetCondition};
+        use AssetLib/GenS4/Characteristics/AssetCondition.{uxlAssetCondition};
         use AssetLib/GenS4/Characteristics/EastNorth.{equiEastNorth};
         use AssetLib/GenS4/Characteristics/SolutionId.{equiSolutionId};
         use AssetLib/GenS4/MemoLines.{equiLongText};
@@ -131,7 +125,7 @@ namespace ValveReport/Main {
         let* baseRelns = ValveReport/Main.loadRelations(args);
         let today   = Time/LocalDate.now();
         let answers = solve equiSolutionId(args.solutionId) <+> equiLongText() 
-                                <+>  assetCondition() <+> equiAibReference() 
+                                <+> uxlAssetCondition() <+> equiAibReference() 
                                 <+> equiEastNorth() <+> equiOther(today) 
                                 <+> equiVALV(today) <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
@@ -143,6 +137,7 @@ namespace ValveReport/Main {
 
     def loadRelations(args: ProgramArguments): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
                                                         MemoText, 
+                                                        EquiSortOrder,
                                                         ConditionGrade, ConditionGradeReason, 
                                                         PerformanceGrade, PerformanceGradeReason, 
                                                         LoadingFactor, LoadingFactorReason, SurveyYear | r}, String] & Impure = 

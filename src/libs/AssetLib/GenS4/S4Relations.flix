@@ -20,6 +20,10 @@ namespace AssetLib/GenS4/S4Relations {
     use AssetLib/FileIO/S4/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
         FlClassification, EquipmentData, EqMultilingualText, EqClassification};
 
+    
+    /// To deduce sort order before renumbering.
+    pub rel EquiSortOrder(aibref: String, pos: Int32)
+
 
     /// Arity 7
     pub rel FlocDatum(funcloc: String, 
@@ -62,8 +66,13 @@ namespace AssetLib/GenS4/S4Relations {
     pub rel EquiCharacteristic(equiId: String, className: String, charName: String, charValue: String)
 
 
+
+    pub def toSortPositions(src: #{EquiSortOrder | r}): Map[String, Int32] = 
+        let buildStep = (x, ac) -> {let (k, v) = x; Map.insert(k, v, ac)};
+        fold EquiSortOrder Map.empty() buildStep src
+
     /// To Uxl...
-    pub def toFunctionalLocationData(src: #{ FlocDatum | r }): List[FunctionalLocationData] = 
+    pub def toFunctionalLocationData(src: #{FlocDatum | r}): List[FunctionalLocationData] = 
         let buildStep = (x, ac) -> flocDatumToUxl(x) :: ac;
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
         let xs = { fold FlocDatum Nil buildStep src };
@@ -90,7 +99,7 @@ namespace AssetLib/GenS4/S4Relations {
         }
 
 
-    pub def toFlMultilingualText(src: #{ FlocLongText | r }): List[FlMultilingualText] = 
+    pub def toFlMultilingualText(src: #{FlocLongText | r}): List[FlMultilingualText] = 
         let buildStep = (x, ac) -> flocLongTextToUxl(x) :: ac;
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
         let xs = { fold FlocLongText Nil buildStep src };
@@ -106,7 +115,7 @@ namespace AssetLib/GenS4/S4Relations {
         }
 
 
-    pub def toFlClassifications(src: #{ FlocCharacteristic | r }): List[FlClassification] = 
+    pub def toFlClassifications(src: #{FlocCharacteristic | r}): List[FlClassification] = 
         let buildStep = (x, ac) -> flocCharacteristicToUxl(x) :: ac;
         let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
             case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
@@ -127,9 +136,13 @@ namespace AssetLib/GenS4/S4Relations {
         , charDeletionInd       = false
         }
 
-    pub def toEquipmentData(src: #{ EquiDatum | r }): List[EquipmentData] = 
+    pub def toEquipmentData(src: #{EquiSortOrder, EquiDatum | r }): List[EquipmentData] = 
+        let posMap = toSortPositions(src);
         let buildStep = (x, ac) -> equiDatumToUxl(x) :: ac;
-        let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
+        let sortStep = (x, y) -> match (Map.get(x.equiId, posMap), Map.get(y.equiId, posMap)) {
+            case (Some(ixx), Some(ixy)) =>  Order.compare(ixx, ixy) |> Order.toInt
+            case (_, _) => Order.compare(x.equiId, y.equiId) |> Order.toInt
+        };
         let xs = { fold EquiDatum Nil buildStep src };
         List.sortWith(sortStep, xs)
 
@@ -206,5 +219,24 @@ namespace AssetLib/GenS4/S4Relations {
         , charValue             = x4
         , charDeleteInd         = false
         }
+
+
+    /// pub def toClassEquiRow(src: #{ EquiCharacteristic | r }): List[ClassEquiRow] = 
+    ///     let buildStep = (x, ac) -> equiCharacteristicToUxl(x) :: ac;
+    ///     let sortStep = (x, y) -> match Order.compare(x.equiId, y.equiId) { 
+    ///         case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
+    ///         case ans => Order.toInt(ans)
+    ///     };
+    ///     let xs = { fold EquiCharacteristic Nil buildStep src };
+    ///     List.sortWith(sortStep, xs)
+
+    /// def equiCharacteristicToUpload(x: (String, String, String, String)): ClassEquiRow = 
+    ///     let (x1, x2, x3, x4) = x;
+    ///     { equi: String
+    ///     , className: String
+    ///     , classType             = "002"
+    ///     , internalClassNumber   = ""
+    ///     , status                = Some(1)
+    ///     }
 
 }

@@ -30,16 +30,22 @@ namespace AssetLib/GenS4/Characteristics/AssetCondition {
 
 
     pub rel ConditionGrade(aibref: String, grade: Int32)
+
     pub rel ConditionGradeReason(aibref: String, reason: String)
+
     pub rel PerformanceGrade(aibref: String, grade: Int32)
+
     pub rel PerformanceGradeReason(aibref: String, reason: String)
+
     pub rel LoadingFactor(aibref: String, grade: Int32)
+
     pub rel LoadingFactorReason(aibref: String, reason: String)
+
     pub rel SurveyYear(aibref: String, year: Int32)
 
 
 
-    pub def assetCondition(): #{ConditionGrade, ConditionGradeReason,
+    pub def uxlAssetCondition(): #{ConditionGrade, ConditionGradeReason,
                                 PerformanceGrade, PerformanceGradeReason,
                                 LoadingFactor, LoadingFactorReason,
                                 SurveyYear,
@@ -177,6 +183,21 @@ namespace AssetLib/GenS4/Characteristics/AssetCondition {
             <*> map(decodeLoadingFactor, getContentNamed("Loading Factor"))
             <*> getContentNamed("Loading Factor Reason")
             <*> optional(getInt32Named("AGASP Survey Year"))
+
+    pub def getConditionGrade(): NamedRowEvaluator[#{ConditionGrade | r}] =
+        use SheetIO/NamedRowEvaluator.{lift2, map, liftOption, getContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{>>=}; 
+        lift2((x1, x2) -> #{ ConditionGrade(x1, x2). }, 
+                getContentNamed("Reference"), 
+                getContentNamed("Condition Grade") >>= x -> liftOption(decodeConditionGrade(x), "error"))
+
+    pub def getConditionGradeREason(): NamedRowEvaluator[#{ConditionGrade | r}] =
+        use SheetIO/NamedRowEvaluator.{lift2, map, liftOption, getContentNamed, getNonEmptyContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{>>=}; 
+        lift2((x1, x2) -> #{ ConditionGradeReason(x1, x2). }, 
+                getContentNamed("Reference"), 
+                getNonEmptyContentNamed("Condition Grade Reason"))
+
 
     def makeOptional(f: a -> reln, x: Option[a], d: reln): reln = match x {
         case Some(x1) => f(x1)
