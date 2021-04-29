@@ -82,6 +82,59 @@ namespace AssetLib/GenS4/Characteristics/AssetCondition {
                 SurveyYear(aibref, year).
         }
 
+
+    /// pub def uploadAssetCondition(): #{ConditionGrade, ConditionGradeReason,
+    ///                             PerformanceGrade, PerformanceGradeReason,
+    ///                             LoadingFactor, LoadingFactorReason,
+    ///                             SurveyYear,
+    ///                             EquiDatum, EquiCharacteristic | r} = 
+    ///     #{
+    
+    ///         /// ASSET_CONDITION
+
+    ///         /// Maybe AIB should encode fact names as a String to reduce the number of fact types...
+    ///         /// AibStringValue("PLI01991020", "CONDITION_GRADE", "1 - Good").
+    ///         /// AibInteger("PLI01991020", "AGASP_SURVEY_YEAR", 2020).
+
+    ///         ClassEqui(equiId, "ASSET_CONDITION", "002", Some(1)) :- 
+    ///             CharValuaEqui(equiId, "002", "CONDITION_GRADE", _, _).
+
+    ///         CharValuaEqui(equiId, "002", "CONDITION_GRADE", s4ConditionGrade(grade), 1) :- 
+    ///             ChangeRequestItem(equiId, funcloc, description),
+    ///             EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, funcloc, _,  _, _),
+    ///             AibStringValue(aibref, "CONDITION_GRADE", grade).
+
+            
+    ///         ClassEqui(equiId, "ASSET_CONDITION", "002", Some(1)) :- 
+    ///             CharValuaEqui(equiId, "002", "CONDITION_GRADE_REASON", _, _).
+
+    ///         CharValuaEqui(equiId, "002", "CONDITION_GRADE_REASON", String.toUpperCase(reason), 1) :- 
+    ///             ChangeRequestItem(equiId, funcloc, description),
+    ///             EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, funcloc, _,  _, _),
+    ///             AibStringValue(aibref, "CONDITION_GRADE_REASON", reason).
+
+    ///         /// EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE", s4PerformanceGrade(grade)) :- 
+    ///         ///     EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
+    ///         ///     PerformanceGrade(aibref, grade).
+
+    ///         /// EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", String.toUpperCase(reason)) :- 
+    ///         ///     EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
+    ///         ///     PerformanceGradeReason(aibref, reason).
+
+    ///         /// EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR", s4LoadingFactor(factor)) :- 
+    ///         ///     EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
+    ///         ///     LoadingFactor(aibref, factor).
+
+    ///         /// EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR_REASON", String.toUpperCase(reason)) :- 
+    ///         ///     EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
+    ///         ///     LoadingFactorReason(aibref, reason).
+
+    ///         /// EquiCharacteristic(aibref, "ASSET_CONDITION", "SURVEY_DATE", ToString.toString(year)) :- 
+    ///         ///     EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
+    ///         ///     SurveyYear(aibref, year).
+    ///     }
+
+
     def decodeConditionGrade(s: String): Option[Int32] = match String.trim(s) { 
         case "1 - Good" => Some(1)
         case "2 - Fair" => Some(2)
@@ -202,6 +255,6 @@ namespace AssetLib/GenS4/Characteristics/AssetCondition {
     def makeOptional(f: a -> reln, x: Option[a], d: reln): reln = match x {
         case Some(x1) => f(x1)
         case None => d
-    }    
+    } 
 
 }
