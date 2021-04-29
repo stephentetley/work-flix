@@ -20,30 +20,27 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
+    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
     use AssetLib/AibFacts/Relations.{getAttributes, getStringValue, getIntValue};
 
-    /// Are these better as binary facts?
-    /// This would let use represent partially complete AGASP data
-    /// without complications like wrapping types with Option
 
 
     /// Read from Aib file...
 
 
     pub def readAgaspData(sheetName: String, 
-                          path: System.FilePath): Result[#{AibStringValue, AibIntValue, AibFloatValue| r}, String] & Impure =
+                          path: System.FilePath): Result[#{AibStringValue, AibIntValue | r}, String] & Impure =
         SheetIO/SheetReader.runXlsx(readAgaspSheet(sheetName), path)
         
 
-    pub def readAgaspSheet(sheetName: String): SheetReader[#{AibStringValue, AibIntValue, AibFloatValue | r}] = 
+    pub def readAgaspSheet(sheetName: String): SheetReader[#{AibStringValue, AibIntValue | r}] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(s1, aibAssetCondition());
         let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
         return(relns)
 
-    pub def aibAssetCondition(): NamedRowEvaluator[#{AibStringValue, AibIntValue, AibFloatValue | r}] =
+    pub def aibAssetCondition(): NamedRowEvaluator[#{AibStringValue, AibIntValue | r}] =
         getAttributes( getConditionGrade()
             :: getConditionGradeReason()
             :: getLoadingFactor()

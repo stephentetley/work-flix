@@ -19,12 +19,10 @@ namespace ValveReport/Main {
     use GetOpt.{ArgDescr, OptionDescr};
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
-
+    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
     use AssetLib/GenS4.XlsxSource;
     use AssetLib/GenS4/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
     use AssetLib/GenS4/S4Relations.{EquiSortOrder};
-    use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
-        PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
     use AssetLib/GenS4/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
 
@@ -138,13 +136,11 @@ namespace ValveReport/Main {
     def loadRelations(args: ProgramArguments): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
                                                         MemoText, 
                                                         EquiSortOrder,
-                                                        ConditionGrade, ConditionGradeReason, 
-                                                        PerformanceGrade, PerformanceGradeReason, 
-                                                        LoadingFactor, LoadingFactorReason, SurveyYear | r}, String] & Impure = 
+                                                        AibStringValue, AibIntValue | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/GenS4/Aib/HierarchicalRelations.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(args.aibValveExport.sheet, args.aibValveExport.file);
-        let* agasp          = AssetLib/GenS4/Characteristics/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
+        let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
         let* memos          = AssetLib/GenS4/MemoLines.readMemoData(args.aibMemosExport.sheet, args.aibMemosExport.file);
         let* workitems      = ValveReport/Relations.readWorkItemData(args.worklist.sheet, args.worklist.file);
         Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)
