@@ -19,11 +19,9 @@ namespace AssetLib/GenS4/Characteristics/SolutionId {
 
     use AssetLib/GenS4/S4Relations.{FlocCharacteristic, FlocDatum, EquiDatum, EquiCharacteristic};
 
-
-
     /// `solutionId` is parametric as should be supplied once for a translation
     /// so it is not a candidate for a fact.
-    pub def flocSolutionId(solutionId: String): #{FlocDatum, FlocCharacteristic | r} =
+    pub def uxlFlocSolutionId(solutionId: String): #{FlocDatum, FlocCharacteristic | r} =
         #{
             FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
                 FlocDatum(funcloc, _, _,  _, _, _,  _),
@@ -32,10 +30,11 @@ namespace AssetLib/GenS4/Characteristics/SolutionId {
 
     /// `solutionId` is parametric as should be supplied once for a translation
     /// so it is not a candidate for a fact.
-    pub def equiSolutionId(solutionId: String): #{EquiDatum, EquiCharacteristic | r} =
+    pub def uxlEquiSolutionId(solutionId: String): #{EquiDatum, EquiCharacteristic | r} =
         #{
             EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 if String.isEmpty(solutionId) == false.            
         }
+
 }

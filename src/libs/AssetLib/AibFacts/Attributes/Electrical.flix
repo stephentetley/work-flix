@@ -46,7 +46,6 @@ namespace AssetLib/AibFacts/Attributes/Electrical {
             :: Nil
         )      
 
-    /// Current In	Insulation Class	IP Rating	Power	Power Units	Speed (RPM)	Voltage In	Voltage In (AC Or DC)
 
 
     pub def getCurrentIn(): NamedRowEvaluator[#{AibFloatValue | r}] =

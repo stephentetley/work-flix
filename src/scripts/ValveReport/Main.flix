@@ -117,12 +117,12 @@ namespace ValveReport/Main {
         use AssetLib/GenS4/Characteristics/AibReference.{equiAibReference};
         use AssetLib/GenS4/Characteristics/AssetCondition.{uxlAssetCondition};
         use AssetLib/GenS4/Characteristics/EastNorth.{equiEastNorth};
-        use AssetLib/GenS4/Characteristics/SolutionId.{equiSolutionId};
+        use AssetLib/GenS4/Characteristics/SolutionId.{uxlEquiSolutionId};
         use AssetLib/GenS4/MemoLines.{equiLongText};
         use ValveReport/Rules.{equiVALV, equiOther};
         let* baseRelns = ValveReport/Main.loadRelations(args);
         let today   = Time/LocalDate.now();
-        let answers = solve equiSolutionId(args.solutionId) <+> equiLongText() 
+        let answers = solve uxlEquiSolutionId(args.solutionId) <+> equiLongText() 
                                 <+> uxlAssetCondition() <+> equiAibReference() 
                                 <+> equiEastNorth() <+> equiOther(today) 
                                 <+> equiVALV(today) <+> baseRelns;
