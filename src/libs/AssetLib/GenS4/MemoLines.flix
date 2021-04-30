@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/MemoLines {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/GenS4/S4Relations.{EquiDatum, EquiLongText};
+    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiLongText};
 
     pub rel MemoText(aibref: String, text: String)
 

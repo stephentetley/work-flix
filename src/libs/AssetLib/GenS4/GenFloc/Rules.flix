@@ -17,7 +17,7 @@
 namespace AssetLib/Gens4/FlocGen/Rules {
 
 
-    use AssetLib/GenS4/S4Relations.{FlocDatum, FlocCharacteristic};
+    use AssetLib/GenS4/UxlRelations.{FlocDatum, FlocCharacteristic};
     use AssetLib/GenS4/GenFloc/Relations.{FlocWorkItem};
 
 

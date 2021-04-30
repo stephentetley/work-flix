@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Characteristics/EastNorth {
 
     use AssetLib/GenS4/Aib/HierarchicalRelations.{AibEquipment};
-    use AssetLib/GenS4/S4Relations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
     pub def equiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};

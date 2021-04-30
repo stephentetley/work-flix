@@ -23,7 +23,7 @@ namespace AssetLib/GenS4/Characteristics/AssetCondition {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
     use AssetLib/GenS4/Aib/HierarchicalRelations.{AibEquipment};
-    use AssetLib/GenS4/S4Relations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
 
 

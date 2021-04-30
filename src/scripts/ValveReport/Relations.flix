@@ -18,7 +18,7 @@ namespace ValveReport/Relations {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-    use AssetLib/GenS4/S4Relations.{EquiSortOrder};
+    use AssetLib/GenS4/UxlRelations.{EquiSortOrder};
 
     pub rel ValveWorkItem(aibref: String, 
                             s4Name: String, 

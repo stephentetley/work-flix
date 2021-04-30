@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/EmitUxl {
     use AssetLib/FileIO/S4/UxlFile/Datatypes.{ChangeRequestDetails, 
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
-    use AssetLib/GenS4/S4Relations.{EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
+    use AssetLib/GenS4/UxlRelations.{EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
         EquiDatum, EquiLongText, EquiCharacteristic};
 
     /// TODO include Equi...
@@ -39,12 +39,12 @@ namespace AssetLib/GenS4/EmitUxl {
                     solutions: #{EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
                                  EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
-        let flocs       = AssetLib/GenS4/S4Relations.toFunctionalLocationData(solutions);
-        let flmltxts    = AssetLib/GenS4/S4Relations.toFlMultilingualText(solutions);
-        let flchars     = AssetLib/GenS4/S4Relations.toFlClassifications(solutions);
-        let equis       = AssetLib/GenS4/S4Relations.toEquipmentData(solutions);
-        let eqmltxts    = AssetLib/GenS4/S4Relations.toEqMultilingualText(solutions);
-        let eqchars     = AssetLib/GenS4/S4Relations.toEqClassifications(solutions);
+        let flocs       = AssetLib/GenS4/UxlRelations.toFunctionalLocationData(solutions);
+        let flmltxts    = AssetLib/GenS4/UxlRelations.toFlMultilingualText(solutions);
+        let flchars     = AssetLib/GenS4/UxlRelations.toFlClassifications(solutions);
+        let equis       = AssetLib/GenS4/UxlRelations.toEquipmentData(solutions);
+        let eqmltxts    = AssetLib/GenS4/UxlRelations.toEqMultilingualText(solutions);
+        let eqchars     = AssetLib/GenS4/UxlRelations.toEqClassifications(solutions);
         let* _          = liftAction(_ -> Console.printLine("**** equi count: ${List.length(equis)}"));
         let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/GenS4/Internal/Renumber.renumber(equis, eqmltxts, eqchars));
         let flocNames   = List.map(x -> x.functionalLocation, flocs);

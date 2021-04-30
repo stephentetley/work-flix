@@ -22,7 +22,7 @@ namespace ValveReport/Main {
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
     use AssetLib/GenS4.XlsxSource;
     use AssetLib/GenS4/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
-    use AssetLib/GenS4/S4Relations.{EquiSortOrder};
+    use AssetLib/GenS4/UxlRelations.{EquiSortOrder};
     use AssetLib/GenS4/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
 
