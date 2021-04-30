@@ -17,12 +17,28 @@
 namespace AssetLib/AibFacts/Relations {
 
     use SheetIO.NamedRowEvaluator;
+    use SheetIO.SheetReader;
 
     pub rel AibStringValue(aibref: String, valueName: String, value: String)
 
     pub rel AibIntValue(aibref: String, valueName: String, value: Int32)
 
     pub rel AibFloatValue(aibref: String, valueName: String, value: Float64)
+
+
+
+    pub def readAibFacts(eval: NamedRowEvaluator[#{| r}], 
+                        sheetName: String, 
+                        path: System.FilePath): Result[#{| r}, String] & Impure =
+        SheetIO/SheetReader.runXlsx(readAibSheet(eval, sheetName), path)
+        
+
+    pub def readAibSheet(eval: NamedRowEvaluator[#{| r}], sheetName: String): SheetReader[#{| r}] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
+        let* s1     = getSheetNamed(sheetName);
+        let* xs     = allNamedRows(s1, eval);
+        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
+        return(relns)
 
 
     pub def getStringValue(columnName: String, factName: String): NamedRowEvaluator[#{AibStringValue | r}] =
@@ -37,7 +53,11 @@ namespace AssetLib/AibFacts/Relations {
         let* x2     = getInt32Named(columnName);
         return(#{ AibIntValue(x1, factName, x2). })
 
-
+    pub def getFloatValue(columnName: String, factName: String): NamedRowEvaluator[#{AibFloatValue | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getFloat64Named};  
+        let* x1     = getContentNamed("Reference");
+        let* x2     = getFloat64Named(columnName);
+        return(#{ AibFloatValue(x1, factName, x2). })
 
     pub def getAttributes(xs: List[NamedRowEvaluator[#{| r}]]): NamedRowEvaluator[#{| r}] = 
         getAttributesHelper(xs, #{})

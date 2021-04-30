@@ -30,15 +30,9 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
 
     pub def readAgaspData(sheetName: String, 
                           path: System.FilePath): Result[#{AibStringValue, AibIntValue | r}, String] & Impure =
-        SheetIO/SheetReader.runXlsx(readAgaspSheet(sheetName), path)
+        AssetLib/AibFacts/Relations.readAibFacts(aibAssetCondition(), sheetName, path)
         
 
-    pub def readAgaspSheet(sheetName: String): SheetReader[#{AibStringValue, AibIntValue | r}] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
-        let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, aibAssetCondition());
-        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
-        return(relns)
 
     pub def aibAssetCondition(): NamedRowEvaluator[#{AibStringValue, AibIntValue | r}] =
         getAttributes( getConditionGrade()
