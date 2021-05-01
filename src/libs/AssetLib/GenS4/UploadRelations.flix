@@ -28,6 +28,16 @@ namespace AssetLib/GenS4/UploadRelations {
                         stringValue: String,
                         intCounterValue: Int32)
 
+    pub rel ValuaEquiInt(equiId: String,
+                        classType: String,
+                        characteristicId: String, 
+                        intValue: Int32,
+                        intCounterValue: Int32)
 
+    pub rel ValuaEquiFloat(equiId: String,
+                        classType: String,
+                        characteristicId: String, 
+                        floatValue: Float64,
+                        intCounterValue: Int32)
 
 }

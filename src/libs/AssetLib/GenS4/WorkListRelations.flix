@@ -18,13 +18,13 @@
 namespace AssetLib/GenS4/WorkListRelations {
 
     /// Phase 1
-    pub rel Phase1Equi(aibref: String,  
-                            s4Floc: String, 
-                            s4Name: String,
-                            superEqui: String, 
-                            s4Category: String, 
-                            s4EquiType: String, 
-                            s4EquiClass: String)
+    pub rel Phase1Equi(aibref: String,
+                        s4Name: String,  
+                        s4Floc: String,
+                        superEqui: String, 
+                        s4Category: String, 
+                        s4EquiType: String, 
+                        s4EquiClass: String)
     
     /// Phase 2
     /// Object Class e.g. VALVNR is available directly, we don't have to 

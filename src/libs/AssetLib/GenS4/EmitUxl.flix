@@ -25,7 +25,6 @@ namespace AssetLib/GenS4/EmitUxl {
     use AssetLib/GenS4/UxlRelations.{EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
         EquiDatum, EquiLongText, EquiCharacteristic};
 
-    /// TODO include Equi...
 
     pub def outputUxl(changeRequestName: String,
                         solutions: #{EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
@@ -35,9 +34,9 @@ namespace AssetLib/GenS4/EmitUxl {
         SheetIO/SheetWriter.runTemplateXssf(emitUxl(changeRequestName, solutions), uxlTemplate, outpath)
 
 
-    pub def emitUxl(changeRequestName: String,
-                    solutions: #{EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
-                                 EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
+    def emitUxl(changeRequestName: String,
+                solutions: #{EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
+                            EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
         let flocs       = AssetLib/GenS4/UxlRelations.toFunctionalLocationData(solutions);
         let flmltxts    = AssetLib/GenS4/UxlRelations.toFlMultilingualText(solutions);

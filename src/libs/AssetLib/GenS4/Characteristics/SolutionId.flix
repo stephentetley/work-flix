@@ -23,6 +23,22 @@ namespace AssetLib/GenS4/Characteristics/SolutionId {
 
     use AssetLib/GenS4/WorkListRelations.{Phase2Equi};
 
+
+    /// `solutionId` is parametric as should be supplied once for a translation
+    /// so it is not a candidate for a fact.
+    /// This generates a SOLUTION_ID class and characteristic for every item in the change request list.
+    ///
+    pub def equiSolutionId(solutionId: String): #{ClassEqui, ValuaEquiText, Phase2Equi | r} = 
+        #{
+            ClassEqui(equiId, "SOLUTION_ID", "002") :- 
+                Phase2Equi(equiId, _, _, _, _),
+                if String.isEmpty(solutionId) == false.
+
+            ValuaEquiText(equiId, "002", "SOLUTION_ID", solutionId, 1) :- 
+                Phase2Equi(equiId, _, _, _, _),
+                if String.isEmpty(solutionId) == false.
+        }
+        
     /// `solutionId` is parametric as should be supplied once for a translation
     /// so it is not a candidate for a fact.
     pub def uxlFlocSolutionId(solutionId: String): #{FlocDatum, FlocCharacteristic | r} =
@@ -39,27 +55,6 @@ namespace AssetLib/GenS4/Characteristics/SolutionId {
             EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 if String.isEmpty(solutionId) == false.            
-        }
-
-
-
-
-
-    /// `solutionId` is parametric as should be supplied once for a translation
-    /// so it is not a candidate for a fact.
-    /// This generates a SOLUTION_ID class and characteristic for every item in the change request list.
-    ///
-    pub def equiSolutionId(solutionId: String): #{ClassEqui, ValuaEquiText, Phase2Equi | r} = 
-        #{
-            
-            ClassEqui(equiId, "SOLUTION_ID", "002") :- 
-                Phase2Equi(equiId, _, _, _, _),
-                if String.isEmpty(solutionId) == false.
-
-            ValuaEquiText(equiId, "002", "SOLUTION_ID", solutionId, 1) :- 
-                Phase2Equi(equiId, _, _, _, _),
-                if String.isEmpty(solutionId) == false.
-
         }
 
 }

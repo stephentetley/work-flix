@@ -114,17 +114,17 @@ namespace ValveReport/Main {
     /// Empty string for no solution id.
     pub def main2(args: ProgramArguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/GenS4/Characteristics/AibReference.{equiAibReference};
+        use AssetLib/GenS4/Characteristics/AibReference.{uxlEquiAibReference};
         use AssetLib/GenS4/Characteristics/AssetCondition.{uxlAssetCondition};
-        use AssetLib/GenS4/Characteristics/EastNorth.{equiEastNorth};
+        use AssetLib/GenS4/Characteristics/EastNorth.{uxlEquiEastNorth};
         use AssetLib/GenS4/Characteristics/SolutionId.{uxlEquiSolutionId};
         use AssetLib/GenS4/MemoLines.{equiLongText};
         use ValveReport/Rules.{equiVALV, equiOther};
         let* baseRelns = ValveReport/Main.loadRelations(args);
         let today   = Time/LocalDate.now();
         let answers = solve uxlEquiSolutionId(args.solutionId) <+> equiLongText() 
-                                <+> uxlAssetCondition() <+> equiAibReference() 
-                                <+> equiEastNorth() <+> equiOther(today) 
+                                <+> uxlAssetCondition() <+> uxlEquiAibReference() 
+                                <+> uxlEquiEastNorth() <+> equiOther(today) 
                                 <+> equiVALV(today) <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;

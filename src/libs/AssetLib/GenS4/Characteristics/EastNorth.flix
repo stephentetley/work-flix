@@ -18,9 +18,31 @@
 namespace AssetLib/GenS4/Characteristics/EastNorth {
 
     use AssetLib/GenS4/Aib/HierarchicalRelations.{AibEquipment};
+    use AssetLib/GenS4/WorkListRelations.{Phase1Equi, Phase2Equi};
+    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
-    pub def equiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
+    pub def equiEastNorth(): #{ClassEqui, ValuaEquiText, ValuaEquiInt, Phase1Equi, Phase2Equi, AibEquipment | r} =
+        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        #{
+            
+            ClassEqui(equiId, "EAST_NORTH", "002") :- 
+                Phase2Equi(equiId, name, description,  _, _),
+                Phase1Equi(aibref, name, description,  _, _, _,  _).
+
+
+            ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 
+                Phase2Equi(equiId, name, description,  _, _),
+                Phase1Equi(aibref, name, description,  _, _, _,  _),
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _).
+
+            ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 
+                Phase2Equi(equiId, name, description,  _, _),
+                Phase1Equi(aibref, name, description,  _, _, _,  _),
+                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _).
+        }
+
+    pub def uxlEquiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             /// EAST_NORTH (generate if we have generated EquiDatum from AibEquipment)

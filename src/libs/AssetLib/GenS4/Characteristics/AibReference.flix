@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Characteristics/AibReference {
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
 
-    pub def equiAibReference(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
+    pub def uxlEquiAibReference(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
         #{
             /// AIB_REFERENCE (item)
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
