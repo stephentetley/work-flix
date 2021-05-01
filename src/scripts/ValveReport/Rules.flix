@@ -16,12 +16,13 @@
 
 namespace ValveReport/Rules {
 
+    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
     use AssetLib/AibFacts/HierarchyFacts.{AibFloc, AibEquipment};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
     use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
         
-    use ValveReport/Relations.{ValveAttribs, ValveWorkItem};
+    use ValveReport/Relations.{ValveWorkItem};
 
     pub def s4Status(x: String): String = match x {
         case "OPERATIONAL" =>  "OPER"
@@ -40,8 +41,9 @@ namespace ValveReport/Rules {
 
 
     pub def equiVALV(today: Time.LocalDate): #{ValveTypeMap3, 
-                            ValveAttribs, ValveWorkItem, 
-                            EquiDatum, EquiCharacteristic, AibEquipment | r} = 
+                                                ValveWorkItem, 
+                                                AibStringValue, AibFloatValue,
+                                                EquiDatum, EquiCharacteristic, AibEquipment | r} = 
         #{
             
             /// Define the typemap here.
@@ -81,32 +83,30 @@ namespace ValveReport/Rules {
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                ValveAttribs(aibref, valveType, _, _),
+                AibStringValue(aibref, "VALVE_TYPE", valveType),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_DESC", "") :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                ValveAttribs(aibref, valveType, _, _),
+                AibStringValue(aibref, "VALVE_TYPE", valveType),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
-            EquiCharacteristic(aibref, valvClass, "LOCATION_ON_SITE", locationOnSite) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                ValveAttribs(aibref, valveType, _, locationOnSite),
-                ValveTypeMap3(equiType, valveType, valvClass).
+            /// EquiCharacteristic(aibref, valvClass, "LOCATION_ON_SITE", locationOnSite) :- 
+            ///     EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
+            ///     AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+            ///     ValveAttribs(aibref, valveType, _, locationOnSite),
+            ///     ValveTypeMap3(equiType, valveType, valvClass).
 
-            EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", getSizeValue(osize)) :- 
+            EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", ToString.toString(sizeMM)) :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
                 AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
-                ValveAttribs(aibref, valveType, osize, _),
-                ValveTypeMap3(equiType, valveType, valvClass),
-                if not Option.isEmpty(osize).
+                AibFloatValue(aibref, "VALVE_SIZE_MM", sizeMM),
+                AibStringValue(aibref, "VALVE_TYPE", valveType),
+                ValveTypeMap3(equiType, valveType, valvClass).
 
         }
 
-    def getSizeValue(x: Option[Float64]): String = 
-        Option.getWithDefault(Option.map(ToString.toString, x), "")
 
 
     pub def equiOther(today: Time.LocalDate): #{ValveWorkItem, EquiDatum, EquiCharacteristic, AibEquipment | r} = 

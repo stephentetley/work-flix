@@ -37,6 +37,7 @@ namespace AssetLib/AibFacts/HierarchyFacts {
                     parentRef: String)
 
     /// Arity 12
+    /// TODO add locationOnSite and weightKg
     pub rel AibEquipment(aibref: String, 
                         description: String, 
                         equipmentType: String, 

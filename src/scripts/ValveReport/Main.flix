@@ -19,7 +19,7 @@ namespace ValveReport/Main {
     use GetOpt.{ArgDescr, OptionDescr};
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
-    use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue};
+    use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue, AibFloatValue};
     use AssetLib/GenS4.XlsxSource;
     use AssetLib/AibFacts/HierarchyFacts.{RootNode, AibFloc, AibEquipment};
     use AssetLib/GenS4/UxlRelations.{EquiSortOrder};
@@ -133,12 +133,12 @@ namespace ValveReport/Main {
         Ok()
 
 
-    def loadRelations(args: ProgramArguments): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
+    def loadRelations(args: ProgramArguments): Result[#{ValveWorkItem, RootNode, AibFloc, AibEquipment, 
                                                         EquiSortOrder,
-                                                        AibFactGroup, AibStringValue, AibIntValue | r}, String] & Impure = 
+                                                        AibFactGroup, AibStringValue, AibIntValue, AibFloatValue | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
-        let* valveAttribs   = ValveReport/Relations.readValveAttribsData(args.aibValveExport.sheet, args.aibValveExport.file);
+        let* valveAttribs   = AssetLib/AibFacts/Attributes/Valve.readValveData(args.aibValveExport.sheet, args.aibValveExport.file);
         let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
         let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
         let* workitems      = ValveReport/Relations.readWorkItemData(args.worklist.sheet, args.worklist.file);
