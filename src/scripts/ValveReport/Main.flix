@@ -19,7 +19,7 @@ namespace ValveReport/Main {
     use GetOpt.{ArgDescr, OptionDescr};
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
+    use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue};
     use AssetLib/GenS4.XlsxSource;
     use AssetLib/AibFacts/HierarchyFacts.{RootNode, AibFloc, AibEquipment};
     use AssetLib/GenS4/UxlRelations.{EquiSortOrder};
@@ -136,7 +136,7 @@ namespace ValveReport/Main {
     def loadRelations(args: ProgramArguments): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
                                                         MemoText, 
                                                         EquiSortOrder,
-                                                        AibStringValue, AibIntValue | r}, String] & Impure = 
+                                                        AibFactGroup, AibStringValue, AibIntValue | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(args.aibValveExport.sheet, args.aibValveExport.file);

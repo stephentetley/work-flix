@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Characteristics/EastNorth {
             
             ClassEqui(equiId, "EAST_NORTH", "002") :- 
                 Phase2Equi(equiId, name, description,  _, _),
-                Phase1Equi(aibref, name, description,  _, _, _,  _).
+                Phase1Equi(_, name, description,  _, _, _,  _).
 
 
             ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 

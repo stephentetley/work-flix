@@ -20,8 +20,8 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
-    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue, getIntValue};
+    use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue};
+    use AssetLib/AibFacts/Relations.{getAttributeGroup, getFactGroup, getStringValue, getIntValue};
 
 
 
@@ -29,13 +29,14 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
 
 
     pub def readAgaspData(sheetName: String, 
-                          path: System.FilePath): Result[#{AibStringValue, AibIntValue | r}, String] & Impure =
+                          path: System.FilePath): Result[#{AibFactGroup, AibStringValue, AibIntValue | r}, String] & Impure =
         AssetLib/AibFacts/Relations.readAibFacts(aibAssetCondition(), sheetName, path)
         
 
 
-    pub def aibAssetCondition(): NamedRowEvaluator[#{AibStringValue, AibIntValue | r}] =
-        getAttributes( getConditionGrade()
+    pub def aibAssetCondition(): NamedRowEvaluator[#{AibFactGroup, AibStringValue, AibIntValue | r}] =
+        getAttributeGroup(getAssetCondition(), 
+               getConditionGrade()
             :: getConditionGradeReason()
             :: getLoadingFactor()
             :: getLoadingFactorReason()
@@ -44,6 +45,9 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
             :: getSurveyYear()
             :: Nil
         )      
+
+    pub def getAssetCondition(): NamedRowEvaluator[#{AibFactGroup | r}] =
+        getFactGroup("ASSET_CONDITION")
 
     pub def getConditionGrade(): NamedRowEvaluator[#{AibStringValue | r}] =
         getStringValue("Condition Grade", "CONDITION_GRADE")

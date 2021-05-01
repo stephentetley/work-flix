@@ -21,16 +21,20 @@ namespace AssetLib/GenS4/Characteristics/AssetCondition {
     use SheetIO.SheetReader;
 
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
+    use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue};
     use AssetLib/GenS4/WorkListRelations.{Phase1Equi, Phase2Equi};
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
-    pub def assetCondition(): #{ClassEqui, ValuaEquiText, ValuaEquiInt, Phase1Equi, Phase2Equi, AibStringValue | r} = 
+    pub def assetCondition(): #{ClassEqui, ValuaEquiText, ValuaEquiInt, 
+                                Phase1Equi, Phase2Equi,
+                                AibFactGroup, AibStringValue, AibIntValue | r} = 
         #{
-            /// ClassEqui(equiId, "ASSET_CONDITION", "002") :- 
-            ///     Phase2Equi(equiId, _, _, _, _),
-            ///     if String.isEmpty(solutionId) == false.
+
+            ClassEqui(equiId, "ASSET_CONDITION", "002") :- 
+                Phase2Equi(equiId, name, description,  _, _),
+                Phase1Equi(aibref, name, description,  _, _, _,  _),
+                AibFactGroup(aibref, "ASSET_CONDITION").
 
             ValuaEquiText(equiId, "002", "CONDITION_GRADE", s4ConditionGrade(grade), 1) :- 
                 Phase2Equi(equiId, name, description,  _, _),

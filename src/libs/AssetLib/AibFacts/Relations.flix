@@ -19,6 +19,10 @@ namespace AssetLib/AibFacts/Relations {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
+    /// Aib has no notion of a "Fact Group" but we need it to signal a "class" when 
+    /// connection between Aib and S4.
+    pub rel AibFactGroup(aibref: String, groupName: String)
+
     pub rel AibStringValue(aibref: String, valueName: String, value: String)
 
     pub rel AibIntValue(aibref: String, valueName: String, value: Int32)
@@ -40,6 +44,11 @@ namespace AssetLib/AibFacts/Relations {
         let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
         return(relns)
 
+
+    pub def getFactGroup(groupName: String): NamedRowEvaluator[#{AibFactGroup | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};  
+        let* x1     = getContentNamed("Reference");
+        return(#{ AibFactGroup(x1, groupName). })
 
     pub def getStringValue(columnName: String, factName: String): NamedRowEvaluator[#{AibStringValue | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getNonEmptyContentNamed};  
@@ -74,5 +83,38 @@ namespace AssetLib/AibFacts/Relations {
             }
             case Nil => return(ac)
         }
+
+
+    /// Must find the `parent` and attribute that identifies the group and at least one element of `xs`
+    pub def getAttributeGroup(parent: NamedRowEvaluator[#{| r}], 
+                                xs: List[NamedRowEvaluator[#{| r}]]): NamedRowEvaluator[#{| r}] = 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, optional};
+        let* start = optional(parent);
+        match start {
+            case Some(r1) => { 
+                let* ans = getAttributeGroupHelper(xs, (false, #{}));
+                match ans { 
+                    case Some(kids) => return(r1 <+> kids)
+                    case None => return(#{})
+                }
+            }
+            case None => return(#{})
+        }
+
+    /// Find at least one from `xs`
+    def getAttributeGroupHelper(xs: List[NamedRowEvaluator[#{| r}]], 
+                                ac: (Bool, #{| r})): NamedRowEvaluator[Option[#{| r}]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, optional};
+        match xs { 
+            case eval1 :: rs => {
+                let* ans = optional(eval1);
+                match ans { 
+                    case Some(r1) => {let (_, rac) = ac; getAttributeGroupHelper(rs, (true, r1 <+> rac))}
+                    case None => getAttributeGroupHelper(rs, ac)
+                }                
+            }
+            case Nil => let (found, relns) = ac; if (found) return(Some(relns)) else return(None)
+        }
+
 
 }
