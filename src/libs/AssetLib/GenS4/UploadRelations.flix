@@ -17,7 +17,9 @@
 
 namespace AssetLib/GenS4/UploadRelations {
 
-    
+    use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassEquiRow, ValuaEquiRow};
+
+
     pub rel ClassEqui(equiId: String,
                         className: String,
                         classType: String)      /// Always "002"?
@@ -39,5 +41,66 @@ namespace AssetLib/GenS4/UploadRelations {
                         characteristicId: String, 
                         floatValue: Float64,
                         intCounterValue: Int32)
+
+
+
+    /// To Upload row...
+    pub def textToValuaEquiRow(src: #{ValuaEquiText | r}): List[ValuaEquiRow] = 
+        let buildStep = (x, ac) -> valuaEquiTextToUpload(x) :: ac;
+        fold ValuaEquiText Nil buildStep src
+
+
+    def valuaEquiTextToUpload(x: (String, String, String, String, Int32)): ValuaEquiRow = 
+        let (x1, x2, x3, x4, x5) = x;
+        { equi              = x1
+        , classType         = x2
+        , charId            = x3
+        , charValue         = x4
+        , code              = Some(1)
+        , valueDescription  = x4
+        , instanceCounter   = x5 - 1
+        , intCounterValue   = x5
+        , valueFrom         = "0"
+        , valueTo           = "0"
+        }
+
+    pub def intToValuaEquiRow(src: #{ValuaEquiInt | r}): List[ValuaEquiRow] = 
+        let buildStep = (x, ac) -> valuaEquiIntToUpload(x) :: ac;
+        fold ValuaEquiInt Nil buildStep src
+
+
+    def valuaEquiIntToUpload(x: (String, String, String, Int32, Int32)): ValuaEquiRow = 
+        let (x1, x2, x3, x4, x5) = x;
+        { equi              = x1
+        , classType         = x2
+        , charId            = x3
+        , charValue         = ""
+        , code              = Some(1)
+        , valueDescription  = ToString.toString(x4)
+        , instanceCounter   = x5 - 1
+        , intCounterValue   = x5
+        , valueFrom         = ToString.toString(x4)
+        , valueTo           = "0"
+        }
+
+    pub def floatToValuaEquiRow(src: #{ValuaEquiFloat | r}): List[ValuaEquiRow] = 
+        let buildStep = (x, ac) -> valuaEquiFloatToUpload(x) :: ac;
+        fold ValuaEquiFloat Nil buildStep src
+
+
+    def valuaEquiFloatToUpload(x: (String, String, String, Float64, Int32)): ValuaEquiRow = 
+        let (x1, x2, x3, x4, x5) = x;
+        { equi              = x1
+        , classType         = x2
+        , charId            = x3
+        , charValue         = ""
+        , code              = Some(1)
+        , valueDescription  = ToString.toString(x4)
+        , instanceCounter   = x5 - 1
+        , intCounterValue   = x5
+        , valueFrom         = ToString.toString(x4)
+        , valueTo           = "0"
+        }
+
 
 }
