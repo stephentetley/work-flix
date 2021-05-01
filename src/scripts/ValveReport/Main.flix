@@ -21,7 +21,7 @@ namespace ValveReport/Main {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
     use AssetLib/GenS4.XlsxSource;
-    use AssetLib/GenS4/Aib/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
+    use AssetLib/AibFacts/HierarchyFacts.{RootNode, AibFloc, AibEquipment};
     use AssetLib/GenS4/UxlRelations.{EquiSortOrder};
     use AssetLib/GenS4/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
@@ -138,7 +138,7 @@ namespace ValveReport/Main {
                                                         EquiSortOrder,
                                                         AibStringValue, AibIntValue | r}, String] & Impure = 
         use Result.{flatMap};
-        let* hrelns         = AssetLib/GenS4/Aib/HierarchicalRelations.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
+        let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(args.aibValveExport.sheet, args.aibValveExport.file);
         let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
         let* memos          = AssetLib/GenS4/MemoLines.readMemoData(args.aibMemosExport.sheet, args.aibMemosExport.file);

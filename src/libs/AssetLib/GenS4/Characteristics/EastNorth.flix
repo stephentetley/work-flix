@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/Characteristics/EastNorth {
 
-    use AssetLib/GenS4/Aib/HierarchicalRelations.{AibEquipment};
+    use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/GenS4/WorkListRelations.{Phase1Equi, Phase2Equi};
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};

@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/Characteristics/AibReference {
 
-    use AssetLib/GenS4/Aib/HierarchicalRelations.{AibEquipment};
+    use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
 

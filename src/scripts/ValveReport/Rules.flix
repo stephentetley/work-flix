@@ -16,7 +16,7 @@
 
 namespace ValveReport/Rules {
 
-    use AssetLib/GenS4/Aib/HierarchicalRelations.{AibFloc, AibEquipment};
+    use AssetLib/AibFacts/HierarchyFacts.{AibFloc, AibEquipment};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
     use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};

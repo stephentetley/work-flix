@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Aib/HierarchicalRelations {
+namespace AssetLib/AibFacts/HierarchyFacts {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
