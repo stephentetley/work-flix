@@ -45,6 +45,22 @@ namespace AssetLib/GenS4/UploadRelations {
 
 
     /// To Upload row...
+    pub def toClassEquiRow(src: #{ClassEqui | r}): List[ClassEquiRow] = 
+        let buildStep = (x, ac) -> classEquiToUpload(x) :: ac;
+        fold ClassEqui Nil buildStep src
+
+
+    def classEquiToUpload(x: (String, String, String)): ClassEquiRow = 
+        let (x1, x2, x3) = x;
+        { equi                  = x1
+        , className             = x2
+        , classType             = x3
+        , internalClassNumber   = ""
+        , status                = Some(1)
+        }
+
+
+    /// To Upload row...
     pub def textToValuaEquiRow(src: #{ValuaEquiText | r}): List[ValuaEquiRow] = 
         let buildStep = (x, ac) -> valuaEquiTextToUpload(x) :: ac;
         fold ValuaEquiText Nil buildStep src

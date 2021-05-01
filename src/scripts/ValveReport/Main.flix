@@ -118,11 +118,11 @@ namespace ValveReport/Main {
         use AssetLib/GenS4/Characteristics/AssetCondition.{uxlAssetCondition};
         use AssetLib/GenS4/Characteristics/EastNorth.{uxlEquiEastNorth};
         use AssetLib/GenS4/Characteristics/SolutionId.{uxlEquiSolutionId};
-        use AssetLib/GenS4/MemoLines.{equiLongText};
+        use AssetLib/GenS4/MemoLines.{uxlEquiLongText};
         use ValveReport/Rules.{equiVALV, equiOther};
         let* baseRelns = ValveReport/Main.loadRelations(args);
         let today   = Time/LocalDate.now();
-        let answers = solve uxlEquiSolutionId(args.solutionId) <+> equiLongText() 
+        let answers = solve uxlEquiSolutionId(args.solutionId) <+> uxlEquiLongText() 
                                 <+> uxlAssetCondition() <+> uxlEquiAibReference() 
                                 <+> uxlEquiEastNorth() <+> equiOther(today) 
                                 <+> equiVALV(today) <+> baseRelns;
@@ -134,14 +134,13 @@ namespace ValveReport/Main {
 
 
     def loadRelations(args: ProgramArguments): Result[#{ValveAttribs, ValveWorkItem, RootNode, AibFloc, AibEquipment, 
-                                                        MemoText, 
                                                         EquiSortOrder,
                                                         AibFactGroup, AibStringValue, AibIntValue | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* valveAttribs   = ValveReport/Relations.readValveAttribsData(args.aibValveExport.sheet, args.aibValveExport.file);
         let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
-        let* memos          = AssetLib/GenS4/MemoLines.readMemoData(args.aibMemosExport.sheet, args.aibMemosExport.file);
+        let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
         let* workitems      = ValveReport/Relations.readWorkItemData(args.worklist.sheet, args.worklist.file);
         Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)
 

@@ -24,10 +24,21 @@ namespace AssetLib/GenS4/EmitUpload {
                         nameRoot: String,
                         outdir: System.FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
+        let classEquiPath   = System/FilePath.putBaseName(outdir, "${nameRoot}-upload1-classequi.txt");
+        let classEquiRows   = makeClassEquiRows(solutions);
+        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeClassEquiFile(userName, classEquiRows, classEquiPath);        
         let valuaEquiPath   = System/FilePath.putBaseName(outdir, "${nameRoot}-upload2-valuaequi.txt");
         let valuaEquiRows   = makeValuaEquiRows(solutions);
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
         Ok()
+
+    def makeClassEquiRows(relns: #{ClassEqui | r}): List[ClassEquiRow] = 
+        let xs = AssetLib/GenS4/UploadRelations.toClassEquiRow(relns);
+        let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
+            case EqualTo => Order.compare(x.className, y.className)
+            case ord => ord
+        } |> Order.toInt;
+        List.sortWith(cmp, xs)
 
     def makeValuaEquiRows(relns: #{ValuaEquiText, ValuaEquiInt, ValuaEquiFloat | r}): List[ValuaEquiRow] = 
         let xs = AssetLib/GenS4/UploadRelations.textToValuaEquiRow(relns);

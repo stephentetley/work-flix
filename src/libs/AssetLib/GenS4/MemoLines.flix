@@ -20,55 +20,16 @@ namespace AssetLib/GenS4/MemoLines {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
+    use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiLongText};
 
-    pub rel MemoText(aibref: String, text: String)
-
-
-    pub def equiLongText(): #{MemoText, EquiLongText, EquiDatum | r} = 
+    pub def uxlEquiLongText(): #{EquiLongText, EquiDatum, AibStringValue | r} = 
         #{
             EquiLongText(aibref, description, longText) :- 
                 EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _),
-                MemoText(aibref, longText).
+                AibStringValue(aibref, "MEMO_LINES", longText).
 
         }
 
-    /// Read from Aib xlsx export file...
-    pub def readMemoData(sheetName: String, 
-                                path: System.FilePath): Result[#{MemoText| r}, String] & Impure =
-        SheetIO/SheetReader.runXlsx(readMemoSheet(sheetName), path)
-        
-
-    pub def readMemoSheet(sheetName: String): SheetReader[#{MemoText| r}] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
-        let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, evalRow());
-        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
-        return(relns)
-
-    /// Expects at least "Memo Line 1" and "Memo Line 2"
-    /// A Memo Line is not epected to contain newline.
-    ///
-    /// Note - this is a genuine use of `optional` as file may not contain column "Memo Line 3" etc.
-    /// 
-    def evalRow(): NamedRowEvaluator[#{MemoText| r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, optional, getContentNamed}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6) -> { 
-                let xs = x2 :: x3 :: Option.getWithDefault(x4, "") :: Option.getWithDefault(x5, "") 
-                            :: Option.getWithDefault(x5, "") :: Option.getWithDefault(x6, "") :: Nil;
-                match List.filter(s1 -> not String.isEmpty(s1) , List.map(String.trim, xs)) { 
-                    case Nil => #{}
-                    case ys => {let str = String.unlines(ys); #{ MemoText(x1, str). } }
-                }
-                })
-            <&> getContentNamed("Reference")
-            <*> getContentNamed("Memo Line 1")
-            <*> getContentNamed("Memo Line 2")
-            <*> optional(getContentNamed("Memo Line 3"))
-            <*> optional(getContentNamed("Memo Line 4"))
-            <*> optional(getContentNamed("Memo Line 5"))
-
-
-
+ 
 }
