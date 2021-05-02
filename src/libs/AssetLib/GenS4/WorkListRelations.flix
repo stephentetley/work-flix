@@ -16,6 +16,9 @@
 
 
 namespace AssetLib/GenS4/WorkListRelations {
+    
+    use SheetIO.NamedRowEvaluator;
+    use SheetIO.SheetReader;
 
     /// Phase 1
     pub rel Phase1Equi(aibref: String,
@@ -34,5 +37,53 @@ namespace AssetLib/GenS4/WorkListRelations {
                         functionalLocation: String,
                         objectType: String,
                         objectClass: String)
+
+
+    /// Functional Location (under-developed at the moment)
+
+    pub rel FlocWorkItem(funcloc: String, 
+                        description: String, 
+                        level: Int32, 
+                        objectType: String, 
+                        systemClass: String,        /// Level 5 flocs only
+                        systemType: String,         /// Level 5 flocs only
+                        gridRef: String
+                        )
+
+    
+
+    /// Read from Aib xlsx export file...
+    pub def readWorkItemData(sheetName: String, 
+                                path: System.FilePath): Result[#{FlocWorkItem| r}, String] & Impure =
+        SheetIO/SheetReader.runXlsx(readWorkItemsSheet(sheetName), path)
+        
+
+    pub def readWorkItemsSheet(sheetName: String): SheetReader[#{FlocWorkItem| r}] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
+        let* s1     = getSheetNamed(sheetName);
+        let* xs     = allNamedRows(s1, evalValveWorkItemRow());
+        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
+        return(relns)
+
+
+    def evalValveWorkItemRow(): NamedRowEvaluator[#{FlocWorkItem| r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5, x6) -> 
+                if (String.isEmpty(x1) or String.isEmpty(x2)) 
+                    #{} 
+                else {
+                    let ofloc = AssetLib/Base/S4/Floc.new(x1);
+                    let level = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
+                    #{ FlocWorkItem(x1, x2, level, x3, x4, x5, x6). }
+                })                    
+            <&> map(String.trim, getContentNamed("Functional Location"))
+            <*> map(String.trim, getContentNamed("Description"))
+            <*> map(String.trim, getContentNamed("Object Type"))
+            <*> map(String.trim, getContentNamed("System Class"))
+            <*> map(String.trim, getContentNamed("System Type"))
+            <*> map(String.trim, getContentNamed("NGR"))
+
+
 
 }

@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/MemoLines {
+namespace AssetLib/GenS4/Rules/LongText {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;

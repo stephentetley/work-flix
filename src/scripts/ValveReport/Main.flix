@@ -114,11 +114,11 @@ namespace ValveReport/Main {
     /// Empty string for no solution id.
     pub def main2(args: ProgramArguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/GenS4/Characteristics/AibReference.{uxlEquiAibReference};
-        use AssetLib/GenS4/Characteristics/AssetCondition.{uxlAssetCondition};
-        use AssetLib/GenS4/Characteristics/EastNorth.{uxlEquiEastNorth};
-        use AssetLib/GenS4/Characteristics/SolutionId.{uxlEquiSolutionId};
-        use AssetLib/GenS4/MemoLines.{uxlEquiLongText};
+        use AssetLib/GenS4/Rules/Characteristics/AibReference.{uxlEquiAibReference};
+        use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{uxlAssetCondition};
+        use AssetLib/GenS4/Rules/Characteristics/EastNorth.{uxlEquiEastNorth};
+        use AssetLib/GenS4/Rules/Characteristics/SolutionId.{uxlEquiSolutionId};
+        use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
         use ValveReport/Rules.{equiVALV, equiOther};
         let* baseRelns = ValveReport/Main.loadRelations(args);
         let today   = Time/LocalDate.now();

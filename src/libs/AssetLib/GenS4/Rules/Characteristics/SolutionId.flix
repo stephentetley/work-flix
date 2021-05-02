@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Characteristics/SolutionId {
+namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText};

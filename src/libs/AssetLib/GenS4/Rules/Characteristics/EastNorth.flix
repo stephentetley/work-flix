@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Characteristics/EastNorth {
+namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/GenS4/WorkListRelations.{Phase1Equi, Phase2Equi};

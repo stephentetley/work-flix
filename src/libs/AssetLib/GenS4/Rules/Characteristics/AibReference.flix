@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Characteristics/AibReference {
+namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/GenS4/WorkListRelations.{Phase1Equi, Phase2Equi};

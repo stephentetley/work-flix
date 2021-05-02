@@ -37,7 +37,11 @@ namespace AssetLib/AibFacts/HierarchyFacts {
                     parentRef: String)
 
     /// Arity 12
-    /// TODO add locationOnSite and weightKg
+    /// TODO we need locationOnSite and weightKg, but should they and other optional values(serialNumber, pandiTag, etc.)
+    /// be incorporated into the worklist relation?
+    /// Note - locationOnSite and weightKg are potentially null so they might be better as attributes.
+    /// Same for pandiTag, partNumber and serialNumber...
+    /// ... Don't incorporate onto the worklist relation - don't want to conflict with user supplied data.
     pub rel AibEquipment(aibref: String, 
                         description: String, 
                         equipmentType: String, 

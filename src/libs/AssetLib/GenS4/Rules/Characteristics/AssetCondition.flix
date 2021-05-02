@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Characteristics/AssetCondition {
+namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
