@@ -25,11 +25,23 @@ namespace AssetLib/GenS4/Rules/LongText {
 
     pub def uxlEquiLongText(): #{EquiLongText, EquiDatum, AibStringValue | r} = 
         #{
+            EquiLongText(aibref, description, combine(longText, location) ) :- 
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
+                AibStringValue(aibref, "MEMO_LINES", longText),
+                AibStringValue(aibref, "LOCATION_ON_SITE", location), 
+                if (String.length(location) > 30).
+
             EquiLongText(aibref, description, longText) :- 
                 EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "MEMO_LINES", longText).
-
+                AibStringValue(aibref, "MEMO_LINES", longText).            
         }
 
- 
+
+    def combine(memos: String, location: String): String = 
+        String.unlines(
+                memos
+            :: "Location on Site: ${location}"
+            :: Nil
+        )
+
 }

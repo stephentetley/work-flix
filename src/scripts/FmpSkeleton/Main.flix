@@ -17,7 +17,7 @@
 namespace FmpSkeleton/Main {
     
     use AssetLib/Facts/SiteMapping.{SiteMapping};
-    use AssetLib/AibRel/HierarchicalRelations.{RootNode, AibFloc, AibEquipment};
+    use AssetLib/AibRel/HierarchicalRelations.{AibRootNode, AibFloc, AibEquipment};
     use AssetLib/S4Rel/Relations.{FlocDatum, FlocLongText, FlocCharacteristic, 
         EquiDatum, EquiLongText, EquiCharacteristic};
     use FmpSkeleton/Rules.{Status, EqRecognized};
@@ -46,7 +46,7 @@ namespace FmpSkeleton/Main {
         else 
             None
 
-    def processSiteFile(siteMapping: #{SiteMapping, RootNode, AibFloc, AibEquipment, 
+    def processSiteFile(siteMapping: #{SiteMapping, AibRootNode, AibFloc, AibEquipment, 
                                         FlocDatum, FlocLongText, FlocCharacteristic,
                                         EquiDatum, EquiLongText, EquiCharacteristic, Status | r},
                             uxlTemplate: System.FilePath, 

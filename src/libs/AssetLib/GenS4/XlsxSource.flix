@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-namespace AssetLib/GenS4 {
+
+namespace AssetLib/GenS4/XlsxSource {
 
     type alias XlsxSource = 
         { file: System.FilePath
         , sheet: String
         }
 
-}
-
-namespace AssetLib/GenS4/XlsxSource {
-
-    use AssetLib/GenS4.XlsxSource;
-
-    
     pub def fromString(s: String): XlsxSource = match String.breakOnLeft("##", s) {
         case (s1, s2) if String.isEmpty(s2) => {file = System/FilePath.new(s1), sheet = "Sheet1"}
         case (s1, s2) => {file = System/FilePath.new(s1), sheet = Option.getWithDefault(String.stripPrefix("##", s2), "")}

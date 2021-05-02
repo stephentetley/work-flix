@@ -20,9 +20,9 @@ namespace ValveReport/Main {
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
     use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue, AibFloatValue};
-    use AssetLib/GenS4.XlsxSource;
-    use AssetLib/AibFacts/HierarchyFacts.{RootNode, AibFloc, AibEquipment};
-    use AssetLib/GenS4/UxlRelations.{EquiSortOrder};
+    use AssetLib/GenS4/XlsxSource.{XlsxSource};
+    use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
+    use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder};
     use AssetLib/GenS4/MemoLines.{MemoText};
     use ValveReport/Relations.{ValveWorkItem, ValveAttribs};
 
@@ -111,37 +111,39 @@ namespace ValveReport/Main {
             }
         }
 
-    /// Empty string for no solution id.
-    pub def main2(args: ProgramArguments): Result[Unit, String] & Impure = 
-        use Result.{flatMap};
-        use AssetLib/GenS4/Rules/Characteristics/AibReference.{uxlEquiAibReference};
-        use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{uxlAssetCondition};
-        use AssetLib/GenS4/Rules/Characteristics/EastNorth.{uxlEquiEastNorth};
-        use AssetLib/GenS4/Rules/Characteristics/SolutionId.{uxlEquiSolutionId};
-        use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
-        use ValveReport/Rules.{equiVALV, equiOther};
-        let* baseRelns = ValveReport/Main.loadRelations(args);
-        let today   = Time/LocalDate.now();
-        let answers = solve uxlEquiSolutionId(args.solutionId) <+> uxlEquiLongText() 
-                                <+> uxlAssetCondition() <+> uxlEquiAibReference() 
-                                <+> uxlEquiEastNorth() <+> equiOther(today) 
-                                <+> equiVALV(today) <+> baseRelns;
-        (project EquiDatum answers) |> unsafeToString |> println;
-        (project EquiCharacteristic answers) |> unsafeToString |> println;
-        (project EquiLongText answers) |> unsafeToString |> println;
-        let* _      = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
-        Ok()
+    def main2(_args: ProgramArguments): Result[Unit, String] & Impure = 
+        Ok() as & Impure
+    /// /// Empty string for no solution id.
+    /// pub def main2(args: ProgramArguments): Result[Unit, String] & Impure = 
+    ///     use Result.{flatMap};
+    ///     use AssetLib/GenS4/Rules/Characteristics/AibReference.{uxlEquiAibReference};
+    ///     use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{uxlAssetCondition};
+    ///     use AssetLib/GenS4/Rules/Characteristics/EastNorth.{uxlEquiEastNorth};
+    ///     use AssetLib/GenS4/Rules/Characteristics/SolutionId.{uxlEquiSolutionId};
+    ///     use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
+    ///     use ValveReport/Rules.{equiVALV, equiOther};
+    ///     let* baseRelns = ValveReport/Main.loadRelations(args);
+    ///     let today   = Time/LocalDate.now();
+    ///     let answers = solve uxlEquiSolutionId(args.solutionId) <+> uxlEquiLongText() 
+    ///                             <+> uxlAssetCondition() <+> uxlEquiAibReference() 
+    ///                             <+> uxlEquiEastNorth() <+> equiOther(today) 
+    ///                             <+> equiVALV(today) <+> baseRelns;
+    ///     (project EquiDatum answers) |> unsafeToString |> println;
+    ///     (project EquiCharacteristic answers) |> unsafeToString |> println;
+    ///     (project EquiLongText answers) |> unsafeToString |> println;
+    ///     let* _      = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
+    ///     Ok()
 
 
-    def loadRelations(args: ProgramArguments): Result[#{ValveWorkItem, RootNode, AibFloc, AibEquipment, 
-                                                        EquiSortOrder,
-                                                        AibFactGroup, AibStringValue, AibIntValue, AibFloatValue | r}, String] & Impure = 
-        use Result.{flatMap};
-        let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
-        let* valveAttribs   = AssetLib/AibFacts/Attributes/Valve.readValveData(args.aibValveExport.sheet, args.aibValveExport.file);
-        let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
-        let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
-        let* workitems      = ValveReport/Relations.readWorkItemData(args.worklist.sheet, args.worklist.file);
-        Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)
+    /// def loadRelations(args: ProgramArguments): Result[#{ValveWorkItem, AibRootNode, AibFloc, AibEquipment, 
+    ///                                                     Phase1EquiSortOrder,
+    ///                                                     AibFactGroup, AibStringValue, AibIntValue, AibFloatValue | r}, String] & Impure = 
+    ///     use Result.{flatMap};
+    ///     let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
+    ///     let* valveAttribs   = AssetLib/AibFacts/Attributes/Valve.readValveData(args.aibValveExport.sheet, args.aibValveExport.file);
+    ///     let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
+    ///     let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
+    ///     let* workitems      = ValveReport/Relations.readWorkItemData(args.worklist.sheet, args.worklist.file);
+    ///     Ok(hrelns <+> valveAttribs <+> agasp <+> memos <+> workitems)
 
 }

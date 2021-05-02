@@ -14,17 +14,50 @@
  * limitations under the License.
  */
 
-namespace ValveReport/Equipment {
+namespace ValveReport/Rules/Equipment {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/AibFacts/HierarchyFacts.{AibFloc, AibEquipment};
+    use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
+    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
+    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
-    use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
-        PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
         
-    use ValveReport/Relations.{ValveWorkItem};
 
-    pub def s4Status(x: String): String = match x {
+    pub def equipment(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum, EquiCharacteristic, AibEquipment, EquipmentAttibutes | r} = 
+        #{
+            EquiDatum(aibref, 
+                        s4Category,
+                        String.takeLeft(40, s4Name),
+                        today,
+                        s4EquiType,
+                        weightKg,
+                        installedFrom,
+                        manufacturer,
+                        model,
+                        specificModelFrame,
+                        s4SerialNumber(serialNumber),
+                        suppliedFloc,
+                        superEqui,
+                        pandiTag,
+                        s4Status(status)) :- 
+                Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, s4EquiClass), 
+                AibEquipment(aibref, description, equiType, installedFrom, manufacturer, model,  _, status, _), 
+                EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
+
+
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
+                Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
+
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :-
+                Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
+
+        }
+
+
+
+    def s4Status(x: String): String = match x {
         case "OPERATIONAL" =>  "OPER"
         case "NON-OPERATIONAL" => "NOP"
         case _ => x
@@ -36,43 +69,6 @@ namespace ValveReport/Equipment {
         case s1 => s1
     }
 
-
-
-
-
-    pub def equipment(today: Time.LocalDate): #{ValveWorkItem, EquiDatum, EquiCharacteristic, AibEquipment | r} = 
-        let noneF64: Option[Float64] = None;
-        #{
-            EquiDatum(aibref, 
-                        s4Category,
-                        String.takeLeft(40, s4Name),
-                        today,
-                        s4EquiType,
-                        noneF64,
-                        installedFrom,
-                        manufacturer,
-                        model,
-                        partNumber,
-                        s4SerialNumber(serialNumber),
-                        suppliedFloc,
-                        superEqui,
-                        pandi,
-                        s4Status(status)) :- 
-                AibEquipment(aibref, description, equiType,
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
-                ValveWorkItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, s4EquiClass).
-
-
-            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
-                ValveWorkItem(aibref, _, _, _, _, s4EquiType, s4EquiClass).
-
-            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
-                ValveWorkItem(aibref, _, _, _, _, s4EquiType, s4EquiClass).
-
-
-        }
 
             /// /// Define the typemap here.
             /// /// There aren't any modularity benefits to defining it outside 

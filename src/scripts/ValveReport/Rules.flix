@@ -18,6 +18,7 @@ namespace ValveReport/Rules {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
     use AssetLib/AibFacts/HierarchyFacts.{AibFloc, AibEquipment};
+    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
     use AssetLib/GenS4/Characteristics/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         PerformanceGrade, PerformanceGradeReason, LoadingFactor, LoadingFactorReason, SurveyYear};
@@ -43,8 +44,7 @@ namespace ValveReport/Rules {
     pub def equiVALV(today: Time.LocalDate): #{ValveTypeMap3, 
                                                 ValveWorkItem, 
                                                 AibStringValue, AibFloatValue,
-                                                EquiDatum, EquiCharacteristic, AibEquipment | r} = 
-        let noneF64: Option[Float64] = None;
+                                                EquiDatum, EquiCharacteristic, AibEquipment, EquipmentAttibutes | r} = 
         #{
             
             /// Define the typemap here.
@@ -63,34 +63,34 @@ namespace ValveReport/Rules {
             ValveTypeMap3("EQUIPMENT: RELIEF/SAFETY VALVE", "",             "VALVSF").
 
             EquiDatum(aibref, 
-                            "M",
-                            String.takeLeft(40, s4Name),
-                            today,
-                            "VALV",
-                            noneF64,
-                            installedFrom,
-                            manufacturer,
-                            model,
-                            partNumber,
-                            s4SerialNumber(serialNumber),
-                            suppliedFloc,
-                            superEqui,
-                            pandi,
-                            s4Status(status)) :- 
-                AibEquipment(aibref, description, equiType, 
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
+                        "M",
+                        String.takeLeft(40, s4Name),
+                        today,
+                        "VALV",
+                        weightKg,
+                        installedFrom,
+                        manufacturer,
+                        model,
+                        specificModelFrame,
+                        s4SerialNumber(serialNumber),
+                        suppliedFloc,
+                        superEqui,
+                        pandiTag,
+                        s4Status(status)) :- 
+                AibEquipment(aibref, description, equiType,  installedFrom, manufacturer, model,  _, status, _),                 
+                EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg),  
                 ValveWorkItem(aibref, s4Name, suppliedFloc, superEqui, "M", "VALV", _).
 
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_CODE", "") :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "VALVE_TYPE", valveType),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
             EquiCharacteristic(aibref, valvClass, "UNICLASS_DESC", "") :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "VALVE_TYPE", valveType),
                 ValveTypeMap3(equiType, valveType, valvClass).
 
@@ -102,7 +102,7 @@ namespace ValveReport/Rules {
 
             EquiCharacteristic(aibref, valvClass, "VALV_INLET_SIZE_MM", ToString.toString(sizeMM)) :- 
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
-                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _,  _, _, _),
+                AibEquipment(aibref, _, equiType,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "VALVE_SIZE_MM", sizeMM),
                 AibStringValue(aibref, "VALVE_TYPE", valveType),
                 ValveTypeMap3(equiType, valveType, valvClass).
@@ -111,26 +111,25 @@ namespace ValveReport/Rules {
 
 
 
-    pub def equiOther(today: Time.LocalDate): #{ValveWorkItem, EquiDatum, EquiCharacteristic, AibEquipment | r} = 
-        let noneF64: Option[Float64] = None;
+    pub def equiOther(today: Time.LocalDate): #{ValveWorkItem, EquiDatum, EquiCharacteristic, AibEquipment, EquipmentAttibutes | r} = 
         #{
             EquiDatum(aibref, 
                         s4Category,
                         String.takeLeft(40, s4Name),
                         today,
                         s4EquiType,
-                        noneF64,
+                        weightKg,
                         installedFrom,
                         manufacturer,
                         model,
-                        partNumber,
+                        specificModelFrame,
                         s4SerialNumber(serialNumber),
                         suppliedFloc,
                         superEqui,
-                        pandi,
-                        s4Status(status)) :- 
-                AibEquipment(aibref, description, equiType,
-                    installedFrom, manufacturer, model, partNumber, serialNumber, _, pandi, status, _), 
+                        pandiTag,
+                        s4Status(status)) :-  
+                AibEquipment(aibref, description, equiType, installedFrom, manufacturer, model,  _, status, _),                 
+                EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg),                  
                 ValveWorkItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV" and not String.isEmpty(s4EquiClass).
 

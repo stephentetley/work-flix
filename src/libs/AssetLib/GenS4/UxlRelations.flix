@@ -20,9 +20,7 @@ namespace AssetLib/GenS4/UxlRelations {
     use AssetLib/FileIO/S4/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
         FlClassification, EquipmentData, EqMultilingualText, EqClassification};
 
-    
-    /// To deduce sort order before renumbering.
-    pub rel EquiSortOrder(aibref: String, pos: Int32)
+    use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder};
 
 
     /// Arity 7
@@ -68,9 +66,9 @@ namespace AssetLib/GenS4/UxlRelations {
 
 
 
-    pub def toSortPositions(src: #{EquiSortOrder | r}): Map[String, Int32] = 
+    pub def toSortPositions(src: #{Phase1EquiSortOrder | r}): Map[String, Int32] = 
         let buildStep = (x, ac) -> {let (k, v) = x; Map.insert(k, v, ac)};
-        fold EquiSortOrder Map.empty() buildStep src
+        fold Phase1EquiSortOrder Map.empty() buildStep src
 
     /// To Uxl...
     pub def toFunctionalLocationData(src: #{FlocDatum | r}): List[FunctionalLocationData] = 
@@ -137,7 +135,7 @@ namespace AssetLib/GenS4/UxlRelations {
         , charDeletionInd       = false
         }
 
-    pub def toEquipmentData(src: #{EquiSortOrder, EquiDatum | r }): List[EquipmentData] = 
+    pub def toEquipmentData(src: #{Phase1EquiSortOrder, EquiDatum | r }): List[EquipmentData] = 
         let posMap = toSortPositions(src);
         let buildStep = (x, ac) -> equiDatumToUxl(x) :: ac;
         let sortStep = (x, y) -> match (Map.get(x.equiId, posMap), Map.get(y.equiId, posMap)) {

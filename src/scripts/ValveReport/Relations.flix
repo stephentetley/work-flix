@@ -18,7 +18,7 @@ namespace ValveReport/Relations {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-    use AssetLib/GenS4/UxlRelations.{EquiSortOrder};
+    use AssetLib/GenS4/UxlRelations.{Phase1EquiSortOrder};
 
     pub rel ValveWorkItem(aibref: String, 
                             s4Name: String, 
@@ -36,11 +36,11 @@ namespace ValveReport/Relations {
 
     /// Read from Aib xlsx export file...
     pub def readWorkItemData(sheetName: String, 
-                                path: System.FilePath): Result[#{EquiSortOrder, ValveWorkItem | r}, String] & Impure =
+                                path: System.FilePath): Result[#{Phase1EquiSortOrder, ValveWorkItem | r}, String] & Impure =
         SheetIO/SheetReader.runXlsx(readWorkItemsSheet(sheetName), path)
         
 
-    pub def readWorkItemsSheet(sheetName: String): SheetReader[#{EquiSortOrder, ValveWorkItem | r}] = 
+    pub def readWorkItemsSheet(sheetName: String): SheetReader[#{Phase1EquiSortOrder, ValveWorkItem | r}] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(s1, evalValveWorkItemRow());
@@ -48,14 +48,14 @@ namespace ValveReport/Relations {
         return(relns)
 
 
-    def evalValveWorkItemRow(): NamedRowEvaluator[#{EquiSortOrder, ValveWorkItem | r}] =
+    def evalValveWorkItemRow(): NamedRowEvaluator[#{Phase1EquiSortOrder, ValveWorkItem | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
                 if (String.isEmpty(x3) or String.isEmpty(x4)) 
                     #{} 
                 else #{ 
-                    EquiSortOrder(x2, x1).
+                    Phase1EquiSortOrder(x2, x1).
                     ValveWorkItem(x2, x3, x4, x5, x6, x7, x8). 
                 })
             <&> getRowNum()

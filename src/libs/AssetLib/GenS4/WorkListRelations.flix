@@ -21,22 +21,27 @@ namespace AssetLib/GenS4/WorkListRelations {
     use SheetIO.SheetReader;
 
     /// Phase 1
-    pub rel Phase1Equi(aibref: String,
-                        s4Name: String,  
-                        s4Floc: String,
-                        superEqui: String, 
-                        s4Category: String, 
-                        s4EquiType: String, 
-                        s4EquiClass: String)
+    pub rel Phase1EquiItem(aibref: String,
+                            s4Name: String,  
+                            s4Floc: String,
+                            superEqui: String, 
+                            s4Category: String, 
+                            s4EquiType: String, 
+                            s4EquiClass: String)
+
+    
+    /// To deduce sort order before renumbering.
+    pub rel Phase1EquiSortOrder(aibref: String, pos: Int32)
+
     
     /// Phase 2
     /// Object Class e.g. VALVNR is available directly, we don't have to 
     /// worry about calculating it.
-    pub rel Phase2Equi(equipmentId: String,  
-                        description: String,    /// aka name
-                        functionalLocation: String,
-                        objectType: String,
-                        objectClass: String)
+    pub rel Phase2EquiItem(equipmentId: String,  
+                            description: String,    /// aka name
+                            functionalLocation: String,
+                            objectType: String,
+                            objectClass: String)
 
 
     /// Functional Location (under-developed at the moment)
@@ -50,39 +55,74 @@ namespace AssetLib/GenS4/WorkListRelations {
                         gridRef: String
                         )
 
-    
 
-    /// Read from Aib xlsx export file...
-    pub def readWorkItemData(sheetName: String, 
-                                path: System.FilePath): Result[#{FlocWorkItem| r}, String] & Impure =
-        SheetIO/SheetReader.runXlsx(readWorkItemsSheet(sheetName), path)
-        
-
-    pub def readWorkItemsSheet(sheetName: String): SheetReader[#{FlocWorkItem| r}] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
+    def readWorkList(sheetName: String, eval: NamedRowEvaluator[#{| r}]): SheetReader[#{| r}] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};  
+        use SheetIO/NamedRowEvaluator.{withDefault};
         let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, evalValveWorkItemRow());
+        let* xs     = allNamedRows(s1, withDefault(eval, #{}));
         let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
         return(relns)
 
+    
 
-    def evalValveWorkItemRow(): NamedRowEvaluator[#{FlocWorkItem| r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6) -> 
-                if (String.isEmpty(x1) or String.isEmpty(x2)) 
-                    #{} 
-                else {
-                    let ofloc = AssetLib/Base/S4/Floc.new(x1);
-                    let level = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
-                    #{ FlocWorkItem(x1, x2, level, x3, x4, x5, x6). }
-                })                    
-            <&> map(String.trim, getContentNamed("Functional Location"))
-            <*> map(String.trim, getContentNamed("Description"))
-            <*> map(String.trim, getContentNamed("Object Type"))
-            <*> map(String.trim, getContentNamed("System Class"))
-            <*> map(String.trim, getContentNamed("System Type"))
-            <*> map(String.trim, getContentNamed("NGR"))
+
+    /// Read from Aib xlsx export file...
+    pub def readPhase1EquiWorkList(sheetName: String, 
+                                    path: System.FilePath): Result[#{Phase1EquiSortOrder, Phase1EquiItem | r}, String] & Impure =
+        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalPhase1EquiItem()), path)
+        
+    /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
+    def evalPhase1EquiItem(): NamedRowEvaluator[#{Phase1EquiSortOrder, Phase1EquiItem | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed}; 
+        let* rowNum     = getRowNum();
+        let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
+        let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
+        let* s4Floc     = map(String.trim, getNonEmptyContentNamed("S4 Floc"));
+        let* superId    = map(String.trim, getContentNamed("Super Equi"));
+        let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
+        let* s4Type     = map(String.trim, getNonEmptyContentNamed("Equi Type"));
+        let* s4Class    = map(String.trim, getContentNamed("Equi Class"));
+        return(#{ 
+            Phase1EquiSortOrder(aibref, rowNum).
+            Phase1EquiItem(aibref, s4Name, s4Floc, superId, category, s4Type, s4Class). 
+        })
+
+
+    /// Read from Aib xlsx export file...
+    pub def readPhase2EquiWorkList(sheetName: String, 
+                                    path: System.FilePath): Result[#{Phase2EquiItem | r}, String] & Impure =
+        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalPhase2EquiItem()), path)
+        
+    def evalPhase2EquiItem(): NamedRowEvaluator[#{Phase2EquiItem | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed, getNonEmptyContentNamed}; 
+        let* equiId     = map(String.trim, getNonEmptyContentNamed("Equipment"));
+        let* name       = map(String.trim, getNonEmptyContentNamed("Description"));
+        let* funcloc    = map(String.trim, getNonEmptyContentNamed("Functional Location"));
+        let* objType    = map(String.trim, getNonEmptyContentNamed("Object Type"));
+        let* objClass   = map(String.trim, getNonEmptyContentNamed("Object Type Class"));
+        return(#{ Phase2EquiItem(equiId, name, funcloc, objType, objClass). })
+
+
+    /// Flocs
+
+    /// Read from Aib xlsx export file...
+    pub def readFlocWorkList(sheetName: String, 
+                                path: System.FilePath): Result[#{FlocWorkItem| r}, String] & Impure =
+        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalFlocWorkItem()), path)
+        
+
+    def evalFlocWorkItem(): NamedRowEvaluator[#{FlocWorkItem| r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed}; 
+        let* floc       = map(String.trim, getNonEmptyContentNamed("Functional Location"));
+        let* name       = map(String.trim, getNonEmptyContentNamed("Description"));
+        let* objType    = map(String.trim, getNonEmptyContentNamed("Object Type"));
+        let* sysClass   = map(String.trim, getNonEmptyContentNamed("System Class"));
+        let* sysType    = map(String.trim, getNonEmptyContentNamed("System Type"));
+        let* ngr        = map(String.trim, getNonEmptyContentNamed("NGR"));
+        let ofloc       = AssetLib/Base/S4/Floc.new(floc);
+        let level       = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
+        return(#{ FlocWorkItem(floc, name, level, objType, sysClass, sysType, ngr). })
 
 
 

@@ -18,28 +18,28 @@
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
-    use AssetLib/GenS4/WorkListRelations.{Phase1Equi, Phase2Equi};
+    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
-    pub def equiEastNorth(): #{ClassEqui, ValuaEquiText, ValuaEquiInt, Phase1Equi, Phase2Equi, AibEquipment | r} =
+    pub def equiEastNorth(): #{ClassEqui, ValuaEquiText, ValuaEquiInt, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             
             ClassEqui(equiId, "EAST_NORTH", "002") :- 
-                Phase2Equi(equiId, name, description,  _, _),
-                Phase1Equi(_, name, description,  _, _, _,  _).
+                Phase2EquiItem(equiId, name, description,  _, _),
+                Phase1EquiItem(_, name, description,  _, _, _,  _).
 
 
             ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 
-                Phase2Equi(equiId, name, description,  _, _),
-                Phase1Equi(aibref, name, description,  _, _, _,  _),
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _).
+                Phase2EquiItem(equiId, name, description,  _, _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
 
             ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 
-                Phase2Equi(equiId, name, description,  _, _),
-                Phase1Equi(aibref, name, description,  _, _, _,  _),
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _).
+                Phase2EquiItem(equiId, name, description,  _, _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
         }
 
     pub def uxlEquiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
@@ -47,11 +47,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
         #{
             /// EAST_NORTH (generate if we have generated EquiDatum from AibEquipment)
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
+                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
 
             EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr))) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
+                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
         }
 

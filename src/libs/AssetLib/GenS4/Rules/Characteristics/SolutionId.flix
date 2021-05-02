@@ -21,21 +21,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText};
     use AssetLib/GenS4/UxlRelations.{FlocCharacteristic, FlocDatum, EquiDatum, EquiCharacteristic};
 
-    use AssetLib/GenS4/WorkListRelations.{Phase2Equi};
+    use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem};
 
 
     /// `solutionId` is parametric as should be supplied once for a translation
     /// so it is not a candidate for a fact.
     /// This generates a SOLUTION_ID class and characteristic for every item in the change request list.
     ///
-    pub def equiSolutionId(solutionId: String): #{ClassEqui, ValuaEquiText, Phase2Equi | r} = 
+    pub def equiSolutionId(solutionId: String): #{ClassEqui, ValuaEquiText, Phase2EquiItem | r} = 
         #{
             ClassEqui(equiId, "SOLUTION_ID", "002") :- 
-                Phase2Equi(equiId, _, _, _, _),
+                Phase2EquiItem(equiId, _, _, _, _),
                 if String.isEmpty(solutionId) == false.
 
             ValuaEquiText(equiId, "002", "SOLUTION_ID", solutionId, 1) :- 
-                Phase2Equi(equiId, _, _, _, _),
+                Phase2EquiItem(equiId, _, _, _, _),
                 if String.isEmpty(solutionId) == false.
         }
         
