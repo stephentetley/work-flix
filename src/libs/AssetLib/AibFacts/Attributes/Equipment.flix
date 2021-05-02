@@ -42,8 +42,8 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
 
     /// Read from Aib file...
 
-
-    pub def readValveData(sheetName: String, 
+    /// Reads `Location On Site` at same time...
+    pub def readEquipmentData(sheetName: String, 
                                 path: System.FilePath): Result[#{EquipmentAttibutes, AibStringValue | r}, String] & Impure =
         AssetLib/AibFacts/Relations.readAibFacts(equipmentFacts(), sheetName, path)
         

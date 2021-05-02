@@ -19,6 +19,7 @@ namespace AssetLib/GenS4/Phase1 {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
     use AssetLib/AibFacts/Relations.{AibStringValue};
+    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder, Phase1EquiItem};
 
@@ -26,9 +27,9 @@ namespace AssetLib/GenS4/Phase1 {
     type alias Phase1Arguments = 
         { uxlTemplate: System.FilePath
         , aibHierarchyExport: XlsxSource
+        , aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
         , phase1Worklist: XlsxSource
-        , solutionId: String
         , changeRequestName: String
         , outpath: System.FilePath
         }
@@ -38,9 +39,10 @@ namespace AssetLib/GenS4/Phase1 {
     pub def phase1(args: Phase1Arguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use ValveReport/Rules/Equipment.{equipment};
+        use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
         let* baseRelns  = loadRelations(args);
         let today       = Time/LocalDate.now();
-        let answers     = solve equipment(today) <+> baseRelns;
+        let answers     = solve uxlEquiLongText() <+> equipment(today) <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;
         (project EquiLongText answers) |> unsafeToString |> println;
@@ -49,13 +51,13 @@ namespace AssetLib/GenS4/Phase1 {
 
 
     def loadRelations(args: Phase1Arguments): Result[#{Phase1EquiItem, Phase1EquiSortOrder, AibRootNode, AibFloc, AibEquipment, 
-                                                        AibStringValue | r}, String] & Impure = 
+                                                        EquipmentAttibutes, AibStringValue | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
+        let* equiAttrs      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
         let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
         let* workitems      = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
-        /// TODO location on site
-        Ok(hrelns <+> memos <+> workitems)
+        Ok(hrelns <+> equiAttrs <+> memos <+> workitems)
 
 
 }
