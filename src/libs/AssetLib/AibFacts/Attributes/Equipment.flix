@@ -47,6 +47,11 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
                                 path: System.FilePath): Result[#{EquipmentAttibutes, AibStringValue | r}, String] & Impure =
         AssetLib/AibFacts/Relations.readAibFacts(equipmentFacts(), sheetName, path)
         
+    /// Just reads `Location On Site`...
+    pub def readLocationOnSiteData(sheetName: String, 
+                                path: System.FilePath): Result[#{AibStringValue | r}, String] & Impure =
+        AssetLib/AibFacts/Relations.readAibFacts(getAttributes(getLocationOnSite() :: Nil), sheetName, path)
+
 
     pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttibutes, AibStringValue | r}] =
         getAttributes( getLocationOnSite()

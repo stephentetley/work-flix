@@ -62,16 +62,16 @@ namespace ValveReport/Rules/Equipment {
                         pandiTag,
                         s4Status(status)) :- 
                 Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, _), 
-                AibEquipment(aibref, description, equiType, installedFrom, manufacturer, model,  _, status, _), 
+                AibEquipment(aibref, _, _, installedFrom, manufacturer, model,  _, status, _), 
                 EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
 
 
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
                 Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
-                AibEquipment(aibref, description, _, _, _, _,  _, _, _), 
+                AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
                 AibStringValue(aibref, "VALVE_TYPE", valveType),
-                ValveTypeMap3(description, valveType, s4EquiClass).
+                ValveTypeMap3(aibEquiName, valveType, s4EquiClass).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
                 Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
@@ -79,9 +79,9 @@ namespace ValveReport/Rules/Equipment {
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
                 Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
-                AibEquipment(aibref, description, _, _, _, _,  _, _, _), 
+                AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
                 AibStringValue(aibref, "VALVE_TYPE", valveType),
-                ValveTypeMap3(description, valveType, s4EquiClass).
+                ValveTypeMap3(aibEquiName, valveType, s4EquiClass).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :-
                 Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),

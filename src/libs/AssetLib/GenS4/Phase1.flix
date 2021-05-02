@@ -51,7 +51,7 @@ namespace AssetLib/GenS4/Phase1 {
         Ok()
 
 
-    def loadRelations(args: Phase1Arguments): Result[#{Phase1EquiItem, AibRootNode, AibFloc, AibEquipment, 
+    def loadRelations(args: Phase1Arguments): Result[#{Phase1EquiSortOrder, Phase1EquiItem, AibRootNode, AibFloc, AibEquipment, 
                                                         EquipmentAttibutes, AibStringValue, AibFloatValue, 
                                                         ValveTypeMap3 | r}, String] & Impure = 
         use Result.{flatMap};
@@ -60,7 +60,7 @@ namespace AssetLib/GenS4/Phase1 {
         let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
         let* valves         = match args.aibValvesExport { 
             case Some(xlsx) => AssetLib/AibFacts/Attributes/Valve.readValveData(xlsx.sheet, xlsx.file)
-            case None => {Console.printLine("***** NO-VALVE-FILE *****"); Ok(#{})}
+            case None => Ok(#{})
         };
         let* workitems      = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
         Ok(hrelns <+> equiAttrs <+> memos <+> valves <+> workitems)
