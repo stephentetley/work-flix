@@ -32,11 +32,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
         #{
             ClassEqui(equiId, "SOLUTION_ID", "002") :- 
                 Phase2EquiItem(equiId, _, _, _, _),
-                if String.isEmpty(solutionId) == false.
+                if solutionId != "".
 
             ValuaEquiText(equiId, "002", "SOLUTION_ID", solutionId, 1) :- 
                 Phase2EquiItem(equiId, _, _, _, _),
-                if String.isEmpty(solutionId) == false.
+                if solutionId != "".
         }
         
     /// `solutionId` is parametric as should be supplied once for a translation

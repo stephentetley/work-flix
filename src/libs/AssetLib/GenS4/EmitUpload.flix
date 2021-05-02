@@ -24,10 +24,12 @@ namespace AssetLib/GenS4/EmitUpload {
                         nameRoot: String,
                         outdir: System.FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
-        let classEquiPath   = System/FilePath.putBaseName(outdir, "${nameRoot}-upload1-classequi.txt");
+        let classEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload1-classequi.txt"));
+        let _               = Console.printLine("Writing '${classEquiPath}'");
         let classEquiRows   = makeClassEquiRows(solutions);
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeClassEquiFile(userName, classEquiRows, classEquiPath);        
-        let valuaEquiPath   = System/FilePath.putBaseName(outdir, "${nameRoot}-upload2-valuaequi.txt");
+        let valuaEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload2-valuaequi.txt"));
+        let _               = Console.printLine("Writing '${valuaEquiPath}'");
         let valuaEquiRows   = makeValuaEquiRows(solutions);
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
         Ok()

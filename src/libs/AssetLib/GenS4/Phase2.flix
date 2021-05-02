@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Phase2 {
         , solutionId: Option[String]
         , phase1Worklist: XlsxSource
         , phase2Worklist: System.FilePath       /// Tab is called Data
-        , outnameRoot: String
+        , outNameRoot: String
         , outdir: System.FilePath
         }
 
@@ -48,7 +48,7 @@ namespace AssetLib/GenS4/Phase2 {
         let solutionId  = Option.getWithDefault(args.solutionId, "");
         let answers     = solve assetCondition() <+> equiAibReference() <+> equiEastNorth() 
                                     <+> equiSolutionId(solutionId) <+>  baseRelns;
-        let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outnameRoot, args.outdir);
+        let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);
         Ok()
 
 

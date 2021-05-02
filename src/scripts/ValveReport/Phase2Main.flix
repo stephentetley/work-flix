@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace ValveReport/Phase1Main {
+namespace ValveReport/Phase2Main {
 
     use GetOpt.{ArgDescr, OptionDescr};
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
@@ -25,59 +25,63 @@ namespace ValveReport/Phase1Main {
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder};
     use AssetLib/GenS4/MemoLines.{MemoText};
-    use AssetLib/GenS4/Phase1.{Phase1Arguments};
+    use AssetLib/GenS4/Phase2.{Phase2Arguments};
 
 
 
-    type alias UpdateArguments = Phase1Arguments -> Phase1Arguments
+    type alias UpdateArguments = Phase2Arguments -> Phase2Arguments
 
-    def defaultArguments(): Phase1Arguments = 
-        { uxlTemplate = System/FilePath.new("")
+    def defaultArguments(): Phase2Arguments = 
+        { userName = "asset_data_support"
         , aibHierarchyExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibEquipmentExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
-        , aibMemosExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
-        , aibValvesExport = None
+        , aibValveExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
+        , solutionId = None
         , phase1Worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
-        , changeRequestName = "Change Request"
-        , outpath = System/FilePath.new("") 
+        , phase2Worklist = System/FilePath.new("")
+        , outNameRoot = "equipment"
+        , outdir = System/FilePath.new("") 
         }  
 
     def makeCmdLineOptions(): List[OptionDescr[UpdateArguments]] = 
-           {optionIds = Nil,    optionNames = "uxl_template" :: Nil,            argDescriptor = ReqArg(setUxlTemplate, "FILE"),                 explanation = "path to UXL template"}
+           {optionIds = Nil,    optionNames = "user_name" :: Nil,               argDescriptor = ReqArg(setUserName, "TEXT"),                 explanation = "user name"}
         :: {optionIds = Nil,    optionNames = "aib_hierarchy_export" :: Nil,    argDescriptor = ReqArg(setAibHierarchyExport, "FILE##Sheet"),   explanation = "path to AI2 hierarchy export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_equipment_export" :: Nil,    argDescriptor = ReqArg(setAibEquipmentExport, "FILE##Sheet"),   explanation = "path to AI2 equipment export and sheet name"}
-        :: {optionIds = Nil,    optionNames = "aib_memos_export" :: Nil,        argDescriptor = ReqArg(setAibMemosExport, "FILE##Sheet"),       explanation = "path to AI2 memo lines export"}
-        :: {optionIds = Nil,    optionNames = "aib_valves_export" :: Nil,       argDescriptor = ReqArg(setAibValvesExport, "FILE##Sheet"),       explanation = "path to AI2 valves export"}
-        :: {optionIds = Nil,    optionNames = "worklist" :: Nil,                argDescriptor = ReqArg(setWorklist, "FILE##Sheet"),             explanation = "path to worklist and sheet name"}
-        :: {optionIds = Nil,    optionNames = "change_request_name" :: Nil,     argDescriptor = ReqArg(setChangeRequestName, "TEXT"),           explanation = "Name for Change Request"}
-        :: {optionIds = Nil,    optionNames = "outpath" :: Nil,                 argDescriptor = ReqArg(setOutpath, "FILE"),                     explanation = "path to UXL output"}
+        :: {optionIds = Nil,    optionNames = "aib_valves_export" :: Nil,       argDescriptor = ReqArg(setAibValveExport, "FILE##Sheet"),       explanation = "path to AI2 valves export"}
+        :: {optionIds = Nil,    optionNames = "solution_id" :: Nil,             argDescriptor = ReqArg(setSolutionId, "TEXT"),                  explanation = "set solution_id"}
+        :: {optionIds = Nil,    optionNames = "phase1_worklist" :: Nil,         argDescriptor = ReqArg(setPhase1Worklist, "FILE##Sheet"),       explanation = "path to phase1 worklist and sheet name"}
+        :: {optionIds = Nil,    optionNames = "phase2_worklist" :: Nil,         argDescriptor = ReqArg(setPhase2Worklist, "FILE##Sheet"),       explanation = "path to phase2 worklist and sheet name"}
+        :: {optionIds = Nil,    optionNames = "out_name_root" :: Nil,           argDescriptor = ReqArg(setOutNameRoot, "TEXT"),           explanation = "Name prefix for upload files"}
+        :: {optionIds = Nil,    optionNames = "outdir" :: Nil,                  argDescriptor = ReqArg(setOutdir, "FILE"),                     explanation = "path to output directory"}
         :: Nil
 
-    def setUxlTemplate(s: String): Option[UpdateArguments] = 
-        Some(opts -> {uxlTemplate = System/FilePath.new(s) | opts})
+    def setUserName(s: String): Option[UpdateArguments] = 
+        Some(opts -> {userName = s | opts})
     
     def setAibHierarchyExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibHierarchyExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
 
     def setAibEquipmentExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibEquipmentExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})        
-    
-    def setAibMemosExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibMemosExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+        Some(opts -> {aibEquipmentExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
 
-    def setAibValvesExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibValvesExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
+    def setAibValveExport(s: String): Option[UpdateArguments] = 
+        Some(opts -> {aibValveExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
 
+    def setSolutionId(s: String): Option[UpdateArguments] = 
+        let ans = if (String.isEmpty(s)) None else Some(s);
+        Some(opts -> {solutionId = ans | opts})
 
-    def setWorklist(s: String): Option[UpdateArguments] = 
+    def setPhase1Worklist(s: String): Option[UpdateArguments] = 
         Some(opts -> {phase1Worklist = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
  
+    def setPhase2Worklist(s: String): Option[UpdateArguments] = 
+        Some(opts -> {phase2Worklist = System/FilePath.new(s) | opts})
     
-    def setChangeRequestName(s: String): Option[UpdateArguments] = 
-        Some(opts -> {changeRequestName = s | opts})
+    def setOutNameRoot(s: String): Option[UpdateArguments] = 
+        Some(opts -> {outNameRoot = s | opts})
     
-    def setOutpath(s: String): Option[UpdateArguments] = 
-        Some(opts -> {outpath = System/FilePath.new(s) | opts})
+    def setOutdir(s: String): Option[UpdateArguments] = 
+        Some(opts -> {outdir = System/FilePath.new(s) | opts})
 
 
     pub def main(args: Array[String]): Int32 & Impure = 
@@ -90,8 +94,8 @@ namespace ValveReport/Phase1Main {
             case Failure(errs)  => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
             case Success(updates) => {
                 let progArgs = List.foldLeft((ac, f) -> f(ac), defaultArguments(), updates.options);
-                match AssetLib/GenS4/Phase1.phase1(progArgs) {
-                    case Ok() => {Console.printLine("Wrote: ${progArgs.outpath}"); 0}
+                match AssetLib/GenS4/Phase2.phase2(progArgs) {
+                    case Ok() => {Console.printLine("Wrote file to: ${progArgs.outdir}"); 0}
                     case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
                 }
             }
