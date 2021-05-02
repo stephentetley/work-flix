@@ -48,11 +48,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
             /// EAST_NORTH (generate if we have generated EquiDatum from AibEquipment)
             EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _).
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
 
             EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr))) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, ngr,  _, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _).
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
         }
 
 }

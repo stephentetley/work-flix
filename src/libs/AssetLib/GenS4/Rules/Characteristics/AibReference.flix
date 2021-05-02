@@ -48,16 +48,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         #{
             /// AIB_REFERENCE (item)
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _).
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
 
             /// AI2_AIB_REFERENCE (parent)
             EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", parent) :- 
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, _,  _, _, parent),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _).
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
 
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :-
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _).
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
         }
 
 }

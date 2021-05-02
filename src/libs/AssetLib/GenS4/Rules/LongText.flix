@@ -26,7 +26,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     pub def uxlEquiLongText(): #{EquiLongText, EquiDatum, AibStringValue | r} = 
         #{
             EquiLongText(aibref, description, longText) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _),
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "MEMO_LINES", longText).
 
         }

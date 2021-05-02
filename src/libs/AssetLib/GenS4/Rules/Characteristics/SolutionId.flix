@@ -53,7 +53,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     pub def uxlEquiSolutionId(solutionId: String): #{EquiDatum, EquiCharacteristic | r} =
         #{
             EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _),
+                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
                 if String.isEmpty(solutionId) == false.            
         }
 

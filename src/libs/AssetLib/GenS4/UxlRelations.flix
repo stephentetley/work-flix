@@ -41,12 +41,13 @@ namespace AssetLib/GenS4/UxlRelations {
     /// Arity 4
     pub rel FlocCharacteristic(floc: String, className: String, charName: String, charValue: String)
 
-    /// Arity 14
+    /// Arity 15
     pub rel EquiDatum(equiId: String, 
                         category: String,              /// e.g "M", "I", "E"
                         description: String,
                         validFrom: Time.LocalDate,
                         objectType: String,
+                        weightKg: Option[Float64],
                         startupDate: Time.LocalDate,
                         manufacturer: String,
                         model: String,
@@ -148,38 +149,38 @@ namespace AssetLib/GenS4/UxlRelations {
 
 
     def equiDatumToUxl(x: (String, String, String,
-                            Time.LocalDate,
-                            String, Time.LocalDate, String,
+                            Time.LocalDate, String, 
+                            Option[Float64],
+                            Time.LocalDate, String,
                             String, String, String,
                             String, String, String, 
                             String)): EquipmentData = 
-        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14) = x;
-        let nonef64: Option[Float64] = None;    /// Avoids a typing problem with using None directly...
-        let nonei32: Option[Int32] = None;
+        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) = x;
+        let noneI32: Option[Int32] = None;    /// Avoids a typing problem with using None directly...
         { equiId            = x1
         , equipCategory     = x2
         , description       = x3
         , validFrom         = x4
         , objectType        = x5
-        , grossWeight       = nonef64
+        , grossWeight       = x6
         , unitOfWeight      = ""
-        , startupDate       = x6
-        , manufacturer      = x7
-        , modelNumber       = x8
-        , manufPartNo       = x9
-        , manufSerialNo     = x10
-        , constructYear     = Time/LocalDate.getYear(x6)
-        , constructMth      = Time/LocalDate.getMonth(x6)
+        , startupDate       = x7
+        , manufacturer      = x8
+        , modelNumber       = x9
+        , manufPartNo       = x10
+        , manufSerialNo     = x11
+        , constructYear     = Time/LocalDate.getYear(x7)
+        , constructMth      = Time/LocalDate.getMonth(x7)
         , maintPlant        = 2100
         , companyCode       = 2100
         , coArea            = 1000
         , planningPlant     = 2100
-        , functionalLoc     = x11
-        , superordEquip     = x12
-        , position          = nonei32
-        , techIdentNo       = x13
+        , functionalLoc     = x12
+        , superordEquip     = x13
+        , position          = noneI32
+        , techIdentNo       = x14
         , statusProfile     = "ZEQUIPST"
-        , statusOfAnObject  = x14
+        , statusOfAnObject  = x15
         }
 
 
