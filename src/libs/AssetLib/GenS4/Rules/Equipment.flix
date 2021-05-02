@@ -22,9 +22,30 @@ namespace ValveReport/Rules/Equipment {
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
         
+    pub rel ValveTypeMap3(equiName: String, valveType: String, s4Class: String)
 
-    pub def equipment(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum, EquiCharacteristic, AibEquipment, EquipmentAttibutes | r} = 
+    pub def equipment(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum, EquiCharacteristic, 
+                                                AibEquipment, EquipmentAttibutes, 
+                                                AibStringValue, 
+                                                ValveTypeMap3 | r} = 
         #{
+            
+                        
+            /// Define the typemap here.
+            /// There aren't any modularity benefits to defining it outside 
+            /// this block and there is the downside that if defined oustide 
+            /// it is easy to forget to instantiate it.
+            ///
+            ValveTypeMap3("EQPT: PRESSURE REDUCING VALVE (WATER)", "",      "VALVPR").
+            ValveTypeMap3("EQUIPMENT: AIR RELIEF VALVE", "",                "VALVAV").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",            "VALVBA").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Butterfly",       "VALVBP").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Knife Gate",      "VALVGA").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Wedge Gate",      "VALVGA").
+            ValveTypeMap3("EQUIPMENT: MULTI-WAY VALVE", "",                 "VALVMW").
+            ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",                "VALVNR").
+            ValveTypeMap3("EQUIPMENT: RELIEF/SAFETY VALVE", "",             "VALVSF").
+
             EquiDatum(aibref, 
                         s4Category,
                         String.takeLeft(40, s4Name),
@@ -40,18 +61,31 @@ namespace ValveReport/Rules/Equipment {
                         superEqui,
                         pandiTag,
                         s4Status(status)) :- 
-                Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, s4EquiClass), 
+                Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, _), 
                 AibEquipment(aibref, description, equiType, installedFrom, manufacturer, model,  _, status, _), 
                 EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
 
 
+
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
+                Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
+                AibEquipment(aibref, description, _, _, _, _,  _, _, _), 
+                AibStringValue(aibref, "VALVE_TYPE", valveType),
+                ValveTypeMap3(description, valveType, s4EquiClass).
+
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
                 Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
+                if s4EquiType != "VALV".
+
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
+                Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
+                AibEquipment(aibref, description, _, _, _, _,  _, _, _), 
+                AibStringValue(aibref, "VALVE_TYPE", valveType),
+                ValveTypeMap3(description, valveType, s4EquiClass).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :-
                 Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
+                if s4EquiType != "VALV".
 
         }
 
@@ -69,21 +103,6 @@ namespace ValveReport/Rules/Equipment {
         case s1 => s1
     }
 
-
-            /// /// Define the typemap here.
-            /// /// There aren't any modularity benefits to defining it outside 
-            /// /// this block and there is the downside that if defined oustide 
-            /// /// it is easy to forget to instantiate it.
-            /// ///
-            /// ValveTypeMap3("EQPT: PRESSURE REDUCING VALVE (WATER)", "",      "VALVPR").
-            /// ValveTypeMap3("EQUIPMENT: AIR RELIEF VALVE", "",                "VALVAV").
-            /// ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",            "VALVBA").
-            /// ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Butterfly",       "VALVBP").
-            /// ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Knife Gate",      "VALVGA").
-            /// ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Wedge Gate",      "VALVGA").
-            /// ValveTypeMap3("EQUIPMENT: MULTI-WAY VALVE", "",                 "VALVMW").
-            /// ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",                "VALVNR").
-            /// ValveTypeMap3("EQUIPMENT: RELIEF/SAFETY VALVE", "",             "VALVSF").
 
 }
 

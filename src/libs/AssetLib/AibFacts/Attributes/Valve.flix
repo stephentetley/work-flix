@@ -20,7 +20,7 @@ namespace AssetLib/AibFacts/Attributes/Valve {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue,  AibFloatValue};
+    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
     use AssetLib/AibFacts/Relations.{getAttributes, getStringValue};
 
 
