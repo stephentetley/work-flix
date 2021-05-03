@@ -46,10 +46,11 @@ namespace AssetLib/GenS4/Phase2 {
         use AssetLib/GenS4/Rules/Characteristics/EastNorth.{equiEastNorth};
         use AssetLib/GenS4/Rules/Characteristics/LocationOnSite.{equiLocationOnSite};
         use AssetLib/GenS4/Rules/Characteristics/SolutionId.{equiSolutionId};
+        use AssetLib/GenS4/Rules/Characteristics/Valv.{valv};
         let* baseRelns  = loadRelations(args);
         let solutionId  = Option.getWithDefault(args.solutionId, "");
         let answers     = solve assetCondition() <+> equiAibReference() <+> equiEastNorth() 
-                                    <+> equiLocationOnSite() <+> equiSolutionId(solutionId) <+>  baseRelns;
+                                    <+> equiLocationOnSite() <+> equiSolutionId(solutionId) <+>  valv() <+> baseRelns;
         let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);
         Ok()
 
