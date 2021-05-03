@@ -15,22 +15,33 @@
  */
 
 
-namespace AssetLib/GenS4/Rules/Characteristics/Valv {
+namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
     use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/GenS4/UploadRelations.{ValuaEquiFloat};
     use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
 
 
+
     /// Note LOCATION_ON_SITE already created.
-    pub def valv(): #{ValuaEquiFloat, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
+    pub def lstn(): #{ValuaEquiFloat, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
         #{
-            ValuaEquiFloat(equiId, "002", "VALV_INLET_SIZE_MM", sizeMM, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "VALV", _),
+            ValuaEquiText(equiId, "002", "LSTN_SIGNAL_TYPE", "4 - 20 MA", 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "LSTN", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
-                AibFloatValue(aibref, "VALVE_SIZE_MM", sizeMM).
+                AibFloatValue(aibref, "SIGNAL_MIN", min),
+                AibFloatValue(aibref, "SIGNAL_MAX", max),
+                AibStringValue(aibref, "SIGNAL_UNIT", "mA"),
+                if thresholdEq(0.1f64, min, 4.0f64) and thresholdEq(0.1f64, max, 20.0f64).
         }
 
 
+
+    def abs(x: Float64): Float64 = 
+        import java.lang.Math:abs(Float64);
+        abs(x) as & Pure
+
+    def thresholdEq(threshold: Float64, x: Float64, y: Float64): Bool = 
+        abs(x - y) < threshold
 
 }

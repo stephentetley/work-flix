@@ -27,8 +27,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/LocationOnSite {
     pub def equiLocationOnSite(): #{ValuaEquiText, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
         #{
             ValuaEquiText(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibStringValue(aibref, "LOCATION_ON_SITE", location).
         }
 

@@ -30,13 +30,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
             /// AIB_REFERENCE (item)
             ValuaEquiText(equiId, "002", "AI2_AIB_REFERENCE", aibref, 1) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _).
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _).
 
             /// AI2_AIB_REFERENCE (parent)
             ValuaEquiText(equiId, "002", "AI2_AIB_REFERENCE", parent, 2) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, parent).
 
             /// S4_AIB_REFERENCE (blank)

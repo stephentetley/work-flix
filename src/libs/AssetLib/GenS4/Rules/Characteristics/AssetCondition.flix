@@ -32,13 +32,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
         #{
 
             ClassEqui(equiId, "ASSET_CONDITION", "002") :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibFactGroup(aibref, "ASSET_CONDITION").
 
             ValuaEquiText(equiId, "002", "CONDITION_GRADE", s4ConditionGrade(grade), 1) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibStringValue(aibref, "CONDITION_GRADE", grade).
 
             ValuaEquiText(equiId, "002", "CONDITION_GRADE_REASON", String.toUpperCase(reason), 1) :- 

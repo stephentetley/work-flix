@@ -31,13 +31,13 @@ namespace ValveReport/Phase2Main {
 
     type alias UpdateArguments = Phase2Arguments -> Phase2Arguments
 
-    /// TODO agasp data...
 
     def defaultArguments(): Phase2Arguments = 
         { userName = "asset_data_support"
         , aibHierarchyExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibEquipmentExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibAgaspExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
+        , aibRangeSignalExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibValveExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , solutionId = None
         , phase1Worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
@@ -51,6 +51,7 @@ namespace ValveReport/Phase2Main {
         :: {optionIds = Nil,    optionNames = "aib_hierarchy_export" :: Nil,    argDescriptor = ReqArg(setAibHierarchyExport, "FILE##Sheet"),   explanation = "path to AI2 hierarchy export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_equipment_export" :: Nil,    argDescriptor = ReqArg(setAibEquipmentExport, "FILE##Sheet"),   explanation = "path to AI2 equipment export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_agasp_export" :: Nil,        argDescriptor = ReqArg(setAibAgaspExport, "FILE##Sheet"),       explanation = "path to AI2 asset condition export"}
+        :: {optionIds = Nil,    optionNames = "aib_range_signal_export" :: Nil, argDescriptor = ReqArg(setAibRangeSignalExport, "FILE##Sheet"),       explanation = "path to AI2 range and signal export"}
         :: {optionIds = Nil,    optionNames = "aib_valve_export" :: Nil,        argDescriptor = ReqArg(setAibValveExport, "FILE##Sheet"),       explanation = "path to AI2 valves export"}
         :: {optionIds = Nil,    optionNames = "solution_id" :: Nil,             argDescriptor = ReqArg(setSolutionId, "TEXT"),                  explanation = "set solution_id"}
         :: {optionIds = Nil,    optionNames = "phase1_worklist" :: Nil,         argDescriptor = ReqArg(setPhase1Worklist, "FILE##Sheet"),       explanation = "path to phase1 worklist and sheet name"}
@@ -70,6 +71,9 @@ namespace ValveReport/Phase2Main {
 
     def setAibAgaspExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibAgaspExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+
+    def setAibRangeSignalExport(s: String): Option[UpdateArguments] = 
+        Some(opts -> {aibRangeSignalExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
 
     def setAibValveExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibValveExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})

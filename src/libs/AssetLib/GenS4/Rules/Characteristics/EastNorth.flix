@@ -27,18 +27,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
         #{
             
             ClassEqui(equiId, "EAST_NORTH", "002") :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(_, name, description,  _, _, _,  _).
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(_, name, floc,  _, _, _,  _).
 
 
             ValuaEquiInt(equiId, "002", "EASTING", eastingfromOsgb36(ngr), 1) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
 
             ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
         }
 
