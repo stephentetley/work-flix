@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/Phase1 {
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder, Phase1EquiItem};
-    use ValveReport/Rules/Equipment.{ValveTypeMap3};
+    use AssetLib/GenS4/Rules/Equipment.{ValveTypeMap3};
 
     type alias Phase1Arguments = 
         { uxlTemplate: System.FilePath
@@ -39,11 +39,11 @@ namespace AssetLib/GenS4/Phase1 {
     /// Empty string for no solution id.
     pub def phase1(args: Phase1Arguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use ValveReport/Rules/Equipment.{equipment};
+        use AssetLib/GenS4/Rules/Equipment.{equipmentPhase1};
         use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
         let* baseRelns  = loadRelations(args);
         let today       = Time/LocalDate.now();
-        let answers     = solve uxlEquiLongText() <+> equipment(today) <+> baseRelns;
+        let answers     = solve uxlEquiLongText() <+> equipmentPhase1(today) <+> baseRelns;
         (project EquiDatum answers) |> unsafeToString |> println;
         (project EquiCharacteristic answers) |> unsafeToString |> println;
         (project EquiLongText answers) |> unsafeToString |> println;

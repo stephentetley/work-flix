@@ -28,9 +28,10 @@ namespace AssetLib/GenS4/Phase2 {
         { userName: String 
         , aibHierarchyExport: XlsxSource
         , aibEquipmentExport: XlsxSource
+        , aibAgaspExport: XlsxSource
+        , aibElectricalExport: XlsxSource
         , aibRangeSignalExport: XlsxSource
         , aibValveExport: XlsxSource
-        , aibAgaspExport: XlsxSource
         , solutionId: Option[String]
         , phase1Worklist: XlsxSource
         , phase2Worklist: System.FilePath       /// Tab is called Data
@@ -45,7 +46,7 @@ namespace AssetLib/GenS4/Phase2 {
         use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{assetCondition};
         use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
         use AssetLib/GenS4/Rules/Characteristics/EastNorth.{equiEastNorth};
-        use AssetLib/GenS4/Rules/Characteristics/LocationOnSite.{equiLocationOnSite};
+        use AssetLib/GenS4/Rules/Equipment.{equipmentPhase2Characteristics};
         use AssetLib/GenS4/Rules/Characteristics/Lstn.{lstn};
         use AssetLib/GenS4/Rules/Characteristics/SolutionId.{equiSolutionId};
         use AssetLib/GenS4/Rules/Characteristics/Valv.{valv};
@@ -54,10 +55,10 @@ namespace AssetLib/GenS4/Phase2 {
         let answers     = solve assetCondition() 
                                     <+> equiAibReference() 
                                     <+> equiEastNorth() 
-                                    <+> equiLocationOnSite() 
                                     <+> equiSolutionId(solutionId) 
                                     <+> lstn()
                                     <+> valv() 
+                                    <+> equipmentPhase2Characteristics() 
                                     <+> baseRelns;
         let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);
         Ok()
@@ -70,11 +71,12 @@ namespace AssetLib/GenS4/Phase2 {
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* locOnSite      = AssetLib/AibFacts/Attributes/Equipment.readLocationOnSiteData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
         let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
+        let* electrical     = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(args.aibElectricalExport.sheet, args.aibElectricalExport.file);
         let* rangeSignal    = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(args.aibRangeSignalExport.sheet, args.aibRangeSignalExport.file);
         let* valves         = AssetLib/AibFacts/Attributes/Valve.readValveData(args.aibValveExport.sheet, args.aibValveExport.file);
         let* workitems1     = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
         let* workitems2     = AssetLib/GenS4/WorkListRelations.readPhase2EquiWorkList("Data", args.phase2Worklist);
-        Ok(hrelns <+> locOnSite <+> agasp <+> rangeSignal <+> valves <+> workitems1 <+> workitems2)
+        Ok(hrelns <+> locOnSite <+> agasp <+> electrical <+> rangeSignal <+> valves <+> workitems1 <+> workitems2)
 
 
 }

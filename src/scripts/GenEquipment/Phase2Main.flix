@@ -37,6 +37,7 @@ namespace ValveReport/Phase2Main {
         , aibHierarchyExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibEquipmentExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibAgaspExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
+        , aibElectricalExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibRangeSignalExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibValveExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , solutionId = None
@@ -51,6 +52,7 @@ namespace ValveReport/Phase2Main {
         :: {optionIds = Nil,    optionNames = "aib_hierarchy_export" :: Nil,    argDescriptor = ReqArg(setAibHierarchyExport, "FILE##Sheet"),   explanation = "path to AI2 hierarchy export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_equipment_export" :: Nil,    argDescriptor = ReqArg(setAibEquipmentExport, "FILE##Sheet"),   explanation = "path to AI2 equipment export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_agasp_export" :: Nil,        argDescriptor = ReqArg(setAibAgaspExport, "FILE##Sheet"),       explanation = "path to AI2 asset condition export"}
+        :: {optionIds = Nil,    optionNames = "aib_electrical_export" :: Nil,   argDescriptor = ReqArg(setAibElectricalExport, "FILE##Sheet"),       explanation = "path to AI2 electrical (motor etc.) export"}
         :: {optionIds = Nil,    optionNames = "aib_range_signal_export" :: Nil, argDescriptor = ReqArg(setAibRangeSignalExport, "FILE##Sheet"),       explanation = "path to AI2 range and signal export"}
         :: {optionIds = Nil,    optionNames = "aib_valve_export" :: Nil,        argDescriptor = ReqArg(setAibValveExport, "FILE##Sheet"),       explanation = "path to AI2 valves export"}
         :: {optionIds = Nil,    optionNames = "solution_id" :: Nil,             argDescriptor = ReqArg(setSolutionId, "TEXT"),                  explanation = "set solution_id"}
@@ -71,6 +73,9 @@ namespace ValveReport/Phase2Main {
 
     def setAibAgaspExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibAgaspExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+
+    def setAibElectricalExport(s: String): Option[UpdateArguments] = 
+        Some(opts -> {aibElectricalExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
 
     def setAibRangeSignalExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibRangeSignalExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})

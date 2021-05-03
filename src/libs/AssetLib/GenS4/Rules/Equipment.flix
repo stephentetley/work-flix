@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-namespace ValveReport/Rules/Equipment {
+namespace AssetLib/GenS4/Rules/Equipment {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
+    use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
+    use AssetLib/GenS4/UploadRelations.{ValuaEquiText};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
         
     pub rel ValveTypeMap3(equiName: String, valveType: String, s4Class: String)
 
-    pub def equipment(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum, EquiCharacteristic, 
+    pub def equipmentPhase1(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum, EquiCharacteristic, 
                                                 AibEquipment, EquipmentAttibutes, 
                                                 AibStringValue, 
                                                 ValveTypeMap3 | r} = 
@@ -102,6 +103,29 @@ namespace ValveReport/Rules/Equipment {
         case s1 if (String.isEmpty(s1)) => "UNKNOWN"
         case s1 => s1
     }
+
+    /// Common to all equipment - upload characteristics don't need to be linked to a class,
+    /// but a class with that characteristic as a member has to exist.
+    pub def equipmentPhase2Characteristics(): #{ValuaEquiText, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
+        #{            
+            ValuaEquiText(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                AibStringValue(aibref, "LOCATION_ON_SITE", location).
+
+            ValuaEquiText(equiId, "002", "IP_RATING", rating, 1) :- 
+                Phase2EquiItem(equiId, name, floc,  _, _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                AibStringValue(aibref, "IP_RATING", rating).
+
+            /// TODO Insulation class
+
+        }
+
+
+    def s4Location(s: String): String =
+        if (String.length(s) >= 30) "SEE LONG TEXT" else s
+
 
 
 }
