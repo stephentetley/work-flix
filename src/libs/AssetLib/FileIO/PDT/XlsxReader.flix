@@ -16,4 +16,26 @@
 
 namespace AssetLib/FileIO/PDT/XlsxReader {
 
+    use SheetIO.SheetReader;
+    use SheetIO.RowEvaluator;
+
+    /// No headers - read all of the datasheet into a Map[String, String]
+    pub def readFile(sheet: String, path: System.FilePath) : Result[Map[String, String], String] & Impure = 
+        SheetIO/SheetReader.runXlsx(readPDT(sheet), path)
+
+    def readPDT(sheet: String): SheetReader[Map[String, String]] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, foldAllRows};      
+        let* s1     = getSheetNamed(sheet);
+        let* xs     = foldAllRows(s1, (ac, f) -> f(ac), Map.empty(), evalNameValueRow());
+        return(xs)
+
+    def evalNameValueRow(): RowEvaluator[Map[String, String] -> Map[String, String]]  =
+        use SheetIO/RowEvaluator.{flatMap, return, getContentAt};
+        let* name = getContentAt(0);
+        let* value = getContentAt(1);
+        if (String.isEmpty(name))
+            return(km -> km)
+        else 
+            return(km -> Map.insert(name, value, km))
+
 }
