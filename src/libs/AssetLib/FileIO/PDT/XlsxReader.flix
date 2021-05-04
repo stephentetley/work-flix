@@ -30,9 +30,12 @@ namespace AssetLib/FileIO/PDT/XlsxReader {
         return(xs)
 
     def evalNameValueRow(): RowEvaluator[Map[String, String] -> Map[String, String]]  =
-        use SheetIO/RowEvaluator.{flatMap, return, getContentAt};
-        let* name = getContentAt(0);
-        let* value = getContentAt(1);
+        use SheetIO/RowEvaluator.{flatMap, return, getRowNum, getContentAt, getIsBoldAt};
+        let* ix         = getRowNum();
+        let* linename   = getContentAt(0);
+        let* bold       = getIsBoldAt(0);
+        let* value      = getContentAt(1);
+        let name        = if (bold) "${ix}::${linename} ***** BOLD *****" else "${ix}::${linename}";
         if (String.isEmpty(name))
             return(km -> km)
         else 
