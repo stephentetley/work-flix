@@ -30,10 +30,6 @@ namespace AssetLib/GenS4/WorkListRelations {
                             s4EquiClass: String)
 
     
-    /// To deduce sort order before renumbering.
-    pub rel Phase1EquiSortOrder(aibref: String, pos: Int32)
-
-    
     /// Phase 2
     /// Object Class e.g. VALVNR is available directly, we don't have to 
     /// worry about calculating it.
@@ -69,13 +65,12 @@ namespace AssetLib/GenS4/WorkListRelations {
 
     /// Read from Aib xlsx export file...
     pub def readPhase1EquiWorkList(sheetName: String, 
-                                    path: System.FilePath): Result[#{Phase1EquiSortOrder, Phase1EquiItem | r}, String] & Impure =
+                                    path: System.FilePath): Result[#{Phase1EquiItem | r}, String] & Impure =
         SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalPhase1EquiItem()), path)
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
-    def evalPhase1EquiItem(): NamedRowEvaluator[#{Phase1EquiSortOrder, Phase1EquiItem | r}] =
+    def evalPhase1EquiItem(): NamedRowEvaluator[#{Phase1EquiItem | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed}; 
-        let* rowNum     = getRowNum();
         let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
         let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
         let* s4Floc     = map(String.trim, getNonEmptyContentNamed("S4 Floc"));
@@ -83,10 +78,7 @@ namespace AssetLib/GenS4/WorkListRelations {
         let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
         let* s4Type     = map(String.trim, getNonEmptyContentNamed("Equi Type"));
         let* s4Class    = map(String.trim, getContentNamed("Equi Class"));
-        return(#{ 
-            Phase1EquiSortOrder(aibref, rowNum).
-            Phase1EquiItem(aibref, s4Name, s4Floc, superId, category, s4Type, s4Class). 
-        })
+        return(#{ Phase1EquiItem(aibref, s4Name, s4Floc, superId, category, s4Type, s4Class). })
 
 
     /// Read from Aib xlsx export file...

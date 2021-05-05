@@ -20,9 +20,6 @@ namespace AssetLib/GenS4/UxlRelations {
     use AssetLib/FileIO/S4/UxlFile/Datatypes.{FunctionalLocationData, FlMultilingualText, 
         FlClassification, EquipmentData, EqMultilingualText, EqClassification};
 
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder};
-
-
     /// Arity 7
     pub rel FlocDatum(funcloc: String, 
                         description: String, 
@@ -65,10 +62,6 @@ namespace AssetLib/GenS4/UxlRelations {
     pub rel EquiCharacteristic(equiId: String, className: String, charName: String, charValue: String)
 
 
-
-    pub def toSortPositions(src: #{Phase1EquiSortOrder | r}): Map[String, Int32] = 
-        let buildStep = (x, ac) -> {let (k, v) = x; Map.insert(k, v, ac)};
-        fold Phase1EquiSortOrder Map.empty() buildStep src
 
     /// To Uxl...
     pub def toFunctionalLocationData(src: #{FlocDatum | r}): List[FunctionalLocationData] = 
@@ -135,12 +128,14 @@ namespace AssetLib/GenS4/UxlRelations {
         , charDeletionInd       = false
         }
 
-    pub def toEquipmentData(src: #{Phase1EquiSortOrder, EquiDatum | r }): List[EquipmentData] = 
-        let posMap = toSortPositions(src);
+    pub def toEquipmentData(src: #{EquiDatum | r }): List[EquipmentData] = 
         let buildStep = (x, ac) -> equiDatumToUxl(x) :: ac;
-        let sortStep = (x, y) -> match (Map.get(x.equiId, posMap), Map.get(y.equiId, posMap)) {
-            case (Some(ixx), Some(ixy)) =>  Order.compare(ixx, ixy) |> Order.toInt
-            case (_, _) => Order.compare(x.equiId, y.equiId) |> Order.toInt
+        let sortStep = (x, y) -> match Order.compare(x.functionalLoc, y.functionalLoc) { 
+            case EqualTo => match Order.compare(x.superordEquip, y.superordEquip) {
+                case EqualTo => Order.compare(x.description, y.description) |> Order.toInt
+                case ans => Order.toInt(ans)    
+            }                
+            case ans => Order.toInt(ans)
         };
         let xs = { fold EquiDatum Nil buildStep src };
         List.sortWith(sortStep, xs)

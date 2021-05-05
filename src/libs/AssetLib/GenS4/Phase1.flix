@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Phase1 {
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder, Phase1EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem};
     use AssetLib/GenS4/Rules/Equipment.{ValveTypeMap3};
 
     type alias Phase1Arguments = 
@@ -51,7 +51,7 @@ namespace AssetLib/GenS4/Phase1 {
         Ok()
 
 
-    def loadRelations(args: Phase1Arguments): Result[#{Phase1EquiSortOrder, Phase1EquiItem, AibRootNode, AibFloc, AibEquipment, 
+    def loadRelations(args: Phase1Arguments): Result[#{Phase1EquiItem, AibRootNode, AibFloc, AibEquipment, 
                                                         EquipmentAttibutes, AibStringValue, AibFloatValue, 
                                                         ValveTypeMap3 | r}, String] & Impure = 
         use Result.{flatMap};

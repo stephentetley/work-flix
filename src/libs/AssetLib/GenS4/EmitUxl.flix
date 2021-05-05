@@ -22,13 +22,12 @@ namespace AssetLib/GenS4/EmitUxl {
     use AssetLib/FileIO/S4/UxlFile/Datatypes.{ChangeRequestDetails, 
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder}; 
     use AssetLib/GenS4/UxlRelations.{FlocDatum, FlocLongText, FlocCharacteristic, 
         EquiDatum, EquiLongText, EquiCharacteristic};
 
 
     pub def outputUxl(changeRequestName: String,
-                        solutions: #{Phase1EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
+                        solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
                                     EquiDatum, EquiLongText, EquiCharacteristic | r},
                         uxlTemplate: System.FilePath,
                         outpath: System.FilePath): Result[Unit, String] & Impure = 
@@ -36,7 +35,7 @@ namespace AssetLib/GenS4/EmitUxl {
 
 
     def emitUxl(changeRequestName: String,
-                solutions: #{Phase1EquiSortOrder, FlocDatum, FlocLongText, FlocCharacteristic, 
+                solutions: #{FlocDatum, FlocLongText, FlocCharacteristic, 
                             EquiDatum, EquiLongText, EquiCharacteristic | r}): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
         let flocs       = AssetLib/GenS4/UxlRelations.toFunctionalLocationData(solutions);

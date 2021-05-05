@@ -23,7 +23,6 @@ namespace ValveReport/Phase1Main {
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiSortOrder};
     use AssetLib/GenS4/MemoLines.{MemoText};
     use AssetLib/GenS4/Phase1.{Phase1Arguments};
 
