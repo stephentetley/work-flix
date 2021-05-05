@@ -39,9 +39,13 @@ namespace AssetLib/GenS4/Rules/Equipment {
             ///
             ValveTypeMap3("EQPT: PRESSURE REDUCING VALVE (WATER)", "",      "VALVPR").
             ValveTypeMap3("EQUIPMENT: AIR RELIEF VALVE", "",                "VALVAV").
+            ValveTypeMap3("EQUIPMENT: FLAP VALVE", "",                      "VALVFL").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",            "VALVBA").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Butterfly",       "VALVBP").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Diaphram",        "VALVDI").      /// Known spelling mistake
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Diaphragm",       "VALVDI").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Knife Gate",      "VALVGA").
+            ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Plug",            "VALVPG").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Wedge Gate",      "VALVGA").
             ValveTypeMap3("EQUIPMENT: MULTI-WAY VALVE", "",                 "VALVMW").
             ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",                "VALVNR").
