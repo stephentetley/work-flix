@@ -21,9 +21,10 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use Time.LocalDateTime;
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{return, map, failure, alt, choice, endOfInput, liftAction, liftResult, string, seqRight};
+    use FlixParsec/Prim.{return, map, fail, alt, endOfInput, liftAction, liftResult, seqRight};
     use FlixParsec/Regex.{lookingAts};
-    use FlixParsec/Combinators.{ignore, many, manyTill};
+    use FlixParsec/Combinators.{choice, ignore, many, manyTill};
+    use FlixParsec/Char.{string};
     use FlixParsec/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
     use FlixParsec/Token1.{symbol, lexeme};
 
@@ -99,7 +100,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
                 case "CLASSEQUI"    => return(ClassEqui)
                 case "VALUAEQUI"    => return(ValuaEqui)
                 case "EQMLTXT"      => return(Eqmltxt)
-                case _              => failure("EntityType")
+                case _              => fail("EntityType")
             }
         };
         let* _ = symbol("* Entity Type:");
