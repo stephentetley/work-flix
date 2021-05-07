@@ -60,6 +60,7 @@ namespace AssetLib/GenS4/Phase2 {
                                     <+> valv() 
                                     <+> equipmentPhase2Characteristics() 
                                     <+> baseRelns;
+        (project AibIntValue answers) |> unsafeToString |> println;
         let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);
         Ok()
 

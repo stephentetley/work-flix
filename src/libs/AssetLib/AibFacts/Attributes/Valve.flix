@@ -41,7 +41,6 @@ namespace AssetLib/AibFacts/Attributes/Valve {
             :: Nil
         )      
 
-    /// Range max	Range min	Range unit	Signal max	Signal min	Signal unit
 
     pub def getValveType(): NamedRowEvaluator[#{AibStringValue | r}] =
         getStringValue("Valve Type", "VALVE_TYPE")

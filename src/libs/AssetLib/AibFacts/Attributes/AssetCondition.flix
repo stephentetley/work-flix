@@ -68,7 +68,7 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
         getStringValue("Performance Grade Reason", "PERFORMANCE_GRADE_REASON")
 
     pub def getSurveyYear(): NamedRowEvaluator[#{AibIntValue | r}] =
-        getStringValue("AGASP Survey Year", "SURVEY_YEAR")
+        getIntValue("AGASP Survey Year", "SURVEY_YEAR")
 
 
 }

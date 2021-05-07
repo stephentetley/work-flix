@@ -66,10 +66,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
                 Phase1EquiItem(aibref, name, description,  _, _, _,  _),
                 AibStringValue(aibref, "LOADING_FACTOR_REASON", reason).
 
+            /// NOTE the fact from Aib is called "SURVEY_YEAR"
             ValuaEquiInt(equiId, "002", "SURVEY_DATE", year, 1) :- 
                 Phase2EquiItem(equiId, name, description,  _, _),
                 Phase1EquiItem(aibref, name, description,  _, _, _,  _),
-                AibIntValue(aibref, "SURVEY_DATE", year).
+                AibIntValue(aibref, "SURVEY_YEAR", year).           
 
         }
         

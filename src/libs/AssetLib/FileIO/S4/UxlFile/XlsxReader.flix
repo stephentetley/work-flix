@@ -14,11 +14,6 @@
  * limitations under the License.
  */
     
-///
-/// TODO...
-/// Needs adapting for "update" data - reading the `Functional Location Data` and `Equipment Data` tabs.
-/// 
-
 
 namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
 
@@ -178,7 +173,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, 
-            x15, x16, x17, x18, x19, x20, x21, x22, x23, x24) -> 
+            x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26) -> 
                 { equiId            = x1
                 , equipCategory     = x2
                 , description       = x3
@@ -197,12 +192,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
                 , companyCode       = x16
                 , coArea            = x17
                 , planningPlant     = x18
-                , functionalLoc     = x19
-                , superordEquip     = x20
-                , position          = x21
-                , techIdentNo       = x22
-                , statusProfile     = x23
-                , statusOfAnObject  = x24
+                , mainWorkCenter    = x19
+                , plantWorkCenter   = x20
+                , functionalLoc     = x21
+                , superordEquip     = x22
+                , position          = x23
+                , techIdentNo       = x24
+                , statusProfile     = x25
+                , statusOfAnObject  = x26
                 })
             <&> getContentNamed("Equi")                             /// equiId
             <*> getContentNamed("Eqtyp")                            /// equipCategory
@@ -222,6 +219,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getInt32Named("BukrEilo")                           /// companyCode
             <*> getInt32Named("KokrEilo")                           /// coArea
             <*> getInt32Named("PplaEeqz")                           /// planningPlant
+            <*> getContentNamed("ArbpEeqz")                          /// mainWorkCenter
+            <*> getInt32Named("WergwEqi")                           /// plantWorkCenter
             <*> getContentNamed("TplnEilo")                          /// functionalLoc
             <*> getContentNamed("HequEeqz")                          /// superordEquip
             <*> getOptionInt32Named("HeqnEeqz")                     /// position

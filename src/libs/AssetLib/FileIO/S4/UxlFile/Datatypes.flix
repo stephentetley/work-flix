@@ -94,6 +94,8 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , companyCode: Int32
         , coArea: Int32
         , planningPlant: Int32
+        , mainWorkCenter: String            /// default: DEFAULT
+        , plantWorkCenter: Int32            /// default: 2100
         , functionalLoc: String
         , superordEquip: String
         , position: Option[Int32]

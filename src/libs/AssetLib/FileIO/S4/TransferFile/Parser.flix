@@ -21,9 +21,9 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use Time.LocalDateTime;
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{return, map, fail, alt, endOfInput, liftAction, liftResult, seqRight};
+    use FlixParsec/Prim.{return, map, fail, endOfInput, liftAction, liftResult};
     use FlixParsec/Regex.{lookingAts};
-    use FlixParsec/Combinators.{choice, ignore, many, manyTill};
+    use FlixParsec/Combinators.{alt, choice, ignore, many, manyTill, seqRight};
     use FlixParsec/Char.{string};
     use FlixParsec/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
     use FlixParsec/Token1.{symbol, lexeme};
@@ -173,8 +173,5 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let* str    = lookingAt(tabnl);
         let* arr    = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
         return(arr)
-
-
-
 
 }

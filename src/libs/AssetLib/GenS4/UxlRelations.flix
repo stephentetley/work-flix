@@ -168,6 +168,8 @@ namespace AssetLib/GenS4/UxlRelations {
         , companyCode       = 2100
         , coArea            = 1000
         , planningPlant     = 2100
+        , mainWorkCenter    = "DEFAULT"
+        , plantWorkCenter   = 2100
         , functionalLoc     = x12
         , superordEquip     = x13
         , position          = noneI32
