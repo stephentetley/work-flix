@@ -26,7 +26,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use FlixParsec/Combinators.{alt, choice, ignore, many, manyTill, seqRight};
     use FlixParsec/Char.{string};
     use FlixParsec/Text.{many1UpperCase, restOfLine, makePattern, makePatternWithFlags};
-    use FlixParsec/Token1.{symbol, lexeme};
+    use FlixParsec/TokenSimple.{symbol, lexeme};
 
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{TransferFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.FileType.{Download, Upload};
