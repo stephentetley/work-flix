@@ -21,7 +21,7 @@ namespace AssetLib/AibFacts/Attributes/Valve {
     use SheetIO.SheetReader;
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue};
+    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue, getFloatValue};
 
 
 
@@ -37,7 +37,8 @@ namespace AssetLib/AibFacts/Attributes/Valve {
 
     pub def aibValve(): NamedRowEvaluator[#{AibStringValue, AibFloatValue | r}] =
         getAttributes( getValveType()
-            :: getValveSizeMM()
+            :: getSize()
+            :: getSizeUnits()
             :: Nil
         )      
 
@@ -45,21 +46,12 @@ namespace AssetLib/AibFacts/Attributes/Valve {
     pub def getValveType(): NamedRowEvaluator[#{AibStringValue | r}] =
         getStringValue("Valve Type", "VALVE_TYPE")
 
-    pub def getValveSizeMM(): NamedRowEvaluator[#{AibFloatValue| r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, throwError, getContentNamed, getFloat64Named}; 
-        let* aibref = getContentNamed("Reference");
-        let* size   = getFloat64Named("Size");
-        let* units  = getContentNamed("Size Units");
-        match decodeSizeMM(size, units) {
-            case Some(sz) => return(#{ AibFloatValue(aibref, "VALVE_SIZE_MM", sz). })
-            case None => throwError("getValveSizeMM")
-        }
+    pub def getSize(): NamedRowEvaluator[#{AibFloatValue | r}] =
+        getFloatValue("Size", "SIZE")
 
-    def decodeSizeMM(size: Float64, units: String): Option[Float64] = match units { 
-        case "MILLIMETRES" => Some(size)
-        case "INCH" => Some(25.4f64 * size)
-        case "UNKNOWN UNIT" => None
-        case _ => None
-    }
+    pub def getSizeUnits(): NamedRowEvaluator[#{AibStringValue | r}] =
+        getStringValue("Size Units", "SIZE_UNITS")
+
+
 
 }

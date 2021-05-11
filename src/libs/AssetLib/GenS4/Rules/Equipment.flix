@@ -49,6 +49,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Wedge Gate",      "VALVGA").
             ValveTypeMap3("EQUIPMENT: MULTI-WAY VALVE", "",                 "VALVMW").
             ValveTypeMap3("EQUIPMENT: NON RETURN VALVE", "",                "VALVNR").
+            ValveTypeMap3("EQUIPMENT: PRESSURE REGULATING VALVE", "",       "VALVRE").
             ValveTypeMap3("EQUIPMENT: RELIEF/SAFETY VALVE", "",             "VALVSF").
 
             EquiDatum(aibref, 
@@ -130,10 +131,6 @@ namespace AssetLib/GenS4/Rules/Equipment {
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibStringValue(aibref, "LOCATION_ON_SITE", location).
 
-            ValuaEquiText(equiId, "002", "IP_RATING", rating, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
-                AibStringValue(aibref, "IP_RATING", rating).
 
             /// TODO Insulation class
 

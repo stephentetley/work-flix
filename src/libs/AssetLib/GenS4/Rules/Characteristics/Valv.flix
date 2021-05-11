@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Valv {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue};
+    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
     use AssetLib/GenS4/UploadRelations.{ValuaEquiFloat};
     use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
 
@@ -25,12 +25,32 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     /// Note LOCATION_ON_SITE already created.
     pub def valv(): #{ValuaEquiFloat, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
         #{
-            ValuaEquiFloat(equiId, "002", "VALV_INLET_SIZE_MM", sizeMM, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "VALV", _),
+            ValuaEquiFloat(equiId, "002", "VALV_INLET_SIZE_MM", sizeMM(size, units), 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "VALV", oclass),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
-                AibFloatValue(aibref, "VALVE_SIZE_MM", sizeMM).
+                AibFloatValue(aibref, "SIZE", size),
+                AibStringValue(aibref, "SIZE_UNITS", units),
+                if sizeRecognized(units) and oclass != "VALVRE".
+
+            ValuaEquiFloat(equiId, "002", "VALV_BORE_DIAMETER_MM", sizeMM(size, units), 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "VALV", "VALVRE"),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                AibFloatValue(aibref, "SIZE", size),
+                AibStringValue(aibref, "SIZE_UNITS", units),
+                if sizeRecognized(units).
+
         }
 
+    def sizeRecognized(units: String): Bool = match units { 
+        case "MILLIMETRES" => true
+        case "INCH" => true
+        case _ => false
+    }
 
+    def sizeMM(size: Float64, units: String): Float64 = match units { 
+        case "MILLIMETRES" => size
+        case "INCH" => 25.4f64 * size
+        case _ => -1.0f64
+    }
 
 }

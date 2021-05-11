@@ -47,8 +47,10 @@ namespace AssetLib/GenS4/Phase2 {
         use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
         use AssetLib/GenS4/Rules/Characteristics/EastNorth.{equiEastNorth};
         use AssetLib/GenS4/Rules/Equipment.{equipmentPhase2Characteristics};
-        use AssetLib/GenS4/Rules/Characteristics/Lstn.{lstn};
         use AssetLib/GenS4/Rules/Characteristics/SolutionId.{equiSolutionId};
+        use AssetLib/GenS4/Rules/Characteristics/Emtr.{emtr};
+        use AssetLib/GenS4/Rules/Characteristics/Fstn.{fstn};
+        use AssetLib/GenS4/Rules/Characteristics/Lstn.{lstn};
         use AssetLib/GenS4/Rules/Characteristics/Valv.{valv};
         let* baseRelns  = loadRelations(args);
         let solutionId  = Option.getWithDefault(args.solutionId, "");
@@ -56,9 +58,11 @@ namespace AssetLib/GenS4/Phase2 {
                                     <+> equiAibReference() 
                                     <+> equiEastNorth() 
                                     <+> equiSolutionId(solutionId) 
-                                    <+> lstn()
-                                    <+> valv() 
                                     <+> equipmentPhase2Characteristics() 
+                                    <+> emtr()
+                                    <+> lstn()
+                                    <+> fstn()
+                                    <+> valv() 
                                     <+> baseRelns;
         (project AibIntValue answers) |> unsafeToString |> println;
         let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);

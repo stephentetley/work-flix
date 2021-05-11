@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
+namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
 
     use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/GenS4/UploadRelations.{ValuaEquiFloat};
@@ -23,19 +23,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
 
 
+
     /// Note LOCATION_ON_SITE already created.
     pub def lstn(): #{ValuaEquiFloat, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
         #{
-            ValuaEquiText(equiId, "002", "LSTN_SIGNAL_TYPE", "4 - 20 MA", 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "LSTN", _),
+            ValuaEquiText(equiId, "002", "FSTN_SIGNAL_TYPE", "4 - 20 MA", 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "FSTN", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibFloatValue(aibref, "SIGNAL_MIN", min),
                 AibFloatValue(aibref, "SIGNAL_MAX", max),
                 AibStringValue(aibref, "SIGNAL_UNIT", "mA"),
                 if iEqual(min, 4) and iEqual(max, 20).
 
-            ValuaEquiText(equiId, "002", "LSTN_SIGNAL_TYPE", "0 - 1 DIGITAL", 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "LSTN", _),
+            ValuaEquiText(equiId, "002", "FSTN_SIGNAL_TYPE", "0 - 1 DIGITAL", 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "FSTN", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
                 AibFloatValue(aibref, "SIGNAL_MIN", min),
                 AibFloatValue(aibref, "SIGNAL_MAX", max),
@@ -43,7 +44,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
                 if iEqual(min, 0) and iEqual(max, 1).
 
         }
-
 
 
 }
