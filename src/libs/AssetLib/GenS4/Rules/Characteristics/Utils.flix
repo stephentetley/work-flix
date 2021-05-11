@@ -30,5 +30,38 @@ namespace AssetLib/GenS4/Rules/Characteristics/Utils {
         import java.lang.Math:abs(Float64);
         abs(x) as & Pure
 
+    pub def recognizedVoltageUnits(s: String): Bool = match s { 
+        case "ALTERNATING CURRENT" => true
+        case _ => false
+    }
+
+    
+    pub def voltageUnits(units: String): String = match units { 
+        case "ALTERNATING CURRENT" => "VAC"
+        case _ => ""
+    }
+
+    /// recognizedInsulationClass, insulationClass
+
+    pub def recognizedInsulationClass(s: String): Bool = match s { 
+        case "200 (CLASS K)" => true
+        case "180 (CLASS H)" => true
+        case "155 (CLASS F)" => true
+        case "130 (CLASS B)" => true
+        case "120 (CLASS E)" => true
+        case "105 (CLASS A)" => true
+        case _ => false
+    }
+
+    /// Input to check...
+    pub def insulationClass(units: String): String = match units { 
+        case "200 (CLASS K)" => "200 (CLASS K)"
+        case "180 (CLASS H)" => "180 (CLASS H)"
+        case "155 (CLASS F)" => "155 (CLASS F)"
+        case "130 (CLASS B)" => "130 (CLASS B)"
+        case "120 (CLASS E)" => "120 (CLASS E)"
+        case "105 (CLASS A)" => "105 (CLASS A)"
+        case _ => ""
+    }    
 
 }

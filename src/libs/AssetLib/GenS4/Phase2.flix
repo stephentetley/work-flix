@@ -51,6 +51,7 @@ namespace AssetLib/GenS4/Phase2 {
         use AssetLib/GenS4/Rules/Characteristics/Emtr.{emtr};
         use AssetLib/GenS4/Rules/Characteristics/Fstn.{fstn};
         use AssetLib/GenS4/Rules/Characteristics/Lstn.{lstn};
+        use AssetLib/GenS4/Rules/Characteristics/Star.{star};
         use AssetLib/GenS4/Rules/Characteristics/Valv.{valv};
         let* baseRelns  = loadRelations(args);
         let solutionId  = Option.getWithDefault(args.solutionId, "");
@@ -60,11 +61,12 @@ namespace AssetLib/GenS4/Phase2 {
                                     <+> equiSolutionId(solutionId) 
                                     <+> equipmentPhase2Characteristics() 
                                     <+> emtr()
-                                    <+> lstn()
                                     <+> fstn()
-                                    <+> valv() 
+                                    <+> lstn()
+                                    <+> star()
+                                    <+> valv()
                                     <+> baseRelns;
-        (project AibIntValue answers) |> unsafeToString |> println;
+        (project AibStringValue answers) |> unsafeToString |> println;
         let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);
         Ok()
 

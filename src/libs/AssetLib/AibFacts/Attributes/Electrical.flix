@@ -59,16 +59,16 @@ namespace AssetLib/AibFacts/Attributes/Electrical {
         getStringValue("IP Rating", "IP_RATING")
 
     pub def getPower(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getStringValue("Power", "POWER")
+        getFloatValue("Power", "POWER")
 
     pub def getPowerUnits(): NamedRowEvaluator[#{AibStringValue | r}] =
         getStringValue("Power Units", "POWER_UNITS")
 
-    pub def getSpeedRPM(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Speed (RPM)", "SPEED_RPM")
+    pub def getSpeedRPM(): NamedRowEvaluator[#{AibIntValue | r}] =
+        getIntValue("Speed (RPM)", "SPEED_RPM")
 
     pub def getVoltageIn(): NamedRowEvaluator[#{AibIntValue | r}] =
-        getStringValue("Voltage In", "VOLTAGE_IN")
+        getIntValue("Voltage In", "VOLTAGE_IN")
 
     pub def getVoltageInACOrDC(): NamedRowEvaluator[#{AibStringValue | r}] =
         getStringValue("Voltage In (AC Or DC)", "VOLTAGE_IN_AC_OR_DC")
