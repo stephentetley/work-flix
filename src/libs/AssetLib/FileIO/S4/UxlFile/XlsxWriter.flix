@@ -137,6 +137,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putStringAt!(1, x.equipCategory);
         let* _      = putStringAt!(2, x.description);
+        let* _      = putS4DateAt!(3, x.validFrom);
         let* _      = putStringAt!(4, x.objectType);
         let* _      = putOptionFloat64At!(7, x.grossWeight);
         let* _      = putStringAt!(8, x.unitOfWeight);

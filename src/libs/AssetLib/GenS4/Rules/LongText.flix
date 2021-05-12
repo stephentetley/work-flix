@@ -36,6 +36,13 @@ namespace AssetLib/GenS4/Rules/LongText {
                 AibStringValue(aibref, "MEMO_LINES", longText), 
                 not AibStringValue(aibref, "LOCATION_ON_SITE", _).
 
+            EquiLongText(aibref, description, String.trim(longText)) :- 
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
+                AibStringValue(aibref, "MEMO_LINES", longText), 
+                AibStringValue(aibref, "LOCATION_ON_SITE", location), 
+                if (String.length(location) <= 30).
+
+
             EquiLongText(aibref, description, locationOnSite(location) ) :- 
                 EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "LOCATION_ON_SITE", location), 

@@ -44,8 +44,9 @@ namespace AssetLib/GenS4/Phase1 {
         let* baseRelns  = loadRelations(args);
         let today       = Time/LocalDate.now();
         let answers     = solve uxlEquiLongText() <+> equipmentPhase1(today) <+> baseRelns;
-        (project EquiDatum answers) |> unsafeToString |> println;
-        (project EquiCharacteristic answers) |> unsafeToString |> println;
+        /// (project EquiDatum answers) |> unsafeToString |> println;
+        /// (project EquiCharacteristic answers) |> unsafeToString |> println;
+        (project AibStringValue answers) |> unsafeToString |> println;
         (project EquiLongText answers) |> unsafeToString |> println;
         let* _          = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()

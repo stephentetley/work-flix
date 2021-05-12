@@ -20,7 +20,7 @@ namespace AssetLib/AibFacts/Attributes/MemoLines {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
+    use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/AibFacts/Relations.{getAttributes, getStringValue};
 
 
@@ -34,7 +34,7 @@ namespace AssetLib/AibFacts/Attributes/MemoLines {
         AssetLib/AibFacts/Relations.readAibFacts(alt(aibMemoLines(), return(#{})), sheetName, path)
         
     
-    def aibMemoLines(): NamedRowEvaluator[#{AibStringValue| r}] =
+    def aibMemoLines(): NamedRowEvaluator[#{AibStringValue | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 
