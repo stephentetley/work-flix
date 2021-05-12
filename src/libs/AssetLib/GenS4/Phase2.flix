@@ -32,7 +32,6 @@ namespace AssetLib/GenS4/Phase2 {
         , aibElectricalExport: XlsxSource
         , aibRangeSignalExport: XlsxSource
         , aibValveExport: XlsxSource
-        , solutionId: Option[String]
         , phase1Worklist: XlsxSource
         , phase2Worklist: System.FilePath       /// Tab is called Data
         , outNameRoot: String
@@ -54,11 +53,10 @@ namespace AssetLib/GenS4/Phase2 {
         use AssetLib/GenS4/Rules/Characteristics/Star.{star};
         use AssetLib/GenS4/Rules/Characteristics/Valv.{valv};
         let* baseRelns  = loadRelations(args);
-        let solutionId  = Option.getWithDefault(args.solutionId, "");
         let answers     = solve assetCondition() 
                                     <+> equiAibReference() 
                                     <+> equiEastNorth() 
-                                    <+> equiSolutionId(solutionId) 
+                                    <+> equiSolutionId() 
                                     <+> equipmentPhase2Characteristics() 
                                     <+> emtr()
                                     <+> fstn()

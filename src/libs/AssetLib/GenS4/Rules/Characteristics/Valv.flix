@@ -27,14 +27,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
         #{
             ValuaEquiFloat(equiId, "002", "VALV_INLET_SIZE_MM", sizeMM(size, units), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "VALV", oclass),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "SIZE", size),
                 AibStringValue(aibref, "SIZE_UNITS", units),
                 if sizeRecognized(units) and oclass != "VALVRE".
 
             ValuaEquiFloat(equiId, "002", "VALV_BORE_DIAMETER_MM", sizeMM(size, units), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "VALV", "VALVRE"),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "SIZE", size),
                 AibStringValue(aibref, "SIZE_UNITS", units),
                 if sizeRecognized(units).

@@ -29,37 +29,35 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
         #{
             ValuaEquiText(equiId, "002", "IP_RATING", rating, 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "STAR", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "IP_RATING", rating).
 
             ValuaEquiFloat(equiId, "002", "STAR_RATED_CURRENT_A", current, 1) :-
                 Phase2EquiItem(equiId, name, floc,  "STAR", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "CURRENT_IN", current).
 
             ValuaEquiFloat(equiId, "002", "STAR_RATED_POWER_KW", power, 1) :-
                 Phase2EquiItem(equiId, name, floc,  "STAR", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),                
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "POWER", "KILOWATTS"),
                 AibFloatValue(aibref, "POWER", power).
 
             ValuaEquiInt(equiId, "002", "STAR_RATED_VOLTAGE", voltage, 1) :-
                 Phase2EquiItem(equiId, name, floc,  "STAR", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),
                 AibIntValue(aibref, "VOLTAGE_IN", voltage),
                 if recognizedVoltageUnits(units).
 
             ValuaEquiText(equiId, "002", "STAR_RATED_VOLTAGE_UNITS", voltageUnits(units), 1) :-
                 Phase2EquiItem(equiId, name, floc,  "STAR", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),
                 AibIntValue(aibref, "VOLTAGE_IN", _),
                 if recognizedVoltageUnits(units).
 
-
         }
-
 
 
 }

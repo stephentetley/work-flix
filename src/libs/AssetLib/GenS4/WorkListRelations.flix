@@ -24,7 +24,9 @@ namespace AssetLib/GenS4/WorkListRelations {
     pub rel Phase1EquiItem(aibref: String,
                             s4Name: String,  
                             s4Floc: String,
-                            superEqui: String, 
+                            superEqui: String,
+                            soultionId: String,
+                            position: Option[Int32],
                             s4Category: String, 
                             s4EquiType: String, 
                             s4EquiClass: String)
@@ -70,15 +72,17 @@ namespace AssetLib/GenS4/WorkListRelations {
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     def evalPhase1EquiItem(): NamedRowEvaluator[#{Phase1EquiItem | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
         let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
         let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
         let* s4Floc     = map(String.trim, getNonEmptyContentNamed("S4 Floc"));
         let* superId    = map(String.trim, getContentNamed("Super Equi"));
+        let* solutionId = map(String.trim, getContentNamed("Solution ID"));
+        let* position   = optional(getInt32Named("Position"));
         let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
         let* s4Type     = map(String.trim, getNonEmptyContentNamed("Equi Type"));
         let* s4Class    = map(String.trim, getContentNamed("Equi Class"));
-        return(#{ Phase1EquiItem(aibref, s4Name, s4Floc, superId, category, s4Type, s4Class). })
+        return(#{ Phase1EquiItem(aibref, s4Name, s4Floc, superId, solutionId, position, category, s4Type, s4Class). })
 
 
     /// Read from Aib xlsx export file...

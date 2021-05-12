@@ -28,31 +28,31 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
             
             ClassEqui(equiId, "EAST_NORTH", "002") :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(_, name, floc,  _, _, _,  _).
+                Phase1EquiItem(_, name, floc,  _, _, _,  _, _, _).
 
 
             ValuaEquiInt(equiId, "002", "EASTING", eastingfromOsgb36(ngr), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
 
             ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
         }
 
-    pub def uxlEquiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
-        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
-        #{
-            /// EAST_NORTH (generate if we have generated EquiDatum from AibEquipment)
-            EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
+    /// pub def uxlEquiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
+    ///     use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+    ///     #{
+    ///         /// EAST_NORTH (generate if we have generated EquiDatum from AibEquipment)
+    ///         EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 
+    ///             AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
+    ///             EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
 
-            EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr))) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
-        }
+    ///         EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr))) :- 
+    ///             AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
+    ///             EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
+    ///     }
 
 }

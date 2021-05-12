@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
-
+    
     pub def equiAibReference(): #{ClassEqui, ValuaEquiText, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
         #{
             ClassEqui(equiId, "AIB_REFERENCE", "002") :- 
@@ -31,12 +31,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
             /// AIB_REFERENCE (item)
             ValuaEquiText(equiId, "002", "AI2_AIB_REFERENCE", aibref, 1) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _).
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _).
 
             /// AI2_AIB_REFERENCE (parent)
             ValuaEquiText(equiId, "002", "AI2_AIB_REFERENCE", parent, 2) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, parent).
 
             /// S4_AIB_REFERENCE (blank)

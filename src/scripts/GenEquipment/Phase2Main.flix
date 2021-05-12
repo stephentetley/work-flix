@@ -39,7 +39,6 @@ namespace ValveReport/Phase2Main {
         , aibElectricalExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibRangeSignalExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibValveExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
-        , solutionId = None
         , phase1Worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , phase2Worklist = System/FilePath.new("")
         , outNameRoot = "equipment"
@@ -54,7 +53,6 @@ namespace ValveReport/Phase2Main {
         :: {optionIds = Nil,    optionNames = "aib_electrical_export" :: Nil,   argDescriptor = ReqArg(setAibElectricalExport, "FILE##Sheet"),       explanation = "path to AI2 electrical (motor etc.) export"}
         :: {optionIds = Nil,    optionNames = "aib_range_signal_export" :: Nil, argDescriptor = ReqArg(setAibRangeSignalExport, "FILE##Sheet"),       explanation = "path to AI2 range and signal export"}
         :: {optionIds = Nil,    optionNames = "aib_valve_export" :: Nil,        argDescriptor = ReqArg(setAibValveExport, "FILE##Sheet"),       explanation = "path to AI2 valves export"}
-        :: {optionIds = Nil,    optionNames = "solution_id" :: Nil,             argDescriptor = ReqArg(setSolutionId, "TEXT"),                  explanation = "set solution_id"}
         :: {optionIds = Nil,    optionNames = "phase1_worklist" :: Nil,         argDescriptor = ReqArg(setPhase1Worklist, "FILE##Sheet"),       explanation = "path to phase1 worklist and sheet name"}
         :: {optionIds = Nil,    optionNames = "phase2_worklist" :: Nil,         argDescriptor = ReqArg(setPhase2Worklist, "FILE##Sheet"),       explanation = "path to phase2 worklist and sheet name"}
         :: {optionIds = Nil,    optionNames = "out_name_root" :: Nil,           argDescriptor = ReqArg(setOutNameRoot, "TEXT"),           explanation = "Name prefix for upload files"}
@@ -81,10 +79,6 @@ namespace ValveReport/Phase2Main {
 
     def setAibValveExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibValveExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
-
-    def setSolutionId(s: String): Option[UpdateArguments] = 
-        let ans = if (String.isEmpty(s)) None else Some(s);
-        Some(opts -> {solutionId = ans | opts})
 
     def setPhase1Worklist(s: String): Option[UpdateArguments] = 
         Some(opts -> {phase1Worklist = AssetLib/GenS4/XlsxSource.fromString(s) | opts})

@@ -67,43 +67,43 @@ namespace AssetLib/GenS4/Rules/Equipment {
                         superEqui,
                         pandiTag,
                         s4Status(status)) :- 
-                Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, s4Category, s4EquiType, _), 
+                Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
                 AibEquipment(aibref, _, _, installedFrom, manufacturer, model,  _, status, _), 
                 EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
 
 
             /// TODO doesn't fire if no valve type...
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
-                Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
+                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
                 AibStringValue(aibref, "VALVE_TYPE", valveType),
                 ValveTypeMap3(aibEquiName, valveType, s4EquiClass).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
-                Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
+                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),
                 ValveTypeMap3(aibEquiName, "", s4EquiClass),
                 not AibStringValue(aibref, "VALVE_TYPE", _).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
-                Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
+                Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV".
 
             /// TODO doesn't fire if no valve type...
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
-                Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
+                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
                 AibStringValue(aibref, "VALVE_TYPE", valveType),
                 ValveTypeMap3(aibEquiName, valveType, s4EquiClass).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :- 
-                Phase1EquiItem(aibref, _, _, _, _, "VALV", ""),
+                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),                 
                 ValveTypeMap3(aibEquiName, "", s4EquiClass),
                 not AibStringValue(aibref, "VALVE_TYPE", _).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :-
-                Phase1EquiItem(aibref, _, _, _, _, s4EquiType, s4EquiClass),
+                Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV".
 
         }
@@ -128,7 +128,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
         #{            
             ValuaEquiText(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "LOCATION_ON_SITE", location).
 
 

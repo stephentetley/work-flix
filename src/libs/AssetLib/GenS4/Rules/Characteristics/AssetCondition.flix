@@ -33,43 +33,43 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
 
             ClassEqui(equiId, "ASSET_CONDITION", "002") :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFactGroup(aibref, "ASSET_CONDITION").
 
             ValuaEquiText(equiId, "002", "CONDITION_GRADE", s4ConditionGrade(grade), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "CONDITION_GRADE", grade).
 
             ValuaEquiText(equiId, "002", "CONDITION_GRADE_REASON", String.toUpperCase(reason), 1) :- 
                 Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "CONDITION_GRADE_REASON", reason).
 
             ValuaEquiText(equiId, "002", "PERFORMANCE_GRADE", s4PerformanceGrade(grade), 1) :-
                 Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "PERFORMANCE_GRADE", grade).
 
             ValuaEquiText(equiId, "002", "PERFORMANCE_GRADE_REASON", String.toUpperCase(reason), 1) :-
                 Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "PERFORMANCE_GRADE_REASON", reason).
 
             ValuaEquiText(equiId, "002", "LOADING_FACTOR", s4LoadingFactor(factor), 1) :-
                 Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "LOADING_FACTOR", factor).
 
             ValuaEquiText(equiId, "002", "LOADING_FACTOR_REASON", String.toUpperCase(reason), 1) :-
                 Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "LOADING_FACTOR_REASON", reason).
 
             /// NOTE the fact from Aib is called "SURVEY_YEAR"
             ValuaEquiInt(equiId, "002", "SURVEY_DATE", year, 1) :- 
                 Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _),
+                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
                 AibIntValue(aibref, "SURVEY_YEAR", year).           
 
         }
