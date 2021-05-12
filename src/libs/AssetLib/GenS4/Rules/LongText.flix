@@ -26,25 +26,25 @@ namespace AssetLib/GenS4/Rules/LongText {
     pub def uxlEquiLongText(): #{EquiLongText, EquiDatum, AibStringValue | r} = 
         #{
             EquiLongText(aibref, description, combine(longText, location) ) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibStringValue(aibref, "MEMO_LINES", longText),
                 AibStringValue(aibref, "LOCATION_ON_SITE", location), 
                 if (String.length(location) > 30).
 
             EquiLongText(aibref, description, String.trim(longText)) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibStringValue(aibref, "MEMO_LINES", longText), 
                 not AibStringValue(aibref, "LOCATION_ON_SITE", _).
 
             EquiLongText(aibref, description, String.trim(longText)) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibStringValue(aibref, "MEMO_LINES", longText), 
                 AibStringValue(aibref, "LOCATION_ON_SITE", location), 
                 if (String.length(location) <= 30).
 
 
             EquiLongText(aibref, description, locationOnSite(location) ) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
+                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
                 AibStringValue(aibref, "LOCATION_ON_SITE", location), 
                 not AibStringValue(aibref, "MEMO_LINES", _),
                 if (String.length(location) > 30).

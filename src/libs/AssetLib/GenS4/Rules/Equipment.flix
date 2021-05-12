@@ -65,6 +65,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
                         s4SerialNumber(serialNumber),
                         suppliedFloc,
                         superEqui,
+                        position,
                         pandiTag,
                         s4Status(status)) :- 
                 Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 

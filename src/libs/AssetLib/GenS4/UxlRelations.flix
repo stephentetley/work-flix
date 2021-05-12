@@ -36,7 +36,7 @@ namespace AssetLib/GenS4/UxlRelations {
     /// Arity 4
     pub rel FlocCharacteristic(floc: String, className: String, charName: String, charValue: String)
 
-    /// Arity 15
+    /// Arity 16
     pub rel EquiDatum(equiId: String, 
                         category: String,              /// e.g "M", "I", "E"
                         description: String,
@@ -49,7 +49,8 @@ namespace AssetLib/GenS4/UxlRelations {
                         partNumber: String,
                         serialNumber: String,
                         functionalLocation: String,
-                        superOrdinateEqui: String,
+                        superOrdinateEqui: String, 
+                        position: Option[Int32],
                         techIdentNo: String,
                         status: String)
 
@@ -142,14 +143,12 @@ namespace AssetLib/GenS4/UxlRelations {
 
 
     def equiDatumToUxl(x: (String, String, String,
-                            Time.LocalDate, String, 
-                            Option[Float64],
-                            Time.LocalDate, String,
-                            String, String, String,
+                            Time.LocalDate, String, Option[Float64],
+                            Time.LocalDate, String, String, 
                             String, String, String, 
+                            String, Option[Int32], String, 
                             String)): EquipmentData = 
-        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15) = x;
-        let noneI32: Option[Int32] = None;    /// Avoids a typing problem with using None directly...
+        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) = x;
         { equiId            = x1
         , equipCategory     = x2
         , description       = x3
@@ -172,10 +171,10 @@ namespace AssetLib/GenS4/UxlRelations {
         , plantWorkCenter   = 2100
         , functionalLoc     = x12
         , superordEquip     = x13
-        , position          = noneI32
-        , techIdentNo       = x14
+        , position          = x14
+        , techIdentNo       = x15
         , statusProfile     = "ZEQUIPST"
-        , statusOfAnObject  = x15
+        , statusOfAnObject  = x16
         }
 
 
