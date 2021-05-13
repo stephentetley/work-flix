@@ -30,18 +30,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "SIZE", size),
                 AibStringValue(aibref, "SIZE_UNITS", units),
-                if sizeRecognized(units) and oclass != "VALVRE".
+                if recognizedSizeUnits(units) and oclass != "VALVRE".
 
             ValuaEquiFloat(equiId, "002", "VALV_BORE_DIAMETER_MM", sizeMM(size, units), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "VALV", "VALVRE"),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "SIZE", size),
                 AibStringValue(aibref, "SIZE_UNITS", units),
-                if sizeRecognized(units).
+                if recognizedSizeUnits(units).
 
         }
 
-    def sizeRecognized(units: String): Bool = match units { 
+    def recognizedSizeUnits(units: String): Bool = match units { 
         case "MILLIMETRES" => true
         case "INCH" => true
         case _ => false

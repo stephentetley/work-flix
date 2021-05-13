@@ -32,6 +32,7 @@ namespace AssetLib/GenS4/Phase2 {
         , aibElectricalExport: XlsxSource
         , aibPumpExport: XlsxSource
         , aibRangeSignalExport: XlsxSource
+        , aibTankExport: XlsxSource
         , aibValveExport: XlsxSource
         , phase1Worklist: XlsxSource
         , phase2Worklist: System.FilePath       /// Tab is called Data
@@ -62,6 +63,7 @@ namespace AssetLib/GenS4/Phase2 {
                 <+> AssetLib/GenS4/Rules/Characteristics/Lstn.lstn()
                 <+> AssetLib/GenS4/Rules/Characteristics/Pump.pump()
                 <+> AssetLib/GenS4/Rules/Characteristics/Star.star()
+                <+> AssetLib/GenS4/Rules/Characteristics/Tank.tank()
                 <+> AssetLib/GenS4/Rules/Characteristics/Valv.valv()
                 <+> baseRelns;
         (project AibStringValue answers) |> unsafeToString |> println;
@@ -79,10 +81,11 @@ namespace AssetLib/GenS4/Phase2 {
         let* electrical     = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(args.aibElectricalExport.sheet, args.aibElectricalExport.file);
         let* pumps          = AssetLib/AibFacts/Attributes/Pump.readPumpData(args.aibPumpExport.sheet, args.aibPumpExport.file);
         let* rangeSignal    = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(args.aibRangeSignalExport.sheet, args.aibRangeSignalExport.file);
+        let* tanks          = AssetLib/AibFacts/Attributes/Valve.readValveData(args.aibTankExport.sheet, args.aibTankExport.file);
         let* valves         = AssetLib/AibFacts/Attributes/Valve.readValveData(args.aibValveExport.sheet, args.aibValveExport.file);
         let* workitems1     = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
         let* workitems2     = AssetLib/GenS4/WorkListRelations.readPhase2EquiWorkList("Data", args.phase2Worklist);
-        Ok(hrelns <+> locOnSite <+> agasp <+> electrical <+> pumps <+> rangeSignal <+> valves <+> workitems1 <+> workitems2)
+        Ok(hrelns <+> locOnSite <+> agasp <+> electrical <+> pumps <+> rangeSignal <+> tanks <+> valves <+> workitems1 <+> workitems2)
 
 
 }

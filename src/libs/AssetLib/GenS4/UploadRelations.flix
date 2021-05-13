@@ -114,7 +114,7 @@ namespace AssetLib/GenS4/UploadRelations {
         , valueDescription  = ToString.toString(x4)
         , instanceCounter   = x5 - 1
         , intCounterValue   = x5
-        , valueFrom         = ToString.toString(x4)
+        , valueFrom         = Text/NumberFormatter.formatFloat64(4, x4)
         , valueTo           = "0"
         }
 
