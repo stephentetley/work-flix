@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiText};
+    use AssetLib/GenS4/UploadRelations.{ValuaEquiString};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
         
     pub rel ValveTypeMap3(equiName: String, valveType: String, s4Class: String)
@@ -125,9 +125,9 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
     /// Common to all equipment - upload characteristics don't need to be linked to a class,
     /// but a class with that characteristic as a member has to exist.
-    pub def equipmentPhase2Characteristics(): #{ValuaEquiText, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
+    pub def equipmentPhase2Characteristics(): #{ValuaEquiString, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
         #{            
-            ValuaEquiText(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
+            ValuaEquiString(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "LOCATION_ON_SITE", location).

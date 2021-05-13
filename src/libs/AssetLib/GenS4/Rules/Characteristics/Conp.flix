@@ -18,12 +18,12 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Conp {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiText, ValuaEquiInt, ValuaEquiFloat};
+    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat};
     use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
 
 
-    pub def conp(): #{ValuaEquiText, ValuaEquiInt, ValuaEquiFloat, 
+    pub def conp(): #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat, 
                         Phase2EquiItem, Phase1EquiItem, 
                         AibStringValue, AibIntValue, AibFloatValue | r} = 
         #{
@@ -40,7 +40,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
                 AibIntValue(aibref, "VOLTAGE_IN", voltage),
                 if recognizedVoltageUnits(units).
 
-            ValuaEquiText(equiId, "002", "CONP_RATED_VOLTAGE_UNITS", voltageUnits(units), 1) :-
+            ValuaEquiString(equiId, "002", "CONP_RATED_VOLTAGE_UNITS", voltageUnits(units), 1) :-
                 Phase2EquiItem(equiId, name, floc,  "CONP", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),

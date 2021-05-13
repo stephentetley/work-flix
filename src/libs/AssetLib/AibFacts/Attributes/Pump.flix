@@ -36,7 +36,8 @@ namespace AssetLib/AibFacts/Attributes/Pump {
 
 
     pub def aibPump(): NamedRowEvaluator[#{AibStringValue, AibFloatValue | r}] =
-        getAttributes( getDutyHead()
+        getAttributes( getDiaphragmMaterial()
+            :: getDutyHead()
             :: getDutyHeadUnits()
             :: getFlow()
             :: getFlowUnits()
@@ -47,6 +48,9 @@ namespace AssetLib/AibFacts/Attributes/Pump {
             :: Nil
         )      
 
+
+    pub def getDiaphragmMaterial(): NamedRowEvaluator[#{AibStringValue | r}] =
+        getStringValue("Diaphragm Material", "DIAPHRAGM_MATERIAL")
 
     pub def getDutyHead(): NamedRowEvaluator[#{AibFloatValue | r}] =
         getFloatValue("Duty Head", "DUTY_HEAD")
@@ -71,4 +75,5 @@ namespace AssetLib/AibFacts/Attributes/Pump {
 
     pub def getRatingUnits(): NamedRowEvaluator[#{AibStringValue | r}] =
         getStringValue("Rating Units", "RATING_UNITS")
+
 }

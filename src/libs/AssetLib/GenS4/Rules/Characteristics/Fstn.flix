@@ -18,18 +18,18 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiText, ValuaEquiFloat};
+    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiFloat};
     use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
 
 
 
     /// Note LOCATION_ON_SITE already created.
-    pub def fstn(): #{ValuaEquiText, ValuaEquiFloat, 
+    pub def fstn(): #{ValuaEquiString, ValuaEquiFloat, 
                         Phase2EquiItem, Phase1EquiItem, 
                         AibStringValue, AibFloatValue | r} = 
         #{
-            ValuaEquiText(equiId, "002", "FSTN_SIGNAL_TYPE", "4 - 20 MA", 1) :- 
+            ValuaEquiString(equiId, "002", "FSTN_SIGNAL_TYPE", "4 - 20 MA", 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "FSTN", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "SIGNAL_MIN", min),
@@ -37,7 +37,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
                 AibStringValue(aibref, "SIGNAL_UNIT", "mA"),
                 if iEqual(min, 4) and iEqual(max, 20).
 
-            ValuaEquiText(equiId, "002", "FSTN_SIGNAL_TYPE", "0 - 1 DIGITAL", 1) :- 
+            ValuaEquiString(equiId, "002", "FSTN_SIGNAL_TYPE", "0 - 1 DIGITAL", 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "FSTN", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "SIGNAL_MIN", min),
@@ -59,7 +59,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
                 AibStringValue(aibref, "RANGE_UNIT", unit),
                 if recognizedRangeUnit(unit).
 
-            ValuaEquiText(equiId, "002", "FSTN_RANGE_UNITS", rangeUnit(unit), 1) :- 
+            ValuaEquiString(equiId, "002", "FSTN_RANGE_UNITS", rangeUnit(unit), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "FSTN", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "RANGE_UNIT", unit),

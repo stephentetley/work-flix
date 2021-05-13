@@ -18,12 +18,12 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiText, ValuaEquiFloat};
+    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiFloat};
     use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
 
 
-    pub def pump(): #{ValuaEquiText, ValuaEquiFloat, 
+    pub def pump(): #{ValuaEquiString, ValuaEquiFloat, 
                         Phase2EquiItem, Phase1EquiItem, 
                         AibStringValue, AibFloatValue | r} = 
         #{
@@ -32,26 +32,39 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
                 Phase2EquiItem(equiId, name, floc,  "PUMP", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "FLOW", flow),
-                AibStringValue(aibref, "FLOW_UNIT", unit),
-                if recognizedFlowUnit(unit).
+                AibStringValue(aibref, "FLOW_UNITS", unit),
+                if recognizedFlowUnits(unit).
 
-            /// ValuaEquiFloat(equiId, "002", "LSTN_RANGE_MAX", max, 1) :- 
-            ///     Phase2EquiItem(equiId, name, floc,  "LSTN", _),
-            ///     Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-            ///     AibFloatValue(aibref, "RANGE_MAX", max),
-            ///     AibStringValue(aibref, "RANGE_UNIT", unit),
-            ///     if recognizedRangeUnit(unit).
+            ValuaEquiFloat(equiId, "002", "PUMP_INSTALLED_DESIGN_HEAD_M", ans, 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
+                AibFloatValue(aibref, "DUTY_HEAD", ans),
+                AibStringValue(aibref, "DUTY_HEAD_UNITS", "METRES").
 
-            /// ValuaEquiText(equiId, "002", "LSTN_RANGE_UNITS", rangeUnit(unit), 1) :- 
-            ///     Phase2EquiItem(equiId, name, floc,  "LSTN", _),
-            ///     Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-            ///     AibStringValue(aibref, "RANGE_UNIT", unit),
-            ///     if recognizedRangeUnit(unit).
+            /// TODO may have to limit pump-classes here...
+            ValuaEquiString(equiId, "002", "PUMP_IMPELLER_TYPE", ans, 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
+                AibStringValue(aibref, "IMPELLER_TYPE", ans).
+
+                
+            ValuaEquiString(equiId, "002", "PUMP_DIAPHRAGM_MATERIAL", diaphragmMaterial(material), 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
+                AibStringValue(aibref, "DIAPHRAGM_MATERIAL", material),
+                if recognizedDiaphragmMaterial(material).
+
+            ValuaEquiFloat(equiId, "002", "PUMP_RATED_POWER_KW", ans, 1) :- 
+                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
+                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
+                AibFloatValue(aibref, "RATING_POWER", ans),
+                AibStringValue(aibref, "RATING_UNITS", "KILOWATTS").
+
 
         }
 
 
-    def recognizedFlowUnit(units: String): Bool = match units { 
+    def recognizedFlowUnits(units: String): Bool = match units { 
         case "LITRE PER HOUR" => true
         case "LITRE PER MINUTE" => true
         case "LITRES PER SECOND" => true
@@ -64,6 +77,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
         case "LITRE PER MINUTE" => flow / 60.0f64
         case "LITRES PER SECOND" => flow
         case _ => -1.0f64
+    }
+
+    def recognizedDiaphragmMaterial(s: String): Bool = match s { 
+        case "EPDM" => true
+        case _ => false
+    }
+
+    
+    def diaphragmMaterial(s: String): String = match s { 
+        case "EPDM" => "EPMD"
+        case _ => ""
     }
 
 

@@ -18,18 +18,18 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiText, ValuaEquiInt, ValuaEquiFloat};
+    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat};
     use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
 
 
     /// IP_RATING should be generated on per type (per class?)
-    pub def emtr(): #{ValuaEquiText, ValuaEquiInt, ValuaEquiFloat, 
+    pub def emtr(): #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat, 
                         Phase2EquiItem, Phase1EquiItem, 
                         AibStringValue, AibIntValue, AibFloatValue | r} = 
         #{
-            ValuaEquiText(equiId, "002", "IP_RATING", rating, 1) :- 
+            ValuaEquiString(equiId, "002", "IP_RATING", rating, 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "EMTR", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "IP_RATING", rating).
@@ -57,14 +57,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
                 AibIntValue(aibref, "VOLTAGE_IN", voltage),
                 if recognizedVoltageUnits(units).
 
-            ValuaEquiText(equiId, "002", "EMTR_RATED_VOLTAGE_UNITS", voltageUnits(units), 1) :-
+            ValuaEquiString(equiId, "002", "EMTR_RATED_VOLTAGE_UNITS", voltageUnits(units), 1) :-
                 Phase2EquiItem(equiId, name, floc,  "EMTR", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),
                 AibIntValue(aibref, "VOLTAGE_IN", _),
                 if recognizedVoltageUnits(units).
 
-            ValuaEquiText(equiId, "002", "INSULATION_CLASS_DEG_C", insulationClass(insClass), 1) :-
+            ValuaEquiString(equiId, "002", "INSULATION_CLASS_DEG_C", insulationClass(insClass), 1) :-
                 Phase2EquiItem(equiId, name, floc,  "EMTR", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "INSULATION_CLASS", insClass),

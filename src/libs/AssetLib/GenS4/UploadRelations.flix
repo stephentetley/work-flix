@@ -24,7 +24,7 @@ namespace AssetLib/GenS4/UploadRelations {
                         className: String,
                         classType: String)      /// Always "002"?
 
-    pub rel ValuaEquiText(equiId: String,
+    pub rel ValuaEquiString(equiId: String,
                         classType: String,
                         characteristicId: String, 
                         stringValue: String,
@@ -61,9 +61,9 @@ namespace AssetLib/GenS4/UploadRelations {
 
 
     /// To Upload row...
-    pub def textToValuaEquiRow(src: #{ValuaEquiText | r}): List[ValuaEquiRow] = 
+    pub def textToValuaEquiRow(src: #{ValuaEquiString | r}): List[ValuaEquiRow] = 
         let buildStep = (x, ac) -> valuaEquiTextToUpload(x) :: ac;
-        fold ValuaEquiText Nil buildStep src
+        fold ValuaEquiString Nil buildStep src
 
 
     def valuaEquiTextToUpload(x: (String, String, String, String, Int32)): ValuaEquiRow = 

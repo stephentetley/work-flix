@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/AibFacts/Relations.{AibStringValue};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText};
+    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString};
     use AssetLib/GenS4/UxlRelations.{FlocCharacteristic, FlocDatum, EquiDatum, EquiCharacteristic};
 
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
@@ -28,14 +28,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     /// This generates a SOLUTION_ID class and characteristic for every item in the change request list (pahase 1)
     /// that has a `Solution ID`.
     ///
-    pub def equiSolutionId(): #{ClassEqui, ValuaEquiText, Phase1EquiItem, Phase2EquiItem | r} = 
+    pub def equiSolutionId(): #{ClassEqui, ValuaEquiString, Phase1EquiItem, Phase2EquiItem | r} = 
         #{
             ClassEqui(equiId, "SOLUTION_ID", "002") :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
                 Phase1EquiItem(aibref, name, floc,  _, solutionId, _,  _, _, _),
                 if not String.isEmpty(solutionId).
 
-            ValuaEquiText(equiId, "002", "SOLUTION_ID", solutionId, 1) :-
+            ValuaEquiString(equiId, "002", "SOLUTION_ID", solutionId, 1) :-
                 Phase2EquiItem(equiId, name, floc,  _, _),
                 Phase1EquiItem(aibref, name, floc,  _, solutionId, _,  _, _, _),
                 if not String.isEmpty(solutionId).

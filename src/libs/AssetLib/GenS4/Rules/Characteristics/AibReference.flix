@@ -19,28 +19,28 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt};
+    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
 
-    pub def equiAibReference(): #{ClassEqui, ValuaEquiText, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
+    pub def equiAibReference(): #{ClassEqui, ValuaEquiString, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
         #{
             ClassEqui(equiId, "AIB_REFERENCE", "002") :- 
                 Phase2EquiItem(equiId, _, _,  _, _).
 
             /// AIB_REFERENCE (item)
-            ValuaEquiText(equiId, "002", "AI2_AIB_REFERENCE", aibref, 1) :- 
+            ValuaEquiString(equiId, "002", "AI2_AIB_REFERENCE", aibref, 1) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _).
 
             /// AI2_AIB_REFERENCE (parent)
-            ValuaEquiText(equiId, "002", "AI2_AIB_REFERENCE", parent, 2) :- 
+            ValuaEquiString(equiId, "002", "AI2_AIB_REFERENCE", parent, 2) :- 
                 Phase2EquiItem(equiId, name, floc,  _, _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibEquipment(aibref, _, _,  _, _, _,  _, _, parent).
 
             /// S4_AIB_REFERENCE (blank)
-            ValuaEquiText(equiId, "002", "S4_AIB_REFERENCE", "", 1) :-
+            ValuaEquiString(equiId, "002", "S4_AIB_REFERENCE", "", 1) :-
                 Phase2EquiItem(equiId, _, _,  _, _).
         }
 

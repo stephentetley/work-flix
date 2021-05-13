@@ -17,10 +17,10 @@
 namespace AssetLib/GenS4/EmitUpload {
     
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassEquiRow, ValuaEquiRow};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt, ValuaEquiFloat};
+    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt, ValuaEquiFloat};
 
     pub def outputUploads(userName: String,
-                        solutions: #{ClassEqui, ValuaEquiText, ValuaEquiInt, ValuaEquiFloat | r},
+                        solutions: #{ClassEqui, ValuaEquiString, ValuaEquiInt, ValuaEquiFloat | r},
                         nameRoot: String,
                         outdir: System.FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
@@ -42,7 +42,7 @@ namespace AssetLib/GenS4/EmitUpload {
         } |> Order.toInt;
         List.sortWith(cmp, xs)
 
-    def makeValuaEquiRows(relns: #{ValuaEquiText, ValuaEquiInt, ValuaEquiFloat | r}): List[ValuaEquiRow] = 
+    def makeValuaEquiRows(relns: #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat | r}): List[ValuaEquiRow] = 
         let xs = AssetLib/GenS4/UploadRelations.textToValuaEquiRow(relns);
         let ys = AssetLib/GenS4/UploadRelations.intToValuaEquiRow(relns);
         let zs = AssetLib/GenS4/UploadRelations.floatToValuaEquiRow(relns);

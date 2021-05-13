@@ -19,10 +19,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiText, ValuaEquiInt};
+    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
-    pub def equiEastNorth(): #{ClassEqui, ValuaEquiText, ValuaEquiInt, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
+    pub def equiEastNorth(): #{ClassEqui, ValuaEquiString, ValuaEquiInt, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
             
