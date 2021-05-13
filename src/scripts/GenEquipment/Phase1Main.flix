@@ -35,7 +35,7 @@ namespace ValveReport/Phase1Main {
         , aibHierarchyExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibEquipmentExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibMemosExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
-        , aibValvesExport = None
+        , aibValveExport = None
         , phase1Worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , changeRequestName = "Change Request"
         , outpath = System/FilePath.new("") 
@@ -46,7 +46,7 @@ namespace ValveReport/Phase1Main {
         :: {optionIds = Nil,    optionNames = "aib_hierarchy_export" :: Nil,    argDescriptor = ReqArg(setAibHierarchyExport, "FILE##Sheet"),   explanation = "path to AI2 hierarchy export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_equipment_export" :: Nil,    argDescriptor = ReqArg(setAibEquipmentExport, "FILE##Sheet"),   explanation = "path to AI2 equipment export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_memos_export" :: Nil,        argDescriptor = ReqArg(setAibMemosExport, "FILE##Sheet"),       explanation = "path to AI2 memo lines export"}
-        :: {optionIds = Nil,    optionNames = "aib_valves_export" :: Nil,       argDescriptor = ReqArg(setAibValvesExport, "FILE##Sheet"),       explanation = "path to AI2 valves export"}
+        :: {optionIds = Nil,    optionNames = "aib_valve_export" :: Nil,       argDescriptor = ReqArg(setAibValveExport, "FILE##Sheet"),       explanation = "path to AI2 valve export"}
         :: {optionIds = Nil,    optionNames = "worklist" :: Nil,                argDescriptor = ReqArg(setWorklist, "FILE##Sheet"),             explanation = "path to worklist and sheet name"}
         :: {optionIds = Nil,    optionNames = "change_request_name" :: Nil,     argDescriptor = ReqArg(setChangeRequestName, "TEXT"),           explanation = "Name for Change Request"}
         :: {optionIds = Nil,    optionNames = "outpath" :: Nil,                 argDescriptor = ReqArg(setOutpath, "FILE"),                     explanation = "path to UXL output"}
@@ -64,8 +64,8 @@ namespace ValveReport/Phase1Main {
     def setAibMemosExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibMemosExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
 
-    def setAibValvesExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibValvesExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
+    def setAibValveExport(s: String): Option[UpdateArguments] = 
+        Some(opts -> {aibValveExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
 
 
     def setWorklist(s: String): Option[UpdateArguments] = 

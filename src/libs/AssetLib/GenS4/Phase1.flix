@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Phase1 {
         , aibHierarchyExport: XlsxSource
         , aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
-        , aibValvesExport: Option[XlsxSource]
+        , aibValveExport: Option[XlsxSource]
         , phase1Worklist: XlsxSource
         , changeRequestName: String
         , outpath: System.FilePath
@@ -59,7 +59,7 @@ namespace AssetLib/GenS4/Phase1 {
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* equiAttrs      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
         let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
-        let* valves         = match args.aibValvesExport { 
+        let* valves         = match args.aibValveExport { 
             case Some(xlsx) => AssetLib/AibFacts/Attributes/Valve.readValveData(xlsx.sheet, xlsx.file)
             case None => Ok(#{})
         };

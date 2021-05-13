@@ -37,6 +37,7 @@ namespace ValveReport/Phase2Main {
         , aibEquipmentExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibAgaspExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibElectricalExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
+        , aibPumpExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibRangeSignalExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibValveExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , phase1Worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
@@ -51,6 +52,7 @@ namespace ValveReport/Phase2Main {
         :: {optionIds = Nil,    optionNames = "aib_equipment_export" :: Nil,    argDescriptor = ReqArg(setAibEquipmentExport, "FILE##Sheet"),   explanation = "path to AI2 equipment export and sheet name"}
         :: {optionIds = Nil,    optionNames = "aib_agasp_export" :: Nil,        argDescriptor = ReqArg(setAibAgaspExport, "FILE##Sheet"),       explanation = "path to AI2 asset condition export"}
         :: {optionIds = Nil,    optionNames = "aib_electrical_export" :: Nil,   argDescriptor = ReqArg(setAibElectricalExport, "FILE##Sheet"),       explanation = "path to AI2 electrical (motor etc.) export"}
+        :: {optionIds = Nil,    optionNames = "aib_pump_export" :: Nil,        argDescriptor = ReqArg(setAibPumpExport, "FILE##Sheet"),       explanation = "path to AI2 pumps export"}
         :: {optionIds = Nil,    optionNames = "aib_range_signal_export" :: Nil, argDescriptor = ReqArg(setAibRangeSignalExport, "FILE##Sheet"),       explanation = "path to AI2 range and signal export"}
         :: {optionIds = Nil,    optionNames = "aib_valve_export" :: Nil,        argDescriptor = ReqArg(setAibValveExport, "FILE##Sheet"),       explanation = "path to AI2 valves export"}
         :: {optionIds = Nil,    optionNames = "phase1_worklist" :: Nil,         argDescriptor = ReqArg(setPhase1Worklist, "FILE##Sheet"),       explanation = "path to phase1 worklist and sheet name"}
@@ -73,6 +75,9 @@ namespace ValveReport/Phase2Main {
 
     def setAibElectricalExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibElectricalExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+
+    def setAibPumpExport(s: String): Option[UpdateArguments] = 
+        Some(opts -> {aibPumpExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
 
     def setAibRangeSignalExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibRangeSignalExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})

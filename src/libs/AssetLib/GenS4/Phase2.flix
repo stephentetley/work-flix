@@ -30,6 +30,7 @@ namespace AssetLib/GenS4/Phase2 {
         , aibEquipmentExport: XlsxSource
         , aibAgaspExport: XlsxSource
         , aibElectricalExport: XlsxSource
+        , aibPumpExport: XlsxSource
         , aibRangeSignalExport: XlsxSource
         , aibValveExport: XlsxSource
         , phase1Worklist: XlsxSource
@@ -47,12 +48,6 @@ namespace AssetLib/GenS4/Phase2 {
         use AssetLib/GenS4/Rules/Characteristics/EastNorth.{equiEastNorth};
         use AssetLib/GenS4/Rules/Equipment.{equipmentPhase2Characteristics};
         use AssetLib/GenS4/Rules/Characteristics/SolutionId.{equiSolutionId};
-        use AssetLib/GenS4/Rules/Characteristics/Conp.{conp};
-        use AssetLib/GenS4/Rules/Characteristics/Emtr.{emtr};
-        use AssetLib/GenS4/Rules/Characteristics/Fstn.{fstn};
-        use AssetLib/GenS4/Rules/Characteristics/Lstn.{lstn};
-        use AssetLib/GenS4/Rules/Characteristics/Star.{star};
-        use AssetLib/GenS4/Rules/Characteristics/Valv.{valv};
         let* baseRelns  = loadRelations(args);
         let answers     = 
             solve assetCondition() 
@@ -61,13 +56,14 @@ namespace AssetLib/GenS4/Phase2 {
                 <+> equiSolutionId() 
                 <+> equipmentPhase2Characteristics()
                 <+> AssetLib/GenS4/Rules/Characteristics/Actu.actu()
-                <+> conp()
-                <+> emtr()
-                <+> fstn()
-                <+> lstn()
-                <+> star()
-                <+> valv()
-<+> baseRelns;
+                <+> AssetLib/GenS4/Rules/Characteristics/Conp.conp()
+                <+> AssetLib/GenS4/Rules/Characteristics/Emtr.emtr()
+                <+> AssetLib/GenS4/Rules/Characteristics/Fstn.fstn()
+                <+> AssetLib/GenS4/Rules/Characteristics/Lstn.lstn()
+                <+> AssetLib/GenS4/Rules/Characteristics/Pump.pump()
+                <+> AssetLib/GenS4/Rules/Characteristics/Star.star()
+                <+> AssetLib/GenS4/Rules/Characteristics/Valv.valv()
+                <+> baseRelns;
         (project AibStringValue answers) |> unsafeToString |> println;
         let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);
         Ok()
@@ -81,11 +77,12 @@ namespace AssetLib/GenS4/Phase2 {
         let* locOnSite      = AssetLib/AibFacts/Attributes/Equipment.readLocationOnSiteData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
         let* agasp          = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(args.aibAgaspExport.sheet, args.aibAgaspExport.file);
         let* electrical     = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(args.aibElectricalExport.sheet, args.aibElectricalExport.file);
+        let* pumps          = AssetLib/AibFacts/Attributes/Pump.readPumpData(args.aibPumpExport.sheet, args.aibPumpExport.file);
         let* rangeSignal    = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(args.aibRangeSignalExport.sheet, args.aibRangeSignalExport.file);
         let* valves         = AssetLib/AibFacts/Attributes/Valve.readValveData(args.aibValveExport.sheet, args.aibValveExport.file);
         let* workitems1     = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
         let* workitems2     = AssetLib/GenS4/WorkListRelations.readPhase2EquiWorkList("Data", args.phase2Worklist);
-        Ok(hrelns <+> locOnSite <+> agasp <+> electrical <+> rangeSignal <+> valves <+> workitems1 <+> workitems2)
+        Ok(hrelns <+> locOnSite <+> agasp <+> electrical <+> pumps <+> rangeSignal <+> valves <+> workitems1 <+> workitems2)
 
 
 }
