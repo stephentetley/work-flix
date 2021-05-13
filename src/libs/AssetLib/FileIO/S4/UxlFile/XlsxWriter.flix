@@ -134,6 +134,10 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
     def setEquipmentData!(x: EquipmentData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!, putPaddedInt32At!};
+        let position4 = x1 -> match x1 { 
+            case Some(i) => String.padLeft(4, '0', ToString.toString(i))
+            case None => ""
+        };
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putStringAt!(1, x.equipCategory);
         let* _      = putStringAt!(2, x.description);
@@ -156,7 +160,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putInt32At!(40, x.plantWorkCenter);
         let* _      = putStringAt!(42, x.functionalLoc);
         let* _      = putStringAt!(43, x.superordEquip);
-        let* _      = putOptionInt32At!(44, x.position);
+        let* _      = putStringAt!(44, position4(x.position));
         let* _      = putStringAt!(45, x.techIdentNo);
         let* _      = putStringAt!(50, x.statusProfile);
         let* _      = putStringAt!(51, x.statusOfAnObject);

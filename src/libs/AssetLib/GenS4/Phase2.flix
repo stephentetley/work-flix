@@ -47,23 +47,27 @@ namespace AssetLib/GenS4/Phase2 {
         use AssetLib/GenS4/Rules/Characteristics/EastNorth.{equiEastNorth};
         use AssetLib/GenS4/Rules/Equipment.{equipmentPhase2Characteristics};
         use AssetLib/GenS4/Rules/Characteristics/SolutionId.{equiSolutionId};
+        use AssetLib/GenS4/Rules/Characteristics/Conp.{conp};
         use AssetLib/GenS4/Rules/Characteristics/Emtr.{emtr};
         use AssetLib/GenS4/Rules/Characteristics/Fstn.{fstn};
         use AssetLib/GenS4/Rules/Characteristics/Lstn.{lstn};
         use AssetLib/GenS4/Rules/Characteristics/Star.{star};
         use AssetLib/GenS4/Rules/Characteristics/Valv.{valv};
         let* baseRelns  = loadRelations(args);
-        let answers     = solve assetCondition() 
-                                    <+> equiAibReference() 
-                                    <+> equiEastNorth() 
-                                    <+> equiSolutionId() 
-                                    <+> equipmentPhase2Characteristics() 
-                                    <+> emtr()
-                                    <+> fstn()
-                                    <+> lstn()
-                                    <+> star()
-                                    <+> valv()
-                                    <+> baseRelns;
+        let answers     = 
+            solve assetCondition() 
+                <+> equiAibReference() 
+                <+> equiEastNorth() 
+                <+> equiSolutionId() 
+                <+> equipmentPhase2Characteristics()
+                <+> AssetLib/GenS4/Rules/Characteristics/Actu.actu()
+                <+> conp()
+                <+> emtr()
+                <+> fstn()
+                <+> lstn()
+                <+> star()
+                <+> valv()
+<+> baseRelns;
         (project AibStringValue answers) |> unsafeToString |> println;
         let* _          = AssetLib/GenS4/EmitUpload.outputUploads(args.userName, answers, args.outNameRoot, args.outdir);
         Ok()

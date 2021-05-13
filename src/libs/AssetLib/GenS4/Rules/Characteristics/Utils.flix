@@ -32,12 +32,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Utils {
 
     pub def recognizedVoltageUnits(s: String): Bool = match s { 
         case "ALTERNATING CURRENT" => true
+        case "DIRECT CURRENT" => true
         case _ => false
     }
 
     
     pub def voltageUnits(units: String): String = match units { 
         case "ALTERNATING CURRENT" => "VAC"
+        case "DIRECT CURRENT" => "VDC"
         case _ => ""
     }
 
