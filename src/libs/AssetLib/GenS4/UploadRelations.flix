@@ -111,7 +111,7 @@ namespace AssetLib/GenS4/UploadRelations {
         , charId            = x3
         , charValue         = ""
         , code              = Some(1)
-        , valueDescription  = ToString.toString(x4)
+        , valueDescription  = Text/NumberFormatter.formatFloat64(4, x4)
         , instanceCounter   = x5 - 1
         , intCounterValue   = x5
         , valueFrom         = Text/NumberFormatter.formatFloat64(4, x4)

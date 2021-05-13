@@ -39,7 +39,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
                 Phase2EquiItem(equiId, name, floc,  "TANK", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibStringValue(aibref, "TANK_CONSTRUCTION", ans),
-                if recognizedTankConstruction(level).                
+                if recognizedTankConstruction(ans).                
         }
 
     def recognizedTankLevel(level: String): Bool = match level { 
