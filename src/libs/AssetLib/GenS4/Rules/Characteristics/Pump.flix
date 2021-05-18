@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
                         AibStringValue, AibFloatValue | r} = 
         #{
 
-            ValuaEquiFloat(equiId, "002", "PUMP_FLOW_LITERS_PER_SEC", flowLitresPerSecond(flow, unit), 1) :- 
+            ValuaEquiFloat(equiId, "002", "PUMP_FLOW_LITRES_PER_SEC", flowLitresPerSecond(flow, unit), 1) :- 
                 Phase2EquiItem(equiId, name, floc,  "PUMP", _),
                 Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
                 AibFloatValue(aibref, "FLOW", flow),
