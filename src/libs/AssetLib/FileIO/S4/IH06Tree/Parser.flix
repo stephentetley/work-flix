@@ -20,11 +20,11 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     use Time.LocalDate;
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{return, map, swapError, bounded, parseError, choice, seqRight, tryparse, endOfInput, liftResult, liftOption};
+    use FlixParsec/Prim.{return, map, swapError, bounded, parseError,  tryparse, endOfInput, liftResult, liftOption};
     use FlixParsec/Regex.{lookingAts};
-    use FlixParsec/Combinators.{tuple2, many1Till, ignore};
+    use FlixParsec/Combinators.{tuple2, many1Till, seqRight, ignore, choice};
     use FlixParsec/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
-    use FlixParsec/Token1.{symbol, lexeme};
+    use FlixParsec/TokenSimple.{symbol, lexeme};
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
@@ -33,8 +33,8 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
         FlixParsec/Prim.parsesFile(ih06FileParser(), 4, path, cs) 
 
-    pub def parseFileWithBOM(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
-        FlixParsec/Prim.parsesFileWithBOM(ih06FileParser(), 4, path, cs) 
+    pub def parseFileWithBOM(path: System.FilePath) : Result[IH06File, String] & Impure = 
+        FlixParsec/Prim.parsesFileWithBOM(ih06FileParser(), 4, path) 
 
 
     pub def ih06FileParser(): Parser[t1, IH06File] = 

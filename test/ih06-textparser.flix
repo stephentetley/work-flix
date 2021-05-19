@@ -1,4 +1,3 @@
-use System.Error.{Generic};
 
 use AssetLib/Base/ExportHtmlTree.{writeHtmlForest};
 use AssetLib/FileIO/S4/IH06Tree/Parser.{parseFileWithBOM};
@@ -12,13 +11,19 @@ def csvDest(): CsvOutputPaths =
     , equiOutpath = System/FilePath.new("G:/work/assets/capital_schemes/wethe-ih06-equis.csv")
     }
 
-def main(): Result[Unit, System.Error] & Impure =
+def main(_args: Array[String]): Int32 & Impure =
+    match main1() { 
+        case Ok() => {Console.printLine("Okay"); 0}
+        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+    }
+
+def main1(): Result[Unit, String] & Impure =
     use Result.flatMap;
     let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
     let htmldest    = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.html");
     let dbdest      = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.sqlite");
     let* _          = exportCsv(src, Text/Charset.utf_8(), true, csvDest());    
-    let* ast        = parseFileWithBOM(src, Text/Charset.utf_8());
+    let* ast        = parseFileWithBOM(src);
     let _           = Console.printLine("Count: " + Int32.toString(List.length(ast.rows))); 
     let trees       = buildIH06Trees(ast);
     let* _          = writeHtmlForest(htmldest, allTrees(trees));

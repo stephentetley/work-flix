@@ -44,7 +44,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportDb {
                           , cs: Text.Charset
                           , hasBOM: Bool): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult};
-        let* ast    = liftActionResult(_ -> if (hasBOM) parseFileWithBOM(sourceFile, cs) else parseFile(sourceFile, cs));
+        let* ast    = liftActionResult(_ -> if (hasBOM) parseFileWithBOM(sourceFile) else parseFile(sourceFile, cs));
         let xs      = buildIH06Trees(ast);
         let* _      = setAutoCommit(false);
         let* _      = exportFlocNodes(tableNames.flocNodes, xs);

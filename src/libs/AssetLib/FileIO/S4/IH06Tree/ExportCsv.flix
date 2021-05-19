@@ -33,9 +33,9 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportCsv {
         , equiOutpath: System.FilePath
         }
 
-    pub def exportCsv(sourceFile: System.FilePath, cs: Text.Charset, hasBOM: Bool, outPaths: CsvOutputPaths): Result[Unit, System.Error] & Impure = 
+    pub def exportCsv(sourceFile: System.FilePath, cs: Text.Charset, hasBOM: Bool, outPaths: CsvOutputPaths): Result[Unit, String] & Impure = 
         use Result.flatMap;
-        let* ast    = if (hasBOM) parseFileWithBOM(sourceFile, cs) else parseFile(sourceFile, cs);
+        let* ast    = if (hasBOM) parseFileWithBOM(sourceFile) else parseFile(sourceFile, cs);
         let ans     = buildIH06Trees(ast);
         let* _      = exportFlocCsv(ans, outPaths.flocOutpath);        
         let* _      = exportEquiCsv(ans, outPaths.equiOutpath);
@@ -43,7 +43,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportCsv {
 
 
     /// Flocs
-    pub def exportFlocCsv(xs: List[IH06Tree], path: System.FilePath): Result[Unit, System.Error] & Impure =
+    pub def exportFlocCsv(xs: List[IH06Tree], path: System.FilePath): Result[Unit, String] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
         let headers = [ "Floc", "Level", "Description", "Parent Floc" ];
@@ -75,7 +75,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportCsv {
 
 
     /// Equis
-    pub def exportEquiCsv(xs: List[IH06Tree], path: System.FilePath): Result[Unit, System.Error] & Impure =
+    pub def exportEquiCsv(xs: List[IH06Tree], path: System.FilePath): Result[Unit, String] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
         let headers = [ "EquiId", "Level", "Description", "Parent Floc", "Superordinate Equi" ];
