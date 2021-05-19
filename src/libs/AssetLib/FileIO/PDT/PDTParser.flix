@@ -49,9 +49,13 @@ namespace AssetLib/FileIO/PDT/PDTParser {
         let PDTParser(f) = x;
         f(sheet, ix)
 
-    def mapSnd(f: a -> b & ef, xy: (c, a)): (c, b) & ef = 
-        let (c, a) = xy;
-        (c, f(a))
+    def mapFst(f: a -> c & ef, xy: (a, b)): (c, b) & ef = 
+        let (a, b) = xy;
+        (f(a), b)
+
+    def mapSnd(f: b -> c & ef, xy: (a, b)): (a, c) & ef = 
+        let (a, b) = xy;
+        (a, f(b))
 
 
     pub def throwError(msg: String): PDTParser[a] =
@@ -73,15 +77,15 @@ namespace AssetLib/FileIO/PDT/PDTParser {
         let* a  = ma;
         liftAction(_ -> f(a) as & Impure)
 
-    pub def seqLeft(ma: PDTParser[a], mb: PDTParser[b]): PDTParser[a] = 
-        PDTParser((sheet, ix) ->
-            SheetIO/SheetReader.seqLeft(apply1(ma, sheet, ix), apply1(mb, sheet, ix))
-        )
+    pub def seqLeft(pa: PDTParser[a], pb: PDTParser[b]): PDTParser[a] = 
+        let* a = pa;
+        let* _ = pb;
+        return(a)
 
-    pub def seqRight(ma: PDTParser[a], mb: PDTParser[b]): PDTParser[b] = 
-        PDTParser((sheet, ix) ->
-            SheetIO/SheetReader.seqRight(apply1(ma, sheet, ix), apply1(mb, sheet, ix))
-        )
+    pub def seqRight(pa: PDTParser[a], pb: PDTParser[b]): PDTParser[b] = 
+        let* _ = pa;
+        let* b = pb;
+        return(b)
 
     pub def bind(ma: PDTParser[a], fn: a -> PDTParser[b]): PDTParser[b] = 
         PDTParser((sheet, ix) ->
@@ -98,19 +102,105 @@ namespace AssetLib/FileIO/PDT/PDTParser {
             SheetIO/SheetReader.liftAction(_ -> {let a = fn(); (ix, a)})
         )
 
+    pub def <*(pa: PDTParser[a], pb: PDTParser[b]): PDTParser[a] = seqLeft(pa, pb) 
+
+    pub def *>(pa: PDTParser[a], pb: PDTParser[b]): PDTParser[b] = seqRight(pa, pb)
+
+
+    pub def setPosition(ix: Int32): PDTParser[Unit] = 
+        PDTParser((_, _) -> SheetIO/SheetReader.return((ix, ())))
+
+    pub def getPosition(): PDTParser[Int32] = 
+        PDTParser((_, ix) -> SheetIO/SheetReader.return((ix, ix)))
+
+    pub def incPosition(): PDTParser[Unit] = 
+        PDTParser((_, ix) -> SheetIO/SheetReader.return((ix + 1, ())))
+
     /// Note - SheetReader has too much power (should it be changed?), it is really "WorkbookReader" and sees 
     /// more than the current sheet
-    /// def liftSheetReader(ma: SheetReader[a]): PDTParser[a] = 
-    ///     PDTParser((_, ix) -> 
-    ///         SheetIO/SheetReader.map(x -> (ix, x), ma)
-    ///     )
+    def liftSheetReader(f: Sheet -> SheetReader[a]): PDTParser[a] = 
+        PDTParser((sheet, ix) -> 
+            SheetIO/SheetReader.map(x -> (ix, x), f(sheet))
+        )
 
-    pub def readRow(eval: RowEvaluator[a]): PDTParser[a] =
-        use SheetIO/SheetReader.{flatMap, return, getRowAt, rowEval};
+
+    pub def getLastRowNum(): PDTParser[Int32] = 
+        liftSheetReader(SheetIO/SheetReader.getLastRowNum)
+
+    pub def evalRow(eval: RowEvaluator[a]): PDTParser[a] =
+        use SheetIO/SheetReader.{flatMap, return, throwError, getRowAt, getLastRowNum, rowEval};
         PDTParser((sheet, ix) -> {
-            let* row = getRowAt(sheet, ix);
-            let* ans = rowEval(row, eval);
-            return((ix + 1, ans))
+            let* end = getLastRowNum(sheet);
+            if (ix > end) 
+                throwError("evalRow - eof")
+            else {
+                let* row = getRowAt(sheet, ix);
+                let* ans = rowEval(row, eval);
+                return((ix + 1, ans))
+            }
         })
+
+    pub def isEof(): PDTParser[Bool] =  
+        use SheetIO/SheetReader.{flatMap, return, getLastRowNum};
+        PDTParser((sheet, ix) -> {
+            let* end = getLastRowNum(sheet);
+            if (ix > end) 
+                return((ix, true))
+            else 
+                return((ix, false))
+        })
+
+    pub def lookahead(p: PDTParser[a]): PDTParser[a] =        
+        PDTParser((sheet, ix) ->
+            SheetIO/SheetReader.map(mapFst(_ -> ix), apply1(p, sheet, ix))
+        )
+
+    pub def result(p: PDTParser[a]): PDTParser[Result[a, String]] = 
+        use SheetIO/SheetReader.{flatMap, return, result};
+        PDTParser((sheet, ix) -> {
+            let* ans = result(apply1(p, sheet, ix));
+            match ans { 
+                case Ok((ix2, a1)) => return((ix2, Ok(a1)))
+                case Err(msg) => return((ix, Err(msg)))
+            }
+        })
+
+    pub def optional(p: PDTParser[a]): PDTParser[Option[a]] = 
+        use SheetIO/SheetReader.{flatMap, return, optional};
+        PDTParser((sheet, ix) -> {
+            let* ans = optional(apply1(p, sheet, ix));
+            match ans { 
+                case Some((ix2, a1)) => return((ix2, Some(a1)))
+                case None => return((ix, None))
+            }
+        })
+
+
+    pub def literal(ix: Int32, s: String): RowEvaluator[String] = 
+        use SheetIO/RowEvaluator.{flatMap, return, getContentAt, throwError};
+        let* s1 = getContentAt(ix);
+        if (s1 == s)
+            return(s)
+        else 
+            throwError("literal not matched: demands '${s}' saw '${s1}'")
+
+    pub def content(ix: Int32): RowEvaluator[String] = SheetIO/RowEvaluator.getContentAt(ix)
+        
+
+
+    /// Not CPS... optional backtracks on fail so must increase row position manually...
+    pub def skipRowsTill(eval: RowEvaluator[a]): PDTParser[a] with ToString[a] = 
+        let* end    = isEof();
+        if (end)
+            throwError("skipRowsTill eof")
+        else {
+            let* ans = optional(evalRow(eval));
+            match ans {
+                case Some(a1) => return(a1)
+                case None => seqRight(incPosition(), skipRowsTill(eval))
+            }
+        }
+
+
 
 }
