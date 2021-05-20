@@ -149,13 +149,17 @@ namespace AssetLib/GenS4/UxlRelations {
                             String, Option[Int32], String, 
                             String)): EquipmentData = 
         let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) = x;
+        let unitOfWeight = match x6 { 
+            case Some(_) => "KG"
+            case None => ""
+        };
         { equiId            = x1
         , equipCategory     = x2
         , description       = x3
         , validFrom         = x4
         , objectType        = x5
         , grossWeight       = x6
-        , unitOfWeight      = ""
+        , unitOfWeight      = unitOfWeight
         , startupDate       = x7
         , manufacturer      = x8
         , modelNumber       = x9

@@ -30,12 +30,11 @@ namespace AssetLib/Base/ExportHtmlTree {
 
     pub type alias Label = {name: String, description: String}
 
- 
-    /// Note for HtmlDoc - `paragraph` for <p> looks a lot nicer than `pHtml`...
-    pub def writeHtmlForest(path: System.FilePath, xs: RoseForest[Label]): Result[Unit, System.Error] & Impure =
+
+    pub def writeHtmlForest(path: System.FilePath, xs: RoseForest[Label]): Result[Unit, String] & Impure =
         let htmltrees = List.map(x -> paragraph(Nil, collapsibleTree2(nodePrinter(), leafPrinter(), x)), xs) |> concat;
         let doc = makeDoc(htmltrees);
-        writeHtml(160, System/FilePath.toString(path), Text/Charset.utf_8(), doc)
+        writeHtml(160, path, Text/Charset.utf_8(), doc)
 
 
     def makeDoc(content: Html): Html = 

@@ -39,6 +39,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
             ///
             ValveTypeMap3("EQPT: PRESSURE REDUCING VALVE (WATER)", "",      "VALVPR").
             ValveTypeMap3("EQUIPMENT: AIR RELIEF VALVE", "",                "VALVAV").
+            ValveTypeMap3("EQUIPMENT: BELLMOUTH VALVE", "",                 "VALVBE").
             ValveTypeMap3("EQUIPMENT: FLAP VALVE", "",                      "VALVFL").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Ball",            "VALVBA").
             ValveTypeMap3("EQUIPMENT: ISOLATING VALVES", "Butterfly",       "VALVBP").
