@@ -99,7 +99,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
 
     type alias Label = {name: String, description: String}
 
-    pub def allTrees(src: List[IH06Tree]): RoseForest[Label] = 
+    pub def allLabelledTrees(src: List[IH06Tree]): RoseForest[Label] = 
         List.map(Data/RoseTree.map(makeRTLabel), src)
         
     def makeRTLabel(x: IH06Node): Label = match x {
