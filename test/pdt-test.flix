@@ -1,4 +1,4 @@
-use AssetLib/FileIO/PDT.PDTParser;
+use SheetIO/SheetParser.SheetParser;
 
 
 def main(_args: Array[String]): Int32 & Impure = 
@@ -19,22 +19,33 @@ def test01(): Result[Unit, String] & Impure =
 
 def test02(): Result[Unit, String] & Impure = 
     use Result.flatMap;
+    println("test02...");
     let src = System/FilePath.new("G:/work/assets/product-data-templates/M82132_conveyor.xlsx");
-    let* ans = AssetLib/FileIO/PDT/PDTParser.parseFile(conveyorParser(), "PDT_Conveyor", src);
+    let* ans = SheetIO/SheetParser.runXlsx(conveyorParser(), "PDT_Conveyor", (), src);    
     ans |> println;
     Ok()
 
-def conveyorParser(): PDTParser[String] = 
-    use AssetLib/FileIO/PDT/PDTParser.{flatMap, return, evalRow, literal, content, skipRowsTill};
-    use SheetIO/RowEvaluator.{*>};
-    let* s1     = evalRow(literal(0, "Asset Name") *> content(1));
-    let* s2     = evalRow(literal(0, "Asset Type") *> content(1));
-    let* a1     = AssetLib/FileIO/PDT/PDTParser.getLastRowNum();
-    let* _      = skipRowsTill(literal(0, "Dimension & Weight Data"));
-    let* s3     = evalRow(literal(0, "Overall length") *> content(1));
-    let* s4     = evalRow(literal(0, "Overall width") *> content(1));
-    let* _      = skipRowsTill(literal(0, "Asset Data"));
-    let* s5     = evalRow(literal(0, "Manufacturer's serial number") *> content(1));
-    let* s6     = evalRow(literal(0, "Date of installation") *> content(1));
-    let* s7     = evalRow(literal(0, "Tag reference") *> content(1));
-    return(String.unlines("rows: ${a1}" :: s1 :: s2 :: s3 :: s4 :: s5 :: s6 :: s7 :: Nil))
+def conveyorParser(): SheetParser[ka1, String] = 
+    use SheetIO/SheetParser.{flatMap, return, row, skipRow, literal, content, skipManyTill, liftAction};
+    use SheetIO/SheetParser.{*>};
+    let* _      = liftAction(_ -> Console.printLine("conveyorParser.1"));
+    let* s1     = row(literal("Asset Name") *> content());
+    let* _      = liftAction(_ -> Console.printLine("conveyorParser.2"));
+    let* s2     = row(literal("Asset Type") *> content());
+    let* _      = liftAction(_ -> Console.printLine("conveyorParser.3"));
+    let* _      = skipRow();
+    let* _      = skipRow();
+    let* _      = skipRow();
+    let* _      = skipManyTill(skipRow(), row(literal("Dimension & Weight Data")));
+    let* _      = liftAction(_ -> Console.printLine("conveyorParser.4"));
+    let* s3     = row(literal("Overall length") *> content());
+    let* _      = liftAction(_ -> Console.printLine("conveyorParser.5"));
+    let* s4     = row(literal("Overall width") *> content());
+    let* _      = skipManyTill(skipRow(), row(literal("Asset Data")));
+    let* s5     = row(literal("Manufacturer's serial number") *> content());
+    let* s6     = row(literal("Date of installation") *> content());
+    let* s7     = row(literal("Tag reference") *> content());
+    return(String.unlines(s1 :: s2 :: s3 :: s4 :: s5 :: s6 :: s7 :: Nil))
+    
+
+
