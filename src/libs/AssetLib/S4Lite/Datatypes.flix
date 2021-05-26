@@ -25,7 +25,7 @@ namespace AssetLib/S4Lite/Datatypes {
         EquipmentData, EqMultilingualText, EqClassification};
 
     type alias FunctionalLocation = 
-        { functionalLocation: String
+        { funcloc: String
         , description: String
         , category: Int32
         , structureIndicator: String
@@ -37,18 +37,19 @@ namespace AssetLib/S4Lite/Datatypes {
         }
 
 
-    type alias FunclocLongText = 
-        { functionalLocation: String
+    type alias FlocLongText = 
+        { funcloc: String
         , description: String
         , longText: String
         }
 
 
-    type alias FunclocCharacteristic = 
-        { functionalLocation: String
+    type alias FlocCharacteristic = 
+        { funcloc: String
         , className: String
         , charName: String
-        , charType: S4DataType
+        , valueType: S4DataType
+        , intCounterValue: Int32
         , charValue: String
         }
 

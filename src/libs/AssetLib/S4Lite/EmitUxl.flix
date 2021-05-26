@@ -23,13 +23,13 @@ namespace AssetLib/S4Lite/EmitUxl {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
         
-    use AssetLib/S4Lite/Datatypes.{FunctionalLocation, FunclocLongText, FunclocCharacteristic, 
+    use AssetLib/S4Lite/Datatypes.{FunctionalLocation, FlocLongText, FlocCharacteristic, 
         Equipment, EquiLongText, EquiCharacteristic};
 
     type alias UxlInput = 
         { funclocs: List[FunctionalLocation]
-        , funclocLongTexts: List[FunclocLongText]
-        , funclocCharacteristics: List[FunclocCharacteristic]
+        , funclocLongTexts: List[FlocLongText]
+        , funclocCharacteristics: List[FlocCharacteristic]
         , equipment: List[Equipment]
         , equiLongTexts: List[EquiLongText]
         , equiCharacteristics: List[EquiCharacteristic]
@@ -73,7 +73,7 @@ namespace AssetLib/S4Lite/EmitUxl {
 
 
     def functionalLocationToUxl(x: FunctionalLocation): FunctionalLocationData = 
-        let floc1 = x.functionalLocation;
+        let floc1 = x.funcloc;
         let flocCategory = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, AssetLib/Base/S4/Floc.new(floc1)), 0);
         let superiorFloc = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, AssetLib/Base/S4/Floc.new(floc1)), "");
         { functionalLocation    = floc1
@@ -93,21 +93,21 @@ namespace AssetLib/S4Lite/EmitUxl {
         }
 
 
-    def toFlMultilingualText(xs: List[FunclocLongText]): List[FlMultilingualText] = 
+    def toFlMultilingualText(xs: List[FlocLongText]): List[FlMultilingualText] = 
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
         xs 
             |> List.map(funclocLongTextToUxl)
             |> List.sortWith(sortStep)
 
-    def funclocLongTextToUxl(x: FunclocLongText): FlMultilingualText = 
-        { functionalLocation    = x.functionalLocation
+    def funclocLongTextToUxl(x: FlocLongText): FlMultilingualText = 
+        { functionalLocation    = x.funcloc
         , deleteIndicator       = false
         , language              = "EN"
         , description           = x.description
         , longText              = x.longText
         }
 
-    def toFlClassifications(xs: List[FunclocCharacteristic]): List[FlClassification] = 
+    def toFlClassifications(xs: List[FlocCharacteristic]): List[FlClassification] = 
         let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
             case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
             case ans => Order.toInt(ans)
@@ -117,8 +117,8 @@ namespace AssetLib/S4Lite/EmitUxl {
             |> List.sortWith(sortStep)
 
 
-    def funclocCharacteristicToUxl(x: FunclocCharacteristic): FlClassification = 
-        { functionalLocation    = x.functionalLocation
+    def funclocCharacteristicToUxl(x: FlocCharacteristic): FlClassification = 
+        { functionalLocation    = x.funcloc
         , deletionInd           = false
         , classType             = "003"
         , className             = x.className

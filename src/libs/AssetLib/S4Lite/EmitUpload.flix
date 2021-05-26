@@ -16,10 +16,92 @@
 
 namespace AssetLib/S4Lite/EmitUpload {
     
-    use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassEquiRow, ValuaEquiRow};
-    use AssetLib/S4Lite/Datatypes.{FunclocCharacteristic, EquiCharacteristic};
+    use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
+    use AssetLib/S4Lite/Datatypes.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/S4Lite/Datatypes.S4DataType.{Character, Date, NumericInt, NumericFloat};
 
+    /// FLOC
+
+    pub def outputFlocUploads(userName: String,
+                                input: List[FlocCharacteristic],
+                                nameRoot: String,
+                                outdir: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.flatMap;
+        let classFlocPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload1-classfloc.txt"));
+        let _               = Console.printLine("Writing '${classFlocPath}'");
+        let classFlocRows   = makeClassFlocRows(input);
+        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeClassFlocFile(userName, classFlocRows, classFlocPath);
+        let valuaFlocPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload2-valuafloc.txt"));
+        let _               = Console.printLine("Writing '${valuaFlocPath}'");
+        let valuaFlocRows   = makeValuaFlocRows(input);
+        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaFlocFile(userName, valuaFlocRows, valuaFlocPath);
+        Ok()
+
+    def makeClassFlocRows(xs: List[FlocCharacteristic]): List[ClassFlocRow] = 
+        let equ = (x, y) -> x.className == y.className and x.funcloc == y.funcloc;
+        let cmp = (x, y) -> match Order.compare(x.funcloc, y.funcloc) { 
+            case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
+            case ord => Order.toInt(ord)
+        };
+        xs 
+            |> List.map(toClassFlocRow)
+            |> List.distinctWith(equ)
+            |> List.sortWith(cmp)
+
+
+    def toClassFlocRow(x: FlocCharacteristic): ClassFlocRow = 
+        { funcloc               = x.funcloc
+        , className             = x.className
+        , classType             = "002"
+        , internalClassNumber   = ""
+        , status                = Some(1)
+        }
+
+
+    def makeValuaFlocRows(xs: List[FlocCharacteristic]): List[ValuaFlocRow] = 
+        let cmp = (x, y) -> match Order.compare(x.funcloc, y.funcloc) { 
+            case EqualTo => Order.compare(x.charId, y.charId) |> Order.toInt
+            case ord => Order.toInt(ord)
+        };
+        xs 
+            |> List.map(toValuaFlocRow)
+            |> List.sortWith(cmp)
+        
+    def toValuaFlocRow(x: FlocCharacteristic): ValuaFlocRow = 
+        match x.valueType { 
+            case Character => characterValuaFlocRow(x)
+            case Date => characterValuaFlocRow(x)
+            case _ => numericValuaFlocRow(x)
+        }
+
+    def characterValuaFlocRow(x: FlocCharacteristic): ValuaFlocRow = 
+        { funcloc           = x.funcloc
+        , classType         = "002"
+        , charId            = x.charName
+        , charValue         = x.charValue
+        , code              = Some(1)
+        , valueDescription  = x.charValue
+        , instanceCounter   = x.intCounterValue - 1
+        , intCounterValue   = x.intCounterValue
+        , valueFrom         = "0"
+        , valueTo           = "0"
+        }
+
+    def numericValuaFlocRow(x: FlocCharacteristic): ValuaFlocRow = 
+        { funcloc           = x.funcloc
+        , classType         = "002"
+        , charId            = x.charName
+        , charValue         = ""
+        , code              = Some(1)
+        , valueDescription  = x.charValue
+        , instanceCounter   = x.intCounterValue - 1
+        , intCounterValue   = x.intCounterValue
+        , valueFrom         = x.charValue
+        , valueTo           = "0"
+        }
+
+
+    /// EQUI
 
     pub def outputEquiUploads(userName: String,
                                 input: List[EquiCharacteristic],
@@ -37,7 +119,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         Ok()
 
     def makeClassEquiRows(xs: List[EquiCharacteristic]): List[ClassEquiRow] = 
-        let equ = (x, y) -> x.className == y.className;
+        let equ = (x, y) -> x.className == y.className and x.equi == y.equi;
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
             case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
             case ord => Order.toInt(ord)

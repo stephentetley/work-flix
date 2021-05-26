@@ -131,6 +131,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
         , charValue: String
         , code: Option[Int32]
         , valueDescription: String
+        , instanceCounter: Int32
         , intCounterValue: Int32
         , valueFrom: String
         , valueTo: String
