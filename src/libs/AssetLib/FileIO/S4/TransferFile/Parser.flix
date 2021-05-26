@@ -122,7 +122,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         use FlixParsec/Prim.{flatMap, liftOption};
         let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\d{8}"));
         let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\d{6}"));
-        let* fmt = liftOption(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"), "pDateTime");
+        let* fmt = liftOption(Time/Format/DateTimeFormatter.ofPattern("yyyyMMdd HHmmss"), "pDateTime");
         let* ans = liftOption(Time/LocalDateTime.parse(d + " " + t, fmt), "pDateTime");
         return(ans)
 

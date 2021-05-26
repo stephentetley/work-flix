@@ -92,8 +92,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
     def ppDateTime (dt : LocalDateTime) : Doc = 
         use Option.flatMap;
         let step = () -> {
-            let* dfmt = Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd");
-            let* tfmt = Time/Format/DateTimeFormatter.fromPattern("HHmmss");
+            let* dfmt = Time/Format/DateTimeFormatter.ofPattern("yyyyMMdd");
+            let* tfmt = Time/Format/DateTimeFormatter.ofPattern("HHmmss");
             let date = Time/LocalDateTime.format(dt, dfmt);
             let time = Time/LocalDateTime.format(dt, tfmt);
             Some(commentDoc(text("Date:") <<>> text(date) <<>> char('/') <<>> text("Time:") <<>> text(time)))

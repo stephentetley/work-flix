@@ -166,7 +166,7 @@ namespace AssetLib/GenS4/UxlRelations {
         , manufPartNo       = x10
         , manufSerialNo     = x11
         , constructYear     = Time/LocalDate.getYear(x7)
-        , constructMth      = Time/LocalDate.getMonth(x7)
+        , constructMth      = Time/LocalDate.getMonthValue(x7)
         , maintPlant        = 2100
         , companyCode       = 2100
         , coArea            = 1000

@@ -30,6 +30,17 @@ namespace PDT/Common {
         , memoLine: String
         }
 
+    type alias ProductData[t1] = 
+        { common: CommonData 
+        , productSpecific: t1
+        }
+
+    pub def parseProductData(inner:  SheetParser[ka1, t1]): SheetParser[ka1, ProductData[t1]] = 
+        use SheetIO/SheetParser.{flatMap, return};
+        let* r1 = parseCommonData();
+        let* r2 = inner;
+        return({common = r1, productSpecific = r2})
+
     pub def parseCommonData(): SheetParser[ka1, CommonData] = 
         use SheetIO/SheetParser.{flatMap, return};
         let* r1 = assetIntro();

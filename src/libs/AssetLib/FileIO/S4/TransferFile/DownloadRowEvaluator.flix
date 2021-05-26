@@ -215,7 +215,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
         liftOption(Time/LocalTime.parse(input, formatter), "getLocalTime('${label}')")
 
     pub def getS4DateNamed(label: String): DownloadRowEvaluator[Time.LocalDate] =
-        let* formatter = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "getS4DateNamed('${label}')");
+        let* formatter = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4DateNamed('${label}')");
         getLocalDateNamed(label, formatter)
 
     pub def getS4BoolNamed(label: String): DownloadRowEvaluator[Bool] =

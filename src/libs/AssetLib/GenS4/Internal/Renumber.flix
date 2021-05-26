@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/Internal/Renumber {
     /// 9-digit
     pub def start(): Int32 & Impure = 
         let dt = Time/LocalDateTime.now();
-        let x1  = Time/LocalDateTime.getMonth(dt) * 1000000;
+        let x1  = Time/LocalDateTime.getMonthValue(dt) * 1000000;
         let x2  = Time/LocalDateTime.getDayOfMonth(dt) * 10000;
         let x3  = Time/LocalDateTime.getHour(dt) * 100;
         let x4  = Time/LocalDateTime.getMinute(dt);

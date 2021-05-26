@@ -24,7 +24,7 @@ namespace AssetLib/Base/S4/SheetIOUtils {
 
     pub def putS4DateAt!(ix: Int32, dt: Time.LocalDate): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, liftOption};
-        let* fmt    = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "putS4DateAt! date format error");
+        let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "putS4DateAt! date format error");
         let ans     = Time/LocalDate.format(dt, fmt);
         let* _      = putStringAt!(ix, ans);
         return()
@@ -43,7 +43,7 @@ namespace AssetLib/Base/S4/SheetIOUtils {
         
     pub def getS4LocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, liftOption, getStringNamed};
-        let* fmt    = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "getS4LocalDateNamed date format error");
+        let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4LocalDateNamed date format error");
         let* s      = getStringNamed(label); 
         liftOption(Time/LocalDate.parse(s, fmt), "getS4LocalDateNamed('${label}')")
 
