@@ -34,22 +34,22 @@ namespace AssetLib/GenS4/EmitUpload {
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
         Ok()
 
-    def makeClassEquiRows(relns: #{ClassEqui | r}): List[ClassEquiRow] = 
+    def makeClassEquiRows(relns: #{ClassEqui | r}): List[ClassEquiRow] & Impure  = 
         let xs = AssetLib/GenS4/UploadRelations.toClassEquiRow(relns);
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
-            case EqualTo => Order.compare(x.className, y.className)
-            case ord => ord
-        } |> Order.toInt;
+            case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
+            case ord => Comparison.toInt(ord)
+        };
         List.sortWith(cmp, xs)
 
-    def makeValuaEquiRows(relns: #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat | r}): List[ValuaEquiRow] = 
+    def makeValuaEquiRows(relns: #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat | r}): List[ValuaEquiRow] & Impure = 
         let xs = AssetLib/GenS4/UploadRelations.textToValuaEquiRow(relns);
         let ys = AssetLib/GenS4/UploadRelations.intToValuaEquiRow(relns);
         let zs = AssetLib/GenS4/UploadRelations.floatToValuaEquiRow(relns);
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
-            case EqualTo => Order.compare(x.charId, y.charId)
-            case ord => ord
-        } |> Order.toInt;
+            case EqualTo => Order.compare(x.charId, y.charId) |> Comparison.toInt
+            case ord => Comparison.toInt(ord)
+        };
         List.flatten(xs :: ys :: zs :: Nil) |> List.sortWith(cmp)
         
 

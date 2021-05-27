@@ -40,8 +40,8 @@ namespace AssetLib/S4Lite/EmitUpload {
     def makeClassFlocRows(xs: List[FlocCharacteristic]): List[ClassFlocRow] = 
         let equ = (x, y) -> x.className == y.className and x.funcloc == y.funcloc;
         let cmp = (x, y) -> match Order.compare(x.funcloc, y.funcloc) { 
-            case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
-            case ord => Order.toInt(ord)
+            case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
+            case ord => Comparison.toInt(ord)
         };
         xs 
             |> List.map(toClassFlocRow)
@@ -60,8 +60,8 @@ namespace AssetLib/S4Lite/EmitUpload {
 
     def makeValuaFlocRows(xs: List[FlocCharacteristic]): List[ValuaFlocRow] = 
         let cmp = (x, y) -> match Order.compare(x.funcloc, y.funcloc) { 
-            case EqualTo => Order.compare(x.charId, y.charId) |> Order.toInt
-            case ord => Order.toInt(ord)
+            case EqualTo => Order.compare(x.charId, y.charId) |> Comparison.toInt
+            case ord => Comparison.toInt(ord)
         };
         xs 
             |> List.map(toValuaFlocRow)
@@ -121,8 +121,8 @@ namespace AssetLib/S4Lite/EmitUpload {
     def makeClassEquiRows(xs: List[EquiCharacteristic]): List[ClassEquiRow] = 
         let equ = (x, y) -> x.className == y.className and x.equi == y.equi;
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
-            case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
-            case ord => Order.toInt(ord)
+            case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
+            case ord => Comparison.toInt(ord)
         };
         xs 
             |> List.map(toClassEquiRow)
@@ -141,8 +141,8 @@ namespace AssetLib/S4Lite/EmitUpload {
 
     def makeValuaEquiRows(xs: List[EquiCharacteristic]): List[ValuaEquiRow] = 
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
-            case EqualTo => Order.compare(x.charId, y.charId) |> Order.toInt
-            case ord => Order.toInt(ord)
+            case EqualTo => Order.compare(x.charId, y.charId) |> Comparison.toInt
+            case ord => Comparison.toInt(ord)
         };
         xs 
             |> List.map(toValuaEquiRow)

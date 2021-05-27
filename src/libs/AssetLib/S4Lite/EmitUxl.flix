@@ -66,7 +66,7 @@ namespace AssetLib/S4Lite/EmitUxl {
 
 
     def toFunctionalLocationData(xs: List[FunctionalLocation]): List[FunctionalLocationData] = 
-        let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
+        let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Comparison.toInt;
         xs 
             |> List.map(functionalLocationToUxl)
             |> List.sortWith(sortStep)
@@ -94,7 +94,7 @@ namespace AssetLib/S4Lite/EmitUxl {
 
 
     def toFlMultilingualText(xs: List[FlocLongText]): List[FlMultilingualText] = 
-        let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Order.toInt;
+        let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Comparison.toInt;
         xs 
             |> List.map(funclocLongTextToUxl)
             |> List.sortWith(sortStep)
@@ -109,8 +109,8 @@ namespace AssetLib/S4Lite/EmitUxl {
 
     def toFlClassifications(xs: List[FlocCharacteristic]): List[FlClassification] = 
         let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
-            case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
-            case ans => Order.toInt(ans)
+            case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
+            case ans => Comparison.toInt(ans)
         };
         xs 
             |> List.map(funclocCharacteristicToUxl)
@@ -131,10 +131,10 @@ namespace AssetLib/S4Lite/EmitUxl {
     def toEquipmentData(xs: List[Equipment]): List[EquipmentData] = 
         let sortStep = (x, y) -> match Order.compare(x.functionalLoc, y.functionalLoc) { 
             case EqualTo => match Order.compare(x.superordEquip, y.superordEquip) {
-                case EqualTo => Order.compare(x.description, y.description) |> Order.toInt
-                case ans => Order.toInt(ans)    
+                case EqualTo => Order.compare(x.description, y.description) |> Comparison.toInt
+                case ans => Comparison.toInt(ans)    
             }                
-            case ans => Order.toInt(ans)
+            case ans => Comparison.toInt(ans)
         };
         xs 
             |> List.map(equipmentToUxl)
@@ -175,7 +175,7 @@ namespace AssetLib/S4Lite/EmitUxl {
 
 
     def toEqMultilingualText(xs: List[EquiLongText]): List[EqMultilingualText] = 
-        let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Order.toInt;
+        let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Comparison.toInt;
         xs 
             |> List.map(equiLongTextToUxl)
             |> List.sortWith(sortStep)
@@ -191,8 +191,8 @@ namespace AssetLib/S4Lite/EmitUxl {
 
     def toEqClassifications(xs: List[EquiCharacteristic]): List[EqClassification] = 
         let sortStep = (x, y) -> match Order.compare(x.equiId, y.equiId) { 
-            case EqualTo => Order.compare(x.className, y.className) |> Order.toInt
-            case ans => Order.toInt(ans)
+            case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
+            case ans => Comparison.toInt(ans)
         };
         xs 
             |> List.map(equiCharacteristicToUxl)
@@ -213,7 +213,7 @@ namespace AssetLib/S4Lite/EmitUxl {
     /// Front page "Change Request Details"
 
     def makeChangeRequestDetails(description: String, flocs: List[String], equiIds: List[String]): List[ChangeRequestDetails] = 
-        let sorter = (x, y) -> Order.compare(x, y) |> Order.toInt;
+        let sorter = (x, y) -> Order.compare(x, y) |> Comparison.toInt;
         let xs = flocs |> List.sortWith(sorter) |> List.map(makeFlocCR(description)); 
         let ys = equiIds |> List.sortWith(sorter) |> List.map(makeEquiCR(description)); 
         (xs ::: ys) |> coalesceCRDetails

@@ -65,7 +65,7 @@ namespace AssetLib/AibFacts/HierarchyFacts {
     pub def readHierarchyRelations(sheetName: String, 
                                     path: System.FilePath): Result[#{AibRootNode, AibFloc, AibEquipment | r}, String] & Impure =
         use Result.{flatMap, map};
-        let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName) |> Order.toInt;
+        let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName) |> Comparison.toInt;
         let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(sheetName), path) |> map(List.sortWith(cmp));
         let facts = extractHierarchyFacts(xs);
         Ok(facts)

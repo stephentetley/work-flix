@@ -23,6 +23,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
 
 
+    /// TODO "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
+
     pub def star(): #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat, 
                         Phase2EquiItem, Phase1EquiItem, 
                         AibStringValue, AibIntValue, AibFloatValue | r} = 
