@@ -41,7 +41,12 @@ namespace AssetLib/GenS4/S4LiteRelations {
         case S4Float(_)     => NumericFloat
     }
 
-
+    def stringOfValue(x: CharValue): String = match x { 
+        case S4String(s)    => s
+        case S4Date(dt)     => AssetLib/Base/S4/Utils.printS4Date(dt)
+        case S4Int(i)       => ToString.toString(i)
+        case S4Float(d)     => ToString.toString(d)
+    }
 
     instance ToString[CharValue] {
         pub def toString(x: CharValue): String = match x {
@@ -189,7 +194,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
         , charName          = x3
         , valueType         = typeOfValue(x4)
         , intCounterValue   = 1
-        , charValue         = ToString.toString(x4)
+        , charValue         = stringOfValue(x4)
         }
 
     /// pub def toEquipmentData(src: #{EquiDatum | r }): List[EquipmentData] & Impure = 

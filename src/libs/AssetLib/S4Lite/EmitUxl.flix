@@ -26,7 +26,7 @@ namespace AssetLib/S4Lite/EmitUxl {
     use AssetLib/S4Lite/Datatypes.{FunctionalLocation, FlocLongText, FlocCharacteristic, 
         Equipment, EquiLongText, EquiCharacteristic};
 
-    type alias UxlInput = 
+    type alias UxlSource = 
         { funclocs: List[FunctionalLocation]
         , funclocLongTexts: List[FlocLongText]
         , funclocCharacteristics: List[FlocCharacteristic]
@@ -36,13 +36,13 @@ namespace AssetLib/S4Lite/EmitUxl {
         }
 
     pub def outputUxl(changeRequestName: String,
-                        input: UxlInput,
+                        input: UxlSource,
                         uxlTemplate: System.FilePath,
                         outpath: System.FilePath): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(writeUxl(changeRequestName, input), uxlTemplate, outpath)
 
 
-    def writeUxl(changeRequestName: String, input: UxlInput): SheetWriter[Unit] = 
+    def writeUxl(changeRequestName: String, input: UxlSource): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
         let flocs       = toFunctionalLocationData(input.funclocs);
         let flmltxts    = toFlMultilingualText(input.funclocLongTexts);

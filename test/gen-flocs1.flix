@@ -10,9 +10,10 @@ def programArgs(): GenFlocsArguments & Impure =
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    let ans = AssetLib/GenS4/GenFlocs.genFlocs(programArgs());
+    let progArgs = programArgs();
+    let ans = AssetLib/GenS4/GenFlocs.genFlocs(progArgs);
     match ans {
-        case Ok() => Console.printLine("Success")
+        case Ok() => Console.printLine("Success, wrote ${progArgs.outpath}")
         case Err(msg) => Console.printLine("Error: ${msg}")
     };
     Console.printLine("Done... ${Time/LocalTime.now()}");

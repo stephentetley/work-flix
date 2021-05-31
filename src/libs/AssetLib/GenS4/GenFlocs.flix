@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/GenFlocs {
 
-    
+    use AssetLib/S4Lite/EmitUxl.{UxlSource};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/GenS4/WorkListRelations.{FlocWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
@@ -38,14 +38,20 @@ namespace AssetLib/GenS4/GenFlocs {
         let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
         let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
         let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
-        /// query workitems select (x1, x2, x3) from FlocWorkItem(x1, x2, x3, _, _, _, _, _, _, _) |> Array.foreach(println);
-        query flocs select (x1, x2, x3, x4, x5) from FunctionalLocation(x1, x2, x3, x4, x5, _, _) |> Array.foreach(println);
-        query (solve c1 <+> c2 <+> c3 <+> c4) select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
-        /// (project EquiLongText answers) |> unsafeToString |> println;
-        /// let* _          = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
+        let answers         = genS4Lite(flocs <+> c1 <+> c2 <+> c3 <+> c4);
+        /// query flocs select (x1, x2, x3, x4, x5) from FunctionalLocation(x1, x2, x3, x4, x5, _, _) |> Array.foreach(println);
+        /// query (solve c1 <+> c2 <+> c3 <+> c4) select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
+        let* _              = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 
-
+    def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
+        { funclocs = AssetLib/GenS4/S4LiteRelations.toS4LiteFunctionalLocation(relns)
+        , funclocLongTexts = Nil
+        , funclocCharacteristics = AssetLib/GenS4/S4LiteRelations.toS4LiteFlocCharacteristic(relns)
+        , equipment = Nil
+        , equiLongTexts = Nil
+        , equiCharacteristics = Nil
+        }
 
 
 }
