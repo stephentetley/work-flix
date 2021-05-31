@@ -18,9 +18,13 @@
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, Phase1EquiItem, Phase2EquiItem};
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
+
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
+
 
     pub def equiEastNorth(): #{ClassEqui, ValuaEquiString, ValuaEquiInt, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
@@ -42,17 +46,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
                 AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
         }
 
-    /// pub def uxlEquiEastNorth(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
-    ///     use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
-    ///     #{
-    ///         /// EAST_NORTH (generate if we have generated EquiDatum from AibEquipment)
-    ///         EquiCharacteristic(aibref, "EAST_NORTH", "EASTING", ToString.toString(eastingfromOsgb36(ngr))) :- 
-    ///             AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
-    ///             EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
+    pub def flocEastNorth(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        let rules = #{
+            FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, _).
 
-    ///         EquiCharacteristic(aibref, "EAST_NORTH", "NORTHING", ToString.toString(northingfromOsgb36(ngr))) :- 
-    ///             AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _),
-    ///             EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _).
-    ///     }
+            FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, _).
+        };
+        solve (rules <+> workitems) project FlocCharacteristic
 
 }

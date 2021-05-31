@@ -93,7 +93,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
     }
 
     /// Arity 7
-    pub rel FlocDatum(funcloc: String, 
+    pub rel FunctionalLocation(funcloc: String, 
                         description: String, 
                         strIndicator: String, 
                         objectType: String, 
@@ -112,7 +112,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
                                 charValue: CharValue)
 
     /// Arity 16
-    pub rel EquiDatum(equiId: String, 
+    pub rel Equipment(equiId: String, 
                         category: String,              /// e.g "M", "I", "E"
                         description: String,
                         validFrom: Time.LocalDate,
@@ -143,13 +143,13 @@ namespace AssetLib/GenS4/S4LiteRelations {
 
 
     /// To Uxl...
-    pub def toS4LiteFunctionalLocation(src: #{FlocDatum | r}): List[S4LiteFunctionalLocation] & Impure = 
-        query src select (x1, x2, x3, x4, x5, x6, x7) from FlocDatum(x1, x2, x3, x4, x5, x6, x7)
+    pub def toS4LiteFunctionalLocation(src: #{FunctionalLocation | r}): List[S4LiteFunctionalLocation] & Impure = 
+        query src select (x1, x2, x3, x4, x5, x6, x7) from FunctionalLocation(x1, x2, x3, x4, x5, x6, x7)
             |> Array.toList
-            |> List.map(flocDatumToS4Lite)
+            |> List.map(functionalLocationToS4Lite)
 
 
-    def flocDatumToS4Lite(x: (String, String, String, String, 
+    def functionalLocationToS4Lite(x: (String, String, String, String, 
                             Time.LocalDate, Bool, String)): S4LiteFunctionalLocation = 
         let (x1, x2, x3, x4, x5, x6, x7) = x;
         { funcloc    = x1

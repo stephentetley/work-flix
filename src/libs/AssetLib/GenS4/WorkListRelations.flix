@@ -48,10 +48,12 @@ namespace AssetLib/GenS4/WorkListRelations {
                         description: String, 
                         level: Int32, 
                         installedFrom: Time.LocalDate,
+                        structureIndicator: String,
                         objectType: String, 
                         systemClass: String,        /// Level 5 flocs only
                         systemType: String,         /// Level 5 flocs only
-                        gridRef: String
+                        gridRef: String, 
+                        solutionId: String
                         )
 
 
@@ -105,23 +107,34 @@ namespace AssetLib/GenS4/WorkListRelations {
 
     /// Read from Aib xlsx export file...
     pub def readFlocWorkList(sheetName: String, 
-                                path: System.FilePath): Result[#{FlocWorkItem| r}, String] & Impure =
-        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalFlocWorkItem()), path)
+                                path: System.FilePath): Result[#{FlocWorkItem | r}, String] & Impure =
+        SheetIO/SheetReader.runXlsx(readFlocs(sheetName), path)
         
+    def readFlocs(sheetName: String): SheetReader[#{FlocWorkItem | r}] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};  
+        use SheetIO/NamedRowEvaluator.{withDefault};
+        let* s1     = getSheetNamed(sheetName);
+        let* xs     = allNamedRows(s1, evalFlocWorkItem());
+        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
+        return(relns)
+
 
     def evalFlocWorkItem(): NamedRowEvaluator[#{FlocWorkItem| r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
         let* installedFrom  = getS4LocalDateNamed("Installed From");
+        let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
-        let* sysClass       = map(String.trim, getNonEmptyContentNamed("System Class"));
-        let* sysType        = map(String.trim, getNonEmptyContentNamed("System Type"));
+        let* sysClass       = map(String.trim, getContentNamed("System Class"));
+        let* sysType        = map(String.trim, getContentNamed("System Type"));
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
+        let* solutionId     = map(String.trim, getContentNamed("Solution Id"));
         let ofloc           = AssetLib/Base/S4/Floc.new(floc);
         let level           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
-        return(#{ FlocWorkItem(floc, name, level, installedFrom, objType, sysClass, sysType, ngr). })
+        return(#{ FlocWorkItem(floc, name, level, installedFrom, structureInd, objType, sysClass, sysType, ngr, solutionId). })
+
 
 
 

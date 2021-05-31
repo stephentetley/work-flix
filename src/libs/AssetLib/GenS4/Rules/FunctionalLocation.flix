@@ -17,39 +17,42 @@
 namespace AssetLib/Gens4/FlocGen/Rules {
 
 
-    use AssetLib/GenS4/UxlRelations.{FlocDatum, FlocCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/WorkListRelations.{FlocWorkItem};
 
 
 
 
-    pub def genFloc(): #{FlocWorkItem, FlocDatum, FlocCharacteristic | r} = 
-        #{
-            FlocDatum(funcloc, 
-                        description,
-                        "YW-GS",
+    pub def genFlocs(workitems: #{FlocWorkItem, FunctionalLocation | r}): #{FunctionalLocation | r} = 
+        let rules = #{
+            FunctionalLocation(funcloc, 
+                        String.takeLeft(40, description),
+                        structureInd,
                         objectType,
                         installedFrom,
                         level >= 5,
                         "UCON") :- 
-                FlocWorkItem(funcloc, description, level, installedFrom, objectType, _, _,  _).
-        }
+                FlocWorkItem(funcloc, description, level, installedFrom, structureInd, objectType, _, _,  _, _).
+        };
+        solve (rules <+> workitems) project FunctionalLocation
+
 
     pub def genCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
-        let p = #{
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", "") :- 
-                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _),
+        let rules = #{
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", S4String("")) :- 
+                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _, _,  _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", "") :- 
-                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _),
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", S4String("")) :- 
+                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _, _,  _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, systemClass, systemType, "") :- 
-                FlocWorkItem(funcloc, _, level,  _, _, systemClass,  systemType, _),
+            FlocCharacteristic(funcloc, systemClass, systemType, S4String("")) :- 
+                FlocWorkItem(funcloc, _, level,  _, _, systemClass,  systemType, _, _,  _),
                 if level == 5.
         };
-        solve (p <+> workitems) project FlocCharacteristic
+        solve (rules <+> workitems) project FlocCharacteristic
 
 }
 

@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString};
     use AssetLib/GenS4/UxlRelations.{FlocCharacteristic, FlocDatum, EquiDatum, EquiCharacteristic};
 
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, Phase1EquiItem, Phase2EquiItem};
 
 
 
@@ -41,22 +41,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
                 if not String.isEmpty(solutionId).
         }
         
-    /// /// `solutionId` is parametric as should be supplied once for a translation
-    /// /// so it is not a candidate for a fact.
-    /// pub def uxlFlocSolutionId(soultionId: String): #{FlocDatum, FlocCharacteristic | r} =
-    ///     #{
-    ///         FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
-    ///             FlocDatum(funcloc, _, _,  _, _, _,  _),
-    ///             if String.isEmpty(solutionId) == false.            
-    ///     }
 
-    /// /// `solutionId` is parametric as should be supplied once for a translation
-    /// /// so it is not a candidate for a fact.
-    /// pub def uxlEquiSolutionId(solutionId: String): #{EquiDatum, EquiCharacteristic | r} =
-    ///     #{
-    ///         EquiCharacteristic(aibref, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
-    ///             EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _),
-    ///             if String.isEmpty(solutionId) == false.            
-    ///     }
+    pub def flocEastNorth(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+        let rules = #{
+            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, solutionId), 
+                if not String.isEmpty(solutionId).
+        };
+        solve (rules <+> workitems) project FlocCharacteristic
 
 }
