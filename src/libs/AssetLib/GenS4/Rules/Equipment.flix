@@ -23,10 +23,9 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/GenS4/UploadRelations.{ValuaEquiString};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
-    pub def genEquis(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum,  
-                                                AibEquipment, EquipmentAttibutes | r} = 
-        #{
-            
+    pub def genEquis(today: Time.LocalDate, 
+                        input: #{Phase1EquiItem, AibEquipment, EquipmentAttibutes, EquiDatum | r1}): #{EquiDatum | r} = 
+        let rules = #{
             EquiDatum(aibref, 
                         s4Category,
                         String.takeLeft(40, s4Name),
@@ -46,13 +45,17 @@ namespace AssetLib/GenS4/Rules/Equipment {
                 Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
                 AibEquipment(aibref, _, _, installedFrom, manufacturer, model,  _, status, _), 
                 EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
-        }
-    
-    pub def equiCharacteristics1(): #{Phase1EquiItem, EquiCharacteristic, 
-                                        AibEquipment, 
-                                        AibStringValue | r} =
-        #{
-            /// TODO doesn't fire if no valve type...
+        };
+        solve (rules <+> input) project EquiDatum
+
+    rel HasValveType(id: String)
+
+    pub def equiCharacteristics1(input: #{Phase1EquiItem, EquiCharacteristic, 
+                                            AibEquipment, AibStringValue, HasValveType | r1}): #{EquiCharacteristic | r} =
+        let rules = #{
+            
+            HasValveType(aibref) :- AibStringValue(aibref, "VALVE_TYPE", _).
+
             EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_CODE", "") :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
@@ -61,7 +64,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
             EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_CODE", "") :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),
-                not AibStringValue(aibref, "VALVE_TYPE", _).
+                not HasValveType(aibref).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
@@ -76,13 +79,14 @@ namespace AssetLib/GenS4/Rules/Equipment {
             EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_DESC", "") :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),
-                not AibStringValue(aibref, "VALVE_TYPE", _).
+                not HasValveType(aibref).
 
             EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :-
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV".
 
-        }
+        };
+        solve (rules <+> input) project EquiCharacteristic
 
         /// Define the typemap here.
         /// There aren't any modularity benefits to defining it outside 

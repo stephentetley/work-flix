@@ -24,7 +24,7 @@ namespace AssetLib/Gens4/FlocGen/Rules {
 
 
 
-    pub def genFlocs(workitems: #{FlocWorkItem, FunctionalLocation | r}): #{FunctionalLocation | r} = 
+    pub def genFlocs(workitems: #{FlocWorkItem, FunctionalLocation | r1}): #{FunctionalLocation | r} = 
         let rules = #{
             FunctionalLocation(funcloc, 
                         String.takeLeft(40, description),

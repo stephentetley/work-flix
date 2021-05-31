@@ -43,12 +43,11 @@ namespace AssetLib/GenS4/Phase1 {
         let* workitems  = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
         let* baseRelns  = loadRelations(args);
         let today       = Time/LocalDate.now();
-        let answers     = solve uxlEquiLongText() <+> equiCharacteristics1() <+> genEquis(today) <+> baseRelns <+> workitems;
-        /// let answers     = solve uxlEquiLongText() <+> baseRelns;
-        /// (project EquiDatum answers) |> unsafeToString |> println;
-        /// (project EquiCharacteristic answers) |> unsafeToString |> println;
-        query answers select (x1, x2, x3) from AibStringValue(x1, x2, x3) |> Array.foreach(println);
-        /// (project EquiLongText answers) |> unsafeToString |> println;
+        let input       = baseRelns <+> workitems;
+        let equis       = genEquis(today, input);
+        let c1          = equiCharacteristics1(input);
+        query equis select (x1, x2, x3) from EquiDatum(x1, x2, x3, _, _, _, _, _, _, _, _, _, _, _, _, _) |> Array.foreach(println);
+        query c1 select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
         /// let* _          = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 
