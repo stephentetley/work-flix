@@ -48,7 +48,7 @@ namespace AssetLib/S4Lite/Datatypes {
         { funcloc: String
         , className: String
         , charName: String
-        , valueType: S4DataType
+        , valueType: S4LiteDataType
         , intCounterValue: Int32
         , charValue: String
         }
@@ -83,21 +83,21 @@ namespace AssetLib/S4Lite/Datatypes {
         { equiId: String
         , className: String
         , charName: String
-        , valueType: S4DataType
+        , valueType: S4LiteDataType
         , intCounterValue: Int32
         , charValue: String
         }
 
 
-    pub enum S4DataType { 
+    pub enum S4LiteDataType { 
         case Character          /// String
         case Date
         case NumericInt
         case NumericFloat
     }
 
-    instance ToString[S4DataType] {
-        pub def toString(x: S4DataType): String = match x {
+    instance ToString[S4LiteDataType] {
+        pub def toString(x: S4LiteDataType): String = match x {
             case Character => "Character"
             case Date => "Date"
             case NumericInt => "NumericInt"
@@ -105,8 +105,8 @@ namespace AssetLib/S4Lite/Datatypes {
         }
     }
 
-    instance FromString[S4DataType] {
-        pub def fromString(x: String): Option[S4DataType] = match x {
+    instance FromString[S4LiteDataType] {
+        pub def fromString(x: String): Option[S4LiteDataType] = match x {
             case "Character" => Some(Character)
             case "Date" => Some(Date)
             case "NumericInt" => Some(NumericInt)
@@ -114,8 +114,9 @@ namespace AssetLib/S4Lite/Datatypes {
             case _ => None
         }
     }
-    instance Eq[S4DataType] {
-        pub def eq(x: S4DataType, y: S4DataType): Bool = match (x, y) {
+    
+    instance Eq[S4LiteDataType] {
+        pub def eq(x: S4LiteDataType, y: S4LiteDataType): Bool = match (x, y) {
             case (Character, Character) => true
             case (Date, Date) => true
             case (NumericInt, NumericInt) => true
@@ -124,8 +125,8 @@ namespace AssetLib/S4Lite/Datatypes {
         }
     }
 
-    instance Hash[S4DataType] {
-        pub def hash(x: S4DataType): Int = Hash.hash(ToString.toString(x))
+    instance Hash[S4LiteDataType] {
+        pub def hash(x: S4LiteDataType): Int = Hash.hash(ToString.toString(x))
     }
 
 }

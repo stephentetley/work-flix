@@ -23,7 +23,7 @@ namespace AssetLib/Gens4/FlocGen/Rules {
 
 
 
-    pub def genFloc(installedFrom: Time.LocalDate): #{FlocWorkItem, FlocDatum, FlocCharacteristic | r} = 
+    pub def genFloc(): #{FlocWorkItem, FlocDatum, FlocCharacteristic | r} = 
         #{
             FlocDatum(funcloc, 
                         description,
@@ -32,23 +32,24 @@ namespace AssetLib/Gens4/FlocGen/Rules {
                         installedFrom,
                         level >= 5,
                         "UCON") :- 
-                FlocWorkItem(funcloc, description, level, objectType, _, _,  _).
+                FlocWorkItem(funcloc, description, level, installedFrom, objectType, _, _,  _).
+        }
 
-
+    pub def genCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
+        let p = #{
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", "") :- 
-                FlocWorkItem(funcloc, _, level,  _, _, _,  _),
+                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", "") :- 
-                FlocWorkItem(funcloc, _, level,  _, _, _, _),
+                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, systemClass, systemType, "") :- 
-                FlocWorkItem(funcloc, _, level,  _, systemClass, systemType, _),
+                FlocWorkItem(funcloc, _, level,  _, _, systemClass,  systemType, _),
                 if level == 5.
-        }
-
-
+        };
+        solve (p <+> workitems) project FlocCharacteristic
 
 }
 

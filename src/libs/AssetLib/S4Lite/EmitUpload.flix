@@ -18,7 +18,7 @@ namespace AssetLib/S4Lite/EmitUpload {
     
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
     use AssetLib/S4Lite/Datatypes.{FlocCharacteristic, EquiCharacteristic};
-    use AssetLib/S4Lite/Datatypes.S4DataType.{Character, Date, NumericInt, NumericFloat};
+    use AssetLib/S4Lite/Datatypes.S4LiteDataType.{Character, Date, NumericInt, NumericFloat};
 
     /// FLOC
 

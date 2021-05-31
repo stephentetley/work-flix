@@ -18,16 +18,24 @@
 
 namespace AssetLib/Base/S4/Utils {
 
+
+    pub def printS4Date(x: Time.LocalDate): String = 
+        match Time/Format/DateFormatter.ofPattern("dd.MM.yyyy") { 
+            case Some(fmt) => Time/LocalDate.format(x, fmt)
+            case None => bug!("printS4Date format string")
+        }
+
+
     pub def getIntSuffix(s: String): Option[Int32] & Impure = 
         use Option.{flatMap};
-        let* patt = Result.toOption(Text/Regex/Pattern.compile("[A-Z]{3}(?<idx>\d{2})$"));
+        let* patt = Text/Regex/Pattern.compile("[A-Z]{3}(?<idx>\d{2})$");
         let eval = Text/Regex/MatchEvaluator.getInt32Named("idx");
         Result.toOption(Text/Regex.evalContains(s, patt, eval))
 
 
     pub def getFlocIndex(leaf: String, s: String): Option[Int32] & Impure = 
         use Option.{flatMap};
-        let* patt = Result.toOption(Text/Regex/Pattern.compile("${leaf}{3}(?<idx>\d{2})"));
+        let* patt = Text/Regex/Pattern.compile("${leaf}{3}(?<idx>\d{2})");
         let eval = Text/Regex/MatchEvaluator.getInt32Named("idx");
         Result.toOption(Text/Regex.evalContains(s, patt, eval))
 

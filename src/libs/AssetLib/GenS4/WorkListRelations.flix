@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/WorkListRelations {
 
     
     /// Phase 2
-    /// Object Class e.g. VALVNR is available directly, we don't have to 
+    /// Object Class (e.g. VALVNR) is available directly, we don't have to 
     /// worry about calculating it.
     pub rel Phase2EquiItem(equipmentId: String,  
                             description: String,    /// aka name
@@ -47,6 +47,7 @@ namespace AssetLib/GenS4/WorkListRelations {
     pub rel FlocWorkItem(funcloc: String, 
                         description: String, 
                         level: Int32, 
+                        installedFrom: Time.LocalDate,
                         objectType: String, 
                         systemClass: String,        /// Level 5 flocs only
                         systemType: String,         /// Level 5 flocs only
@@ -110,15 +111,17 @@ namespace AssetLib/GenS4/WorkListRelations {
 
     def evalFlocWorkItem(): NamedRowEvaluator[#{FlocWorkItem| r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed}; 
-        let* floc       = map(String.trim, getNonEmptyContentNamed("Functional Location"));
-        let* name       = map(String.trim, getNonEmptyContentNamed("Description"));
-        let* objType    = map(String.trim, getNonEmptyContentNamed("Object Type"));
-        let* sysClass   = map(String.trim, getNonEmptyContentNamed("System Class"));
-        let* sysType    = map(String.trim, getNonEmptyContentNamed("System Type"));
-        let* ngr        = map(String.trim, getNonEmptyContentNamed("NGR"));
-        let ofloc       = AssetLib/Base/S4/Floc.new(floc);
-        let level       = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
-        return(#{ FlocWorkItem(floc, name, level, objType, sysClass, sysType, ngr). })
+        use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
+        let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
+        let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
+        let* installedFrom  = getS4LocalDateNamed("Installed From");
+        let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
+        let* sysClass       = map(String.trim, getNonEmptyContentNamed("System Class"));
+        let* sysType        = map(String.trim, getNonEmptyContentNamed("System Type"));
+        let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
+        let ofloc           = AssetLib/Base/S4/Floc.new(floc);
+        let level           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
+        return(#{ FlocWorkItem(floc, name, level, installedFrom, objType, sysClass, sysType, ngr). })
 
 
 
