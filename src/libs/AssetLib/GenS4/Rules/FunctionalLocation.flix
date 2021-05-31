@@ -33,23 +33,23 @@ namespace AssetLib/Gens4/FlocGen/Rules {
                         installedFrom,
                         level >= 5,
                         "UCON") :- 
-                FlocWorkItem(funcloc, description, level, installedFrom, structureInd, objectType, _, _,  _, _).
+                FlocWorkItem(funcloc, description, level, _, installedFrom, structureInd, objectType, _, _,  _, _).
         };
         solve (rules <+> workitems) project FunctionalLocation
 
 
-    pub def genCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
+    pub def flocCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
         let rules = #{
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", S4String("")) :- 
-                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _, _,  _),
+                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", S4String("")) :- 
-                FlocWorkItem(funcloc, _, level,  _, _, _,  _, _, _,  _),
+                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, systemClass, systemType, S4String("")) :- 
-                FlocWorkItem(funcloc, _, level,  _, _, systemClass,  systemType, _, _,  _),
+                FlocWorkItem(funcloc, _, level, _, _, _, systemClass, systemType, _, _, _),
                 if level == 5.
         };
         solve (rules <+> workitems) project FlocCharacteristic

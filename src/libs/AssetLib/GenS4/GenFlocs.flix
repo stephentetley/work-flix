@@ -34,8 +34,13 @@ namespace AssetLib/GenS4/GenFlocs {
         use Result.{flatMap};
         let* workitems      = AssetLib/GenS4/WorkListRelations.readFlocWorkList(args.flocWorkList.sheet, args.flocWorkList.file);
         let flocs           = AssetLib/Gens4/FlocGen/Rules.genFlocs(workitems);
+        let c1              = AssetLib/Gens4/FlocGen/Rules.flocCharacteristics1(workitems);
+        let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
+        let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
+        let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
         /// query workitems select (x1, x2, x3) from FlocWorkItem(x1, x2, x3, _, _, _, _, _, _, _) |> Array.foreach(println);
         query flocs select (x1, x2, x3, x4, x5) from FunctionalLocation(x1, x2, x3, x4, x5, _, _) |> Array.foreach(println);
+        query (solve c1 <+> c2 <+> c3 <+> c4) select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
         /// (project EquiLongText answers) |> unsafeToString |> println;
         /// let* _          = AssetLib/GenS4/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()

@@ -47,6 +47,7 @@ namespace AssetLib/GenS4/WorkListRelations {
     pub rel FlocWorkItem(funcloc: String, 
                         description: String, 
                         level: Int32, 
+                        sainum: String,
                         installedFrom: Time.LocalDate,
                         structureIndicator: String,
                         objectType: String, 
@@ -124,6 +125,7 @@ namespace AssetLib/GenS4/WorkListRelations {
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
+        let* sainum         = map(String.trim, getNonEmptyContentNamed("Aib Reference"));
         let* installedFrom  = getS4LocalDateNamed("Installed From");
         let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
@@ -133,7 +135,7 @@ namespace AssetLib/GenS4/WorkListRelations {
         let* solutionId     = map(String.trim, getContentNamed("Solution Id"));
         let ofloc           = AssetLib/Base/S4/Floc.new(floc);
         let level           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
-        return(#{ FlocWorkItem(floc, name, level, installedFrom, structureInd, objType, sysClass, sysType, ngr, solutionId). })
+        return(#{ FlocWorkItem(floc, name, level, sainum, installedFrom, structureInd, objType, sysClass, sysType, ngr, solutionId). })
 
 
 

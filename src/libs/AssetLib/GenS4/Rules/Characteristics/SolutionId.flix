@@ -19,9 +19,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString};
-    use AssetLib/GenS4/UxlRelations.{FlocCharacteristic, FlocDatum, EquiDatum, EquiCharacteristic};
+    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
     use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, Phase1EquiItem, Phase2EquiItem};
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
 
 
@@ -42,10 +44,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
         }
         
 
-    pub def flocEastNorth(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+    pub def flocSolutionId(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         let rules = #{
-            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", solutionId) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, solutionId), 
+            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :- 
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, ngr, solutionId), 
                 if not String.isEmpty(solutionId).
         };
         solve (rules <+> workitems) project FlocCharacteristic

@@ -18,10 +18,12 @@
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, Phase1EquiItem, Phase2EquiItem};
     use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
-
+    
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
     pub def equiAibReference(): #{ClassEqui, ValuaEquiString, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
         #{
@@ -60,5 +62,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
             EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :-
                 EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
         }
+
+
+    pub def flocAibReference(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+        let rules = #{
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :- 
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, _, _).
+
+        FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(sainum)) :- 
+                FlocWorkItem(funcloc, _, _, sainum, _, _, _, _, _, _, _).                
+        };
+        solve (rules <+> workitems) project FlocCharacteristic
+
 
 }

@@ -50,10 +50,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{
             FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, _).
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, ngr, _).
 
             FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, _).
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, ngr, _).
         };
         solve (rules <+> workitems) project FlocCharacteristic
 
