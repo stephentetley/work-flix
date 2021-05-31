@@ -66,10 +66,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     pub def flocAibReference(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         let rules = #{
-            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :- 
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :- 
                 FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, _, _).
 
-        FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(sainum)) :- 
+        FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
                 FlocWorkItem(funcloc, _, _, sainum, _, _, _, _, _, _, _).                
         };
         solve (rules <+> workitems) project FlocCharacteristic

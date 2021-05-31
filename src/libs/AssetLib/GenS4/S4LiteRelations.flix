@@ -114,6 +114,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
     pub rel FlocCharacteristic(floc: String, 
                                 className: String, 
                                 charName: String, 
+                                intCounterValue: Int32,
                                 charValue: CharValue)
 
     /// Arity 16
@@ -142,7 +143,8 @@ namespace AssetLib/GenS4/S4LiteRelations {
     /// Arity 4
     pub rel EquiCharacteristic(equiId: String, 
                                 className: String, 
-                                charName: String, 
+                                charName: String,
+                                intCounterValue: Int32,
                                 charValue: CharValue)
 
 
@@ -183,113 +185,78 @@ namespace AssetLib/GenS4/S4LiteRelations {
 
 
     pub def toS4LiteFlocCharacteristic(src: #{FlocCharacteristic | r}): List[S4LiteFlocCharacteristic] & Impure = 
-        query src select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4)
+        query src select (x1, x2, x3, x4, x5) from FlocCharacteristic(x1, x2, x3, x4, x5)
             |> Array.toList
             |> List.map(flocCharacteristicToS4Lite)
 
-    def flocCharacteristicToS4Lite(x: (String, String, String, CharValue)): S4LiteFlocCharacteristic = 
-        let (x1, x2, x3, x4) = x;
+    def flocCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): S4LiteFlocCharacteristic = 
+        let (x1, x2, x3, x4, x5) = x;
         { funcloc           = x1
         , className         = x2
         , charName          = x3
-        , valueType         = typeOfValue(x4)
-        , intCounterValue   = 1
-        , charValue         = stringOfValue(x4)
+        , valueType         = typeOfValue(x5)
+        , intCounterValue   = x4
+        , charValue         = stringOfValue(x5)
         }
 
-    /// pub def toEquipmentData(src: #{EquiDatum | r }): List[EquipmentData] & Impure = 
-    ///     let sortStep = (x, y) -> match Order.compare(x.functionalLoc, y.functionalLoc) { 
-    ///         case EqualTo => match Order.compare(x.superordEquip, y.superordEquip) {
-    ///             case EqualTo => Order.compare(x.description, y.description) |> Comparison.toInt
-    ///             case ans => Comparison.toInt(ans)    
-    ///         }                
-    ///         case ans => Comparison.toInt(ans)
-    ///     };
-    ///     query src select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) from EquiDatum(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16)
-    ///         |> Array.toList
-    ///         |> List.map(equiDatumToS4Lite)
-    ///         |> List.sortWith(sortStep)
+    pub def toS4LiteEquipmentData(src: #{Equipment | r }): List[S4LiteEquipment] & Impure = 
+        query src select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) from Equipment(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16)
+            |> Array.toList
+            |> List.map(equipmentToS4Lite)
 
 
-    /// def equiDatumToS4Lite(x: (String, String, String,
-    ///                         Time.LocalDate, String, Option[Float64],
-    ///                         Time.LocalDate, String, String, 
-    ///                         String, String, String, 
-    ///                         String, Option[Int32], String, 
-    ///                         String)): EquipmentData = 
-    ///     let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) = x;
-    ///     let unitOfWeight = match x6 { 
-    ///         case Some(_) => "KG"
-    ///         case None => ""
-    ///     };
-    ///     { equiId            = x1
-    ///     , equipCategory     = x2
-    ///     , description       = x3
-    ///     , validFrom         = x4
-    ///     , objectType        = x5
-    ///     , grossWeight       = x6
-    ///     , unitOfWeight      = unitOfWeight
-    ///     , startupDate       = x7
-    ///     , manufacturer      = x8
-    ///     , modelNumber       = x9
-    ///     , manufPartNo       = x10
-    ///     , manufSerialNo     = x11
-    ///     , constructYear     = Time/LocalDate.getYear(x7)
-    ///     , constructMth      = Time/LocalDate.getMonthValue(x7)
-    ///     , maintPlant        = 2100
-    ///     , companyCode       = 2100
-    ///     , coArea            = 1000
-    ///     , planningPlant     = 2100
-    ///     , mainWorkCenter    = "DEFAULT"
-    ///     , plantWorkCenter   = 2100
-    ///     , functionalLoc     = x12
-    ///     , superordEquip     = x13
-    ///     , position          = x14
-    ///     , techIdentNo       = x15
-    ///     , statusProfile     = "ZEQUIPST"
-    ///     , statusOfAnObject  = x16
-    ///     }
+    def equipmentToS4Lite(x: (String, String, String,
+                            Time.LocalDate, String, Option[Float64],
+                            Time.LocalDate, String, String, 
+                            String, String, String, 
+                            String, Option[Int32], String, 
+                            String)): S4LiteEquipment = 
+        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) = x;
+        { equiId                = x1
+        , category              = x2
+        , description           = x3
+        , validFrom             = x4
+        , objectType            = x5
+        , weightKg              = x6
+        , startupDate           = x7
+        , manufacturer          = x8
+        , model                 = x9
+        , partNumber            = x10
+        , serialNumber          = x11
+        , functionalLocation    = x12
+        , superOrdinateEqui     = x13
+        , position              = x14
+        , techIdentNo           = x15
+        , status                = x16
+        }
 
 
-    /// pub def toEqMultilingualText(src: #{ EquiLongText | r }): List[EqMultilingualText] & Impure = 
-    ///     let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Comparison.toInt;
-    ///     query src select (x1, x2, x3) from EquiLongText(x1, x2, x3)
-    ///         |> Array.toList
-    ///         |> List.map(equiLongTextToS4Lite)
-    ///         |> List.sortWith(sortStep)
+    pub def toS4LiteEquiLongText(src: #{ EquiLongText | r }): List[S4LiteEquiLongText] & Impure = 
+        query src select (x1, x2, x3) from EquiLongText(x1, x2, x3)
+            |> Array.toList
+            |> List.map(equiLongTextToS4Lite)
 
-    /// def equiLongTextToS4Lite(x: (String, String, String)): EqMultilingualText = 
-    ///     let (x1, x2, x3) = x;
-    ///     { equiId                = x1
-    ///     , deleteIndicator       = false
-    ///     , language              = "EN"
-    ///     , description           = x2
-    ///     , longText              = x3
-    ///     }
+    def equiLongTextToS4Lite(x: (String, String, String)): S4LiteEquiLongText = 
+        let (x1, x2, x3) = x;
+        { equiId                = x1
+        , description           = x2
+        , longText              = x3
+        }
 
 
-    /// pub def toEqClassifications(src: #{ EquiCharacteristic | r }): List[EqClassification] & Impure = 
-    ///     let sortStep = (x, y) -> match Order.compare(x.equiId, y.equiId) { 
-    ///         case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
-    ///         case ans => Comparison.toInt(ans)
-    ///     };
-    ///     query src select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4)
-    ///         |> Array.toList
-    ///         |> List.map(equiCharacteristicToS4Lite)
-    ///         |> List.sortWith(sortStep)
+    pub def toS4LiteEquiCharacteristic(src: #{ EquiCharacteristic | r }): List[S4LiteEquiCharacteristic] & Impure = 
+        query src select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5)
+            |> Array.toList
+            |> List.map(equiCharacteristicToS4Lite)
 
-    /// def equiCharacteristicToS4Lite(x: (String, String, String, String)): EqClassification = 
-    ///     let (x1, x2, x3, x4) = x;
-    ///     { equiId                = x1 
-    ///     , deleteInd             = false
-    ///     , classType             = "002"
-    ///     , className             = x2
-    ///     , status                = "1"
-    ///     , characteristicName    = x3
-    ///     , charValue             = x4
-    ///     , charDeleteInd         = false
-    ///     }
-
-
+    def equiCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): S4LiteEquiCharacteristic = 
+        let (x1, x2, x3, x4, x5) = x;
+        { equiId            = x1 
+        , className         = x2
+        , charName          = x3
+        , valueType         = typeOfValue(x5)
+        , intCounterValue   = x4
+        , charValue         = stringOfValue(x5)
+        }
 
 }

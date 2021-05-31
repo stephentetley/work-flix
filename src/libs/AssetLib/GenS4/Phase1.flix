@@ -22,7 +22,6 @@ namespace AssetLib/GenS4/Phase1 {
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem};
-    use AssetLib/GenS4/Rules/Equipment.{ValveTypeMap3};
 
     type alias Phase1Arguments = 
         { uxlTemplate: System.FilePath
@@ -54,8 +53,8 @@ namespace AssetLib/GenS4/Phase1 {
 
 
     def loadRelations(args: Phase1Arguments): Result[#{Phase1EquiItem, AibRootNode, AibFloc, AibEquipment, 
-                                                        EquipmentAttibutes, AibStringValue, AibFloatValue, 
-                                                        ValveTypeMap3 | r}, String] & Impure = 
+                                                        EquipmentAttibutes, AibStringValue, 
+                                                        AibFloatValue | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* equiAttrs      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);

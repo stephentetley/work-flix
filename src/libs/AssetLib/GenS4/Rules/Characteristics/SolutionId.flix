@@ -46,7 +46,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     pub def flocSolutionId(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         let rules = #{
-            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :- 
+            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :- 
                 FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, ngr, solutionId), 
                 if not String.isEmpty(solutionId).
         };

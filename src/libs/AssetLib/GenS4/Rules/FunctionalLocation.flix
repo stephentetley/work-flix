@@ -40,15 +40,15 @@ namespace AssetLib/Gens4/FlocGen/Rules {
 
     pub def flocCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
         let rules = #{
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", S4String("")) :- 
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String("")) :- 
                 FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _, _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", S4String("")) :- 
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", 1, S4String("")) :- 
                 FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _, _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, systemClass, systemType, S4String("")) :- 
+            FlocCharacteristic(funcloc, systemClass, systemType, 1, S4String("")) :- 
                 FlocWorkItem(funcloc, _, level, _, _, _, systemClass, systemType, _, _, _),
                 if level == 5.
         };
