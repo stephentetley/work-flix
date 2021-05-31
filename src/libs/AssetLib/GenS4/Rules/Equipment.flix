@@ -23,9 +23,8 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/GenS4/UploadRelations.{ValuaEquiString};
     use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
 
-    pub def equipmentPhase1(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum, EquiCharacteristic, 
-                                                AibEquipment, EquipmentAttibutes, 
-                                                AibStringValue | r} = 
+    pub def genEquis(today: Time.LocalDate): #{Phase1EquiItem, EquiDatum,  
+                                                AibEquipment, EquipmentAttibutes | r} = 
         #{
             
             EquiDatum(aibref, 
@@ -47,8 +46,12 @@ namespace AssetLib/GenS4/Rules/Equipment {
                 Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
                 AibEquipment(aibref, _, _, installedFrom, manufacturer, model,  _, status, _), 
                 EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
-
-
+        }
+    
+    pub def equiCharacteristics1(): #{Phase1EquiItem, EquiCharacteristic, 
+                                        AibEquipment, 
+                                        AibStringValue | r} =
+        #{
             /// TODO doesn't fire if no valve type...
             EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_CODE", "") :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),

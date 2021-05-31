@@ -38,11 +38,12 @@ namespace AssetLib/GenS4/Phase1 {
     /// Empty string for no solution id.
     pub def phase1(args: Phase1Arguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/GenS4/Rules/Equipment.{equipmentPhase1};
+        use AssetLib/GenS4/Rules/Equipment.{genEquis, equiCharacteristics1};
         use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
+        let* workitems  = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
         let* baseRelns  = loadRelations(args);
         let today       = Time/LocalDate.now();
-        let answers     = solve uxlEquiLongText() <+> equipmentPhase1(today) <+> baseRelns;
+        let answers     = solve uxlEquiLongText() <+> equiCharacteristics1() <+> genEquis(today) <+> baseRelns <+> workitems;
         /// let answers     = solve uxlEquiLongText() <+> baseRelns;
         /// (project EquiDatum answers) |> unsafeToString |> println;
         /// (project EquiCharacteristic answers) |> unsafeToString |> println;
@@ -63,8 +64,8 @@ namespace AssetLib/GenS4/Phase1 {
             case Some(xlsx) => AssetLib/AibFacts/Attributes/Valve.readValveData(xlsx.sheet, xlsx.file)
             case None => Ok(#{})
         };
-        let* workitems      = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
-        Ok(hrelns <+> equiAttrs <+> memos <+> valves <+> workitems)
+        
+        Ok(hrelns <+> equiAttrs <+> memos <+> valves)
 
 
 }
