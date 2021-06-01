@@ -18,8 +18,8 @@
 namespace AssetLib/GenS4/Phase1 {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
+    use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
+    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
     use AssetLib/S4Lite/EmitUxl.{UxlSource};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
@@ -38,34 +38,31 @@ namespace AssetLib/GenS4/Phase1 {
 
 
     /// Empty string for no solution id.
-    pub def phase1(args: Phase1Arguments): Result[Unit, String] & Impure = 
+    pub def genEqui(args: Phase1Arguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* workitems  = AssetLib/GenS4/WorkListRelations.readEquiWorkList(args.worklist.sheet, args.worklist.file);
-        let* baseRelns  = loadRelations(args);
+        let* baseRelns  = loadBaseRelations(args);
         let today       = Time/LocalDate.now();
         let input       = baseRelns <+> workitems;
         let equis       = AssetLib/GenS4/Rules/Equipment.genEquis(today, input);
+        let longText    = AssetLib/GenS4/Rules/LongText.genEquiLongText(input);
         let c1          = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(input);
-        let c2          = AssetLib/GenS4/Rules/LongText.genEquiLongText(input);
-        query equis select (x1, x2, x3) from Equipment(x1, x2, x3, _, _, _, _, _, _, _, _, _, _, _, _, _) |> Array.foreach(println);
-        query c1 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
-        let answers     = genS4Lite(equis <+> c1 <+> c2);
+        query equis select (x1, x2, x3) from Equipment(x1, x2, x3, _, _, _, _, _, _, _, _, _, _, _, _, _) 
+            |> Array.length 
+            |>  x -> Console.printLine("Generating ${x} equis");        
+        let answers     = genS4Lite(equis <+> longText <+> c1);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 
 
-    def loadRelations(args: Phase1Arguments): Result[#{AibRootNode, AibFloc, AibEquipment, 
-                                                        EquipmentAttibutes, AibStringValue, 
-                                                        AibFloatValue | r}, String] & Impure = 
+    def loadBaseRelations(args: Phase1Arguments): Result[#{AibRootNode, AibFloc, AibEquipment, 
+                                                            EquipmentAttibutes, AibMemoLine, 
+                                                            LocationOnSite | r}, String] & Impure = 
         use Result.{flatMap};
         let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
         let* equiAttrs      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
-        let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);
-        let* valves         = match args.aibValveExport { 
-            case Some(xlsx) => AssetLib/AibFacts/Attributes/Valve.readValveData(xlsx.sheet, xlsx.file)
-            case None => Ok(#{})
-        };        
-        Ok(hrelns <+> equiAttrs <+> memos <+> valves)
+        let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);     
+        Ok(hrelns <+> equiAttrs <+> memos)
 
     def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
         { funclocs = Nil

@@ -20,42 +20,43 @@ namespace AssetLib/GenS4/Rules/LongText {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue};
+    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite};
+    use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText};
 
     rel HasLocationOnSite(id: String)
     rel HasMemoLines(id: String)
 
-    pub def genEquiLongText(input: #{EquiWorkItem, AibStringValue, 
+    pub def genEquiLongText(input: #{EquiWorkItem, AibMemoLine, LocationOnSite, 
                                     HasLocationOnSite, HasMemoLines,
                                     EquiLongText | r}): #{EquiLongText | r} = 
         let rules = #{
 
-            HasMemoLines(equiId) :- AibStringValue(equiId, "MEMO_LINES", _).
-            HasLocationOnSite(equiId) :- AibStringValue(equiId, "LOCATION_ON_SITE", _).
+            HasMemoLines(equiId) :- AibMemoLine(equiId, _).
+            HasLocationOnSite(equiId) :- LocationOnSite(equiId, _).
 
             EquiLongText(equiId, description, combine(longText, location) ) :- 
                 EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
-                AibStringValue(equiId, "MEMO_LINES", longText),
-                AibStringValue(equiId, "LOCATION_ON_SITE", location), 
+                AibMemoLine(equiId, longText),
+                LocationOnSite(equiId, location), 
                 if (String.length(location) > 30).
 
             EquiLongText(equiId, description, String.trim(longText)) :- 
                 EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
-                AibStringValue(equiId, "MEMO_LINES", longText), 
+                AibMemoLine(equiId, longText), 
                 not HasLocationOnSite(equiId).
 
             EquiLongText(equiId, description, String.trim(longText)) :- 
                 EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
-                AibStringValue(equiId, "MEMO_LINES", longText), 
-                AibStringValue(equiId, "LOCATION_ON_SITE", location), 
+                AibMemoLine(equiId, longText), 
+                LocationOnSite(equiId, location), 
                 if (String.length(location) <= 30).
 
 
             EquiLongText(equiId, description, locationOnSite(location) ) :- 
                 EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
-                AibStringValue(equiId, "LOCATION_ON_SITE", location), 
+                LocationOnSite(equiId, location), 
                 not HasMemoLines(equiId),
                 if (String.length(location) > 30).
 

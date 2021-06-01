@@ -89,7 +89,7 @@ namespace ValveReport/Phase1Main {
             case Failure(errs)  => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
             case Success(updates) => {
                 let progArgs = List.foldLeft((ac, f) -> f(ac), defaultArguments(), updates.options);
-                match AssetLib/GenS4/Phase1.phase1(progArgs) {
+                match AssetLib/GenS4/Phase1.genEqui(progArgs) {
                     case Ok() => {Console.printLine("Wrote: ${progArgs.outpath}"); 0}
                     case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
                 }

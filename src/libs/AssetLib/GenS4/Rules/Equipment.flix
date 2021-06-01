@@ -16,9 +16,8 @@
 
 namespace AssetLib/GenS4/Rules/Equipment {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
-    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
+    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
@@ -49,7 +48,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
         solve (rules <+> input) project Equipment
 
     pub def equiCharacteristics1(input: #{EquiWorkItem, EquiCharacteristic, 
-                                            AibStringValue | r1}): #{EquiCharacteristic | r} =
+                                            LocationOnSite | r1}): #{EquiCharacteristic | r} =
         let rules = #{
             
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
@@ -60,7 +59,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
             EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(s4Location(location))) :-
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass),
-                AibStringValue(equiId, "LOCATION_ON_SITE", location).
+                LocationOnSite(equiId, location).
 
         };
         solve (rules <+> input) project EquiCharacteristic

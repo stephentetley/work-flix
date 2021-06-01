@@ -20,28 +20,28 @@ namespace AssetLib/AibFacts/Attributes/MemoLines {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/AibFacts/Relations.{getAttributes, getStringValue};
 
 
 
     /// Read from Aib file...
 
+    pub rel AibMemoLine(aibref: String, text: String)
 
     pub def readMemoLinesData(sheetName: String, 
-                                path: System.FilePath): Result[#{AibStringValue | r}, String] & Impure =
+                                path: System.FilePath): Result[#{AibMemoLine | r}, String] & Impure =
         use SheetIO/NamedRowEvaluator.{alt, return};
         AssetLib/AibFacts/Relations.readAibFacts(alt(aibMemoLines(), return(#{})), sheetName, path)
         
     
-    def aibMemoLines(): NamedRowEvaluator[#{AibStringValue | r}] =
+    def aibMemoLines(): NamedRowEvaluator[#{AibMemoLine | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 
                 let xs = x2 :: x3 :: x4 :: x5 :: x6 :: Nil;
                 match List.filter(s1 -> not String.isEmpty(s1) , List.map(String.trim, xs)) { 
                     case Nil => #{}
-                    case ys => {let str = String.unlines(ys); #{ AibStringValue(x1, "MEMO_LINES", str). } }
+                    case ys => {let str = String.unlines(ys); #{ AibMemoLine(x1, str). } }
                 }
             })
             <&> getNonEmptyContentNamed("Reference")

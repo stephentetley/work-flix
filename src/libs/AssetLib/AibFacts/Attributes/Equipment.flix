@@ -20,7 +20,6 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue,  AibFloatValue};
     use AssetLib/AibFacts/Relations.{getAttributes, getStringValue};
 
 
@@ -40,28 +39,34 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
                                 serialNumber: String,
                                 weightKg: Option[Float64])
 
+    pub rel LocationOnSite(aibref: String, text: String)
+
+
     /// Read from Aib file...
 
     /// Reads `Location On Site` at same time...
     pub def readEquipmentData(sheetName: String, 
-                                path: System.FilePath): Result[#{EquipmentAttibutes, AibStringValue | r}, String] & Impure =
+                                path: System.FilePath): Result[#{EquipmentAttibutes, LocationOnSite | r}, String] & Impure =
         AssetLib/AibFacts/Relations.readAibFacts(equipmentFacts(), sheetName, path)
         
     /// Just reads `Location On Site`...
     pub def readLocationOnSiteData(sheetName: String, 
-                                path: System.FilePath): Result[#{AibStringValue | r}, String] & Impure =
+                                path: System.FilePath): Result[#{LocationOnSite | r}, String] & Impure =
         AssetLib/AibFacts/Relations.readAibFacts(getAttributes(getLocationOnSite() :: Nil), sheetName, path)
 
 
-    pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttibutes, AibStringValue | r}] =
+    pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttibutes, LocationOnSite | r}] =
         getAttributes( getLocationOnSite()
             :: getEquipmentAttibutes()
             :: Nil
         )      
 
 
-    pub def getLocationOnSite(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Location On Site", "LOCATION_ON_SITE")
+    pub def getLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};  
+        let* aibref     = getContentNamed("Reference");
+        let* location   = getContentNamed("Location On Site");
+        return(#{ LocationOnSite(aibref, location). })
 
     pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttibutes | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getContentNamed, getFloat64Named}; 
