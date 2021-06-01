@@ -18,50 +18,43 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiFloat};
-    use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
 
 
-    pub def pump(): #{ValuaEquiString, ValuaEquiFloat, 
-                        Phase2EquiItem, Phase1EquiItem, 
-                        AibStringValue, AibFloatValue | r} = 
-        #{
-
-            ValuaEquiFloat(equiId, "002", "PUMP_FLOW_LITRES_PER_SEC", flowLitresPerSecond(flow, unit), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "FLOW", flow),
-                AibStringValue(aibref, "FLOW_UNITS", unit),
+    pub def pump(input: #{EquiWorkItem, AibStringValue, 
+                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
+        let rules = #{
+            EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, unit))) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                AibFloatValue(equiId, "FLOW", flow),
+                AibStringValue(equiId, "FLOW_UNITS", unit),
                 if recognizedFlowUnits(unit).
 
-            ValuaEquiFloat(equiId, "002", "PUMP_INSTALLED_DESIGN_HEAD_M", ans, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "DUTY_HEAD", ans),
-                AibStringValue(aibref, "DUTY_HEAD_UNITS", "METRES").
+            EquiCharacteristic(equiId, s4Class, "PUMP_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                AibFloatValue(equiId, "DUTY_HEAD", ans),
+                AibStringValue(equiId, "DUTY_HEAD_UNITS", "METRES").
 
             /// TODO may have to limit pump-classes here...
-            ValuaEquiString(equiId, "002", "PUMP_IMPELLER_TYPE", ans, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "IMPELLER_TYPE", ans).
+            EquiCharacteristic(equiId, s4Class, "PUMP_IMPELLER_TYPE", 1, S4String(ans)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                AibStringValue(equiId, "IMPELLER_TYPE", ans).
 
                 
-            ValuaEquiString(equiId, "002", "PUMP_DIAPHRAGM_MATERIAL", diaphragmMaterial(material), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "DIAPHRAGM_MATERIAL", material),
+            EquiCharacteristic(equiId, s4Class, "PUMP_DIAPHRAGM_MATERIAL", 1, S4String(diaphragmMaterial(material))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                AibStringValue(equiId, "DIAPHRAGM_MATERIAL", material),
                 if recognizedDiaphragmMaterial(material).
 
-            ValuaEquiFloat(equiId, "002", "PUMP_RATED_POWER_KW", ans, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "PUMP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "RATING_POWER", ans),
-                AibStringValue(aibref, "RATING_UNITS", "KILOWATTS").
-
-
-        }
+            EquiCharacteristic(equiId, s4Class, "PUMP_RATED_POWER_KW", 1, S4Float(ans)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                AibFloatValue(equiId, "RATING_POWER", ans),
+                AibStringValue(equiId, "RATING_UNITS", "KILOWATTS").
+        };
+        solve (rules <+> input) project EquiCharacteristic
 
 
     def recognizedFlowUnits(units: String): Bool = match units { 

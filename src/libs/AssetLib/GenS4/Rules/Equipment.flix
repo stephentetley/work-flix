@@ -81,19 +81,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
         case s1 => s1
     }
 
-    /// Note - this be generated in respective "type" modules like Valv.
 
-    /// /// Common to all equipment - upload characteristics don't need to be linked to a class,
-    /// /// but a class with that characteristic as a member has to exist.
-    /// pub def equipmentPhase2Characteristics(): #{EquiCharacteristic, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
-    ///     let rules = #{            
-    ///         EquiCharacteristic(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
-    ///             Phase2EquiItem(equiId, name, floc,  _, _),
-    ///             Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-    ///             AibStringValue(aibref, "LOCATION_ON_SITE", location).
-
-    ///     };
-    ///     solve (rules <+> input) project EquiCharacteristic
 
 
 

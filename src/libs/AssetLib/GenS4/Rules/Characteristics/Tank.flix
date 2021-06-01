@@ -18,29 +18,28 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Tank {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat};
-    use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
 
 
-    pub def tank(): #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat, 
-                        Phase2EquiItem, Phase1EquiItem, 
-                        AibStringValue, AibIntValue, AibFloatValue | r} = 
-        #{
-            ValuaEquiString(equiId, "002", "TANK_TANK_LEVEL", tankLevel(level), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "TANK", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "TANK_LEVEL", level),
+    pub def tank(input: #{EquiWorkItem, AibStringValue, 
+                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
+        let rules = #{
+            EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(tankLevel(level))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "TANK", s4Class),
+                AibStringValue(equiId, "TANK_LEVEL", level),
                 if recognizedTankLevel(level).
 
                 
-            ValuaEquiString(equiId, "002", "TANK_TANK_CONSTRUCTION", tankConstruction(ans), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "TANK", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "TANK_CONSTRUCTION", ans),
+            EquiCharacteristic(equiId, "002", "TANK_TANK_CONSTRUCTION", 1, S4String(tankConstruction(ans))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "TANK", s4Class),
+                AibStringValue(equiId, "TANK_CONSTRUCTION", ans),
                 if recognizedTankConstruction(ans).                
-        }
+        };
+        solve (rules <+> input) project EquiCharacteristic
 
     def recognizedTankLevel(level: String): Bool = match level { 
         case "ABOVE GROUND" => true

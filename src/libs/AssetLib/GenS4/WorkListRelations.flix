@@ -20,25 +20,6 @@ namespace AssetLib/GenS4/WorkListRelations {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    /// To delete...
-    pub rel Phase1EquiItem(aibref: String,
-                            s4Name: String,  
-                            s4Floc: String,
-                            superEqui: String,
-                            soultionId: String,
-                            position: Option[Int32],
-                            s4Category: String, 
-                            s4EquiType: String, 
-                            s4EquiClass: String)
-
-    
-    /// To delete...
-    pub rel Phase2EquiItem(equipmentId: String,  
-                            description: String,    /// aka name
-                            functionalLocation: String,
-                            objectType: String,
-                            objectClass: String)
-
 
 
 
