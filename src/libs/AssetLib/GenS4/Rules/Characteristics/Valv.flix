@@ -18,28 +18,27 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Valv {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiFloat};
-    use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
 
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
 
-    /// Note LOCATION_ON_SITE already created.
-    pub def valv(): #{ValuaEquiFloat, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
-        #{
-            ValuaEquiFloat(equiId, "002", "VALV_INLET_SIZE_MM", sizeMM(size, units), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "VALV", oclass),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "SIZE", size),
-                AibStringValue(aibref, "SIZE_UNITS", units),
-                if recognizedSizeUnits(units) and oclass != "VALVRE".
+    pub def valv(input: #{EquiWorkItem, AibFloatValue, AibStringValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
+        let rules = #{
+            EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
+                EquiWorkItem(equiId, _, _, _, _, _, _, "VALV", s4Class),
+                AibFloatValue(equiId, "SIZE", size),
+                AibStringValue(equiId, "SIZE_UNITS", units),
+                if recognizedSizeUnits(units) and s4Class != "VALVRE".
 
-            ValuaEquiFloat(equiId, "002", "VALV_BORE_DIAMETER_MM", sizeMM(size, units), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "VALV", "VALVRE"),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "SIZE", size),
-                AibStringValue(aibref, "SIZE_UNITS", units),
+            EquiCharacteristic(equiId, "VALVRE", "VALV_BORE_DIAMETER_MM", 1, S4Int(sizeMM(size, units))) :- 
+                EquiWorkItem(equiId, _, _, _, _, _, _, "VALV", "VALVRE"),
+                AibFloatValue(equiId, "SIZE", size),
+                AibStringValue(equiId, "SIZE_UNITS", units),
                 if recognizedSizeUnits(units).
 
-        }
+        };
+        solve (rules <+> input) project EquiCharacteristic
 
     def recognizedSizeUnits(units: String): Bool = match units { 
         case "MILLIMETRES" => true
@@ -47,10 +46,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
         case _ => false
     }
 
-    def sizeMM(size: Float64, units: String): Float64 = match units { 
-        case "MILLIMETRES" => size
-        case "INCH" => 25.4f64 * size
-        case _ => -1.0f64
-    }
+    def sizeMM(size: Float64, units: String): Int32 = 
+        match units { 
+            case "MILLIMETRES" => size
+            case "INCH" => 25.4f64 * size
+            case _ => -1.0f64
+        } 
+            |> Float64.tryToInt32
+            |> flip(Option.getWithDefault, 0)
 
 }

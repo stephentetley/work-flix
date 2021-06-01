@@ -18,33 +18,24 @@
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
-    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt};
-    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
-
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
 
 
-    pub def equiEastNorth(): #{ClassEqui, ValuaEquiString, ValuaEquiInt, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
+    pub def equiEastNorth(input: #{EquiWorkItem, AibEquipment, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
-        #{
+        let rules = #{
             
-            ClassEqui(equiId, "EAST_NORTH", "002") :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(_, name, floc,  _, _, _,  _, _, _).
+            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibEquipment(equiId, _, _,  _, _, _,  ngr, _, _).
 
-
-            ValuaEquiInt(equiId, "002", "EASTING", eastingfromOsgb36(ngr), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
-
-            ValuaEquiInt(equiId, "002", "NORTHING", northingfromOsgb36(ngr), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibEquipment(aibref, _, _,  _, _, _,  ngr, _, _).
-        }
+            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibEquipment(equiId, _, _,  _, _, _,  ngr, _, _).
+        };
+        solve (rules <+> input) project EquiCharacteristic
 
     pub def flocEastNorth(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};

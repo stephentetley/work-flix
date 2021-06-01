@@ -18,53 +18,46 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Actu {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat};
-    use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
 
 
-    pub def actu(): #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat, 
-                        Phase2EquiItem, Phase1EquiItem, 
-                        AibStringValue, AibIntValue, AibFloatValue | r} = 
+    pub def actu(input: #{EquiWorkItem, AibStringValue, AibIntValue, 
+                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
         #{
-            ValuaEquiString(equiId, "002", "IP_RATING", rating, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "ACTU", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "IP_RATING", rating).
+            EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                AibStringValue(equiId, "IP_RATING", rating).
 
-            ValuaEquiString(equiId, "002", "INSULATION_CLASS_DEG_C", insulationClass(insClass), 1) :-
-                Phase2EquiItem(equiId, name, floc,  "ACTU", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "INSULATION_CLASS", insClass),
+            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(insulationClass(insClass))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                AibStringValue(equiId, "INSULATION_CLASS", insClass),
                 if recognizedInsulationClass(insClass).
 
-            ValuaEquiFloat(equiId, "002", "ACTU_RATED_CURRENT_A", current, 1) :-
-                Phase2EquiItem(equiId, name, floc,  "ACTU", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "CURRENT_IN", current).
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                AibFloatValue(equiId, "CURRENT_IN", current).
 
-            ValuaEquiFloat(equiId, "002", "ACTU_RATED_POWER_KW", power, 1) :-
-                Phase2EquiItem(equiId, name, floc,  "ACTU", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "POWER", "KILOWATTS"),
-                AibFloatValue(aibref, "POWER", power).
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                AibStringValue(equiId, "POWER", "KILOWATTS"),
+                AibFloatValue(equiId, "POWER", power).
 
-            ValuaEquiInt(equiId, "002", "ACTU_RATED_VOLTAGE", voltage, 1) :-
-                Phase2EquiItem(equiId, name, floc,  "ACTU", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(aibref, "VOLTAGE_IN", voltage),
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
+                AibIntValue(equiId, "VOLTAGE_IN", voltage),
                 if recognizedVoltageUnits(units).
 
-            ValuaEquiString(equiId, "002", "ACTU_RATED_VOLTAGE_UNITS", voltageUnits(units), 1) :-
-                Phase2EquiItem(equiId, name, floc,  "ACTU", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(aibref, "VOLTAGE_IN", _),
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
+                AibIntValue(equiId, "VOLTAGE_IN", _),
                 if recognizedVoltageUnits(units).
-
-
-        }
+        };
+        solve (rules <+> input) project EquiCharacteristic
 
 }

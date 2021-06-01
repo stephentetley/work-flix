@@ -18,50 +18,27 @@
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
-    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt};
-    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
-    
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
-    pub def equiAibReference(): #{ClassEqui, ValuaEquiString, Phase1EquiItem, Phase2EquiItem, AibEquipment | r} =
-        #{
-            ClassEqui(equiId, "AIB_REFERENCE", "002") :- 
-                Phase2EquiItem(equiId, _, _,  _, _).
+    pub def equiAibReference(input: #{EquiWorkItem, AibEquipment, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+        let rules = #{
+            /// S4_AIB_REFERENCE (blank)
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _).
 
             /// AIB_REFERENCE (item)
-            ValuaEquiString(equiId, "002", "AI2_AIB_REFERENCE", aibref, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _).
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(equiId)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _).
 
             /// AI2_AIB_REFERENCE (parent)
-            ValuaEquiString(equiId, "002", "AI2_AIB_REFERENCE", parent, 2) :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, parent).
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parent)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibEquipment(equiId, _, _,  _, _, _,  _, _, parent).
+        };
+        solve (rules <+> input) project EquiCharacteristic
 
-            /// S4_AIB_REFERENCE (blank)
-            ValuaEquiString(equiId, "002", "S4_AIB_REFERENCE", "", 1) :-
-                Phase2EquiItem(equiId, _, _,  _, _).
-        }
-
-    /// For the UXL backend
-    pub def uxlEquiAibReference(): #{EquiDatum, EquiCharacteristic, AibEquipment | r} =
-        #{
-            /// AIB_REFERENCE (item)
-            EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", aibref) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-
-            /// AI2_AIB_REFERENCE (parent)
-            EquiCharacteristic(aibref, "AIB_REFERENCE", "AI2_AIB_REFERENCE", parent) :- 
-                AibEquipment(aibref, _, _,  _, _, _,  _, _, parent),
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-
-            /// S4_AIB_REFERENCE (blank)
-            EquiCharacteristic(aibref, "AIB_REFERENCE", "S4_AIB_REFERENCE", "") :-
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _).
-        }
 
 
     pub def flocAibReference(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
@@ -69,7 +46,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :- 
                 FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, _, _).
 
-        FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
                 FlocWorkItem(funcloc, _, _, sainum, _, _, _, _, _, _, _).                
         };
         solve (rules <+> workitems) project FlocCharacteristic

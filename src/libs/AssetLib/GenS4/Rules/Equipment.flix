@@ -60,7 +60,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
             EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(s4Location(location))) :-
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass),
-                AibStringValue(aibref, "LOCATION_ON_SITE", location).
+                AibStringValue(equiId, "LOCATION_ON_SITE", location).
 
         };
         solve (rules <+> input) project EquiCharacteristic
