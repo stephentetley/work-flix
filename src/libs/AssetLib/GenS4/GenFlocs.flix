@@ -39,7 +39,7 @@ namespace AssetLib/GenS4/GenFlocs {
         let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
         let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
         let answers         = genS4Lite(flocs <+> c1 <+> c2 <+> c3 <+> c4);
-        /// query flocs select (x1, x2, x3, x4, x5) from FunctionalLocation(x1, x2, x3, x4, x5, _, _) |> Array.foreach(println);
+        query flocs select (x1, x2, x3, x4, x5) from FunctionalLocation(x1, x2, x3, x4, x5, _, _) |> Array.foreach(println);
         /// query (solve c1 <+> c2 <+> c3 <+> c4) select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
         let* _              = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()

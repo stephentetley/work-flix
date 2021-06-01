@@ -17,31 +17,22 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString};
-    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
-
-    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
 
 
-    /// This generates a SOLUTION_ID class and characteristic for every item in the change request list (pahase 1)
+    /// This generates a SOLUTION_ID class and characteristic for every item in the change request list
     /// that has a `Solution ID`.
     ///
-    pub def equiSolutionId(): #{ClassEqui, ValuaEquiString, Phase1EquiItem, Phase2EquiItem | r} = 
-        #{
-            ClassEqui(equiId, "SOLUTION_ID", "002") :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, solutionId, _,  _, _, _),
+    pub def equiSolutionId(workitems: #{EquiWorkItem, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+       let rules =  #{
+            EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
+                EquiWorkItem(equiId, _, _,  _, solutionId, _,  _, _, _),
                 if not String.isEmpty(solutionId).
-
-            ValuaEquiString(equiId, "002", "SOLUTION_ID", solutionId, 1) :-
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, solutionId, _,  _, _, _),
-                if not String.isEmpty(solutionId).
-        }
+        };
+        solve (rules <+> workitems) project EquiCharacteristic
         
 
     pub def flocSolutionId(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =

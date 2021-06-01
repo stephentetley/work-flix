@@ -21,35 +21,46 @@ namespace AssetLib/GenS4/Rules/LongText {
     use SheetIO.SheetReader;
 
     use AssetLib/AibFacts/Relations.{AibStringValue};
-    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiLongText};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiLongText};
 
-    pub def uxlEquiLongText(): #{EquiLongText, EquiDatum, AibStringValue | r} = 
-        #{
-            EquiLongText(aibref, description, combine(longText, location) ) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "MEMO_LINES", longText),
-                AibStringValue(aibref, "LOCATION_ON_SITE", location), 
+    rel HasLocationOnSite(id: String)
+    rel HasMemoLines(id: String)
+
+    pub def genEquiLongText(input: #{EquiWorkItem, AibStringValue, 
+                                    HasLocationOnSite, HasMemoLines,
+                                    EquiLongText | r}): #{EquiLongText | r} = 
+        let rules = #{
+
+            HasMemoLines(equiId) :- AibStringValue(equiId, "MEMO_LINES", _).
+            HasLocationOnSite(equiId) :- AibStringValue(equiId, "LOCATION_ON_SITE", _).
+
+            EquiLongText(equiId, description, combine(longText, location) ) :- 
+                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                AibStringValue(equiId, "MEMO_LINES", longText),
+                AibStringValue(equiId, "LOCATION_ON_SITE", location), 
                 if (String.length(location) > 30).
 
-            EquiLongText(aibref, description, String.trim(longText)) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "MEMO_LINES", longText), 
-                not AibStringValue(aibref, "LOCATION_ON_SITE", _).
+            EquiLongText(equiId, description, String.trim(longText)) :- 
+                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                AibStringValue(equiId, "MEMO_LINES", longText), 
+                not HasLocationOnSite(equiId).
 
-            EquiLongText(aibref, description, String.trim(longText)) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "MEMO_LINES", longText), 
-                AibStringValue(aibref, "LOCATION_ON_SITE", location), 
+            EquiLongText(equiId, description, String.trim(longText)) :- 
+                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                AibStringValue(equiId, "MEMO_LINES", longText), 
+                AibStringValue(equiId, "LOCATION_ON_SITE", location), 
                 if (String.length(location) <= 30).
 
 
-            EquiLongText(aibref, description, locationOnSite(location) ) :- 
-                EquiDatum(aibref, _, description,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "LOCATION_ON_SITE", location), 
-                not AibStringValue(aibref, "MEMO_LINES", _),
+            EquiLongText(equiId, description, locationOnSite(location) ) :- 
+                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                AibStringValue(equiId, "LOCATION_ON_SITE", location), 
+                not HasMemoLines(equiId),
                 if (String.length(location) > 30).
 
-        }
+        };
+        solve (rules <+> input) project EquiLongText
 
 
     def combine(memos: String, location: String): String = 

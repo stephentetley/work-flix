@@ -48,8 +48,6 @@ namespace AssetLib/GenS4/Rules/Equipment {
         };
         solve (rules <+> input) project Equipment
 
-    rel HasValveType(id: String)
-
     pub def equiCharacteristics1(input: #{EquiWorkItem, EquiCharacteristic, 
                                             AibStringValue | r1}): #{EquiCharacteristic | r} =
         let rules = #{

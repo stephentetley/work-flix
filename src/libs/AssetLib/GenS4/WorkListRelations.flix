@@ -44,6 +44,7 @@ namespace AssetLib/GenS4/WorkListRelations {
 
     /// `equipmentId` (and `superEquiId`) will get transposed by S4Lite
     /// `s4EquiClass` should be mandatory (even for valves) this simplifies things significatly.
+    /// Arity 9
     pub rel EquiWorkItem(equipmentId: String,
                             s4Name: String,  
                             s4Floc: String,
@@ -72,8 +73,7 @@ namespace AssetLib/GenS4/WorkListRelations {
 
 
     def readWorkList(sheetName: String, eval: NamedRowEvaluator[#{| r}]): SheetReader[#{| r}] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};  
-        use SheetIO/NamedRowEvaluator.{withDefault};
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};
         let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(s1, eval);
         let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
@@ -101,7 +101,7 @@ namespace AssetLib/GenS4/WorkListRelations {
         let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
         let* s4Type     = map(String.trim, getNonEmptyContentNamed("Equi Type"));
         let* s4Class    = map(String.trim, getNonEmptyContentNamed("Equi Class"));
-        return(#{ Phase1EquiItem(aibref, s4Name, s4Floc, superId, solutionId, position, category, s4Type, s4Class). })
+        return(#{ EquiWorkItem(aibref, s4Name, s4Floc, superId, solutionId, position, category, s4Type, s4Class). })
 
 
     /// Flocs

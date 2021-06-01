@@ -22,8 +22,8 @@ namespace AssetLib/GenS4/Phase1 {
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/S4Lite/EmitUxl.{UxlSource};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem};
-    use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
 
     type alias Phase1Arguments = 
         { uxlTemplate: System.FilePath
@@ -40,22 +40,21 @@ namespace AssetLib/GenS4/Phase1 {
     /// Empty string for no solution id.
     pub def phase1(args: Phase1Arguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/GenS4/Rules/Equipment.{genEquis, equiCharacteristics1};
-        use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
         let* workitems  = AssetLib/GenS4/WorkListRelations.readEquiWorkList(args.worklist.sheet, args.worklist.file);
         let* baseRelns  = loadRelations(args);
         let today       = Time/LocalDate.now();
         let input       = baseRelns <+> workitems;
-        let equis       = genEquis(today, input);
-        let c1          = equiCharacteristics1(input);
+        let equis       = AssetLib/GenS4/Rules/Equipment.genEquis(today, input);
+        let c1          = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(input);
+        let c2          = AssetLib/GenS4/Rules/LongText.genEquiLongText(input);
         query equis select (x1, x2, x3) from Equipment(x1, x2, x3, _, _, _, _, _, _, _, _, _, _, _, _, _) |> Array.foreach(println);
         query c1 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
-        let answers     = genS4Lite(equis <+> c1);
+        let answers     = genS4Lite(equis <+> c1 <+> c2);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 
 
-    def loadRelations(args: Phase1Arguments): Result[#{Phase1EquiItem, AibRootNode, AibFloc, AibEquipment, 
+    def loadRelations(args: Phase1Arguments): Result[#{AibRootNode, AibFloc, AibEquipment, 
                                                         EquipmentAttibutes, AibStringValue, 
                                                         AibFloatValue | r}, String] & Impure = 
         use Result.{flatMap};
@@ -68,12 +67,12 @@ namespace AssetLib/GenS4/Phase1 {
         };        
         Ok(hrelns <+> equiAttrs <+> memos <+> valves)
 
-    def genS4Lite(relns: #{Equipment, EquiCharacteristic | r}): UxlSource & Impure = 
+    def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
         { funclocs = Nil
         , funclocLongTexts = Nil
         , funclocCharacteristics = Nil
         , equipment = AssetLib/GenS4/S4LiteRelations.toS4LiteEquipment(relns)
-        , equiLongTexts = Nil
+        , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toS4LiteEquiLongText(relns)
         , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toS4LiteEquiCharacteristic(relns)
         }
 
