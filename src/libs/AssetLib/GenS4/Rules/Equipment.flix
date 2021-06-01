@@ -20,13 +20,13 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiString};
-    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
     pub def genEquis(today: Time.LocalDate, 
-                        input: #{Phase1EquiItem, AibEquipment, EquipmentAttibutes, EquiDatum | r1}): #{EquiDatum | r} = 
+                        input: #{Phase1EquiItem, AibEquipment, EquipmentAttibutes, Equipment | r1}): #{Equipment | r} = 
         let rules = #{
-            EquiDatum(aibref, 
+            Equipment(aibref, 
                         s4Category,
                         String.takeLeft(40, s4Name),
                         today,
@@ -46,7 +46,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
                 AibEquipment(aibref, _, _, installedFrom, manufacturer, model,  _, status, _), 
                 EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
         };
-        solve (rules <+> input) project EquiDatum
+        solve (rules <+> input) project Equipment
 
     rel HasValveType(id: String)
 
@@ -56,32 +56,32 @@ namespace AssetLib/GenS4/Rules/Equipment {
             
             HasValveType(aibref) :- AibStringValue(aibref, "VALVE_TYPE", _).
 
-            EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_CODE", "") :- 
+            EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_CODE", 1, S4String("")) :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
                 AibStringValue(aibref, "VALVE_TYPE", valveType).
 
-            EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_CODE", "") :- 
+            EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_CODE", 1, S4String("")) :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),
                 not HasValveType(aibref).
 
-            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", "") :- 
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV".
 
             /// TODO doesn't fire if no valve type...
-            EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_DESC", "") :- 
+            EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_DESC", 1, S4String("")) :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
                 AibStringValue(aibref, "VALVE_TYPE", valveType).
 
-            EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_DESC", "") :- 
+            EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_DESC", 1, S4String("")) :- 
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
                 AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),
                 not HasValveType(aibref).
 
-            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", "") :-
+            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
                 Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
                 if s4EquiType != "VALV".
 
@@ -125,23 +125,22 @@ namespace AssetLib/GenS4/Rules/Equipment {
         case s1 => s1
     }
 
-    /// Common to all equipment - upload characteristics don't need to be linked to a class,
-    /// but a class with that characteristic as a member has to exist.
-    pub def equipmentPhase2Characteristics(): #{ValuaEquiString, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
-        #{            
-            ValuaEquiString(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "LOCATION_ON_SITE", location).
+    /// Note - this be generated in respective "type" modules like Valv.
 
+    /// /// Common to all equipment - upload characteristics don't need to be linked to a class,
+    /// /// but a class with that characteristic as a member has to exist.
+    /// pub def equipmentPhase2Characteristics(): #{EquiCharacteristic, Phase2EquiItem, Phase1EquiItem, AibStringValue | r} = 
+    ///     let rules = #{            
+    ///         EquiCharacteristic(equiId, "002", "LOCATION_ON_SITE", s4Location(location), 1) :- 
+    ///             Phase2EquiItem(equiId, name, floc,  _, _),
+    ///             Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
+    ///             AibStringValue(aibref, "LOCATION_ON_SITE", location).
 
-            /// TODO Insulation class
+    ///     };
+    ///     solve (rules <+> input) project EquiCharacteristic
 
-        }
-
-
-    def s4Location(s: String): String =
-        if (String.length(s) >= 30) "SEE LONG TEXT" else s
+    /// def s4Location(s: String): String =
+    ///     if (String.length(s) >= 30) "SEE LONG TEXT" else s
 
 
 

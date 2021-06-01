@@ -118,6 +118,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
                                 charValue: CharValue)
 
     /// Arity 16
+    /// Note - this needs a extension to Solver.flix (add `facts16`)
     pub rel Equipment(equiId: String, 
                         category: String,              /// e.g "M", "I", "E"
                         description: String,
@@ -140,7 +141,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
                         longText: String)
 
 
-    /// Arity 4
+    /// Arity 5
     pub rel EquiCharacteristic(equiId: String, 
                                 className: String, 
                                 charName: String,
@@ -199,7 +200,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
         , charValue         = stringOfValue(x5)
         }
 
-    pub def toS4LiteEquipmentData(src: #{Equipment | r }): List[S4LiteEquipment] & Impure = 
+    pub def toS4LiteEquipment(src: #{Equipment | r }): List[S4LiteEquipment] & Impure = 
         query src select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) from Equipment(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16)
             |> Array.toList
             |> List.map(equipmentToS4Lite)
