@@ -17,47 +17,63 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
+    use AssetLib/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
+        SignalMin, SignalMax, SignalUnit};
+
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
+    use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
 
-    /// Note LOCATION_ON_SITE already created.
-    pub def lstn(input: #{EquiWorkItem, AibStringValue, 
-                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
+    pub def genLstn(input: #{EquiWorkItem, RangeMin, RangeMax, RangeUnit,
+                            SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}, 
+                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
+        use Result.{flatMap};    
+        match source {
+            case Some(src) => { 
+                let* c1 = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src.sheet, src.file);
+                let ans = lstn(c1 <+> input);
+                Ok(ans)
+            }
+            case None => Ok(#{ }) as & Impure
+        }
+
+
+    pub def lstn(input: #{EquiWorkItem, RangeMin, RangeMax, RangeUnit,
+                            SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
-                AibFloatValue(equiId, "SIGNAL_MIN", min),
-                AibFloatValue(equiId, "SIGNAL_MAX", max),
-                AibStringValue(equiId, "SIGNAL_UNIT", "mA"),
-                if iEqual(min, 4) and iEqual(max, 20).
+                SignalMin(equiId, smin),
+                SignalMax(equiId, smax),
+                SignalUnit(equiId, "mA"),
+                if iEqual(smin, 4) and iEqual(smax, 20).
 
             EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
-                AibFloatValue(equiId, "SIGNAL_MIN", min),
-                AibFloatValue(equiId, "SIGNAL_MAX", max),
-                AibStringValue(equiId, "SIGNAL_UNIT", "Digital"),
-                if iEqual(min, 0) and iEqual(max, 1).
+                SignalMin(equiId, smin),
+                SignalMax(equiId, smax),
+                SignalUnit(equiId, "Digital"),
+                if iEqual(smin, 0) and iEqual(smax, 1).
 
-            EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MIN", 1, S4Float(min)) :- 
+            EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
-                AibFloatValue(equiId, "RANGE_MIN", min),
-                AibStringValue(equiId, "RANGE_UNIT", unit),
-                if recognizedRangeUnit(unit).
+                RangeMin(equiId, rmin),
+                RangeUnit(equiId, units),
+                if recognizedRangeUnit(units).
 
-            EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MAX", 1, S4Float(max)) :- 
+            EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
-                AibFloatValue(equiId, "RANGE_MAX", max),
-                AibStringValue(equiId, "RANGE_UNIT", unit),
-                if recognizedRangeUnit(unit).
+                RangeMax(equiId, rmax),
+                RangeUnit(equiId, units),
+                if recognizedRangeUnit(units).
 
-            EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_UNITS", 1, S4String(rangeUnit(unit))) :- 
+            EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_UNITS", 1, S4String(rangeUnit(units))) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
-                AibStringValue(equiId, "RANGE_UNIT", unit),
-                if recognizedRangeUnit(unit).
+                RangeUnit(equiId, units),
+                if recognizedRangeUnit(units).
         };
         solve (rules <+> input) project EquiCharacteristic
 

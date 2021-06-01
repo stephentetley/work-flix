@@ -20,8 +20,7 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
-    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue, getIntValue, getFloatValue};
+    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
 
 
 
@@ -29,42 +28,59 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
 
 
     pub def readInstrumentData(sheetName: String, 
-                                path: System.FilePath): Result[#{AibStringValue, AibFloatValue | r}, String] & Impure =
-        AssetLib/AibFacts/Relations.readAibFacts(aibInstrument(), sheetName, path)
+                                path: System.FilePath): Result[#{RangeMin, RangeMax, RangeUnit,
+                                                                SignalMin, SignalMax, SignalUnit | r}, String] & Impure =
+         AssetLib/AibFacts/Utils.readAibFacts(aibInstrument(), true, sheetName, path)
         
     
 
 
-    pub def aibInstrument(): NamedRowEvaluator[#{AibStringValue, AibFloatValue | r}] =
-        getAttributes( getRangeMin()
-            :: getRangeMax()
-            :: getRangeUnit()
-            :: getSignalMin()
-            :: getSignalMax()
-            :: getSignalUnit()
-            :: Nil
-        )      
+    pub def aibInstrument(): NamedRowEvaluator[#{RangeMin, RangeMax, RangeUnit,
+                                                SignalMin, SignalMax, SignalUnit | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        let* c1 = withDefault(getRangeMin(), #{});
+        let* c2 = withDefault(getRangeMax(), #{});
+        let* c3 = withDefault(getRangeUnit(), #{});
+        let* c4 = withDefault(getSignalMin(), #{});
+        let* c5 = withDefault(getSignalMax(), #{});
+        let* c6 = withDefault(getSignalUnit(), #{});
+        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6)
+
 
     /// Range max	Range min	Range unit	Signal max	Signal min	Signal unit
 
+    pub rel RangeMin(aibref: String, rmin: Float64)
 
-    pub def getRangeMin(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Range min", "RANGE_MIN")
-
-    pub def getRangeMax(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Range max", "RANGE_MAX")
-
-    pub def getRangeUnit(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Range unit", "RANGE_UNIT")
+    def getRangeMin(): NamedRowEvaluator[#{RangeMin | r}] =
+        getFloatValuedFact("Range min", (aibref, ans) -> #{ RangeMin(aibref, ans). })
 
 
-    pub def getSignalMin(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Signal min", "SIGNAL_MIN")
+    pub rel RangeMax(aibref: String, rmax: Float64)
 
-    pub def getSignalMax(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Signal max", "SIGNAL_MAX")
+    def getRangeMax(): NamedRowEvaluator[#{RangeMax | r}] =
+        getFloatValuedFact("Range max", (aibref, ans) -> #{ RangeMax(aibref, ans). })
 
-    pub def getSignalUnit(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Signal unit", "SIGNAL_UNIT")
+
+    pub rel RangeUnit(aibref: String, units: String)
+
+    def getRangeUnit(): NamedRowEvaluator[#{RangeUnit | r}] =
+        getStringValuedFact("Range unit", (aibref, ans) -> #{ RangeUnit(aibref, ans). })
+
+    pub rel SignalMin(aibref: String, smin: Float64)
+
+    def getSignalMin(): NamedRowEvaluator[#{SignalMin | r}] =
+        getFloatValuedFact("Signal min", (aibref, ans) -> #{ SignalMin(aibref, ans). })
+
+
+    pub rel SignalMax(aibref: String, smax: Float64)
+
+    def getSignalMax(): NamedRowEvaluator[#{SignalMax | r}] =
+        getFloatValuedFact("Signal max", (aibref, ans) -> #{ SignalMax(aibref, ans). })
+
+
+    pub rel SignalUnit(aibref: String, units: String)
+
+    def getSignalUnit(): NamedRowEvaluator[#{SignalUnit | r}] =
+        getStringValuedFact("Signal unit", (aibref, ans) -> #{ SignalUnit(aibref, ans). })
 
 }

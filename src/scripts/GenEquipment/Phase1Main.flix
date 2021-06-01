@@ -19,7 +19,6 @@ namespace ValveReport/Phase1Main {
     use GetOpt.{ArgDescr, OptionDescr};
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
-    use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue, AibFloatValue};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};

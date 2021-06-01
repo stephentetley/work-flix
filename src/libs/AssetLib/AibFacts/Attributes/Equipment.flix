@@ -63,10 +63,8 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
 
 
     pub def getLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};  
-        let* aibref     = getContentNamed("Reference");
-        let* location   = getContentNamed("Location On Site");
-        return(#{ LocationOnSite(aibref, location). })
+        AssetLib/AibFacts/Utils.getStringValuedFact("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
+        
 
     pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttibutes | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getContentNamed, getFloat64Named}; 

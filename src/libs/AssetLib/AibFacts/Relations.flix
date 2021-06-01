@@ -19,9 +19,6 @@ namespace AssetLib/AibFacts/Relations {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    /// Aib has no notion of a "Fact Group" but we need it to signal a "class" when 
-    /// connection between Aib and S4.
-    pub rel AibFactGroup(aibref: String, groupName: String)
 
     pub rel AibStringValue(aibref: String, valueName: String, value: String)
 

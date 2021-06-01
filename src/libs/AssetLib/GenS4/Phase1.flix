@@ -57,7 +57,7 @@ namespace AssetLib/GenS4/Phase1 {
         query equis select (x1, x2, x3) from Equipment(x1, x2, x3, _, _, _, _, _, _, _, _, _, _, _, _, _) 
             |> Array.length 
             |>  x -> Console.printLine("Generating ${x} equis");
-        query c3 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
+        query c6 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
         let answers     = genS4Lite(equis <+> longText <+> c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
