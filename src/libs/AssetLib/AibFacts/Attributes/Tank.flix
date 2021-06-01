@@ -20,8 +20,7 @@ namespace AssetLib/AibFacts/Attributes/Tank {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue, getFloatValue};
+    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
 
 
@@ -29,55 +28,89 @@ namespace AssetLib/AibFacts/Attributes/Tank {
 
 
     pub def readTankData(sheetName: String, 
-                                path: System.FilePath): Result[#{AibStringValue, AibFloatValue | r}, String] & Impure =
-        AssetLib/AibFacts/Relations.readAibFacts(aibTank(), sheetName, path)
+                        path: System.FilePath): Result[#{TankConstruction, TankLevel, TankShape,
+                                                        UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
+                                                        UnitLengthM, UnitSideDepthM, 
+                                                        UnitSideDepthMinM, UnitSideDepthMaxM | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(aibTank(), true, sheetName, path)
         
     
 
 
-    pub def aibTank(): NamedRowEvaluator[#{AibStringValue, AibFloatValue | r}] =
-        getAttributes( getTankConstruction()
-            :: getTankLevel()
-            :: getTankShape()
-            :: getUnitCapacityCum()
-            :: getUnitCentreDepthM()
-            :: getUnitDiameterM()
-            :: getUnitLengthM()
-            :: getUnitSideDepthM()
-            :: getUnitSideDepthMaxM()
-            :: getUnitSideDepthMinM()
-            :: Nil
-        )      
+    pub def aibTank(): NamedRowEvaluator[#{TankConstruction, TankLevel, TankShape,
+                                            UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
+                                            UnitLengthM, UnitSideDepthM, 
+                                            UnitSideDepthMinM, UnitSideDepthMaxM | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        let* c1 = withDefault(getTankConstruction(), #{});
+        let* c2 = withDefault(getTankLevel(), #{});
+        let* c3 = withDefault(getTankShape(), #{});
+        let* c4 = withDefault(getUnitCapacityCum(), #{});
+        let* c5 = withDefault(getUnitCentreDepthM(), #{});
+        let* c6 = withDefault(getUnitDiameterM(), #{});
+        let* c7 = withDefault(getUnitLengthM(), #{});
+        let* c8 = withDefault(getUnitSideDepthM(), #{});
+        let* c9 = withDefault(getUnitSideDepthMaxM(), #{});
+        let* c10 = withDefault(getUnitSideDepthMinM(), #{});
+        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6 <+> c7 <+> c8 <+> c9 <+> c10)
 
-    pub def getTankConstruction(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Tank Construction", "TANK_CONSTRUCTION")
 
-    pub def getTankLevel(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Tank Level", "TANK_LEVEL")
+    pub rel TankConstruction(aibref: String, construction: String)
 
-    pub def getTankShape(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Tank Shape", "TANK_SHAPE")
+    def getTankConstruction(): NamedRowEvaluator[#{TankConstruction | r}] =
+        getStringValuedFact("Tank Construction", (aibref, ans) -> #{ TankConstruction(aibref, ans). })
 
-    pub def getUnitCapacityCum(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Unit Capacity cum", "UNIT_CAPACITY_CUM")
 
-    pub def getUnitCentreDepthM(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Unit Centre Depth m", "UNIT_CENTRE_DEPTH_M")
+    pub rel TankLevel(aibref: String, level: String)
+    
+    def getTankLevel(): NamedRowEvaluator[#{TankLevel | r}] =
+        getStringValuedFact("Tank Level", (aibref, ans) -> #{ TankLevel(aibref, ans). })
 
-    pub def getUnitDiameterM(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Unit Diameter  m", "UNIT_DIAMETER_M")      /// double space in aib field
 
-    pub def getUnitLengthM(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Unit Length m", "UNIT_LENGTH_M")
+    pub rel TankShape(aibref: String, shape: String)
+
+    def getTankShape(): NamedRowEvaluator[#{TankShape | r}] =
+        getStringValuedFact("Tank Shape", (aibref, ans) -> #{ TankShape(aibref, ans). })
+
+
+    pub rel UnitCapacityCum(aibref: String, capacity: Float64)
+
+    def getUnitCapacityCum(): NamedRowEvaluator[#{UnitCapacityCum | r}] =
+        getFloatValuedFact("Unit Capacity cum", (aibref, ans) -> #{ UnitCapacityCum(aibref, ans). })
+
+    
+    pub rel UnitCentreDepthM(aibref: String, depth: Float64)
+    
+    def getUnitCentreDepthM(): NamedRowEvaluator[#{UnitCentreDepthM | r}] =
+        getFloatValuedFact("Unit Centre Depth m", (aibref, ans) -> #{ UnitCentreDepthM(aibref, ans). })
+
+
+    pub rel UnitDiameterM(aibref: String, diameter: Float64)
+    
+    def getUnitDiameterM(): NamedRowEvaluator[#{UnitDiameterM | r}] =
+        getFloatValuedFact("Unit Diameter  m", (aibref, ans) -> #{ UnitDiameterM(aibref, ans). }) /// double space in aib field      
+
+    pub rel UnitLengthM(aibref: String, length: Float64)
+    
+    def getUnitLengthM(): NamedRowEvaluator[#{UnitLengthM | r}] =
+        getFloatValuedFact("Unit Length m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
  
-    pub def getUnitSideDepthM(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Unit Side Depth m", "UNIT_SIDE_DEPTH_M")
+    
+    pub rel UnitSideDepthM(aibref: String, depth: Float64)
+    
+    def getUnitSideDepthM(): NamedRowEvaluator[#{UnitSideDepthM | r}] =
+        getFloatValuedFact("Unit Side Depth m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
 
-    pub def getUnitSideDepthMaxM(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Unit Side Depth Max m", "UNIT_SIDE_DEPTH_MAX_M")
+    
+    pub rel UnitSideDepthMaxM(aibref: String, depth: Float64)
+    
+    def getUnitSideDepthMaxM(): NamedRowEvaluator[#{UnitSideDepthMaxM | r}] =
+        getFloatValuedFact("Unit Side Depth Max m", (aibref, ans) -> #{ UnitSideDepthMaxM(aibref, ans). })
 
-    pub def getUnitSideDepthMinM(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Unit Side Depth Min m", "UNIT_SIDE_DEPTH_MIN_M")
+    
+    pub rel UnitSideDepthMinM(aibref: String, depth: Float64)
 
+    def getUnitSideDepthMinM(): NamedRowEvaluator[#{UnitSideDepthMinM | r}] =
+        getFloatValuedFact("Unit Side Depth Min m", (aibref, ans) -> #{ UnitSideDepthMinM(aibref, ans). })
 
 }

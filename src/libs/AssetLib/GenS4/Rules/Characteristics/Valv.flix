@@ -17,24 +17,37 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Valv {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
+    use AssetLib/AibFacts/Attributes/Valve.{ValveType, Size, SizeUnits};
 
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
+    use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-    pub def valv(input: #{EquiWorkItem, AibFloatValue, AibStringValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
+    pub def genValv(input: #{EquiWorkItem, ValveType, Size, SizeUnits, EquiCharacteristic | r1}, 
+                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
+        use Result.{flatMap};    
+        match source {
+            case Some(src) => { 
+                let* facts = AssetLib/AibFacts/Attributes/Valve.readValveData(src.sheet, src.file);
+                let ans = valv(facts <+> input);
+                Ok(ans)
+            }
+            case None => Ok(#{ }) as & Impure
+        }
+
+    pub def valv(input: #{EquiWorkItem, ValveType, Size, SizeUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
                 EquiWorkItem(equiId, _, _, _, _, _, _, "VALV", s4Class),
-                AibFloatValue(equiId, "SIZE", size),
-                AibStringValue(equiId, "SIZE_UNITS", units),
+                Size(equiId, size),
+                SizeUnits(equiId, units),
                 if recognizedSizeUnits(units) and s4Class != "VALVRE".
 
             EquiCharacteristic(equiId, "VALVRE", "VALV_BORE_DIAMETER_MM", 1, S4Int(sizeMM(size, units))) :- 
                 EquiWorkItem(equiId, _, _, _, _, _, _, "VALV", "VALVRE"),
-                AibFloatValue(equiId, "SIZE", size),
-                AibStringValue(equiId, "SIZE_UNITS", units),
+                Size(equiId, size),
+                SizeUnits(equiId, units),
                 if recognizedSizeUnits(units).
 
         };

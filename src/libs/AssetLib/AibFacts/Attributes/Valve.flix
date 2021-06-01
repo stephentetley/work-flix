@@ -20,8 +20,7 @@ namespace AssetLib/AibFacts/Attributes/Valve {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue, getFloatValue};
+    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
 
 
@@ -29,29 +28,32 @@ namespace AssetLib/AibFacts/Attributes/Valve {
 
 
     pub def readValveData(sheetName: String, 
-                                path: System.FilePath): Result[#{AibStringValue, AibFloatValue | r}, String] & Impure =
-        AssetLib/AibFacts/Relations.readAibFacts(aibValve(), sheetName, path)
+                                path: System.FilePath): Result[#{ValveType, Size, SizeUnits | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(aibValve(), true, sheetName, path)
         
     
+    pub def aibValve(): NamedRowEvaluator[#{ValveType, Size, SizeUnits | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        let* c1 = withDefault(getValveType(), #{});
+        let* c2 = withDefault(getSize(), #{});
+        let* c3 = withDefault(getSizeUnits(), #{});
+        return(c1 <+> c2 <+> c3)    
+
+    pub rel ValveType(aibref: String, valveType: String)
+
+    def getValveType(): NamedRowEvaluator[#{ValveType | r}] =
+        getStringValuedFact("Valve Type", (aibref, ans) -> #{ ValveType(aibref, ans). })
+
+    
+    pub rel Size(aibref: String, size: Float64)
+    
+    def getSize(): NamedRowEvaluator[#{Size | r}] =
+        getFloatValuedFact("Valve Type", (aibref, ans) -> #{ Size(aibref, ans). })
 
 
-    pub def aibValve(): NamedRowEvaluator[#{AibStringValue, AibFloatValue | r}] =
-        getAttributes( getValveType()
-            :: getSize()
-            :: getSizeUnits()
-            :: Nil
-        )      
+    pub rel SizeUnits(aibref: String, units: String)
 
-
-    pub def getValveType(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Valve Type", "VALVE_TYPE")
-
-    pub def getSize(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Size", "SIZE")
-
-    pub def getSizeUnits(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Size Units", "SIZE_UNITS")
-
-
+    def getSizeUnits(): NamedRowEvaluator[#{SizeUnits | r}] =
+        getStringValuedFact("Size Units", (aibref, ans) -> #{ SizeUnits(aibref, ans). })
 
 }

@@ -18,7 +18,6 @@
 namespace AssetLib/GenS4/Phase2 {
 
     use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     
@@ -70,8 +69,7 @@ namespace AssetLib/GenS4/Phase2 {
         Ok()
 
 
-    /// def loadRelations(args: Phase2Arguments): Result[#{EquiworkItem, AibRootNode, AibFloc, AibEquipment, 
-    ///                                                     AibStringValue, AibIntValue, AibFloatValue | r}, String] & Impure = 
+    /// def loadRelations(args: Phase2Arguments): Result[#{EquiworkItem, AibRootNode, AibFloc, AibEquipment | r}, String] & Impure = 
     ///     use Result.{flatMap};
     ///     let* hrelns         = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
     ///     let* locOnSite      = AssetLib/AibFacts/Attributes/Equipment.readLocationOnSiteData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);

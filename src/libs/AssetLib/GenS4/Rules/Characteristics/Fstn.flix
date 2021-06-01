@@ -33,8 +33,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
         use Result.{flatMap};    
         match source {
             case Some(src) => { 
-                let* c1 = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src.sheet, src.file);
-                let ans = fstn(c1 <+> input);
+                let* facts = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src.sheet, src.file);
+                let ans = fstn(facts <+> input);
                 Ok(ans)
             }
             case None => Ok(#{ }) as & Impure

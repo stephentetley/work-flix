@@ -30,8 +30,7 @@ namespace AssetLib/AibFacts/Attributes/MemoLines {
 
     pub def readMemoLinesData(sheetName: String, 
                                 path: System.FilePath): Result[#{AibMemoLine | r}, String] & Impure =
-        use SheetIO/NamedRowEvaluator.{alt, return};
-        AssetLib/AibFacts/Relations.readAibFacts(alt(aibMemoLines(), return(#{})), sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibMemoLines(), true, sheetName, path)
         
     
     def aibMemoLines(): NamedRowEvaluator[#{AibMemoLine | r}] =

@@ -20,7 +20,7 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue};
+    use AssetLib/AibFacts/Utils.{getStringValuedFact};
 
 
     /// P AND I Tag No
@@ -47,23 +47,23 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     /// Reads `Location On Site` at same time...
     pub def readEquipmentData(sheetName: String, 
                                 path: System.FilePath): Result[#{EquipmentAttibutes, LocationOnSite | r}, String] & Impure =
-        AssetLib/AibFacts/Relations.readAibFacts(equipmentFacts(), sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(equipmentFacts(), true, sheetName, path)
         
     /// Just reads `Location On Site`...
     pub def readLocationOnSiteData(sheetName: String, 
                                 path: System.FilePath): Result[#{LocationOnSite | r}, String] & Impure =
-        AssetLib/AibFacts/Relations.readAibFacts(getAttributes(getLocationOnSite() :: Nil), sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, sheetName, path)
 
 
-    pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttibutes, LocationOnSite | r}] =
-        getAttributes( getLocationOnSite()
-            :: getEquipmentAttibutes()
-            :: Nil
-        )      
+    pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttibutes, LocationOnSite | r}] =    
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        let* c1 = withDefault(getLocationOnSite(), #{});
+        let* c2 = withDefault(getEquipmentAttibutes(), #{});
+        return(c1 <+> c2)
 
 
     pub def getLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
-        AssetLib/AibFacts/Utils.getStringValuedFact("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
+        getStringValuedFact("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
         
 
     pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttibutes | r}] =
