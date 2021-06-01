@@ -19,12 +19,12 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/AibFacts/Relations.{AibStringValue};
     use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
     pub def genEquis(today: Time.LocalDate, 
-                        input: #{Phase1EquiItem, AibEquipment, EquipmentAttibutes, Equipment | r1}): #{Equipment | r} = 
+                        input: #{EquiWorkItem, AibEquipment, EquipmentAttibutes, Equipment | r1}): #{Equipment | r} = 
         let rules = #{
             Equipment(aibref, 
                         s4Category,
@@ -42,7 +42,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
                         position,
                         pandiTag,
                         s4Status(status)) :- 
-                Phase1EquiItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
+                EquiWorkItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
                 AibEquipment(aibref, _, _, installedFrom, manufacturer, model,  _, status, _), 
                 EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
         };
@@ -50,68 +50,26 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
     rel HasValveType(id: String)
 
-    pub def equiCharacteristics1(input: #{Phase1EquiItem, EquiCharacteristic, 
-                                            AibEquipment, AibStringValue, HasValveType | r1}): #{EquiCharacteristic | r} =
+    pub def equiCharacteristics1(input: #{EquiWorkItem, EquiCharacteristic, 
+                                            AibStringValue | r1}): #{EquiCharacteristic | r} =
         let rules = #{
             
-            HasValveType(aibref) :- AibStringValue(aibref, "VALVE_TYPE", _).
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass).
 
-            EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_CODE", 1, S4String("")) :- 
-                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
-                AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
-                AibStringValue(aibref, "VALVE_TYPE", valveType).
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass).
 
-            EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_CODE", 1, S4String("")) :- 
-                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
-                AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),
-                not HasValveType(aibref).
-
-            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
-                Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
-                if s4EquiType != "VALV".
-
-            /// TODO doesn't fire if no valve type...
-            EquiCharacteristic(aibref, valveClass(aibEquiName, valveType), "UNICLASS_DESC", 1, S4String("")) :- 
-                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
-                AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _), 
-                AibStringValue(aibref, "VALVE_TYPE", valveType).
-
-            EquiCharacteristic(aibref, valveClass(aibEquiName, ""), "UNICLASS_DESC", 1, S4String("")) :- 
-                Phase1EquiItem(aibref, _, _,  _, _, _,  _, "VALV", ""),
-                AibEquipment(aibref, _, aibEquiName, _, _, _,  _, _, _),
-                not HasValveType(aibref).
-
-            EquiCharacteristic(aibref, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
-                Phase1EquiItem(aibref, _, _,  _, _, _,  _, s4EquiType, s4EquiClass),
-                if s4EquiType != "VALV".
+            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(s4Location(location))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass),
+                AibStringValue(aibref, "LOCATION_ON_SITE", location).
 
         };
         solve (rules <+> input) project EquiCharacteristic
 
-        /// Define the typemap here.
-        /// There aren't any modularity benefits to defining it outside 
-        /// this block and there is the downside that if defined oustide 
-        /// it is easy to forget to instantiate it.
-        ///
-        def valveClass(equiName: String, valveType: String): String = match (equiName, valveType) { 
-            case ("EQPT: PRESSURE REDUCING VALVE (WATER)",      "")             => "VALVPR"
-            case ("EQUIPMENT: AIR RELIEF VALVE",                "")             => "VALVAV"
-            case ("EQUIPMENT: BELLMOUTH VALVE",                 "")             => "VALVBE"
-            case ("EQUIPMENT: FLAP VALVE",                      "")             => "VALVFL"
-            case ("EQUIPMENT: ISOLATING VALVES",                "Ball")         => "VALVBA"
-            case ("EQUIPMENT: ISOLATING VALVES",                "Butterfly")    => "VALVBP"
-            case ("EQUIPMENT: ISOLATING VALVES",                "Diaphram")     => "VALVDI"      /// Known spelling mistake
-            case ("EQUIPMENT: ISOLATING VALVES",                "Diaphragm")    => "VALVDI"
-            case ("EQUIPMENT: ISOLATING VALVES",                "Knife Gate")   => "VALVGA"
-            case ("EQUIPMENT: ISOLATING VALVES",                "Plug")         => "VALVPG"
-            case ("EQUIPMENT: ISOLATING VALVES",                "Wedge Gate")   => "VALVGA"
-            case ("EQUIPMENT: MULTI-WAY VALVE",                 "")             => "VALVMW"
-            case ("EQUIPMENT: NON RETURN VALVE",                "")             => "VALVNR"
-            case ("EQUIPMENT: PRESSURE REGULATING VALVE",       "")             => "VALVRE"
-            case ("EQUIPMENT: RELIEF/SAFETY VALVE",             "")             => "VALVSF"
-            case (_, _)                                                         => "VALVMISC"
-        }
 
+    def s4Location(s: String): String =
+        if (String.length(s) >= 30) "SEE LONG TEXT" else s
 
     def s4Status(x: String): String = match x {
         case "OPERATIONAL" =>  "OPER"
@@ -139,10 +97,34 @@ namespace AssetLib/GenS4/Rules/Equipment {
     ///     };
     ///     solve (rules <+> input) project EquiCharacteristic
 
-    /// def s4Location(s: String): String =
-    ///     if (String.length(s) >= 30) "SEE LONG TEXT" else s
 
 
+
+        /// TODO - this should go in a separate report that deduces valve types...
+
+        /// /// Define the typemap here.
+        /// /// There aren't any modularity benefits to defining it outside 
+        /// /// this block and there is the downside that if defined oustide 
+        /// /// it is easy to forget to instantiate it.
+        /// ///
+        /// def valveClass(equiName: String, valveType: String): String = match (equiName, valveType) { 
+        ///     case ("EQPT: PRESSURE REDUCING VALVE (WATER)",      "")             => "VALVPR"
+        ///     case ("EQUIPMENT: AIR RELIEF VALVE",                "")             => "VALVAV"
+        ///     case ("EQUIPMENT: BELLMOUTH VALVE",                 "")             => "VALVBE"
+        ///     case ("EQUIPMENT: FLAP VALVE",                      "")             => "VALVFL"
+        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Ball")         => "VALVBA"
+        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Butterfly")    => "VALVBP"
+        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Diaphram")     => "VALVDI"      /// Known spelling mistake
+        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Diaphragm")    => "VALVDI"
+        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Knife Gate")   => "VALVGA"
+        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Plug")         => "VALVPG"
+        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Wedge Gate")   => "VALVGA"
+        ///     case ("EQUIPMENT: MULTI-WAY VALVE",                 "")             => "VALVMW"
+        ///     case ("EQUIPMENT: NON RETURN VALVE",                "")             => "VALVNR"
+        ///     case ("EQUIPMENT: PRESSURE REGULATING VALVE",       "")             => "VALVRE"
+        ///     case ("EQUIPMENT: RELIEF/SAFETY VALVE",             "")             => "VALVSF"
+        ///     case (_, _)                                                         => "VALVMISC"
+        /// }
 
 }
 

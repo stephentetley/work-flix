@@ -36,7 +36,7 @@ namespace ValveReport/Phase1Main {
         , aibEquipmentExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibMemosExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibValveExport = None
-        , phase1Worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
+        , worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , changeRequestName = "Change Request"
         , outpath = System/FilePath.new("") 
         }  
@@ -69,7 +69,7 @@ namespace ValveReport/Phase1Main {
 
 
     def setWorklist(s: String): Option[UpdateArguments] = 
-        Some(opts -> {phase1Worklist = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+        Some(opts -> {worklist = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
  
     
     def setChangeRequestName(s: String): Option[UpdateArguments] = 

@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Phase1 {
         , aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
         , aibValveExport: Option[XlsxSource]
-        , phase1Worklist: XlsxSource
+        , worklist: XlsxSource
         , changeRequestName: String
         , outpath: System.FilePath
         }
@@ -42,7 +42,7 @@ namespace AssetLib/GenS4/Phase1 {
         use Result.{flatMap};
         use AssetLib/GenS4/Rules/Equipment.{genEquis, equiCharacteristics1};
         use AssetLib/GenS4/Rules/LongText.{uxlEquiLongText};
-        let* workitems  = AssetLib/GenS4/WorkListRelations.readPhase1EquiWorkList(args.phase1Worklist.sheet, args.phase1Worklist.file);
+        let* workitems  = AssetLib/GenS4/WorkListRelations.readEquiWorkList(args.worklist.sheet, args.worklist.file);
         let* baseRelns  = loadRelations(args);
         let today       = Time/LocalDate.now();
         let input       = baseRelns <+> workitems;
