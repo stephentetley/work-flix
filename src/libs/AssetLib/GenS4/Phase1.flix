@@ -32,6 +32,7 @@ namespace AssetLib/GenS4/Phase1 {
         , aibMemosExport: XlsxSource
         , aibValveExport: Option[XlsxSource]
         , aibAgaspExport: Option[XlsxSource]
+        , aibElectricalExport: Option[XlsxSource]
         , worklist: XlsxSource
         , changeRequestName: String
         , outpath: System.FilePath
@@ -49,11 +50,15 @@ namespace AssetLib/GenS4/Phase1 {
         let longText    = AssetLib/GenS4/Rules/LongText.genEquiLongText(input);
         let c1          = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(input);
         let* c2         = AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(workitems, args.aibAgaspExport);
+        let* c3         = AssetLib/GenS4/Rules/Characteristics/Actu.genActu(workitems, args.aibElectricalExport);
+        let* c4         = AssetLib/GenS4/Rules/Characteristics/Conp.genConp(workitems, args.aibElectricalExport);
+        let* c5         = AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(workitems, args.aibElectricalExport);
+        let* c6         = AssetLib/GenS4/Rules/Characteristics/Star.genStar(workitems, args.aibElectricalExport);
         query equis select (x1, x2, x3) from Equipment(x1, x2, x3, _, _, _, _, _, _, _, _, _, _, _, _, _) 
             |> Array.length 
             |>  x -> Console.printLine("Generating ${x} equis");
-        query c2 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
-        let answers     = genS4Lite(equis <+> longText <+> c1 <+> c2);
+        query c3 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
+        let answers     = genS4Lite(equis <+> longText <+> c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
         Ok()
 

@@ -20,6 +20,8 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
+    use AssetLib/AibFacts/Utils.{getStringValuedFact, getIntValuedFact};
+
     /// Read from Aib file...
 
 
@@ -28,8 +30,7 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
                                                             LoadingFactor, LoadingFactorReason, 
                                                             PerformanceGrade, PerformanceGradeReason, 
                                                             SurveyYear | r}, String] & Impure =
-        use SheetIO/NamedRowEvaluator.{alt, return};
-        AssetLib/AibFacts/Relations.readAibFacts(alt(aibAssetCondition(), return(#{})), sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibAssetCondition(), true, sheetName, path)
 
     pub def aibAssetCondition(): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
                                                         LoadingFactor, LoadingFactorReason, 
@@ -47,65 +48,45 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
 
     pub rel ConditionGrade(aibref: String, grade: String)
 
-    pub def getConditionGrade(): NamedRowEvaluator[#{ConditionGrade | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
-        let* aibref     = getNonEmptyContentNamed("Reference");
-        let* ans        = getNonEmptyContentNamed("Condition Grade");
-        return(#{ ConditionGrade(aibref, ans). })
+    def getConditionGrade(): NamedRowEvaluator[#{ConditionGrade | r}] =
+        getStringValuedFact("Condition Grade", (aibref, ans) -> #{ ConditionGrade(aibref, ans). })
 
 
-    
     pub rel ConditionGradeReason(aibref: String, reason: String)
 
-    pub def getConditionGradeReason(): NamedRowEvaluator[#{ConditionGradeReason | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
-        let* aibref     = getNonEmptyContentNamed("Reference");
-        let* ans        = getNonEmptyContentNamed("Condition Grade Reason");
-        return(#{ ConditionGradeReason(aibref, ans). })
+    def getConditionGradeReason(): NamedRowEvaluator[#{ConditionGradeReason | r}] =
+        getStringValuedFact("Condition Grade Reason", (aibref, ans) -> #{ ConditionGradeReason(aibref, ans). })
 
     pub rel LoadingFactor(aibref: String, factor: String)
 
-    pub def getLoadingFactor(): NamedRowEvaluator[#{LoadingFactor | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
-        let* aibref     = getNonEmptyContentNamed("Reference");
-        let* ans        = getNonEmptyContentNamed("Loading Factor");
-        return(#{ LoadingFactor(aibref, ans). })
+    def getLoadingFactor(): NamedRowEvaluator[#{LoadingFactor | r}] =
+        getStringValuedFact("Loading Factor", (aibref, ans) -> #{ LoadingFactor(aibref, ans). })
 
 
     pub rel LoadingFactorReason(aibref: String, reason: String)
 
-    pub def getLoadingFactorReason(): NamedRowEvaluator[#{LoadingFactorReason | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
-        let* aibref     = getNonEmptyContentNamed("Reference");
-        let* ans        = getNonEmptyContentNamed("Loading Factor Reason");
-        return(#{ LoadingFactorReason(aibref, ans). })
+    def getLoadingFactorReason(): NamedRowEvaluator[#{LoadingFactorReason | r}] =
+        getStringValuedFact("Loading Factor Reason", (aibref, ans) -> #{ LoadingFactorReason(aibref, ans). })
 
 
     pub rel PerformanceGrade(aibref: String, grade: String)
 
-    pub def getPerformanceGrade(): NamedRowEvaluator[#{PerformanceGrade | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
-        let* aibref     = getNonEmptyContentNamed("Reference");
-        let* ans        = getNonEmptyContentNamed("Performance Grade");
-        return(#{ PerformanceGrade(aibref, ans). })
+    def getPerformanceGrade(): NamedRowEvaluator[#{PerformanceGrade | r}] =
+        getStringValuedFact("Performance Grade", (aibref, ans) -> #{ PerformanceGrade(aibref, ans). })
 
 
     pub rel PerformanceGradeReason(aibref: String, reason: String)
 
-    pub def getPerformanceGradeReason(): NamedRowEvaluator[#{PerformanceGradeReason | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
-        let* aibref     = getNonEmptyContentNamed("Reference");
-        let* ans        = getNonEmptyContentNamed("Performance Grade Reason");
-        return(#{ PerformanceGradeReason(aibref, ans). })
+    def getPerformanceGradeReason(): NamedRowEvaluator[#{PerformanceGradeReason | r}] =
+        getStringValuedFact("Performance Grade Reason", (aibref, ans) -> #{ PerformanceGradeReason(aibref, ans). })
+
 
 
     pub rel SurveyYear(aibref: String, year: Int32)
 
-    pub def getSurveyYear(): NamedRowEvaluator[#{SurveyYear | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getInt32Named};  
-        let* aibref     = getNonEmptyContentNamed("Reference");
-        let* ans        = getInt32Named("AGASP Survey Year");
-        return(#{ SurveyYear(aibref, ans). })
+    def getSurveyYear(): NamedRowEvaluator[#{SurveyYear | r}] =
+        getIntValuedFact("AGASP Survey Year", (aibref, ans) -> #{ SurveyYear(aibref, ans). })
+
 
 
 }

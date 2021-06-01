@@ -37,6 +37,7 @@ namespace ValveReport/Phase1Main {
         , aibMemosExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibAgaspExport = None
         , aibValveExport = None
+        , aibElectricalExport = None
         , worklist = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , changeRequestName = "Change Request"
         , outpath = System/FilePath.new("") 
@@ -49,6 +50,7 @@ namespace ValveReport/Phase1Main {
         :: {optionIds = Nil,    optionNames = "aib_memos_export" :: Nil,        argDescriptor = ReqArg(setAibMemosExport, "FILE##Sheet"),       explanation = "path to AI2 memo lines export"}
         :: {optionIds = Nil,    optionNames = "aib_valve_export" :: Nil,       argDescriptor = ReqArg(setAibValveExport, "FILE##Sheet"),       explanation = "path to AI2 valve export"}
         :: {optionIds = Nil,    optionNames = "aib_agasp_export" :: Nil,       argDescriptor = ReqArg(setAibAgaspExport, "FILE##Sheet"),       explanation = "path to AI2 AGASP export"}
+        :: {optionIds = Nil,    optionNames = "aib_electrical_export" :: Nil,       argDescriptor = ReqArg(setAibElectricalExport, "FILE##Sheet"),       explanation = "path to AI2 Electrical export"}
         :: {optionIds = Nil,    optionNames = "worklist" :: Nil,                argDescriptor = ReqArg(setWorklist, "FILE##Sheet"),             explanation = "path to worklist and sheet name"}
         :: {optionIds = Nil,    optionNames = "change_request_name" :: Nil,     argDescriptor = ReqArg(setChangeRequestName, "TEXT"),           explanation = "Name for Change Request"}
         :: {optionIds = Nil,    optionNames = "outpath" :: Nil,                 argDescriptor = ReqArg(setOutpath, "FILE"),                     explanation = "path to UXL output"}
@@ -68,6 +70,9 @@ namespace ValveReport/Phase1Main {
 
     def setAibAgaspExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibAgaspExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
+
+    def setAibElectricalExport(s: String): Option[UpdateArguments] = 
+        Some(opts -> {aibElectricalExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
 
     def setAibValveExport(s: String): Option[UpdateArguments] = 
         Some(opts -> {aibValveExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})

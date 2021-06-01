@@ -17,45 +17,63 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Actu {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
+    use AssetLib/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass, 
+        IPRating, Power, PowerUnits, SpeedRPM, VoltageIn, VoltageInACOrDC};
+
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
+    use AssetLib/GenS4/XlsxSource.{XlsxSource};
+
+    pub def genActu(input: #{EquiWorkItem, CurrentIn, InsulationClass, 
+                                IPRating, Power, PowerUnits, SpeedRPM,
+                                VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}, 
+                                source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
+        use Result.{flatMap};    
+        match source {
+            case Some(src) => { 
+                let* c1 = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);
+                let ans = actu(c1 <+> input);
+                Ok(ans)
+            }
+            case None => Ok(#{ }) as & Impure
+        }
 
 
-    pub def actu(input: #{EquiWorkItem, AibStringValue, AibIntValue, 
-                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
-        #{
+    pub def actu(input: #{EquiWorkItem, CurrentIn, InsulationClass, 
+                            IPRating, Power, PowerUnits,
+                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+        let rules =#{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                AibStringValue(equiId, "IP_RATING", rating).
+                IPRating(equiId, rating).
 
             EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(insulationClass(insClass))) :-
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                AibStringValue(equiId, "INSULATION_CLASS", insClass),
+                InsulationClass(equiId, insClass),
                 if recognizedInsulationClass(insClass).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                AibFloatValue(equiId, "CURRENT_IN", current).
+                CurrentIn(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                AibStringValue(equiId, "POWER", "KILOWATTS"),
-                AibFloatValue(equiId, "POWER", power).
+                PowerUnits(equiId, "KILOWATTS"),
+                Power(equiId, power).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(equiId, "VOLTAGE_IN", voltage),
+                VoltageInACOrDC(equiId, units),
+                VoltageIn(equiId, voltage),
                 if recognizedVoltageUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(equiId, "VOLTAGE_IN", _),
+                VoltageInACOrDC(equiId, units),
+                VoltageIn(equiId, _),
                 if recognizedVoltageUnits(units).
         };
         solve (rules <+> input) project EquiCharacteristic

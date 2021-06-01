@@ -16,7 +16,45 @@
 
 namespace AssetLib/AibFacts/Utils {
     
+    use SheetIO.NamedRowEvaluator;
+    use SheetIO.SheetReader;
+
     use AssetLib/Base/Osgb36.{EastingNorthing};
+
+    pub def readAibFacts(eval: NamedRowEvaluator[#{| r}],
+                        allowEmpty: Bool, 
+                        sheetName: String, 
+                        path: System.FilePath): Result[#{| r}, String] & Impure =
+        use SheetIO/NamedRowEvaluator.{withDefault};
+        let eval1 = if (allowEmpty) withDefault(eval, #{}) else eval;
+        SheetIO/SheetReader.runXlsx(readAibSheet(eval1, sheetName), path)
+        
+
+    pub def readAibSheet(eval: NamedRowEvaluator[#{| r}], sheetName: String): SheetReader[#{| r}] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
+        let* s1     = getSheetNamed(sheetName);
+        let* xs     = allNamedRows(s1, eval);
+        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
+        return(relns)
+
+    pub def getStringValuedFact(columnName: String, f: (String, String) -> ans): NamedRowEvaluator[ans] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
+        let* x1     = getNonEmptyContentNamed("Reference");
+        let* x2     = getNonEmptyContentNamed(columnName);
+        return(f(x1, x2))
+
+    pub def getIntValuedFact(columnName: String, f: (String, Int32) -> ans): NamedRowEvaluator[ans] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getInt32Named};  
+        let* x1     = getNonEmptyContentNamed("Reference");
+        let* x2     = getInt32Named(columnName);
+        return(f(x1, x2))
+
+
+    pub def getFloatValuedFact(columnName: String, f: (String, Float64) -> ans): NamedRowEvaluator[ans] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getFloat64Named};  
+        let* x1     = getNonEmptyContentNamed("Reference");
+        let* x2     = getFloat64Named(columnName);
+        return(f(x1, x2))
 
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
@@ -49,7 +87,7 @@ namespace AssetLib/AibFacts/Utils {
 
     pub def formatDateForS4(dt: Time.LocalDate): Option[String] = 
         use Option.{flatMap};
-        let* fmt = Time/Format/DateFormatter.fromPattern("dd.MM.yyyy");
+        let* fmt = Time/Format/DateFormatter.ofPattern("dd.MM.yyyy");
         let ans = Time/LocalDate.format(dt, fmt);
         Some(ans)
 
@@ -58,23 +96,6 @@ namespace AssetLib/AibFacts/Utils {
 
     pub def ukTontoKg(ukton: Float64): Float64 = ukton / 0.00098421
 
-    /// pub def getEastingNorthingClassifications(gridRef: String): Option[Classifications] = 
-    ///     use Option.{flatMap};
-    ///     use AssetLib/Base/Osgb36.{parse, toEastingNorthing};
-    ///     use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
-    ///     let* ngr    = parse(gridRef);
-    ///     let* x      = toEastingNorthing(ngr);
-    ///     let c1      = easting(x.easting);
-    ///     let c2      = northing(x.northing);
-    ///     Some(c1 `append` c2)
-
-    pub def getEastingNorthing(gridRef: String): Option[EastingNorthing] = 
-        use Option.{flatMap};
-        use AssetLib/Base/Osgb36.{parse, toEastingNorthing};
-        use AssetLib/S4Lite/CreateNew/Classifications.{append, easting, northing};
-        let* ngr    = parse(gridRef);
-        let* ans      = toEastingNorthing(ngr);
-        Some(ans)
 
 
 }

@@ -17,33 +17,47 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Conp {
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
+    use AssetLib/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass, 
+                            IPRating, Power, PowerUnits, SpeedRPM,
+                            VoltageIn, VoltageInACOrDC};
+
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
+    use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
+    pub def genConp(input: #{EquiWorkItem, CurrentIn, InsulationClass, 
+                            IPRating, Power, PowerUnits, SpeedRPM,
+                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}, 
+                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
+        use Result.{flatMap};    
+        match source {
+            case Some(src) => { 
+                let* c1 = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);
+                let ans = conp(c1 <+> input);
+                Ok(ans)
+            }
+            case None => Ok(#{ }) as & Impure
+        }
 
-    pub def conp(input: #{EquiWorkItem, AibStringValue, AibIntValue, 
-                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
-        #{
-
+    pub def conp(input: #{EquiWorkItem, CurrentIn, VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+        let rules = #{
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem(equiId, _, _, _, _, _, _, "CONP", s4Class),
-                AibFloatValue(equiId, "CURRENT_IN", current).
+                CurrentIn(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE", 1, S4Int(voltage)) :-
                 EquiWorkItem(equiId, _, _, _, _, _, _, "CONP", s4Class),
-                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(equiId, "VOLTAGE_IN", voltage),
+                VoltageInACOrDC(equiId, units),
+                VoltageIn(equiId, voltage),
                 if recognizedVoltageUnits(units).
 
-            EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE_UNITS", 1, S4Int(voltageUnits(units))) :-
+            EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
                 EquiWorkItem(equiId, _, _, _, _, _, _, "CONP", s4Class),
-                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(equiId, "VOLTAGE_IN", _),
+                VoltageInACOrDC(equiId, units),
+                VoltageIn(equiId, _),
                 if recognizedVoltageUnits(units).
-
         }; 
         solve (rules <+> input) project EquiCharacteristic
 
