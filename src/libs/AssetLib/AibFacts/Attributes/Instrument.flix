@@ -30,7 +30,7 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
     pub def readInstrumentData(sheetName: String, 
                                 path: System.FilePath): Result[#{RangeMin, RangeMax, RangeUnit,
                                                                 SignalMin, SignalMax, SignalUnit | r}, String] & Impure =
-         AssetLib/AibFacts/Utils.readAibFacts(aibInstrument(), true, sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibInstrument(), true, sheetName, path)
         
     
 

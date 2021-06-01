@@ -41,12 +41,6 @@ namespace AssetLib/AibFacts/Relations {
         let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
         return(relns)
 
-
-    pub def getFactGroup(groupName: String): NamedRowEvaluator[#{AibFactGroup | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};  
-        let* x1     = getContentNamed("Reference");
-        return(#{ AibFactGroup(x1, groupName). })
-
     pub def getStringValue(columnName: String, factName: String): NamedRowEvaluator[#{AibStringValue | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getNonEmptyContentNamed};  
         let* x1     = getContentNamed("Reference");

@@ -20,8 +20,8 @@ namespace AssetLib/AibFacts/Attributes/Pump {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/AibFacts/Relations.{getAttributes, getStringValue, getFloatValue};
+    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
+
 
 
 
@@ -29,51 +29,79 @@ namespace AssetLib/AibFacts/Attributes/Pump {
 
 
     pub def readPumpData(sheetName: String, 
-                                path: System.FilePath): Result[#{AibStringValue, AibFloatValue | r}, String] & Impure =
-        AssetLib/AibFacts/Relations.readAibFacts(aibPump(), sheetName, path)
+                        path: System.FilePath): Result[#{DiaphragmMaterial, DutyHead, DutyHeadUnits,
+                                                        Flow, FlowUnits, ImpellerType, LiftingType, 
+                                                        RatingPower, RatingUnits | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(aibPump(), true, sheetName, path)
         
     
 
 
-    pub def aibPump(): NamedRowEvaluator[#{AibStringValue, AibFloatValue | r}] =
-        getAttributes( getDiaphragmMaterial()
-            :: getDutyHead()
-            :: getDutyHeadUnits()
-            :: getFlow()
-            :: getFlowUnits()
-            :: getImpellerType()
-            :: getLiftingType()
-            :: getRatingPower()
-            :: getRatingUnits()
-            :: Nil
-        )      
+    pub def aibPump(): NamedRowEvaluator[#{DiaphragmMaterial, DutyHead, DutyHeadUnits,
+                                            Flow, FlowUnits, ImpellerType, LiftingType, 
+                                            RatingPower, RatingUnits | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        let* c1 = withDefault(getDiaphragmMaterial(), #{});
+        let* c2 = withDefault(getDutyHead(), #{});
+        let* c3 = withDefault(getDutyHeadUnits(), #{});
+        let* c4 = withDefault(getFlow(), #{});
+        let* c5 = withDefault(getFlowUnits(), #{});
+        let* c6 = withDefault(getImpellerType(), #{});
+        let* c7 = withDefault(getLiftingType(), #{});
+        let* c8 = withDefault(getRatingPower(), #{});
+        let* c9 = withDefault(getRatingUnits(), #{});
+        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6 <+> c7 <+> c8 <+> c9)
+
+    pub rel DiaphragmMaterial(aibref: String, material: String)
+
+    def getDiaphragmMaterial(): NamedRowEvaluator[#{DiaphragmMaterial | r}] =
+        getStringValuedFact("Diaphragm Material", (aibref, ans) -> #{ DiaphragmMaterial(aibref, ans). })
 
 
-    pub def getDiaphragmMaterial(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Diaphragm Material", "DIAPHRAGM_MATERIAL")
+    pub rel DutyHead(aibref: String, size: Float64)
 
-    pub def getDutyHead(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Duty Head", "DUTY_HEAD")
+    def getDutyHead(): NamedRowEvaluator[#{DutyHead | r}] =
+        getFloatValuedFact("Duty Head", (aibref, ans) -> #{ DutyHead(aibref, ans). })
 
-    pub def getDutyHeadUnits(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Duty Head Units", "DUTY_HEAD_UNITS")
+    pub rel DutyHeadUnits(aibref: String, units: String)
 
-    pub def getFlow(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Flow", "FLOW")
+    def getDutyHeadUnits(): NamedRowEvaluator[#{DutyHeadUnits | r}] =
+        getStringValuedFact("Duty Head Units", (aibref, ans) -> #{ DutyHeadUnits(aibref, ans). })
 
-    pub def getFlowUnits(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Flow Units", "FLOW_UNITS")
+    
+    pub rel Flow(aibref: String, flow: Float64)
 
-    pub def getImpellerType(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Impeller Type", "IMPELLER_TYPE")
+    pub def getFlow(): NamedRowEvaluator[#{Flow | r}] =
+        getFloatValuedFact("Flow", (aibref, ans) -> #{ Flow(aibref, ans). })
 
-    pub def getLiftingType(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Lifting Type", "LIFTING_TYPE")
+
+    pub rel FlowUnits(aibref: String, units: String)
+
+    pub def getFlowUnits(): NamedRowEvaluator[#{FlowUnits | r}] =
+        getStringValuedFact("Flow Units", (aibref, ans) -> #{ FlowUnits(aibref, ans). })
+
+
+    pub rel ImpellerType(aibref: String, impellerType: String)
+
+    pub def getImpellerType(): NamedRowEvaluator[#{ImpellerType | r}] =
+        getStringValuedFact("Impeller Type", (aibref, ans) -> #{ ImpellerType(aibref, ans). })
+
+
+    pub rel LiftingType(aibref: String, liftingType: String)
+
+    pub def getLiftingType(): NamedRowEvaluator[#{LiftingType | r}] =
+        getStringValuedFact("Lifting Type", (aibref, ans) -> #{ LiftingType(aibref, ans). })
  
-    pub def getRatingPower(): NamedRowEvaluator[#{AibFloatValue | r}] =
-        getFloatValue("Rating (Power)", "RATING_POWER")
 
-    pub def getRatingUnits(): NamedRowEvaluator[#{AibStringValue | r}] =
-        getStringValue("Rating Units", "RATING_UNITS")
+    pub rel RatingPower(aibref: String, power: Float64)
+
+    pub def getRatingPower(): NamedRowEvaluator[#{RatingPower | r}] =
+        getFloatValuedFact("Rating (Power)", (aibref, ans) -> #{ RatingPower(aibref, ans). })
+
+    
+    pub rel RatingUnits(aibref: String, units: String)
+
+    pub def getRatingUnits(): NamedRowEvaluator[#{RatingUnits | r}] =
+        getStringValuedFact("Rating Units", (aibref, ans) -> #{ RatingUnits(aibref, ans). })
 
 }
