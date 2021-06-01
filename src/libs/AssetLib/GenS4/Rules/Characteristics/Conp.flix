@@ -18,36 +18,34 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Conp {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat};
-    use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
 
 
-    pub def conp(): #{ValuaEquiString, ValuaEquiInt, ValuaEquiFloat, 
-                        Phase2EquiItem, Phase1EquiItem, 
-                        AibStringValue, AibIntValue, AibFloatValue | r} = 
+    pub def conp(input: #{EquiWorkItem, AibStringValue, AibIntValue, 
+                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
         #{
 
-            ValuaEquiFloat(equiId, "002", "CONP_RATED_CURRENT_A", current, 1) :-
-                Phase2EquiItem(equiId, name, floc,  "CONP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "CURRENT_IN", current).
+            EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
+                EquiWorkItem(equiId, _, _, _, _, _, _, "CONP", s4Class),
+                AibFloatValue(equiId, "CURRENT_IN", current).
 
-            ValuaEquiInt(equiId, "002", "CONP_RATED_VOLTAGE", voltage, 1) :-
-                Phase2EquiItem(equiId, name, floc,  "CONP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(aibref, "VOLTAGE_IN", voltage),
+            EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+                EquiWorkItem(equiId, _, _, _, _, _, _, "CONP", s4Class),
+                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
+                AibIntValue(equiId, "VOLTAGE_IN", voltage),
                 if recognizedVoltageUnits(units).
 
-            ValuaEquiString(equiId, "002", "CONP_RATED_VOLTAGE_UNITS", voltageUnits(units), 1) :-
-                Phase2EquiItem(equiId, name, floc,  "CONP", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "VOLTAGE_IN_AC_OR_DC", units),
-                AibIntValue(aibref, "VOLTAGE_IN", _),
+            EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE_UNITS", 1, S4Int(voltageUnits(units))) :-
+                EquiWorkItem(equiId, _, _, _, _, _, _, "CONP", s4Class),
+                AibStringValue(equiId, "VOLTAGE_IN_AC_OR_DC", units),
+                AibIntValue(equiId, "VOLTAGE_IN", _),
                 if recognizedVoltageUnits(units).
 
-        }
+        }; 
+        solve (rules <+> input) project EquiCharacteristic
 
 
 }

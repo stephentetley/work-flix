@@ -18,54 +18,50 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
 
     use AssetLib/AibFacts/Relations.{AibStringValue, AibFloatValue};
-    use AssetLib/GenS4/UploadRelations.{ValuaEquiString, ValuaEquiFloat};
-    use AssetLib/GenS4/WorkListRelations.{Phase2EquiItem, Phase1EquiItem};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
 
 
 
     /// Note LOCATION_ON_SITE already created.
-    pub def fstn(): #{ValuaEquiString, ValuaEquiFloat, 
-                        Phase2EquiItem, Phase1EquiItem, 
-                        AibStringValue, AibFloatValue | r} = 
-        #{
-            ValuaEquiString(equiId, "002", "FSTN_SIGNAL_TYPE", "4 - 20 MA", 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "FSTN", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "SIGNAL_MIN", min),
-                AibFloatValue(aibref, "SIGNAL_MAX", max),
-                AibStringValue(aibref, "SIGNAL_UNIT", "mA"),
+    pub def fstn(input: #{EquiWorkItem, AibStringValue, 
+                            AibFloatValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
+        let rules = #{
+            EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                AibFloatValue(equiId, "SIGNAL_MIN", min),
+                AibFloatValue(equiId, "SIGNAL_MAX", max),
+                AibStringValue(equiId, "SIGNAL_UNIT", "mA"),
                 if iEqual(min, 4) and iEqual(max, 20).
 
-            ValuaEquiString(equiId, "002", "FSTN_SIGNAL_TYPE", "0 - 1 DIGITAL", 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "FSTN", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "SIGNAL_MIN", min),
-                AibFloatValue(aibref, "SIGNAL_MAX", max),
-                AibStringValue(aibref, "SIGNAL_UNIT", "Digital"),
+            EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                AibFloatValue(equiId, "SIGNAL_MIN", min),
+                AibFloatValue(equiId, "SIGNAL_MAX", max),
+                AibStringValue(equiId, "SIGNAL_UNIT", "Digital"),
                 if iEqual(min, 0) and iEqual(max, 1).
 
-           ValuaEquiFloat(equiId, "002", "FSTN_RANGE_MIN", min, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "FSTN", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "RANGE_MIN", min),
-                AibStringValue(aibref, "RANGE_UNIT", unit),
+           EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MIN", 1, S4Float(min)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                AibFloatValue(equiId, "RANGE_MIN", min),
+                AibStringValue(equiId, "RANGE_UNIT", unit),
                 if recognizedRangeUnit(unit).
 
-            ValuaEquiFloat(equiId, "002", "FSTN_RANGE_MAX", max, 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "FSTN", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFloatValue(aibref, "RANGE_MAX", max),
-                AibStringValue(aibref, "RANGE_UNIT", unit),
+            EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MAX", 1, S4Float(max)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                AibFloatValue(equiId, "RANGE_MAX", max),
+                AibStringValue(equiId, "RANGE_UNIT", unit),
                 if recognizedRangeUnit(unit).
 
-            ValuaEquiString(equiId, "002", "FSTN_RANGE_UNITS", rangeUnit(unit), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  "FSTN", _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "RANGE_UNIT", unit),
+            EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_UNITS", 1, S4String(rangeUnit(unit))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                AibStringValue(equiId, "RANGE_UNIT", unit),
                 if recognizedRangeUnit(unit).
 
-        }
+        }; 
+        solve (rules <+> input) project EquiCharacteristic
 
 
     def recognizedRangeUnit(s: String): Bool = match s { 

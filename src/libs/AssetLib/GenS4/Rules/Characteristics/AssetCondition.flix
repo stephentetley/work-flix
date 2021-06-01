@@ -21,93 +21,49 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     use SheetIO.SheetReader;
 
 
-    use AssetLib/AibFacts/Relations.{AibFactGroup, AibStringValue, AibIntValue};
-    use AssetLib/GenS4/WorkListRelations.{Phase1EquiItem, Phase2EquiItem};
-    use AssetLib/GenS4/UploadRelations.{ClassEqui, ValuaEquiString, ValuaEquiInt};
-    use AssetLib/GenS4/UxlRelations.{EquiDatum, EquiCharacteristic};
+    use AssetLib/AibFacts/Relations.{AibStringValue, AibIntValue};
+    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
 
-    pub def assetCondition(): #{ClassEqui, ValuaEquiString, ValuaEquiInt, 
-                                Phase1EquiItem, Phase2EquiItem,
-                                AibFactGroup, AibStringValue, AibIntValue | r} = 
-        #{
+    pub def assetCondition(input: #{EquiWorkItem, AibStringValue, 
+                                    AibIntValue, EquiCharacteristic | r}): #{EquiCharacteristic | r} = 
+        let rules = #{
 
-            ClassEqui(equiId, "ASSET_CONDITION", "002") :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibFactGroup(aibref, "ASSET_CONDITION").
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(s4ConditionGrade(grade))) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibStringValue(equiId, "CONDITION_GRADE", grade).
 
-            ValuaEquiString(equiId, "002", "CONDITION_GRADE", s4ConditionGrade(grade), 1) :- 
-                Phase2EquiItem(equiId, name, floc,  _, _),
-                Phase1EquiItem(aibref, name, floc,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "CONDITION_GRADE", grade).
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibStringValue(equiId, "CONDITION_GRADE_REASON", reason).
 
-            ValuaEquiString(equiId, "002", "CONDITION_GRADE_REASON", String.toUpperCase(reason), 1) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "CONDITION_GRADE_REASON", reason).
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE", 1, S4String(s4PerformanceGrade(grade))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibStringValue(equiId, "PERFORMANCE_GRADE", grade).
 
-            ValuaEquiString(equiId, "002", "PERFORMANCE_GRADE", s4PerformanceGrade(grade), 1) :-
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "PERFORMANCE_GRADE", grade).
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibStringValue(equiId, "PERFORMANCE_GRADE_REASON", reason).
 
-            ValuaEquiString(equiId, "002", "PERFORMANCE_GRADE_REASON", String.toUpperCase(reason), 1) :-
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "PERFORMANCE_GRADE_REASON", reason).
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR", 1, S4String(s4LoadingFactor(factor))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibStringValue(equiId, "LOADING_FACTOR", factor).
 
-            ValuaEquiString(equiId, "002", "LOADING_FACTOR", s4LoadingFactor(factor), 1) :-
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "LOADING_FACTOR", factor).
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR_REASON", 1, S4String(String.toUpperCase(reason))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibStringValue(equiId, "LOADING_FACTOR_REASON", reason).
 
-            ValuaEquiString(equiId, "002", "LOADING_FACTOR_REASON", String.toUpperCase(reason), 1) :-
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
-                AibStringValue(aibref, "LOADING_FACTOR_REASON", reason).
+            /// NOTE in Aib this is called "SURVEY_YEAR"
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", 1, S4Int(year)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                AibIntValue(equiId, "SURVEY_YEAR", year).           
 
-            /// NOTE the fact from Aib is called "SURVEY_YEAR"
-            ValuaEquiInt(equiId, "002", "SURVEY_DATE", year, 1) :- 
-                Phase2EquiItem(equiId, name, description,  _, _),
-                Phase1EquiItem(aibref, name, description,  _, _, _,  _, _, _),
-                AibIntValue(aibref, "SURVEY_YEAR", year).           
-
-        }
+        }; 
+        solve (rules <+> input) project EquiCharacteristic
         
 
-    /// For the UXL backend
-    pub def uxlAssetCondition(): #{AibStringValue, AibIntValue, EquiDatum, EquiCharacteristic | r} = 
-        #{
-    
-            /// ASSET_CONDITION
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE", s4ConditionGrade(grade)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "CONDITION_GRADE", grade).
 
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "CONDITION_GRADE_REASON", String.toUpperCase(reason)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "CONDITION_GRADE_REASON", reason).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE", s4PerformanceGrade(grade)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "PERFORMANCE_GRADE", grade).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", String.toUpperCase(reason)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "PERFORMANCE_GRADE_REASON", reason).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR", s4LoadingFactor(factor)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "LOADING_FACTOR", factor).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "LOADING_FACTOR_REASON", String.toUpperCase(reason)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibStringValue(aibref, "LOADING_FACTOR_REASON", reason).
-
-            EquiCharacteristic(aibref, "ASSET_CONDITION", "SURVEY_DATE", ToString.toString(year)) :- 
-                EquiDatum(aibref, _, _,  _, _, _,  _, _, _,  _, _, _,  _, _, _,  _),
-                AibIntValue(aibref, "SURVEY_DATE", year).
-        }
 
 
 
