@@ -23,13 +23,13 @@ namespace ValveReport/Phase1Main {
     use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/MemoLines.{MemoText};
-    use AssetLib/GenS4/Phase1.{Phase1Arguments};
+    use AssetLib/GenS4/GenEqui.{GenEquiArguments};
 
 
 
-    type alias UpdateArguments = Phase1Arguments -> Phase1Arguments
+    type alias UpdateArguments = GenEquiArguments -> GenEquiArguments
 
-    def defaultArguments(): Phase1Arguments = 
+    def defaultArguments(): GenEquiArguments = 
         { uxlTemplate = System/FilePath.new("")
         , aibHierarchyExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
         , aibEquipmentExport = {file = System/FilePath.new(""), sheet = "Sheet1"}
@@ -97,7 +97,7 @@ namespace ValveReport/Phase1Main {
             case Failure(errs)  => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
             case Success(updates) => {
                 let progArgs = List.foldLeft((ac, f) -> f(ac), defaultArguments(), updates.options);
-                match AssetLib/GenS4/Phase1.genEqui(progArgs) {
+                match AssetLib/GenS4/GenEqui.emitEquiUxl(progArgs) {
                     case Ok() => {Console.printLine("Wrote: ${progArgs.outpath}"); 0}
                     case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
                 }

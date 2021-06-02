@@ -24,6 +24,25 @@ namespace AssetLib/S4Lite/Datatypes {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
 
+    type alias UxlSource = 
+        { funclocs: List[FunctionalLocation]
+        , funclocLongTexts: List[FlocLongText]
+        , funclocCharacteristics: List[FlocCharacteristic]
+        , equipment: List[Equipment]
+        , equiLongTexts: List[EquiLongText]
+        , equiCharacteristics: List[EquiCharacteristic]
+        }
+
+
+    pub def combineUxlSource(s1: UxlSource, s2: UxlSource): UxlSource = 
+        { funclocs = s1.funclocs ::: s2.funclocs
+        , funclocLongTexts = s1.funclocLongTexts ::: s2.funclocLongTexts
+        , funclocCharacteristics = s1.funclocCharacteristics ::: s2.funclocCharacteristics
+        , equipment = s1.equipment ::: s2.equipment
+        , equiLongTexts = s1.equiLongTexts ::: s2.equiLongTexts
+        , equiCharacteristics = s1.equiCharacteristics ::: s2.equiCharacteristics
+        }
+
     type alias FunctionalLocation = 
         { funcloc: String
         , description: String

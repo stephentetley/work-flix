@@ -22,6 +22,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
+    /// TODO - parentRef should potentially be a singular fact:
+    /// > rel ParentRef(aibref: String, parent: String)
+    /// 
     pub def equiAibReference(input: #{EquiWorkItem, AibEquipment, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)

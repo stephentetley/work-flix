@@ -11,7 +11,7 @@ def programArgs(): GenFlocsArguments & Impure =
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
     let progArgs = programArgs();
-    let ans = AssetLib/GenS4/GenFlocs.genFlocs(progArgs);
+    let ans = AssetLib/GenS4/GenFlocs.emitFlocUxl(progArgs);
     match ans {
         case Ok() => Console.printLine("Success, wrote ${progArgs.outpath}")
         case Err(msg) => Console.printLine("Error: ${msg}")

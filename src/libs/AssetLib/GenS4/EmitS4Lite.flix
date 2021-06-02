@@ -19,9 +19,10 @@ namespace AssetLib/GenS4/EmitS4Lite {
 
     use SheetIO.SheetWriter;
 
-    use AssetLib/FileIO/S4/UxlFile/Datatypes.{ChangeRequestDetails, 
+    use AssetLib/FileIO/S4/UxlFile/Datatypes.{UxlSource, ChangeRequestDetails, 
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
+
     use AssetLib/GenS4/UxlRelations.{FlocDatum, FlocLongText, FlocCharacteristic, 
         EquiDatum, EquiLongText, EquiCharacteristic};
 

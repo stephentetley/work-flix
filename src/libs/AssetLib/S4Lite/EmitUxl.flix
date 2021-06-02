@@ -23,17 +23,10 @@ namespace AssetLib/S4Lite/EmitUxl {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
         
-    use AssetLib/S4Lite/Datatypes.{FunctionalLocation, FlocLongText, FlocCharacteristic, 
+    use AssetLib/S4Lite/Datatypes.{UxlSource, FunctionalLocation, FlocLongText, FlocCharacteristic, 
         Equipment, EquiLongText, EquiCharacteristic};
 
-    type alias UxlSource = 
-        { funclocs: List[FunctionalLocation]
-        , funclocLongTexts: List[FlocLongText]
-        , funclocCharacteristics: List[FlocCharacteristic]
-        , equipment: List[Equipment]
-        , equiLongTexts: List[EquiLongText]
-        , equiCharacteristics: List[EquiCharacteristic]
-        }
+
 
     pub def outputUxl(changeRequestName: String,
                         input: UxlSource,
