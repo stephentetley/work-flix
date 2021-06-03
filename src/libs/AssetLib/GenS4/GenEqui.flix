@@ -21,6 +21,7 @@ namespace AssetLib/GenS4/GenEqui {
     use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
     use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
     use AssetLib/S4Lite/Datatypes.{UxlSource};
+    use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
@@ -29,22 +30,17 @@ namespace AssetLib/GenS4/GenEqui {
     /// TODO - need to be able to generate EquiCharacteristics from a Worklist and an XlsxSource
     /// and aggregate them 
     type alias GenEquiArguments = 
-        { uxlTemplate: System.FilePath
+        { uxlArgs: UxlOutputArgs
+        , worklist: XlsxSource
         , aibHierarchyExport: XlsxSource
         , aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
-        , aibValveExport: Option[XlsxSource]
-        , aibAgaspExport: Option[XlsxSource]
-        , aibElectricalExport: Option[XlsxSource]
-        , worklist: XlsxSource
-        , changeRequestName: String
-        , outpath: System.FilePath
         }
 
     pub def emitEquiUxl(args: GenEquiArguments): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* answers    = generateEquiUxl(args);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(answers, args.uxlArgs);
         Ok()
 
     /// Empty string for no solution id.

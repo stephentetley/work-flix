@@ -20,13 +20,12 @@ namespace AssetLib/AibFacts/HierarchyFacts {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
+
+    /// TODO - should this be simplified to just account for "hierarchy facts"?
+
     /// May be a Site or a "process"
     pub rel AibRootNode(aibref: String, name: String, gridref: String)
 
-
-    /// Note - I don't think we should have `aibSite` as a Floc or Equi field
-    /// as it can't be derived from an export when a system is root rather than 
-    /// when a site is root.
 
     /// Arity 6
     pub rel AibFloc(aibref: String, 

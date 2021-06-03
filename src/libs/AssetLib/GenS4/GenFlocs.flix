@@ -18,22 +18,17 @@
 namespace AssetLib/GenS4/GenFlocs {
 
     use AssetLib/S4Lite/Datatypes.{UxlSource};
+    use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
     use AssetLib/GenS4/WorkListRelations.{FlocWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
 
-    type alias GenFlocsArguments = 
-        { uxlTemplate: System.FilePath
-        , flocWorkList: XlsxSource
-        , changeRequestName: String
-        , outpath: System.FilePath
-        }
 
 
-    pub def emitFlocUxl(args: GenFlocsArguments): Result[Unit, String] & Impure = 
+    pub def emitFlocUxl(workList: XlsxSource, args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* answers    = generateFlocUxl(args.flocWorkList);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args.changeRequestName, answers, args.uxlTemplate, args.outpath);
+        let* answers    = generateFlocUxl(workList);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(answers, args);
         Ok()
 
 

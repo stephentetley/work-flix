@@ -26,13 +26,15 @@ namespace AssetLib/S4Lite/EmitUxl {
     use AssetLib/S4Lite/Datatypes.{UxlSource, FunctionalLocation, FlocLongText, FlocCharacteristic, 
         Equipment, EquiLongText, EquiCharacteristic};
 
+    type alias UxlOutputArgs = 
+        { uxlTemplate: System.FilePath
+        , changeRequestName: String
+        , outpath: System.FilePath
+        }
 
-
-    pub def outputUxl(changeRequestName: String,
-                        input: UxlSource,
-                        uxlTemplate: System.FilePath,
-                        outpath: System.FilePath): Result[Unit, String] & Impure = 
-        SheetIO/SheetWriter.runTemplateXssf(writeUxl(changeRequestName, input), uxlTemplate, outpath)
+    pub def outputUxl(src: UxlSource,
+                      args: UxlOutputArgs): Result[Unit, String] & Impure = 
+        SheetIO/SheetWriter.runTemplateXssf(writeUxl(args.changeRequestName, src), args.uxlTemplate, args.outpath)
 
 
     def writeUxl(changeRequestName: String, input: UxlSource): SheetWriter[Unit] = 
