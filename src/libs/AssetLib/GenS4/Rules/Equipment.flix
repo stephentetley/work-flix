@@ -16,13 +16,13 @@
 
 namespace AssetLib/GenS4/Rules/Equipment {
 
-    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
+    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttributes};
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
     pub def genEquis(today: Time.LocalDate, 
-                        input: #{EquiWorkItem, EquipmentAttibutes, Equipment | r1}): #{Equipment | r} = 
+                        input: #{EquiWorkItem, EquipmentAttributes, Equipment | r1}): #{Equipment | r} = 
         let rules = #{
             Equipment(aibref, 
                         s4Category,
@@ -41,7 +41,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
                         pandiTag,
                         s4Status(status)) :- 
                 EquiWorkItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
-                EquipmentAttibutes(aibref, installedFrom, manufacturer, model, status, gridRef, pandiTag, serialNumber, specificModelFrame, weightKg).
+                EquipmentAttributes(aibref, installedFrom, manufacturer, model, status, pandiTag, serialNumber, specificModelFrame, weightKg).
         };
         solve (rules <+> input) project Equipment
 

@@ -33,25 +33,24 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     /// attribute so we treat it differently.
 
 
-    pub rel EquipmentAttibutes(aibref: String,
+    pub rel EquipmentAttributes(aibref: String,
                                 installedFrom: Time.LocalDate,
                                 manufacturer: String,
                                 model: String,
                                 status: String, 
-                                gridRef: String,
                                 pandiTag: String,
                                 serialNumber: String,
                                 specificModelFrame: String,
                                 weightKg: Option[Float64])
 
     pub rel LocationOnSite(aibref: String, text: String)
-
+    pub rel Osgb36GridRef(aibref: String, gridRef: String)
 
     /// Read from Aib file...
 
     /// Reads `Location On Site` at same time...
     pub def readEquipmentData(sheetName: String, 
-                                path: System.FilePath): Result[#{EquipmentAttibutes, LocationOnSite | r}, String] & Impure =
+                                path: System.FilePath): Result[#{EquipmentAttributes, LocationOnSite | r}, String] & Impure =
         AssetLib/AibFacts/Utils.readAibFacts(equipmentFacts(), true, sheetName, path)
         
     /// Just reads `Location On Site`...
@@ -60,7 +59,7 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
         AssetLib/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, sheetName, path)
 
 
-    pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttibutes, LocationOnSite | r}] =    
+    pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttributes, LocationOnSite | r}] =    
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};
         let* c1 = withDefault(getEquipmentAttibutes(), #{});  
         let* c2 = withDefault(getLocationOnSite(), #{});
@@ -70,19 +69,21 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     pub def getLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
         getStringValuedFact("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
         
+   pub def getOsgb36GridRef(): NamedRowEvaluator[#{Osgb36GridRef | r}] =
+        getStringValuedFact("Loc.Ref.",  (aibref, ans) -> #{ Osgb36GridRef(aibref, ans). })        
 
-    pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttibutes | r}] =
+
+    pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttributes | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getNonEmptyContentNamed, getContentNamed, 
             getFloat64Named, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> 
-            #{ EquipmentAttibutes(x1,x2, x3, x4, x5, x6, x7, x8, x9, x10). })
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
+            #{ EquipmentAttributes(x1,x2, x3, x4, x5, x6, x7, x8, x9). })
             <&> getNonEmptyContentNamed("Reference")            
             <*> getLocalDateNamed("Installed From")
             <*> getContentNamed("Manufacturer")
             <*> getContentNamed("Model")
             <*> getContentNamed("AssetStatus")
-            <*> getContentNamed("Loc.Ref.")
             <*> getContentNamed("P AND I Tag No")
             <*> getContentNamed("Serial No")
             <*> getContentNamed("Specific Model/Frame")

@@ -17,23 +17,23 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
-    use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
+    use AssetLib/AibFacts/Attributes/Equipment.{Osgb36GridRef};
     use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
 
 
-    pub def equiEastNorth(input: #{EquiWorkItem, AibEquipment, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    pub def equiEastNorth(input: #{EquiWorkItem, Osgb36GridRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{
             
             EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
-                AibEquipment(equiId, _, _,  _, _, _,  ngr, _, _).
+                Osgb36GridRef(equiId, ngr).
 
             EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
-                AibEquipment(equiId, _, _,  _, _, _,  ngr, _, _).
+                Osgb36GridRef(equiId, ngr).
         };
         solve (rules <+> input) project EquiCharacteristic
 

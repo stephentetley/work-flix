@@ -103,9 +103,9 @@ namespace AssetLib/GenS4/WorkListRelations {
         let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
         let* sysClass       = map(String.trim, getContentNamed("System Class"));
-        let* sysType        = map(String.trim, getContentNamed("System Type"));
+        let* sysType        = map(String.trim, getContentNamed("System Type (Text)"));
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
-        let* solutionId     = map(String.trim, getContentNamed("Solution Id"));
+        let* solutionId     = map(String.trim, getContentNamed("Solution ID"));
         let ofloc           = AssetLib/Base/S4/Floc.new(floc);
         let level           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
         return(#{ FlocWorkItem(floc, name, level, sainum, installedFrom, structureInd, objType, sysClass, sysType, ngr, solutionId). })

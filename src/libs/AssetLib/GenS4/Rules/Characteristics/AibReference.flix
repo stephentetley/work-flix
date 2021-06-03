@@ -17,15 +17,14 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
-    use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
+    use AssetLib/AibFacts/Attributes/AibReference.{ParentRef};
     use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
-    /// TODO - parentRef should potentially be a singular fact:
-    /// > rel ParentRef(aibref: String, parent: String)
+
     /// 
-    pub def equiAibReference(input: #{EquiWorkItem, AibEquipment, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    pub def equiAibReference(input: #{EquiWorkItem, ParentRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
@@ -38,7 +37,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
             /// AI2_AIB_REFERENCE (parent)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parent)) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
-                AibEquipment(equiId, _, _,  _, _, _,  _, _, parent).
+                ParentRef(equiId, _, parent).
         };
         solve (rules <+> input) project EquiCharacteristic
 
