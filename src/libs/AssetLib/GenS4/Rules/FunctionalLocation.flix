@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Gens4/FlocGen/Rules {
+namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
 
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
@@ -48,8 +48,8 @@ namespace AssetLib/Gens4/FlocGen/Rules {
                 FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _, _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, systemClass, systemType, 1, S4String("")) :- 
-                FlocWorkItem(funcloc, _, level, _, _, _, systemClass, systemType, _, _, _),
+            FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", 1, S4String(systemDescr)) :- 
+                FlocWorkItem(funcloc, _, level, _, _, _, _, className, systemDescr, _, _),
                 if level == 5.
         };
         solve (rules <+> workitems) project FlocCharacteristic

@@ -35,8 +35,8 @@ namespace AssetLib/GenS4/GenFlocs {
     pub def generateFlocUxl(workList: XlsxSource): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
         let* workitems      = AssetLib/GenS4/WorkListRelations.readFlocWorkList(workList.sheet, workList.file);
-        let flocs           = AssetLib/Gens4/FlocGen/Rules.genFlocs(workitems);
-        let c1              = AssetLib/Gens4/FlocGen/Rules.flocCharacteristics1(workitems);
+        let flocs           = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
+        let c1              = AssetLib/Gens4/Rules/FunctionalLocation.flocCharacteristics1(workitems);
         /// let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
         /// let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
         /// let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);

@@ -8,7 +8,7 @@ use AssetLib/GenS4/XlsxSource.{XlsxSource};
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
     , changeRequestName = "R/1374/003 Rivelin WTW Hypo (BF) 20/04/2021"
-    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/uxl-output1.xlsx")
+    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/rivelin-uxl-output1.xlsx")
     }
 
 def genEquiArgs(): GenEquiArguments = 

@@ -47,7 +47,7 @@ namespace AssetLib/GenS4/WorkListRelations {
                         structureIndicator: String,
                         objectType: String, 
                         systemClass: String,        /// Level 5 flocs only
-                        systemType: String,         /// Level 5 flocs only
+                        systemTypeDescription: String,         /// Level 5 flocs only
                         gridRef: String, 
                         solutionId: String
                         )
@@ -102,7 +102,7 @@ namespace AssetLib/GenS4/WorkListRelations {
         let* installedFrom  = getS4LocalDateNamed("Installed From");
         let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
-        let* sysClass       = map(String.trim, getContentNamed("System Class"));
+        let* sysClass       = map(String.trim, getContentNamed("Class Name (System)"));
         let* sysType        = map(String.trim, getContentNamed("System Type (Text)"));
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
         let* solutionId     = map(String.trim, getContentNamed("Solution ID"));
