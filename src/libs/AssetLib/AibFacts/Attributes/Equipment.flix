@@ -34,9 +34,14 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
 
 
     pub rel EquipmentAttibutes(aibref: String,
+                                installedFrom: Time.LocalDate,
+                                manufacturer: String,
+                                model: String,
+                                status: String, 
+                                gridRef: String,
                                 pandiTag: String,
-                                specificModelFrame: String,
                                 serialNumber: String,
+                                specificModelFrame: String,
                                 weightKg: Option[Float64])
 
     pub rel LocationOnSite(aibref: String, text: String)
@@ -56,9 +61,9 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
 
 
     pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttibutes, LocationOnSite | r}] =    
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
-        let* c1 = withDefault(getLocationOnSite(), #{});
-        let* c2 = withDefault(getEquipmentAttibutes(), #{});
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};
+        let* c1 = withDefault(getEquipmentAttibutes(), #{});  
+        let* c2 = withDefault(getLocationOnSite(), #{});
         return(c1 <+> c2)
 
 
@@ -67,13 +72,20 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
         
 
     pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttibutes | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getContentNamed, getFloat64Named}; 
-        let* aibref     = getContentNamed("Reference");
-        let* pandi      = getContentNamed("P AND I Tag No");
-        let* model      = getContentNamed("Specific Model/Frame");
-        let* serialNum  = getContentNamed("Serial No");
-        let* weightKg   = optional(getFloat64Named("Weight kg"));
-        return(#{ EquipmentAttibutes(aibref, pandi, model, serialNum, weightKg). })
-
+        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getNonEmptyContentNamed, getContentNamed, 
+            getFloat64Named, getLocalDateNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> 
+            #{ EquipmentAttibutes(x1,x2, x3, x4, x5, x6, x7, x8, x9, x10). })
+            <&> getNonEmptyContentNamed("Reference")            
+            <*> getLocalDateNamed("Installed From")
+            <*> getContentNamed("Manufacturer")
+            <*> getContentNamed("Model")
+            <*> getContentNamed("AssetStatus")
+            <*> getContentNamed("Loc.Ref.")
+            <*> getContentNamed("P AND I Tag No")
+            <*> getContentNamed("Serial No")
+            <*> getContentNamed("Specific Model/Frame")
+            <*> optional(getFloat64Named("Weight kg"))
 
 }

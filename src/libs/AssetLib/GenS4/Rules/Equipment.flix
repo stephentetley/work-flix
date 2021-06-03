@@ -16,14 +16,13 @@
 
 namespace AssetLib/GenS4/Rules/Equipment {
 
-    use AssetLib/AibFacts/HierarchyFacts.{AibEquipment};
     use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
     use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
     pub def genEquis(today: Time.LocalDate, 
-                        input: #{EquiWorkItem, AibEquipment, EquipmentAttibutes, Equipment | r1}): #{Equipment | r} = 
+                        input: #{EquiWorkItem, EquipmentAttibutes, Equipment | r1}): #{Equipment | r} = 
         let rules = #{
             Equipment(aibref, 
                         s4Category,
@@ -42,8 +41,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
                         pandiTag,
                         s4Status(status)) :- 
                 EquiWorkItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
-                AibEquipment(aibref, _, _, installedFrom, manufacturer, model,  _, status, _), 
-                EquipmentAttibutes(aibref, pandiTag, specificModelFrame, serialNumber, weightKg).
+                EquipmentAttibutes(aibref, installedFrom, manufacturer, model, status, gridRef, pandiTag, serialNumber, specificModelFrame, weightKg).
         };
         solve (rules <+> input) project Equipment
 
@@ -79,10 +77,6 @@ namespace AssetLib/GenS4/Rules/Equipment {
         case s1 if (String.isEmpty(s1)) => "UNKNOWN"
         case s1 => s1
     }
-
-
-
-
 
 
         /// TODO - this should go in a separate report that deduces valve types...

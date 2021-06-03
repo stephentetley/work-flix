@@ -32,7 +32,6 @@ namespace AssetLib/GenS4/GenEqui {
     type alias GenEquiArguments = 
         { uxlArgs: UxlOutputArgs
         , worklist: XlsxSource
-        , aibHierarchyExport: XlsxSource
         , aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
         }
@@ -47,9 +46,10 @@ namespace AssetLib/GenS4/GenEqui {
     pub def generateEquiUxl(args: GenEquiArguments): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
         let* workitems  = AssetLib/GenS4/WorkListRelations.readEquiWorkList(args.worklist.sheet, args.worklist.file);
-        let* baseRelns  = loadBaseRelations(args);
+        let* equiAttrs  = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
+        let* memos      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);     
+        let input       = workitems <+> equiAttrs <+> memos;
         let today       = Time/LocalDate.now();
-        let input       = baseRelns <+> workitems;
         let equis       = AssetLib/GenS4/Rules/Equipment.genEquis(today, input);
         let longText    = AssetLib/GenS4/Rules/LongText.genEquiLongText(input);
         let c1          = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(input);
@@ -63,14 +63,6 @@ namespace AssetLib/GenS4/GenEqui {
         /// let* c5         = AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(workitems, args.aibElectricalExport);
         /// let* c6         = AssetLib/GenS4/Rules/Characteristics/Star.genStar(workitems, args.aibElectricalExport);
 
-    def loadBaseRelations(args: GenEquiArguments): Result[#{AibRootNode, AibFloc, AibEquipment, 
-                                                            EquipmentAttibutes, AibMemoLine, 
-                                                            LocationOnSite | r}, String] & Impure = 
-        use Result.{flatMap};
-        let* hrelns     = AssetLib/AibFacts/HierarchyFacts.readHierarchyRelations(args.aibHierarchyExport.sheet, args.aibHierarchyExport.file);
-        let* equiAttrs  = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
-        let* memos      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);     
-        Ok(hrelns <+> equiAttrs <+> memos)
 
     def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
         { funclocs = Nil

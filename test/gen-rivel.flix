@@ -1,3 +1,6 @@
+/// This is a temporary script to work out how we make the S4Lite backend configurable
+/// and how we can collect configurable sets of facts.
+
 use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 use AssetLib/GenS4/GenEqui.{GenEquiArguments};
 
@@ -11,8 +14,6 @@ def genEquiArgs(): GenEquiArguments =
     { uxlArgs = uxlOutputArgs()
     , worklist = 
         {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-sodium-hypo-worklist.xlsx"), sheet = "Sheet1"}
-    , aibHierarchyExport = 
-        {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"} 
     , aibEquipmentExport = 
         {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"}
     , aibMemosExport = 
