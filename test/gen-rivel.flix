@@ -3,6 +3,7 @@
 
 use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 use AssetLib/GenS4/GenEqui.{GenEquiArguments};
+use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
@@ -11,8 +12,7 @@ pub def uxlOutputArgs(): UxlOutputArgs =
     }
 
 def genEquiArgs(): GenEquiArguments = 
-    { uxlArgs = uxlOutputArgs()
-    , worklist = 
+    { workList = 
         {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-sodium-hypo-worklist.xlsx"), sheet = "Sheet1"}
     , aibEquipmentExport = 
         {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"}
@@ -20,14 +20,25 @@ def genEquiArgs(): GenEquiArguments =
         {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-memo-export.xlsx"), sheet = "Sheet1"}
     }
 
+def genFlocSource(): XlsxSource = 
+    {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-sodium-hypo-worklist.xlsx"), sheet = "New_Flocs"}
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    let args1 = genEquiArgs();
-    let ans = AssetLib/GenS4/GenEqui.emitEquiUxl(args1);
-    match ans {
-        case Ok() => Console.printLine("Success, wrote ${args1.uxlArgs.outpath}")
+    match genRivel() {
+        case Ok() => ()
         case Err(msg) => Console.printLine("Error: ${msg}")
     };
     Console.printLine("Done... ${Time/LocalTime.now()}");
     0
+
+def genRivel(): Result[Unit, String] & Impure = 
+    use Result.{flatMap};
+    let equiArgs    = genEquiArgs();
+    let uxlArgs     = uxlOutputArgs();
+    let* flocs      = AssetLib/GenS4/GenFlocs.generateFlocUxl(genFlocSource());
+    let* equis      = AssetLib/GenS4/GenEqui.generateEquiUxl(equiArgs);
+    let uxl         = AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis);
+    let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(uxl, uxlArgs);
+    let _           = Console.printLine("Wrote: ${uxlArgs.outpath}");
+    Ok()

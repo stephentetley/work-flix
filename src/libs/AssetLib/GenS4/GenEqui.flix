@@ -30,22 +30,21 @@ namespace AssetLib/GenS4/GenEqui {
     /// TODO - need to be able to generate EquiCharacteristics from a Worklist and an XlsxSource
     /// and aggregate them 
     type alias GenEquiArguments = 
-        { uxlArgs: UxlOutputArgs
-        , worklist: XlsxSource
+        { workList: XlsxSource
         , aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
         }
 
-    pub def emitEquiUxl(args: GenEquiArguments): Result[Unit, String] & Impure = 
+    pub def emitEquiUxl(genArgs: GenEquiArguments, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* answers    = generateEquiUxl(args);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(answers, args.uxlArgs);
+        let* answers    = generateEquiUxl(genArgs);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(answers, outputArgs);
         Ok()
 
     /// Empty string for no solution id.
     pub def generateEquiUxl(args: GenEquiArguments): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
-        let* workitems  = AssetLib/GenS4/WorkListRelations.readEquiWorkList(args.worklist.sheet, args.worklist.file);
+        let* workitems  = AssetLib/GenS4/WorkListRelations.readEquiWorkList(args.workList.sheet, args.workList.file);
         let* equiAttrs  = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
         let* memos      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);     
         let input       = workitems <+> equiAttrs <+> memos;
@@ -53,7 +52,7 @@ namespace AssetLib/GenS4/GenEqui {
         let equis       = AssetLib/GenS4/Rules/Equipment.genEquis(today, input);
         let longText    = AssetLib/GenS4/Rules/LongText.genEquiLongText(input);
         let c1          = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(input);
-        let answers     = genS4Lite(equis <+> longText <+> c1);
+        let answers     = genS4Lite(solve equis <+> longText <+> c1);
         Ok(answers)
 
         /// TODO these need accommodating somehow... (plugins?)

@@ -37,10 +37,10 @@ namespace AssetLib/GenS4/GenFlocs {
         let* workitems      = AssetLib/GenS4/WorkListRelations.readFlocWorkList(workList.sheet, workList.file);
         let flocs           = AssetLib/Gens4/FlocGen/Rules.genFlocs(workitems);
         let c1              = AssetLib/Gens4/FlocGen/Rules.flocCharacteristics1(workitems);
-        let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
-        let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
-        let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
-        let answers         = genS4Lite(flocs <+> c1 <+> c2 <+> c3 <+> c4);
+        /// let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
+        /// let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
+        /// let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
+        let answers         = genS4Lite(solve flocs <+> c1);
         Ok(answers)
 
 
