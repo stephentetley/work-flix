@@ -76,7 +76,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
                                 outpath: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
-        let headers = ["FUNCLOC", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "VALCNT", "ATFLV", "ATFLB"];
+        let headers = ["FUNCLOC", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "ATZIS", "VALCNT", "ATFLV", "ATFLB"];
         let* rows2 = execMapUploadRowSetter(headers, valuaFlocSetRow!, rows);
         outputUploadFile(ValuaFloc, None, user, headers, rows2, outpath)
 

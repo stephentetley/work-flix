@@ -22,6 +22,13 @@ namespace AssetLib/S4Lite/EmitUpload {
 
     /// FLOC
 
+    /// WARNING
+    /// Cannot upload new characteristics onto a Floc in the staging tables.
+    /// S4 reports nonsensical errors.
+    /// To generate Flocs we either have to use all UXL or approve and activate
+    /// minimal flocs (then File Upload further characteristics).
+
+
     pub def outputFlocUploads(userName: String,
                                 input: List[FlocCharacteristic],
                                 nameRoot: String,
@@ -52,7 +59,7 @@ namespace AssetLib/S4Lite/EmitUpload {
     def toClassFlocRow(x: FlocCharacteristic): ClassFlocRow = 
         { funcloc               = x.funcloc
         , className             = x.className
-        , classType             = "002"
+        , classType             = "003"
         , internalClassNumber   = ""
         , status                = Some(1)
         }
@@ -76,7 +83,7 @@ namespace AssetLib/S4Lite/EmitUpload {
 
     def characterValuaFlocRow(x: FlocCharacteristic): ValuaFlocRow = 
         { funcloc           = x.funcloc
-        , classType         = "002"
+        , classType         = "003"
         , charId            = x.charName
         , charValue         = x.charValue
         , code              = Some(1)

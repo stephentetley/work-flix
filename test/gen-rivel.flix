@@ -25,14 +25,14 @@ def genFlocSource(): XlsxSource =
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    match genRivelPhase1() {
+    match genEastNorth() {
         case Ok() => ()
         case Err(msg) => Console.printLine("Error: ${msg}")
     };
     Console.printLine("Done... ${Time/LocalTime.now()}");
     0
 
-def genRivelPhase1(): Result[Unit, String] & Impure = 
+def _genRivelPhase1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
     let uxlArgs     = uxlOutputArgs();
@@ -41,4 +41,15 @@ def genRivelPhase1(): Result[Unit, String] & Impure =
     let uxl         = AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis);
     let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(uxl, uxlArgs);
     let _           = Console.printLine("Wrote: ${uxlArgs.outpath}");
+    Ok()
+
+def genEastNorth(): Result[Unit, String] & Impure = 
+    use Result.{flatMap};
+    let flocArgs    = genFlocSource();
+    let outdir      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/");
+    let* xs         = AssetLib/GenS4/WorkLists.readFlocWorkList(flocArgs.sheet, flocArgs.file);
+    let _           = Console.printLine("Floc work list length: ${List.length(xs)}");
+    let* flocchars  = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(xs);    
+    let _           = Console.printLine("flocchars length: ${List.length(flocchars)}");
+    let* _          = AssetLib/S4Lite/EmitUpload.outputFlocUploads("tetleys", flocchars, "rivel", outdir);
     Ok()

@@ -18,16 +18,24 @@
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use AssetLib/AibFacts/Attributes/Equipment.{Osgb36GridRef};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{FlocCharacteristic => SLFlocCharacteristic, 
+        EquiCharacteristic => SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{FunclocWorkItem, FlocWorkItem, EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
+    use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-    /// pub def genEquiEastNorth(input: #{EquiWorkItem, Osgb36GridRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    pub def genEquiEastNorth(worklist: List[EquipmentWorkItem], 
+                            gridRefSource: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let* facts      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(gridRefSource.sheet, gridRefSource.file);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let ans         = equiEastNorth(facts <+> workitems) |> AssetLib/GenS4/S4LiteRelations.toS4LiteEquiCharacteristic;
+        Ok(ans) 
 
     pub def equiEastNorth(input: #{EquiWorkItem, Osgb36GridRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
-        let rules = #{
-            
+        let rules = #{            
             EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
                 Osgb36GridRef(equiId, ngr).
@@ -37,6 +45,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
                 Osgb36GridRef(equiId, ngr).
         };
         solve (rules <+> input) project EquiCharacteristic
+
+
+    pub def genFlocEastNorth(worklist: List[FunclocWorkItem]): Result[List[SLFlocCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
+        let ans         = flocEastNorth(workitems) |> AssetLib/GenS4/S4LiteRelations.toS4LiteFlocCharacteristic;
+        Ok(ans) 
 
     pub def flocEastNorth(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};

@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/XlsxSource {
         , sheet: String
         }
 
-    pub def fromString(s: String): XlsxSource = match String.breakOnLeft("##", s) {
+    pub def ofString(s: String): XlsxSource = match String.breakOnLeft("##", s) {
         case (s1, s2) if String.isEmpty(s2) => {file = System/FilePath.new(s1), sheet = "Sheet1"}
         case (s1, s2) => {file = System/FilePath.new(s1), sheet = Option.getWithDefault(String.stripPrefix("##", s2), "")}
     }
