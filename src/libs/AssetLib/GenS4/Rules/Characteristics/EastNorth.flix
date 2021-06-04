@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use AssetLib/AibFacts/Attributes/Equipment.{Osgb36GridRef};
-    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
 

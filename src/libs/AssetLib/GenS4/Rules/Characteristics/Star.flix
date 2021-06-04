@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
     use AssetLib/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass,
         IPRating, SpeedRPM, Power, PowerUnits, VoltageIn, VoltageInACOrDC};
 
-    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};

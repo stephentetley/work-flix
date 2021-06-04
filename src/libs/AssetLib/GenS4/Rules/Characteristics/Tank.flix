@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, UnitLengthM, UnitSideDepthM, 
         UnitSideDepthMinM, UnitSideDepthMaxM};
 
-    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 

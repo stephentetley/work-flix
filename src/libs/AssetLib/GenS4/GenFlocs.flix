@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/GenFlocs {
     use AssetLib/S4Lite/Datatypes.{UxlSource};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
-    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
 
 
@@ -34,7 +34,8 @@ namespace AssetLib/GenS4/GenFlocs {
 
     pub def generateFlocUxl(workList: XlsxSource): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
-        let* workitems      = AssetLib/GenS4/WorkListRelations.readFlocWorkList(workList.sheet, workList.file);
+        let* xs             = AssetLib/GenS4/WorkLists.readFlocWorkList(workList.sheet, workList.file);
+        let workitems       = AssetLib/GenS4/WorkLists.makeFlocWorkItems(xs);
         let flocs           = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
         let c1              = AssetLib/Gens4/Rules/FunctionalLocation.flocCharacteristics1(workitems);
         let answers         = genS4Lite(solve flocs <+> c1);

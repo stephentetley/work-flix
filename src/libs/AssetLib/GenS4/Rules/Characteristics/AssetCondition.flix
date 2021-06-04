@@ -24,7 +24,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     use AssetLib/AibFacts/Attributes/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         LoadingFactor, LoadingFactorReason, PerformanceGrade, PerformanceGradeReason, 
         SurveyYear};
-    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};

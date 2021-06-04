@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
                                             Flow, FlowUnits, ImpellerType, LiftingType, 
                                             RatingPower, RatingUnits};
 
-    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};

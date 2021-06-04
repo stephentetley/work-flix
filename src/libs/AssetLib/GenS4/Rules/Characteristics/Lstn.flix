@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
     use AssetLib/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
         SignalMin, SignalMax, SignalUnit};
 
-    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};

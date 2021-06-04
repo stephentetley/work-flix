@@ -25,14 +25,14 @@ def genFlocSource(): XlsxSource =
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    match genRivel() {
+    match genRivelPhase1() {
         case Ok() => ()
         case Err(msg) => Console.printLine("Error: ${msg}")
     };
     Console.printLine("Done... ${Time/LocalTime.now()}");
     0
 
-def genRivel(): Result[Unit, String] & Impure = 
+def genRivelPhase1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
     let uxlArgs     = uxlOutputArgs();

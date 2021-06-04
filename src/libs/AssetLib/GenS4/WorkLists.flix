@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/WorkListRelations {
+namespace AssetLib/GenS4/WorkLists {
     
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
@@ -47,8 +47,37 @@ namespace AssetLib/GenS4/WorkListRelations {
                             s4EquiType: String, 
                             s4EquiClass: String)
 
+    pub def makeEquiWorkItems(xs: List[EquipmentWorkItem]): #{ EquiWorkItem | r} = 
+        List.foldLeft((ac, a) -> ac <+> makeEquiWorkItem(a), #{}, xs)
+
+    pub def makeEquiWorkItem(x: EquipmentWorkItem): #{ EquiWorkItem | r} = #{
+        EquiWorkItem(x.equipmentId,
+                        x.s4Name,  
+                        x.s4Floc,
+                        x.superEquiId,
+                        x.solutionId,
+                        x.position,
+                        x.s4Category, 
+                        x.s4EquiType, 
+                        x.s4EquiClass).
+    }
 
     /// Functional Location (under-developed at the moment)
+
+    type alias FunclocWorkItem = 
+        { funcloc: String
+        , description: String
+        , level: Int32
+        , sainum: String
+        , installedFrom: Time.LocalDate
+        , structureIndicator: String
+        , objectType: String 
+        , systemClass: String                   /// Level 5 flocs only
+        , systemTypeDescription: String         /// Level 5 flocs only
+        , gridRef: String
+        , solutionId: String
+        }
+
 
     pub rel FlocWorkItem(funcloc: String, 
                         description: String, 
@@ -63,26 +92,41 @@ namespace AssetLib/GenS4/WorkListRelations {
                         solutionId: String
                         )
 
+    pub def makeFlocWorkItems(xs: List[FunclocWorkItem]): #{FlocWorkItem | r} = 
+        List.foldLeft((ac, a) -> ac <+> makeFlocWorkItem(a), #{}, xs)
 
-    def readWorkList(sheetName: String, eval: NamedRowEvaluator[#{| r}]): SheetReader[#{| r}] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};
+
+    pub def makeFlocWorkItem(x: FunclocWorkItem): #{ FlocWorkItem | r}= #{
+        FlocWorkItem(x.funcloc, 
+                        x.description, 
+                        x.level,
+                        x.sainum,
+                        x.installedFrom,
+                        x.structureIndicator,
+                        x.objectType, 
+                        x.systemClass,
+                        x.systemTypeDescription,
+                        x.gridRef, 
+                        x.solutionId).
+    }
+
+    def readWorkList(sheetName: String, eval: NamedRowEvaluator[a]): SheetReader[List[a]] = 
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, someNamedRows};
         let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, eval);
-        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
-        return(relns)
+        let* xs     = someNamedRows(s1, eval);
+        return(xs)
 
     
 
 
     /// Read from Aib xlsx export file...
     pub def readEquiWorkList(sheetName: String, 
-                            path: System.FilePath): Result[#{EquiWorkItem | r}, String] & Impure =
-        let eval = SheetIO/NamedRowEvaluator.withDefault(evalEquiWorkItem(), #{});
-        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, eval), path)
+                            path: System.FilePath): Result[List[EquipmentWorkItem], String] & Impure =
+        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalEquiWorkItem()), path)
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory
-    def evalEquiWorkItem(): NamedRowEvaluator[#{EquiWorkItem | r}] =
+    def evalEquiWorkItem(): NamedRowEvaluator[EquipmentWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
         let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
         let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
@@ -93,18 +137,27 @@ namespace AssetLib/GenS4/WorkListRelations {
         let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
         let* s4Type     = map(String.trim, getNonEmptyContentNamed("Equi Type"));
         let* s4Class    = map(String.trim, getNonEmptyContentNamed("Equi Class"));
-        return(#{ EquiWorkItem(aibref, s4Name, s4Floc, superId, solutionId, position, category, s4Type, s4Class). })
+        return({ equipmentId = aibref
+                , s4Name = s4Name
+                , s4Floc = s4Floc
+                , superEquiId = superId
+                , solutionId = solutionId
+                , position = position
+                , s4Category = category
+                , s4EquiType = s4Type
+                , s4EquiClass = s4Class
+                })
 
 
     /// Flocs
 
     /// Read from Aib xlsx export file...
     pub def readFlocWorkList(sheetName: String, 
-                                path: System.FilePath): Result[#{FlocWorkItem | r}, String] & Impure =
+                                path: System.FilePath): Result[List[FunclocWorkItem], String] & Impure =
         SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalFlocWorkItem()), path)
         
 
-    def evalFlocWorkItem(): NamedRowEvaluator[#{FlocWorkItem| r}] =
+    def evalFlocWorkItem(): NamedRowEvaluator[FunclocWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
@@ -119,9 +172,17 @@ namespace AssetLib/GenS4/WorkListRelations {
         let* solutionId     = map(String.trim, getContentNamed("Solution ID"));
         let ofloc           = AssetLib/Base/S4/Floc.new(floc);
         let level           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
-        return(#{ FlocWorkItem(floc, name, level, sainum, installedFrom, structureInd, objType, sysClass, sysType, ngr, solutionId). })
-
-
-
-
+        return({ funcloc = floc
+                , description = name
+                , level = level
+                , sainum = sainum
+                , installedFrom = installedFrom
+                , structureIndicator = structureInd
+                , objectType = objType
+                , systemClass = sysClass
+                , systemTypeDescription = sysType
+                , gridRef = ngr
+                , solutionId = solutionId
+                })
+        
 }

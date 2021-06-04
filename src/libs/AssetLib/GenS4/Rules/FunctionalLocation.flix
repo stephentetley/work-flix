@@ -19,7 +19,7 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/WorkListRelations.{FlocWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItem};
 
 
 

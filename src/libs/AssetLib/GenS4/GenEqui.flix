@@ -23,7 +23,7 @@ namespace AssetLib/GenS4/GenEqui {
     use AssetLib/S4Lite/Datatypes.{UxlSource};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
-    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
 
 
@@ -44,7 +44,8 @@ namespace AssetLib/GenS4/GenEqui {
     /// Empty string for no solution id.
     pub def generateEquiUxl(args: GenEquiArguments): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
-        let* workitems  = AssetLib/GenS4/WorkListRelations.readEquiWorkList(args.workList.sheet, args.workList.file);
+        let* xs         = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList.sheet, args.workList.file);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(xs);
         let* equiAttrs  = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport.sheet, args.aibEquipmentExport.file);
         let* memos      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport.sheet, args.aibMemosExport.file);     
         let input       = workitems <+> equiAttrs <+> memos;

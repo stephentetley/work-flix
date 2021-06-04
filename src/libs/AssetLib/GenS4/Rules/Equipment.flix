@@ -17,7 +17,7 @@
 namespace AssetLib/GenS4/Rules/Equipment {
 
     use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttributes};
-    use AssetLib/GenS4/WorkListRelations.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
