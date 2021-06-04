@@ -20,6 +20,17 @@ namespace AssetLib/GenS4/WorkListRelations {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
+    type alias EquipmentWorkItem = 
+        { equipmentId: String
+        , s4Name: String
+        , s4Floc: String
+        , superEquiId: String
+        , solutionId: String
+        , position: Option[Int32]
+        , s4Category: String
+        , s4EquiType: String
+        , s4EquiClass: String
+        }
 
 
 

@@ -37,13 +37,15 @@ namespace AssetLib/GenS4/GenFlocs {
         let* workitems      = AssetLib/GenS4/WorkListRelations.readFlocWorkList(workList.sheet, workList.file);
         let flocs           = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
         let c1              = AssetLib/Gens4/Rules/FunctionalLocation.flocCharacteristics1(workitems);
-        /// let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
-        /// let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
-        /// let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
         let answers         = genS4Lite(solve flocs <+> c1);
         Ok(answers)
 
 
+        /// let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
+        /// let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
+        /// let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
+
+        
     def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
         { funclocs = AssetLib/GenS4/S4LiteRelations.toS4LiteFunctionalLocation(relns)
         , funclocLongTexts = Nil

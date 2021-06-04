@@ -68,8 +68,11 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(5, x.objectType);
         let* _      = putS4DateAt!(11, x.startupDate);
         let* _      = putInt32At!(22, x.maintPlant);
+        let* _      = putStringAt!(26, x.workCenter);     /// Do we need to write this?
         let* _      = putInt32At!(29, x.companyCode);
         let* _      = putInt32At!(34, x.coArea);
+        let* _      = putStringAt!(40, x.mainWorkCenter);
+        let* _      = putInt32At!(41, x.plantWorkCenter);
         let* _      = putStringAt!(45, x.supFunctLoc);
         let* _      = putS4BoolAt!(46, x.equipInstall);     /// Do we need to write this?
         let* _      = putStringAt!(48, x.statusProfile);
@@ -153,6 +156,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putInt32At!(19, x.constructYear);
         let* _      = putPaddedInt32At!(20, 2, '0', x.constructMth);
         let* _      = putInt32At!(21, x.maintPlant);
+        let* _      = putStringAt!(26, x.workCenter);
         let* _      = putInt32At!(28, x.companyCode);           /// AC BukrEilo
         let* _      = putInt32At!(33, x.coArea);                /// AH 
         let* _      = putInt32At!(37, x.planningPlant);

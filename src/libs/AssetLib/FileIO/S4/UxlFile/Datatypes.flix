@@ -43,8 +43,11 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , objectType: String
         , startupDate: Time.LocalDate
         , maintPlant: Int32
+        , workCenter: String
         , companyCode: Int32
         , coArea: Int32
+        , mainWorkCenter: String            /// default: DEFAULT
+        , plantWorkCenter: Int32            /// default: 2100
         , supFunctLoc: String
         , equipInstall: Bool
         , statusProfile: String
@@ -91,6 +94,7 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , constructYear: Int32
         , constructMth: Int32
         , maintPlant: Int32
+        , workCenter: String                /// default: DEFAULT; TODO 4/6/20 needs checking
         , companyCode: Int32
         , coArea: Int32
         , planningPlant: Int32

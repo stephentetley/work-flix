@@ -79,8 +79,11 @@ namespace AssetLib/S4Lite/EmitUxl {
         , objectType            = x.objectType
         , startupDate           = x.startupDate
         , maintPlant            = 2100
+        , workCenter            = "DEFAULT"
         , companyCode           = 2100
         , coArea                = 1000
+        , mainWorkCenter        = "DEFAULT"     /// default: DEFAULT
+        , plantWorkCenter       = 2100          /// default: 2100
         , supFunctLoc           = superiorFloc
         , equipInstall          = x.equipmentInstall
         , statusProfile         = "ZEQUIPST"
@@ -155,6 +158,7 @@ namespace AssetLib/S4Lite/EmitUxl {
         , constructYear     = Time/LocalDate.getYear(x.startupDate)
         , constructMth      = Time/LocalDate.getMonthValue(x.startupDate)
         , maintPlant        = 2100
+        , workCenter        = "DEFAULT"
         , companyCode       = 2100
         , coArea            = 1000
         , planningPlant     = 2100
