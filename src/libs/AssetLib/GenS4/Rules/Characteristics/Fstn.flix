@@ -19,26 +19,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
 
     use AssetLib/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
         SignalMin, SignalMax, SignalUnit};
-
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-
-    pub def genFstn(input: #{EquiWorkItem, RangeMin, RangeMax, RangeUnit,
-                            SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}, 
-                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
-        use Result.{flatMap};    
-        match source {
-            case Some(src) => { 
-                let* facts = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src.sheet, src.file);
-                let ans = fstn(facts <+> input);
-                Ok(ans)
-            }
-            case None => Ok(#{ }) as & Impure
-        }
+    /// src should be instrument facts
+    pub def genEmtr(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src.sheet, src.file);
+        let ans         = fstn(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
 
 
     /// Note LOCATION_ON_SITE already created.

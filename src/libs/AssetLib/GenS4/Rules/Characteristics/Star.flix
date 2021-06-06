@@ -19,27 +19,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
 
     use AssetLib/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass,
         IPRating, SpeedRPM, Power, PowerUnits, VoltageIn, VoltageInACOrDC};
-
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
+    /// src should be electrical facts
+    pub def genStar(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);
+        let ans         = star(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
 
-    pub def genStar(input: #{EquiWorkItem, CurrentIn, InsulationClass, 
-                            IPRating, Power, PowerUnits, SpeedRPM,
-                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}, 
-                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
-        use Result.{flatMap};    
-        match source {
-            case Some(src) => { 
-                let* c1 = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);
-                let ans = star(c1 <+> input);
-                Ok(ans)
-            }
-            case None => Ok(#{ }) as & Impure
-        }
 
     /// TODO "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
 

@@ -20,28 +20,22 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     use AssetLib/AibFacts/Attributes/Tank.{TankConstruction, TankLevel, TankShape,
         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, UnitLengthM, UnitSideDepthM, 
         UnitSideDepthMinM, UnitSideDepthMaxM};
-
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-    pub def genTank(input: #{EquiWorkItem, TankConstruction, TankLevel, TankShape,
-                            UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, UnitLengthM, UnitSideDepthM, 
-                            UnitSideDepthMinM, UnitSideDepthMaxM, EquiCharacteristic | r1}, 
-                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
-        use Result.{flatMap};    
-        match source {
-            case Some(src) => { 
-                let* facts = AssetLib/AibFacts/Attributes/Tank.readTankData(src.sheet, src.file);
-                let ans = tank(facts <+> input);
-                Ok(ans)
-            }
-            case None => Ok(#{ }) as & Impure
-        }
 
+    /// src should be tank facts
+    pub def genTank(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src.sheet, src.file);
+        let ans         = tank(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
 
     pub def tank(input: #{EquiWorkItem, TankLevel, 
                             TankConstruction, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 

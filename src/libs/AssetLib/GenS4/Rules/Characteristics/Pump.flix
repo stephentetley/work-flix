@@ -18,28 +18,23 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
     use AssetLib/AibFacts/Attributes/Pump.{DiaphragmMaterial, DutyHead, DutyHeadUnits,
-                                            Flow, FlowUnits, ImpellerType, LiftingType, 
-                                            RatingPower, RatingUnits};
-
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+        Flow, FlowUnits, ImpellerType, LiftingType, RatingPower, RatingUnits};
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-    pub def genPump(input: #{EquiWorkItem, DiaphragmMaterial, DutyHead, DutyHeadUnits,
-                            Flow, FlowUnits, ImpellerType, LiftingType, 
-                            RatingPower, RatingUnits, EquiCharacteristic | r1}, 
-                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
-        use Result.{flatMap};    
-        match source {
-            case Some(src) => { 
-                let* facts = AssetLib/AibFacts/Attributes/Pump.readPumpData(src.sheet, src.file);
-                let ans = pump(facts <+> input);
-                Ok(ans)
-            }
-            case None => Ok(#{ }) as & Impure
-        }
+
+    /// src should be pump facts
+    pub def genPump(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src.sheet, src.file);
+        let ans         = pump(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
+
 
     pub def pump(input: #{EquiWorkItem, DiaphragmMaterial, DutyHead, DutyHeadUnits,
                             Flow, FlowUnits, ImpellerType, LiftingType, 

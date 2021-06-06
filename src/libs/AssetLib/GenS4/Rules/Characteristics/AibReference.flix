@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
-    use AssetLib/AibFacts/Attributes/AibReference.{ParentRef};    
+    use AssetLib/AibFacts/Attributes/AibReference.{ParentRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{FunclocWorkItem, FlocWorkItem, EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};

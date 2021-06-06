@@ -24,24 +24,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     use AssetLib/AibFacts/Attributes/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         LoadingFactor, LoadingFactorReason, PerformanceGrade, PerformanceGradeReason, 
         SurveyYear};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-    pub def genAssetCondition(input: #{EquiWorkItem, ConditionGrade, ConditionGradeReason, 
-                                        LoadingFactor, LoadingFactorReason, PerformanceGrade, PerformanceGradeReason, 
-                                        SurveyYear, EquiCharacteristic | r1}, 
-                                source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
-        use Result.{flatMap};    
-        match source {
-            case Some(src) => { 
-                let* c1 = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(src.sheet, src.file);
-                let ans = assetCondition(c1 <+> input);
-                Ok(ans)
-            }
-            case None => Ok(#{ }) as & Impure
-        }
+
+    /// src should be asset condition facts
+    pub def genAssetCondition(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let* facts = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(src.sheet, src.file);
+        let ans = assetCondition(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
 
     pub def assetCondition(input: #{EquiWorkItem, ConditionGrade, ConditionGradeReason, 
                                     LoadingFactor, LoadingFactorReason, 

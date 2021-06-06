@@ -17,11 +17,16 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
-    use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{FunclocWorkItem, FlocWorkItem, EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
-
+    pub def genEquiSolutionId(worklist: List[EquipmentWorkItem]): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let ans         = equiSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
 
     /// This generates a SOLUTION_ID class and characteristic for every item in the change request list
     /// that has a `Solution ID`.
@@ -34,6 +39,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
         };
         solve (rules <+> workitems) project EquiCharacteristic
         
+    pub def genFlocSolutionId(worklist: List[FunclocWorkItem]): Result[List[SLFlocCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
+        let ans         = flocSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        Ok(ans)
 
     pub def flocSolutionId(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         let rules = #{

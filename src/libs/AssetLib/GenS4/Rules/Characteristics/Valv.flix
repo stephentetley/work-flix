@@ -18,23 +18,19 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Valv {
 
     use AssetLib/AibFacts/Attributes/Valve.{ValveType, Size, SizeUnits};
-
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-    pub def genValv(input: #{EquiWorkItem, ValveType, Size, SizeUnits, EquiCharacteristic | r1}, 
-                    source: Option[XlsxSource]): Result[#{EquiCharacteristic | r}, String] & Impure =  
-        use Result.{flatMap};    
-        match source {
-            case Some(src) => { 
-                let* facts = AssetLib/AibFacts/Attributes/Valve.readValveData(src.sheet, src.file);
-                let ans = valv(facts <+> input);
-                Ok(ans)
-            }
-            case None => Ok(#{ }) as & Impure
-        }
+    /// src should be valve facts
+    pub def genValv(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/Valve.readValveData(src.sheet, src.file);
+        let ans         = valv(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
 
     pub def valv(input: #{EquiWorkItem, ValveType, Size, SizeUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
