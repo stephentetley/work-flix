@@ -68,9 +68,9 @@ namespace AssetLib/GenS4/GenEqui {
         { funclocs = Nil
         , funclocLongTexts = Nil
         , funclocCharacteristics = Nil
-        , equipment = AssetLib/GenS4/S4LiteRelations.toS4LiteEquipment(relns)
-        , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toS4LiteEquiLongText(relns)
-        , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toS4LiteEquiCharacteristic(relns)
+        , equipment = AssetLib/GenS4/S4LiteRelations.toSLEquipment(relns)
+        , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toSLEquiLongText(relns)
+        , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic(relns)
         }
 
 }

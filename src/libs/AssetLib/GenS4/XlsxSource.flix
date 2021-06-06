@@ -16,6 +16,7 @@
 
 
 namespace AssetLib/GenS4/XlsxSource {
+    use BasicJson.JsonReader;
 
     type alias XlsxSource = 
         { file: System.FilePath
@@ -27,5 +28,13 @@ namespace AssetLib/GenS4/XlsxSource {
         case (s1, s2) => {file = System/FilePath.new(s1), sheet = Option.getWithDefault(String.stripPrefix("##", s2), "")}
     }
     
+    pub def getXlsxSource(): JsonReader[XlsxSource] = 
+        use BasicJson/JsonReader.{withField, getString, filePath};
+        use BasicJson/JsonReader.{<&>, <*>};
+        ((x1, x2) -> {file = x1, sheet = x2})
+            <&> withField("file", filePath())
+            <*> withField("sheet", getString())
+
+
 
 }

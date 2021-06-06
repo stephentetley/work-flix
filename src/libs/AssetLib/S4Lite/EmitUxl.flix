@@ -23,8 +23,8 @@ namespace AssetLib/S4Lite/EmitUxl {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
         
-    use AssetLib/S4Lite/Datatypes.{UxlSource, FunctionalLocation, FlocLongText, FlocCharacteristic, 
-        Equipment, EquiLongText, EquiCharacteristic};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
+        SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
     type alias UxlOutputArgs = 
         { uxlTemplate: System.FilePath
@@ -60,14 +60,14 @@ namespace AssetLib/S4Lite/EmitUxl {
         return()
 
 
-    def toFunctionalLocationData(xs: List[FunctionalLocation]): List[FunctionalLocationData] = 
+    def toFunctionalLocationData(xs: List[SLFunctionalLocation]): List[FunctionalLocationData] = 
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Comparison.toInt;
         xs 
             |> List.map(functionalLocationToUxl)
             |> List.sortWith(sortStep)
 
 
-    def functionalLocationToUxl(x: FunctionalLocation): FunctionalLocationData = 
+    def functionalLocationToUxl(x: SLFunctionalLocation): FunctionalLocationData = 
         let floc1 = x.funcloc;
         let flocCategory = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, AssetLib/Base/S4/Floc.new(floc1)), 0);
         let superiorFloc = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, AssetLib/Base/S4/Floc.new(floc1)), "");
@@ -91,13 +91,13 @@ namespace AssetLib/S4Lite/EmitUxl {
         }
 
 
-    def toFlMultilingualText(xs: List[FlocLongText]): List[FlMultilingualText] = 
+    def toFlMultilingualText(xs: List[SLFlocLongText]): List[FlMultilingualText] = 
         let sortStep = (x, y) -> Order.compare(x.functionalLocation, y.functionalLocation) |> Comparison.toInt;
         xs 
             |> List.map(funclocLongTextToUxl)
             |> List.sortWith(sortStep)
 
-    def funclocLongTextToUxl(x: FlocLongText): FlMultilingualText = 
+    def funclocLongTextToUxl(x: SLFlocLongText): FlMultilingualText = 
         { functionalLocation    = x.funcloc
         , deleteIndicator       = false
         , language              = "EN"
@@ -105,7 +105,7 @@ namespace AssetLib/S4Lite/EmitUxl {
         , longText              = x.longText
         }
 
-    def toFlClassifications(xs: List[FlocCharacteristic]): List[FlClassification] = 
+    def toFlClassifications(xs: List[SLFlocCharacteristic]): List[FlClassification] = 
         let sortStep = (x, y) -> match Order.compare(x.functionalLocation, y.functionalLocation) { 
             case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
             case ans => Comparison.toInt(ans)
@@ -115,7 +115,7 @@ namespace AssetLib/S4Lite/EmitUxl {
             |> List.sortWith(sortStep)
 
 
-    def funclocCharacteristicToUxl(x: FlocCharacteristic): FlClassification = 
+    def funclocCharacteristicToUxl(x: SLFlocCharacteristic): FlClassification = 
         { functionalLocation    = x.funcloc
         , deletionInd           = false
         , classType             = "003"
@@ -126,7 +126,7 @@ namespace AssetLib/S4Lite/EmitUxl {
         , charDeletionInd       = false
         }
 
-    def toEquipmentData(xs: List[Equipment]): List[EquipmentData] = 
+    def toEquipmentData(xs: List[SLEquipment]): List[EquipmentData] = 
         let sortStep = (x, y) -> match Order.compare(x.functionalLoc, y.functionalLoc) { 
             case EqualTo => match Order.compare(x.superordEquip, y.superordEquip) {
                 case EqualTo => Order.compare(x.description, y.description) |> Comparison.toInt
@@ -138,7 +138,7 @@ namespace AssetLib/S4Lite/EmitUxl {
             |> List.map(equipmentToUxl)
             |> List.sortWith(sortStep)
 
-    def equipmentToUxl(x: Equipment): EquipmentData = 
+    def equipmentToUxl(x: SLEquipment): EquipmentData = 
         let unitOfWeight = match x.weightKg { 
             case Some(_) => "KG"
             case None => ""
@@ -173,13 +173,13 @@ namespace AssetLib/S4Lite/EmitUxl {
         }
 
 
-    def toEqMultilingualText(xs: List[EquiLongText]): List[EqMultilingualText] = 
+    def toEqMultilingualText(xs: List[SLEquiLongText]): List[EqMultilingualText] = 
         let sortStep = (x, y) -> Order.compare(x.equiId, y.equiId) |> Comparison.toInt;
         xs 
             |> List.map(equiLongTextToUxl)
             |> List.sortWith(sortStep)
 
-    def equiLongTextToUxl(x: EquiLongText): EqMultilingualText = 
+    def equiLongTextToUxl(x: SLEquiLongText): EqMultilingualText = 
         { equiId                = x.equiId
         , deleteIndicator       = false
         , language              = "EN"
@@ -188,7 +188,7 @@ namespace AssetLib/S4Lite/EmitUxl {
         }
 
 
-    def toEqClassifications(xs: List[EquiCharacteristic]): List[EqClassification] = 
+    def toEqClassifications(xs: List[SLEquiCharacteristic]): List[EqClassification] = 
         let sortStep = (x, y) -> match Order.compare(x.equiId, y.equiId) { 
             case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
             case ans => Comparison.toInt(ans)
@@ -197,7 +197,7 @@ namespace AssetLib/S4Lite/EmitUxl {
             |> List.map(equiCharacteristicToUxl)
             |> List.sortWith(sortStep)
 
-    def equiCharacteristicToUxl(x: EquiCharacteristic): EqClassification = 
+    def equiCharacteristicToUxl(x: SLEquiCharacteristic): EqClassification = 
         { equiId                = x.equiId 
         , deleteInd             = false
         , classType             = "002"

@@ -48,9 +48,9 @@ namespace AssetLib/GenS4/GenFlocs {
 
         
     def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
-        { funclocs = AssetLib/GenS4/S4LiteRelations.toS4LiteFunctionalLocation(relns)
+        { funclocs = AssetLib/GenS4/S4LiteRelations.toSLFunctionalLocation(relns)
         , funclocLongTexts = Nil
-        , funclocCharacteristics = AssetLib/GenS4/S4LiteRelations.toS4LiteFlocCharacteristic(relns)
+        , funclocCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic(relns)
         , equipment = Nil
         , equiLongTexts = Nil
         , equiCharacteristics = Nil

@@ -17,8 +17,8 @@
 namespace AssetLib/S4Lite/EmitUpload {
     
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
-    use AssetLib/S4Lite/Datatypes.{FlocCharacteristic, EquiCharacteristic};
-    use AssetLib/S4Lite/Datatypes.S4LiteDataType.{Character, Date, NumericInt, NumericFloat};
+    use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
+    use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, Date, NumericInt, NumericFloat};
 
     /// FLOC
 
@@ -30,7 +30,7 @@ namespace AssetLib/S4Lite/EmitUpload {
 
 
     pub def outputFlocUploads(userName: String,
-                                input: List[FlocCharacteristic],
+                                input: List[SLFlocCharacteristic],
                                 nameRoot: String,
                                 outdir: System.FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
@@ -44,7 +44,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaFlocFile(userName, valuaFlocRows, valuaFlocPath);
         Ok()
 
-    def makeClassFlocRows(xs: List[FlocCharacteristic]): List[ClassFlocRow] = 
+    def makeClassFlocRows(xs: List[SLFlocCharacteristic]): List[ClassFlocRow] = 
         let equ = (x, y) -> x.className == y.className and x.funcloc == y.funcloc;
         let cmp = (x, y) -> match Order.compare(x.funcloc, y.funcloc) { 
             case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
@@ -56,7 +56,7 @@ namespace AssetLib/S4Lite/EmitUpload {
             |> List.sortWith(cmp)
 
 
-    def toClassFlocRow(x: FlocCharacteristic): ClassFlocRow = 
+    def toClassFlocRow(x: SLFlocCharacteristic): ClassFlocRow = 
         { funcloc               = x.funcloc
         , className             = x.className
         , classType             = "003"
@@ -65,7 +65,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         }
 
 
-    def makeValuaFlocRows(xs: List[FlocCharacteristic]): List[ValuaFlocRow] = 
+    def makeValuaFlocRows(xs: List[SLFlocCharacteristic]): List[ValuaFlocRow] = 
         let cmp = (x, y) -> match Order.compare(x.funcloc, y.funcloc) { 
             case EqualTo => Order.compare(x.charId, y.charId) |> Comparison.toInt
             case ord => Comparison.toInt(ord)
@@ -74,14 +74,14 @@ namespace AssetLib/S4Lite/EmitUpload {
             |> List.map(toValuaFlocRow)
             |> List.sortWith(cmp)
         
-    def toValuaFlocRow(x: FlocCharacteristic): ValuaFlocRow = 
+    def toValuaFlocRow(x: SLFlocCharacteristic): ValuaFlocRow = 
         match x.valueType { 
             case Character => characterValuaFlocRow(x)
             case Date => characterValuaFlocRow(x)
             case _ => numericValuaFlocRow(x)
         }
 
-    def characterValuaFlocRow(x: FlocCharacteristic): ValuaFlocRow = 
+    def characterValuaFlocRow(x: SLFlocCharacteristic): ValuaFlocRow = 
         { funcloc           = x.funcloc
         , classType         = "003"
         , charId            = x.charName
@@ -94,7 +94,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         , valueTo           = "0"
         }
 
-    def numericValuaFlocRow(x: FlocCharacteristic): ValuaFlocRow = 
+    def numericValuaFlocRow(x: SLFlocCharacteristic): ValuaFlocRow = 
         { funcloc           = x.funcloc
         , classType         = "002"
         , charId            = x.charName
@@ -111,7 +111,7 @@ namespace AssetLib/S4Lite/EmitUpload {
     /// EQUI
 
     pub def outputEquiUploads(userName: String,
-                                input: List[EquiCharacteristic],
+                                input: List[SLEquiCharacteristic],
                                 nameRoot: String,
                                 outdir: System.FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
@@ -125,7 +125,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
         Ok()
 
-    def makeClassEquiRows(xs: List[EquiCharacteristic]): List[ClassEquiRow] = 
+    def makeClassEquiRows(xs: List[SLEquiCharacteristic]): List[ClassEquiRow] = 
         let equ = (x, y) -> x.className == y.className and x.equi == y.equi;
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
             case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
@@ -137,7 +137,7 @@ namespace AssetLib/S4Lite/EmitUpload {
             |> List.sortWith(cmp)
 
 
-    def toClassEquiRow(x: EquiCharacteristic): ClassEquiRow = 
+    def toClassEquiRow(x: SLEquiCharacteristic): ClassEquiRow = 
         { equi                  = x.equiId
         , className             = x.className
         , classType             = "002"
@@ -146,7 +146,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         }
 
 
-    def makeValuaEquiRows(xs: List[EquiCharacteristic]): List[ValuaEquiRow] = 
+    def makeValuaEquiRows(xs: List[SLEquiCharacteristic]): List[ValuaEquiRow] = 
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
             case EqualTo => Order.compare(x.charId, y.charId) |> Comparison.toInt
             case ord => Comparison.toInt(ord)
@@ -155,14 +155,14 @@ namespace AssetLib/S4Lite/EmitUpload {
             |> List.map(toValuaEquiRow)
             |> List.sortWith(cmp)
         
-    def toValuaEquiRow(x: EquiCharacteristic): ValuaEquiRow = 
+    def toValuaEquiRow(x: SLEquiCharacteristic): ValuaEquiRow = 
         match x.valueType { 
             case Character => characterValuaEquiRow(x)
             case Date => characterValuaEquiRow(x)
             case _ => numericValuaEquiRow(x)
         }
 
-    def characterValuaEquiRow(x: EquiCharacteristic): ValuaEquiRow = 
+    def characterValuaEquiRow(x: SLEquiCharacteristic): ValuaEquiRow = 
         { equi              = x.equiId
         , classType         = "002"
         , charId            = x.charName
@@ -175,7 +175,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         , valueTo           = "0"
         }
 
-    def numericValuaEquiRow(x: EquiCharacteristic): ValuaEquiRow = 
+    def numericValuaEquiRow(x: SLEquiCharacteristic): ValuaEquiRow = 
         { equi              = x.equiId
         , classType         = "002"
         , charId            = x.charName

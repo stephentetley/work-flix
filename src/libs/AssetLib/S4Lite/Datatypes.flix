@@ -25,12 +25,12 @@ namespace AssetLib/S4Lite/Datatypes {
         EquipmentData, EqMultilingualText, EqClassification};
 
     type alias UxlSource = 
-        { funclocs: List[FunctionalLocation]
-        , funclocLongTexts: List[FlocLongText]
-        , funclocCharacteristics: List[FlocCharacteristic]
-        , equipment: List[Equipment]
-        , equiLongTexts: List[EquiLongText]
-        , equiCharacteristics: List[EquiCharacteristic]
+        { funclocs: List[SLFunctionalLocation]
+        , funclocLongTexts: List[SLFlocLongText]
+        , funclocCharacteristics: List[SLFlocCharacteristic]
+        , equipment: List[SLEquipment]
+        , equiLongTexts: List[SLEquiLongText]
+        , equiCharacteristics: List[SLEquiCharacteristic]
         }
 
 
@@ -43,7 +43,7 @@ namespace AssetLib/S4Lite/Datatypes {
         , equiCharacteristics = s1.equiCharacteristics ::: s2.equiCharacteristics
         }
 
-    type alias FunctionalLocation = 
+    type alias SLFunctionalLocation = 
         { funcloc: String
         , description: String
         , category: Int32
@@ -56,24 +56,24 @@ namespace AssetLib/S4Lite/Datatypes {
         }
 
 
-    type alias FlocLongText = 
+    type alias SLFlocLongText = 
         { funcloc: String
         , description: String
         , longText: String
         }
 
 
-    type alias FlocCharacteristic = 
+    type alias SLFlocCharacteristic = 
         { funcloc: String
         , className: String
         , charName: String
-        , valueType: S4LiteDataType
+        , valueType: SLDatatype
         , intCounterValue: Int32
         , charValue: String
         }
 
 
-    type alias Equipment =
+    type alias SLEquipment =
         { equiId: String
         , category: String              /// e.g "M", "I", "E"
         , description: String
@@ -92,31 +92,31 @@ namespace AssetLib/S4Lite/Datatypes {
         , status: String
         }
 
-    type alias EquiLongText = 
+    type alias SLEquiLongText = 
         { equiId: String
         , description: String
         , longText: String
         }
 
-    type alias EquiCharacteristic = 
+    type alias SLEquiCharacteristic = 
         { equiId: String
         , className: String
         , charName: String
-        , valueType: S4LiteDataType
+        , valueType: SLDatatype
         , intCounterValue: Int32
         , charValue: String
         }
 
 
-    pub enum S4LiteDataType { 
+    pub enum SLDatatype { 
         case Character          /// String
         case Date
         case NumericInt
         case NumericFloat
     }
 
-    instance ToString[S4LiteDataType] {
-        pub def toString(x: S4LiteDataType): String = match x {
+    instance ToString[SLDatatype] {
+        pub def toString(x: SLDatatype): String = match x {
             case Character => "Character"
             case Date => "Date"
             case NumericInt => "NumericInt"
@@ -124,8 +124,8 @@ namespace AssetLib/S4Lite/Datatypes {
         }
     }
 
-    instance FromString[S4LiteDataType] {
-        pub def fromString(x: String): Option[S4LiteDataType] = match x {
+    instance FromString[SLDatatype] {
+        pub def fromString(x: String): Option[SLDatatype] = match x {
             case "Character" => Some(Character)
             case "Date" => Some(Date)
             case "NumericInt" => Some(NumericInt)
@@ -134,8 +134,8 @@ namespace AssetLib/S4Lite/Datatypes {
         }
     }
     
-    instance Eq[S4LiteDataType] {
-        pub def eq(x: S4LiteDataType, y: S4LiteDataType): Bool = match (x, y) {
+    instance Eq[SLDatatype] {
+        pub def eq(x: SLDatatype, y: SLDatatype): Bool = match (x, y) {
             case (Character, Character) => true
             case (Date, Date) => true
             case (NumericInt, NumericInt) => true
@@ -144,8 +144,8 @@ namespace AssetLib/S4Lite/Datatypes {
         }
     }
 
-    instance Hash[S4LiteDataType] {
-        pub def hash(x: S4LiteDataType): Int = Hash.hash(ToString.toString(x))
+    instance Hash[SLDatatype] {
+        pub def hash(x: SLDatatype): Int = Hash.hash(ToString.toString(x))
     }
 
 }
