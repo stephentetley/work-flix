@@ -32,28 +32,29 @@ namespace AssetLib/GenS4/GenFlocs {
         Ok()
 
 
+    /// Generate all characteristics 
     pub def generateFlocUxl(workList: XlsxSource): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
         let* xs             = AssetLib/GenS4/WorkLists.readFlocWorkList(workList.sheet, workList.file);
         let workitems       = AssetLib/GenS4/WorkLists.makeFlocWorkItems(xs);
         let flocs           = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
         let c1              = AssetLib/Gens4/Rules/FunctionalLocation.flocCharacteristics1(workitems);
-        let answers         = genS4Lite(solve flocs <+> c1);
+        let c2              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
+        let c3              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
+        let c4              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
+        let answers         = genS4Lite(solve flocs <+> c1 <+> c2 <+> c3 <+> c4);
         Ok(answers)
 
-
-        /// let c2              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
-        /// let c3              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
-        /// let c4              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
+        
 
         
     def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
         { funclocs = AssetLib/GenS4/S4LiteRelations.toSLFunctionalLocation(relns)
-        , funclocLongTexts = Nil
+        , funclocLongTexts = Monoid.empty()
         , funclocCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic(relns)
-        , equipment = Nil
-        , equiLongTexts = Nil
-        , equiCharacteristics = Nil
+        , equipment = Monoid.empty()
+        , equiLongTexts = Monoid.empty()
+        , equiCharacteristics = Monoid.empty()
         }
 
 

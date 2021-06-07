@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
 
 
     /// src should be tank facts
-    pub def genTank(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+    pub def genTank(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src.sheet, src.file);

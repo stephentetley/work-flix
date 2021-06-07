@@ -25,7 +25,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
     /// src should be valve facts
-    pub def genValv(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+    pub def genValv(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Valve.readValveData(src.sheet, src.file);

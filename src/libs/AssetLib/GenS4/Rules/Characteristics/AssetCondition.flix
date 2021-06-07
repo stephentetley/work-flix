@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
 
 
     /// src should be asset condition facts
-    pub def genAssetCondition(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+    pub def genAssetCondition(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(src.sheet, src.file);

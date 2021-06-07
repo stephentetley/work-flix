@@ -59,25 +59,25 @@ namespace ValveReport/Phase1Main {
         Some(opts -> {uxlTemplate = System/FilePath.new(s) | opts})
     
     def setAibHierarchyExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibHierarchyExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+        Some(opts -> {aibHierarchyExport = AssetLib/GenS4/XlsxSource.ofString(s) | opts})
 
     def setAibEquipmentExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibEquipmentExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})        
+        Some(opts -> {aibEquipmentExport = AssetLib/GenS4/XlsxSource.ofString(s) | opts})        
     
     def setAibMemosExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibMemosExport = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+        Some(opts -> {aibMemosExport = AssetLib/GenS4/XlsxSource.ofString(s) | opts})
 
     def setAibAgaspExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibAgaspExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
+        Some(opts -> {aibAgaspExport = Some(AssetLib/GenS4/XlsxSource.ofString(s)) | opts})
 
     def setAibElectricalExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibElectricalExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
+        Some(opts -> {aibElectricalExport = Some(AssetLib/GenS4/XlsxSource.ofString(s)) | opts})
 
     def setAibValveExport(s: String): Option[UpdateArguments] = 
-        Some(opts -> {aibValveExport = Some(AssetLib/GenS4/XlsxSource.fromString(s)) | opts})
+        Some(opts -> {aibValveExport = Some(AssetLib/GenS4/XlsxSource.ofString(s)) | opts})
 
     def setWorklist(s: String): Option[UpdateArguments] = 
-        Some(opts -> {worklist = AssetLib/GenS4/XlsxSource.fromString(s) | opts})
+        Some(opts -> {worklist = AssetLib/GenS4/XlsxSource.ofString(s) | opts})
  
     
     def setChangeRequestName(s: String): Option[UpdateArguments] = 

@@ -15,10 +15,9 @@
  */
 
 
-namespace AssetLib/GenS4/Rules/Characteristics/Actu {
+namespace AssetLib/GenS4/Rules/Characteristics/Sole {
 
-    use AssetLib/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass, 
-        IPRating, Power, PowerUnits, SpeedRPM, VoltageIn, VoltageInACOrDC};
+    use AssetLib/AibFacts/Attributes/Electrical.{IPRating, InsulationClass, CurrentIn, PowerUnits, Power};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
@@ -27,50 +26,36 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
         recognizedInsulationClass, insulationClass};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
-
     /// src should be electrical facts
-    pub def genActu(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genSole(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);
-        let ans         = actu(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = sole(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
-
-    pub def actu(input: #{EquiWorkItem, CurrentIn, InsulationClass, 
-                            IPRating, Power, PowerUnits,
-                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
-        let rules =#{
+    pub def sole(input: #{EquiWorkItem, IPRating, InsulationClass, CurrentIn, PowerUnits, Power, 
+                            EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+        let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
                 IPRating(equiId, rating).
 
             EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(insulationClass(insClass))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
                 InsulationClass(equiId, insClass),
                 if recognizedInsulationClass(insClass).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
                 CurrentIn(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
                 PowerUnits(equiId, "KILOWATTS"),
                 Power(equiId, power).
-
-            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, voltage),
-                if recognizedVoltageUnits(units).
-
-            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "ACTU", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, _),
-                if recognizedVoltageUnits(units).
-        };
+        }; 
         solve (rules <+> input) project EquiCharacteristic
+
 
 }

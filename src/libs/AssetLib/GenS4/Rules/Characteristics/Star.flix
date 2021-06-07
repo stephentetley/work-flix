@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
     /// src should be electrical facts
-    pub def genStar(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+    pub def genStar(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);

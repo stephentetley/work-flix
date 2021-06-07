@@ -24,23 +24,25 @@ namespace AssetLib/S4Lite/Datatypes {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
 
+    /// TODO - group with List or Chain?
+
     type alias UxlSource = 
-        { funclocs: List[SLFunctionalLocation]
-        , funclocLongTexts: List[SLFlocLongText]
-        , funclocCharacteristics: List[SLFlocCharacteristic]
-        , equipment: List[SLEquipment]
-        , equiLongTexts: List[SLEquiLongText]
-        , equiCharacteristics: List[SLEquiCharacteristic]
+        { funclocs: Chain[SLFunctionalLocation]
+        , funclocLongTexts: Chain[SLFlocLongText]
+        , funclocCharacteristics: Chain[SLFlocCharacteristic]
+        , equipment: Chain[SLEquipment]
+        , equiLongTexts: Chain[SLEquiLongText]
+        , equiCharacteristics: Chain[SLEquiCharacteristic]
         }
 
 
     pub def combineUxlSource(s1: UxlSource, s2: UxlSource): UxlSource = 
-        { funclocs = s1.funclocs ::: s2.funclocs
-        , funclocLongTexts = s1.funclocLongTexts ::: s2.funclocLongTexts
-        , funclocCharacteristics = s1.funclocCharacteristics ::: s2.funclocCharacteristics
-        , equipment = s1.equipment ::: s2.equipment
-        , equiLongTexts = s1.equiLongTexts ::: s2.equiLongTexts
-        , equiCharacteristics = s1.equiCharacteristics ::: s2.equiCharacteristics
+        { funclocs = Monoid.combine(s1.funclocs, s2.funclocs)
+        , funclocLongTexts = Monoid.combine(s1.funclocLongTexts, s2.funclocLongTexts)
+        , funclocCharacteristics = Monoid.combine(s1.funclocCharacteristics, s2.funclocCharacteristics)
+        , equipment = Monoid.combine(s1.equipment, s2.equipment)
+        , equiLongTexts = Monoid.combine(s1.equiLongTexts, s2.equiLongTexts)
+        , equiCharacteristics = Monoid.combine(s1.equiCharacteristics, s2.equiCharacteristics)
         }
 
     type alias SLFunctionalLocation = 

@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
     /// src should be instrument facts
-    pub def genEmtr(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+    pub def genEmtr(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src.sheet, src.file);

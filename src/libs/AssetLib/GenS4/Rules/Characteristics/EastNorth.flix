@@ -25,7 +25,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
     pub def genEquiEastNorth(worklist: List[EquipmentWorkItem], 
-                            gridRefSource: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+                            gridRefSource: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let* facts      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(gridRefSource.sheet, gridRefSource.file);
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
@@ -46,7 +46,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
         solve (rules <+> input) project EquiCharacteristic
 
 
-    pub def genFlocEastNorth(worklist: List[FunclocWorkItem]): Result[List[SLFlocCharacteristic], String] & Impure =
+    pub def genFlocEastNorth(worklist: List[FunclocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
         let ans         = flocEastNorth(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;

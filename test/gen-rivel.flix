@@ -50,6 +50,17 @@ def genEastNorth(): Result[Unit, String] & Impure =
     let* xs         = AssetLib/GenS4/WorkLists.readFlocWorkList(flocArgs.sheet, flocArgs.file);
     let _           = Console.printLine("Floc work list length: ${List.length(xs)}");
     let* flocchars  = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(xs);    
-    let _           = Console.printLine("flocchars length: ${List.length(flocchars)}");
+    let _           = Console.printLine("flocchars length: ${Chain.length(flocchars)}");
     let* _          = AssetLib/S4Lite/EmitUpload.outputFlocUploads("tetleys", flocchars, "rivel", outdir);
     Ok()
+
+/// ACTU
+/// FSTN
+/// LSTN
+/// PSTN
+/// PUMP
+/// SOLE
+/// TANK
+/// TSTN
+/// VALV
+

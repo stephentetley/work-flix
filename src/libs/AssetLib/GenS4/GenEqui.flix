@@ -65,9 +65,9 @@ namespace AssetLib/GenS4/GenEqui {
 
 
     def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
-        { funclocs = Nil
-        , funclocLongTexts = Nil
-        , funclocCharacteristics = Nil
+        { funclocs = Monoid.empty()
+        , funclocLongTexts = Monoid.empty()
+        , funclocCharacteristics = Monoid.empty()
         , equipment = AssetLib/GenS4/S4LiteRelations.toSLEquipment(relns)
         , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toSLEquiLongText(relns)
         , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic(relns)

@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
 
     /// src should be pump facts
-    pub def genPump(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[List[SLEquiCharacteristic], String] & Impure =
+    pub def genPump(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src.sheet, src.file);

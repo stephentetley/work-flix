@@ -147,10 +147,10 @@ namespace AssetLib/GenS4/S4LiteRelations {
 
 
     /// To Uxl...
-    pub def toSLFunctionalLocation(src: #{FunctionalLocation | r}): List[SLFunctionalLocation] & Impure = 
+    pub def toSLFunctionalLocation(src: #{FunctionalLocation | r}): Chain[SLFunctionalLocation] & Impure = 
         query src select (x1, x2, x3, x4, x5, x6, x7) from FunctionalLocation(x1, x2, x3, x4, x5, x6, x7)
-            |> Array.toList
-            |> List.map(functionalLocationToS4Lite)
+            |> Chain.fromArray
+            |> Chain.map(functionalLocationToS4Lite)
 
 
     def functionalLocationToS4Lite(x: (String, String, String, String, 
@@ -168,10 +168,10 @@ namespace AssetLib/GenS4/S4LiteRelations {
         }
 
 
-    pub def toSLFlocLongText(src: #{FlocLongText | r}): List[SLFlocLongText] & Impure = 
+    pub def toSLFlocLongText(src: #{FlocLongText | r}): Chain[SLFlocLongText] & Impure = 
         query src select (x1, x2, x3) from FlocLongText(x1, x2, x3)
-            |> Array.toList
-            |> List.map(flocLongTextToS4Lite)
+            |> Chain.fromArray
+            |> Chain.map(flocLongTextToS4Lite)
 
     def flocLongTextToS4Lite(x: (String, String, String)): SLFlocLongText = 
         let (x1, x2, x3) = x;
@@ -181,10 +181,10 @@ namespace AssetLib/GenS4/S4LiteRelations {
         }
 
 
-    pub def toSLFlocCharacteristic(src: #{FlocCharacteristic | r}): List[SLFlocCharacteristic] & Impure = 
+    pub def toSLFlocCharacteristic(src: #{FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure = 
         query src select (x1, x2, x3, x4, x5) from FlocCharacteristic(x1, x2, x3, x4, x5)
-            |> Array.toList
-            |> List.map(flocCharacteristicToS4Lite)
+            |> Chain.fromArray
+            |> Chain.map(flocCharacteristicToS4Lite)
 
     def flocCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): SLFlocCharacteristic = 
         let (x1, x2, x3, x4, x5) = x;
@@ -196,10 +196,10 @@ namespace AssetLib/GenS4/S4LiteRelations {
         , charValue         = stringOfValue(x5)
         }
 
-    pub def toSLEquipment(src: #{Equipment | r }): List[SLEquipment] & Impure = 
+    pub def toSLEquipment(src: #{Equipment | r }): Chain[SLEquipment] & Impure = 
         query src select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) from Equipment(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16)
-            |> Array.toList
-            |> List.map(equipmentToS4Lite)
+            |> Chain.fromArray
+            |> Chain.map(equipmentToS4Lite)
 
 
     def equipmentToS4Lite(x: (String, String, String,
@@ -228,10 +228,10 @@ namespace AssetLib/GenS4/S4LiteRelations {
         }
 
 
-    pub def toSLEquiLongText(src: #{ EquiLongText | r }): List[SLEquiLongText] & Impure = 
+    pub def toSLEquiLongText(src: #{ EquiLongText | r }): Chain[SLEquiLongText] & Impure = 
         query src select (x1, x2, x3) from EquiLongText(x1, x2, x3)
-            |> Array.toList
-            |> List.map(equiLongTextToS4Lite)
+            |> Chain.fromArray
+            |> Chain.map(equiLongTextToS4Lite)
 
     def equiLongTextToS4Lite(x: (String, String, String)): SLEquiLongText = 
         let (x1, x2, x3) = x;
@@ -241,10 +241,10 @@ namespace AssetLib/GenS4/S4LiteRelations {
         }
 
 
-    pub def toSLEquiCharacteristic(src: #{ EquiCharacteristic | r }): List[SLEquiCharacteristic] & Impure = 
+    pub def toSLEquiCharacteristic(src: #{ EquiCharacteristic | r }): Chain[SLEquiCharacteristic] & Impure = 
         query src select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5)
-            |> Array.toList
-            |> List.map(equiCharacteristicToS4Lite)
+            |> Chain.fromArray
+            |> Chain.map(equiCharacteristicToS4Lite)
 
     def equiCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): SLEquiCharacteristic = 
         let (x1, x2, x3, x4, x5) = x;
