@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     pub def genEquiEastNorth(worklist: List[EquipmentWorkItem], 
                             gridRefSource: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let* facts      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(gridRefSource.sheet, gridRefSource.file);
+        let* facts      = AssetLib/AibFacts/Attributes/Equipment.readOsgb36GridRefData(gridRefSource.sheet, gridRefSource.file);
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let ans         = equiEastNorth(facts <+> workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 

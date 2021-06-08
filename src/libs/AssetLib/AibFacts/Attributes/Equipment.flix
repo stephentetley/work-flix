@@ -58,6 +58,11 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
                                 path: System.FilePath): Result[#{LocationOnSite | r}, String] & Impure =
         AssetLib/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, sheetName, path)
 
+    /// Just reads `Osgb36GridRef`...
+    pub def readOsgb36GridRefData(sheetName: String, 
+                                path: System.FilePath): Result[#{Osgb36GridRef | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(getOsgb36GridRef(), true, sheetName, path)
+
 
     pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttributes, LocationOnSite | r}] =    
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};

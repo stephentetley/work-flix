@@ -2,6 +2,8 @@
 /// and how we can collect configurable sets of facts.
 
 use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
+use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+use AssetLib/GenS4/WorkLists.{EquipmentWorkItem};
 use AssetLib/GenS4/GenEqui.{GenEquiArguments};
 use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
@@ -25,7 +27,7 @@ def genFlocSource(): XlsxSource =
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    match genEastNorth() {
+    match genRivelPhase2() {
         case Ok() => ()
         case Err(msg) => Console.printLine("Error: ${msg}")
     };
@@ -43,7 +45,7 @@ def _genRivelPhase1(): Result[Unit, String] & Impure =
     let _           = Console.printLine("Wrote: ${uxlArgs.outpath}");
     Ok()
 
-def genEastNorth(): Result[Unit, String] & Impure = 
+def _genFlocEastNorthUpload(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let flocArgs    = genFlocSource();
     let outdir      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/");
@@ -64,3 +66,25 @@ def genEastNorth(): Result[Unit, String] & Impure =
 /// TSTN
 /// VALV
 
+type alias Phase2Step = List[EquipmentWorkItem] ~> Result[Chain[SLEquiCharacteristic], String]
+
+def eastNorth(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(xs, src) 
+
+def assetCondition(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-agasp-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(xs, src) 
+
+def genRivelPhase2(): Result[Unit, String] & Impure = 
+    use Result.{flatMap};
+    let equiArgs    = genEquiArgs();
+    let outdir      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/");
+    let* xs         = AssetLib/GenS4/WorkLists.readEquiWorkList(equiArgs.workList.sheet, equiArgs.workList.file);    
+    let _           = Console.printLine("xs length: ${List.length(xs)}");
+    let* c1         = assetCondition()(xs);
+    let* c2         = eastNorth()(xs);
+    let _           = Console.printLine("c1 length: ${Chain.length(c1)}");
+    let cs          = Monoid.combineAll(c1 :: c2 :: Nil);
+    let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs, "rivel", outdir);
+    Ok()
