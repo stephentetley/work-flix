@@ -39,24 +39,25 @@ namespace AssetLib/S4Lite/EmitUxl {
 
     def writeUxl(changeRequestName: String, input: UxlSource): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
-        let flocs       = toFunctionalLocationData(input.funclocs);
-        let flmltxts    = toFlMultilingualText(input.funclocLongTexts);
-        let flchars     = toFlClassifications(input.funclocCharacteristics);
-        let equis       = toEquipmentData(input.equipment);
-        let eqmltxts    = toEqMultilingualText(input.equiLongTexts);
-        let eqchars     = toEqClassifications(input.equiCharacteristics);
+        let* src        = liftAction(_ -> AssetLib/S4Lite/Internal/FreshRenumber.equiRenmumber(input));
+        let flocs       = toFunctionalLocationData(src.funclocs);
+        let flmltxts    = toFlMultilingualText(src.funclocLongTexts);
+        let flchars     = toFlClassifications(src.funclocCharacteristics);
+        let equis       = toEquipmentData(src.equipment);
+        let eqmltxts    = toEqMultilingualText(src.equiLongTexts);
+        let eqchars     = toEqClassifications(src.equiCharacteristics);
         let* _          = liftAction(_ -> Console.printLine("**** equi count: ${List.length(equis)}"));
-        let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/S4Lite/Internal/FreshRenumber.renumber(equis, eqmltxts, eqchars));
+        /// let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/S4Lite/Internal/FreshRenumber.renumber(equis, eqmltxts, eqchars));
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
-        let equiNames   = List.map(x -> x.equiId, equis1);
-        let crs         = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeChangeRequestDetails(crs);
+        let equiNames   = List.map(x -> x.equiId, equis);
+        let crInfo      = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeChangeRequestDetails(crInfo);
         let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
         let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlMultilingualText(flmltxts);
         let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlClassification(flchars);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEquipmentData(equis1);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqMultilingualText(eqmltxts1);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqClassification(eqchar1s);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEquipmentData(equis);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqMultilingualText(eqmltxts);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqClassification(eqchars);
         return()
 
 

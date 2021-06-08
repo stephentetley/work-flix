@@ -19,10 +19,20 @@
 
 namespace AssetLib/S4Lite/Internal/FreshRenumber {
 
-    use AssetLib/FileIO/S4/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
+
+    
+
+    pub def equiRenmumber(src: UxlSource): UxlSource & Impure = 
+        let n1 = start();
+        let (st, equis) = Chain.mapAccumLeft(renumberEqui, (n1, Map.empty()), src.equipment);
+        let lookups     = snd(st);
+        let texts       = Chain.map(renumberLongText(lookups), src.equiLongTexts);
+        let chars       = Chain.map(renumberCharacteristic(lookups), src.equiCharacteristics);
+        {equipment = equis, equiLongTexts = texts, equiCharacteristics = chars | src}
 
     /// 9-digit
-    pub def start(): Int32 & Impure = 
+    def start(): Int32 & Impure = 
         let dt = Time/LocalDateTime.now();
         let x1  = Time/LocalDateTime.getMonthValue(dt) * 1000000;
         let x2  = Time/LocalDateTime.getDayOfMonth(dt) * 10000;
@@ -30,29 +40,18 @@ namespace AssetLib/S4Lite/Internal/FreshRenumber {
         let x4  = Time/LocalDateTime.getMinute(dt);
         200000000 + x1 + x2 + x3 + x4
 
-
-    pub def renumber(xs: List[EquipmentData], 
-                        ys: List[EqMultilingualText], 
-                        zs: List[EqClassification]): (List[EquipmentData], List[EqMultilingualText], List[EqClassification]) & Impure = 
-        let n1 = start();
-        let (st, xs1)   = List.mapAccumLeft(renumberEqui, (n1, Map.empty()), xs);
-        let lookups     = snd(st);
-        let ys1         = List.map(renumberMlText(lookups), ys);
-        let zs1         = List.map(renumberClassifications(lookups), zs);
-        (xs1, ys1, zs1)
-
-    def renumberEqui(st: (Int32, Map[String, String]), x: EquipmentData): ((Int32, Map[String, String]), EquipmentData) = 
+    def renumberEqui(st: (Int32, Map[String, String]), x: SLEquipment): ((Int32, Map[String, String]), SLEquipment) = 
         let (n1, lookups) = st;
         let equi0 = x.equiId;
         let equi1 = "$" + "${n1}";
-        let super1 = if (String.isEmpty(x.superordEquip)) "" else Map.getWithDefault(x.superordEquip, "$BAD", lookups);
-        ((n1 + 1, Map.insert(equi0, equi1, lookups)), {equiId = equi1, superordEquip = super1 | x})
+        let super1 = if (String.isEmpty(x.superOrdinateEqui)) "" else Map.getWithDefault(x.superOrdinateEqui, "$BAD", lookups);
+        ((n1 + 1, Map.insert(equi0, equi1, lookups)), {equiId = equi1, superOrdinateEqui = super1 | x})
 
-    def renumberMlText(lookups: Map[String, String], x: EqMultilingualText): EqMultilingualText = 
+    def renumberLongText(lookups: Map[String, String], x: SLEquiLongText): SLEquiLongText = 
         let equi1 = Map.getWithDefault(x.equiId, "$BAD", lookups);
         {equiId = equi1 | x}
 
-    def renumberClassifications(lookups: Map[String, String], x: EqClassification): EqClassification = 
+    def renumberCharacteristic(lookups: Map[String, String], x: SLEquiCharacteristic): SLEquiCharacteristic = 
         let equi1 = Map.getWithDefault(x.equiId, "$BAD", lookups);
         {equiId = equi1 | x}
 
