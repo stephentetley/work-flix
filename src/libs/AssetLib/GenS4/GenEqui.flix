@@ -56,12 +56,6 @@ namespace AssetLib/GenS4/GenEqui {
         let answers     = genS4Lite(solve equis <+> longText <+> c1);
         Ok(answers)
 
-        /// TODO these need accommodating somehow... (plugins?)
-        /// let* c2         = AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(workitems, args.aibAgaspExport);
-        /// let* c3         = AssetLib/GenS4/Rules/Characteristics/Actu.genActu(workitems, args.aibElectricalExport);
-        /// let* c4         = AssetLib/GenS4/Rules/Characteristics/Conp.genConp(workitems, args.aibElectricalExport);
-        /// let* c5         = AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(workitems, args.aibElectricalExport);
-        /// let* c6         = AssetLib/GenS4/Rules/Characteristics/Star.genStar(workitems, args.aibElectricalExport);
 
 
     def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 

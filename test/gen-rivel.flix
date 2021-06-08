@@ -127,7 +127,10 @@ def genRivelPhase2(): Result[Unit, String] & Impure =
     let _           = Console.printLine("xs length: ${List.length(xs)}");
     let* cs         = runSteps(phase2Steps(), xs);
     let _           = Console.printLine("cs length: ${Chain.length(cs)}");
-    let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs, "rivel", outdir);
+    let crpath      = System/FilePath.new("G:\work\assets\capital_schemes\rivel/rivelin-cr7895-equi.xlsx");
+    let renamings   = AssetLib/GenS4/WorkLists.getEquipmentWorkItemKeyMap(xs);
+    let* cs1        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(renamings, "Data", crpath, cs);
+    let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs1, "rivel", outdir);
     Ok()
 
 def runSteps(steps: List[Phase2Step], xs: List[EquipmentWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure = 

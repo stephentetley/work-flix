@@ -15,7 +15,9 @@
  */
 
 
-namespace AssetLib/S4Lite/Internal/Renumber {
+/// Renumber with fresh "$Dollar" numbers
+
+namespace AssetLib/S4Lite/Internal/FreshRenumber {
 
     use AssetLib/FileIO/S4/UxlFile/Datatypes.{EquipmentData, EqMultilingualText, EqClassification};
 

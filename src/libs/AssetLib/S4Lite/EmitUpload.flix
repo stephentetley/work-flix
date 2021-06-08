@@ -111,6 +111,13 @@ namespace AssetLib/S4Lite/EmitUpload {
 
     /// EQUI
 
+    pub def renumberSLEquiCharacteristics(sourceKeyMap: Map[String, String], 
+                                            crSheet: String, 
+                                            crPath: System.FilePath, 
+                                            xs: Chain[SLEquiCharacteristic]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
+        AssetLib/S4Lite/Internal/Phase2Renumber.renumber(sourceKeyMap, crSheet, crPath, Chain.toList(xs)) 
+            |> Result.map(Chain.fromList)
+
     pub def outputEquiUploads(userName: String,
                                 input: Chain[SLEquiCharacteristic],
                                 nameRoot: String,

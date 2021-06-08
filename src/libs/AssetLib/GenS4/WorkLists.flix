@@ -149,6 +149,21 @@ namespace AssetLib/GenS4/WorkLists {
                 })
 
 
+ 
+    pub def getEquipmentWorkItemKeyMap(xs: List[EquipmentWorkItem]): Map[String, String] =
+        let dict1 = buildKeyToDesc(xs);
+        List.foldLeft((ac, x) ->  Map.insert(x.equipmentId, makeThreePartName(x, dict1), ac), Map.empty(), xs)
+        
+    def buildKeyToDesc(xs: List[EquipmentWorkItem]): Map[String, String] = 
+        List.foldLeft((ac, x) -> Map.insert(x.equipmentId, x.s4Name, ac), Map.empty(), xs)
+
+    def makeThreePartName(x: EquipmentWorkItem, descs: Map[String, String]): String = 
+        if (not String.isEmpty(x.superEquiId)) {
+            let superDesc = Map.getWithDefault(x.equipmentId, "Impossible", descs);
+            "${x.s4Name}::${x.s4Floc}::${superDesc}"
+        } else "${x.s4Name}::${x.s4Floc}::NO_SUPER"
+
+
     /// Flocs
 
     /// Read from Aib xlsx export file...
