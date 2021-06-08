@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
+namespace AssetLib/GenS4/Rules/Characteristics/Pstn {
 
     use AssetLib/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
         SignalMin, SignalMax, SignalUnit};
@@ -26,68 +26,64 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
+
     /// src should be instrument facts
-    pub def genFstn(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genPstn(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src.sheet, src.file);
-        let ans         = fstn(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = pstn(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
 
-    /// Note LOCATION_ON_SITE already created.
-    pub def fstn(input: #{EquiWorkItem, RangeMin, RangeMax, RangeUnit,
+    pub def pstn(input: #{EquiWorkItem, RangeMin, RangeMax, RangeUnit,
                             SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
-            EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+            EquiCharacteristic(equiId, s4Class, "PSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PSTN", s4Class),
                 SignalMin(equiId, smin),
                 SignalMax(equiId, smax),
                 SignalUnit(equiId, "mA"),
                 if iEqual(smin, 4) and iEqual(smax, 20).
 
-            EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+            EquiCharacteristic(equiId, s4Class, "PSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PSTN", s4Class),
                 SignalMin(equiId, smin),
                 SignalMax(equiId, smax),
                 SignalUnit(equiId, "Digital"),
                 if iEqual(smin, 0) and iEqual(smax, 1).
 
-           EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MIN", 1, S4Float(rmin)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+            EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PSTN", s4Class),
                 RangeMin(equiId, rmin),
-                RangeUnit(equiId, unit),
-                if recognizedRangeUnit(unit).
-
-            EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MAX", 1, S4Float(rmax)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
-                RangeMax(equiId, rmax),
-                RangeUnit(equiId,  units),
-                if recognizedRangeUnit(units).
-
-            EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_UNITS", 1, S4String(rangeUnit(units))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
                 RangeUnit(equiId, units),
                 if recognizedRangeUnit(units).
 
-        }; 
+            EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PSTN", s4Class),
+                RangeMax(equiId, rmax),
+                RangeUnit(equiId, units),
+                if recognizedRangeUnit(units).
+
+            EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_UNITS", 1, S4String(rangeUnit(units))) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PSTN", s4Class),
+                RangeUnit(equiId, units),
+                if recognizedRangeUnit(units).
+        };
         solve (rules <+> input) project EquiCharacteristic
 
-
     def recognizedRangeUnit(s: String): Bool = match s { 
-        case "cm/s" => true
-        case "l/h" => true
-        case "l/s" => true
+        case "Bar" => true
         case _ => false
     }
 
     
     def rangeUnit(s: String): String = match s { 
-        case "cm/s" => "CM/S"
-        case "l/h" => "L/H"
-        case "l/s" => "L/S"
+        case "Bar" => "BAR"
         case _ => ""
     }
+
+
 
 
 }

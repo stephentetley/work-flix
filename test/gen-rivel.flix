@@ -56,15 +56,15 @@ def _genFlocEastNorthUpload(): Result[Unit, String] & Impure =
     let* _          = AssetLib/S4Lite/EmitUpload.outputFlocUploads("tetleys", flocchars, "rivel", outdir);
     Ok()
 
-/// ACTU
-/// FSTN
-/// LSTN
-/// PSTN
-/// PUMP
-/// SOLE
+/// ACTU    Electrical
+/// FSTN    Instrument
+/// LSTN    Instrument
+/// PSTN    Instrument
+/// PUMP    Pump
+/// SOLE    Electrical
 /// TANK
-/// TSTN
-/// VALV
+/// TSTN    Instrument
+/// VALV    Valve
 
 type alias Phase2Step = List[EquipmentWorkItem] ~> Result[Chain[SLEquiCharacteristic], String]
 
@@ -76,15 +76,71 @@ def assetCondition(): Phase2Step = xs ->
     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-agasp-export.xlsx"), sheet = "Sheet1"};
     AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(xs, src) 
 
+def solutionId(): Phase2Step = xs -> 
+    AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(xs) 
+
+def actu(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-electrical-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Actu.genActu(xs, src) 
+
+def fstn(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(xs, src) 
+
+def lstn(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Lstn.genLstn(xs, src) 
+
+def pstn(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(xs, src) 
+
+def pump(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-pump-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Pump.genPump(xs, src) 
+
+
+def sole(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-electrical-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Sole.genSole(xs, src) 
+
+def tstn(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(xs, src) 
+
+def valv(): Phase2Step = xs -> 
+    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-valve-export.xlsx"), sheet = "Sheet1"};
+    AssetLib/GenS4/Rules/Characteristics/Valv.genValv(xs, src) 
+
+def phase2Steps(): List[Phase2Step] = 
+        assetCondition() :: eastNorth() :: solutionId() 
+    :: actu() :: fstn() :: lstn() :: pstn() :: pump() :: sole() :: tstn() :: valv() :: Nil
+
+
+    
+
 def genRivelPhase2(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
     let outdir      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/");
     let* xs         = AssetLib/GenS4/WorkLists.readEquiWorkList(equiArgs.workList.sheet, equiArgs.workList.file);    
     let _           = Console.printLine("xs length: ${List.length(xs)}");
-    let* c1         = assetCondition()(xs);
-    let* c2         = eastNorth()(xs);
-    let _           = Console.printLine("c1 length: ${Chain.length(c1)}");
-    let cs          = Monoid.combineAll(c1 :: c2 :: Nil);
+    let* cs         = runSteps(phase2Steps(), xs);
+    let _           = Console.printLine("cs length: ${Chain.length(cs)}");
     let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs, "rivel", outdir);
     Ok()
+
+def runSteps(steps: List[Phase2Step], xs: List[EquipmentWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
+    runStepsHelper(steps, xs, msg -> Err(msg), cs -> Ok(cs))
+
+def runStepsHelper(steps: List[Phase2Step], 
+                    xs: List[EquipmentWorkItem], 
+                    fk: String -> Result[Chain[SLEquiCharacteristic], String],
+                    sk: Chain[SLEquiCharacteristic] -> Result[Chain[SLEquiCharacteristic], String]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
+    match steps {
+        case Nil => sk(Chain.empty())
+        case s1 :: rs => match s1(xs) {
+            case Ok(c1) => runStepsHelper(rs, xs, fk, cs -> sk(Monoid.combine(cs, c1)))
+            case Err(msg) => fk(msg)
+        }
+    }    

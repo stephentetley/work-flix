@@ -48,7 +48,7 @@ namespace AssetLib/AibFacts/Attributes/Valve {
     pub rel Size(aibref: String, size: Float64)
     
     def getSize(): NamedRowEvaluator[#{Size | r}] =
-        getFloatValuedFact("Valve Type", (aibref, ans) -> #{ Size(aibref, ans). })
+        getFloatValuedFact("Size", (aibref, ans) -> #{ Size(aibref, ans). })
 
 
     pub rel SizeUnits(aibref: String, units: String)
