@@ -17,6 +17,11 @@
 namespace PDT/Conveyor {
 
     use SheetIO/SheetParser.SheetParser;
+
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+
+    /// Base is CVYR
+    /// CVYRBC | CVYRCC | CVYRMISC | CVYRSC
     
     type alias ConveyorData = 
         { overallLength: String

@@ -36,6 +36,7 @@ namespace AssetLib/GenS4/GenFlocs {
     pub def generateFlocUxl(workList: XlsxSource): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
         let* xs             = AssetLib/GenS4/WorkLists.readFlocWorkList(workList.sheet, workList.file);
+        let _               = Console.printLine("flocs: ${List.length(xs)}");
         let workitems       = AssetLib/GenS4/WorkLists.makeFlocWorkItems(xs);
         let flocs           = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
         let c1              = AssetLib/Gens4/Rules/FunctionalLocation.flocCharacteristics1(workitems);

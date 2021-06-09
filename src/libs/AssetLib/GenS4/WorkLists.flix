@@ -109,20 +109,19 @@ namespace AssetLib/GenS4/WorkLists {
                         x.gridRef, 
                         x.solutionId).
     }
-
-    def readWorkList(sheetName: String, eval: NamedRowEvaluator[a]): SheetReader[List[a]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, someNamedRows};
-        let* s1     = getSheetNamed(sheetName);
-        let* xs     = someNamedRows(s1, eval);
-        return(xs)
-
-    
+  
 
 
     /// Read from Aib xlsx export file...
     pub def readEquiWorkList(sheetName: String, 
                             path: System.FilePath): Result[List[EquipmentWorkItem], String] & Impure =
-        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalEquiWorkItem()), path)
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, someNamedRows};
+        let readStep = () -> { 
+            let* s1     = getSheetNamed(sheetName);
+            let* xs     = someNamedRows(s1, evalEquiWorkItem());
+            return(xs)
+        };
+        SheetIO/SheetReader.runXlsx(readStep(), path)
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory
@@ -169,8 +168,13 @@ namespace AssetLib/GenS4/WorkLists {
     /// Read from Aib xlsx export file...
     pub def readFlocWorkList(sheetName: String, 
                                 path: System.FilePath): Result[List[FunclocWorkItem], String] & Impure =
-        SheetIO/SheetReader.runXlsx(readWorkList(sheetName, evalFlocWorkItem()), path)
-        
+        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};
+        let readStep = () -> { 
+            let* s1     = getSheetNamed(sheetName);
+            let* xs     = allNamedRows(s1, evalFlocWorkItem());
+            return(xs)
+        };
+        SheetIO/SheetReader.runXlsx(readStep(), path)
 
     def evalFlocWorkItem(): NamedRowEvaluator[FunclocWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed}; 
