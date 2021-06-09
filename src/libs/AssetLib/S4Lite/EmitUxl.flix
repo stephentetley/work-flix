@@ -47,7 +47,6 @@ namespace AssetLib/S4Lite/EmitUxl {
         let eqmltxts    = toEqMultilingualText(src.equiLongTexts);
         let eqchars     = toEqClassifications(src.equiCharacteristics);
         let* _          = liftAction(_ -> Console.printLine("**** equi count: ${List.length(equis)}"));
-        /// let* (equis1, eqmltxts1, eqchar1s) = liftAction(_ -> AssetLib/S4Lite/Internal/FreshRenumber.renumber(equis, eqmltxts, eqchars));
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
         let equiNames   = List.map(x -> x.equiId, equis);
         let crInfo      = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);

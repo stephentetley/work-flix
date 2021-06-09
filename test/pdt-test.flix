@@ -18,5 +18,5 @@ def conveyorParser(): SheetParser[ka1, String] =
     use SheetIO/SheetParser.{flatMap, return, row, skipRow, literal, content, find, bounded, liftAction, gotoRow};
     use SheetIO/SheetParser.{*>};
     let* a1     = PDT/Common.parseProductData(PDT/Conveyor.parseConveyorData());
-    return(String.unlines(a1.common.assetName  :: a1.common.specificModel :: a1.common.serialNumber :: a1.common.dateOfInstallation :: Nil))
+    return(String.unlines(a1.common.assetName  :: a1.common.specificModel :: a1.common.serialNumber :: "${a1.common.dateOfInstallation}" :: Nil))
     
