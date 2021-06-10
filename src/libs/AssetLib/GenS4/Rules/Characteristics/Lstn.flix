@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
     use AssetLib/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
-        SignalMin, SignalMax, SignalUnit};
+        SignalMin, SignalMax, SignalUnit, TransducerType, TransducerSerialNumber};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
@@ -37,7 +37,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
 
     pub def lstn(input: #{EquiWorkItem, RangeMin, RangeMax, RangeUnit,
-                            SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            SignalMin, SignalMax, SignalUnit, 
+                            TransducerType, TransducerSerialNumber, 
+                            EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
@@ -69,10 +71,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
                 EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
                 RangeUnit(equiId, units),
                 if recognizedRangeUnit(units).
+
+            EquiCharacteristic(equiId, s4Class, "LSTN_TRANSDUCER_MODEL", 1, S4String(model)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
+                TransducerType(equiId, model).
+
+            EquiCharacteristic(equiId, s4Class, "LSTN_TRANSDUCER_SERIAL_NO", 1, S4String(model)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "LSTN", s4Class),
+                TransducerSerialNumber(equiId, model).
+
         };
         solve (rules <+> input) project EquiCharacteristic
 
     def recognizedRangeUnit(s: String): Bool = match s { 
+        case "m" => true
         case "cm/s" => true
         case "l/h" => true
         case "l/s" => true
@@ -81,6 +93,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
     
     def rangeUnit(s: String): String = match s { 
+        case "m" => "M"
         case "cm/s" => "CM/S"
         case "l/h" => "L/H"
         case "l/s" => "L/S"

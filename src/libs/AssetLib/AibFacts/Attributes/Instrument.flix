@@ -29,14 +29,16 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
 
     pub def readInstrumentData(sheetName: String, 
                                 path: System.FilePath): Result[#{RangeMin, RangeMax, RangeUnit,
-                                                                SignalMin, SignalMax, SignalUnit | r}, String] & Impure =
+                                                                SignalMin, SignalMax, SignalUnit, 
+                                                                TransducerType, TransducerSerialNumber | r}, String] & Impure =
         AssetLib/AibFacts/Utils.readAibFacts(aibInstrument(), true, sheetName, path)
         
     
 
 
     pub def aibInstrument(): NamedRowEvaluator[#{RangeMin, RangeMax, RangeUnit,
-                                                SignalMin, SignalMax, SignalUnit | r}] =
+                                                SignalMin, SignalMax, SignalUnit, 
+                                                TransducerType, TransducerSerialNumber | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(getRangeMin(), #{});
         let* c2 = withDefault(getRangeMax(), #{});
@@ -44,7 +46,9 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
         let* c4 = withDefault(getSignalMin(), #{});
         let* c5 = withDefault(getSignalMax(), #{});
         let* c6 = withDefault(getSignalUnit(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6)
+        let* c7 = withDefault(getTransducerType(), #{});
+        let* c8 = withDefault(getTransducerSerialNumber(), #{});
+        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6 <+> c7 <+> c8)
 
 
     /// Range max	Range min	Range unit	Signal max	Signal min	Signal unit
@@ -82,5 +86,17 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
 
     def getSignalUnit(): NamedRowEvaluator[#{SignalUnit | r}] =
         getStringValuedFact("Signal unit", (aibref, ans) -> #{ SignalUnit(aibref, ans). })
+
+
+    pub rel TransducerType(aibref: String, model: String)
+
+    def getTransducerType(): NamedRowEvaluator[#{TransducerType | r}] =
+        getStringValuedFact("Transducer Type", (aibref, ans) -> #{ TransducerType(aibref, ans). })
+
+    pub rel TransducerSerialNumber(aibref: String, serialNum: String)
+
+    def getTransducerSerialNumber(): NamedRowEvaluator[#{TransducerSerialNumber | r}] =
+        getStringValuedFact("Transducer Serial No", (aibref, ans) -> #{ TransducerSerialNumber(aibref, ans). })
+
 
 }

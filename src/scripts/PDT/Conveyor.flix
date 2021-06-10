@@ -22,11 +22,16 @@ namespace PDT/Conveyor {
 
     /// Base is CVYR
     /// CVYRBC | CVYRCC | CVYRMISC | CVYRSC
-    
+
+    /// Asset Type 
+
+
     type alias ConveyorData = 
         { overallLength: String
         , overallWidth: String
         }
+
+
 
     pub def parseConveyorData(): SheetParser[ka1, ConveyorData] = 
         use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};

@@ -9,8 +9,8 @@ use AssetLib/GenS4/XlsxSource.{XlsxSource};
 
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , changeRequestName = "R/1374/003 Rivelin WTW Hypo (BF) 20/04/2021"
-    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/rivelin-uxl-output1.xlsx")
+    , changeRequestName = "Elvin (BF)"
+    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/rivel-uxl-output1.xlsx")
     }
 
 def genEquiArgs(): GenEquiArguments = 
@@ -19,7 +19,7 @@ def genEquiArgs(): GenEquiArguments =
     , aibEquipmentExport = 
         {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"}
     , aibMemosExport = 
-        {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-memo-export.xlsx"), sheet = "Sheet1"}
+        {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-memos-export.xlsx"), sheet = "Sheet1"}
     }
 
 def genFlocSource(): XlsxSource = 
@@ -27,14 +27,14 @@ def genFlocSource(): XlsxSource =
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    match genRivelPhase2() {
+    match genRivelPhase1() {
         case Ok() => ()
         case Err(msg) => Console.printLine("Error: ${msg}")
     };
     Console.printLine("Done... ${Time/LocalTime.now()}");
     0
 
-def _genRivelPhase1(): Result[Unit, String] & Impure = 
+def genRivelPhase1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
     let uxlArgs     = uxlOutputArgs();
@@ -68,58 +68,62 @@ def _genFlocEastNorthUpload(): Result[Unit, String] & Impure =
 
 type alias Phase2Step = List[EquipmentWorkItem] ~> Result[Chain[SLEquiCharacteristic], String]
 
-def eastNorth(): Phase2Step = xs -> 
+def aibReference(): Phase2Step = xs -> 
     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(xs, src) 
+    AssetLib/GenS4/Rules/Characteristics/AibReference.genEquiAibReference(xs, src) 
 
-def assetCondition(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-agasp-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(xs, src) 
+/// def assetCondition(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-agasp-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(xs, src) 
 
-def solutionId(): Phase2Step = xs -> 
-    AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(xs) 
+/// def eastNorth(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(xs, src) 
 
-def actu(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-electrical-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Actu.genActu(xs, src) 
+/// def solutionId(): Phase2Step = xs -> 
+///     AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(xs) 
 
-def fstn(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(xs, src) 
+/// def actu(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-electrical-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Actu.genActu(xs, src) 
 
-def lstn(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Lstn.genLstn(xs, src) 
+/// def fstn(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(xs, src) 
 
-def pstn(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(xs, src) 
+/// def lstn(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Lstn.genLstn(xs, src) 
 
-def pump(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-pump-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Pump.genPump(xs, src) 
+/// def pstn(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(xs, src) 
+
+/// def pump(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-pump-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Pump.genPump(xs, src) 
 
 
-def sole(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-electrical-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Sole.genSole(xs, src) 
+/// def sole(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-electrical-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Sole.genSole(xs, src) 
 
-def tstn(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(xs, src) 
+/// def tstn(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(xs, src) 
 
-def valv(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-valve-export.xlsx"), sheet = "Sheet1"};
-    AssetLib/GenS4/Rules/Characteristics/Valv.genValv(xs, src) 
+/// def valv(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-valve-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Valv.genValv(xs, src) 
 
 def phase2Steps(): List[Phase2Step] = 
-        assetCondition() :: eastNorth() :: solutionId() 
-    :: actu() :: fstn() :: lstn() :: pstn() :: pump() :: sole() :: tstn() :: valv() :: Nil
+        aibReference() :: Nil /// assetCondition() :: eastNorth() :: solutionId() 
+        /// :: actu() :: fstn() :: lstn() :: pstn() :: pump() :: sole() :: tstn() :: valv() :: Nil
 
 
     
 
-def genRivelPhase2(): Result[Unit, String] & Impure = 
+def _genRivelPhase2(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
     let outdir      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/");
@@ -127,7 +131,7 @@ def genRivelPhase2(): Result[Unit, String] & Impure =
     let _           = Console.printLine("xs length: ${List.length(xs)}");
     let* cs         = runSteps(phase2Steps(), xs);
     let _           = Console.printLine("cs length: ${Chain.length(cs)}");
-    let crpath      = System/FilePath.new("G:\work\assets\capital_schemes\rivel/rivelin-cr7895-equi.xlsx");
+    let crpath      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/CR7956-rivel-equis.xlsx");
     let renamings   = AssetLib/GenS4/WorkLists.getEquipmentWorkItemKeyMap(xs);
     let* cs1        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(renamings, "Data", crpath, cs);
     let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs1, "rivel", outdir);

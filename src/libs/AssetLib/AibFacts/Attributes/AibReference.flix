@@ -21,11 +21,7 @@ namespace AssetLib/AibFacts/Attributes/AibReference {
     use SheetIO.SheetReader;
 
 
-    /// TODO - needs testing!!!
-
     pub rel ParentRef(aibref: String, commonName: String, parent: String)
-
-
 
 
     /// Read from Aib file...
