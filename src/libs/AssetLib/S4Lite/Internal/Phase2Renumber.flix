@@ -88,7 +88,7 @@ namespace AssetLib/S4Lite/Internal/Phase2Renumber {
 
     def makeCRThreePartKey(x: ChangeRequestRow, descs: Map[String, String]): String = 
         if (not String.isEmpty(x.superOrdinateEqui)) {
-            let superDesc = Map.getWithDefault(x.equipmentId, "Impossible", descs);
+            let superDesc = Map.getWithDefault(x.superOrdinateEqui, "Impossible", descs);
             "${x.description}::${x.functionalLocation}::${superDesc}"
         } else "${x.description}::${x.functionalLocation}::NO_SUPER"
 

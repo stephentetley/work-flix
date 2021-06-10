@@ -158,8 +158,8 @@ namespace AssetLib/GenS4/WorkLists {
 
     def makeThreePartName(x: EquipmentWorkItem, descs: Map[String, String]): String = 
         if (not String.isEmpty(x.superEquiId)) {
-            let superDesc = Map.getWithDefault(x.equipmentId, "Impossible", descs);
-            "${x.s4Name}::${x.s4Floc}::${superDesc}"
+            let superName = Map.getWithDefault(x.superEquiId, "Impossible", descs);
+            "${x.s4Name}::${x.s4Floc}::${superName}"
         } else "${x.s4Name}::${x.s4Floc}::NO_SUPER"
 
 
