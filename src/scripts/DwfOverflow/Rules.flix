@@ -49,7 +49,7 @@ namespace DwfOverflow/Rules {
 
 
     pub def get3xDwfFlocs[r](db: #{Floc, WorkListItem, SiteMapping, AibSite, ExistingFloc, FreeSettlementSysIndex | r}): #{ Floc | r } = 
-        project Floc solve (level5Funcloc3x() <+> db)
+        solve (level5Funcloc3x() <+> db) project Floc 
 
 
     def level5Funcloc3x[r](): #{Floc, WorkListItem, SiteMapping, AibSite, FreeSettlementSysIndex | r} = #{
@@ -70,7 +70,7 @@ namespace DwfOverflow/Rules {
     /// 6xDWF
 
     pub def get6xDwfFlocs[r](db: #{Floc, WorkListItem, SiteMapping, AibSite, ExistingFloc | r}): #{ Floc | r } = 
-        project Floc solve (level3Funcloc6x() <+> level4Funcloc6x() <+> level5Funcloc6x() <+> db)
+        solve (level3Funcloc6x() <+> level4Funcloc6x() <+> level5Funcloc6x() <+> db) project Floc 
 
     def level3Funcloc6x[r](): #{Floc, WorkListItem, SiteMapping, AibSite, ExistingFloc | r} = #{
         Floc(level3Floc6x(siteCode), "Storm Overflow", sainumber, X6_DWF, 3, ngr, "SOF", constrYear) :-

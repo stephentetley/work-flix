@@ -38,8 +38,8 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
 
 
     /// Nested representation.
-    /// With IH06 imports we don't have any more structure than a RoseTree so 
-    /// we use a RoseTree.
+    /// With IH06 imports we don't have any more structure than a RoseTree, 
+    /// so we use a RoseTree.
     type alias IH06Tree = RoseTree[IH06Node]
 
     pub enum IH06Node {

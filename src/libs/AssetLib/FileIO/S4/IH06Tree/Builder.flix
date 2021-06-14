@@ -24,17 +24,23 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
 
-    /// TODO - this does not work if the source is not a "root"...
-    pub def buildIH06Trees(src: IH06File): List[IH06Tree] = match src.rows { 
+    
+    pub def buildIH06Tree(src: IH06File): Result[IH06Tree, String] = match src.rows { 
         case r1 :: _ => { 
             let parent = Option.getWithDefault(getParentId(r1), "");
-            treesList(parent, src.rows, (xs, _) -> xs)
+            match treesList(parent, src.rows, (xs, _) -> xs) {
+                case x1 :: Nil => Ok(x1)
+                case _ :: _ => Err("buildIH06Trees - more than one tree")
+                case Nil => Err("buildIH06Trees - no tree")
+            }
         }
-        case Nil => Nil
-
+        case Nil => Err("buildIH06Trees - Empty Structure List")
     }
         
-
+    pub def readTree(src: System.FilePath): Result[IH06Tree, String] & Impure = 
+        use Result.{flatMap};
+        let* ast = AssetLib/FileIO/S4/IH06Tree/Parser.parseFileWithBOM(src);
+        buildIH06Tree(ast)
 
     def getParentId(row: IH06Row): Option[String] = match row {
         case FlocRow(r1) => Some(r1.parent)
@@ -92,15 +98,14 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
             case Nil => k(Nil, Nil)
         }
 
-
-
-
     /// Print Html via a rose tree
 
     type alias Label = {name: String, description: String}
 
-    pub def allLabelledTrees(src: List[IH06Tree]): RoseForest[Label] = 
-        List.map(Data/RoseTree.map(makeRTLabel), src)
+
+    pub def toLabelledTree(src: IH06Tree): RoseTree[Label] = 
+        Data/RoseTree.map(makeRTLabel, src)
+
         
     def makeRTLabel(x: IH06Node): Label = match x {
         case FlocNode(r) => {name = Int32.toString(r.level) + ": " + r.floc, description = r.description}

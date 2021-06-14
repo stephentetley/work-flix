@@ -97,7 +97,7 @@ def aibReference(): Phase2Step = xs ->
 
 /// def pstn(): Phase2Step = xs -> 
 ///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-instrument-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(xs, src) 
+///     AssetLib/GenS4/Rules/Characteristics/Pstn.genPstn(xs, src) 
 
 /// def pump(): Phase2Step = xs -> 
 ///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-pump-export.xlsx"), sheet = "Sheet1"};

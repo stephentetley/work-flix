@@ -31,6 +31,11 @@ namespace AssetLib/Base/ExportHtmlTree {
     pub type alias Label = {name: String, description: String}
 
 
+    pub def writeHtmlTree(path: System.FilePath, x: RoseTree[Label]): Result[Unit, String] & Impure =
+        let htmltree = paragraph(Nil, collapsibleTree2(nodePrinter(), leafPrinter(), x));
+        let doc = makeDoc(htmltree);
+        writeHtml(160, path, Text/Charset.utf_8(), doc)
+
     pub def writeHtmlForest(path: System.FilePath, xs: RoseForest[Label]): Result[Unit, String] & Impure =
         let htmltrees = List.map(x -> paragraph(Nil, collapsibleTree2(nodePrinter(), leafPrinter(), x)), xs) |> concat;
         let doc = makeDoc(htmltrees);

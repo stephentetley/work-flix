@@ -25,18 +25,20 @@ namespace UploadCheck/DatalogCheckers/SelectionValueCheck {
 
     rel Restricted(charname: String)
 
-    def isRestricted(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String): Bool = 
+    def isRestricted(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String): Bool & Impure = 
         let rules = #{
             Restricted(name) :- SelectionValue(name, _).
         };
-        (solve db <+> rules) |= Restricted(charname).
+        let m = query (db <+> rules) select (x) from Restricted(x);
+        Array.memberOf(charname, m)
 
     rel RestrictedValue(charname: String, value: String)
 
-    def isRestrictedValue(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String, value: String): Bool = 
+    def isRestrictedValue(db: #{SelectionValue, Restricted, RestrictedValue}, charname: String, value: String): Bool & Impure = 
         let rules = #{
             RestrictedValue(name, valu) :- SelectionValue(name, valu).
         };
-        (solve db <+> rules) |= RestrictedValue(charname, value).
+        let m = query (db <+> rules) select (x, y) from RestrictedValue(x, y);
+        Array.memberOf((charname, value), m)
 
 }

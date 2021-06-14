@@ -25,7 +25,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportDb {
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06Tree, IH06Node, FlocNode, EquiNode};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
-    use AssetLib/FileIO/S4/IH06Tree/Builder.{buildIH06Trees};
+    use AssetLib/FileIO/S4/IH06Tree/Builder.{buildIH06Tree};
     use AssetLib/FileIO/S4/IH06Tree/Parser.{parseFile, parseFileWithBOM};
 
 
@@ -43,22 +43,22 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportDb {
                           , sourceFile: System.FilePath
                           , cs: Text.Charset
                           , hasBOM: Bool): DbMonad[Unit] =
-        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult};
+        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult, liftResult};
         let* ast    = liftActionResult(_ -> if (hasBOM) parseFileWithBOM(sourceFile) else parseFile(sourceFile, cs));
-        let xs      = buildIH06Trees(ast);
+        let* tree   = liftResult(buildIH06Tree(ast), msg -> "storeIH06Trees: ${msg}");
         let* _      = setAutoCommit(false);
-        let* _      = exportFlocNodes(tableNames.flocNodes, xs);
-        let* _      = exportEquiNodes(tableNames.equiNodes, xs);
+        let* _      = exportFlocNodes(tableNames.flocNodes, tree);
+        let* _      = exportEquiNodes(tableNames.equiNodes, tree);
         return()
 
 
     // FlocNodes
-    def exportFlocNodes(tableName: String, xs: List[IH06Tree]): DbMonad[Int32] =
+    def exportFlocNodes(tableName: String, x: IH06Tree): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName}");
         let* _          = execute(sqlCreateFlocNode(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName}(floc, level, description, parent) VALUES(?,?,?,?)");
-        let* nrows      = foldLeftM((ac, x) -> { let* n = emitIH06Flocs(stmt, x); return(ac+n)}, 0, xs);
+        let* nrows      = emitIH06Flocs(stmt, x);
         let* _          = commit();
         return(nrows)
 
@@ -85,12 +85,12 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportDb {
         return()
 
     // EquiNodes
-    def exportEquiNodes(tableName: String, xs: List[IH06Tree]): DbMonad[Int32] =
+    def exportEquiNodes(tableName: String, x: IH06Tree): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, commit};
         let* _          = execute("DROP TABLE IF EXISTS ${tableName}");
         let* _          = execute(sqlCreateEquiNode(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName}(equi_id, level, description, floc, superordinate) VALUES(?,?,?,?,?)");
-        let* nrows      = foldLeftM((ac, x) -> { let* n = emitIH06Equis(stmt, x); return(ac+n)}, 0, xs);
+        let* nrows      = emitIH06Equis(stmt, x);
         let* _          = commit();
         return(nrows)
 

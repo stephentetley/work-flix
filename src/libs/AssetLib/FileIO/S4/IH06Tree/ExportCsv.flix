@@ -24,7 +24,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportCsv {
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06Tree, IH06Node};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
-    use AssetLib/FileIO/S4/IH06Tree/Builder.{buildIH06Trees};
+    use AssetLib/FileIO/S4/IH06Tree/Builder.{buildIH06Tree};
     use AssetLib/FileIO/S4/IH06Tree/Parser.{parseFile, parseFileWithBOM};
 
 
@@ -36,18 +36,18 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportCsv {
     pub def exportCsv(sourceFile: System.FilePath, cs: Text.Charset, hasBOM: Bool, outPaths: CsvOutputPaths): Result[Unit, String] & Impure = 
         use Result.flatMap;
         let* ast    = if (hasBOM) parseFileWithBOM(sourceFile) else parseFile(sourceFile, cs);
-        let ans     = buildIH06Trees(ast);
-        let* _      = exportFlocCsv(ans, outPaths.flocOutpath);        
-        let* _      = exportEquiCsv(ans, outPaths.equiOutpath);
+        let* tree   = buildIH06Tree(ast);
+        let* _      = exportFlocCsv(tree, outPaths.flocOutpath);        
+        let* _      = exportEquiCsv(tree, outPaths.equiOutpath);
         Ok()
 
 
     /// Flocs
-    pub def exportFlocCsv(xs: List[IH06Tree], path: System.FilePath): Result[Unit, String] & Impure =
+    pub def exportFlocCsv(x: IH06Tree, path: System.FilePath): Result[Unit, String] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
         let headers = [ "Floc", "Level", "Description", "Parent Floc" ];
-        let* _ = runCsvExport(traverseX(emitIH06Flocs, xs), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
+        let* _ = runCsvExport(emitIH06Flocs(x), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
         Ok()
 
 
@@ -75,11 +75,11 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportCsv {
 
 
     /// Equis
-    pub def exportEquiCsv(xs: List[IH06Tree], path: System.FilePath): Result[Unit, String] & Impure =
+    pub def exportEquiCsv(x: IH06Tree, path: System.FilePath): Result[Unit, String] & Impure =
         use Result.{flatMap};
         use FactIO/CsvExport.{runCsvExport, traverseX};
         let headers = [ "EquiId", "Level", "Description", "Parent Floc", "Superordinate Equi" ];
-        let* _ = runCsvExport(traverseX(emitIH06Equis, xs), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
+        let* _ = runCsvExport(emitIH06Equis(x), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
         Ok()
 
 
