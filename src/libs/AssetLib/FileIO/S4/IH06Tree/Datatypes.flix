@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-
 namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
 
     use Data.RoseTree;
     use Time.LocalDate;
 
     /// Flat representation - not a tree.
-    type alias IH06File = { header: Header, rows: List[IH06Row] }
+    type alias IH06File = 
+        { header: Header
+        , rows: List[IH06Row]
+        }
 
-    type alias Header =  { floc: String, description: String, validForm: LocalDate }
+    type alias Header = 
+        { floc: String
+        , description: String
+        , validForm: LocalDate
+        }
 
     pub enum IH06Row {
         case FlocRow(FlocRow)

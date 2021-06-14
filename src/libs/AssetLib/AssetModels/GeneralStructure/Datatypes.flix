@@ -73,6 +73,7 @@ namespace AssetLib/AssetModels/GeneralStructure/Datatypes {
         , name: String
         , objectType: String
         , status: String
+        , position: Option[Int32]
         , subequipment: List[GSSubequipment]
         }
 
@@ -81,5 +82,7 @@ namespace AssetLib/AssetModels/GeneralStructure/Datatypes {
         , name: String
         , objectType: String
         , status: String
+        , position: Option[Int32]
         }
+        
 }
