@@ -14,36 +14,47 @@
  * limitations under the License.
  */
 
-namespace PDT/Equipment {
+namespace AssetLib/PDT/Equipment {
 
     use SheetIO/SheetParser.SheetParser;
 
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
 
+    use AssetLib/PDT/Utils.{rowKeyValue, rowKeyLocalDate};
 
-    pub def parseEquipment(equiId: String, category: String, today: Time.LocalDate, objType: String): SheetParser[ka1, SLEquipment] = 
+    type alias EquipmentInfo = 
+        { assetType: String
+        , body: SLEquipment
+        }
+
+    pub def parseEquipment(equiId: String, category: String, objType: String): SheetParser[ka1, EquipmentInfo] = 
         use SheetIO/SheetParser.{flatMap, return};
         let* r1 = assetIntro();
         let* r2 = manufacturerData();
         let* r3 = assetData();
+        let* today = AssetLib/PDT/Utils.validFromToday();
         let noPosn: Option[Int32] = None;
         let noWeight: Option[Float64] = None;
-        return({ equiId = equiId
-            , category = category
-            , description = r1.assetName
-            , validFrom = today
-            , objectType = objType
-            , weightKg = noWeight                           /// ``Overall weight (dry)``
-            , startupDate = r3.dateOfInstallation       /// ``Date of installation``
-            , manufacturer = r2.manufacturer
-            , model = r3.specificModel
-            , partNumber = ""
-            , serialNumber = r3.serialNumber
-            , functionalLocation = r3.locationInAssetHierarchy               /// ``Location in Asset Hierarchy``
-            , superOrdinateEqui = ""
-            , position = noPosn
-            , techIdentNo = r3.tagReference
-            , status = r3.assetStatus
+        return(
+            { assetType = r1.assetType
+            , body = 
+                { equiId = equiId
+                , category = category
+                , description = r1.assetName
+                , validFrom = today
+                , objectType = objType
+                , weightKg = noWeight                           /// ``Overall weight (dry)``
+                , startupDate = r3.dateOfInstallation           /// ``Date of installation``
+                , manufacturer = r2.manufacturer
+                , model = r3.specificModel
+                , partNumber = ""
+                , serialNumber = r3.serialNumber
+                , functionalLocation = r3.locationInAssetHierarchy               /// ``Location in Asset Hierarchy``
+                , superOrdinateEqui = ""
+                , position = noPosn
+                , techIdentNo = r3.tagReference
+                , status = r3.assetStatus
+                }
             })
 
 
@@ -51,8 +62,8 @@ namespace PDT/Equipment {
     def assetIntro(): SheetParser[ka1, {assetName: String, assetType: String, assetStatus: String}] =
         use SheetIO/SheetParser.{flatMap, return, gotoRow, island};
         let* _  = gotoRow(0);
-        let* s1 = island(rowKeyValue("Asset Type"));
-        let* s2 = island(rowKeyValue("Asset Name"));
+        let* s1 = island(rowKeyValue("Asset Name"));
+        let* s2 = island(rowKeyValue("Asset Type"));
         let* s3 = island(rowKeyValue("Asset Status"));
         return({assetName = s1, assetType = s2, assetStatus = s3})
 
@@ -97,15 +108,6 @@ namespace PDT/Equipment {
                 })
 
 
-    pub def rowKeyValue(key: String): SheetParser[ka1, String] =
-        use SheetIO/SheetParser.{row, literal, content};
-        use SheetIO/SheetParser.{*>};
-        row(literal(key) *> content())
-
-    pub def rowKeyLocalDate(key: String): SheetParser[ka1, Time.LocalDate] =
-        use SheetIO/SheetParser.{row, literal, localDate};
-        use SheetIO/SheetParser.{*>};
-        row(literal(key) *> localDate())
 
 
 }
