@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/GenFlocs {
     pub def emitFlocUxl(workList: XlsxSource, args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* answers    = generateFlocUxl(workList);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(answers, args);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args, answers);
         Ok()
 
 

@@ -1,5 +1,5 @@
 use SheetIO/SheetParser.SheetParser;
-
+use AssetLib/S4Lite/Datatypes.{UxlSource};
 
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -10,13 +10,14 @@ def main(_args: Array[String]): Int32 & Impure =
 def test01(): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let src = System/FilePath.new("G:/work/assets/product-data-templates/M82132_conveyor.xlsx");
-    let* ans = SheetIO/SheetParser.runXlsx(conveyorParser(), "PDT_Conveyor", (), src);    
-    ans |> println;
+    let emitParams = 
+        { uxlTemplate = System/FilePath.new("G:/work/assets/product-data-templates/MMOP uXL.xlsx")
+        , changeRequestName = "PDT Sample"
+        , outpath = System/FilePath.new("G:/work/assets/product-data-templates/conveyor-output-uxl.xlsx")
+        };
+    let* uxlsrc = SheetIO/SheetParser.runXlsx(AssetLib/PDT/Products/Conveyor.parseConveyor("00001"), "PDT_Conveyor", (), src);    
+    let* _ =  AssetLib/S4Lite/EmitUxl.outputUxl(emitParams, uxlsrc);
     Ok()
 
-def conveyorParser(): SheetParser[ka1, String] = 
-    use SheetIO/SheetParser.{flatMap, return, row, skipRow, literal, content, find, bounded, liftAction, gotoRow};
-    use SheetIO/SheetParser.{*>};
-    let* a1     = PDT/Common.parseProductData(PDT/Conveyor.parseConveyorData());
-    return(String.unlines(a1.common.assetName  :: a1.common.specificModel :: a1.common.serialNumber :: "${a1.common.dateOfInstallation}" :: Nil))
-    
+
+

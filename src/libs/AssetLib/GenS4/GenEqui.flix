@@ -38,7 +38,7 @@ namespace AssetLib/GenS4/GenEqui {
     pub def emitEquiUxl(genArgs: GenEquiArguments, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* answers    = generateEquiUxl(genArgs);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(answers, outputArgs);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(outputArgs, answers);
         Ok()
 
     /// Empty string for no solution id.

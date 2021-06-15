@@ -18,7 +18,7 @@ namespace AssetLib/PDT/Products/Conveyor {
 
     use SheetIO/SheetParser.SheetParser;
 
-    use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic, SLDatatype};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
 
     /// Base is CVYR
@@ -29,11 +29,18 @@ namespace AssetLib/PDT/Products/Conveyor {
     /// Category = "M"
     /// objectType = "CVYR"
     
-    pub def parseConveyor(equiId: String): SheetParser[ka1, (SLEquipment, List[SLEquiCharacteristic])] = 
+    pub def parseConveyor(equiId: String): SheetParser[ka1, UxlSource] = 
         use SheetIO/SheetParser.{flatMap, return};
         let* info = AssetLib/PDT/Equipment.parseEquipmentInfo(equiId, "M", "CVYR");
         let* chars = parseConveyorCharacteristics(equiId, info.assetType);
-        return((info.body, chars))
+        return(
+            { funclocs = Chain.empty()
+            , funclocLongTexts = Chain.empty()
+            , funclocCharacteristics = Chain.empty()
+            , equipment = Chain.singleton(info.body)
+            , equiLongTexts = Chain.empty()
+            , equiCharacteristics = Chain.fromList(chars)
+            })
 
 
     def parseConveyorCharacteristics(equiId: String, assetType: String): SheetParser[ka1, List[SLEquiCharacteristic]] = 
@@ -52,14 +59,17 @@ namespace AssetLib/PDT/Products/Conveyor {
 
 
     pub def parseCVYRSC(equiId: String): SheetParser[ka1, List[SLEquiCharacteristic]] = 
-        use SheetIO/SheetParser.{flatMap, return};
-        let* c1 = getCVYR_DIAMETER_MM(equiId, "CVYRSC");
-        let* c2 = getCVYR_LENGTH_MM(equiId, "CVYRSC");
-        return(c1 :: c2 :: Nil)
+        use SheetIO/SheetParser.{<&>, <*>};
+        ((x1, x2, x3, x4) -> x1 :: x2 :: x3 :: x4 :: Nil)
+            <&> AssetLib/PDT/Utils.getUNICLASS_CODE(equiId, "CVYRSC")
+            <*> AssetLib/PDT/Utils.getUNICLASS_DESC(equiId, "CVYRSC")
+            <*> getCVYR_DIAMETER_MM(equiId, "CVYRSC")
+            <*> getCVYR_LENGTH_MM(equiId, "CVYRSC")
+
 
     def getCVYR_DIAMETER_MM(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
         use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
-        use PDT/Common.{rowKeyValue};
+        use AssetLib/PDT/Utils.{rowKeyValue};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Dimension & Weight Data")));
         let* s1 = island(rowKeyValue("Overall width"));
@@ -74,7 +84,7 @@ namespace AssetLib/PDT/Products/Conveyor {
 
     def getCVYR_LENGTH_MM(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
         use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
-        use PDT/Common.{rowKeyValue};
+        use AssetLib/PDT/Utils.{rowKeyValue};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Dimension & Weight Data")));
         let* s1 = island(rowKeyValue("Overall length"));

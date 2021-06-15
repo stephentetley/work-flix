@@ -18,6 +18,9 @@ namespace AssetLib/PDT/Utils {
 
     use SheetIO/SheetParser.SheetParser;
 
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
+    use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
+
     pub def validFromToday(): SheetParser[ka1, Time.LocalDate] =
         SheetIO/SheetParser.liftAction(_ -> Time/LocalDate.now())
 
@@ -31,5 +34,25 @@ namespace AssetLib/PDT/Utils {
         use SheetIO/SheetParser.{*>};
         row(literal(key) *> localDate())
 
+    pub def getUNICLASS_CODE(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
+        use SheetIO/SheetParser.{return};
+        return(
+            { equiId = equiId
+            , className = className
+            , charName = "UNICLASS_CODE"
+            , valueType = Character
+            , intCounterValue = 1
+            , charValue = ""
+            })
 
+    pub def getUNICLASS_DESC(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
+        use SheetIO/SheetParser.{return};
+        return(
+            { equiId = equiId
+            , className = className
+            , charName = "UNICLASS_DESC"
+            , valueType = Character
+            , intCounterValue = 1
+            , charValue = ""
+            })
 }

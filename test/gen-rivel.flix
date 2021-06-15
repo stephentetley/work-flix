@@ -37,12 +37,12 @@ def main(_args: Array[String]): Int32 & Impure =
 def genRivelPhase1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
-    let uxlArgs     = uxlOutputArgs();
+    let emitArgs    = uxlOutputArgs();
     let* flocs      = AssetLib/GenS4/GenFlocs.generateFlocUxl(genFlocSource());
     let* equis      = AssetLib/GenS4/GenEqui.generateEquiUxl(equiArgs);
     let uxl         = AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis);
-    let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(uxl, uxlArgs);
-    let _           = Console.printLine("Wrote: ${uxlArgs.outpath}");
+    let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(emitArgs, uxl);
+    let _           = Console.printLine("Wrote: ${emitArgs.outpath}");
     Ok()
 
 def _genFlocEastNorthUpload(): Result[Unit, String] & Impure = 

@@ -32,8 +32,8 @@ namespace AssetLib/S4Lite/EmitUxl {
         , outpath: System.FilePath
         }
 
-    pub def outputUxl(src: UxlSource,
-                      args: UxlOutputArgs): Result[Unit, String] & Impure = 
+    pub def outputUxl(args: UxlOutputArgs,
+                        src: UxlSource): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(writeUxl(args.changeRequestName, src), args.uxlTemplate, args.outpath)
 
 
