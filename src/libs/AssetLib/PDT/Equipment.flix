@@ -27,7 +27,7 @@ namespace AssetLib/PDT/Equipment {
         , body: SLEquipment
         }
 
-    pub def parseEquipment(equiId: String, category: String, objType: String): SheetParser[ka1, EquipmentInfo] = 
+    pub def parseEquipmentInfo(equiId: String, category: String, objType: String): SheetParser[ka1, EquipmentInfo] = 
         use SheetIO/SheetParser.{flatMap, return};
         let* r1 = assetIntro();
         let* r2 = manufacturerData();

@@ -28,10 +28,22 @@ namespace AssetLib/PDT/Products/Conveyor {
 
     /// Category = "M"
     /// objectType = "CVYR"
-    /// pub def parseConveyor(equiId: String, today: Time.LocalDate): SheetParser[ka1, SLEquipment] = 
+    
+    pub def parseConveyor(equiId: String): SheetParser[ka1, (SLEquipment, List[SLEquiCharacteristic])] = 
+        use SheetIO/SheetParser.{flatMap, return};
+        let* info = AssetLib/PDT/Equipment.parseEquipmentInfo(equiId, "M", "CVYR");
+        let* chars = parseConveyorCharacteristics(equiId, info.assetType);
+        return((info.body, chars))
 
 
-    pub def conveyorClass(assetType: String): String = 
+    def parseConveyorCharacteristics(equiId: String, assetType: String): SheetParser[ka1, List[SLEquiCharacteristic]] = 
+        use SheetIO/SheetParser.{flatMap, return};
+        match conveyorClass(assetType) { 
+            case "CVYRSC" => parseCVYRSC(equiId)
+            case _ => return(Nil)
+        }
+
+    def conveyorClass(assetType: String): String = 
         match String.trim(String.toUpperCase(assetType)) {
             case "SCREW CONVEYOR" => "CVYRSC"
             case _ => "CVYRMISC"
