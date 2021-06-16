@@ -1,0 +1,79 @@
+/*
+ * Copyright 2021 Stephen Tetley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
+
+    use AssetLib/AibFacts/Attributes/Lifting.{WorkLoad, WorkLoadUnits,
+        TestCertNo, YWRef};
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
+    use AssetLib/GenS4/XlsxSource.{XlsxSource};
+
+    /// src should be lifting facts
+    pub def genLisl(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/Lifting.readLiftingData(src.sheet, src.file);
+        let ans         = lisl(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
+
+
+    /// Note LOCATION_ON_SITE already created.
+    pub def lisl(input: #{EquiWorkItem, WorkLoad, WorkLoadUnits, TestCertNo, YWRef, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+        let rules = #{
+            EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "LISL", s4Class),
+                YWRef(equiId, ywref).
+
+            EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "LISL", s4Class),
+                TestCertNo(equiId, number).
+
+
+            EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "LISL", s4Class),
+                WorkLoad(equiId, load),
+                WorkLoadUnits(equiId,  units),
+                if recognizedLoadUnit(units).
+
+            EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD_UNITS", 1, S4String(loadUnit(units))) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "LISL", s4Class),
+                WorkLoadUnits(equiId, units),
+                if recognizedLoadUnit(units).
+
+        }; 
+        solve (rules <+> input) project EquiCharacteristic
+
+
+    def recognizedLoadUnit(s: String): Bool = match s { 
+        case "KILOGRAM" => true
+        case "MAN" => true
+        case _ => false
+    }
+
+    
+    def loadUnit(s: String): String = match s { 
+        case "KILOGRAM" => "KG"
+        case "MAN" => "MAN"
+        case _ => ""
+    }
+
+
+}
