@@ -64,7 +64,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
 
     def s4Location(s: String): String =
-        if (String.length(s) >= 30) "SEE LONG TEXT" else s
+        if (String.length(s) > 30) "SEE LONG TEXT" else s
 
     def s4Status(x: String): String = match x {
         case "OPERATIONAL" =>  "OPER"

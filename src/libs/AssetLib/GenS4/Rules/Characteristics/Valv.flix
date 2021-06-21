@@ -61,7 +61,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
             case "INCH" => 25.4f64 * size
             case _ => -1.0f64
         } 
+            |> round
             |> Float64.tryToInt32
             |> flip(Option.getWithDefault, 0)
+
+    /// TODO make PR for Flix... with ceil and floor
+    def round(x: Float64): Float64 =
+        import java.lang.Math:rint(Float64);
+        rint(x) as & Pure
+
 
 }
