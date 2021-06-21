@@ -36,20 +36,20 @@ namespace AssetLib/GenS4/Rules/LongText {
             HasMemoLines(equiId) :- AibMemoLine(equiId, _).
             HasLocationOnSite(equiId) :- LocationOnSite(equiId, _).
 
-            EquiLongText(equiId, description, combine(longText, location) ) :- 
+            EquiLongText(equiId, description, combine(memoText, location) ) :- 
                 EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
-                AibMemoLine(equiId, longText),
+                AibMemoLine(equiId, memoText),
                 LocationOnSite(equiId, location), 
                 if (String.length(location) > 30).
 
-            EquiLongText(equiId, description, String.trim(longText)) :- 
+            EquiLongText(equiId, description, String.trim(memoText)) :- 
                 EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
-                AibMemoLine(equiId, longText), 
+                AibMemoLine(equiId, memoText), 
                 not HasLocationOnSite(equiId).
 
-            EquiLongText(equiId, description, String.trim(longText)) :- 
+            EquiLongText(equiId, description, String.trim(memoText)) :- 
                 EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
-                AibMemoLine(equiId, longText), 
+                AibMemoLine(equiId, memoText), 
                 LocationOnSite(equiId, location), 
                 if (String.length(location) <= 30).
 

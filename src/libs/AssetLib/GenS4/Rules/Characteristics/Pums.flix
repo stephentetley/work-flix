@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Rules/Characteristics/Pump {
+namespace AssetLib/GenS4/Rules/Characteristics/Pums {
 
     use AssetLib/AibFacts/Attributes/Pump.{DiaphragmMaterial, DutyHead, DutyHeadUnits,
         Flow, FlowUnits, ImpellerType, LiftingType, RatingPower, RatingUnits};
@@ -28,41 +28,41 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
 
     /// src should be pump facts
-    pub def genPump(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genPums(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src.sheet, src.file);
-        let ans         = pump(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = pums(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
 
-    pub def pump(input: #{EquiWorkItem, DiaphragmMaterial, DutyHead, DutyHeadUnits,
+    pub def pums(input: #{EquiWorkItem, DiaphragmMaterial, DutyHead, DutyHeadUnits,
                             Flow, FlowUnits, ImpellerType, LiftingType, 
                             RatingPower, RatingUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
-            EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+            EquiCharacteristic(equiId, s4Class, "PUMS_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMS", s4Class),
                 Flow(equiId, flow),
                 FlowUnits(equiId, units),
                 if recognizedFlowUnits(units).
 
-            EquiCharacteristic(equiId, s4Class, "PUMP_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+            EquiCharacteristic(equiId, s4Class, "PUMS_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMS", s4Class),
                 DutyHead(equiId, ans),
                 DutyHeadUnits(equiId, "METRES").
 
             /// TODO may have to limit pump-classes here...
-            EquiCharacteristic(equiId, s4Class, "PUMP_IMPELLER_TYPE", 1, S4String(ans)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+            EquiCharacteristic(equiId, s4Class, "PUMS_IMPELLER_TYPE", 1, S4String(ans)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMS", s4Class),
                 ImpellerType(equiId, ans).
 
-            EquiCharacteristic(equiId, s4Class, "PUMP_DIAPHRAGM_MATERIAL", 1, S4String(diaphragmMaterial(material))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
-                DiaphragmMaterial(equiId, material),
-                if recognizedDiaphragmMaterial(material).
+            EquiCharacteristic(equiId, s4Class, "PUMS_LIFTING_TYPE", 1, S4String(ans)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMS", s4Class),
+                LiftingType(equiId, ans).
 
-            EquiCharacteristic(equiId, s4Class, "PUMP_RATED_POWER_KW", 1, S4Float(ans)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+
+            EquiCharacteristic(equiId, s4Class, "PUMS_RATED_POWER_KW", 1, S4Float(ans)) :-
+                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMS", s4Class),
                 RatingPower(equiId, ans),
                 RatingUnits(equiId, "KILOWATTS").
         };
@@ -83,17 +83,5 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
         case "LITRES PER SECOND" => flow
         case _ => -1.0f64
     }
-
-    def recognizedDiaphragmMaterial(s: String): Bool = match s { 
-        case "EPDM" => true
-        case _ => false
-    }
-
-    
-    def diaphragmMaterial(s: String): String = match s { 
-        case "EPDM" => "EPMD"
-        case _ => ""
-    }
-
 
 }

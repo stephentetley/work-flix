@@ -118,15 +118,21 @@ namespace AssetLib/S4Lite/EmitUpload {
         AssetLib/S4Lite/Internal/Phase2Renumber.renumber(sourceKeyMap, crSheet, crPath, Chain.toList(xs)) 
             |> Result.map(Chain.fromList)
 
+    pub def allClassFilter(): ClassEquiRow -> Bool = _row -> true
+
+    pub def namedClassFilter(names: List[String]): ClassEquiRow -> Bool = row -> 
+        List.memberOf(row.className, names)
+
     pub def outputEquiUploads(userName: String,
                                 input: Chain[SLEquiCharacteristic],
                                 nameRoot: String,
+                                classFilter: ClassEquiRow -> Bool,
                                 outdir: System.FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
         let input1          = Chain.toList(input);
         let classEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload1-classequi.txt"));
         let _               = Console.printLine("Writing '${classEquiPath}'");
-        let classEquiRows   = makeClassEquiRows(input1);
+        let classEquiRows   = makeClassEquiRows(classFilter, input1);
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeClassEquiFile(userName, classEquiRows, classEquiPath);        
         let valuaEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload2-valuaequi.txt"));
         let _               = Console.printLine("Writing '${valuaEquiPath}'");
@@ -134,7 +140,9 @@ namespace AssetLib/S4Lite/EmitUpload {
         let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
         Ok()
 
-    def makeClassEquiRows(xs: List[SLEquiCharacteristic]): List[ClassEquiRow] = 
+    /// WARNING: this is creating classes that may already exist from the UXL upload.
+
+    def makeClassEquiRows(classFilter: ClassEquiRow -> Bool, xs: List[SLEquiCharacteristic]): List[ClassEquiRow] = 
         let equ = (x, y) -> x.className == y.className and x.equi == y.equi;
         let cmp = (x, y) -> match Order.compare(x.equi, y.equi) { 
             case EqualTo => Order.compare(x.className, y.className) |> Comparison.toInt
@@ -142,6 +150,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         };
         xs 
             |> List.map(toClassEquiRow)
+            |> List.filter(classFilter)
             |> List.distinctWith(equ)
             |> List.sortWith(cmp)
 
