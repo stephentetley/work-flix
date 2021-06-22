@@ -25,14 +25,14 @@ namespace AssetLib/PDT/Utils {
         SheetIO/SheetParser.liftAction(_ -> Time/LocalDate.now())
 
     pub def rowKeyValue(key: String): SheetParser[ka1, String] =
-        use SheetIO/SheetParser.{row, literal, content};
+        use SheetIO/SheetParser.{row, literal, content, swapError};
         use SheetIO/SheetParser.{*>};
-        row(literal(key) *> content())
+        row(literal(key) *> content()) `swapError` "rowKeyLocalDate - key=${key}"
 
     pub def rowKeyLocalDate(key: String): SheetParser[ka1, Time.LocalDate] =
-        use SheetIO/SheetParser.{row, literal, localDate};
+        use SheetIO/SheetParser.{row, literal, localDate, swapError};
         use SheetIO/SheetParser.{*>};
-        row(literal(key) *> localDate())
+        row(literal(key) *> localDate()) `swapError` "rowKeyLocalDate - key=${key}"
 
     pub def getUNICLASS_CODE(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
         use SheetIO/SheetParser.{return};

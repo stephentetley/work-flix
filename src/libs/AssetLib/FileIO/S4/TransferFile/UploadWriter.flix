@@ -89,7 +89,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
         let* _  = putStringNamed!("ATWRT",      x.charValue);
         let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
         let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
-        let* _  = putPaddedInt32Named!("ATZIS", 3, x.intCounterValue);
+        let* _  = putPaddedInt32Named!("ATZIS", 3, x.instanceCounter);
         let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
         let* _  = putStringNamed!("ATFLV",      x.valueFrom);
         let* _  = putStringNamed!("ATFLB",      x.valueTo);
@@ -130,7 +130,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
         let* _  = putStringNamed!("ATWRT",      x.charValue);
         let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
         let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
-        let* _  = putPaddedInt32Named!("ATZIS", 3, x.intCounterValue);
+        let* _  = putPaddedInt32Named!("ATZIS", 3, x.instanceCounter);
         let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
         let* _  = putStringNamed!("ATFLV",      x.valueFrom);
         let* _  = putStringNamed!("ATFLB",      x.valueTo);
