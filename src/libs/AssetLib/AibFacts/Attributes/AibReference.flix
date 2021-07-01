@@ -34,7 +34,7 @@ namespace AssetLib/AibFacts/Attributes/AibReference {
     pub def readHierarchyRelations(sheetName: String, 
                                     path: System.FilePath): Result[#{ParentRef | r}, String] & Impure =
         use Result.{flatMap, map};
-        let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName) |> Comparison.toInt;
+        let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName);
         let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(sheetName), path) |> map(List.sortWith(cmp));
         let facts = extractHierarchyFacts(xs);
         Ok(facts)
@@ -87,17 +87,5 @@ namespace AssetLib/AibFacts/Attributes/AibReference {
         case Nel(x1, Nil) => (x1, xs)
         case Nel(x1, r1 :: rs) => if (String.startsWith(commonName, x1.commonName)) (x1, xs) else getParent(commonName, Nel(r1, rs))
     }
-
-
-    /// def getParentName(stk: Nel[AibRow]): String = match stk {
-    ///     case Nel(x1, Nil) => x1.commonName
-    ///     case Nel(x1, r1 :: _) => String.breakOnRight(r1.commonName + "/", x1.commonName) |> snd
-    /// }
-
-    /// def getNodeName(commonName: String, stk: Nel[AibRow]): String = 
-    ///     let prefix = getParentName(stk) + "/";
-    ///     String.breakOnRight(prefix, commonName) |> snd
-
-
 
 }

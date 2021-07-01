@@ -68,7 +68,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
     def s4Status(x: String): String = match x {
         case "OPERATIONAL" =>  "OPER"
-        case "NON-OPERATIONAL" => "NOP"
+        case "NON OPERATIONAL" => "NOP"
         case _ => x
     }
 
@@ -77,33 +77,6 @@ namespace AssetLib/GenS4/Rules/Equipment {
         case s1 if (String.isEmpty(s1)) => "UNKNOWN"
         case s1 => s1
     }
-
-
-        /// TODO - this should go in a separate report that deduces valve types...
-
-        /// /// Define the typemap here.
-        /// /// There aren't any modularity benefits to defining it outside 
-        /// /// this block and there is the downside that if defined oustide 
-        /// /// it is easy to forget to instantiate it.
-        /// ///
-        /// def valveClass(equiName: String, valveType: String): String = match (equiName, valveType) { 
-        ///     case ("EQPT: PRESSURE REDUCING VALVE (WATER)",      "")             => "VALVPR"
-        ///     case ("EQUIPMENT: AIR RELIEF VALVE",                "")             => "VALVAV"
-        ///     case ("EQUIPMENT: BELLMOUTH VALVE",                 "")             => "VALVBE"
-        ///     case ("EQUIPMENT: FLAP VALVE",                      "")             => "VALVFL"
-        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Ball")         => "VALVBA"
-        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Butterfly")    => "VALVBP"
-        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Diaphram")     => "VALVDI"      /// Known spelling mistake
-        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Diaphragm")    => "VALVDI"
-        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Knife Gate")   => "VALVGA"
-        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Plug")         => "VALVPG"
-        ///     case ("EQUIPMENT: ISOLATING VALVES",                "Wedge Gate")   => "VALVGA"
-        ///     case ("EQUIPMENT: MULTI-WAY VALVE",                 "")             => "VALVMW"
-        ///     case ("EQUIPMENT: NON RETURN VALVE",                "")             => "VALVNR"
-        ///     case ("EQUIPMENT: PRESSURE REGULATING VALVE",       "")             => "VALVRE"
-        ///     case ("EQUIPMENT: RELIEF/SAFETY VALVE",             "")             => "VALVSF"
-        ///     case (_, _)                                                         => "VALVMISC"
-        /// }
 
 }
 

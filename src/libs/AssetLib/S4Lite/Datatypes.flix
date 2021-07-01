@@ -25,7 +25,8 @@ namespace AssetLib/S4Lite/Datatypes {
         EquipmentData, EqMultilingualText, EqClassification};
 
     /// TODO - group with List or Chain?
-
+    /// If we use Chain we should probably make it an opaque type...
+    
     type alias UxlSource = 
         { funclocs: Chain[SLFunctionalLocation]
         , funclocLongTexts: Chain[SLFlocLongText]
