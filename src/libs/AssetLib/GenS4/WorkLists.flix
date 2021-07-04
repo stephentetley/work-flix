@@ -115,13 +115,8 @@ namespace AssetLib/GenS4/WorkLists {
     /// Read from Aib xlsx export file...
     pub def readEquiWorkList(sheetName: String, 
                             path: System.FilePath): Result[List[EquipmentWorkItem], String] & Impure =
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, someNamedRows};
-        let readStep = () -> { 
-            let* s1     = getSheetNamed(sheetName);
-            let* xs     = someNamedRows(s1, evalEquiWorkItem());
-            return(xs)
-        };
-        SheetIO/SheetReader.runXlsx(readStep(), path)
+        use SheetIO/NamedRowEvaluator.{optional};
+        SheetIO/Reader.readSomeNamedRows(sheetName, path, optional(evalEquiWorkItem()))
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory

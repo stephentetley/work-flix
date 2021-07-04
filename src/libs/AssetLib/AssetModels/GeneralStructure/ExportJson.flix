@@ -28,7 +28,7 @@ namespace AssetLib/AssetModels/GeneralStructure/ExportJson {
         let _ = Console.printLine("Building JSON... ${Time/LocalTime.now()}");
         let json1 = putSite(x) |> BasicJson/JsonBuilder.objectOf;
         let _ = Console.printLine("Writing JSON... ${Time/LocalTime.now()}");
-        BasicJson/Pretty.writeJson(path, json1)
+        BasicJson/Pretty3.writeJson(path, json1)
 
 
     pub def putSite(x: GSSite): JsObject = 
