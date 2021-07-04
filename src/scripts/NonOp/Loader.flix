@@ -20,7 +20,7 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.RowEvaluator;
     
-    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc};
+    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, PlantAssetType};
 
     /// Read from Aib xlsx export file...
     pub def readSiteFlocs(sheetName: String, path: System.FilePath): Result[#{SiteFloc | r}, String] & Impure =
@@ -43,6 +43,19 @@ namespace AssetScripts/NonOp/Loader {
             |> Result.map(List.distinct)
             |> Result.map(List.foldLeft((ac, x) -> ac <+> #{ SecondOrderFlocWorkItem(x). }, #{}))
 
+
+    pub def readPlantAssetTypes(sheetName: String, path: System.FilePath): Result[#{PlantAssetType | r}, String] & Impure =
+        use SheetIO/RowEvaluator.{withDefault};
+        SheetIO/Reader.allRelations(sheetName, path, withDefault(evalPlantAssetType(), #{}))
+            
+
+
+    def evalPlantAssetType(): RowEvaluator[#{PlantAssetType | r}] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((x1, x2) -> #{ PlantAssetType(x1, x2). })
+            <&> (getColumnIndex("AR") >>= getTrimmedContentAt)
+            <*> (getColumnIndex("AS") >>= getTrimmedContentAt)
 
 
     /// /// Read from Aib xlsx export file...

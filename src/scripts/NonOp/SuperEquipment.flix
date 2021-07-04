@@ -15,16 +15,26 @@
  */
 
 
-namespace AssetScripts/NonOp/Relations {
+namespace AssetScripts/NonOp/SuperEquipment {
+
+    use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
+    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc};
 
 
-    pub rel SiteFloc(aibRef: String, siteFloc: String)
-
-    pub rel PlantEquip(aibEquiRef: String, siteRef: String, parentRef: String, shortName: String, commonName: String)
-
-
-    pub rel SecondOrderFlocWorkItem(siteAibRef: String)
-
-    /// temp
     pub rel PlantAssetType(code: String, desc: String)
+
+    
+
+    /// pub def genFlocs(db: #{_ | r}): #{Equipment, EquiLongText, EquiCharacteristic | r} = 
+    ///     let rules = #{
+
+
+                          
+
+    ///     };
+    ///     solve (db <+> rules) project Equipment, EquiLongText, EquiCharacteristic
+
+
+
 }

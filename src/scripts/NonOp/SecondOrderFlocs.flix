@@ -101,13 +101,10 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
                 SecondOrderFlocWorkItem(aibSiteRef), 
                 SiteFloc(aibSiteRef, sitefloc).
 
-            /// FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(aibSiteRef)) :-
+            /// FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "AIB_REFERENCE", "SYSTEM_TYPE", 1, S4String("NON-OP SYSTEM")) :-
             ///     SecondOrderFlocWorkItem(aibSiteRef), 
             ///     SiteFloc(aibSiteRef, sitefloc).
-            
-            /// FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-            ///     SecondOrderFlocWorkItem(aibSiteRef), 
-            ///     SiteFloc(aibSiteRef, sitefloc).                
+                          
 
         };
         solve (db <+> rules) project FunctionalLocation, FlocCharacteristic

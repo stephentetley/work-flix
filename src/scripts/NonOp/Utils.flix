@@ -15,16 +15,15 @@
  */
 
 
-namespace AssetScripts/NonOp/Relations {
+namespace AssetScripts/NonOp/Utils {
 
+    
+    pub def getShortName(pgdesc: String, pdesc: String, commonName: String): String = 
+        match (pgdesc, pdesc) {
+            case ("NULL", "NULL") => commonName
+            case ("NULL", _) => snd(String.breakOnRight("${pdesc}/", commonName))
+            case (_, "NULL") => snd(String.breakOnRight("${pgdesc}/", commonName))
+            case (_, _) => snd(String.breakOnRight("${pgdesc}/${pdesc}/", commonName))
+        }
 
-    pub rel SiteFloc(aibRef: String, siteFloc: String)
-
-    pub rel PlantEquip(aibEquiRef: String, siteRef: String, parentRef: String, shortName: String, commonName: String)
-
-
-    pub rel SecondOrderFlocWorkItem(siteAibRef: String)
-
-    /// temp
-    pub rel PlantAssetType(code: String, desc: String)
 }
