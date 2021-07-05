@@ -19,9 +19,17 @@ namespace AssetScripts/NonOp/Relations {
 
 
     pub rel SiteFloc(aibRef: String, siteFloc: String)
+    
+    pub rel SiteEastNorth(siteFloc: String, easting: Int32, northing: Int32)
 
     pub rel PlantEquip(aibEquiRef: String, siteRef: String, parentRef: String, shortName: String, commonName: String)
 
+
+    pub rel EquipmentMapping(plantAssetTypeDescription: String, 
+                            plantEquipAssetTypeDescription: String, 
+                            objectType: String, 
+                            objectClass: String, 
+                            category: String)
 
     pub rel SecondOrderFlocWorkItem(siteAibRef: String)
 

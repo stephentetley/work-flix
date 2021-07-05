@@ -20,28 +20,38 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.RowEvaluator;
     
-    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, PlantAssetType};
+    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, EquipmentMapping, PlantAssetType};
 
     /// Read from Aib xlsx export file...
     pub def readSiteFlocs(sheetName: String, path: System.FilePath): Result[#{SiteFloc | r}, String] & Impure =
-        SheetIO/Reader.foldAllNamedRows(sheetName, path, (ac, a) -> ac <+> a, #{}, evalSiteFloc())
+        SheetIO/Reader.allNamedRelations(sheetName, path, evalSiteFloc())
 
 
     def evalSiteFloc(): NamedRowEvaluator[#{SiteFloc | r}] =
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> #{ SiteFloc(x1, x2). })
             <&> getTrimmedContentNamed("AI2 AIB Reference")
             <*> getTrimmedContentNamed("Functional Loc.")
             
+    /// Read from Aib xlsx export file...
+    pub def readSiteEastNorth(sheetName: String, path: System.FilePath): Result[#{SiteEastNorth | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(sheetName, path, evalSiteEastNorth())
+
+    def evalSiteEastNorth(): NamedRowEvaluator[#{SiteEastNorth | r}] =
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) -> #{ SiteEastNorth(x1, x2, x3). })
+            <&> getTrimmedContentNamed("Functional Loc.")
+            <*> getInt32Named("Easting")
+            <*> getInt32Named("Northing")
 
     pub def readSecondOrderFlocWorkItems(sheetName: String, path: System.FilePath): Result[#{SecondOrderFlocWorkItem | r}, String] & Impure =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{>>=};
         let eval1 = getColumnIndex("B") >>= getTrimmedContentAt;
-        SheetIO/Reader.readAllRows(sheetName, path, eval1)
-            |> Result.map(List.distinct)
-            |> Result.map(List.foldLeft((ac, x) -> ac <+> #{ SecondOrderFlocWorkItem(x). }, #{}))
+        SheetIO/Reader.foldAllRows(sheetName, path, (ac, x) -> ac <+> #{ SecondOrderFlocWorkItem(x). }, #{}, eval1)
+            
 
 
     pub def readPlantAssetTypes(sheetName: String, path: System.FilePath): Result[#{PlantAssetType | r}, String] & Impure =
@@ -56,6 +66,24 @@ namespace AssetScripts/NonOp/Loader {
         ((x1, x2) -> #{ PlantAssetType(x1, x2). })
             <&> (getColumnIndex("AR") >>= getTrimmedContentAt)
             <*> (getColumnIndex("AS") >>= getTrimmedContentAt)
+
+
+
+        /// EquipmentMapping(PlantAssetTypeDescription	PlantEquipAssetTypeDescription	ObjectType	ObjectClass	Category)
+
+    pub def readEquipmentMapping(sheetName: String, path: System.FilePath): Result[#{EquipmentMapping | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(sheetName, path, evalEquipmentMappingRow())
+
+
+    def evalEquipmentMappingRow(): NamedRowEvaluator[#{EquipmentMapping | r}] =
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5) -> #{ EquipmentMapping(x1, x2, x3, x4, x5). })
+            <&> getTrimmedContentNamed("PlantAssetTypeDescription")
+            <*> getTrimmedContentNamed("PlantEquipAssetTypeDescription")
+            <*> getTrimmedContentNamed("ObjectType")
+            <*> getTrimmedContentNamed("ObjectClass")
+            <*> getTrimmedContentNamed("Category")
 
 
     /// /// Read from Aib xlsx export file...
