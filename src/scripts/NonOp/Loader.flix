@@ -39,19 +39,37 @@ namespace AssetScripts/NonOp/Loader {
         SheetIO/Reader.allNamedRelations(sheetName, path, evalSiteEastNorth())
 
     def evalSiteEastNorth(): NamedRowEvaluator[#{SiteEastNorth | r}] =
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) -> #{ SiteEastNorth(x1, x2, x3). })
             <&> getTrimmedContentNamed("Functional Loc.")
-            <*> getInt32Named("Easting")
-            <*> getInt32Named("Northing")
+            <*> int32AsTextNamed("Easting")
+            <*> int32AsTextNamed("Northing")
 
+    /// TODO add an equivalent function to SheetIO...
+    def int32AsTextNamed(label: String): NamedRowEvaluator[Int32] =
+        use SheetIO/NamedRowEvaluator.{flatMap, getTrimmedContentNamed, liftResult};
+        let* s1 = getTrimmedContentNamed(label);
+        liftResult(Int32.fromString(s1), _ -> "int32AsTextNamed - not an integer")
+
+
+
+
+    /// Must filter that ProcessAssetTypeDescription is not "CATCHMENT"
     pub def readSecondOrderFlocWorkItems(sheetName: String, path: System.FilePath): Result[#{SecondOrderFlocWorkItem | r}, String] & Impure =
-        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
-        use SheetIO/RowEvaluator.{>>=};
-        let eval1 = getColumnIndex("B") >>= getTrimmedContentAt;
-        SheetIO/Reader.foldAllRows(sheetName, path, (ac, x) -> ac <+> #{ SecondOrderFlocWorkItem(x). }, #{}, eval1)
+        SheetIO/Reader.allRelations(sheetName, path, evalSecondOrderFlocWorkItem())
             
+    def evalSecondOrderFlocWorkItem(): RowEvaluator[#{SecondOrderFlocWorkItem | r}] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((x1, x2) -> 
+            if (String.startsWith(x1, "SAI") and x2 != "CATCHMENT")
+                #{ SecondOrderFlocWorkItem(x1). }
+            else 
+                #{})
+            <&> (getColumnIndex("B") >>= getTrimmedContentAt)       /// Site Reference
+            <*> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription
+
 
 
     pub def readPlantAssetTypes(sheetName: String, path: System.FilePath): Result[#{PlantAssetType | r}, String] & Impure =
@@ -67,9 +85,6 @@ namespace AssetScripts/NonOp/Loader {
             <&> (getColumnIndex("AR") >>= getTrimmedContentAt)
             <*> (getColumnIndex("AS") >>= getTrimmedContentAt)
 
-
-
-        /// EquipmentMapping(PlantAssetTypeDescription	PlantEquipAssetTypeDescription	ObjectType	ObjectClass	Category)
 
     pub def readEquipmentMapping(sheetName: String, path: System.FilePath): Result[#{EquipmentMapping | r}, String] & Impure =
         SheetIO/Reader.allNamedRelations(sheetName, path, evalEquipmentMappingRow())

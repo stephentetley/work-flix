@@ -36,6 +36,14 @@ namespace AssetLib/S4Lite/Datatypes {
         , equiCharacteristics: Chain[SLEquiCharacteristic]
         }
 
+    pub def emptyUxlSource(): UxlSource = 
+        { funclocs = Monoid.empty()
+        , funclocLongTexts = Monoid.empty()
+        , funclocCharacteristics = Monoid.empty()
+        , equipment = Monoid.empty()
+        , equiLongTexts = Monoid.empty()
+        , equiCharacteristics = Monoid.empty()
+        }
 
     pub def combineUxlSource(s1: UxlSource, s2: UxlSource): UxlSource = 
         { funclocs = Monoid.combine(s1.funclocs, s2.funclocs)

@@ -18,11 +18,26 @@
 
 namespace AssetScripts/NonOp/SecondOrderFlocs {
 
+    use AssetLib/S4Lite/Datatypes.{UxlSource};
+    use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
-    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc};
+    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth};
 
-    pub def genFlocs(db: #{SecondOrderFlocWorkItem, SiteFloc, FunctionalLocation, FlocCharacteristic | r}): #{FunctionalLocation, FlocCharacteristic | r} = 
+
+
+    pub def genFlocUxl(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 
+                                FunctionalLocation, FlocCharacteristic | r},  
+                        args: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let solns       = genFlocs(db);
+        let s4lite      = genS4Lite(solns);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args, s4lite);
+        Ok()
+
+
+    pub def genFlocs(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 
+                            FunctionalLocation, FlocCharacteristic | r}): #{FunctionalLocation, FlocCharacteristic | r} = 
         let rules = #{
 
             FunctionalLocation("${sitefloc}-ACH", "Archive", "YW-GS", "ACH", defaultDate(), false, "UCON") :- 
@@ -75,40 +90,63 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
                 SecondOrderFlocWorkItem(aibSiteRef), 
                 SiteFloc(aibSiteRef, sitefloc).
 
-            /// UNICLASS_CODE
+            /// UNICLASS_CODE (Don't generate...)
 
-            FlocCharacteristic("${sitefloc}-ACH", "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String(aibSiteRef)) :-
+            /// EAST_NORTH
+
+            FlocCharacteristic("${sitefloc}-ACH", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
                 SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, easting, _).
             
-            FlocCharacteristic("${sitefloc}-ACH", "UNICLASS_DESC", "UNICLASS_CODE", 1, S4String("")) :-
+            FlocCharacteristic("${sitefloc}-ACH", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
                 SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
-
-            FlocCharacteristic("${sitefloc}-ACH-ACH", "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String(aibSiteRef)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, _, northing).
             
-            FlocCharacteristic("${sitefloc}-ACH-ACH", "UNICLASS_DESC", "UNICLASS_CODE", 1, S4String("")) :-
+            FlocCharacteristic("${sitefloc}-ACH-ACH", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
                 SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
-
-            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String(aibSiteRef)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, easting, _).
             
-            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "UNICLASS_DESC", "UNICLASS_CODE", 1, S4String("")) :-
+            FlocCharacteristic("${sitefloc}-ACH-ACH", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
                 SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, _, northing).
 
-            /// FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "AIB_REFERENCE", "SYSTEM_TYPE", 1, S4String("NON-OP SYSTEM")) :-
-            ///     SecondOrderFlocWorkItem(aibSiteRef), 
-            ///     SiteFloc(aibSiteRef, sitefloc).
-                          
+            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
+                SecondOrderFlocWorkItem(aibSiteRef), 
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, easting, _).
+            
+            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
+                SecondOrderFlocWorkItem(aibSiteRef), 
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, _, northing).
 
+            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
+                SecondOrderFlocWorkItem(aibSiteRef), 
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, easting, _).
+
+            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
+                SecondOrderFlocWorkItem(aibSiteRef), 
+                SiteFloc(aibSiteRef, sitefloc),
+                SiteEastNorth(sitefloc, _, northing).
         };
         solve (db <+> rules) project FunctionalLocation, FlocCharacteristic
 
     def defaultDate(): Time.LocalDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1})
+
+
+    def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
+        { funclocs = AssetLib/GenS4/S4LiteRelations.toSLFunctionalLocation(relns)
+        , funclocLongTexts = Monoid.empty()
+        , funclocCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic(relns)
+        , equipment = Monoid.empty()
+        , equiLongTexts = Monoid.empty()
+        , equiCharacteristics = Monoid.empty()
+        }
+
 
 }
