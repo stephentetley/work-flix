@@ -47,23 +47,11 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
         let workitems   = List.foldLeft((ac, x) -> ac <+> mkItem(x), #{}, xs);
         let solns       = genFlocs(workitems <+> db);
         let s4lite      = genS4Lite(solns);
-        let args1       = updateArgs(i, args);
+        let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
         Ok(i + 1)
 
-    def updateArgs(i: Int32, args: UxlOutputArgs): UxlOutputArgs = 
-        let newName = String.replace("##", ToString.toString(i), args.changeRequestName);
-        let newPath = updateBaseName(args.outpath, s -> String.replace("##", ToString.toString(i), s));
-        { changeRequestName = newName
-        , outpath = newPath
-        , uxlTemplate = args.uxlTemplate
-        }
 
-    def updateBaseName(path: System.FilePath, upd: String -> String): System.FilePath = 
-        match System/FilePath.getBaseName(path) {
-            case Some(name1) => System/FilePath.putBaseName(path, upd(name1))
-            case None => path
-        }
 
 
     pub def genFlocs(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 

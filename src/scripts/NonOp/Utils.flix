@@ -17,6 +17,23 @@
 
 namespace AssetScripts/NonOp/Utils {
 
+    use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
+
+    pub def updateArgs(i: Int32, args: UxlOutputArgs): UxlOutputArgs = 
+        let newName = String.replace("##", ToString.toString(i), args.changeRequestName);
+        let newPath = mapBaseName(args.outpath, s -> String.replace("##", ToString.toString(i), s));
+        { changeRequestName = newName
+        , outpath = newPath
+        , uxlTemplate = args.uxlTemplate
+        }
+
+    /// For System.FilePath...
+    def mapBaseName(path: System.FilePath, fn: String -> String): System.FilePath = 
+        match System/FilePath.getBaseName(path) {
+            case Some(name1) => System/FilePath.putBaseName(path, fn(name1))
+            case None => path
+        }
+
     
     pub def getShortName(pgdesc: String, pdesc: String, commonName: String): String = 
         match (pgdesc, pdesc) {
@@ -24,7 +41,9 @@ namespace AssetScripts/NonOp/Utils {
             case ("NULL", _) => snd(String.breakOnRight("${pdesc}/", commonName))
             case (_, "NULL") => snd(String.breakOnRight("${pgdesc}/", commonName))
             case (_, _) => snd(String.breakOnRight("${pgdesc}/${pdesc}/", commonName))
-        }
+        } 
+            |> AssetLib/Base/Utils.properCaseName
+            |> String.takeLeft(40)
 
 
     pub def sublists(n: Int32, xs: List[a]): List[List[a]] = 

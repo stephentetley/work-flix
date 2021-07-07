@@ -22,7 +22,22 @@ namespace AssetScripts/NonOp/Relations {
     
     pub rel SiteEastNorth(siteFloc: String, easting: Int32, northing: Int32)
 
-    pub rel PlantEquip(aibEquiRef: String, siteRef: String, parentRef: String, shortName: String, commonName: String)
+    pub rel SuperEquipWorkItem(pliref: String, commonName: String, aibSiteRef: String)
+
+    pub rel GrandParentParentNames(equiId: String, procGroupName: String, procName: String)
+
+    pub rel AssetTypeDescription(equiId: String, plantTypeDesc: String, plantEquiTypeDesc: String)
+    
+    pub rel EquipProperties(equiId: String, 
+                            manufacturer: String, 
+                            model: String, 
+                            partNumber: String, 
+                            serialNumber: String, 
+                            installedFromDate: Time.LocalDate, 
+                            weightKg: Option[Float64])
+
+    pub rel PandITag(equiId: String, pandiTag: String)
+
 
 
     pub rel EquipmentMapping(plantAssetTypeDescription: String, 

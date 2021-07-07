@@ -112,11 +112,8 @@ namespace AssetScripts/NonOp/Loader {
 
     type alias SuperEquipmentWorkItem1 = 
         { av_EquiId: String
-        , as_PlantAssetTypeDesc: String
-        , be_PlantEquipAssetTypeDesc: String
-        , aa_ProcessGroupAssetTypeDesc: String
-        , ah_ProcessAssetTypeDesc: String
         , am_PlantCommonName: String
+        , b_SiteReference: String
         }
 
     /// Read from Aib xlsx export file...
@@ -130,24 +127,19 @@ namespace AssetScripts/NonOp/Loader {
     def evalSuperEquipmentWorkItem1(): RowEvaluator[Option[SuperEquipmentWorkItem1]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((aa1, ah1, am1, as1, av1, aw1, be1) -> 
+        ((b1, ah1, am1, av1, aw1) -> 
             if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
                 Some({ av_EquiId = av1
-                    , as_PlantAssetTypeDesc = as1
-                    , be_PlantEquipAssetTypeDesc = be1
-                    , aa_ProcessGroupAssetTypeDesc = aa1
-                    , ah_ProcessAssetTypeDesc = ah1
                     , am_PlantCommonName = am1
+                    , b_SiteReference = b1
                     })
             else
                 None)
-            <&> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupAssetTypeDescription (could be NULL)
+            <&> (getColumnIndex("B") >>= getTrimmedContentAt)      /// SiteReference
             <*> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
             <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
-            <*> (getColumnIndex("AS") >>= getTrimmedContentAt)      /// PlantAssetTypeDescription
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
             <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
-            <*> (getColumnIndex("BE") >>= getTrimmedContentAt)      /// PlantEquipAssetTypeDescription
 
 
             

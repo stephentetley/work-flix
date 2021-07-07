@@ -19,20 +19,10 @@ namespace AssetScripts/NonOp/SuperEquipment {
 
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
-    use AssetScripts/NonOp/Relations.{SiteFloc, EquipmentMapping};
+    use AssetScripts/NonOp/Relations.{SuperEquipWorkItem, GrandParentParentNames,
+        AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag};
 
-    pub rel SuperEquipWorkItem(pliref: String, commonName: String, aibSiteRef: String)
-    pub rel GrandParentParentNames(equiId: String, procGroupName: String, procName: String)
-    pub rel AssetTypeDescription(equiId: String, plantTypeDesc: String, plantEquiTypeDesc: String)
-    pub rel EquipProperties(equiId: String, 
-                            manufacturer: String, 
-                            model: String, 
-                            partNumber: String, 
-                            serialNumber: String, 
-                            installedFromDate: Time.LocalDate, 
-                            weightKg: Option[Float64])
 
-    pub rel PandITag(equiId: String, pandiTag: String)
     
     pub def genEqui(today: Time.LocalDate, 
                     db: #{SuperEquipWorkItem, GrandParentParentNames,
