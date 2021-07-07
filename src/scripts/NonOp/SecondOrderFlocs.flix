@@ -24,17 +24,46 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth};
+    use AssetScripts/NonOp/Loader.{SecondOrderFlocWorkItem1};
 
     /// TODO - must split worklist `worklist: XlsxSource, `
                         
-
-    pub def genFlocUxl(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
+    pub def genFlocUxl(src: XlsxSource, 
+                        db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let solns       = genFlocs(db);
-        let s4lite      = genS4Lite(solns);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args, s4lite);
+        let* items      = AssetScripts/NonOp/Loader.readSecondOrderFlocWorkItems(src);
+        let worklists   = AssetScripts/NonOp/Utils.sublists(50, items);
+        let* _          = Result.foldLeftM((ac, xs) -> genFlocUxl1(ac, xs, db, args), 1, worklists);
         Ok()
+
+
+    def genFlocUxl1(i: Int32, 
+                    xs: List[SecondOrderFlocWorkItem1],
+                    db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
+                    args: UxlOutputArgs): Result[Int32, String] & Impure = 
+        use Result.{flatMap};
+        let mkItem      = x -> #{ SecondOrderFlocWorkItem(x.siteAibRef). };
+        let workitems   = List.foldLeft((ac, x) -> ac <+> mkItem(x), #{}, xs);
+        let solns       = genFlocs(workitems <+> db);
+        let s4lite      = genS4Lite(solns);
+        let args1       = updateArgs(i, args);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
+        Ok(i + 1)
+
+    def updateArgs(i: Int32, args: UxlOutputArgs): UxlOutputArgs = 
+        let newName = String.replace("##", ToString.toString(i), args.changeRequestName);
+        let newPath = updateBaseName(args.outpath, s -> String.replace("##", ToString.toString(i), s));
+        { changeRequestName = newName
+        , outpath = newPath
+        , uxlTemplate = args.uxlTemplate
+        }
+
+    def updateBaseName(path: System.FilePath, upd: String -> String): System.FilePath = 
+        match System/FilePath.getBaseName(path) {
+            case Some(name1) => System/FilePath.putBaseName(path, upd(name1))
+            case None => path
+        }
 
 
     pub def genFlocs(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 

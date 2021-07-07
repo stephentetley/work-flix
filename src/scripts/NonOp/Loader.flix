@@ -57,19 +57,23 @@ namespace AssetScripts/NonOp/Loader {
 
     /// TODO - need to partition worklists so the output files are manageable...
 
+    type alias SecondOrderFlocWorkItem1 = 
+        { siteAibRef: String
+        }
     
-    pub def readSecondOrderFlocWorkItems(src: XlsxSource): Result[#{SecondOrderFlocWorkItem | r}, String] & Impure =
-        SheetIO/Reader.allRelations(src, evalSecondOrderFlocWorkItem())
+    pub def readSecondOrderFlocWorkItems(src: XlsxSource): Result[List[SecondOrderFlocWorkItem1], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalSecondOrderFlocWorkItem1())
+            |> Result.map(List.distinctWith((x, y) -> x.siteAibRef == y.siteAibRef))
             
     /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"            
-    def evalSecondOrderFlocWorkItem(): RowEvaluator[#{SecondOrderFlocWorkItem | r}] =
+    def evalSecondOrderFlocWorkItem1(): RowEvaluator[Option[SecondOrderFlocWorkItem1]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((x1, x2) -> 
             if (String.startsWith(x1, "SAI") and x2 != "CATCHMENT")
-                #{ SecondOrderFlocWorkItem(x1). }
+                Some({siteAibRef = x1})
             else 
-                #{})
+                None)
             <&> (getColumnIndex("B") >>= getTrimmedContentAt)       /// Site Reference
             <*> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription
 
