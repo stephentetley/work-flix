@@ -30,7 +30,7 @@ def main1(): Result[Unit, String] & Impure =
     let* eastNorthMap   = AssetScripts/NonOp/Loader.readSiteEastNorth({sheet = "Sheet1", path = sitesEN});
     let worklist        = {sheet = "NonOpStatus_S4Presence", path = aibReport};
     let* _ = AssetScripts/NonOp/SecondOrderFlocs.genFlocUxl(worklist, siteMap <+> eastNorthMap, outputArgs);
-    Console.printLine("Wrote: ${outputArgs.outpath}");
+    Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
     Ok()
 
 /// def temp01(): Result[Unit, String] & Impure = 

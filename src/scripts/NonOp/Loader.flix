@@ -55,13 +55,14 @@ namespace AssetScripts/NonOp/Loader {
 
 
 
-    /// TODO - need to partition worklists so the output files are manageable...
+    /// Need to partition worklists so the output files are manageable
+    /// So we read records rather than relations.
 
     type alias SecondOrderFlocWorkItem1 = 
         { siteAibRef: String
         }
     
-    pub def readSecondOrderFlocWorkItems(src: XlsxSource): Result[List[SecondOrderFlocWorkItem1], String] & Impure =
+    pub def readSecondOrderFlocWorkItem1s(src: XlsxSource): Result[List[SecondOrderFlocWorkItem1], String] & Impure =
         SheetIO/Reader.readSomeRows(src, evalSecondOrderFlocWorkItem1())
             |> Result.map(List.distinctWith((x, y) -> x.siteAibRef == y.siteAibRef))
             
@@ -108,45 +109,55 @@ namespace AssetScripts/NonOp/Loader {
             <*> getTrimmedContentNamed("Category")
 
 
-    /// /// Read from Aib xlsx export file...
-    /// def readWorkList(sheetName: String, path: System.FilePath): Result[List[PlantEquip], String] & Impure =
-    ///     SheetIO/Reader.readSomeRows(sheetName, path, evalPlantEquip())
-    ///         |> Result.map(List.distinctWith((x, y) -> x.plantEquipReference == y.plantEquipReference))
+
+    type alias SuperEquipmentWorkItem1 = 
+        { av_EquiId: String
+        , as_PlantAssetTypeDesc: String
+        , be_PlantEquipAssetTypeDesc: String
+        , aa_ProcessGroupAssetTypeDesc: String
+        , ah_ProcessAssetTypeDesc: String
+        , am_PlantCommonName: String
+        }
+
+    /// Read from Aib xlsx export file...
+    pub def readSuperEquipmentWorkItem1s(src: XlsxSource): Result[List[SuperEquipmentWorkItem1], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalSuperEquipmentWorkItem1())
+            |> Result.map(List.distinctWith((x, y) -> x.av_EquiId == y.av_EquiId))
 
 
-    /// /// Excel file has duplicate names so use alphabetical index ...
-    /// /// Because PlantEquip is a prefix (there is other data after the 'useful' data that makes the row unique), reading the file 
-    /// /// as just PlantEquip will induce duplicates.
-    /// def evalPlantEquip(): RowEvaluator[#{PlantEquip | r}] =
-    ///     use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
-    ///     use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-    ///     ((x1, x2, x3, x4, x5, x6, x7) -> 
-    ///         if (x1 `String.startsWith` "PLI" and x2 == false) {
-    ///             let shortName = getShortName(x5, x6, x4);
-    ///             #{ PlantEquip(x1, x3, x4, shortName, x7). }
-    ///         }
-    ///         else #{})
-    ///         <&> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
-    ///         <*> (getColumnIndex("AW") >>= getYesNoAt)
-    ///         <*> (getColumnIndex("B") >>= getTrimmedContentAt)       /// SiteReference
-    ///         <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
-    ///         <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupAssetTypeDescription (could be NULL)
-    ///         <*> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessGroupAssetTypeDescription (could be NULL)
-    ///         <*> (getColumnIndex("AK") >>= getTrimmedContentAt)      /// PlantReference
-
-    /// def getShortName(pgdesc: String, pdesc: String, commonName: String): String = 
-    ///     match (pgdesc, pdesc) {
-    ///         case ("NULL", "NULL") => commonName
-    ///         case ("NULL", _) => snd(String.breakOnRight("${pdesc}/", commonName))
-    ///         case (_, "NULL") => snd(String.breakOnRight("${pgdesc}/", commonName))
-    ///         case (_, _) => snd(String.breakOnRight("${pgdesc}/${pdesc}/", commonName))
-    ///     }
+    /// Excel file has duplicate names so use alphabetical index ...
+    /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"  
+    def evalSuperEquipmentWorkItem1(): RowEvaluator[Option[SuperEquipmentWorkItem1]] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((aa1, ah1, am1, as1, av1, aw1, be1) -> 
+            if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
+                Some({ av_EquiId = av1
+                    , as_PlantAssetTypeDesc = as1
+                    , be_PlantEquipAssetTypeDesc = be1
+                    , aa_ProcessGroupAssetTypeDesc = aa1
+                    , ah_ProcessAssetTypeDesc = ah1
+                    , am_PlantCommonName = am1
+                    })
+            else
+                None)
+            <&> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupAssetTypeDescription (could be NULL)
+            <*> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
+            <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
+            <*> (getColumnIndex("AS") >>= getTrimmedContentAt)      /// PlantAssetTypeDescription
+            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
+            <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
+            <*> (getColumnIndex("BE") >>= getTrimmedContentAt)      /// PlantEquipAssetTypeDescription
 
 
-    /// /// Has duplicate names so use index...
-    /// def getYesNoAt(ix: Int32): RowEvaluator[Bool] =
-    ///     use SheetIO/RowEvaluator.{getTrimmedContentAt};
-    ///     use SheetIO/RowEvaluator.{<&>};
-    ///     (x1 -> x1 == "Y" or x1 == "y")  <&> getTrimmedContentAt(ix)
+            
+
+
+
+    /// Has duplicate names so use index...
+    def getYesNoAt(ix: Int32): RowEvaluator[Bool] =
+        use SheetIO/RowEvaluator.{getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>};
+        (x1 -> x1 == "Y" or x1 == "y")  <&> getTrimmedContentAt(ix)
 
 }

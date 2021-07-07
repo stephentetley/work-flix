@@ -32,7 +32,7 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
                         db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* items      = AssetScripts/NonOp/Loader.readSecondOrderFlocWorkItems(src);
+        let* items      = AssetScripts/NonOp/Loader.readSecondOrderFlocWorkItem1s(src);
         let worklists   = AssetScripts/NonOp/Utils.sublists(50, items);
         let* _          = Result.foldLeftM((ac, xs) -> genFlocUxl1(ac, xs, db, args), 1, worklists);
         Ok()
