@@ -17,6 +17,7 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Star {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass,
         IPRating, SpeedRPM, Power, PowerUnits, VoltageIn, VoltageInACOrDC};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
@@ -24,13 +25,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
-    use AssetLib/GenS4/XlsxSource.{XlsxSource};
-
+    
+    
     /// src should be electrical facts
     pub def genStar(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);
+        let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
         let ans         = star(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 

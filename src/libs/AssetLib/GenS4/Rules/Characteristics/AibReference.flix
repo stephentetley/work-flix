@@ -17,18 +17,18 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/AibReference.{ParentRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{FunclocWorkItem, FlocWorkItem, EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/XlsxSource.{XlsxSource};
-
+    
 
     pub def genEquiAibReference(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/AibReference.readHierarchyRelations(src.sheet, src.file);
+        let* facts      = AssetLib/AibFacts/Attributes/AibReference.readHierarchyRelations(src);
         let ans         = equiAibReference(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 

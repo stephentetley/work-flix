@@ -19,12 +19,13 @@ namespace AssetScripts/NonOp/Loader {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.RowEvaluator;
+    use SheetIO/Reader.{XlsxSource};
     
     use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, EquipmentMapping, PlantAssetType};
 
     /// Read from Aib xlsx export file...
-    pub def readSiteFlocs(sheetName: String, path: System.FilePath): Result[#{SiteFloc | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(sheetName, path, evalSiteFloc())
+    pub def readSiteFlocs(src: XlsxSource): Result[#{SiteFloc | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalSiteFloc())
 
 
     def evalSiteFloc(): NamedRowEvaluator[#{SiteFloc | r}] =
@@ -35,8 +36,8 @@ namespace AssetScripts/NonOp/Loader {
             <*> getTrimmedContentNamed("Functional Loc.")
             
     /// Read from Aib xlsx export file...
-    pub def readSiteEastNorth(sheetName: String, path: System.FilePath): Result[#{SiteEastNorth | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(sheetName, path, evalSiteEastNorth())
+    pub def readSiteEastNorth(src: XlsxSource): Result[#{SiteEastNorth | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalSiteEastNorth())
 
     def evalSiteEastNorth(): NamedRowEvaluator[#{SiteEastNorth | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
@@ -54,11 +55,13 @@ namespace AssetScripts/NonOp/Loader {
 
 
 
+    /// TODO - need to partition worklists so the output files are manageable...
 
-    /// Must filter that ProcessAssetTypeDescription is not "CATCHMENT"
-    pub def readSecondOrderFlocWorkItems(sheetName: String, path: System.FilePath): Result[#{SecondOrderFlocWorkItem | r}, String] & Impure =
-        SheetIO/Reader.allRelations(sheetName, path, evalSecondOrderFlocWorkItem())
+    
+    pub def readSecondOrderFlocWorkItems(src: XlsxSource): Result[#{SecondOrderFlocWorkItem | r}, String] & Impure =
+        SheetIO/Reader.allRelations(src, evalSecondOrderFlocWorkItem())
             
+    /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"            
     def evalSecondOrderFlocWorkItem(): RowEvaluator[#{SecondOrderFlocWorkItem | r}] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
@@ -72,9 +75,9 @@ namespace AssetScripts/NonOp/Loader {
 
 
 
-    pub def readPlantAssetTypes(sheetName: String, path: System.FilePath): Result[#{PlantAssetType | r}, String] & Impure =
+    pub def readPlantAssetTypes(src: XlsxSource): Result[#{PlantAssetType | r}, String] & Impure =
         use SheetIO/RowEvaluator.{withDefault};
-        SheetIO/Reader.allRelations(sheetName, path, withDefault(evalPlantAssetType(), #{}))
+        SheetIO/Reader.allRelations(src, withDefault(evalPlantAssetType(), #{}))
             
 
 
@@ -86,8 +89,8 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("AS") >>= getTrimmedContentAt)
 
 
-    pub def readEquipmentMapping(sheetName: String, path: System.FilePath): Result[#{EquipmentMapping | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(sheetName, path, evalEquipmentMappingRow())
+    pub def readEquipmentMapping(src: XlsxSource): Result[#{EquipmentMapping | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalEquipmentMappingRow())
 
 
     def evalEquipmentMappingRow(): NamedRowEvaluator[#{EquipmentMapping | r}] =

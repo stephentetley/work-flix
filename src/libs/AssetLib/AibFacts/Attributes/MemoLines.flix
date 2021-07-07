@@ -19,6 +19,7 @@ namespace AssetLib/AibFacts/Attributes/MemoLines {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/AibFacts/Relations.{getAttributes, getStringValue};
 
@@ -28,9 +29,8 @@ namespace AssetLib/AibFacts/Attributes/MemoLines {
 
     pub rel AibMemoLine(aibref: String, text: String)
 
-    pub def readMemoLinesData(sheetName: String, 
-                                path: System.FilePath): Result[#{AibMemoLine | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibMemoLines(), true, sheetName, path)
+    pub def readMemoLinesData(src: XlsxSource): Result[#{AibMemoLine | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(aibMemoLines(), true, src)
         
     
     def aibMemoLines(): NamedRowEvaluator[#{AibMemoLine | r}] =

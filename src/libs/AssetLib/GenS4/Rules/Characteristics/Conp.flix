@@ -17,6 +17,7 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Conp {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass, 
                             IPRating, Power, PowerUnits, SpeedRPM,
                             VoltageIn, VoltageInACOrDC};
@@ -25,13 +26,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
-    use AssetLib/GenS4/XlsxSource.{XlsxSource};
+    
 
     /// src should be electrical facts
     pub def genConp(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src.sheet, src.file);
+        let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
         let ans         = conp(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 

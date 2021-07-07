@@ -26,4 +26,35 @@ namespace AssetScripts/NonOp/Utils {
             case (_, _) => snd(String.breakOnRight("${pgdesc}/${pdesc}/", commonName))
         }
 
+
+    pub def sublists(n: Int32, xs: List[a]): List[List[a]] = 
+        if (n < 1)
+            Nil
+        else 
+            sublistsHelper(n, 0, xs, ks -> ks, ls -> ls)
+
+    pub def sublistsHelper(n: Int32, i: Int32, xs: List[a], k1: List[a] -> List[a], k2: List[List[a]] -> List[List[a]]): List[List[a]] =
+        match xs { 
+            case Nil => match k1(Nil) { 
+                case Nil => k2(Nil)
+                case ks => k2(ks :: Nil)
+            }
+            case x1 :: rs => {
+                if (i >= n) 
+                    sublistsHelper(n, 1, rs, ks -> x1 :: ks, ls -> k2(k1(Nil) :: ls))
+                else 
+                    sublistsHelper(n, i + 1, rs, ks -> k1(x1 :: ks), k2)
+            }
+        }
+
+    pub def divide(n: Int32, xs: List[a]): List[List[a]] = 
+        let len = List.length(xs);
+        let sz = Float64.ceil(Int32.toFloat64(len) / Int32.toFloat64(n));
+        match Float64.tryToInt32(sz) {
+            case Some(sz1) => sublists(sz1, xs)
+            case None => Nil
+        }
+        
+
+
 }

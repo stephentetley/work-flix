@@ -19,18 +19,18 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/AibFacts/Utils.{getStringValuedFact, getIntValuedFact};
 
     /// Read from Aib file...
 
 
-    pub def readAgaspData(sheetName: String, 
-                          path: System.FilePath): Result[#{ConditionGrade, ConditionGradeReason, 
+    pub def readAgaspData(src: XlsxSource): Result[#{ConditionGrade, ConditionGradeReason, 
                                                             LoadingFactor, LoadingFactorReason, 
                                                             PerformanceGrade, PerformanceGradeReason, 
                                                             SurveyYear | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibAssetCondition(), true, sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibAssetCondition(), true, src)
 
     pub def aibAssetCondition(): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
                                                         LoadingFactor, LoadingFactorReason, 

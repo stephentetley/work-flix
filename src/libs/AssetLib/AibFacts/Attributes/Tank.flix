@@ -19,6 +19,7 @@ namespace AssetLib/AibFacts/Attributes/Tank {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
@@ -27,12 +28,11 @@ namespace AssetLib/AibFacts/Attributes/Tank {
     /// Read from Aib file...
 
 
-    pub def readTankData(sheetName: String, 
-                        path: System.FilePath): Result[#{TankConstruction, TankLevel, TankShape,
+    pub def readTankData(src: XlsxSource): Result[#{TankConstruction, TankLevel, TankShape,
                                                         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
                                                         UnitLengthM, UnitSideDepthM, 
                                                         UnitSideDepthMinM, UnitSideDepthMaxM | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibTank(), true, sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibTank(), true, src)
         
     
 

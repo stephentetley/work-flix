@@ -19,7 +19,7 @@ namespace AssetLib/AibFacts/Attributes/AibReference {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-
+    use SheetIO/Reader.{XlsxSource};
 
     pub rel ParentRef(aibref: String, commonName: String, parent: String)
 
@@ -31,11 +31,10 @@ namespace AssetLib/AibFacts/Attributes/AibReference {
         , commonName: String
         }
 
-    pub def readHierarchyRelations(sheetName: String, 
-                                    path: System.FilePath): Result[#{ParentRef | r}, String] & Impure =
+    pub def readHierarchyRelations(src: XlsxSource): Result[#{ParentRef | r}, String] & Impure =
         use Result.{flatMap, map};
         let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName);
-        let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(sheetName), path) |> map(List.sortWith(cmp));
+        let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> map(List.sortWith(cmp));
         let facts = extractHierarchyFacts(xs);
         Ok(facts)
 

@@ -18,16 +18,16 @@ namespace AssetLib/AibFacts/Utils {
     
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/Base/Osgb36.{EastingNorthing};
 
     pub def readAibFacts(eval: NamedRowEvaluator[#{| r}],
                         allowEmpty: Bool, 
-                        sheetName: String, 
-                        path: System.FilePath): Result[#{| r}, String] & Impure =
+                        src: XlsxSource): Result[#{| r}, String] & Impure =
         use SheetIO/NamedRowEvaluator.{withDefault};
         let eval1 = if (allowEmpty) withDefault(eval, #{}) else eval;
-        SheetIO/SheetReader.runXlsx(readAibSheet(eval1, sheetName), path)
+        SheetIO/SheetReader.runXlsx(readAibSheet(eval1, src.sheet), src.path)
         
 
     pub def readAibSheet(eval: NamedRowEvaluator[#{| r}], sheetName: String): SheetReader[#{| r}] = 

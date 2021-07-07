@@ -17,17 +17,17 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Equipment.{Osgb36GridRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{FunclocWorkItem, FlocWorkItem, EquipmentWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
-    use AssetLib/GenS4/XlsxSource.{XlsxSource};
-
+    
     pub def genEquiEastNorth(worklist: List[EquipmentWorkItem], 
-                            gridRefSource: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+                            src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let* facts      = AssetLib/AibFacts/Attributes/Equipment.readOsgb36GridRefData(gridRefSource.sheet, gridRefSource.file);
+        let* facts      = AssetLib/AibFacts/Attributes/Equipment.readOsgb36GridRefData(src);
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let ans         = equiEastNorth(facts <+> workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 

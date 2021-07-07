@@ -18,20 +18,19 @@
 namespace AssetLib/GenS4/XlsxSource {
     use BasicJson.JsonReader;
 
-    type alias XlsxSource = 
-        { file: System.FilePath
-        , sheet: String
-        }
+    /// DEPRECATED
+
+    use SheetIO/Reader.{XlsxSource};
 
     pub def ofString(s: String): XlsxSource = match String.breakOnLeft("##", s) {
-        case (s1, s2) if String.isEmpty(s2) => {file = System/FilePath.new(s1), sheet = "Sheet1"}
-        case (s1, s2) => {file = System/FilePath.new(s1), sheet = Option.getWithDefault(String.stripPrefix("##", s2), "")}
+        case (s1, s2) if String.isEmpty(s2) => {path = System/FilePath.new(s1), sheet = "Sheet1"}
+        case (s1, s2) => {path = System/FilePath.new(s1), sheet = Option.getWithDefault(String.stripPrefix("##", s2), "")}
     }
     
     pub def getXlsxSource(): JsonReader[XlsxSource] = 
         use BasicJson/JsonReader.{withField, getString, filePath};
         use BasicJson/JsonReader.{<&>, <*>};
-        ((x1, x2) -> {file = x1, sheet = x2})
+        ((x1, x2) -> {path = x1, sheet = x2})
             <&> withField("file", filePath())
             <*> withField("sheet", getString())
 

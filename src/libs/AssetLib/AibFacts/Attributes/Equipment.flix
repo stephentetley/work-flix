@@ -19,6 +19,7 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/AibFacts/Utils.{getStringValuedFact};
 
@@ -49,19 +50,16 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     /// Read from Aib file...
 
     /// Reads `Location On Site` at same time...
-    pub def readEquipmentData(sheetName: String, 
-                                path: System.FilePath): Result[#{EquipmentAttributes, LocationOnSite | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(equipmentFacts(), true, sheetName, path)
+    pub def readEquipmentData(src: XlsxSource): Result[#{EquipmentAttributes, LocationOnSite | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(equipmentFacts(), true, src)
         
     /// Just reads `Location On Site`...
-    pub def readLocationOnSiteData(sheetName: String, 
-                                path: System.FilePath): Result[#{LocationOnSite | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, sheetName, path)
+    pub def readLocationOnSiteData(src: XlsxSource): Result[#{LocationOnSite | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, src)
 
     /// Just reads `Osgb36GridRef`...
-    pub def readOsgb36GridRefData(sheetName: String, 
-                                path: System.FilePath): Result[#{Osgb36GridRef | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(getOsgb36GridRef(), true, sheetName, path)
+    pub def readOsgb36GridRefData(src: XlsxSource): Result[#{Osgb36GridRef | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(getOsgb36GridRef(), true, src)
 
 
     pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttributes, LocationOnSite | r}] =    

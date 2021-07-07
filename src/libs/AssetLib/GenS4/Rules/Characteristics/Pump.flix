@@ -17,6 +17,7 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Pump.{DiaphragmMaterial, DutyHead, DutyHeadUnits,
         Flow, FlowUnits, ImpellerType, LiftingType, RatingPower, RatingUnits};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
@@ -24,14 +25,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
-    use AssetLib/GenS4/XlsxSource.{XlsxSource};
-
+    
 
     /// src should be pump facts
     pub def genPump(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src.sheet, src.file);
+        let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src);
         let ans         = pump(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 

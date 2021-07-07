@@ -17,6 +17,7 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Tank {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Tank.{TankConstruction, TankLevel, TankShape,
         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, UnitLengthM, UnitSideDepthM, 
         UnitSideDepthMinM, UnitSideDepthMaxM};
@@ -26,14 +27,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
-    use AssetLib/GenS4/XlsxSource.{XlsxSource};
+    
 
 
     /// src should be tank facts
     pub def genTank(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src.sheet, src.file);
+        let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src);
         let ans         = tank(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 

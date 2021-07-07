@@ -19,6 +19,7 @@ namespace AssetLib/AibFacts/Attributes/Lifting {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
@@ -28,10 +29,9 @@ namespace AssetLib/AibFacts/Attributes/Lifting {
     /// Read from Aib file...
 
 
-    pub def readLiftingData(sheetName: String, 
-                        path: System.FilePath): Result[#{WorkLoad, WorkLoadUnits,
+    pub def readLiftingData(src: XlsxSource): Result[#{WorkLoad, WorkLoadUnits,
                                                         TestCertNo, YWRef | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibLifting(), true, sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibLifting(), true, src)
         
     
 

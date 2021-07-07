@@ -19,6 +19,7 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
 
@@ -27,11 +28,10 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
     /// Read from Aib file...
 
 
-    pub def readInstrumentData(sheetName: String, 
-                                path: System.FilePath): Result[#{RangeMin, RangeMax, RangeUnit,
+    pub def readInstrumentData(src: XlsxSource): Result[#{RangeMin, RangeMax, RangeUnit,
                                                                 SignalMin, SignalMax, SignalUnit, 
                                                                 TransducerType, TransducerSerialNumber | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibInstrument(), true, sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibInstrument(), true, src)
         
     
 

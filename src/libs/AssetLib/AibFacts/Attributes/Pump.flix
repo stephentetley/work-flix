@@ -19,6 +19,7 @@ namespace AssetLib/AibFacts/Attributes/Pump {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
@@ -28,11 +29,10 @@ namespace AssetLib/AibFacts/Attributes/Pump {
     /// Read from Aib file...
 
 
-    pub def readPumpData(sheetName: String, 
-                        path: System.FilePath): Result[#{DiaphragmMaterial, DutyHead, DutyHeadUnits,
+    pub def readPumpData(src: XlsxSource): Result[#{DiaphragmMaterial, DutyHead, DutyHeadUnits,
                                                         Flow, FlowUnits, ImpellerType, LiftingType, 
                                                         RatingPower, RatingUnits | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibPump(), true, sheetName, path)
+        AssetLib/AibFacts/Utils.readAibFacts(aibPump(), true, src)
         
     
 

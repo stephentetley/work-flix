@@ -17,6 +17,7 @@
 
 namespace AssetLib/AibFacts/Attributes/Valve {
 
+    use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
@@ -27,9 +28,8 @@ namespace AssetLib/AibFacts/Attributes/Valve {
     /// Read from Aib file...
 
 
-    pub def readValveData(sheetName: String, 
-                                path: System.FilePath): Result[#{ValveType, Size, SizeUnits | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibValve(), true, sheetName, path)
+    pub def readValveData(src: XlsxSource): Result[#{ValveType, Size, SizeUnits | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(aibValve(), true, src)
         
     
     pub def aibValve(): NamedRowEvaluator[#{ValveType, Size, SizeUnits | r}] =

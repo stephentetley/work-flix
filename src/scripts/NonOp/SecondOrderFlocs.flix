@@ -18,16 +18,17 @@
 
 namespace AssetScripts/NonOp/SecondOrderFlocs {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/S4Lite/Datatypes.{UxlSource};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth};
 
+    /// TODO - must split worklist `worklist: XlsxSource, `
+                        
 
-
-    pub def genFlocUxl(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 
-                                FunctionalLocation, FlocCharacteristic | r},  
+    pub def genFlocUxl(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let solns       = genFlocs(db);
