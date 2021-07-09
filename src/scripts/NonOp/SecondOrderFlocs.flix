@@ -23,13 +23,13 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
-    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth};
+    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth};
     use AssetScripts/NonOp/Loader.{SecondOrderFlocWorkItem1};
 
     /// Split worklist...
                         
     pub def genFlocUxl(src: XlsxSource, 
-                        db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
+                        db: #{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* items      = AssetScripts/NonOp/Loader.readSecondOrderFlocWorkItem1s(src);
@@ -40,10 +40,10 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
 
     def genFlocUxl1(i: Int32, 
                     xs: List[SecondOrderFlocWorkItem1],
-                    db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
+                    db: #{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let mkItem      = x -> #{ SecondOrderFlocWorkItem(x.siteAibRef). };
+        let mkItem      = x -> #{ SecondOrderFlocWorkItem(x.siteAibRef, x.instAibRef). };
         let workitems   = List.foldLeft((ac, x) -> ac <+> mkItem(x), #{}, xs);
         let solns       = genFlocs(workitems <+> db);
         let s4lite      = genS4Lite(solns);
@@ -54,88 +54,88 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
 
 
 
-    pub def genFlocs(db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 
+    pub def genFlocs(db: #{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth, 
                             FunctionalLocation, FlocCharacteristic | r}): #{FunctionalLocation, FlocCharacteristic | r} = 
         let rules = #{
 
             FunctionalLocation("${sitefloc}-ACH", "Archive", "YW-GS", "ACH", defaultDate(), false, "UCON") :- 
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
             
             FunctionalLocation("${sitefloc}-ACH-ACH", "Archive", "YW-GS", "ACH", defaultDate(), false, "UCON") :- 
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
 
             FunctionalLocation("${sitefloc}-ACH-ACH-ACH", "Archive", "YW-GS", "ACH", defaultDate(), false, "UCON") :- 
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
 
             FunctionalLocation("${sitefloc}-ACH-ACH-ACH-NON01", "Archive", "YW-GS", "ACH", defaultDate(), true, "UCON") :- 
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
 
             /// AIB_REFERENCE - just S4_AIB_REFERENCE
             
             FlocCharacteristic("${sitefloc}-ACH", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
 
             
             FlocCharacteristic("${sitefloc}-ACH-ACH", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
 
             
             FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
             
             FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc).
 
             /// UNICLASS_CODE (Don't generate...)
 
             /// EAST_NORTH
 
             FlocCharacteristic("${sitefloc}-ACH", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, easting, _).
             
             FlocCharacteristic("${sitefloc}-ACH", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, _, northing).
             
             FlocCharacteristic("${sitefloc}-ACH-ACH", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, easting, _).
             
             FlocCharacteristic("${sitefloc}-ACH-ACH", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, _, northing).
 
             FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, easting, _).
             
             FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, _, northing).
 
             FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, easting, _).
 
             FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc),
+                SecondOrderFlocWorkItem(_, aibInstRef), 
+                InstallationMapping(aibInstRef, sitefloc),
                 SiteEastNorth(sitefloc, _, northing).
         };
         solve (db <+> rules) project FunctionalLocation, FlocCharacteristic

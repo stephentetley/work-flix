@@ -18,11 +18,11 @@
 namespace AssetScripts/NonOp/Relations {
 
 
-    pub rel SiteFloc(aibRef: String, siteFloc: String)
+    pub rel InstallationMapping(instAibRef: String, s4SiteFloc: String)
     
     pub rel SiteEastNorth(siteFloc: String, easting: Int32, northing: Int32)
 
-    pub rel SuperEquipWorkItem(pliref: String, commonName: String, aibSiteRef: String)
+    pub rel SuperEquipWorkItem(pliref: String, commonName: String, aibInstRef: String)
 
     pub rel GrandParentParentNames(equiId: String, procGroupName: String, procName: String)
 
@@ -43,7 +43,7 @@ namespace AssetScripts/NonOp/Relations {
                             objectClass: String, 
                             category: String)
 
-    pub rel SecondOrderFlocWorkItem(siteAibRef: String)
+    pub rel SecondOrderFlocWorkItem(siteAibRef: String, instAibRef: String)
 
     /// temp
     pub rel PlantAssetType(code: String, desc: String)

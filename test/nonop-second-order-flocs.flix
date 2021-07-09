@@ -8,7 +8,10 @@ use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteEastNorth};
 
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    main1();
+    match main1() {
+        case Ok() => Console.printLine("Ok")
+        case Err(msg) => Console.printLine("Error: ${msg}")
+    };
     /// temp01();
     0
 
@@ -24,9 +27,9 @@ def main1(): Result[Unit, String] & Impure =
     use Result.{flatMap};
     let outputArgs      = uxlOutputArgs();
     let aibReport       = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx");
-    let sitesAIB        = System/FilePath.new("G:/work/assets/non-op-bins/sitelist-ih06-aib_reference.xlsx");
+    let sitesAIB        = System/FilePath.new("G:/work/assets/non-op-bins/SiteMapping_.xlsx");
     let sitesEN         = System/FilePath.new("G:/work/assets/non-op-bins/sitelist-ih06-east_north.xlsx");
-    let* siteMap        = AssetScripts/NonOp/Loader.readSiteFlocs({sheet = "Sheet1", path = sitesAIB});
+    let* siteMap        = AssetScripts/NonOp/Loader.readInstallationMappings({sheet = "Sheet1", path = sitesAIB});
     let* eastNorthMap   = AssetScripts/NonOp/Loader.readSiteEastNorth({sheet = "Sheet1", path = sitesEN});
     let worklist        = {sheet = "NonOpStatus_S4Presence", path = aibReport};
     let* _              = AssetScripts/NonOp/SecondOrderFlocs.genFlocUxl(worklist, siteMap <+> eastNorthMap, outputArgs);

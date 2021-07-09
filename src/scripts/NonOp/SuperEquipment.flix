@@ -23,7 +23,7 @@ namespace AssetScripts/NonOp/SuperEquipment {
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetScripts/NonOp/Relations.{SuperEquipWorkItem, GrandParentParentNames,
-        AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag};
+        AssetTypeDescription, EquipmentMapping, EquipProperties, InstallationMapping, PandITag};
     use AssetScripts/NonOp/Loader.{SuperEquipmentWorkItem1};
 
 
@@ -31,7 +31,7 @@ namespace AssetScripts/NonOp/SuperEquipment {
                         
     pub def genEquiUxl(src: XlsxSource, 
                         db: #{SuperEquipWorkItem, GrandParentParentNames,
-                                AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                                AssetTypeDescription, EquipmentMapping, EquipProperties, InstallationMapping, PandITag,
                                 OptionalPandITag, HasPandITag,
                                 Equipment, EquiLongText, EquiCharacteristic | r},  
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
@@ -45,13 +45,13 @@ namespace AssetScripts/NonOp/SuperEquipment {
     def genEquiUxl1(i: Int32, 
                     xs: List[SuperEquipmentWorkItem1],
                     db: #{SuperEquipWorkItem, GrandParentParentNames,
-                            AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                            AssetTypeDescription, EquipmentMapping, EquipProperties, InstallationMapping, PandITag,
                             OptionalPandITag, HasPandITag,
                             Equipment, EquiLongText, EquiCharacteristic | r},  
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
         let today       = Time/LocalDate.now();
-        let mkItem      = x -> #{ SuperEquipWorkItem(x.av_EquiId, x.am_PlantCommonName, x.b_SiteReference). };
+        let mkItem      = x -> #{ SuperEquipWorkItem(x.av_EquiId, x.am_PlantCommonName, x.e_InstallationReference). };
         let workitems   = List.foldLeft((ac, x) -> ac <+> mkItem(x), #{}, xs);
         let solns       = genEqui(today, workitems <+> db);
         let s4lite      = genS4Lite(solns);
@@ -64,7 +64,7 @@ namespace AssetScripts/NonOp/SuperEquipment {
 
     def genEqui(today: Time.LocalDate, 
                     db: #{SuperEquipWorkItem, GrandParentParentNames,
-                            AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                            AssetTypeDescription, EquipmentMapping, EquipProperties, InstallationMapping, PandITag,
                             OptionalPandITag, HasPandITag,
                             Equipment, EquiLongText, EquiCharacteristic | r}): #{Equipment, EquiLongText, EquiCharacteristic | r} = 
         use AssetScripts/NonOp/Utils.{getShortName};
@@ -88,13 +88,13 @@ namespace AssetScripts/NonOp/SuperEquipment {
                         noneI32,                                /// position
                         techIdentNo,
                         "NOP") :- 
-                SuperEquipWorkItem(equiId, commonName, aibSiteRef),
+                SuperEquipWorkItem(equiId, commonName, aibInstRef),
                 AssetTypeDescription(equiId, plantTypeDesc, plantEquiTypeDesc),                
                 GrandParentParentNames(equiId, procGroupName, procName),
                 EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, objectType, _, category), 
                 EquipProperties(equiId, manufacturer, model, installedFromDate),
-                SiteFloc(aibSiteRef, sitefloc), 
-                OptionalPandITag(equiId, techIdentNo).          /// Warning 
+                InstallationMapping(aibInstRef, sitefloc),
+                OptionalPandITag(equiId, techIdentNo).
 
             /// Multilingual text
 

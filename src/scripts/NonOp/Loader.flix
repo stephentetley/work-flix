@@ -21,21 +21,21 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
     
-    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 
+    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth, 
         EquipmentMapping, PlantAssetType, GrandParentParentNames, PandITag, 
         AssetTypeDescription, EquipProperties};
 
     /// Read from Aib xlsx export file...
-    pub def readSiteFlocs(src: XlsxSource): Result[#{SiteFloc | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(src, evalSiteFloc())
+    pub def readInstallationMappings(src: XlsxSource): Result[#{InstallationMapping | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalInstallationMapping())
 
 
-    def evalSiteFloc(): NamedRowEvaluator[#{SiteFloc | r}] =
+    def evalInstallationMapping(): NamedRowEvaluator[#{InstallationMapping | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> #{ SiteFloc(x1, x2). })
-            <&> getTrimmedContentNamed("AI2 AIB Reference")
-            <*> getTrimmedContentNamed("Functional Loc.")
+        ((x1, x2) -> #{ InstallationMapping(x1, x2). })
+            <&> getTrimmedContentNamed("AI2_InstallationReference")
+            <*> getTrimmedContentNamed("S/4 Hana Floc Lvl1_Code")
             
     /// Read from Aib xlsx export file...
     pub def readSiteEastNorth(src: XlsxSource): Result[#{SiteEastNorth | r}, String] & Impure =
@@ -62,22 +62,24 @@ namespace AssetScripts/NonOp/Loader {
 
     type alias SecondOrderFlocWorkItem1 = 
         { siteAibRef: String
+        , instAibRef: String
         }
     
     pub def readSecondOrderFlocWorkItem1s(src: XlsxSource): Result[List[SecondOrderFlocWorkItem1], String] & Impure =
         SheetIO/Reader.readSomeRows(src, evalSecondOrderFlocWorkItem1())
-            |> Result.map(List.distinctWith((x, y) -> x.siteAibRef == y.siteAibRef))
+            |> Result.map(List.distinctWith((x, y) -> x.instAibRef == y.instAibRef))
             
     /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"            
     def evalSecondOrderFlocWorkItem1(): RowEvaluator[Option[SecondOrderFlocWorkItem1]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((x1, x2) -> 
-            if (String.startsWith(x1, "SAI") and x2 != "CATCHMENT")
-                Some({siteAibRef = x1})
+        ((b1, e1, ah1) -> 
+            if (String.startsWith(b1, "SAI") and ah1 != "CATCHMENT")
+                Some({siteAibRef = b1, instAibRef = e1})
             else 
                 None)
             <&> (getColumnIndex("B") >>= getTrimmedContentAt)       /// Site Reference
+            <*> (getColumnIndex("E") >>= getTrimmedContentAt)       /// InstallationReference
             <*> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription
 
 
@@ -115,7 +117,7 @@ namespace AssetScripts/NonOp/Loader {
     type alias SuperEquipmentWorkItem1 = 
         { av_EquiId: String
         , am_PlantCommonName: String
-        , b_SiteReference: String
+        , e_InstallationReference: String
         }
 
     /// Read from Aib xlsx export file...
@@ -129,18 +131,18 @@ namespace AssetScripts/NonOp/Loader {
     def evalSuperEquipmentWorkItem1(): RowEvaluator[Option[SuperEquipmentWorkItem1]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((ah1, av1, aw1, b1, am1) -> 
+        ((ah1, av1, aw1, e1, am1) -> 
             if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
                 Some({ av_EquiId = av1
                     , am_PlantCommonName = am1
-                    , b_SiteReference = b1
+                    , e_InstallationReference = e1
                     })
             else
                 None)
             <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
             <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
-            <*> (getColumnIndex("B") >>= getTrimmedContentAt)      /// SiteReference
+            <*> (getColumnIndex("E") >>= getTrimmedContentAt)      /// InstallationReference
             <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
 
 
