@@ -170,7 +170,7 @@ namespace AssetScripts/NonOp/Loader {
             <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
             <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
-            <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
+            <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupAssetTypeDescription (could be "NULL")
             
 
     def evalAssetTypeDescription(): RowEvaluator[#{AssetTypeDescription | r}] =

@@ -9,8 +9,16 @@ use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteEastNorth};
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
     main1();
-    /// temp01();
+    /// test01();
     0
+
+/// def _test01(): Int32 & Impure =     
+///     AssetLib/Base/Utils.properCaseName("NO 2 INLET SCREENS BOOSTER PUMP") |> println;
+///     let pgdesc = "PRELIMINARY TREATMENT-STW";
+///     let pdesc = "SCREENING";
+///     let commonName = "BALBY/STW/PRELIMINARY TRT-STW/SCREENING/NO 1 INLET SCREENS BOOSTER PUMP";
+///     (String.breakOnRight("${pgdesc}/${pdesc}/", commonName)) |> println;
+///     0
 
 
 pub def uxlOutputArgs(): UxlOutputArgs = 
