@@ -22,7 +22,8 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO/Reader.{XlsxSource};
     
     use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 
-        EquipmentMapping, PlantAssetType, GrandParentParentNames};
+        EquipmentMapping, PlantAssetType, GrandParentParentNames, PandITag, 
+        AssetTypeDescription, EquipProperties};
 
     /// Read from Aib xlsx export file...
     pub def readSiteFlocs(src: XlsxSource): Result[#{SiteFloc | r}, String] & Impure =
@@ -143,8 +144,18 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
 
 
-    pub def readSuperEquipFacts(src: XlsxSource): Result[#{GrandParentParentNames | r}, String] & Impure =
-        SheetIO/Reader.allRelations(src, evalGrandParentParentNames())
+    pub def readSuperEquipFacts(src: XlsxSource): Result[#{GrandParentParentNames, 
+                                                            AssetTypeDescription,
+                                                            EquipProperties | r}, String] & Impure =
+        let evalMultiFacts =
+            SheetIO/RowEvaluator.lift3((x1, x2, x3 ) -> x1 <+> x2 <+> x3, 
+                evalGrandParentParentNames(), 
+                evalAssetTypeDescription(),
+                evalEquipProperties()
+            );
+        SheetIO/Reader.allRelations(src, evalMultiFacts)
+
+
 
 
     /// Excel file has duplicate names so use alphabetical index ...
@@ -162,6 +173,60 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
             
 
+    def evalAssetTypeDescription(): RowEvaluator[#{AssetTypeDescription | r}] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((ah1, av1, aw1, as1, be1) -> 
+            if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
+                #{ AssetTypeDescription(av1, as1, be1). }
+            else
+                #{})
+            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
+            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
+            <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
+            <*> (getColumnIndex("AS") >>= getTrimmedContentAt)      /// PlantAssetTypeDescription (could be "NULL")
+            <*> (getColumnIndex("BE") >>= getTrimmedContentAt)      /// PlantEquipAssetTypeDescription (could be "NULL")
+
+
+
+    def evalEquipProperties(): RowEvaluator[#{EquipProperties | r}] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((ah1, av1, aw1, az1, ba1, ay1) -> 
+            if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
+                #{ EquipProperties(av1, az1, ba1, ay1). }
+            else
+                #{})
+            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
+            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
+            <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
+            <*> (getColumnIndex("AZ") >>= getTrimmedContentAt)      /// PlantEquipManufacturer (could be "NULL")
+            <*> (getColumnIndex("BA") >>= getTrimmedContentAt)      /// PlantEquipModel (could be "NULL")
+            <*> (getColumnIndex("AY") >>= getOptionalDateAt)        /// PlantEquipInstalledFromDate
+
+
+
+    /// Specific export file...
+    pub def readPandITags(src: XlsxSource): Result[#{PandITag | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalPandITag())
+
+    /// This is from a separte sheet...
+    def evalPandITag(): NamedRowEvaluator[#{PandITag | r}] =
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2) -> 
+            if (not String.isEmpty(x1))
+                #{ PandITag(x1, x2). }
+            else
+                #{})
+            <&> getTrimmedContentNamed("Reference")
+            <*> getTrimmedContentNamed("P AND I Tag No")
+            
+
+    /// Might need improvement...
+    def getOptionalDateAt(ix: Int32): RowEvaluator[Option[Time.LocalDate]] =
+        use SheetIO/RowEvaluator.{optional, getLocalDateAt};
+        optional(getLocalDateAt(ix))
 
 
     /// Has duplicate names so use index...

@@ -32,6 +32,7 @@ namespace AssetScripts/NonOp/SuperEquipment {
     pub def genEquiUxl(src: XlsxSource, 
                         db: #{SuperEquipWorkItem, GrandParentParentNames,
                                 AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                                OptionalPandITag, HasPandITag,
                                 Equipment, EquiLongText, EquiCharacteristic | r},  
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
@@ -45,6 +46,7 @@ namespace AssetScripts/NonOp/SuperEquipment {
                     xs: List[SuperEquipmentWorkItem1],
                     db: #{SuperEquipWorkItem, GrandParentParentNames,
                             AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                            OptionalPandITag, HasPandITag,
                             Equipment, EquiLongText, EquiCharacteristic | r},  
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
@@ -57,13 +59,17 @@ namespace AssetScripts/NonOp/SuperEquipment {
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
         Ok(i + 1)
 
-        
-    pub def genEqui(today: Time.LocalDate, 
+    rel OptionalPandITag(equiId: String, tag: String)
+    rel HasPandITag(equiId: String)
+
+    def genEqui(today: Time.LocalDate, 
                     db: #{SuperEquipWorkItem, GrandParentParentNames,
                             AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                            OptionalPandITag, HasPandITag,
                             Equipment, EquiLongText, EquiCharacteristic | r}): #{Equipment, EquiLongText, EquiCharacteristic | r} = 
         use AssetScripts/NonOp/Utils.{getShortName};
         let noneI32: Option[Int32] = None;
+        let noneF64: Option[Float64] = None;
         let rules = #{
         
             Equipment(equiId, 
@@ -71,12 +77,12 @@ namespace AssetScripts/NonOp/SuperEquipment {
                         getShortName(procGroupName, procName, commonName),
                         today,
                         objectType,
-                        weightKg,
-                        installedFromDate,
+                        noneF64,
+                        Option.getWithDefault(installedFromDate, defaultDate()),
                         manufacturer,
                         model,
-                        partNumber,
-                        serialNumber,
+                        "",
+                        "",
                         "${sitefloc}-ACH-ACH-ACH-NON01",        /// functionalLocation
                         "",                                     /// superOrdinateEqui
                         noneI32,                                /// position
@@ -86,11 +92,21 @@ namespace AssetScripts/NonOp/SuperEquipment {
                 AssetTypeDescription(equiId, plantTypeDesc, plantEquiTypeDesc),                
                 GrandParentParentNames(equiId, procGroupName, procName),
                 EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, objectType, _, category), 
-                EquipProperties(equiId, manufacturer, model, partNumber, serialNumber, installedFromDate, weightKg),
+                EquipProperties(equiId, manufacturer, model, installedFromDate),
                 SiteFloc(aibSiteRef, sitefloc), 
-                PandITag(equiId, techIdentNo).
+                OptionalPandITag(equiId, techIdentNo).          /// Warning 
 
             /// Multilingual text
+
+            OptionalPandITag(equiId, tag) :- 
+                SuperEquipWorkItem(equiId, _, _),
+                PandITag(equiId, tag).
+            
+            OptionalPandITag(equiId, "") :- 
+                SuperEquipWorkItem(equiId, _, _),
+                not HasPandITag(equiId).
+
+            HasPandITag(equiId) :- PandITag(equiId, _).
 
             EquiLongText(equiId, getShortName(procGroupName, procName, commonName), commonName) :- 
                 SuperEquipWorkItem(equiId, commonName, _),
@@ -110,6 +126,8 @@ namespace AssetScripts/NonOp/SuperEquipment {
 
         };
         solve (db <+> rules) project Equipment, EquiLongText, EquiCharacteristic
+
+    def defaultDate(): Time.LocalDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1})
 
     def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
         { funclocs = Monoid.empty()

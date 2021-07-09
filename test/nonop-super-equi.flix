@@ -23,10 +23,19 @@ pub def uxlOutputArgs(): UxlOutputArgs =
 def main1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let outputArgs      = uxlOutputArgs();
-    let aibReport       = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx");
-    let aibSource       = {sheet = "NonOpStatus_S4Presence", path = aibReport};    
+    let aibSource       = {sheet = "NonOpStatus_S4Presence", 
+                            path = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx")};                            
+    let sitesSource     = {sheet = "Sheet1", 
+                            path = System/FilePath.new("G:/work/assets/non-op-bins/sitelist-ih06-aib_reference.xlsx")};
+    let tagsSource      = {sheet = "Sheet1", 
+                            path = System/FilePath.new("G:/work/assets/non-op-bins/aib-nonop-pandi-tags.xlsx")};
+    let equiMapSource   = {sheet = "PlantEquip", 
+                            path = System/FilePath.new("G:/work/assets/non-op-bins/equipment-mapping2.xlsx")};
     let* equiFacts      = AssetScripts/NonOp/Loader.readSuperEquipFacts(aibSource);
-    let* _              = AssetScripts/NonOp/SuperEquipment.genEquiUxl(aibSource, equiFacts, outputArgs);
+    let* pandi          = AssetScripts/NonOp/Loader.readPandITags(tagsSource);
+    let* sites          = AssetScripts/NonOp/Loader.readSiteFlocs(sitesSource);
+    let* equiMap        = AssetScripts/NonOp/Loader.readEquipmentMapping(equiMapSource);
+    let* _              = AssetScripts/NonOp/SuperEquipment.genEquiUxl(aibSource, equiFacts <+> pandi <+> sites <+> equiMap, outputArgs);
     Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
     Ok()
 

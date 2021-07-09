@@ -31,10 +31,7 @@ namespace AssetScripts/NonOp/Relations {
     pub rel EquipProperties(equiId: String, 
                             manufacturer: String, 
                             model: String, 
-                            partNumber: String, 
-                            serialNumber: String, 
-                            installedFromDate: Time.LocalDate, 
-                            weightKg: Option[Float64])
+                            installedFromDate: Option[Time.LocalDate])
 
     pub rel PandITag(equiId: String, pandiTag: String)
 
