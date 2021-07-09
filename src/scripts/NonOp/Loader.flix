@@ -21,7 +21,8 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
     
-    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, EquipmentMapping, PlantAssetType};
+    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, 
+        EquipmentMapping, PlantAssetType, GrandParentParentNames};
 
     /// Read from Aib xlsx export file...
     pub def readSiteFlocs(src: XlsxSource): Result[#{SiteFloc | r}, String] & Impure =
@@ -127,7 +128,7 @@ namespace AssetScripts/NonOp/Loader {
     def evalSuperEquipmentWorkItem1(): RowEvaluator[Option[SuperEquipmentWorkItem1]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((b1, ah1, am1, av1, aw1) -> 
+        ((ah1, av1, aw1, b1, am1) -> 
             if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
                 Some({ av_EquiId = av1
                     , am_PlantCommonName = am1
@@ -135,13 +136,30 @@ namespace AssetScripts/NonOp/Loader {
                     })
             else
                 None)
-            <&> (getColumnIndex("B") >>= getTrimmedContentAt)      /// SiteReference
-            <*> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
-            <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
+            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
             <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
+            <*> (getColumnIndex("B") >>= getTrimmedContentAt)      /// SiteReference
+            <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
 
 
+    pub def readSuperEquipFacts(src: XlsxSource): Result[#{GrandParentParentNames | r}, String] & Impure =
+        SheetIO/Reader.allRelations(src, evalGrandParentParentNames())
+
+
+    /// Excel file has duplicate names so use alphabetical index ...
+    def evalGrandParentParentNames(): RowEvaluator[#{GrandParentParentNames | r}] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((ah1, av1, aw1, aa1) -> 
+            if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
+                #{ GrandParentParentNames(av1, aa1, ah1). }
+            else
+                #{})
+            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
+            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
+            <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
+            <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
             
 
 

@@ -26,7 +26,7 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
     use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth};
     use AssetScripts/NonOp/Loader.{SecondOrderFlocWorkItem1};
 
-    /// TODO - must split worklist `worklist: XlsxSource, `
+    /// Split worklist...
                         
     pub def genFlocUxl(src: XlsxSource, 
                         db: #{SecondOrderFlocWorkItem, SiteFloc, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
@@ -74,33 +74,19 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
                 SecondOrderFlocWorkItem(aibSiteRef), 
                 SiteFloc(aibSiteRef, sitefloc).
 
-            /// AIB_REFERENCE
-
-            FlocCharacteristic("${sitefloc}-ACH", "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(aibSiteRef)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
+            /// AIB_REFERENCE - just S4_AIB_REFERENCE
             
             FlocCharacteristic("${sitefloc}-ACH", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
                 SecondOrderFlocWorkItem(aibSiteRef), 
                 SiteFloc(aibSiteRef, sitefloc).
 
-            FlocCharacteristic("${sitefloc}-ACH-ACH", "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(aibSiteRef)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
             
             FlocCharacteristic("${sitefloc}-ACH-ACH", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
                 SecondOrderFlocWorkItem(aibSiteRef), 
                 SiteFloc(aibSiteRef, sitefloc).
 
-            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(aibSiteRef)) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
             
             FlocCharacteristic("${sitefloc}-ACH-ACH-ACH", "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                SecondOrderFlocWorkItem(aibSiteRef), 
-                SiteFloc(aibSiteRef, sitefloc).
-
-            FlocCharacteristic("${sitefloc}-ACH-ACH-ACH-NON01", "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(aibSiteRef)) :-
                 SecondOrderFlocWorkItem(aibSiteRef), 
                 SiteFloc(aibSiteRef, sitefloc).
             

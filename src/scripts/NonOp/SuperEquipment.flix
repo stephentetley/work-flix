@@ -17,13 +17,47 @@
 
 namespace AssetScripts/NonOp/SuperEquipment {
 
+    use SheetIO/Reader.{XlsxSource};
+    use AssetLib/S4Lite/Datatypes.{UxlSource};
+    use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetScripts/NonOp/Relations.{SuperEquipWorkItem, GrandParentParentNames,
         AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag};
+    use AssetScripts/NonOp/Loader.{SuperEquipmentWorkItem1};
 
 
-    
+        /// Split worklist...
+                        
+    pub def genEquiUxl(src: XlsxSource, 
+                        db: #{SuperEquipWorkItem, GrandParentParentNames,
+                                AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                                Equipment, EquiLongText, EquiCharacteristic | r},  
+                        args: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let* items      = AssetScripts/NonOp/Loader.readSuperEquipmentWorkItem1s(src);
+        let worklists   = AssetScripts/NonOp/Utils.sublists(50, items);
+        let* _          = Result.foldLeftM((ac, xs) -> genEquiUxl1(ac, xs, db, args), 1, worklists);
+        Ok()
+
+
+    def genEquiUxl1(i: Int32, 
+                    xs: List[SuperEquipmentWorkItem1],
+                    db: #{SuperEquipWorkItem, GrandParentParentNames,
+                            AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
+                            Equipment, EquiLongText, EquiCharacteristic | r},  
+                    args: UxlOutputArgs): Result[Int32, String] & Impure = 
+        use Result.{flatMap};
+        let today       = Time/LocalDate.now();
+        let mkItem      = x -> #{ SuperEquipWorkItem(x.av_EquiId, x.am_PlantCommonName, x.b_SiteReference). };
+        let workitems   = List.foldLeft((ac, x) -> ac <+> mkItem(x), #{}, xs);
+        let solns       = genEqui(today, workitems <+> db);
+        let s4lite      = genS4Lite(solns);
+        let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
+        Ok(i + 1)
+
+        
     pub def genEqui(today: Time.LocalDate, 
                     db: #{SuperEquipWorkItem, GrandParentParentNames,
                             AssetTypeDescription, EquipmentMapping, EquipProperties, SiteFloc, PandITag,
@@ -77,5 +111,13 @@ namespace AssetScripts/NonOp/SuperEquipment {
         };
         solve (db <+> rules) project Equipment, EquiLongText, EquiCharacteristic
 
+    def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
+        { funclocs = Monoid.empty()
+        , funclocLongTexts = Monoid.empty()
+        , funclocCharacteristics = Monoid.empty()
+        , equipment = AssetLib/GenS4/S4LiteRelations.toSLEquipment(relns)
+        , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toSLEquiLongText(relns)
+        , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic(relns)
+        }
 
 }
