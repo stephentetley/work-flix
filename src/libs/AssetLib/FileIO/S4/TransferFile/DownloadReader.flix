@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/FileIO/S4/TransferFile/Evaluate {
+namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{TransferFile, DataRow, EntityType, Headers};
     use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator;

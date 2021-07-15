@@ -44,9 +44,9 @@ namespace AssetLib/S4Lite/EmitUxl {
         let flmltxts    = toFlMultilingualText(src.funclocLongTexts);
         let flchars     = toFlClassifications(src.funclocCharacteristics);
         let equis       = toEquipmentData(src.equipment);
+        let* _          = liftAction(_ -> Console.printLine("**** flocs count: ${List.length(flocs)}, equi count: ${List.length(equis)}"));
         let eqmltxts    = toEqMultilingualText(src.equiLongTexts);
         let eqchars     = toEqClassifications(src.equiCharacteristics);
-        let* _          = liftAction(_ -> Console.printLine("**** equi count: ${List.length(equis)}"));
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
         let equiNames   = List.map(x -> x.equiId, equis);
         let crInfo      = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);

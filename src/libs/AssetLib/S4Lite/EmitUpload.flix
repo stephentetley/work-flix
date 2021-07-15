@@ -38,11 +38,11 @@ namespace AssetLib/S4Lite/EmitUpload {
         let classFlocPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload1-classfloc.txt"));
         let _               = Console.printLine("Writing '${classFlocPath}'");
         let classFlocRows   = makeClassFlocRows(input1);
-        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeClassFlocFile(userName, classFlocRows, classFlocPath);
+        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeClassFlocFile(userName, classFlocRows, classFlocPath);
         let valuaFlocPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload2-valuafloc.txt"));
         let _               = Console.printLine("Writing '${valuaFlocPath}'");
         let valuaFlocRows   = makeValuaFlocRows(input1);
-        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaFlocFile(userName, valuaFlocRows, valuaFlocPath);
+        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaFlocFile(userName, valuaFlocRows, valuaFlocPath);
         Ok()
 
     def makeClassFlocRows(xs: List[SLFlocCharacteristic]): List[ClassFlocRow] = 
@@ -133,11 +133,11 @@ namespace AssetLib/S4Lite/EmitUpload {
         let classEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload1-classequi.txt"));
         let _               = Console.printLine("Writing '${classEquiPath}'");
         let classEquiRows   = makeClassEquiRows(input1) |> List.filter(classFilter);
-        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeClassEquiFile(userName, classEquiRows, classEquiPath);        
+        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeClassEquiFile(userName, classEquiRows, classEquiPath);        
         let valuaEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload2-valuaequi.txt"));
         let _               = Console.printLine("Writing '${valuaEquiPath}'");
         let valuaEquiRows   = makeValuaEquiRows(input1);
-        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
+        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
         Ok()
 
     pub def outputClassEquis(userName: String,
@@ -146,7 +146,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         use Result.flatMap;
         let input1          = Chain.toList(input);
         let classEquiRows   = makeClassEquiRows(input1);
-        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeClassEquiFile(userName, classEquiRows, outpath);
+        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeClassEquiFile(userName, classEquiRows, outpath);
         Ok()
 
 
@@ -156,7 +156,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         use Result.flatMap;
         let input1          = Chain.toList(input);
         let valuaEquiRows   = makeValuaEquiRows(input1);
-        let* _              = AssetLib/FileIO/S4/TransferFile/UploadWriter.writeValuaEquiFile(userName, valuaEquiRows, outpath);
+        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaEquiFile(userName, valuaEquiRows, outpath);
         Ok()
 
 

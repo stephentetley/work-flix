@@ -118,7 +118,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
     pub rel Equipment(equiId: String, 
                         category: String,              /// e.g "M", "I", "E"
                         description: String,
-                        validFrom: Time.LocalDate,
+                        validFrom: Time.LocalDate,      /// This not necessary in the relation (can be "patched")
                         objectType: String,
                         weightKg: Option[Float64],
                         startupDate: Time.LocalDate,

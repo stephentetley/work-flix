@@ -74,7 +74,7 @@ namespace AssetScripts/NonOp/Loader {
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((b1, e1, ah1) -> 
-            if (String.startsWith(b1, "SAI") and ah1 != "CATCHMENT")
+            if (String.startsWith(b1, "SAI") and String.startsWith(e1, "SAI") and ah1 != "CATCHMENT")
                 Some({siteAibRef = b1, instAibRef = e1})
             else 
                 None)

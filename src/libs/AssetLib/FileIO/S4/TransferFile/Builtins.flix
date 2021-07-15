@@ -18,14 +18,12 @@
 
 namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
-    use BasicDb.DbMonad;
-    use BasicDb.PreparedStatementSetter;
-
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{ClassFloc, ValuaFloc, ClassEqui, ValuaEqui};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
 
     use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator;
     use AssetLib/FileIO/S4/TransferFile.UploadRowSetter;
+
 
 
     /// Note - it doesn't make sense to have outputters for Funcloc and Equi files.
@@ -42,13 +40,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         }
     
 
-    /// DropTable is a parameter as we might want to be loading more than one file
-    pub def storeIflotxFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
-        let* xs = liftActionResult(_ -> readAllRows(evalIflotxRow(), src));
-        let* _  = dbWriteIflotxRows(tableName, dropTable, xs);
-        return()
+    pub def readIflotxFile(src: System.FilePath) : Result[List[IflotxRow], String] & Impure = 
+        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalIflotxRow(), src)
 
     /// Read
     def evalIflotxRow(): DownloadRowEvaluator[IflotxRow] = 
@@ -68,60 +61,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getS4BoolNamed("KZMLA")
             
 
-    /// Write SQL
-    pub def initIflotxTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _      = execute(createTableIflotxRowSql(tableName));
-        let* _      = commit();
-        return()
-
-    def dbWriteIflotxRows(tableName: String, dropTable: Bool, xs: List[IflotxRow]): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = whenTrue(dropTable, initIflotxTable(tableName));
-        let* pstmt  = prepareStatement(insertIflotxRowSql(tableName));
-        let* _      = mapM(x -> psExecuteUpdate(pstmt, setIflotxRowPStmt!(x)), xs);
-        let* _      = commit();
-        return()
-    
-    def setIflotxRowPStmt!(x: IflotxRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
-        let* _ = putStringAt!(0,  x.funcloc);
-        let* _ = putStringAt!(1,  x.shortText);
-        let* _ = putStringAt!(2,  x.langCode);
-        let* _ = putStringAt!(3,  x.longText);
-        let* _ = putInt32At!(4,  if (x.moreTextExists) 1 else 0);
-        return()
-
-    def insertIflotxRowSql(tableName: String): String =
-        "INSERT INTO ${tableName}"
-            + " (funcloc, short_text, lang_code, long_text, more_text_exists)"
-            + " VALUES(?,?,?, ?,?);"
-
-    def createTableIflotxRowSql(tableName: String): String =
-        String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
-                :: "funcloc                 TEXT NOT NULL,"
-                :: "short_text              TEXT,"
-                :: "lang_code               TEXT NOT NULL,"
-                :: "long_text               TEXT,"
-                :: "more_text_exists        INTEGER NOT NULL"
-                :: ");"
-                :: Nil
-        )
-
     /// CLASSEQUI
 
 
-    pub def storeClassFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
-        let* xs = liftActionResult(_ -> readAllRows(evalClassFlocRow(), src));
-        let* _  = dbWriteClassFlocRows(tableName, dropTable, xs);
-        return()
-    
+    pub def readClassFlocFile(src: System.FilePath) : Result[List[ClassFlocRow], String] & Impure = 
+        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalClassFlocRow(), src)
+        
+
     def evalClassFlocRow(): DownloadRowEvaluator[ClassFlocRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
@@ -138,79 +84,48 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getStringNamed("CLINT")                 /// Internal class no
             <*> optional(getInt32Named("CLSTATUS1"))             /// Status
 
-    /// Write SQL
-    pub def initClassFlocTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _      = execute(createTableClassFlocRowSql(tableName));
-        let* _      = commit();
+
+    /// Don't write "CLINT" (internalClassNumber)
+    pub def writeClassFlocFile(user: String,
+                                rows: List[ClassFlocRow], 
+                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
+        let headers = ["FUNCLOC", "CLASS", "CLASSTYPE", "CLSTATUS1"];
+        let* rows2 = execMapUploadRowSetter(headers, classFlocSetRow!, rows);
+        outputUploadFile(ClassFloc, None, user, headers, rows2, outpath)
+
+    def classFlocSetRow!(x: ClassFlocRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!};
+        let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
+        let* _  = putStringNamed!("CLASS",      x.className);
+        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
+        let* _  = putStringNamed!("CLSTATUS1",  Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
         return()
-
-    def dbWriteClassFlocRows(tableName: String, dropTable: Bool, xs: List[ClassFlocRow]): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = whenTrue(dropTable, initClassFlocTable(tableName));
-        let* pstmt  = prepareStatement(insertClassFlocRowSql(tableName));
-        let* _      = mapM(x -> psExecuteUpdate(pstmt, setClassFlocRowPStmt!(x)), xs);
-        let* _      = commit();
-        return()
-    
-    def setClassFlocRowPStmt!(x: ClassFlocRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
-        let* _ = putStringAt!(0,  x.funcloc);
-        let* _ = putStringAt!(1,  x.className);
-        let* _ = putStringAt!(2,  x.classType);
-        let* _ = putStringAt!(3,  x.internalClassNumber);
-        let* _ = putOptionInt32At!(4,  x.status);
-        return()
-
-    def insertClassFlocRowSql(tableName: String): String =
-        "INSERT INTO ${tableName}"
-            + " (funcloc, class_name, class_type, internal_class_number, status)"
-            + " VALUES(?,?,?, ?,?);"
-
-    def createTableClassFlocRowSql(tableName: String): String =
-        String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
-                :: "funcloc                 TEXT NOT NULL,"
-                :: "class_name              TEXT NOT NULL,"
-                :: "class_type              TEXT NOT NULL,"
-                :: "internal_class_number   TEXT,"
-                :: "status                  INTEGER"
-                :: ");"
-                :: Nil
-        )
-
 
 
     /// VALUAFLOC
 
 
 
-    pub def storeValuaFlocFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
-        let* xs = liftActionResult(_ -> readAllRows(evalValuaFlocRow(), src));
-        let* _  = dbWriteValuaFlocRows(tableName, dropTable, xs);
-        return()
+    pub def readValuaFlocFile(src: System.FilePath): Result[List[ValuaFlocRow], String] & Impure = 
+        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalValuaFlocRow(), src)
 
-
-    /// Read
 
     def evalValuaFlocRow(): DownloadRowEvaluator[ValuaFlocRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getInt32Named, optional};
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) ->
                 { funcloc           = x1
                 , classType         = x2
                 , charId            = x3
                 , charValue         = x4
                 , code              = x5
                 , valueDescription  = x6
-                , intCounterValue   = x7
-                , valueFrom         = x8
-                , valueTo           = x9
+                , instanceCounter   = x7
+                , intCounterValue   = x8
+                , valueFrom         = x9
+                , valueTo           = x10
                 })
             <&> getStringNamed("FUNCLOC")               /// Functional Location
             <*> getStringNamed("CLASSTYPE")             /// Class Type
@@ -218,65 +133,38 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getStringNamed("ATWRT")                 /// Characteristic Value
             <*> optional(getInt32Named("ATCOD"))        /// Code
             <*> getStringNamed("TEXTBEZ")               /// Description
+            <*> getInt32Named("ATZIS")                  /// Instance counter
             <*> getInt32Named("VALCNT")                 /// Int counter values
             <*> getStringNamed("ATFLV")                 /// Value from
             <*> getStringNamed("ATFLB")                 /// Value to
 
 
-    /// Write SQL
-    pub def initValuaFlocTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _      = execute(createTableValuaFlocRowSql(tableName));
-        let* _      = commit();
-        return()
-
-    def dbWriteValuaFlocRows(tableName: String, dropTable: Bool, xs: List[ValuaFlocRow]): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = whenTrue(dropTable, initValuaFlocTable(tableName));
-        let* pstmt  = prepareStatement(insertValuaFlocRowSql(tableName));
-        let* _      = mapM(x -> psExecuteUpdate(pstmt, setValuaFlocRowPStmt!(x)), xs);
-        let* _      = commit();
-        return()
-    
-    def setValuaFlocRowPStmt!(x: ValuaFlocRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
-        let* _ = putStringAt!(0,  x.funcloc);
-        let* _ = putStringAt!(1,  x.classType);
-        let* _ = putStringAt!(2,  x.charId);
-        let* _ = putStringAt!(3,  x.charValue);
-        let* _ = putOptionInt32At!(4,  x.code);
-        let* _ = putStringAt!(5,  x.valueDescription);
-        let* _ = putInt32At!(6,  x.intCounterValue);
-        let* _ = putStringAt!(7,  x.valueFrom);
-        let* _ = putStringAt!(8,  x.valueTo);
-        return()
 
 
+    pub def writeValuaFlocFile(user: String,
+                                rows: List[ValuaFlocRow], 
+                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
+        let headers = ["FUNCLOC", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "ATZIS", "VALCNT", "ATFLV", "ATFLB"];
+        let* rows2 = execMapUploadRowSetter(headers, valuaFlocSetRow!, rows);
+        outputUploadFile(ValuaFloc, None, user, headers, rows2, outpath)
 
+    def valuaFlocSetRow!(x: ValuaFlocRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
+            putInt32Named!, putPaddedInt32Named!};
+        let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
+        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
+        let* _  = putStringNamed!("CHARID",     x.charId);
+        let* _  = putStringNamed!("ATWRT",      x.charValue);
+        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
+        let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
+        let* _  = putPaddedInt32Named!("ATZIS", 3, x.instanceCounter);
+        let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
+        let* _  = putStringNamed!("ATFLV",      x.valueFrom);
+        let* _  = putStringNamed!("ATFLB",      x.valueTo);
+        return()   
 
-    def insertValuaFlocRowSql(tableName: String): String =
-        "INSERT INTO ${tableName}"
-            + " (funcloc, class_type, char_id, char_value, code, value_description, int_counter_value, value_from, value_to)"
-            + " VALUES(?,?,?, ?,?,?, ?,?,?)"
-
-    def createTableValuaFlocRowSql(tableName: String): String =
-        String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
-                :: "funcloc             TEXT NOT NULL,"
-                :: "class_type          TEXT NOT NULL,"
-                :: "char_id             TEXT NOT NULL,"
-                :: "char_value          TEXT,"
-                :: "code                INTEGER,"
-                :: "value_description   TEXT,"
-                :: "int_counter_value   INTEGER NOT NULL,"
-                :: "value_from          TEXT,"
-                :: "value_to            TEXT"
-                :: ")"
-                :: Nil
-        )
 
 
     /// EQMLTXT
@@ -290,13 +178,9 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         }
     
 
-    /// DropTable is a parameter as we might want to be loading more than one file
-    pub def storeEqmltxtFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
-        let* xs = liftActionResult(_ -> readAllRows(evalEqmltxtRow(), src));
-        let* _  = dbWriteEqmltxtRows(tableName, dropTable, xs);
-        return()
+    pub def readEqmltxtFile(src: System.FilePath): Result[List[EqmltxtRow], String] & Impure = 
+        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalEqmltxtRow(), src)
+        
 
     /// Read
     def evalEqmltxtRow(): DownloadRowEvaluator[EqmltxtRow] = 
@@ -316,62 +200,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getS4BoolNamed("LTXTIND")
             
 
-    /// Write SQL
-
-    pub def initEqmltxtTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, setAutoCommit, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = execute("DROP TABLE IF EXISTS ${tableName}");
-        let* _      = execute(createTableEqmltxtRowSql(tableName));
-        let* _      = commit();
-        return()
-
-    def dbWriteEqmltxtRows(tableName: String, dropTable: Bool, xs: List[EqmltxtRow]): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = whenTrue(dropTable, initEqmltxtTable(tableName));
-        let* pstmt  = prepareStatement(insertEqmltxtRowSql(tableName));
-        let* _      = mapM(x -> psExecuteUpdate(pstmt, setEqmltxtRowPStmt!(x)), xs);
-        let* _      = commit();
-        return()
-    
-    def setEqmltxtRowPStmt!(x: EqmltxtRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
-        let* _ = putStringAt!(0,  x.equi);
-        let* _ = putStringAt!(1,  x.shortText);
-        let* _ = putStringAt!(2,  x.langCode);
-        let* _ = putStringAt!(3,  x.longText);
-        let* _ = putInt32At!(4,  if (x.moreTextExists) 1 else 0);
-        return()
-
-    def insertEqmltxtRowSql(tableName: String): String =
-        "INSERT INTO ${tableName}"
-            + " (equi, short_text, lang_code, long_text, more_text_exists)"
-            + " VALUES(?,?,?, ?,?);"
-
-    def createTableEqmltxtRowSql(tableName: String): String =
-        String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
-                :: "equi                    TEXT NOT NULL,"
-                :: "short_text              TEXT,"
-                :: "lang_code               TEXT NOT NULL,"
-                :: "long_text               TEXT,"
-                :: "more_text_exists        INTEGER NOT NULL"
-                :: ");"
-                :: Nil
-        )
-
 
     /// CLASSEQUI
 
 
 
-    pub def storeClassEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
-        let* xs = liftActionResult(_ -> readAllRows(evalClassEquiRow(), src));
-        let* _  = dbWriteClassEquiRows(tableName, dropTable, xs);
-        return()
+    pub def readClassEquiFile(src: System.FilePath): Result[List[ClassEquiRow], String] & Impure = 
+        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalClassEquiRow(), src)
     
     def evalClassEquiRow(): DownloadRowEvaluator[ClassEquiRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
@@ -389,67 +224,32 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getStringNamed("CLINT")                 /// Internal class no
             <*> optional(getInt32Named("CLSTATUS1"))              /// Status
 
-    /// Write SQL
-    pub def initClassEquiTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, setAutoCommit, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _      = execute(createTableClassEquiRowSql(tableName));
-        let* _      = commit();
-        return()
 
-    def dbWriteClassEquiRows(tableName: String, dropTable: Bool, xs: List[ClassEquiRow]): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = whenTrue(dropTable, initClassEquiTable(tableName));
-        let* pstmt  = prepareStatement(insertClassEquiRowSql(tableName));
-        let* _      = mapM(x -> psExecuteUpdate(pstmt, setClassEquiRowPStmt!(x)), xs);
-        let* _      = commit();
-        return()
-    
-    def setClassEquiRowPStmt!(x: ClassEquiRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
-        let* _ = putStringAt!(0,  x.equi);
-        let* _ = putStringAt!(1,  x.className);
-        let* _ = putStringAt!(2,  x.classType);
-        let* _ = putStringAt!(3,  x.internalClassNumber);
-        let* _ = putOptionInt32At!(4,  x.status);
-        return()
+    /// Don't write "CLINT" (internalClassNumber)
+    pub def writeClassEquiFile(user: String,
+                                rows: List[ClassEquiRow], 
+                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
+        let headers = ["EQUI", "CLASS", "CLASSTYPE", "CLSTATUS1"];
+        let* rows2 = execMapUploadRowSetter(headers, classEquiSetRow!, rows);
+        outputUploadFile(ClassEqui, None, user, headers, rows2, outpath)
 
-    def insertClassEquiRowSql(tableName: String): String =
-        "INSERT INTO ${tableName}"
-            + " (equi, class_name, class_type, internal_class_number, status)"
-            + " VALUES(?,?,?, ?,?);"
-
-    def createTableClassEquiRowSql(tableName: String): String =
-        String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
-                :: "equi                    TEXT NOT NULL,"
-                :: "class_name              TEXT NOT NULL,"
-                :: "class_type              TEXT NOT NULL,"
-                :: "internal_class_number   TEXT,"
-                :: "status                  INTEGER"
-                :: ");"
-                :: Nil
-        )
+    def classEquiSetRow!(x: ClassEquiRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!};
+        let* _  = putStringNamed!("EQUI",       x.equi);
+        let* _  = putStringNamed!("CLASS",  x.className);
+        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
+        let* _  = putStringNamed!("CLSTATUS1",      Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
+        return()
 
     /// VALUAEQUI
 
 
 
     pub def readValuaEquiFile(path: System.FilePath) : Result[List[ValuaEquiRow], String] & Impure =         
-        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
-        readAllRows(evalValuaEquiRow(), path)
+        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalValuaEquiRow(), path)
         
-
-    pub def storeValuaEquiFile(tableName: String, dropTable: Bool, src: System.FilePath) : DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, liftActionResult};
-        use AssetLib/FileIO/S4/TransferFile/Evaluate.{readAllRows};
-        let* xs = liftActionResult(_ -> readAllRows(evalValuaEquiRow(), src));
-        let* _  = dbWriteValuaEquiRows(tableName, dropTable, xs);
-        return()
-
-
     /// Read
     def evalValuaEquiRow(): DownloadRowEvaluator[ValuaEquiRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
@@ -478,60 +278,29 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getStringNamed("ATFLB")                 /// Value to
 
 
-    /// Write SQL
-    pub def initValuaEquiTable(tableName: String): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, execute, setAutoCommit, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _      = execute(createTableValuaEquiRowSql(tableName));
-        let* _      = commit();
-        return()
 
-    def dbWriteValuaEquiRows(tableName: String, dropTable: Bool, xs: List[ValuaEquiRow]): DbMonad[Unit] = 
-        use BasicDb/DbMonad.{flatMap, return, whenTrue, execute, prepareStatement, setAutoCommit, psExecuteUpdate, mapM, commit};
-        let* _      = setAutoCommit(false);
-        let* _      = whenTrue(dropTable, initValuaEquiTable(tableName));
-        let* pstmt  = prepareStatement(insertValuaEquiRowSql(tableName));
-        let* _      = mapM(x -> psExecuteUpdate(pstmt, setValuaEquiRowPStmt!(x)), xs);
-        let* _      = commit();
-        return()
-    
-    def setValuaEquiRowPStmt!(x: ValuaEquiRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!};
-        let* _ = putStringAt!(0,  x.equi);
-        let* _ = putStringAt!(1,  x.classType);
-        let* _ = putStringAt!(2,  x.charId);
-        let* _ = putStringAt!(3,  x.charValue);
-        let* _ = putOptionInt32At!(4,  x.code);
-        let* _ = putStringAt!(5,  x.valueDescription);
-        let* _ = putInt32At!(6,  x.intCounterValue);
-        let* _ = putStringAt!(7,  x.valueFrom);
-        let* _ = putStringAt!(8,  x.valueTo);
-        return()
+    pub def writeValuaEquiFile(user: String,
+                                rows: List[ValuaEquiRow], 
+                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
+        let headers = ["EQUI", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "ATZIS", "VALCNT","ATFLV", "ATFLB"];
+        let* rows2 = execMapUploadRowSetter(headers, valuaEquiSetRow!, rows);
+        outputUploadFile(ValuaEqui, None, user, headers, rows2, outpath)
 
-
-
-
-    def insertValuaEquiRowSql(tableName: String): String =
-        "INSERT INTO ${tableName}"
-            + " (equi, class_type, char_id, char_value, code, value_description, int_counter_value, value_from, value_to)"
-            + " VALUES(?,?,?, ?,?,?, ?,?,?)"
-
-    def createTableValuaEquiRowSql(tableName: String): String =
-        String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
-                :: "equi                TEXT NOT NULL,"
-                :: "class_type          TEXT NOT NULL,"
-                :: "char_id             TEXT NOT NULL,"
-                :: "char_value          TEXT,"
-                :: "code                INTEGER,"
-                :: "value_description   TEXT,"
-                :: "int_counter_value   INTEGER NOT NULL,"
-                :: "value_from          TEXT,"
-                :: "value_to            TEXT"
-                :: ")"
-                :: Nil
-        )
-
+    def valuaEquiSetRow!(x: ValuaEquiRow): UploadRowSetter[Unit] = 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
+            putInt32Named!, putPaddedInt32Named!};
+        let* _  = putStringNamed!("EQUI",       x.equi);
+        let* _  = putStringNamed!("CLASSTYPE",  x.classType);
+        let* _  = putStringNamed!("CHARID",     x.charId);
+        let* _  = putStringNamed!("ATWRT",      x.charValue);
+        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
+        let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
+        let* _  = putPaddedInt32Named!("ATZIS", 3, x.instanceCounter);
+        let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
+        let* _  = putStringNamed!("ATFLV",      x.valueFrom);
+        let* _  = putStringNamed!("ATFLB",      x.valueTo);
+        return()    
 
 }

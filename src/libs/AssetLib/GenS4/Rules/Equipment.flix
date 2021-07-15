@@ -21,6 +21,9 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
+
+    /// TODO remove today...
+    /// Also the Equipment rule doesn't really benefit being written in Datalog.
     pub def genEquis(today: Time.LocalDate, 
                         input: #{EquiWorkItem, EquipmentAttributes, Equipment | r1}): #{Equipment | r} = 
         let rules = #{
