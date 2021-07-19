@@ -76,13 +76,13 @@ namespace AssetScripts/NonOp/Utils {
             }
         }
 
-    pub def divide(n: Int32, xs: List[a]): List[List[a]] = 
-        let len = List.length(xs);
-        let sz = Float64.ceil(Int32.toFloat64(len) / Int32.toFloat64(n));
-        match Float64.tryToInt32(sz) {
-            case Some(sz1) => sublists(sz1, xs)
-            case None => Nil
-        }
+    /// pub def divide(n: Int32, xs: List[a]): List[List[a]] = 
+    ///     let len = List.length(xs);
+    ///     let sz = Float64.ceil(Int32.toFloat64(len) / Int32.toFloat64(n));
+    ///     match Float64.tryToInt32(sz) {
+    ///         case Some(sz1) => sublists(sz1, xs)
+    ///         case None => Nil
+    ///     }
         
 
 
