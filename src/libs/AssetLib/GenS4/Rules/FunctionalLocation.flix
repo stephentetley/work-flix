@@ -17,28 +17,16 @@
 namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
     use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation};
-    use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem};
 
 
 
-    /// Also the FunctionalLocation rule doesn't really benefit being written in Datalog.
-    /// It is a simple (deterministic) type change
-    pub def genFlocs(workitems: #{FlocWorkItem, FunctionalLocation | r1}): #{FunctionalLocation | r} = 
-        let rules = #{
-            FunctionalLocation(funcloc, 
-                        String.takeLeft(40, description),
-                        structureInd,
-                        objectType,
-                        installedFrom,
-                        level >= 5,
-                        "UCON") :- 
-                FlocWorkItem(funcloc, description, level, _, installedFrom, structureInd, objectType, _, _,  _, _).
-        };
-        solve (rules <+> workitems) project FunctionalLocation
+    pub def genFlocs(workitems: List[FlocWorkItemRec]): Result[List[SLFunctionalLocation], String] = 
+        Result.traverse(genFloc1, workitems)
 
-    pub def genFloc1(x: FlocWorkItemRec): Result[SLFunctionalLocation, String] = 
+    def genFloc1(x: FlocWorkItemRec): Result[SLFunctionalLocation, String] = 
         use Result.flatMap;
         let* floc   = AssetLib/Base/S4/Floc.new(x.funcloc);
         let level   = AssetLib/Base/S4/Floc.level(floc);
