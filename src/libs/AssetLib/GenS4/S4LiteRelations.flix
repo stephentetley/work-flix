@@ -109,25 +109,11 @@ namespace AssetLib/GenS4/S4LiteRelations {
                                 intCounterValue: Int32,
                                 charValue: CharValue)
 
-    /// Arity 16
-    /// Note - this needs a extension to Solver.flix (add `facts16`)
-    /// This is `AssetLib/S4Lite/Datatypes.SLEquipment` as a relation rather than a record.
-    pub rel Equipment(equiId: String, 
-                        category: String,              /// e.g "M", "I", "E"
-                        description: String,
-                        validFrom: Time.LocalDate,      /// This not necessary in the relation (can be "patched")
-                        objectType: String,
-                        weightKg: Option[Float64],
-                        startupDate: Time.LocalDate,
-                        manufacturer: String,
-                        model: String,
-                        partNumber: String,
-                        serialNumber: String,
-                        functionalLocation: String,
-                        superOrdinateEqui: String, 
-                        position: Option[Int32],
-                        techIdentNo: String,
-                        status: String)
+
+    /// No relation for `Equipment`.
+    /// Use the record `SLEquipment` instead, or use a custom 
+    /// relation that uses a minimal set of fields to generate an
+    /// `SLEquipment`.
 
     pub rel EquiLongText(equiId: String, 
                         description: String, 
@@ -173,36 +159,6 @@ namespace AssetLib/GenS4/S4LiteRelations {
         , charValue         = stringOfValue(x5)
         }
 
-    pub def toSLEquipment(src: #{Equipment | r }): Chain[SLEquipment] & Impure = 
-        query src select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) from Equipment(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16)
-            |> Chain.fromArray
-            |> Chain.map(equipmentToS4Lite)
-
-
-    def equipmentToS4Lite(x: (String, String, String,
-                            Time.LocalDate, String, Option[Float64],
-                            Time.LocalDate, String, String, 
-                            String, String, String, 
-                            String, Option[Int32], String, 
-                            String)): SLEquipment = 
-        let (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) = x;
-        { equiId                = x1
-        , category              = x2
-        , description           = x3
-        , validFrom             = x4
-        , objectType            = x5
-        , weightKg              = x6
-        , startupDate           = x7
-        , manufacturer          = x8
-        , model                 = x9
-        , partNumber            = x10
-        , serialNumber          = x11
-        , functionalLocation    = x12
-        , superOrdinateEqui     = x13
-        , position              = x14
-        , techIdentNo           = x15
-        , status                = x16
-        }
 
 
     pub def toSLEquiLongText(src: #{ EquiLongText | r }): Chain[SLEquiLongText] & Impure = 

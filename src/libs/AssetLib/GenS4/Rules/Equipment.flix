@@ -24,13 +24,14 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
 
-    /// TODO - patching `EquipmentAttributes`
-    pub def genEquis(attribs: List[EquipmentAttributes],
-                        xs: List[EquiWorkItemRec]): Result[List[SLEquipment], String] & Impure = 
-        let mm = makePatches(attribs);
+    /// # Equipment
+
+
+    pub def genEquis(attribs: List[EquipmentAttributes], xs: List[EquiWorkItemRec]): Result[List[SLEquipment], String] & Impure = 
+        let patches = AssetLib/GenS4/Patch.makeEquipmentAttributesPatches(attribs);
         let today = Time/LocalDate.now();
         List.map(genEqui1(today), xs) 
-            |> Result.traverse(patch(mm))
+            |> AssetLib/GenS4/Patch.patchEquipment(patches)
 
 
     def genEqui1(today: Time.LocalDate, x: EquiWorkItemRec): SLEquipment =
@@ -52,47 +53,9 @@ namespace AssetLib/GenS4/Rules/Equipment {
         , status                = "UCON"
         }
 
-    def patch(mm: MutMap[String, SLEquipment -> SLEquipment], 
-                equi: SLEquipment): Result[SLEquipment, String] & Impure = 
-        use Result.flatMap;
-        let* fn = Option.toOk(MutMap.get(equi.equiId, mm), "cannot patch ${equi.equiId}");
-        Ok(fn(equi))
 
-
-    def makePatches(xs: List[EquipmentAttributes]): MutMap[String, SLEquipment -> SLEquipment] & Impure = 
-        let mm = MutMap.empty();
-        let ins1 = row -> { 
-            let update: SLEquipment -> SLEquipment = makePatch1(row);
-            MutMap.put!(row.aibref, update, mm)            
-        }; 
-        List.foreach(ins1, xs);
-        mm
-
-
-    def makePatch1(attribs: EquipmentAttributes, x: SLEquipment): SLEquipment =
-        { equiId                = x.equiId
-        , category              = x.category
-        , description           = x.description
-        , validFrom             = x.validFrom
-        , objectType            = x.objectType
-        , weightKg              = attribs.weightKg
-        , startupDate           = attribs.installedFrom
-        , manufacturer          = attribs.manufacturer
-        , model                 = attribs.model
-        , partNumber            = attribs.specificModelFrame
-        , serialNumber          = attribs.serialNumber
-        , functionalLocation    = x.functionalLocation
-        , superOrdinateEqui     = x.superOrdinateEqui
-        , position              = x.position
-        , techIdentNo           = attribs.pandiTag
-        , status                = s4Status(attribs.status)
-        }
-
-    def s4Status(x: String): String = match x {
-        case "OPERATIONAL" =>  "OPER"
-        case "NON OPERATIONAL" => "NOP"
-        case _ => x
-    }
+    
+    /// # Characteristics
 
     pub rel WorkItem(equiId: String, s4ClassId: String) 
 
