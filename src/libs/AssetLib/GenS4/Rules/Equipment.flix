@@ -24,36 +24,13 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
 
-    /// TODO remove today...
-    /// Also the Equipment rule doesn't really benefit being written in Datalog.
-    pub def genEquis(today: Time.LocalDate, 
-                        input: #{EquiWorkItem, EquipmentAttributes, Equipment | r1}): #{Equipment | r} = 
-        let rules = #{
-            Equipment(aibref, 
-                        s4Category,
-                        String.takeLeft(40, s4Name),
-                        today,
-                        s4EquiType,
-                        weightKg,
-                        installedFrom,
-                        manufacturer,
-                        model,
-                        specificModelFrame,
-                        s4SerialNumber(serialNumber),
-                        suppliedFloc,
-                        superEqui,
-                        position,
-                        pandiTag,
-                        s4Status(status)) :- 
-                EquiWorkItem(aibref, s4Name, suppliedFloc, superEqui, _, position, s4Category, s4EquiType, _), 
-                EquipmentAttributes(aibref, installedFrom, manufacturer, model, status, pandiTag, serialNumber, specificModelFrame, weightKg).
-        };
-        solve (rules <+> input) project Equipment
-
-    /// TODO patching `EquipmentAttributes`
-    pub def genEquisNEW(today: Time.LocalDate, xs: List[EquiWorkItemRec]): Result[SLEquipment, String] = 
+    /// TODO - patching `EquipmentAttributes`
+    pub def genEquis(attribs: List[EquipmentAttributes],
+                        xs: List[EquiWorkItemRec]): Result[List[SLEquipment], String] & Impure = 
+        let mm = makePatches(attribs);
+        let today = Time/LocalDate.now();
         List.map(genEqui1(today), xs) 
-            |> Ok
+            |> Result.traverse(patch(mm))
 
 
     def genEqui1(today: Time.LocalDate, x: EquiWorkItemRec): SLEquipment =
@@ -75,20 +52,24 @@ namespace AssetLib/GenS4/Rules/Equipment {
         , status                = "UCON"
         }
 
+    def patch(mm: MutMap[String, SLEquipment -> SLEquipment], 
+                equi: SLEquipment): Result[SLEquipment, String] & Impure = 
+        use Result.flatMap;
+        let* fn = Option.toOk(MutMap.get(equi.equiId, mm), "cannot patch ${equi.equiId}");
+        Ok(fn(equi))
 
-    type alias EquipmentAttributesRec = 
-        { aibref: String
-        , installedFrom: Time.LocalDate
-        , manufacturer: String
-        , model: String
-        , status: String
-        , pandiTag: String
-        , serialNumber: String
-        , specificModelFrame: String
-        , weightKg: Option[Float64]
-        }
 
-    pub def patch1(attribs: EquipmentAttributesRec, x: SLEquipment): SLEquipment =
+    def makePatches(xs: List[EquipmentAttributes]): MutMap[String, SLEquipment -> SLEquipment] & Impure = 
+        let mm = MutMap.empty();
+        let ins1 = row -> { 
+            let update: SLEquipment -> SLEquipment = makePatch1(row);
+            MutMap.put!(row.aibref, update, mm)            
+        }; 
+        List.foreach(ins1, xs);
+        mm
+
+
+    def makePatch1(attribs: EquipmentAttributes, x: SLEquipment): SLEquipment =
         { equiId                = x.equiId
         , category              = x.category
         , description           = x.description
@@ -104,21 +85,33 @@ namespace AssetLib/GenS4/Rules/Equipment {
         , superOrdinateEqui     = x.superOrdinateEqui
         , position              = x.position
         , techIdentNo           = attribs.pandiTag
-        , status                = attribs.status
+        , status                = s4Status(attribs.status)
         }
 
-    pub def equiCharacteristics1(input: #{EquiWorkItem, EquiCharacteristic, 
-                                            LocationOnSite | r1}): #{EquiCharacteristic | r} =
+    def s4Status(x: String): String = match x {
+        case "OPERATIONAL" =>  "OPER"
+        case "NON OPERATIONAL" => "NOP"
+        case _ => x
+    }
+
+    pub rel WorkItem(equiId: String, s4ClassId: String) 
+
+    pub def makeWorkItems(xs: List[EquiWorkItemRec]): #{WorkItem | r} = 
+        let makeRel = row -> #{ WorkItem(row.equipmentId, row.s4EquiClass). };
+        List.foldLeft((ac, x1) -> ac <+> makeRel(x1), #{}, xs)
+
+    pub def equiCharacteristics1(input: #{WorkItem,
+                                            LocationOnSite,  EquiCharacteristic| r1}): #{EquiCharacteristic | r} =
         let rules = #{
             
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass).
+                WorkItem(equiId, s4EquiClass).
 
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass).
+                WorkItem(equiId, s4EquiClass).
 
             EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(s4Location(location))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, s4EquiClass),
+                WorkItem(equiId, s4EquiClass),
                 LocationOnSite(equiId, location).
 
         };
@@ -128,17 +121,6 @@ namespace AssetLib/GenS4/Rules/Equipment {
     def s4Location(s: String): String =
         if (String.length(s) > 30) "SEE LONG TEXT" else s
 
-    def s4Status(x: String): String = match x {
-        case "OPERATIONAL" =>  "OPER"
-        case "NON OPERATIONAL" => "NOP"
-        case _ => x
-    }
-
-    def s4SerialNumber(s: String): String = match s { 
-        case "N/A" => "NOT APPLICABLE"
-        case s1 if (String.isEmpty(s1)) => "UNKNOWN"
-        case s1 => s1
-    }
 
 }
 

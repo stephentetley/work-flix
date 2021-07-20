@@ -44,27 +44,22 @@ namespace AssetLib/GenS4/GenEqui {
     /// Empty string for no solution id.
     pub def generateEquiUxl(args: GenEquiArguments): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
-        let* xs         = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(xs);
-        let* equiAttrs  = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
-        let* memos      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport);     
-        let input       = workitems <+> equiAttrs <+> memos;
-        let today       = Time/LocalDate.now();
-        let equis       = AssetLib/GenS4/Rules/Equipment.genEquis(today, input);
-        let longText    = AssetLib/GenS4/Rules/LongText.genEquiLongText(input);
-        let c1          = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(input);
-        let answers     = genS4Lite(solve equis <+> longText <+> c1);
-        Ok(answers)
-
-
-
-    def genS4Lite(relns: #{Equipment, EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
-        { funclocs = Monoid.empty()
-        , funclocLongTexts = Monoid.empty()
-        , funclocCharacteristics = Monoid.empty()
-        , equipment = AssetLib/GenS4/S4LiteRelations.toSLEquipment(relns)
-        , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toSLEquiLongText(relns)
-        , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic(relns)
-        }
+        let* workitemRecs   = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
+        let* equiAttrs      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
+        let* memos          = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(args.aibMemosExport);     
+        let* equis          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitemRecs);
+        let longText        = AssetLib/GenS4/Rules/LongText.genEquiLongText(memos);     /// This needs workitems too...
+        
+        let workitems       = AssetLib/GenS4/Rules/Equipment.makeWorkItems(workitemRecs);
+        let* locOnSite      = AssetLib/AibFacts/Attributes/LocationData.readLocationOnSiteData(args.aibEquipmentExport);
+        let chars           = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(workitems <+> locOnSite);
+        /// let relns       = solve longText <+> c1;
+        Ok( { funclocs = Monoid.empty()
+            , funclocLongTexts = Monoid.empty()
+            , funclocCharacteristics = Monoid.empty()
+            , equipment = Chain.fromList(equis)
+            , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toSLEquiLongText(longText)
+            , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic(chars)
+            })
 
 }

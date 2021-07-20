@@ -21,7 +21,8 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact};
+
+    /// This reads a record not a relation!
 
 
     /// P AND I Tag No
@@ -34,31 +35,42 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
     /// attribute so we treat it differently.
 
 
-    pub rel EquipmentAttributes(aibref: String,
-                                installedFrom: Time.LocalDate,
-                                manufacturer: String,
-                                model: String,
-                                status: String, 
-                                pandiTag: String,
-                                serialNumber: String,
-                                specificModelFrame: String,
-                                weightKg: Option[Float64])
+    type alias EquipmentAttributes = 
+        { aibref: String
+        , installedFrom: Time.LocalDate
+        , manufacturer: String
+        , model: String
+        , status: String
+        , pandiTag: String
+        , serialNumber: String
+        , specificModelFrame: String
+        , weightKg: Option[Float64]
+        }
 
 
     /// Read from Aib file...
 
     /// Reads `Location On Site` at same time...
-    pub def readEquipmentData(src: XlsxSource): Result[#{EquipmentAttributes | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(getEquipmentAttibutes(), true, src)
+    pub def readEquipmentData(src: XlsxSource): Result[List[EquipmentAttributes], String] & Impure =
+        SheetIO/Reader.readAllNamedRows(src, getEquipmentAttibutes())
             
 
 
-    pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttributes | r}] =
+    pub def getEquipmentAttibutes(): NamedRowEvaluator[EquipmentAttributes] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getNonEmptyContentNamed, getContentNamed, 
             getFloat64Named, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
-            #{ EquipmentAttributes(x1,x2, x3, x4, x5, x6, x7, x8, x9). })
+            { aibref                = x1
+            , installedFrom         = x2 
+            , manufacturer          = x3
+            , model                 = x4
+            , status                = x5
+            , pandiTag              = x6
+            , serialNumber          = x7
+            , specificModelFrame    = x8
+            , weightKg              = x9
+            })
             <&> getNonEmptyContentNamed("Reference")            
             <*> getLocalDateNamed("Installed From")
             <*> getContentNamed("Manufacturer")

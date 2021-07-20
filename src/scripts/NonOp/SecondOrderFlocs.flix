@@ -19,9 +19,9 @@
 namespace AssetScripts/NonOp/SecondOrderFlocs {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/S4Lite/Datatypes.{UxlSource};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
-    use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
+    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth};
     use AssetScripts/NonOp/Loader.{SecondOrderFlocWorkItem1};
@@ -52,25 +52,29 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
         Ok(i + 1)
 
 
-
+    /// TODO use a custom relation for FunctionalLocation so we can delete 
+    /// it from `AssetLib/GenS4/S4LiteRelations`.
+    /// 
+    
+    pub rel FunctionalLocation(funcloc: String, description: String, structureInd: String, objType: String, equiInstall: Bool)
 
     pub def genFlocs(db: #{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth, 
                             FunctionalLocation, FlocCharacteristic | r}): #{FunctionalLocation, FlocCharacteristic | r} = 
         let rules = #{
 
-            FunctionalLocation("${sitefloc}-ACH", "Archive", "YW-GS", "ACH", defaultDate(), false, "UCON") :- 
+            FunctionalLocation("${sitefloc}-ACH", "Archive", "YW-GS", "ACH", false) :- 
                 SecondOrderFlocWorkItem(_, aibInstRef), 
                 InstallationMapping(aibInstRef, sitefloc).
             
-            FunctionalLocation("${sitefloc}-ACH-ACH", "Archive", "YW-GS", "ACH", defaultDate(), false, "UCON") :- 
+            FunctionalLocation("${sitefloc}-ACH-ACH", "Archive", "YW-GS", "ACH", false) :- 
                 SecondOrderFlocWorkItem(_, aibInstRef), 
                 InstallationMapping(aibInstRef, sitefloc).
 
-            FunctionalLocation("${sitefloc}-ACH-ACH-ACH", "Archive", "YW-GS", "ACH", defaultDate(), false, "UCON") :- 
+            FunctionalLocation("${sitefloc}-ACH-ACH-ACH", "Archive", "YW-GS", "ACH", false) :- 
                 SecondOrderFlocWorkItem(_, aibInstRef), 
                 InstallationMapping(aibInstRef, sitefloc).
 
-            FunctionalLocation("${sitefloc}-ACH-ACH-ACH-NON01", "Archive", "YW-GS", "ACH", defaultDate(), true, "UCON") :- 
+            FunctionalLocation("${sitefloc}-ACH-ACH-ACH-NON01", "Archive", "YW-GS", "ACH", true) :- 
                 SecondOrderFlocWorkItem(_, aibInstRef), 
                 InstallationMapping(aibInstRef, sitefloc).
 
@@ -140,16 +144,38 @@ namespace AssetScripts/NonOp/SecondOrderFlocs {
         };
         solve (db <+> rules) project FunctionalLocation, FlocCharacteristic
 
-    def defaultDate(): Time.LocalDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1})
+    
 
 
     def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
-        { funclocs = AssetLib/GenS4/S4LiteRelations.toSLFunctionalLocation(relns)
+        { funclocs = toSLFunctionalLocation(relns)
         , funclocLongTexts = Monoid.empty()
         , funclocCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic(relns)
         , equipment = Monoid.empty()
         , equiLongTexts = Monoid.empty()
         , equiCharacteristics = Monoid.empty()
+        }
+
+
+    def toSLFunctionalLocation(src: #{FunctionalLocation | r}): Chain[SLFunctionalLocation] & Impure = 
+        query src select (x1, x2, x3, x4, x5) from FunctionalLocation(x1, x2, x3, x4, x5)
+            |> Chain.fromArray
+            |> Chain.map(functionalLocationToS4Lite)
+
+
+    def functionalLocationToS4Lite(x: (String, String, String, String, Bool)): SLFunctionalLocation = 
+        let (x1, x2, x3, x4, x5) = x;
+        let floc                = AssetLib/Base/S4/Floc.new(x1);
+        let defaultDate         = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1});
+        { funcloc               = x1
+        , description           = x2
+        , category              = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.level, floc), 0)
+        , structureIndicator    = x3
+        , objectType            = x4
+        , startupDate           = defaultDate
+        , superiorFloc          = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, floc), "")
+        , equipmentInstall      = x5
+        , status                = "UCON"
         }
 
 

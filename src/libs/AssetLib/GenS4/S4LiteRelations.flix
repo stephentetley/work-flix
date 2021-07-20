@@ -93,14 +93,10 @@ namespace AssetLib/GenS4/S4LiteRelations {
         }
     }
 
-    /// Arity 7
-    pub rel FunctionalLocation(funcloc: String, 
-                        description: String, 
-                        strIndicator: String, 
-                        objectType: String, 
-                        startupDate: Time.LocalDate, 
-                        equipInstall: Bool, 
-                        userStatus: String)
+    /// No relation for `FunctionalLocation`.
+    /// Use the record `SLFunctionalLocation` instead, or use a custom 
+    /// relation that uses a minimal set of fields to generate an
+    /// `SLFunctionalLocation`.
 
     pub rel FlocLongText(funcloc: String, 
                         description: String, 
@@ -147,27 +143,6 @@ namespace AssetLib/GenS4/S4LiteRelations {
 
 
 
-    /// To Uxl...
-    pub def toSLFunctionalLocation(src: #{FunctionalLocation | r}): Chain[SLFunctionalLocation] & Impure = 
-        query src select (x1, x2, x3, x4, x5, x6, x7) from FunctionalLocation(x1, x2, x3, x4, x5, x6, x7)
-            |> Chain.fromArray
-            |> Chain.map(functionalLocationToS4Lite)
-
-
-    def functionalLocationToS4Lite(x: (String, String, String, String, 
-                            Time.LocalDate, Bool, String)): SLFunctionalLocation = 
-        let (x1, x2, x3, x4, x5, x6, x7) = x;
-        let floc = AssetLib/Base/S4/Floc.new(x1);
-        { funcloc    = x1
-        , description           = x2
-        , category              = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.level, floc), 0)
-        , structureIndicator    = x3
-        , objectType            = x4
-        , startupDate           = x5
-        , superiorFloc          = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, floc), "")
-        , equipmentInstall      = x6
-        , status                = x7
-        }
 
 
     pub def toSLFlocLongText(src: #{FlocLongText | r}): Chain[SLFlocLongText] & Impure = 
