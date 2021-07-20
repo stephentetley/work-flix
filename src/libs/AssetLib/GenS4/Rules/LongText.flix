@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite};
+    use AssetLib/AibFacts/Attributes/LocationData.{LocationOnSite};
     use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText};

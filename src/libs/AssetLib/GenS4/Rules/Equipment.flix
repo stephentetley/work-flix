@@ -16,8 +16,10 @@
 
 namespace AssetLib/GenS4/Rules/Equipment {
 
-    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttributes};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttributes};
+    use AssetLib/AibFacts/Attributes/LocationData.{LocationOnSite};
+    use AssetLib/S4Lite/Datatypes.{SLEquipment};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
@@ -48,8 +50,62 @@ namespace AssetLib/GenS4/Rules/Equipment {
         };
         solve (rules <+> input) project Equipment
 
-    /// pub def genSLEquipment(today: Time.LocalDate, x: EquiWorkItemRec): Result[SLEquipment, String] = 
-    ///     ...
+    /// TODO patching `EquipmentAttributes`
+    pub def genEquisNEW(today: Time.LocalDate, xs: List[EquiWorkItemRec]): Result[SLEquipment, String] = 
+        List.map(genEqui1(today), xs) 
+            |> Ok
+
+
+    def genEqui1(today: Time.LocalDate, x: EquiWorkItemRec): SLEquipment =
+        { equiId                = x.equipmentId
+        , category              = x.s4Category              /// e.g "M", "I", "E"
+        , description           = String.takeLeft(40, x.s4Name)
+        , validFrom             = today         /// Should remain `today`.
+        , objectType            = x.s4EquiType
+        , weightKg              = None
+        , startupDate           = today         /// Should be "patched"
+        , manufacturer          = "TO BE DETERMINED"
+        , model                 = "TO BE DETERMINED"
+        , partNumber            = ""
+        , serialNumber          = "UNKNOWN"
+        , functionalLocation    = x.s4Floc
+        , superOrdinateEqui     = x.superEquiId
+        , position              = x.position
+        , techIdentNo           = ""
+        , status                = "UCON"
+        }
+
+
+    type alias EquipmentAttributesRec = 
+        { aibref: String
+        , installedFrom: Time.LocalDate
+        , manufacturer: String
+        , model: String
+        , status: String
+        , pandiTag: String
+        , serialNumber: String
+        , specificModelFrame: String
+        , weightKg: Option[Float64]
+        }
+
+    pub def patch1(attribs: EquipmentAttributesRec, x: SLEquipment): SLEquipment =
+        { equiId                = x.equiId
+        , category              = x.category
+        , description           = x.description
+        , validFrom             = x.validFrom
+        , objectType            = x.objectType
+        , weightKg              = attribs.weightKg
+        , startupDate           = attribs.installedFrom
+        , manufacturer          = attribs.manufacturer
+        , model                 = attribs.model
+        , partNumber            = attribs.specificModelFrame
+        , serialNumber          = attribs.serialNumber
+        , functionalLocation    = x.functionalLocation
+        , superOrdinateEqui     = x.superOrdinateEqui
+        , position              = x.position
+        , techIdentNo           = attribs.pandiTag
+        , status                = attribs.status
+        }
 
     pub def equiCharacteristics1(input: #{EquiWorkItem, EquiCharacteristic, 
                                             LocationOnSite | r1}): #{EquiCharacteristic | r} =

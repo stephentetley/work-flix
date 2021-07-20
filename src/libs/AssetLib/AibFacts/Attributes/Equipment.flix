@@ -44,36 +44,13 @@ namespace AssetLib/AibFacts/Attributes/Equipment {
                                 specificModelFrame: String,
                                 weightKg: Option[Float64])
 
-    pub rel LocationOnSite(aibref: String, text: String)
-    pub rel Osgb36GridRef(aibref: String, gridRef: String)
 
     /// Read from Aib file...
 
     /// Reads `Location On Site` at same time...
-    pub def readEquipmentData(src: XlsxSource): Result[#{EquipmentAttributes, LocationOnSite | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(equipmentFacts(), true, src)
-        
-    /// Just reads `Location On Site`...
-    pub def readLocationOnSiteData(src: XlsxSource): Result[#{LocationOnSite | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, src)
-
-    /// Just reads `Osgb36GridRef`...
-    pub def readOsgb36GridRefData(src: XlsxSource): Result[#{Osgb36GridRef | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(getOsgb36GridRef(), true, src)
-
-
-    pub def equipmentFacts(): NamedRowEvaluator[#{EquipmentAttributes, LocationOnSite | r}] =    
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};
-        let* c1 = withDefault(getEquipmentAttibutes(), #{});  
-        let* c2 = withDefault(getLocationOnSite(), #{});
-        return(c1 <+> c2)
-
-
-    pub def getLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
-        getStringValuedFact("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
-        
-   pub def getOsgb36GridRef(): NamedRowEvaluator[#{Osgb36GridRef | r}] =
-        getStringValuedFact("Loc.Ref.",  (aibref, ans) -> #{ Osgb36GridRef(aibref, ans). })        
+    pub def readEquipmentData(src: XlsxSource): Result[#{EquipmentAttributes | r}, String] & Impure =
+        AssetLib/AibFacts/Utils.readAibFacts(getEquipmentAttibutes(), true, src)
+            
 
 
     pub def getEquipmentAttibutes(): NamedRowEvaluator[#{EquipmentAttributes | r}] =
