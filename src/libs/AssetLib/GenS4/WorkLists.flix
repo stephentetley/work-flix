@@ -171,7 +171,7 @@ namespace AssetLib/GenS4/WorkLists {
         SheetIO/SheetReader.runXlsx(readStep(), src.path)
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItemRec] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed, liftResult}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
@@ -183,8 +183,8 @@ namespace AssetLib/GenS4/WorkLists {
         let* sysType        = map(String.trim, getContentNamed("System Type (Text)"));
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
         let* solutionId     = map(String.trim, getContentNamed("Solution ID"));
-        let ofloc           = AssetLib/Base/S4/Floc.new(floc);
-        let level           = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, ofloc), 0);
+        let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
+        let level           = AssetLib/Base/S4/Floc.level(objfloc);
         return({ funcloc = floc
                 , description = name
                 , level = level

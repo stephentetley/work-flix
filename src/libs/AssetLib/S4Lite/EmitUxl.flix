@@ -70,8 +70,9 @@ namespace AssetLib/S4Lite/EmitUxl {
 
     def functionalLocationToUxl(x: SLFunctionalLocation): FunctionalLocationData = 
         let floc1 = x.funcloc;
-        let flocCategory = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, AssetLib/Base/S4/Floc.new(floc1)), 0);
-        let superiorFloc = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, AssetLib/Base/S4/Floc.new(floc1)), "");
+        let floc = AssetLib/Base/S4/Floc.new(floc1) |> Result.toOption;
+        let flocCategory = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, floc), 0);
+        let superiorFloc = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, floc), "");
         { functionalLocation    = floc1
         , maskedFuncLoc         = floc1
         , description           = x.description

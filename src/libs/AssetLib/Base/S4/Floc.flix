@@ -26,7 +26,8 @@ namespace AssetLib/Base/S4 {
     }
 
     instance FromString[Floc] { 
-        pub def fromString(x: String): Option[Floc] = AssetLib/Base/S4/Floc.new(x)
+        pub def fromString(x: String): Option[Floc] = 
+            AssetLib/Base/S4/Floc.new(x) |> Result.toOption
     }
 
     instance Eq[Floc] { 
@@ -52,11 +53,11 @@ namespace AssetLib/Base/S4/Floc {
     use AssetLib/Base/S4.Floc.{Floc};
 
     /// `s` cannot be empty.
-    pub def new(s: String): Option[Floc] = 
+    pub def new(s: String): Result[Floc, String] = 
         if (String.isEmpty(s))
-            None
+            Err("Err: Empty Floc")
         else
-            Some(Floc(String.splitOn(s, "-")))
+            Ok(Floc(String.splitOn(s, "-")))
                 
 
     pub def equals(x: Floc, y: Floc): Bool = 

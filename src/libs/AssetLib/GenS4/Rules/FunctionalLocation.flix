@@ -16,10 +16,10 @@
 
 namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
-
+    use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation};
     use AssetLib/GenS4/S4LiteRelations.{FunctionalLocation, FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem};
 
 
 
@@ -37,6 +37,29 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
                 FlocWorkItem(funcloc, description, level, _, installedFrom, structureInd, objectType, _, _,  _, _).
         };
         solve (rules <+> workitems) project FunctionalLocation
+
+    pub def genFloc1(x: FlocWorkItemRec): Result[SLFunctionalLocation, String] = 
+        use Result.flatMap;
+        let* floc   = AssetLib/Base/S4/Floc.new(x.funcloc);
+        let level   = AssetLib/Base/S4/Floc.level(floc);
+        let super   = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> flip(Option.getWithDefault, "");        
+        Ok( { funcloc               = x.funcloc
+            , description           = x.description
+            , category              = level
+            , structureIndicator    = x.structureIndicator
+            , objectType            = x.objectType
+            , startupDate           = x.installedFrom
+            , superiorFloc          = super
+            , equipmentInstall      = equipmentInstall(x.structureIndicator, level)
+            , status                = "UCON"
+            })
+
+    def equipmentInstall(structure: String, level: Int32): Bool = match structure {
+        case "YW-GS" if level >= 5 => true
+        case "YW-ES" if level >= 3 => true
+        case _ => false
+    }
+
 
 
     pub def flocCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 

@@ -157,13 +157,14 @@ namespace AssetLib/GenS4/S4LiteRelations {
     def functionalLocationToS4Lite(x: (String, String, String, String, 
                             Time.LocalDate, Bool, String)): SLFunctionalLocation = 
         let (x1, x2, x3, x4, x5, x6, x7) = x;
+        let floc = AssetLib/Base/S4/Floc.new(x1);
         { funcloc    = x1
         , description           = x2
-        , category              = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, AssetLib/Base/S4/Floc.new(x1)), 0)
+        , category              = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.level, floc), 0)
         , structureIndicator    = x3
         , objectType            = x4
         , startupDate           = x5
-        , superiorFloc          = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, AssetLib/Base/S4/Floc.new(x1)), "")
+        , superiorFloc          = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, floc), "")
         , equipmentInstall      = x6
         , status                = x7
         }
