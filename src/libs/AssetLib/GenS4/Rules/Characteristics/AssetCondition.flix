@@ -23,14 +23,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
         LoadingFactor, LoadingFactorReason, PerformanceGrade, PerformanceGradeReason, 
         SurveyYear};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
     
 
 
     /// src should be asset condition facts
-    pub def genAssetCondition(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genAssetCondition(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(src);

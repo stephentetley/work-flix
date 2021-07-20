@@ -21,14 +21,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Liac {
     use AssetLib/AibFacts/Attributes/Lifting.{WorkLoad, WorkLoadUnits,
         TestCertNo, YWRef};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
     /// src should be lifting facts
-    pub def genLiac(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genLiac(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Lifting.readLiftingData(src);

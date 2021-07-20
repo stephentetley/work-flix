@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/WorkLists {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    type alias EquipmentWorkItem = 
+    type alias EquiWorkItemRec = 
         { equipmentId: String
         , s4Name: String
         , s4Floc: String
@@ -48,10 +48,10 @@ namespace AssetLib/GenS4/WorkLists {
                             s4EquiType: String, 
                             s4EquiClass: String)
 
-    pub def makeEquiWorkItems(xs: List[EquipmentWorkItem]): #{ EquiWorkItem | r} = 
+    pub def makeEquiWorkItems(xs: List[EquiWorkItemRec]): #{ EquiWorkItem | r} = 
         List.foldLeft((ac, a) -> ac <+> makeEquiWorkItem(a), #{}, xs)
 
-    pub def makeEquiWorkItem(x: EquipmentWorkItem): #{ EquiWorkItem | r} = #{
+    pub def makeEquiWorkItem(x: EquiWorkItemRec): #{ EquiWorkItem | r} = #{
         EquiWorkItem(x.equipmentId,
                         x.s4Name,  
                         x.s4Floc,
@@ -65,7 +65,7 @@ namespace AssetLib/GenS4/WorkLists {
 
     /// Functional Location (under-developed at the moment)
 
-    type alias FunclocWorkItem = 
+    type alias FlocWorkItemRec = 
         { funcloc: String
         , description: String
         , level: Int32
@@ -93,11 +93,11 @@ namespace AssetLib/GenS4/WorkLists {
                         solutionId: String
                         )
 
-    pub def makeFlocWorkItems(xs: List[FunclocWorkItem]): #{FlocWorkItem | r} = 
+    pub def makeFlocWorkItems(xs: List[FlocWorkItemRec]): #{FlocWorkItem | r} = 
         List.foldLeft((ac, a) -> ac <+> makeFlocWorkItem(a), #{}, xs)
 
 
-    pub def makeFlocWorkItem(x: FunclocWorkItem): #{ FlocWorkItem | r}= #{
+    pub def makeFlocWorkItem(x: FlocWorkItemRec): #{ FlocWorkItem | r}= #{
         FlocWorkItem(x.funcloc, 
                         x.description, 
                         x.level,
@@ -114,13 +114,13 @@ namespace AssetLib/GenS4/WorkLists {
 
 
     /// Read from Aib xlsx export file...
-    pub def readEquiWorkList(src: XlsxSource): Result[List[EquipmentWorkItem], String] & Impure =
+    pub def readEquiWorkList(src: XlsxSource): Result[List[EquiWorkItemRec], String] & Impure =
         use SheetIO/NamedRowEvaluator.{optional};
         SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem()))
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory
-    def evalEquiWorkItem(): NamedRowEvaluator[EquipmentWorkItem] =
+    def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItemRec] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
         let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
         let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
@@ -144,14 +144,14 @@ namespace AssetLib/GenS4/WorkLists {
 
 
  
-    pub def getEquipmentWorkItemKeyMap(xs: List[EquipmentWorkItem]): Map[String, String] =
+    pub def getEquipmentWorkItemKeyMap(xs: List[EquiWorkItemRec]): Map[String, String] =
         let dict1 = buildKeyToDesc(xs);
         List.foldLeft((ac, x) ->  Map.insert(x.equipmentId, makeThreePartName(x, dict1), ac), Map.empty(), xs)
         
-    def buildKeyToDesc(xs: List[EquipmentWorkItem]): Map[String, String] = 
+    def buildKeyToDesc(xs: List[EquiWorkItemRec]): Map[String, String] = 
         List.foldLeft((ac, x) -> Map.insert(x.equipmentId, x.s4Name, ac), Map.empty(), xs)
 
-    def makeThreePartName(x: EquipmentWorkItem, descs: Map[String, String]): String = 
+    def makeThreePartName(x: EquiWorkItemRec, descs: Map[String, String]): String = 
         if (not String.isEmpty(x.superEquiId)) {
             let superName = Map.getWithDefault(x.superEquiId, "Impossible", descs);
             "${x.s4Name}::${x.s4Floc}::${superName}"
@@ -161,7 +161,7 @@ namespace AssetLib/GenS4/WorkLists {
     /// Flocs
 
     /// Read from Aib xlsx export file...
-    pub def readFlocWorkList(src: XlsxSource): Result[List[FunclocWorkItem], String] & Impure =
+    pub def readFlocWorkList(src: XlsxSource): Result[List[FlocWorkItemRec], String] & Impure =
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};
         let readStep = () -> { 
             let* s1     = getSheetNamed(src.sheet);
@@ -170,7 +170,7 @@ namespace AssetLib/GenS4/WorkLists {
         };
         SheetIO/SheetReader.runXlsx(readStep(), src.path)
 
-    def evalFlocWorkItem(): NamedRowEvaluator[FunclocWorkItem] =
+    def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItemRec] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));

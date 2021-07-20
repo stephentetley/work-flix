@@ -48,6 +48,9 @@ namespace AssetLib/GenS4/Rules/Equipment {
         };
         solve (rules <+> input) project Equipment
 
+    /// pub def genSLEquipment(today: Time.LocalDate, x: EquiWorkItemRec): Result[SLEquipment, String] = 
+    ///     ...
+
     pub def equiCharacteristics1(input: #{EquiWorkItem, EquiCharacteristic, 
                                             LocationOnSite | r1}): #{EquiCharacteristic | r} =
         let rules = #{

@@ -18,11 +18,11 @@
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FunclocWorkItem, FlocWorkItem, EquipmentWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
-    pub def genEquiSolutionId(worklist: List[EquipmentWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genEquiSolutionId(worklist: List[EquiWorkItemRec]): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let ans         = equiSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
@@ -39,7 +39,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
         };
         solve (rules <+> workitems) project EquiCharacteristic
         
-    pub def genFlocSolutionId(worklist: List[FunclocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
+    pub def genFlocSolutionId(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
         let ans         = flocSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;

@@ -20,11 +20,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Equipment.{Osgb36GridRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FunclocWorkItem, FlocWorkItem, EquipmentWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
     
-    pub def genEquiEastNorth(worklist: List[EquipmentWorkItem], 
+    pub def genEquiEastNorth(worklist: List[EquiWorkItemRec], 
                             src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let* facts      = AssetLib/AibFacts/Attributes/Equipment.readOsgb36GridRefData(src);
@@ -46,7 +46,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
         solve (rules <+> input) project EquiCharacteristic
 
 
-    pub def genFlocEastNorth(worklist: List[FunclocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
+    pub def genFlocEastNorth(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
         let ans         = flocEastNorth(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;

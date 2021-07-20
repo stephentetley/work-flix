@@ -20,12 +20,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Valve.{ValveType, Size, SizeUnits};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
 
     /// src should be valve facts
-    pub def genValv(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genValv(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Valve.readValveData(src);

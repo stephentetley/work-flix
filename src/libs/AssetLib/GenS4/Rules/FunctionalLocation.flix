@@ -23,7 +23,8 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
 
 
-
+    /// Also the FunctionalLocation rule doesn't really benefit being written in Datalog.
+    /// It is a simple (deterministic) type change
     pub def genFlocs(workitems: #{FlocWorkItem, FunctionalLocation | r1}): #{FunctionalLocation | r} = 
         let rules = #{
             FunctionalLocation(funcloc, 

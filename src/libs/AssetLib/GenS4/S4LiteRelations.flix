@@ -115,6 +115,7 @@ namespace AssetLib/GenS4/S4LiteRelations {
 
     /// Arity 16
     /// Note - this needs a extension to Solver.flix (add `facts16`)
+    /// This is `AssetLib/S4Lite/Datatypes.SLEquipment` as a relation rather than a record.
     pub rel Equipment(equiId: String, 
                         category: String,              /// e.g "M", "I", "E"
                         description: String,

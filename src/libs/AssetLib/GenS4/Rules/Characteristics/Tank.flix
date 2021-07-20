@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, UnitLengthM, UnitSideDepthM, 
         UnitSideDepthMinM, UnitSideDepthMaxM};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{EquipmentWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
 
 
     /// src should be tank facts
-    pub def genTank(worklist: List[EquipmentWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genTank(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src);
