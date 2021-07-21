@@ -32,23 +32,7 @@ def main1(): Result[Unit, String] & Impure =
     let* siteMap        = AssetScripts/NonOp/Loader.readInstallationMappings({sheet = "Sheet1", path = sitesAIB});
     let* eastNorthMap   = AssetScripts/NonOp/Loader.readSiteEastNorth({sheet = "Sheet1", path = sitesEN});
     let worklist        = {sheet = "NonOpStatus_S4Presence", path = aibReport};
-    let* _              = AssetScripts/NonOp/SecondOrderFlocs.genFlocUxl(worklist, siteMap <+> eastNorthMap, outputArgs);
+    let* _              = AssetScripts/NonOp/AchFlocs.genFlocUxl(worklist, siteMap <+> eastNorthMap, outputArgs);
     Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
     Ok()
 
-/// def temp01(): Result[Unit, String] & Impure = 
-///     use Result.{flatMap};
-///     println(">>>");
-///     let xs = "one" :: "two" :: "three" :: "four" :: "five" :: "six" :: "seven" :: Nil;
-///     AssetScripts/NonOp/Utils.sublists(3, xs) |> List.foreach(println);
-///     println(">>>");
-///     AssetScripts/NonOp/Utils.divide(2, xs) |> List.foreach(println);
-///     println(">>>");
-///     let ys = "1" :: "2" :: "3" :: "4" :: "5" :: "6" :: Nil;
-///     AssetScripts/NonOp/Utils.divide(2, ys) |> List.foreach(println);
-///     println(">>> 6 / 4");
-///     AssetScripts/NonOp/Utils.divide(4, ys) |> List.foreach(println);
-///     println(">>> 6 / 5");
-///     AssetScripts/NonOp/Utils.divide(5, ys) |> List.foreach(println);
-///     println(">>>");
-///     Ok()

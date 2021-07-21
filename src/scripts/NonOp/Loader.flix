@@ -21,7 +21,7 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
     
-    use AssetScripts/NonOp/Relations.{SecondOrderFlocWorkItem, InstallationMapping, SiteEastNorth, 
+    use AssetScripts/NonOp/Relations.{AchFlocWorkItem, InstallationMapping, SiteEastNorth, 
         EquipmentMapping, PlantAssetType, GrandParentParentNames, PandITag, 
         AssetTypeDescription, EquipProperties};
 
@@ -60,17 +60,13 @@ namespace AssetScripts/NonOp/Loader {
     /// Need to partition worklists so the output files are manageable
     /// So we read records rather than relations.
 
-    type alias SecondOrderFlocWorkItem1 = 
-        { siteAibRef: String
-        , instAibRef: String
-        }
     
-    pub def readSecondOrderFlocWorkItem1s(src: XlsxSource): Result[List[SecondOrderFlocWorkItem1], String] & Impure =
-        SheetIO/Reader.readSomeRows(src, evalSecondOrderFlocWorkItem1())
+    pub def readAchFlocWorkItems(src: XlsxSource): Result[List[AchFlocWorkItem], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalAchFlocWorkItem())
             |> Result.map(List.distinctWith((x, y) -> x.instAibRef == y.instAibRef))
             
     /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"            
-    def evalSecondOrderFlocWorkItem1(): RowEvaluator[Option[SecondOrderFlocWorkItem1]] =
+    def evalAchFlocWorkItem(): RowEvaluator[Option[AchFlocWorkItem]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((b1, e1, ah1) -> 

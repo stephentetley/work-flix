@@ -18,11 +18,33 @@
 namespace AssetScripts/NonOp/Relations {
 
 
+    /// ACH flocs
+
+    type alias AchFlocWorkItem = 
+        { siteAibRef: String
+        , instAibRef: String
+        }
+
+
+
+    type alias PlantEquipWorkItem = 
+        { plinum: String                                /// Column: "AV"
+        , commonName: String                            /// Column: "AM"
+        , manufacturer: String                          /// Column: "AZ"
+        , model: String                                 /// Column: "BA"
+        , assetType: String                             /// Column: "BA"
+        , installedFromDate: Option[Time.LocalDate]     /// Column: "AY"
+        , parentSainum: String                          /// Column: "AK"
+        }
+
+
+
+
     pub rel InstallationMapping(instAibRef: String, s4SiteFloc: String)
     
     pub rel SiteEastNorth(siteFloc: String, easting: Int32, northing: Int32)
 
-    pub rel SuperEquipWorkItem(pliref: String, commonName: String, aibInstRef: String)
+
 
     pub rel GrandParentParentNames(equiId: String, procGroupName: String, procName: String)
 
@@ -43,7 +65,6 @@ namespace AssetScripts/NonOp/Relations {
                             objectClass: String, 
                             category: String)
 
-    pub rel SecondOrderFlocWorkItem(siteAibRef: String, instAibRef: String)
 
     /// temp
     pub rel PlantAssetType(code: String, desc: String)
