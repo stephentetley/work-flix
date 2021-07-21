@@ -33,7 +33,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         , siteEastNorth: XlsxSource
         }
 
-        /// Split worklist...
+    /// Split worklist...
                         
     pub def genEquiUxl(srcs: FileSources,   
                         outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
@@ -114,18 +114,6 @@ namespace AssetScripts/NonOp/PlantEquip {
         , status                = "NOP"
         }
 
-    /// LongText - simple functional operation, no Datalog
-
-    def genLongTexts(xs: List[PlantEquipWorkItem]): List[SLEquiLongText] = 
-        List.map(genLongText1, xs)
-
-
-    def genLongText1(x: PlantEquipWorkItem): SLEquiLongText =
-        let description = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName);
-        { equiId        = x.plinum
-        , description   = description
-        , longText      = x.commonName
-        }
 
 
     def genS4Lite(equis: List[SLEquipment], longTexts: List[SLEquiLongText], chars: Chain[SLEquiCharacteristic]): UxlSource = 
@@ -137,6 +125,8 @@ namespace AssetScripts/NonOp/PlantEquip {
         , equiCharacteristics = chars
         }
 
+
+    /// # Equipment patching - Datalog rules 
 
     def genEquipmentPatches(db: #{WorkItem, 
                                     EquipmentMapping, InstallationMapping,
@@ -179,6 +169,21 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
 
+    /// # LongText - simple functional operation, no Datalog
+
+    def genLongTexts(xs: List[PlantEquipWorkItem]): List[SLEquiLongText] = 
+        List.map(genLongText1, xs)
+
+
+    def genLongText1(x: PlantEquipWorkItem): SLEquiLongText =
+        let description = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName);
+        { equiId        = x.plinum
+        , description   = description
+        , longText      = x.commonName
+        }
+
+    /// # Characteristics
+
     pub def genCharacteristics(db: #{WorkItem, 
                                         InstallationMapping, EquipmentMapping, SiteEastNorth, 
                                         EquiCharacteristic | r},
@@ -203,8 +208,8 @@ namespace AssetScripts/NonOp/PlantEquip {
             EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(equiId)) :-
                 WorkItem(equiId, _, _, _, _, _).
 
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(equiId)) :-
-                WorkItem(equiId, _, _, _, _, _).                
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parentEquiId)) :-
+                WorkItem(equiId, _, _, parentEquiId, _, _).                
 
             /// EAST_NORTH
 
