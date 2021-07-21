@@ -21,9 +21,52 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
     
-    use AssetScripts/NonOp/Relations.{AchFlocWorkItem, InstallationMapping, SiteEastNorth, 
+    use AssetScripts/NonOp/Relations.{AchFlocWorkItem, PlantEquipWorkItem, 
+        InstallationMapping, SiteEastNorth, 
         EquipmentMapping, PlantAssetType, GrandParentParentNames, PandITag, 
         AssetTypeDescription, EquipProperties};
+
+
+
+
+    /// Read from Aib xlsx export file...
+    pub def readPlantEquipWorkItems(src: XlsxSource): Result[List[PlantEquipWorkItem], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalPlantEquipWorkItem())
+            |> Result.map(List.distinctWith((x, y) -> x.plinum == y.plinum))
+
+
+    /// Excel file has duplicate names so use alphabetical index ...
+    /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"  
+    def evalPlantEquipWorkItem(): RowEvaluator[Option[PlantEquipWorkItem]] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((ah1, av1, aw1, am1, az1, ba1, be1, ay1, aa1, ak1, e1) -> 
+            if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
+                Some({ plinum               = av1
+                    , commonName            = am1
+                    , manufacturer          = az1
+                    , model                 = ba1
+                    , assetType             = be1
+                    , installedFromDate     = ay1
+                    , processGroupName      = aa1
+                    , processName           = ah1
+                    , parentSainum          = ak1
+                    , installationSainum    = e1
+                    })
+            else
+                None)
+            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
+            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
+            <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
+            <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
+            <*> (getColumnIndex("AZ") >>= getTrimmedContentAt)      /// Manufacturer
+            <*> (getColumnIndex("BA") >>= getTrimmedContentAt)      /// Model
+            <*> (getColumnIndex("BE") >>= getTrimmedContentAt)      /// AssetType
+            <*> (getColumnIndex("AY") >>= getOptionalDateAt)        /// InstalledFromDate
+            <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupName
+            <*> (getColumnIndex("AK") >>= getTrimmedContentAt)      /// ParentReference
+            <*> (getColumnIndex("E") >>= getTrimmedContentAt)       /// InstallationReference
+
 
     /// Read from Aib xlsx export file...
     pub def readInstallationMappings(src: XlsxSource): Result[#{InstallationMapping | r}, String] & Impure =
@@ -59,8 +102,6 @@ namespace AssetScripts/NonOp/Loader {
 
     /// Need to partition worklists so the output files are manageable
     /// So we read records rather than relations.
-
-    
     pub def readAchFlocWorkItems(src: XlsxSource): Result[List[AchFlocWorkItem], String] & Impure =
         SheetIO/Reader.readSomeRows(src, evalAchFlocWorkItem())
             |> Result.map(List.distinctWith((x, y) -> x.instAibRef == y.instAibRef))
@@ -110,36 +151,6 @@ namespace AssetScripts/NonOp/Loader {
 
 
 
-    type alias SuperEquipmentWorkItem1 = 
-        { av_EquiId: String
-        , am_PlantCommonName: String
-        , e_InstallationReference: String
-        }
-
-    /// Read from Aib xlsx export file...
-    pub def readSuperEquipmentWorkItem1s(src: XlsxSource): Result[List[SuperEquipmentWorkItem1], String] & Impure =
-        SheetIO/Reader.readSomeRows(src, evalSuperEquipmentWorkItem1())
-            |> Result.map(List.distinctWith((x, y) -> x.av_EquiId == y.av_EquiId))
-
-
-    /// Excel file has duplicate names so use alphabetical index ...
-    /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"  
-    def evalSuperEquipmentWorkItem1(): RowEvaluator[Option[SuperEquipmentWorkItem1]] =
-        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
-        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((ah1, av1, aw1, e1, am1) -> 
-            if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
-                Some({ av_EquiId = av1
-                    , am_PlantCommonName = am1
-                    , e_InstallationReference = e1
-                    })
-            else
-                None)
-            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
-            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
-            <*> (getColumnIndex("AW") >>= getYesNoAt)               /// InS4_Y
-            <*> (getColumnIndex("E") >>= getTrimmedContentAt)      /// InstallationReference
-            <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
 
 
     pub def readSuperEquipFacts(src: XlsxSource): Result[#{GrandParentParentNames, 

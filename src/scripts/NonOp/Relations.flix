@@ -32,9 +32,12 @@ namespace AssetScripts/NonOp/Relations {
         , commonName: String                            /// Column: "AM"
         , manufacturer: String                          /// Column: "AZ"
         , model: String                                 /// Column: "BA"
-        , assetType: String                             /// Column: "BA"
+        , assetType: String                             /// Column: "BE"
         , installedFromDate: Option[Time.LocalDate]     /// Column: "AY"
+        , processGroupName: String                      /// Column: "AA"
+        , processName: String                           /// Column: "AH"
         , parentSainum: String                          /// Column: "AK"
+        , installationSainum: String                    /// Column: "E"
         }
 
 
