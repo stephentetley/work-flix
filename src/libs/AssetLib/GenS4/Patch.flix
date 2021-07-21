@@ -24,7 +24,12 @@ namespace AssetLib/GenS4/Patch {
 
     type alias EquipmentPatches = MutMap[String, SLEquipment -> SLEquipment]
 
-
+    pub def softPatchEquipment(patches: EquipmentPatches, xs: List[SLEquipment]): List[SLEquipment] & Impure = 
+        let fn = x1 -> match patchEquipment1(patches, x1) {
+            case Ok(a1) => a1
+            case Err(_) => x1
+        };
+        List.map(fn, xs)
 
     pub def patchEquipment(patches: EquipmentPatches, xs: List[SLEquipment]): Result[List[SLEquipment], String] & Impure = 
         Result.traverse(patchEquipment1(patches), xs)

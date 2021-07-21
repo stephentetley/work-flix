@@ -47,7 +47,7 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
     def genEquiUxl1(i: Int32, 
-                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r},
+                    patchDb: #{EquipmentMapping, InstallationMapping, HasInstallationMapping, WorkItemForPatch, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
@@ -69,7 +69,7 @@ namespace AssetScripts/NonOp/PlantEquip {
                         plantEquiTypeDesc: String,          /// e.g. "EQUIPMENT: SPEED/RPM INSTRUMENT"
                         installationSaiNum: String)
 
-    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r}, 
+    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, HasInstallationMapping, WorkItemForPatch, EquipmentPatch | r}, 
                     xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let mkWorkItemRel   = x1 -> #{ 
@@ -78,7 +78,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         let workItemRels    = List.foldLeft((ac, x1) -> ac <+> mkWorkItemRel(x1), #{}, xs);
         let equis1          = List.map(genEqui1, xs);
         let patches         = genEquipmentPatches(patchDb <+> workItemRels);
-        AssetLib/GenS4/Patch.patchEquipment(patches, equis1)
+        AssetLib/GenS4/Patch.softPatchEquipment(patches, equis1) |> Ok
 
 
     def genEqui1(x: PlantEquipWorkItem): SLEquipment & Impure =
@@ -88,7 +88,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         let noPosition: Option[Int32] = None;
         let description = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName);
         { equiId                = x.plinum
-        , category              = ""
+        , category              = "Bad: ${x.plinum}"
         , description           = description
         , validFrom             = today         /// Should remain `today`.
         , objectType            = x.plantEquipAssetType
@@ -98,7 +98,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         , model                 = x.model
         , partNumber            = ""
         , serialNumber          = ""
-        , functionalLocation    = "BAD01-UNKNOWN"
+        , functionalLocation    = "Bad: ${x.installationSainum}"
         , superOrdinateEqui     = ""
         , position              = noPosition
         , techIdentNo           = ""
@@ -131,17 +131,31 @@ namespace AssetScripts/NonOp/PlantEquip {
         , equiCharacteristics = Chain.empty()
         }
 
+    rel HasInstallationMapping(equiId: String)
+
 
 
     def genEquipmentPatches(db: #{WorkItemForPatch, 
                                         EquipmentMapping, InstallationMapping, 
+                                        HasInstallationMapping,
                                         EquipmentPatch | r}) : EquipmentPatches & Impure = 
         let rules = #{
             
             EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
                 WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, installationId),
-                InstallationMapping(installationId, sitefloc),
-                EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category).
+                EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category),
+                InstallationMapping(installationId, sitefloc).
+                
+
+            EquipmentPatch(equiId, category, objectType, "Bad: No root ${installationId}") :- 
+                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, installationId),            
+                EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category),
+                not HasInstallationMapping(equiId).
+
+
+            HasInstallationMapping(equiId) :- 
+                WorkItemForPatch(equiId, _, _, installationId),
+                InstallationMapping(installationId, _).
 
         };
         solve (db <+> rules) project EquipmentPatch
@@ -166,61 +180,7 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
 
-    /// rel OptionalPandITag(equiId: String, tag: String)
-    /// rel HasPandITag(equiId: String)
 
-    /// def genEqui(today: Time.LocalDate, 
-    ///                 db: #{SuperEquipWorkItem, GrandParentParentNames,
-    ///                         AssetTypeDescription, EquipmentMapping, EquipProperties, InstallationMapping, PandITag,
-    ///                         OptionalPandITag, HasPandITag,
-    ///                         EquiLongText, EquiCharacteristic | r}): #{EquiLongText, EquiCharacteristic | r} = 
-    ///     use AssetScripts/NonOp/Utils.{getShortName};
-    ///     let noneI32: Option[Int32] = None;
-    ///     let noneF64: Option[Float64] = None;
-    ///     let rules = #{
-        
-    ///         Equipment(equiId, 
-    ///                     category,
-    ///                     getShortName(procGroupName, procName, commonName),
-    ///                     today,
-    ///                     objectType,
-    ///                     noneF64,
-    ///                     Option.getWithDefault(installedFromDate, defaultDate()),
-    ///                     manufacturer,
-    ///                     model,
-    ///                     "",
-    ///                     "",
-    ///                     "${sitefloc}-ACH-ACH-ACH-NON01",        /// functionalLocation
-    ///                     "",                                     /// superOrdinateEqui
-    ///                     noneI32,                                /// position
-    ///                     techIdentNo,
-    ///                     "NOP") :- 
-    ///             SuperEquipWorkItem(equiId, commonName, aibInstRef),
-    ///             AssetTypeDescription(equiId, plantTypeDesc, plantEquiTypeDesc),                
-    ///             GrandParentParentNames(equiId, procGroupName, procName),
-    ///             EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, objectType, _, category), 
-    ///             EquipProperties(equiId, manufacturer, model, installedFromDate),
-    ///             InstallationMapping(aibInstRef, sitefloc),
-    ///             OptionalPandITag(equiId, techIdentNo).
-
-    ///         /// Multilingual text
-
-    ///         OptionalPandITag(equiId, tag) :- 
-    ///             SuperEquipWorkItem(equiId, _, _),
-    ///             PandITag(equiId, tag).
-            
-    ///         OptionalPandITag(equiId, "") :- 
-    ///             SuperEquipWorkItem(equiId, _, _),
-    ///             not HasPandITag(equiId).
-
-    ///         HasPandITag(equiId) :- PandITag(equiId, _).
-
-    ///         EquiLongText(equiId, getShortName(procGroupName, procName, commonName), commonName) :- 
-    ///             SuperEquipWorkItem(equiId, commonName, _),
-    ///             GrandParentParentNames(equiId, procGroupName, procName).
-
-
-    ///     solve (db <+> rules) project Equipment, EquiCharacteristic
 
 
 
