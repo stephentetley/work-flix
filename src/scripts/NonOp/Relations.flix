@@ -26,6 +26,7 @@ namespace AssetScripts/NonOp/Relations {
         }
 
 
+    /// PlantEquip (aka Super equipment)
 
     type alias PlantEquipWorkItem = 
         { plinum: String                                /// Column: "AV"
@@ -73,4 +74,5 @@ namespace AssetScripts/NonOp/Relations {
 
     /// temp
     pub rel PlantAssetType(code: String, desc: String)
+
 }

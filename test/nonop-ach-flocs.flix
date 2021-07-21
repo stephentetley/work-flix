@@ -27,9 +27,9 @@ def main1(): Result[Unit, String] & Impure =
     use Result.{flatMap};
     let outputArgs      = uxlOutputArgs();
     let aibReport       = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx");
-    let sitesAIB        = System/FilePath.new("G:/work/assets/non-op-bins/SiteMapping_.xlsx");
-    let sitesEN         = System/FilePath.new("G:/work/assets/non-op-bins/sitelist-ih06-east_north.xlsx");
-    let* siteMap        = AssetScripts/NonOp/Loader.readInstallationMappings({sheet = "Sheet1", path = sitesAIB});
+    let sitesAIB        = System/FilePath.new("G:/work/assets/non-op-bins/InstallationsMapping_.xlsx");
+    let sitesEN         = System/FilePath.new("G:/work/assets/non-op-bins/allsites-ih06-east_north.xlsx");
+    let* siteMap        = AssetScripts/NonOp/Loader.readInstallationMapping({sheet = "Sheet1", path = sitesAIB});
     let* eastNorthMap   = AssetScripts/NonOp/Loader.readSiteEastNorth({sheet = "Sheet1", path = sitesEN});
     let worklist        = {sheet = "NonOpStatus_S4Presence", path = aibReport};
     let* _              = AssetScripts/NonOp/AchFlocs.genFlocUxl(worklist, siteMap <+> eastNorthMap, outputArgs);

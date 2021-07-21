@@ -23,13 +23,14 @@ namespace AssetScripts/NonOp/PlantEquip {
     use AssetLib/GenS4/Patch.{EquipmentPatches};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
-    use AssetScripts/NonOp/Relations.{PlantEquipWorkItem, EquipmentMapping, InstallationMapping};
+    use AssetScripts/NonOp/Relations.{PlantEquipWorkItem, EquipmentMapping, InstallationMapping, SiteEastNorth};
 
 
     type alias FileSources = 
         { aibReport: XlsxSource
         , equipmentMapping: XlsxSource
         , installationMapping: XlsxSource
+        , siteEastNorth: XlsxSource
         }
 
         /// Split worklist...
@@ -40,6 +41,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
         let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
         let* instMapping    = AssetScripts/NonOp/Loader.readInstallationMapping(srcs.installationMapping);
+        let* _sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
         let patchDb         = equipMapping <+> instMapping;
         let worklists       = AssetScripts/NonOp/Utils.sublists(50, items);
         let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, patchDb, xs1, outputArgs), 1, worklists);
@@ -47,7 +49,7 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
     def genEquiUxl1(i: Int32, 
-                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r},
+                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
@@ -64,18 +66,19 @@ namespace AssetScripts/NonOp/PlantEquip {
                     objectType: String,
                     functionalLocation: String)
 
-    rel WorkItemForPatch(plinum: String,
-                        plantTypeDesc: String,              /// e.g. "ANALYSIS LOOP"
-                        plantEquiTypeDesc: String,          /// e.g. "EQUIPMENT: SPEED/RPM INSTRUMENT"
-                        installationSaiNum: String, 
-                        subinstallationSaiNum: String)
+    rel WorkItem(plinum: String,
+                plantTypeDesc: String,              /// e.g. "ANALYSIS LOOP"
+                plantEquiTypeDesc: String,          /// e.g. "EQUIPMENT: SPEED/RPM INSTRUMENT"
+                parentSainum: String,
+                installationSaiNum: String, 
+                subinstallationSaiNum: String)
 
-    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r}, 
+    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, EquipmentPatch | r}, 
                     xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let mkWorkItemRel   = x1 -> #{ 
-            WorkItemForPatch(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, 
-                            x1.installationSainum, x1.subinstallationSainum). 
+            WorkItem(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, 
+                        x1.parentSainum, x1.installationSainum, x1.subinstallationSainum). 
         };
         let workItemRels    = List.foldLeft((ac, x1) -> ac <+> mkWorkItemRel(x1), #{}, xs);
         let equis1          = List.map(genEqui1, xs);
@@ -121,9 +124,6 @@ namespace AssetScripts/NonOp/PlantEquip {
         }
 
 
-
-
-
     def genS4Lite(equis: List[SLEquipment], longTexts: List[SLEquiLongText]): UxlSource = 
         { funclocs = Chain.empty()
         , funclocLongTexts = Chain.empty()
@@ -134,19 +134,19 @@ namespace AssetScripts/NonOp/PlantEquip {
         }
 
 
-    def genEquipmentPatches(db: #{WorkItemForPatch, 
-                                        EquipmentMapping, InstallationMapping,
-                                        EquipmentPatch | r}) : EquipmentPatches & Impure = 
+    def genEquipmentPatches(db: #{WorkItem, 
+                                    EquipmentMapping, InstallationMapping,
+                                    EquipmentPatch | r}) : EquipmentPatches & Impure = 
         let rules = #{
             
             EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
-                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, installationId, "NULL"),
+                WorkItem(equiId, plantTypeDesc, plantEquipTypeDesc, _, installationId, "NULL"),
                 EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category),
                 InstallationMapping(installationId, sitefloc).
                 
 
             EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
-                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, _, subinstallationId),            
+                WorkItem(equiId, plantTypeDesc, plantEquipTypeDesc, _, _, subinstallationId),            
                 EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category),
                 InstallationMapping(subinstallationId, sitefloc).
 
@@ -173,23 +173,59 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
 
+    pub def genClassifications(db: #{WorkItem, 
+                                        InstallationMapping, EquipmentMapping, SiteEastNorth, 
+                                        EquiCharacteristic | r}): #{EquiCharacteristic | r1} = 
+        let rules = #{
+            
+            /// ${objClass}
+
+            EquiCharacteristic(equiId, objClass, "UNICLASS_CODE", 1, S4String("")) :-
+                WorkItem(equiId, plantTypeDesc, plantEquiTypeDesc, _, _, _),
+                EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, _, objClass, _).
+
+            EquiCharacteristic(equiId, objClass, "UNICLASS_DESC", 1, S4String("")) :-
+                WorkItem(equiId, plantTypeDesc, plantEquiTypeDesc, _, _, _),
+                EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, _, objClass, _).
+
+            /// AIB_REFERENCE
+
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
+                WorkItem(equiId, _, _, _, _, _).
+
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(equiId)) :-
+                WorkItem(equiId, _, _, _, _, _).
+
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(equiId)) :-
+                WorkItem(equiId, _, _, _, _, _).                
+
+            /// EAST_NORTH
+
+            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
+                WorkItem(equiId, _, _, _, installationId, "NULL"),
+                InstallationMapping(installationId, s4SiteFloc),
+                SiteEastNorth(s4SiteFloc, easting, _).
+
+            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(easting)) :-
+                WorkItem(equiId, _, _, _, _, subinstallationId),
+                InstallationMapping(subinstallationId, s4SiteFloc),
+                SiteEastNorth(s4SiteFloc, easting, _).
+
+            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
+                WorkItem(equiId, _, _, _, installationId, "NULL"),
+                InstallationMapping(installationId, s4SiteFloc),
+                SiteEastNorth(s4SiteFloc, _, northing).
+
+            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northing)) :-
+                WorkItem(equiId, _, _, _, _, subinstallationId),
+                InstallationMapping(subinstallationId, s4SiteFloc),
+                SiteEastNorth(s4SiteFloc, _, northing).           
+
+        };
+        solve (db <+> rules) project EquiCharacteristic
 
 
 
-
-    /// Characteristics
-
-    ///         EquiCharacteristic(equiId, oclass, "UNICLASS_CODE", 1, S4String("")) :-
-    ///             SuperEquipWorkItem(equiId, _, _),
-    ///             AssetTypeDescription(equiId, plantTypeDesc, plantEquiTypeDesc),
-    ///             EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, _, oclass, _).
-
-    ///         EquiCharacteristic(equiId, oclass, "UNICLASS_DESC", 1, S4String("")) :-
-    ///             SuperEquipWorkItem(equiId, _, _),
-    ///             AssetTypeDescription(equiId, plantTypeDesc, plantEquiTypeDesc),
-    ///             EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, _, oclass, _).
-
-    ///     };
 
 
 }
