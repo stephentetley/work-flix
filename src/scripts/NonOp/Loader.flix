@@ -40,7 +40,7 @@ namespace AssetScripts/NonOp/Loader {
     def evalPlantEquipWorkItem(): RowEvaluator[Option[PlantEquipWorkItem]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((ah1, av1, aw1, am1, az1, ba1, as1, be1, ay1, aa1, ak1, e1) -> 
+        ((ah1, av1, aw1, am1, az1, ba1, as1, be1, ay1, aa1, ak1, e1, m1) -> 
             if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
                 Some({ plinum               = av1
                     , commonName            = am1
@@ -53,6 +53,7 @@ namespace AssetScripts/NonOp/Loader {
                     , processName           = ah1
                     , parentSainum          = ak1
                     , installationSainum    = e1
+                    , subinstallationSainum = m1
                     })
             else
                 None)
@@ -68,6 +69,7 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupName
             <*> (getColumnIndex("AK") >>= getTrimmedContentAt)      /// ParentReference
             <*> (getColumnIndex("E") >>= getTrimmedContentAt)       /// InstallationReference
+            <*> (getColumnIndex("M") >>= getTrimmedContentAt)       /// SubInstallationReference
 
 
     /// Read from "InstllationsMapping_.xlsx" ...

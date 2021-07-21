@@ -47,7 +47,7 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
     def genEquiUxl1(i: Int32, 
-                    patchDb: #{EquipmentMapping, InstallationMapping, HasInstallationMapping, WorkItemForPatch, EquipmentPatch | r},
+                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
@@ -67,13 +67,15 @@ namespace AssetScripts/NonOp/PlantEquip {
     rel WorkItemForPatch(plinum: String,
                         plantTypeDesc: String,              /// e.g. "ANALYSIS LOOP"
                         plantEquiTypeDesc: String,          /// e.g. "EQUIPMENT: SPEED/RPM INSTRUMENT"
-                        installationSaiNum: String)
+                        installationSaiNum: String, 
+                        subinstallationSaiNum: String)
 
-    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, HasInstallationMapping, WorkItemForPatch, EquipmentPatch | r}, 
+    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r}, 
                     xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let mkWorkItemRel   = x1 -> #{ 
-            WorkItemForPatch(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, x1.installationSainum). 
+            WorkItemForPatch(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, 
+                            x1.installationSainum, x1.subinstallationSainum). 
         };
         let workItemRels    = List.foldLeft((ac, x1) -> ac <+> mkWorkItemRel(x1), #{}, xs);
         let equis1          = List.map(genEqui1, xs);
@@ -131,31 +133,22 @@ namespace AssetScripts/NonOp/PlantEquip {
         , equiCharacteristics = Chain.empty()
         }
 
-    rel HasInstallationMapping(equiId: String)
-
-
 
     def genEquipmentPatches(db: #{WorkItemForPatch, 
-                                        EquipmentMapping, InstallationMapping, 
-                                        HasInstallationMapping,
+                                        EquipmentMapping, InstallationMapping,
                                         EquipmentPatch | r}) : EquipmentPatches & Impure = 
         let rules = #{
             
             EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
-                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, installationId),
+                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, installationId, "NULL"),
                 EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category),
                 InstallationMapping(installationId, sitefloc).
                 
 
-            EquipmentPatch(equiId, category, objectType, "Bad: No root ${installationId}") :- 
-                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, installationId),            
+            EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
+                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, _, subinstallationId),            
                 EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category),
-                not HasInstallationMapping(equiId).
-
-
-            HasInstallationMapping(equiId) :- 
-                WorkItemForPatch(equiId, _, _, installationId),
-                InstallationMapping(installationId, _).
+                InstallationMapping(subinstallationId, sitefloc).
 
         };
         solve (db <+> rules) project EquipmentPatch

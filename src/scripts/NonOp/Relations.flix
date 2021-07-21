@@ -39,6 +39,7 @@ namespace AssetScripts/NonOp/Relations {
         , processName: String                           /// Column: "AH"
         , parentSainum: String                          /// Column: "AK"
         , installationSainum: String                    /// Column: "E"
+        , subinstallationSainum: String                 /// Column: "M"  (might be "NULL")
         }
 
 
