@@ -18,53 +18,65 @@
 namespace AssetScripts/NonOp/PlantEquip {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
+    use AssetLib/GenS4/Patch.{EquipmentPatches};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
-    use AssetScripts/NonOp/Relations.{PlantEquipWorkItem};
+    use AssetScripts/NonOp/Relations.{PlantEquipWorkItem, EquipmentMapping, InstallationMapping};
 
 
+    type alias FileSources = 
+        { aibReport: XlsxSource
+        , equipmentMapping: XlsxSource
+        , installationMapping: XlsxSource
+        }
 
         /// Split worklist...
                         
-    pub def genEquiUxl(src: XlsxSource,   
-                        args: UxlOutputArgs): Result[Unit, String] & Impure = 
+    pub def genEquiUxl(srcs: FileSources,   
+                        outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* items      = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(src);
-        let worklists   = AssetScripts/NonOp/Utils.sublists(50, items);
-        let* _          = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, xs1, args), 1, worklists);
+        let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
+        let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
+        let* instMapping    = AssetScripts/NonOp/Loader.readInstallationMapping(srcs.installationMapping);
+        let patchDb         = equipMapping <+> instMapping;
+        let worklists       = AssetScripts/NonOp/Utils.sublists(50, items);
+        let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, patchDb, xs1, outputArgs), 1, worklists);
         Ok()
 
 
     def genEquiUxl1(i: Int32, 
+                    patchDb: #{EquipmentMapping, InstallationMapping | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let equis       = genEquis(xs);
-        let s4lite      = genS4Lite(equis);
+        let equis       = genEquis(patchDb, xs);
+        let longTexts   = genLongTexts(xs);
+        let s4lite      = genS4Lite(equis, longTexts);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
         Ok(i + 1)
 
 
-    pub def genEquis(xs: List[PlantEquipWorkItem]): List[SLEquipment] & Impure = 
+    def genEquis(_patchDb: #{EquipmentMapping, InstallationMapping | r}, 
+                    xs: List[PlantEquipWorkItem]): List[SLEquipment] & Impure = 
         List.map(genEqui1, xs)
 
 
     def genEqui1(x: PlantEquipWorkItem): SLEquipment & Impure =
         let today = Time/LocalDate.now();
+        let defaultDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1});
         let noWeight: Option[Float64] = None;
         let noPosition: Option[Int32] = None;
         let description = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName);
-        let installedFromDate = Option.getWithDefault(x.installedFromDate, today);
         { equiId                = x.plinum
         , category              = ""
         , description           = description
         , validFrom             = today         /// Should remain `today`.
         , objectType            = x.assetType
         , weightKg              = noWeight
-        , startupDate           = installedFromDate
+        , startupDate           = Option.getWithDefault(x.installedFromDate, defaultDate)
         , manufacturer          = x.manufacturer
         , model                 = x.model
         , partNumber            = ""
@@ -75,6 +87,76 @@ namespace AssetScripts/NonOp/PlantEquip {
         , techIdentNo           = ""
         , status                = "NOP"
         }
+
+    /// LongText
+
+    def genLongTexts(xs: List[PlantEquipWorkItem]): List[SLEquiLongText] = 
+        List.map(genLongText1, xs)
+
+
+    def genLongText1(x: PlantEquipWorkItem): SLEquiLongText =
+        let description = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName);
+        { equiId        = x.plinum
+        , description   = description
+        , longText      = x.commonName
+        }
+
+
+
+
+
+    def genS4Lite(equis: List[SLEquipment], longTexts: List[SLEquiLongText]): UxlSource = 
+        { funclocs = Chain.empty()
+        , funclocLongTexts = Chain.empty()
+        , funclocCharacteristics = Chain.empty()
+        , equipment = Chain.fromList(equis)
+        , equiLongTexts = Chain.fromList(longTexts)
+        , equiCharacteristics = Chain.empty()
+        }
+
+    rel WorkItemForPatch(plinum: String,
+                        plantTypeDesc: String, 
+                        plantEquiTypeDesc: String, 
+                        installationSaiNum: String)
+
+    rel EquipmentPatch(plinum: String,
+                    category: String,
+                    objectType: String,
+                    functionalLocation: String)
+
+
+
+
+    pub def genEquipmentPatches(db: #{WorkItemForPatch, 
+                                        EquipmentMapping, InstallationMapping, 
+                                        EquipmentPatch | r}) : #{EquipmentPatch | r1} = 
+        let rules = #{
+            
+            EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
+                WorkItemForPatch(equiId, plantTypeDesc, plantEquiTypeDesc, installationId),
+                InstallationMapping(installationId, sitefloc),
+                EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, objectType, _, category).
+
+        };
+        solve (db <+> rules) project EquipmentPatch
+
+
+
+    pub def makeEquipmentPatches(relns: #{EquipmentPatch | r}): EquipmentPatches & Impure = 
+        let mm = MutMap.empty();
+        let insert1 = row -> { 
+            let (equiId, category, objType, funcLoc) = row;
+            let update: SLEquipment -> SLEquipment = makePatch1(category, objType, funcLoc);
+            MutMap.put!(equiId, update, mm)            
+        }; 
+        query relns select (w,x,y,z) from EquipmentPatch(w,x,y,z) 
+            |> Array.foreach(insert1);
+        mm
+
+
+    def makePatch1(category: String, objType: String, funcLoc: String, r1: SLEquipment): SLEquipment =
+        {category = category, objectType = objType, functionalLocation = funcLoc | r1}
+
 
 
     /// rel OptionalPandITag(equiId: String, tag: String)
@@ -130,7 +212,12 @@ namespace AssetScripts/NonOp/PlantEquip {
     ///             SuperEquipWorkItem(equiId, commonName, _),
     ///             GrandParentParentNames(equiId, procGroupName, procName).
 
-    ///         /// Characteristics
+
+    ///     solve (db <+> rules) project Equipment, EquiCharacteristic
+
+
+
+    /// Characteristics
 
     ///         EquiCharacteristic(equiId, oclass, "UNICLASS_CODE", 1, S4String("")) :-
     ///             SuperEquipWorkItem(equiId, _, _),
@@ -143,17 +230,6 @@ namespace AssetScripts/NonOp/PlantEquip {
     ///             EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, _, oclass, _).
 
     ///     };
-    ///     solve (db <+> rules) project Equipment, EquiLongText, EquiCharacteristic
 
-    /// def defaultDate(): Time.LocalDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1})
-
-    def genS4Lite(equis: List[SLEquipment]): UxlSource = 
-        { funclocs = Chain.empty()
-        , funclocLongTexts = Chain.empty()
-        , funclocCharacteristics = Chain.empty()
-        , equipment = Chain.fromList(equis)
-        , equiLongTexts = Chain.empty()
-        , equiCharacteristics = Chain.empty()
-        }
 
 }

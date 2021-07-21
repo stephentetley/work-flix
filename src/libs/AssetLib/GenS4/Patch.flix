@@ -35,7 +35,7 @@ namespace AssetLib/GenS4/Patch {
         let* fn = Option.toOk(MutMap.get(equi.equiId, patches), "cannot patch ${equi.equiId}");
         Ok(fn(equi))
 
-    /// TODO should this load its data rather than take a list?
+    /// TODO should this load its data from file rather than take a list?
     pub def makeEquipmentAttributesPatches(xs: List[EquipmentAttributes]): EquipmentPatches & Impure = 
         let mm = MutMap.empty();
         let ins1 = row -> { 

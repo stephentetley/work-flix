@@ -68,8 +68,8 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("E") >>= getTrimmedContentAt)       /// InstallationReference
 
 
-    /// Read from Aib xlsx export file...
-    pub def readInstallationMappings(src: XlsxSource): Result[#{InstallationMapping | r}, String] & Impure =
+    /// Read from "InstllationsMapping_.xlsx" ...
+    pub def readInstallationMapping(src: XlsxSource): Result[#{InstallationMapping | r}, String] & Impure =
         SheetIO/Reader.allNamedRelations(src, evalInstallationMapping())
 
 
@@ -80,7 +80,9 @@ namespace AssetScripts/NonOp/Loader {
             <&> getTrimmedContentNamed("AI2_InstallationReference")
             <*> getTrimmedContentNamed("S/4 Hana Floc Lvl1_Code")
             
-    /// Read from Aib xlsx export file...
+
+
+    /// Read from "sitelist-ih06-east_north.xlsx" ...
     pub def readSiteEastNorth(src: XlsxSource): Result[#{SiteEastNorth | r}, String] & Impure =
         SheetIO/Reader.allNamedRelations(src, evalSiteEastNorth())
 
@@ -91,6 +93,21 @@ namespace AssetScripts/NonOp/Loader {
             <&> getTrimmedContentNamed("Functional Loc.")
             <*> int32AsTextNamed("Easting")
             <*> int32AsTextNamed("Northing")
+
+    /// Read from "equipment-mapping2.xlsx" ...
+    pub def readEquipmentMapping(src: XlsxSource): Result[#{EquipmentMapping | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalEquipmentMappingRow())
+
+    def evalEquipmentMappingRow(): NamedRowEvaluator[#{EquipmentMapping | r}] =
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5) -> #{ EquipmentMapping(x1, x2, x3, x4, x5). })
+            <&> getTrimmedContentNamed("PlantAssetTypeDescription")
+            <*> getTrimmedContentNamed("PlantEquipAssetTypeDescription")
+            <*> getTrimmedContentNamed("ObjectType")
+            <*> getTrimmedContentNamed("ObjectClass")
+            <*> getTrimmedContentNamed("Category")
+
 
     /// TODO add an equivalent function to SheetIO...
     def int32AsTextNamed(label: String): NamedRowEvaluator[Int32] =
@@ -135,19 +152,6 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("AS") >>= getTrimmedContentAt)
 
 
-    pub def readEquipmentMapping(src: XlsxSource): Result[#{EquipmentMapping | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(src, evalEquipmentMappingRow())
-
-
-    def evalEquipmentMappingRow(): NamedRowEvaluator[#{EquipmentMapping | r}] =
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, optional};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5) -> #{ EquipmentMapping(x1, x2, x3, x4, x5). })
-            <&> getTrimmedContentNamed("PlantAssetTypeDescription")
-            <*> getTrimmedContentNamed("PlantEquipAssetTypeDescription")
-            <*> getTrimmedContentNamed("ObjectType")
-            <*> getTrimmedContentNamed("ObjectClass")
-            <*> getTrimmedContentNamed("Category")
 
 
 
