@@ -29,7 +29,7 @@ def main1(): Result[Unit, String] & Impure =
     let srcs            = 
         { aibReport = { sheet = "NonOpStatus_S4Presence"
             , path = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx")}
-        , equipmentMapping = { sheet = "Sheet1" 
+        , equipmentMapping = { sheet = "PlantEquip" 
             , path = System/FilePath.new("G:/work/assets/non-op-bins/equipment-mapping2.xlsx")}
         , installationMapping = { sheet = "Sheet1" 
             , path = System/FilePath.new("G:/work/assets/non-op-bins/InstallationsMapping_.xlsx")}

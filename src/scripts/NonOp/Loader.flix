@@ -40,13 +40,14 @@ namespace AssetScripts/NonOp/Loader {
     def evalPlantEquipWorkItem(): RowEvaluator[Option[PlantEquipWorkItem]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((ah1, av1, aw1, am1, az1, ba1, be1, ay1, aa1, ak1, e1) -> 
+        ((ah1, av1, aw1, am1, az1, ba1, as1, be1, ay1, aa1, ak1, e1) -> 
             if (String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT")
                 Some({ plinum               = av1
                     , commonName            = am1
                     , manufacturer          = az1
                     , model                 = ba1
-                    , assetType             = be1
+                    , plantAssetType        = as1
+                    , plantEquipAssetType   = be1
                     , installedFromDate     = ay1
                     , processGroupName      = aa1
                     , processName           = ah1
@@ -61,7 +62,8 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("AM") >>= getTrimmedContentAt)      /// CommonName
             <*> (getColumnIndex("AZ") >>= getTrimmedContentAt)      /// Manufacturer
             <*> (getColumnIndex("BA") >>= getTrimmedContentAt)      /// Model
-            <*> (getColumnIndex("BE") >>= getTrimmedContentAt)      /// AssetType
+            <*> (getColumnIndex("AS") >>= getTrimmedContentAt)      /// PlantAssetType
+            <*> (getColumnIndex("BE") >>= getTrimmedContentAt)      /// PlantEquipAssetType
             <*> (getColumnIndex("AY") >>= getOptionalDateAt)        /// InstalledFromDate
             <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupName
             <*> (getColumnIndex("AK") >>= getTrimmedContentAt)      /// ParentReference

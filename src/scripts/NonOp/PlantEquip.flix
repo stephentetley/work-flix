@@ -47,11 +47,11 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
     def genEquiUxl1(i: Int32, 
-                    patchDb: #{EquipmentMapping, InstallationMapping | r},
+                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let equis       = genEquis(patchDb, xs);
+        let* equis      = genEquis(patchDb, xs);
         let longTexts   = genLongTexts(xs);
         let s4lite      = genS4Lite(equis, longTexts);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
@@ -59,9 +59,26 @@ namespace AssetScripts/NonOp/PlantEquip {
         Ok(i + 1)
 
 
-    def genEquis(_patchDb: #{EquipmentMapping, InstallationMapping | r}, 
-                    xs: List[PlantEquipWorkItem]): List[SLEquipment] & Impure = 
-        List.map(genEqui1, xs)
+    rel EquipmentPatch(plinum: String,
+                    category: String,
+                    objectType: String,
+                    functionalLocation: String)
+
+    rel WorkItemForPatch(plinum: String,
+                        plantTypeDesc: String,              /// e.g. "ANALYSIS LOOP"
+                        plantEquiTypeDesc: String,          /// e.g. "EQUIPMENT: SPEED/RPM INSTRUMENT"
+                        installationSaiNum: String)
+
+    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItemForPatch, EquipmentPatch | r}, 
+                    xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
+        use Result.flatMap;
+        let mkWorkItemRel   = x1 -> #{ 
+            WorkItemForPatch(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, x1.installationSainum). 
+        };
+        let workItemRels    = List.foldLeft((ac, x1) -> ac <+> mkWorkItemRel(x1), #{}, xs);
+        let equis1          = List.map(genEqui1, xs);
+        let patches         = genEquipmentPatches(patchDb <+> workItemRels);
+        AssetLib/GenS4/Patch.patchEquipment(patches, equis1)
 
 
     def genEqui1(x: PlantEquipWorkItem): SLEquipment & Impure =
@@ -74,7 +91,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         , category              = ""
         , description           = description
         , validFrom             = today         /// Should remain `today`.
-        , objectType            = x.assetType
+        , objectType            = x.plantEquipAssetType
         , weightKg              = noWeight
         , startupDate           = Option.getWithDefault(x.installedFromDate, defaultDate)
         , manufacturer          = x.manufacturer
@@ -114,35 +131,25 @@ namespace AssetScripts/NonOp/PlantEquip {
         , equiCharacteristics = Chain.empty()
         }
 
-    rel WorkItemForPatch(plinum: String,
-                        plantTypeDesc: String, 
-                        plantEquiTypeDesc: String, 
-                        installationSaiNum: String)
-
-    rel EquipmentPatch(plinum: String,
-                    category: String,
-                    objectType: String,
-                    functionalLocation: String)
 
 
-
-
-    pub def genEquipmentPatches(db: #{WorkItemForPatch, 
+    def genEquipmentPatches(db: #{WorkItemForPatch, 
                                         EquipmentMapping, InstallationMapping, 
-                                        EquipmentPatch | r}) : #{EquipmentPatch | r1} = 
+                                        EquipmentPatch | r}) : EquipmentPatches & Impure = 
         let rules = #{
             
             EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
-                WorkItemForPatch(equiId, plantTypeDesc, plantEquiTypeDesc, installationId),
+                WorkItemForPatch(equiId, plantTypeDesc, plantEquipTypeDesc, installationId),
                 InstallationMapping(installationId, sitefloc),
-                EquipmentMapping(plantTypeDesc, plantEquiTypeDesc, objectType, _, category).
+                EquipmentMapping(plantTypeDesc, plantEquipTypeDesc, objectType, _, category).
 
         };
         solve (db <+> rules) project EquipmentPatch
+            |> makeEquipmentPatches
 
 
 
-    pub def makeEquipmentPatches(relns: #{EquipmentPatch | r}): EquipmentPatches & Impure = 
+    def makeEquipmentPatches(relns: #{EquipmentPatch | r}): EquipmentPatches & Impure = 
         let mm = MutMap.empty();
         let insert1 = row -> { 
             let (equiId, category, objType, funcLoc) = row;
