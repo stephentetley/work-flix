@@ -46,11 +46,11 @@ namespace AssetLib/GenS4/GenFlocs {
         let chars           = 
             (solve (c1 <+> c2 <+> c3 <+> c4) project FlocCharacteristic) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
         Ok( { funclocs = Chain.fromList(flocs)
-            , funclocLongTexts = Monoid.empty()
+            , funclocLongTexts = Chain.empty()
             , funclocCharacteristics = chars
-            , equipment = Monoid.empty()
-            , equiLongTexts = Monoid.empty()
-            , equiCharacteristics = Monoid.empty()
+            , equipment = Chain.empty()
+            , equiLongTexts = Chain.empty()
+            , equiCharacteristics = Chain.empty()
             })
 
 

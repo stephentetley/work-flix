@@ -54,9 +54,9 @@ namespace AssetLib/GenS4/GenEqui {
         let* locOnSite      = AssetLib/AibFacts/Attributes/LocationData.readLocationOnSiteData(args.aibEquipmentExport);
         let chars           = AssetLib/GenS4/Rules/Equipment.equiCharacteristics1(workitems <+> locOnSite);
         /// let relns       = solve longText <+> c1;
-        Ok( { funclocs = Monoid.empty()
-            , funclocLongTexts = Monoid.empty()
-            , funclocCharacteristics = Monoid.empty()
+        Ok( { funclocs = Chain.empty()
+            , funclocLongTexts = Chain.empty()
+            , funclocCharacteristics = Chain.empty()
             , equipment = Chain.fromList(equis)
             , equiLongTexts = AssetLib/GenS4/S4LiteRelations.toSLEquiLongText(longText)
             , equiCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic(chars)

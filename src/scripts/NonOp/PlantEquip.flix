@@ -41,33 +41,37 @@ namespace AssetScripts/NonOp/PlantEquip {
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let* equis      = genEquis(xs);
+        let equis       = genEquis(xs);
         let s4lite      = genS4Lite(equis);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
         Ok(i + 1)
 
 
-    pub def genEquis(xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
+    pub def genEquis(xs: List[PlantEquipWorkItem]): List[SLEquipment] & Impure = 
+        List.map(genEqui1, xs)
+
+
+    def genEqui1(x: PlantEquipWorkItem): SLEquipment & Impure =
         let today = Time/LocalDate.now();
-        List.map(genEqui1(today), xs)  |> Ok
-
-
-    def genEqui1(today: Time.LocalDate, x: PlantEquipWorkItem): SLEquipment =
+        let noWeight: Option[Float64] = None;
+        let noPosition: Option[Int32] = None;
+        let description = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName);
+        let installedFromDate = Option.getWithDefault(x.installedFromDate, today);
         { equiId                = x.plinum
         , category              = ""
-        , description           = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName)
+        , description           = description
         , validFrom             = today         /// Should remain `today`.
         , objectType            = x.assetType
-        , weightKg              = None
-        , startupDate           = Option.getWithDefault(x.installedFromDate, today)
+        , weightKg              = noWeight
+        , startupDate           = installedFromDate
         , manufacturer          = x.manufacturer
         , model                 = x.model
         , partNumber            = ""
         , serialNumber          = ""
         , functionalLocation    = "BAD01-UNKNOWN"
         , superOrdinateEqui     = ""
-        , position              = None
+        , position              = noPosition
         , techIdentNo           = ""
         , status                = "NOP"
         }
@@ -144,12 +148,12 @@ namespace AssetScripts/NonOp/PlantEquip {
     /// def defaultDate(): Time.LocalDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1})
 
     def genS4Lite(equis: List[SLEquipment]): UxlSource = 
-        { funclocs = Monoid.empty()
-        , funclocLongTexts = Monoid.empty()
-        , funclocCharacteristics = Monoid.empty()
+        { funclocs = Chain.empty()
+        , funclocLongTexts = Chain.empty()
+        , funclocCharacteristics = Chain.empty()
         , equipment = Chain.fromList(equis)
-        , equiLongTexts = Monoid.empty()
-        , equiCharacteristics = Monoid.empty()
+        , equiLongTexts = Chain.empty()
+        , equiCharacteristics = Chain.empty()
         }
 
 }
