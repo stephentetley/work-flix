@@ -18,7 +18,7 @@
 namespace AssetScripts/NonOp/PlantEquip {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/Patch.{EquipmentPatches};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText, EquiCharacteristic};
@@ -41,21 +41,23 @@ namespace AssetScripts/NonOp/PlantEquip {
         let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
         let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
         let* instMapping    = AssetScripts/NonOp/Loader.readInstallationMapping(srcs.installationMapping);
-        let* _sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
-        let patchDb         = equipMapping <+> instMapping;
+        let* sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
+        let patchDb         = equipMapping <+> instMapping <+> sitesEN;
         let worklists       = AssetScripts/NonOp/Utils.sublists(50, items);
         let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, patchDb, xs1, outputArgs), 1, worklists);
         Ok()
 
 
     def genEquiUxl1(i: Int32, 
-                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, EquipmentPatch | r},
+                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, SiteEastNorth, 
+                                EquiCharacteristic, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
         let* equis      = genEquis(patchDb, xs);
         let longTexts   = genLongTexts(xs);
-        let s4lite      = genS4Lite(equis, longTexts);
+        let chars       = genCharacteristics(patchDb, xs);
+        let s4lite      = genS4Lite(equis, longTexts, chars);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
         Ok(i + 1)
@@ -73,16 +75,18 @@ namespace AssetScripts/NonOp/PlantEquip {
                 installationSaiNum: String, 
                 subinstallationSaiNum: String)
 
-    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, EquipmentPatch | r}, 
-                    xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
-        use Result.flatMap;
-        let mkWorkItemRel   = x1 -> #{ 
+    def makeWorkItems(xs: List[PlantEquipWorkItem]): #{WorkItem | r} = 
+        let mkWorkItem1 = x1 -> #{ 
             WorkItem(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, 
                         x1.parentSainum, x1.installationSainum, x1.subinstallationSainum). 
         };
-        let workItemRels    = List.foldLeft((ac, x1) -> ac <+> mkWorkItemRel(x1), #{}, xs);
+        List.foldLeft((ac, x1) -> ac <+> mkWorkItem1(x1), #{}, xs)
+
+    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, EquipmentPatch | r}, 
+                    xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
+        use Result.flatMap;
         let equis1          = List.map(genEqui1, xs);
-        let patches         = genEquipmentPatches(patchDb <+> workItemRels);
+        let patches         = genEquipmentPatches(patchDb, xs);
         AssetLib/GenS4/Patch.softPatchEquipment(patches, equis1) |> Ok
 
 
@@ -110,7 +114,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         , status                = "NOP"
         }
 
-    /// LongText
+    /// LongText - simple functional operation, no Datalog
 
     def genLongTexts(xs: List[PlantEquipWorkItem]): List[SLEquiLongText] = 
         List.map(genLongText1, xs)
@@ -124,19 +128,20 @@ namespace AssetScripts/NonOp/PlantEquip {
         }
 
 
-    def genS4Lite(equis: List[SLEquipment], longTexts: List[SLEquiLongText]): UxlSource = 
+    def genS4Lite(equis: List[SLEquipment], longTexts: List[SLEquiLongText], chars: Chain[SLEquiCharacteristic]): UxlSource = 
         { funclocs = Chain.empty()
         , funclocLongTexts = Chain.empty()
         , funclocCharacteristics = Chain.empty()
         , equipment = Chain.fromList(equis)
         , equiLongTexts = Chain.fromList(longTexts)
-        , equiCharacteristics = Chain.empty()
+        , equiCharacteristics = chars
         }
 
 
     def genEquipmentPatches(db: #{WorkItem, 
                                     EquipmentMapping, InstallationMapping,
-                                    EquipmentPatch | r}) : EquipmentPatches & Impure = 
+                                    EquipmentPatch | r}, 
+                            xs: List[PlantEquipWorkItem]) : EquipmentPatches & Impure = 
         let rules = #{
             
             EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
@@ -151,7 +156,8 @@ namespace AssetScripts/NonOp/PlantEquip {
                 InstallationMapping(subinstallationId, sitefloc).
 
         };
-        solve (db <+> rules) project EquipmentPatch
+        let workitems = makeWorkItems(xs);
+        solve (workitems <+> db <+> rules) project EquipmentPatch
             |> makeEquipmentPatches
 
 
@@ -173,9 +179,10 @@ namespace AssetScripts/NonOp/PlantEquip {
 
 
 
-    pub def genClassifications(db: #{WorkItem, 
+    pub def genCharacteristics(db: #{WorkItem, 
                                         InstallationMapping, EquipmentMapping, SiteEastNorth, 
-                                        EquiCharacteristic | r}): #{EquiCharacteristic | r1} = 
+                                        EquiCharacteristic | r},
+                                 xs: List[PlantEquipWorkItem]): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             
             /// ${objClass}
@@ -222,7 +229,9 @@ namespace AssetScripts/NonOp/PlantEquip {
                 SiteEastNorth(s4SiteFloc, _, northing).           
 
         };
-        solve (db <+> rules) project EquiCharacteristic
+        let workitems = makeWorkItems(xs);
+        solve (workitems <+> db <+> rules) project EquiCharacteristic
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
 
 
