@@ -39,7 +39,7 @@ namespace AssetLib/GenS4/Rules/PatchManufacturer {
 
 
     pub def patchManufacturerModel(facts: #{AllowedManufacturer, AllowedManufacturerModel, 
-                                                HasAllowedManufacturer, EquiWorkItem, ManufacturerModelPatch | r}, 
+                                                HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch | r}, 
                                     xs: List[SLEquipment]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let patches = genManufacturerModelPatches(facts, xs);
@@ -53,25 +53,44 @@ namespace AssetLib/GenS4/Rules/PatchManufacturer {
 
     pub rel HasAllowedManufacturer(objType: String)
 
+    pub rel HasAllowedManufacturerModel(manufacturer: String)
+
 
     def genManufacturerModelPatches(db: #{AllowedManufacturer, AllowedManufacturerModel, 
-                                                HasAllowedManufacturer, EquiWorkItem, ManufacturerModelPatch | r}, 
+                                                HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch | r}, 
                             xs: List[SLEquipment]): EquipmentPatches & Impure = 
         let rules = #{
             
-            HasAllowedManufacturer(objType) :- AllowedManufacturer(objType, _).
+            HasAllowedManufacturer(objType) :- AllowedManufacturer(objType, "TO BE DETERMINED").
+            HasAllowedManufacturerModel(manuf) :- AllowedManufacturerModel(manuf, "TO BE DETERMINED").
 
             /// model becomes part number...
-            ManufacturerModelPatch(equiId, "TO BE DETERMINED", "TO BE DETERMINED", model) :- 
+            ManufacturerModelPatch(equiId, "TO BE DETERMINED", "TO BE DETERMINED", partNumber(model)) :- 
                 EquiWorkItem(equiId, objType, "UNKNOWN MANUFACTURER", model),
                 AllowedManufacturer(objType, "TO BE DETERMINED").
 
+            /// model becomes part number...
+            ManufacturerModelPatch(equiId, "NOT APPLICABLE", "NOT APPLICABLE", partNumber(model)) :- 
+                EquiWorkItem(equiId, objType, "UNKNOWN MANUFACTURER", model),
+                AllowedManufacturer(objType, "NOT APPLICABLE"), 
+                not HasAllowedManufacturer(objType).
+
+            /// Has manufacturer / model unknown
+            ManufacturerModelPatch(equiId, manufacturer, "TO BE DETERMINED", "") :- 
+                EquiWorkItem(equiId, objType, manufacturer, "UNSPECIFIED"),
+                AllowedManufacturerModel(manufacturer, "TO BE DETERMINED").
+
+            ManufacturerModelPatch(equiId, manufacturer, "NOT APPLICABLE", "") :- 
+                EquiWorkItem(equiId, objType, manufacturer, "UNSPECIFIED"),
+                AllowedManufacturerModel(manufacturer, "NOT APPLICABLE"),
+                not HasAllowedManufacturerModel(objType).
 
         };
         let workitems = makeWorkItems(xs);
         solve (workitems <+> db <+> rules) project ManufacturerModelPatch
             |> makeEquipmentPatches
 
+    def partNumber(s: String): String = if (s == "UNSPECIFIED") "" else s
 
     def makeWorkItems(xs: List[SLEquipment]): #{EquiWorkItem | r} = 
         let mkWorkItem1 = x1 -> #{ 

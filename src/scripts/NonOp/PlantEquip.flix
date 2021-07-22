@@ -24,7 +24,7 @@ namespace AssetScripts/NonOp/PlantEquip {
     use AssetLib/GenS4/Patch.{EquipmentPatches};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
-    use AssetLib/GenS4/Rules/PatchManufacturer.{HasAllowedManufacturer, EquiWorkItem, ManufacturerModelPatch};
+    use AssetLib/GenS4/Rules/PatchManufacturer.{HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch};
     use AssetScripts/NonOp/Relations.{PlantEquipWorkItem, EquipmentMapping, InstallationMapping, SiteEastNorth};
 
 
@@ -42,13 +42,14 @@ namespace AssetScripts/NonOp/PlantEquip {
     pub def genEquiUxl(srcs: FileSources,   
                         outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
+        let batchSize       = 70;
         let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
         let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
         let* instMapping    = AssetScripts/NonOp/Loader.readInstallationMapping(srcs.installationMapping);
         let* sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
         let* manuFacts     = AssetLib/GenS4/Rules/PatchManufacturer.loadFacts({ztableObjManu = srcs.ztableObjManu, ztableManuModel = srcs.ztableManuModel});
         let factDb          = equipMapping <+> instMapping <+> sitesEN <+> manuFacts;
-        let worklists       = AssetScripts/NonOp/Utils.sublists(50, items);
+        let worklists       = AssetScripts/NonOp/Utils.sublists(batchSize, items);
         let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, factDb, xs1, outputArgs), 1, worklists);
         Ok()
 
@@ -56,7 +57,7 @@ namespace AssetScripts/NonOp/PlantEquip {
     def genEquiUxl1(i: Int32, 
                     factDb: #{AllowedManufacturer, AllowedManufacturerModel, EquipmentMapping, InstallationMapping, 
                                 WorkItem, SiteEastNorth, 
-                                HasAllowedManufacturer, EquiWorkItem, ManufacturerModelPatch,
+                                HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch,
                                 EquiCharacteristic, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
@@ -90,7 +91,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         List.foldLeft((ac, x1) -> ac <+> mkWorkItem1(x1), #{}, xs)
 
     def genEquis(factDb: #{AllowedManufacturer, AllowedManufacturerModel, EquipmentMapping, InstallationMapping, 
-                            HasAllowedManufacturer, WorkItem, EquiWorkItem, ManufacturerModelPatch, EquipmentPatch | r}, 
+                            HasAllowedManufacturer, HasAllowedManufacturerModel, WorkItem, EquiWorkItem, ManufacturerModelPatch, EquipmentPatch | r}, 
                     xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let equis1          = List.map(genEqui1, xs);
@@ -116,7 +117,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         , manufacturer          = x.manufacturer
         , model                 = x.model
         , partNumber            = ""
-        , serialNumber          = ""
+        , serialNumber          = "TBD"
         , functionalLocation    = "Bad: ${x.installationSainum}"
         , superOrdinateEqui     = ""
         , position              = noPosition
