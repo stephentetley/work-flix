@@ -22,15 +22,41 @@ namespace AssetLib/GenS4/Rules/PatchManufacturer {
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
     use AssetLib/GenS4/Patch.{EquipmentPatches};
 
+    type alias ManufacturerZTables = 
+        { ztableObjManu: System.FilePath
+        , ztableManuModel: System.FilePath
+        }
+    
+    /// API is a fact loader and a translation function.
+    /// It is two functions so we can load facts once, but translate multiple times 
+    /// (e.g. if we have batches of SLEquipment)
+
+    pub def loadFacts(src: ManufacturerZTables): Result[#{AllowedManufacturer, AllowedManufacturerModel | r}, String] & Impure = 
+        use Result.flatMap;
+        let* r1     = AssetLib/FileIO/S4/ZTable/Builtins.loadAllowedManufacturer(src.ztableObjManu);
+        let* r2     = AssetLib/FileIO/S4/ZTable/Builtins.loadAllowedManufacturerModel(src.ztableManuModel);
+        Ok(r1 <+> r2)
+
+
+    pub def patchManufacturerModel(facts: #{AllowedManufacturer, AllowedManufacturerModel, 
+                                                HasAllowedManufacturer, EquiWorkItem, ManufacturerModelPatch | r}, 
+                                    xs: List[SLEquipment]): Result[List[SLEquipment], String] & Impure = 
+        use Result.flatMap;
+        let patches = genManufacturerModelPatches(facts, xs);
+        Ok(AssetLib/GenS4/Patch.softPatchEquipment(patches, xs))
+
+        
+
     pub rel ManufacturerModelPatch(equiId: String, manufacturer: String, model: String, partNumber: String)
 
     pub rel EquiWorkItem(equiId: String, objtype: String, manufacturer: String, model: String)
 
     pub rel HasAllowedManufacturer(objType: String)
-    
-    pub def genManufacturerModelPatches(db: #{AllowedManufacturer, AllowedManufacturerModel, 
+
+
+    def genManufacturerModelPatches(db: #{AllowedManufacturer, AllowedManufacturerModel, 
                                                 HasAllowedManufacturer, EquiWorkItem, ManufacturerModelPatch | r}, 
-                            xs: List[SLEquipment]) : EquipmentPatches & Impure = 
+                            xs: List[SLEquipment]): EquipmentPatches & Impure = 
         let rules = #{
             
             HasAllowedManufacturer(objType) :- AllowedManufacturer(objType, _).
