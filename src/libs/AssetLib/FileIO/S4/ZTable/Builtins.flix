@@ -17,62 +17,96 @@
 
 namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
-    use AssetLib/FileIO/S4/ZTable/Datatypes.{Eqobjl, Flocdes, Floobjl, Manuf, Obj};
+    use AssetLib/FileIO/S4/ZTable/Datatypes.{EquipObject, 
+        FlocObject, FlocDescription, ObjTypeManufacturer, ManufacturerModel};
     use AssetLib/FileIO/S4/ZTable/Parser.{importRows};
+    use AssetLib/FileIO/S4/ZTable/Relations.{SuperSubEquipObject, 
+        SuperSubFlocObject, FlocObjectDescription, AllowedManufacturer, 
+        AllowedManufacturerModel};
+
 
     use AssetLib/FileIO/S4/ZTable.RowEvaluator;
 
+    // EquipObject
 
-    pub def loadEqobjl(path: System.FilePath): Result[List[Eqobjl], String] & Impure =        
-        importRows(evalEqobjl(), path)  
+    pub def loadSuperSubEquipObject(path: System.FilePath): Result[#{SuperSubEquipObject | r}, String] & Impure = 
+        let build = List.foldLeft((ac, x1) -> ac <+> #{ SuperSubEquipObject(x1.superObject, x1.subObject, x1.category). }, #{});
+        loadEquipObject(path)
+            |> Result.map(build)
 
-    def evalEqobjl(): RowEvaluator[Eqobjl] = 
+    pub def loadEquipObject(path: System.FilePath): Result[List[EquipObject], String] & Impure =        
+        importRows(evalEquipObject(), path)  
+
+    def evalEquipObject(): RowEvaluator[EquipObject] = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* supero     = getStringAt(0);
         let* subo       = getStringAt(1);
         let* cat        = getStringAt(2);
         return({superObject = supero, subObject = subo, category = cat})
 
+    // FlocObject
 
-    pub def loadFlocdes(path: System.FilePath): Result[List[Flocdes], String] & Impure =
-        importRows(evalFlocdes(), path)           
+    pub def loadSuperSubFlocObject(path: System.FilePath): Result[#{SuperSubFlocObject | r}, String] & Impure = 
+        let build = List.foldLeft((ac, x1) -> ac <+> #{ SuperSubFlocObject(x1.superObject, x1.subObject, x1.structure). }, #{});
+        loadFlocObject(path)
+            |> Result.map(build)
 
-    def evalFlocdes(): RowEvaluator[Flocdes] = 
+    pub def loadFlocObject(path: System.FilePath): Result[List[FlocObject], String] & Impure =
+        importRows(evalFlocObject(), path)  
+
+    def evalFlocObject(): RowEvaluator[FlocObject] = 
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
+        let* struct     = getStringAt(0);
+        let* supero     = getStringAt(1);
+        let* subo       = getStringAt(2);
+        return({superObject = supero, subObject = subo, structure = struct})
+
+    // FlocDescription
+    
+    pub def loadFlocObjectDescription(path: System.FilePath): Result[#{FlocObjectDescription | r}, String] & Impure = 
+        let build = List.foldLeft((ac, x1) -> ac <+> #{ FlocObjectDescription(x1.objectType, x1.description). }, #{});
+        loadFlocDescription(path)
+            |> Result.map(build)
+
+    pub def loadFlocDescription(path: System.FilePath): Result[List[FlocDescription], String] & Impure =
+        importRows(evalFlocDescription(), path)           
+
+    def evalFlocDescription(): RowEvaluator[FlocDescription] = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* objtype    = getStringAt(0);
         let* desc       = getStringAt(1);
         return({objectType = objtype, description = desc})
 
+    // ObjTypeManufacturer
+    
+    pub def loadAllowedManufacturer(path: System.FilePath): Result[#{AllowedManufacturer | r}, String] & Impure = 
+        let build = List.foldLeft((ac, x1) -> ac <+> #{ AllowedManufacturer(x1.objectType, x1.manufacturer). }, #{});
+        loadObjTypeManufacturer(path)
+            |> Result.map(build)
 
-    pub def loadFloobjl(path: System.FilePath): Result[List[Floobjl], String] & Impure =
-        importRows(evalFloobjl(), path)  
+    pub def loadObjTypeManufacturer(path: System.FilePath): Result[List[ObjTypeManufacturer], String] & Impure =
+        importRows(evalObjTypeManufacturer(), path)  
 
-    def evalFloobjl(): RowEvaluator[Floobjl] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
-        let* struct     = getStringAt(0);
-        let* supero     = getStringAt(1);
-        let* subo       = getStringAt(2);
-        return({structure = struct, superObject = supero, subObject = subo})
-
-    pub def loadManuf(path: System.FilePath): Result[List[Manuf], String] & Impure =
-        importRows(evalManuf(), path)   
-
-    def evalManuf(): RowEvaluator[Manuf] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
-        let* manuf      = getStringAt(0);
-        let* modl       = getStringAt(1);
-        return({manufacturer = manuf, model = modl})
-
-
-    pub def loadObj(path: System.FilePath): Result[List[Obj], String] & Impure =
-        importRows(evalObj(), path)  
-
-    def evalObj(): RowEvaluator[Obj] = 
+    def evalObjTypeManufacturer(): RowEvaluator[ObjTypeManufacturer] = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
         let* objectty   = getStringAt(0);
         let* manuf      = getStringAt(1);
         return({objectType = objectty, manufacturer = manuf})
 
+    // ManufacturerModel
+    
+    pub def loadAllowedManufacturerModel(path: System.FilePath): Result[#{AllowedManufacturerModel | r}, String] & Impure = 
+        let build = List.foldLeft((ac, x1) -> ac <+> #{ AllowedManufacturerModel(x1.manufacturer, x1.model). }, #{});
+        loadManufacturerModel(path)
+            |> Result.map(build)
 
+    pub def loadManufacturerModel(path: System.FilePath): Result[List[ManufacturerModel], String] & Impure =
+        importRows(evalManufacturerModel(), path)   
+
+    def evalManufacturerModel(): RowEvaluator[ManufacturerModel] = 
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
+        let* manuf      = getStringAt(0);
+        let* modl       = getStringAt(1);
+        return({manufacturer = manuf, model = modl})
 
 }

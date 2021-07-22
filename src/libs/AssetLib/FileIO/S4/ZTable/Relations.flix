@@ -15,16 +15,16 @@
  */
 
 
-namespace AssetLib/FileIO/S4/ZTable/Datatypes {
+namespace AssetLib/FileIO/S4/ZTable/Relations {
 
-    type alias EquipObject = {superObject: String, subObject: String, category: String}
+    pub rel SuperSubEquipObject(superObject: String, subObject: String, category: String)
 
-    type alias FlocObject = {superObject: String, subObject: String, structure: String}
+    pub rel SuperSubFlocObject(superObject: String, subObject: String, structure: String)
 
-    type alias FlocDescription = {objectType: String, description: String}
+    pub rel FlocObjectDescription(objectType: String, description: String)
 
-    type alias ObjTypeManufacturer = {objectType: String, manufacturer: String}
+    pub rel AllowedManufacturer(objectType: String, manufacturer: String)
 
-    type alias ManufacturerModel = {manufacturer: String, model: String}
+    pub rel AllowedManufacturerModel(manufacturer: String, model: String)
 
 }

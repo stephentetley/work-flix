@@ -41,7 +41,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         let* _      = manyTill(skipLine(), separatingLine());
         let* _      = count(2, skipLine());
         let row1    = makeLineParser(eval);
-        let* rows   = manyTillWith((x,ac) -> snoc(ac, x), empty(), row1, separatingLine()); 
+        let* rows   = manyTillWith((ac, x) -> snoc(ac, x), empty(), row1, separatingLine()); 
         return(rows)
 
     /// Line of many '-' chars.
