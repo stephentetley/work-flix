@@ -31,6 +31,8 @@ namespace AssetScripts/NonOp/PlantEquip {
         , equipmentMapping: XlsxSource
         , installationMapping: XlsxSource
         , siteEastNorth: XlsxSource
+        , ztableObjManu: System.FilePath
+        , ztableManuModel: System.FilePath
         }
 
     /// Split worklist...
@@ -42,21 +44,21 @@ namespace AssetScripts/NonOp/PlantEquip {
         let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
         let* instMapping    = AssetScripts/NonOp/Loader.readInstallationMapping(srcs.installationMapping);
         let* sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
-        let patchDb         = equipMapping <+> instMapping <+> sitesEN;
+        let factDb          = equipMapping <+> instMapping <+> sitesEN;
         let worklists       = AssetScripts/NonOp/Utils.sublists(50, items);
-        let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, patchDb, xs1, outputArgs), 1, worklists);
+        let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, factDb, xs1, outputArgs), 1, worklists);
         Ok()
 
 
     def genEquiUxl1(i: Int32, 
-                    patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, SiteEastNorth, 
+                    factDb: #{EquipmentMapping, InstallationMapping, WorkItem, SiteEastNorth, 
                                 EquiCharacteristic, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let* equis      = genEquis(patchDb, xs);
+        let* equis      = genEquis(factDb, xs);
         let longTexts   = genLongTexts(xs);
-        let chars       = genCharacteristics(patchDb, xs);
+        let chars       = genCharacteristics(factDb, xs);
         let s4lite      = genS4Lite(equis, longTexts, chars);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
@@ -82,11 +84,11 @@ namespace AssetScripts/NonOp/PlantEquip {
         };
         List.foldLeft((ac, x1) -> ac <+> mkWorkItem1(x1), #{}, xs)
 
-    def genEquis(patchDb: #{EquipmentMapping, InstallationMapping, WorkItem, EquipmentPatch | r}, 
+    def genEquis(factDb: #{EquipmentMapping, InstallationMapping, WorkItem, EquipmentPatch | r}, 
                     xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let equis1          = List.map(genEqui1, xs);
-        let patches         = genEquipmentPatches(patchDb, xs);
+        let patches         = genEquipmentPatches(factDb, xs);
         AssetLib/GenS4/Patch.softPatchEquipment(patches, equis1) |> Ok
 
 
