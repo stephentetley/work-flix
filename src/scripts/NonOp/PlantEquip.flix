@@ -26,7 +26,7 @@ namespace AssetScripts/NonOp/PlantEquip {
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetLib/GenS4/Rules/PatchManufacturer.{HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch};
     use AssetScripts/NonOp/Relations.{PlantEquipWorkItem, EquipmentMapping, InstallationMapping, SiteEastNorth};
-
+    use AssetScripts/NonOp/PatchSerialNumber.{SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1};
 
     type alias FileSources = 
         { aibReport: XlsxSource
@@ -35,6 +35,8 @@ namespace AssetScripts/NonOp/PlantEquip {
         , siteEastNorth: XlsxSource
         , ztableObjManu: System.FilePath
         , ztableManuModel: System.FilePath
+        , aibSerialNumbers: XlsxSource
+        , aibPandiTags: XlsxSource
         }
 
     /// Split worklist...
@@ -42,13 +44,14 @@ namespace AssetScripts/NonOp/PlantEquip {
     pub def genEquiUxl(srcs: FileSources,   
                         outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let batchSize       = 70;
+        let batchSize       = 75;
         let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
         let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
         let* instMapping    = AssetScripts/NonOp/Loader.readInstallationMapping(srcs.installationMapping);
         let* sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
-        let* manuFacts     = AssetLib/GenS4/Rules/PatchManufacturer.loadFacts({ztableObjManu = srcs.ztableObjManu, ztableManuModel = srcs.ztableManuModel});
-        let factDb          = equipMapping <+> instMapping <+> sitesEN <+> manuFacts;
+        let* manuFacts      = AssetLib/GenS4/Rules/PatchManufacturer.loadFacts({ztableObjManu = srcs.ztableObjManu, ztableManuModel = srcs.ztableManuModel});
+        let* serialNums     = AssetScripts/NonOp/PatchSerialNumber.loadFacts({aibSerialNumbers = srcs.aibSerialNumbers, aibPandiTags = srcs.aibPandiTags});
+        let factDb          = equipMapping <+> instMapping <+> sitesEN <+> manuFacts <+> serialNums;
         let worklists       = AssetScripts/NonOp/Utils.sublists(batchSize, items);
         let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, factDb, xs1, outputArgs), 1, worklists);
         Ok()
@@ -58,6 +61,7 @@ namespace AssetScripts/NonOp/PlantEquip {
                     factDb: #{AllowedManufacturer, AllowedManufacturerModel, EquipmentMapping, InstallationMapping, 
                                 WorkItem, SiteEastNorth, 
                                 HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch,
+                                SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1, 
                                 EquiCharacteristic, EquipmentPatch | r},
                     xs: List[PlantEquipWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
@@ -91,14 +95,17 @@ namespace AssetScripts/NonOp/PlantEquip {
         List.foldLeft((ac, x1) -> ac <+> mkWorkItem1(x1), #{}, xs)
 
     def genEquis(factDb: #{AllowedManufacturer, AllowedManufacturerModel, EquipmentMapping, InstallationMapping, 
-                            HasAllowedManufacturer, HasAllowedManufacturerModel, WorkItem, EquiWorkItem, ManufacturerModelPatch, EquipmentPatch | r}, 
+                            HasAllowedManufacturer, HasAllowedManufacturerModel, WorkItem, EquiWorkItem, 
+                            SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1, 
+                            ManufacturerModelPatch, EquipmentPatch | r}, 
                     xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let equis1          = List.map(genEqui1, xs);
         let patches         = genEquipmentPatches(factDb, xs);
         let equis2          = AssetLib/GenS4/Patch.softPatchEquipment(patches, equis1);
         let* equis3         = AssetLib/GenS4/Rules/PatchManufacturer.patchManufacturerModel(factDb, equis2);
-        Ok(equis3)
+        let* equis4         = AssetScripts/NonOp/PatchSerialNumber.patchSerialNumber(factDb, equis3);
+        Ok(equis4)
 
 
     def genEqui1(x: PlantEquipWorkItem): SLEquipment & Impure =

@@ -37,6 +37,10 @@ def main1(): Result[Unit, String] & Impure =
             , path = System/FilePath.new("G:/work/assets/non-op-bins/allsites-ih06-east_north.xlsx")}
         , ztableObjManu = System/FilePath.new("G:/work/assets/facts/ztables/ztable-objtype-manufacturer.txt")
         , ztableManuModel = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manufacturer-model.txt")
+        , aibSerialNumbers= { sheet = "Sheet1" 
+            , path = System/FilePath.new("G:/work/assets/non-op-bins/aib-nonop-serial-numbers.xlsx")}
+        , aibPandiTags= { sheet = "Sheet1" 
+            , path = System/FilePath.new("G:/work/assets/non-op-bins/aib-nonop-pandi-tags.xlsx")}
         };
     let* _              = AssetScripts/NonOp/PlantEquip.genEquiUxl(srcs, outputArgs);
     Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
