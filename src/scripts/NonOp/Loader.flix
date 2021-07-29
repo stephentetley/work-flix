@@ -21,7 +21,7 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
     
-    use AssetScripts/NonOp/Relations.{AchFlocWorkItem, PlantEquipWorkItem, 
+    use AssetScripts/NonOp/Relations.{AchFlocWorkItem, SuperEquiWorkItem, 
         InstallationMapping, SiteEastNorth, 
         EquipmentMapping, PlantAssetType, GrandParentParentNames, PandITag, 
         AssetTypeDescription, EquipProperties};
@@ -30,14 +30,14 @@ namespace AssetScripts/NonOp/Loader {
 
 
     /// Read from Aib xlsx export file...
-    pub def readPlantEquipWorkItems(src: XlsxSource): Result[List[PlantEquipWorkItem], String] & Impure =
+    pub def readPlantEquipWorkItems(src: XlsxSource): Result[List[SuperEquiWorkItem], String] & Impure =
         SheetIO/Reader.readSomeRows(src, evalPlantEquipWorkItem())
             |> Result.map(List.distinctWith((x, y) -> x.plinum == y.plinum))
 
 
     /// Excel file has duplicate names so use alphabetical index ...
     /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"  
-    def evalPlantEquipWorkItem(): RowEvaluator[Option[PlantEquipWorkItem]] =
+    def evalPlantEquipWorkItem(): RowEvaluator[Option[SuperEquiWorkItem]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((ah1, av1, aw1, am1, az1, ba1, as1, be1, ay1, aa1, ak1, e1, m1) -> 

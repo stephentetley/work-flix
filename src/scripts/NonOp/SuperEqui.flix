@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetScripts/NonOp/PlantEquip {
+namespace AssetScripts/NonOp/SuperEqui {
 
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/FileIO/S4/ZTable/Relations.{AllowedManufacturer, AllowedManufacturerModel};
@@ -25,7 +25,7 @@ namespace AssetScripts/NonOp/PlantEquip {
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetLib/GenS4/Rules/PatchManufacturer.{HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch};
-    use AssetScripts/NonOp/Relations.{PlantEquipWorkItem, EquipmentMapping, InstallationMapping, SiteEastNorth};
+    use AssetScripts/NonOp/Relations.{SuperEquiWorkItem, EquipmentMapping, InstallationMapping, SiteEastNorth};
     use AssetScripts/NonOp/PatchSerialNumber.{SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1};
 
     type alias FileSources = 
@@ -50,7 +50,7 @@ namespace AssetScripts/NonOp/PlantEquip {
     /// Split worklist...
     def genEquiUxl(srcs: FileSources,   
                         outputArgs: UxlOutputArgs, 
-                        items: List[PlantEquipWorkItem]): Result[Unit, String] & Impure = 
+                        items: List[SuperEquiWorkItem]): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let batchSize       = 75;
         let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
@@ -70,7 +70,7 @@ namespace AssetScripts/NonOp/PlantEquip {
                                 HasAllowedManufacturer, HasAllowedManufacturerModel, EquiWorkItem, ManufacturerModelPatch,
                                 SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1, 
                                 EquiCharacteristic, EquipmentPatch | r},
-                    xs: List[PlantEquipWorkItem],
+                    xs: List[SuperEquiWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
         let* equis      = genEquis(factDb, xs);
@@ -94,7 +94,7 @@ namespace AssetScripts/NonOp/PlantEquip {
                 installationSaiNum: String, 
                 subinstallationSaiNum: String)
 
-    def makeWorkItems(xs: List[PlantEquipWorkItem]): #{WorkItem | r} = 
+    def makeWorkItems(xs: List[SuperEquiWorkItem]): #{WorkItem | r} = 
         let mkWorkItem1 = x1 -> #{ 
             WorkItem(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, 
                         x1.parentSainum, x1.installationSainum, x1.subinstallationSainum). 
@@ -106,7 +106,7 @@ namespace AssetScripts/NonOp/PlantEquip {
                             HasAllowedManufacturer, HasAllowedManufacturerModel, WorkItem, EquiWorkItem, 
                             SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1, 
                             ManufacturerModelPatch, EquipmentPatch | r}, 
-                    xs: List[PlantEquipWorkItem]): Result[List[SLEquipment], String] & Impure = 
+                    xs: List[SuperEquiWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
         let equis1          = List.map(genEqui1, xs);
         let patches         = genEquipmentPatches(factDb, xs);
@@ -116,7 +116,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         Ok(equis4)
 
 
-    def genEqui1(x: PlantEquipWorkItem): SLEquipment & Impure =
+    def genEqui1(x: SuperEquiWorkItem): SLEquipment & Impure =
         let today = Time/LocalDate.now();
         let defaultDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1});
         let noWeight: Option[Float64] = None;
@@ -157,7 +157,7 @@ namespace AssetScripts/NonOp/PlantEquip {
     def genEquipmentPatches(db: #{WorkItem, 
                                     EquipmentMapping, InstallationMapping,
                                     EquipmentPatch | r}, 
-                            xs: List[PlantEquipWorkItem]) : EquipmentPatches & Impure = 
+                            xs: List[SuperEquiWorkItem]) : EquipmentPatches & Impure = 
         let rules = #{
             
             EquipmentPatch(equiId, category, objectType, "${sitefloc}-ACH-ACH-ACH-NON01") :- 
@@ -197,11 +197,11 @@ namespace AssetScripts/NonOp/PlantEquip {
 
     /// # LongText - simple functional operation, no Datalog
 
-    def genLongTexts(xs: List[PlantEquipWorkItem]): List[SLEquiLongText] = 
+    def genLongTexts(xs: List[SuperEquiWorkItem]): List[SLEquiLongText] = 
         List.map(genLongText1, xs)
 
 
-    def genLongText1(x: PlantEquipWorkItem): SLEquiLongText =
+    def genLongText1(x: SuperEquiWorkItem): SLEquiLongText =
         let description = AssetScripts/NonOp/Utils.getShortName(x.processGroupName, x.processName, x.commonName);
         { equiId        = x.plinum
         , description   = description
@@ -213,7 +213,7 @@ namespace AssetScripts/NonOp/PlantEquip {
     pub def genCharacteristics(db: #{WorkItem, 
                                         InstallationMapping, EquipmentMapping, SiteEastNorth, 
                                         EquiCharacteristic | r},
-                                 xs: List[PlantEquipWorkItem]): Chain[SLEquiCharacteristic] & Impure = 
+                                 xs: List[SuperEquiWorkItem]): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             
             /// ${objClass}
