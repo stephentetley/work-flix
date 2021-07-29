@@ -50,11 +50,18 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
 
     type alias Counters = MutMap[String, (MutBitSet, MutBitSet)]
 
-    def addCounter(mm: Counters, floc: String, counter: Int32): Unit & Impure = 
+    def addCounterL(mm: Counters, floc: String, counter: Int32): Unit & Impure = 
         match MutMap.get(floc, mm) {
             case None => MutMap.put!(floc, (Data/MutBitSet.singleton(counter), Data/MutBitSet.empty()), mm)
             case Some((s1, _)) => Data/MutBitSet.set!(counter, s1)
         }
+
+    def addCounterR(mm: Counters, floc: String, counter: Int32): Unit & Impure = 
+        match MutMap.get(floc, mm) {
+            case None => MutMap.put!(floc, (Data/MutBitSet.empty(), Data/MutBitSet.singleton(counter)), mm)
+            case Some((_, s2)) => Data/MutBitSet.set!(counter, s2)
+        }
+
 
     /// TODO - if floc not found return None...
     def valcount(mm: Counters, floc: String): Option[Int32] & Impure = 
@@ -141,8 +148,14 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
 
     def readCounters1(mm: Counters, src: System.FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
+        let add1    = x1 -> {
+            if (x1.charValue == "TBD") 
+                addCounterL(mm, x1.funcloc, x1.intCounterValue)
+            else 
+                addCounterR(mm, x1.funcloc, x1.intCounterValue)
+        };
         let* xs     = AssetLib/FileIO/S4/TransferFile/Builtins.readValuaFlocFile(src);
-        let _       = List.foreach(x1 -> addCounter(mm, x1.funcloc, x1.intCounterValue), xs);
+        let _       = List.foreach(add1, xs);
         Ok()
 
 
