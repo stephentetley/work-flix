@@ -25,10 +25,15 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
     
     /// pub rel InstReference(sainum: String)
 
+    type alias SearchPath = 
+        { glob: String
+        , directory: System.FilePath
+        }
+
     type alias Sources = 
         { worklist: XlsxSource
-        , valuaflocs: System.FilePath
-        , outpath: System.FilePath
+        , downloads: SearchPath
+        , outpath: System.FilePath        
         }
 
 
@@ -77,7 +82,7 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
 
     pub def genOverwrites(src: Sources): Result[Unit, String] & Impure = 
         use Result.flatMap;
-        let* mm         = AibRefCheck/Level2AibOverwriteUploads.readCounters(src.valuaflocs);
+        let* mm         = AibRefCheck/Level2AibOverwriteUploads.readCounters(src.downloads);
         let* workitems  = AibRefCheck/Level2AibOverwriteUploads.readWorkItems(src.worklist);
         let rows        = List.filterMap(makeAnswer(mm), workitems);
         let* _          = AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaFlocFile("tetleys", rows, src.outpath);
@@ -116,15 +121,27 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
             <*> getTrimmedContentNamed("ProcessGroupReference")
             
     /// TODO - read multiple files (return one Counters map)
-    pub def readCounters(src: System.FilePath): Result[Counters, String] & Impure = 
-        use Result.{flatMap};
-        let* xs     = AssetLib/FileIO/S4/TransferFile/Builtins.readValuaFlocFile(src);
-        let mm      = MutMap.empty();
-        let _       = List.foreach(x1 -> addCounter(mm, x1.funcloc, x1.intCounterValue), xs);
-        Ok(mm)
+    /// pub def readCounters(src: System.FilePath): Result[Counters, String] & Impure = 
+    ///     use Result.{flatMap};
+    ///     let* xs     = AssetLib/FileIO/S4/TransferFile/Builtins.readValuaFlocFile(src);
+    ///     let mm      = MutMap.empty();
+    ///     let _       = List.foreach(x1 -> addCounter(mm, x1.funcloc, x1.intCounterValue), xs);
+    ///     Ok(mm)
             
 
+    pub def readCounters(src: SearchPath): Result[Counters, String] & Impure = 
+        use Result.{flatMap};
+        let* files  = System/Directory.matches(src.glob, src.directory);
+        let mm      = MutMap.empty();        
+        let _       = Result.traverse(readCounters1(mm), files);
+        Ok(mm)
+    
 
+    def readCounters1(mm: Counters, src: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let* xs     = AssetLib/FileIO/S4/TransferFile/Builtins.readValuaFlocFile(src);
+        let _       = List.foreach(x1 -> addCounter(mm, x1.funcloc, x1.intCounterValue), xs);
+        Ok()
 
 
 
