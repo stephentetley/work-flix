@@ -17,6 +17,8 @@
 
 namespace AibRefCheck/Level2AibOverwriteUploads {
 
+    use Data.MutBitSet;
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
@@ -46,36 +48,36 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
         , pgSainum: String
         }
 
-    type alias Counters = MutMap[String, (MutSet[Int32], MutSet[Int32])]
+    type alias Counters = MutMap[String, (MutBitSet, MutBitSet)]
 
     def addCounter(mm: Counters, floc: String, counter: Int32): Unit & Impure = 
         match MutMap.get(floc, mm) {
-            case None => MutMap.put!(floc, (MutSet.singleton(counter), MutSet.empty()), mm)
-            case Some((s1, _)) => MutSet.add!(counter, s1)
+            case None => MutMap.put!(floc, (Data/MutBitSet.singleton(counter), Data/MutBitSet.empty()), mm)
+            case Some((s1, _)) => Data/MutBitSet.set!(counter, s1)
         }
 
     /// TODO - if floc not found return None...
     def valcount(mm: Counters, floc: String): Option[Int32] & Impure = 
         match MutMap.get(floc, mm) {
             case None => None
-            case Some((s1, s2)) => match MutSet.minimum(s1) { 
+            case Some((s1, s2)) => match Data/MutBitSet.minimum(s1) { 
                 case None => Some(first(s2))
                 case Some(i) => {
-                    MutSet.remove!(i, s1);
-                    MutSet.add!(i, s2);
+                    Data/MutBitSet.clear!(i, s1);
+                    Data/MutBitSet.set!(i, s2);
                     Some(i)
                 }
             }
         }
 
-    def first(s: MutSet[Int32]): Int32 & Impure = 
+    def first(s: MutBitSet): Int32 & Impure = 
         firstHelper(s, 1)
 
-    def firstHelper(s: MutSet[Int32], i: Int32): Int32 & Impure = 
-        if (MutSet.memberOf(i, s))
+    def firstHelper(s: MutBitSet, i: Int32): Int32 & Impure = 
+        if (Data/MutBitSet.get(i, s))
             firstHelper(s, i+1)
         else {
-            MutSet.add!(i, s);
+            Data/MutBitSet.set!(i, s);
             i
         }
 

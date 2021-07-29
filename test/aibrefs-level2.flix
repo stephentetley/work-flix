@@ -21,6 +21,4 @@ def main1(): Result[Unit, String] & Impure =
         };
     let* _          = AibRefCheck/Level2AibOverwriteUploads.genOverwrites(src);
     let _           = Console.printLine("Wrote: ${src.outpath}");
-    let* xs         = System/Directory.matches(src.downloads.glob, src.downloads.directory);
-    let _           = List.foreach(println, xs);
     Ok()
