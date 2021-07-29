@@ -72,6 +72,46 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("M") >>= getTrimmedContentAt)       /// SubInstallationReference
 
 
+    pub def readPlantItemNoParentWorkItems(src: XlsxSource): Result[List[SuperEquiWorkItem], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalPlantItemNoParentWorkItem())
+            |> Result.map(List.distinctWith((x, y) -> x.plinum == y.plinum))
+
+    /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"  
+    def evalPlantItemNoParentWorkItem(): RowEvaluator[Option[SuperEquiWorkItem]] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((ah1, cm1, cn1, cd1, cq1, cr1, cj1, cv1, cp1, aa1, cb1, e1, m1) -> 
+            if (String.startsWith(cm1, "PLI") and cn1 == false and ah1 != "CATCHMENT")
+                Some({ plinum               = cm1
+                    , commonName            = cd1
+                    , manufacturer          = cq1
+                    , model                 = cr1
+                    , plantAssetType        = cj1
+                    , plantEquipAssetType   = cv1
+                    , installedFromDate     = cp1
+                    , processGroupName      = aa1
+                    , processName           = ah1
+                    , parentSainum          = cb1
+                    , installationSainum    = e1
+                    , subinstallationSainum = m1
+                    })
+            else
+                None)
+            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be NULL)
+            <*> (getColumnIndex("CM") >>= getTrimmedContentAt)      /// PlantEquipReference
+            <*> (getColumnIndex("CN") >>= getYesNoAt)               /// InS4_Y
+            <*> (getColumnIndex("CD") >>= getTrimmedContentAt)      /// CommonName
+            <*> (getColumnIndex("CQ") >>= getTrimmedContentAt)      /// Manufacturer
+            <*> (getColumnIndex("CR") >>= getTrimmedContentAt)      /// Model
+            <*> (getColumnIndex("CJ") >>= getTrimmedContentAt)      /// PlantAssetType
+            <*> (getColumnIndex("CV") >>= getTrimmedContentAt)      /// PlantEquipAssetType
+            <*> (getColumnIndex("CP") >>= getOptionalDateAt)        /// InstalledFromDate
+            <*> (getColumnIndex("AA") >>= getTrimmedContentAt)      /// ProcessGroupName
+            <*> (getColumnIndex("CB") >>= getTrimmedContentAt)      /// ParentReference
+            <*> (getColumnIndex("E") >>= getTrimmedContentAt)       /// InstallationReference
+            <*> (getColumnIndex("M") >>= getTrimmedContentAt)       /// SubInstallationReference
+
+
     /// Read from "InstllationsMapping_.xlsx" ...
     pub def readInstallationMapping(src: XlsxSource): Result[#{InstallationMapping | r}, String] & Impure =
         SheetIO/Reader.allNamedRelations(src, evalInstallationMapping())

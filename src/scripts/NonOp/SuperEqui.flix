@@ -47,6 +47,14 @@ namespace AssetScripts/NonOp/SuperEqui {
         let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
         genEquiUxl(srcs, outputArgs, items)
 
+
+    pub def genPlantItemNoParentUxl(srcs: FileSources,   
+                                outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let* items          = AssetScripts/NonOp/Loader.readPlantItemNoParentWorkItems(srcs.aibReport);
+        genEquiUxl(srcs, outputArgs, items)
+
+
     /// Split worklist...
     def genEquiUxl(srcs: FileSources,   
                         outputArgs: UxlOutputArgs, 
