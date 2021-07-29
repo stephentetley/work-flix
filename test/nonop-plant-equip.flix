@@ -42,7 +42,7 @@ def main1(): Result[Unit, String] & Impure =
         , aibPandiTags= { sheet = "Sheet1" 
             , path = System/FilePath.new("G:/work/assets/non-op-bins/aib-nonop-pandi-tags.xlsx")}
         };
-    let* _              = AssetScripts/NonOp/PlantEquip.genEquiUxl(srcs, outputArgs);
+    let* _              = AssetScripts/NonOp/PlantEquip.genPlantEquipUxl(srcs, outputArgs);
     Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
     Ok()
 

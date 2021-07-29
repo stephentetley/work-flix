@@ -33,17 +33,32 @@ namespace AssetScripts/NonOp/Relations {
         , commonName: String                            /// Column: "AM"
         , manufacturer: String                          /// Column: "AZ"
         , model: String                                 /// Column: "BA"
-        , plantAssetType: String                        /// Column: "AS"
-        , plantEquipAssetType: String                   /// Column: "BE"
+        , plantAssetType: String                        /// Column: "AS" (e.g. "TANK", "SCREEN")
+        , plantEquipAssetType: String                   /// Column: "BE" (e.g. "EQUIPMENT: STORM SEDIMENTATION TANK")
         , installedFromDate: Option[Time.LocalDate]     /// Column: "AY"
-        , processGroupName: String                      /// Column: "AA"
-        , processName: String                           /// Column: "AH"
-        , parentSainum: String                          /// Column: "AK"
+        , processGroupName: String                      /// Column: "AA" (e.g. "SECONDARY TREATMENT")
+        , processName: String                           /// Column: "AH" (e.g. "WASHWATER PUMPING", "LIFTING EQUIPMENT")
+        , parentSainum: String                          /// Column: "AK" [needed for AI2_AIB_REFERENCE]
         , installationSainum: String                    /// Column: "E"
         , subinstallationSainum: String                 /// Column: "M"  (might be "NULL")
         }
 
-
+    /// /// PlantItems don't not have to be "sub-equipment"
+    /// /// If "AV" (PlantEquipReference) is NULL they are not sub-equipment (typically lifting equipment).
+    /// type alias PlantItemWorkItem = 
+    ///     { plinum: String                                /// Column: "CM"
+    ///     , commonName: String                            /// Column: "CD"
+    ///     , manufacturer: String                          /// Column: "CQ"
+    ///     , model: String                                 /// Column: "CR"
+    ///     , plantAssetType: String                        /// Column: "CJ" (e.g. "GEARBOX", "DAVIT SOCKET")
+    ///     , plantEquipAssetType: String                   /// Column: "CV" (e.g. "EQUIPMENT: GEARBOX")
+    ///     , installedFromDate: Option[Time.LocalDate]     /// Column: "CP"
+    ///     , processGroupName: String                      /// Column: "AA" [as per PlantEquip]
+    ///     , processName: String                           /// Column: "AH" [as per PlantEquip]
+    ///     , parentSainum: String                          /// Column: "CB" [needed for AI2_AIB_REFERENCE]
+    ///     , installationSainum: String                    /// Column: "E"
+    ///     , subinstallationSainum: String                 /// Column: "M"  (might be "NULL")
+    ///     }
 
 
     pub rel InstallationMapping(instAibRef: String, s4SiteFloc: String)

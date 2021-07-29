@@ -116,7 +116,7 @@ namespace AssetLib/Base/S4/Floc {
         use Option.{flatMap};
         use Text/Regex/MatchEvaluator.{getInt32At};
         let* s = getSystemCode(x);
-        let* patt = Text/Regex/Pattern.compile("SYS(\d{2})");
+        let* patt = Text/Regex/Pattern.compile("SYS(\\d{2})");
         Result.toOption(Text/Regex.evalMatches(s, patt, getInt32At(0))) as & Pure
         
     pub def getSubsystemCode(x: Floc): Option[String] =
@@ -127,14 +127,14 @@ namespace AssetLib/Base/S4/Floc {
         use Option.{flatMap};
         use Text/Regex/MatchEvaluator.{getCaptureAt};
         let* s = getSubsystemCode(x);
-        let* patt = Text/Regex/Pattern.compile("(\p{Upper}{3})\d{2}");
+        let* patt = Text/Regex/Pattern.compile("(\\p{Upper}{3})\\d{2}");
         Result.toOption(Text/Regex.evalMatches(s, patt, getCaptureAt(0))) as & Pure
     
     pub def getSubsystemIndex(x: Floc): Option[Int32] =
         use Option.{flatMap};
         use Text/Regex/MatchEvaluator.{getInt32At};        
         let* s = getSubsystemCode(x);
-        let* patt = Text/Regex/Pattern.compile("\p{Upper}{3}(\d{2})");
+        let* patt = Text/Regex/Pattern.compile("\\p{Upper}{3}(\\d{2})");
         Result.toOption(Text/Regex.evalMatches(s, patt, getInt32At(0))) as & Pure
         
 

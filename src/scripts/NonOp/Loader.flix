@@ -250,6 +250,6 @@ namespace AssetScripts/NonOp/Loader {
     def getYesNoAt(ix: Int32): RowEvaluator[Bool] =
         use SheetIO/RowEvaluator.{getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>};
-        (x1 -> x1 == "Y" or x1 == "y")  <&> getTrimmedContentAt(ix)
+        (x1 -> x1 == "Y" or x1 == "y") <&> getTrimmedContentAt(ix)
 
 }

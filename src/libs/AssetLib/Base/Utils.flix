@@ -32,7 +32,7 @@ namespace AssetLib/Base/Utils {
     def toProperCase1(s: String): Option[String] & Impure =
         use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed};
         use Option.flatMap;
-        let* patt = Text/Regex/Pattern.compile("^(?<first>\p{IsAlphabetic})(?<rest>\p{IsAlphabetic}*)$");
+        let* patt = Text/Regex/Pattern.compile("^(?<first>\\p{IsAlphabetic})(?<rest>\\p{IsAlphabetic}*)$");
         let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")

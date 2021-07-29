@@ -90,7 +90,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     def pEntityType(): Parser[t1, EntityType] =
         use FlixParsec/Prim.{flatMap};
         let body = () -> {
-            let* s = lexeme(lookingAts("\p{Upper}+"));
+            let* s = lexeme(lookingAts("\\p{Upper}+"));
             match s {
                 case "FUNCLOC"      => return(FuncLoc)
                 case "CLASSFLOC"    => return(ClassFloc)
@@ -120,8 +120,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
 
     def pDateTime(): Parser[t1, LocalDateTime] = 
         use FlixParsec/Prim.{flatMap, liftOption};
-        let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\d{8}"));
-        let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\d{6}"));
+        let* d = symbol("* Date:")  `seqRight` lexeme(lookingAts("\\d{8}"));
+        let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\\d{6}"));
         let* fmt = liftOption(Time/Format/DateTimeFormatter.ofPattern("yyyyMMdd HHmmss"), "pDateTime");
         let* ans = liftOption(Time/LocalDateTime.parse(d + " " + t, fmt), "pDateTime");
         return(ans)
@@ -158,7 +158,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     def pColumnHeaders(): Parser[t1, Headers] = 
         use FlixParsec/Prim.{flatMap};
         let* _ = asterisk();
-        let* nl = makePattern("\R");
+        let* nl = makePattern("\\R");
         let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
         let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray);
         return(arr)
@@ -169,7 +169,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     def pDataRow(): Parser[t1, DataRow] = 
         use FlixParsec/Prim.{flatMap};
         use FlixParsec/Regex.{lookingAt};
-        let* tabnl  = makePatternWithFlags(".+?\u0009\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
+        let* tabnl  = makePatternWithFlags(".+?\\u0009\\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
         let* str    = lookingAt(tabnl);
         let* arr    = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray |> Array.dropRight(1));
         return(arr)

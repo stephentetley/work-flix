@@ -49,7 +49,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         use FlixParsec/Prim.{flatMap, return};
         use FlixParsec/Regex.{skippingAts};
         use FlixParsec/Text.{newline};
-        let* _  = skippingAts("^\-+");
+        let* _  = skippingAts("^\\-+");
         let* _  = newline();
         return()
 
@@ -60,7 +60,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{evaluateString};
         let split = s -> leadingSepBy(s, "|");
         let* s0 = restOfLine(true);
-        let s1 = Text/Regex.replace(s0, Text/Regex/Pattern.irrefutablePattern("\R"), "");
+        let s1 = Text/Regex.replace(s0, Text/Regex/Pattern.irrefutablePattern("\\R"), "");
         liftActionResult(_ -> evaluateString(split, s1, eval))
 
 

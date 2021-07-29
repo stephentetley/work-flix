@@ -39,13 +39,20 @@ namespace AssetScripts/NonOp/PlantEquip {
         , aibPandiTags: XlsxSource
         }
 
+
+
+    pub def genPlantEquipUxl(srcs: FileSources,   
+                                outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
+        genEquiUxl(srcs, outputArgs, items)
+
     /// Split worklist...
-                        
-    pub def genEquiUxl(srcs: FileSources,   
-                        outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+    def genEquiUxl(srcs: FileSources,   
+                        outputArgs: UxlOutputArgs, 
+                        items: List[PlantEquipWorkItem]): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let batchSize       = 75;
-        let* items          = AssetScripts/NonOp/Loader.readPlantEquipWorkItems(srcs.aibReport);
         let* equipMapping   = AssetScripts/NonOp/Loader.readEquipmentMapping(srcs.equipmentMapping);
         let* instMapping    = AssetScripts/NonOp/Loader.readInstallationMapping(srcs.installationMapping);
         let* sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
@@ -94,6 +101,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         };
         List.foldLeft((ac, x1) -> ac <+> mkWorkItem1(x1), #{}, xs)
 
+    /// TODO - patching should be a pipeline...
     def genEquis(factDb: #{AllowedManufacturer, AllowedManufacturerModel, EquipmentMapping, InstallationMapping, 
                             HasAllowedManufacturer, HasAllowedManufacturerModel, WorkItem, EquiWorkItem, 
                             SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1, 
@@ -124,7 +132,7 @@ namespace AssetScripts/NonOp/PlantEquip {
         , manufacturer          = x.manufacturer
         , model                 = x.model
         , partNumber            = ""
-        , serialNumber          = "TBD"
+        , serialNumber          = "UNKNOWN"
         , functionalLocation    = "Bad: ${x.installationSainum}"
         , superOrdinateEqui     = ""
         , position              = noPosition
@@ -255,9 +263,6 @@ namespace AssetScripts/NonOp/PlantEquip {
         let workitems = makeWorkItems(xs);
         solve (workitems <+> db <+> rules) project EquiCharacteristic
             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
-
-
-
 
 
 }
