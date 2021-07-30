@@ -15,7 +15,7 @@
  */
 
 
-namespace AibRefCheck/Level1/Utils {
+namespace AibRefCheck/Utils {
 
 
     pub def sublists(n: Int32, xs: List[a]): List[List[a]] = 

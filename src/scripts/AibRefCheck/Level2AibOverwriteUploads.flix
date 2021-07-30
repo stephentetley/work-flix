@@ -93,9 +93,17 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
         use Result.flatMap;
         let* mm         = AibRefCheck/Level2AibOverwriteUploads.readCounters(src.downloads);
         let* workitems  = AibRefCheck/Level2AibOverwriteUploads.readWorkItems(src.worklist);
-        let rows        = List.filterMap(makeAnswer(mm), workitems);
-        let* _          = AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaFlocFile("tetleys", rows, src.outpath);
+        let allrows     = List.filterMap(makeAnswer(mm), workitems);
+        let groups      = AibRefCheck/Utils.sublists(750, allrows);
+        let* _          = Result.foldLeftM((ac, xs) -> writeValuafloc1(ac, xs, src.outpath), 1, groups);
         Ok()
+
+    def writeValuafloc1(ix: Int32, rows: List[ValuaFlocRow], path: System.FilePath): Result[Int32, String] & Impure = 
+        use Result.flatMap;
+        let num     = String.padLeft(2, '0', ToString.toString(ix));
+        let path1   = System/FilePath.mapBaseName(String.replace("##", num), path);
+        let* _      = AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaFlocFile("tetleys", rows, path1);
+        Ok(ix + 1)
 
     /// TODO should be Option[ValuaFlocRow] for a filterMap
     def makeAnswer(mm: Counters, workitem: WorkItem1): Option[ValuaFlocRow] & Impure = 
