@@ -130,18 +130,11 @@ namespace AssetLib/S4Lite/EmitUxl {
         , charDeletionInd       = false
         }
 
+    /// Basically emit superequi in order seen, then subequi. (This can be improved)
     def toEquipmentData(xs: Chain[SLEquipment]): List[EquipmentData] = 
-        let sortStep = (x, y) -> match Order.compare(x.functionalLoc, y.functionalLoc) { 
-            case EqualTo => match Order.compare(x.superordEquip, y.superordEquip) {
-                case EqualTo => Order.compare(x.description, y.description)
-                case ans => ans
-            }                
-            case ans => ans
-        };
-        xs 
-            |> Chain.toList
-            |> List.map(equipmentToUxl)
-            |> List.sortWith(sortStep)
+        let isSuperEqui = x -> String.isEmpty(x.superOrdinateEqui);
+        let (ys, zs) =   xs |> Chain.toList  |> List.partition(isSuperEqui);
+        List.map(equipmentToUxl, ys ::: zs)
 
     def equipmentToUxl(x: SLEquipment): EquipmentData = 
         let unitOfWeight = match x.weightKg { 

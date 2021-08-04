@@ -21,23 +21,32 @@ namespace AssetScripts/NonOp/Loader {
     use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
     
-    use AssetScripts/NonOp/Relations.{AchFlocWorkItem, SuperEquiWorkItem, 
+    use AssetScripts/NonOp/Relations.{AchFlocWorkItem, EquiWorkItem, 
         InstallationMapping, SiteEastNorth, 
         EquipmentMapping, PlantAssetType, GrandParentParentNames, PandITag, 
-        AssetTypeDescription, EquipProperties};
+        AssetTypeDescription, EquipProperties, IH08Mapping};
 
 
 
 
     /// Read from Aib xlsx export file...
-    pub def readPlantEquipWorkItems(src: XlsxSource): Result[List[SuperEquiWorkItem], String] & Impure =
-        SheetIO/Reader.readSomeRows(src, evalPlantEquipWorkItem())
+    pub def readPlantEquipWorkItems(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalPlantEquipWorkItem(shortenName))
             |> Result.map(List.distinctWith((x, y) -> x.plinum == y.plinum))
+
+
+    def shortenName(s: String): String = String.takeLeft(40, s)
+    def childName(s: String): String = 
+        if (s `String.contains` "/") {
+            let s1 = snd(String.breakOnRight("/", s));
+            AssetLib/Base/Utils.properCaseName(s1)
+        } else s
+
 
 
     /// Excel file has duplicate names so use alphabetical index ...
     /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"  
-    def evalPlantEquipWorkItem(): RowEvaluator[Option[SuperEquiWorkItem]] =
+    def evalPlantEquipWorkItem(makeDesc: String -> String): RowEvaluator[Option[EquiWorkItem]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((ah1, av1, aw1, am1, az1, ba1, as1, be1, ay1, aa1, ak1, e1, m1) -> 
@@ -54,6 +63,7 @@ namespace AssetScripts/NonOp/Loader {
                     , parentSainum          = ak1
                     , installationSainum    = e1
                     , subinstallationSainum = m1
+                    , description           = makeDesc(AssetScripts/NonOp/Utils.getDescription(aa1, ah1, am1))
                     })
             else
                 None)
@@ -72,16 +82,31 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("M") >>= getTrimmedContentAt)       /// SubInstallationReference
 
 
-    pub def readPlantItemNoParentWorkItems(src: XlsxSource): Result[List[SuperEquiWorkItem], String] & Impure =
-        SheetIO/Reader.readSomeRows(src, evalPlantItemNoParentWorkItem())
+    pub def readPlantItemNoParentWorkItems(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalPlantItem(shortenName, s -> s == "NULL"))
             |> Result.map(List.distinctWith((x, y) -> x.plinum == y.plinum))
+            |> Result.map(List.filter(validEqui))
 
-    /// Must filter that ProcessAssetTypeDescription(AH) is not "CATCHMENT"  
-    def evalPlantItemNoParentWorkItem(): RowEvaluator[Option[SuperEquiWorkItem]] =
+    pub def readPlantItemChildren(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =
+        SheetIO/Reader.readSomeRows(src, evalPlantItem(childName, s -> s `String.startsWith` "PLI"))
+            |> Result.map(List.distinctWith((x, y) -> x.plinum == y.plinum))
+            |> Result.map(List.filter(validEqui))
+
+
+    def validEqui(x: EquiWorkItem): Bool = 
+        let bads = "EQUIPMENT: PUMP LIFTING CHAIN" :: "EQUIPMENT: MISC MECHANICAL PLANT(MYAA)"  
+                    :: "EQUIPMENT: MISCELLANEOUS ELECTRICAL PLANT" :: "EQUIPMENT: LAND AND GROUNDS" :: Nil;
+        not List.memberOf(x.plantEquipAssetType, bads)
+
+
+
+    
+    /// Returns both PlantItemEquip_Super (not a child) and PlantItemEquip_Child (is a child of PlantEqui)
+    def evalPlantItem(makeDesc: String -> String, test: String -> Bool): RowEvaluator[Option[EquiWorkItem]] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((ah1, cm1, cn1, cd1, cq1, cr1, cj1, cv1, cp1, aa1, cb1, e1, m1) -> 
-            if (String.startsWith(cm1, "PLI") and cn1 == false and ah1 != "CATCHMENT")
+        ((ah1, cm1, cn1, cd1, cq1, cr1, cj1, cv1, cp1, aa1, cb1, e1, m1, av1) -> 
+            if (String.startsWith(cm1, "PLI") and cn1 == false and ah1 != "CATCHMENT" and test(av1))
                 Some({ plinum               = cm1
                     , commonName            = cd1
                     , manufacturer          = cq1
@@ -94,6 +119,7 @@ namespace AssetScripts/NonOp/Loader {
                     , parentSainum          = cb1
                     , installationSainum    = e1
                     , subinstallationSainum = m1
+                    , description           = makeDesc(AssetScripts/NonOp/Utils.getDescription(aa1, ah1, cd1))
                     })
             else
                 None)
@@ -110,6 +136,7 @@ namespace AssetScripts/NonOp/Loader {
             <*> (getColumnIndex("CB") >>= getTrimmedContentAt)      /// ParentReference
             <*> (getColumnIndex("E") >>= getTrimmedContentAt)       /// InstallationReference
             <*> (getColumnIndex("M") >>= getTrimmedContentAt)       /// SubInstallationReference
+            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// SubInstallationReference
 
 
     /// Read from "InstllationsMapping_.xlsx" ...
@@ -291,5 +318,21 @@ namespace AssetScripts/NonOp/Loader {
         use SheetIO/RowEvaluator.{getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>};
         (x1 -> x1 == "Y" or x1 == "y") <&> getTrimmedContentAt(ix)
+
+    /// IH08 export file...
+    pub def readIH08Mappings(src: XlsxSource): Result[#{IH08Mapping | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalIH08Mapping())
+
+    /// This is from a separte sheet...
+    def evalIH08Mapping(): NamedRowEvaluator[#{IH08Mapping | r}] =
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2) -> 
+            if (x1 `String.startsWith` "PLI")
+                #{ IH08Mapping(x1, x2). }
+            else
+                #{})
+            <&> getTrimmedContentNamed("AI2 AIB Reference")
+            <*> getTrimmedContentNamed("Equipment")
 
 }

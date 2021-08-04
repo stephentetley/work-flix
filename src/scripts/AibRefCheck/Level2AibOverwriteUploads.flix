@@ -136,15 +136,7 @@ namespace AibRefCheck/Level2AibOverwriteUploads {
         ((x1, x2) -> {floc = x1, pgSainum = x2})
             <&> getTrimmedContentNamed("Lv2")
             <*> getTrimmedContentNamed("ProcessGroupReference")
-            
-    /// TODO - read multiple files (return one Counters map)
-    /// pub def readCounters(src: System.FilePath): Result[Counters, String] & Impure = 
-    ///     use Result.{flatMap};
-    ///     let* xs     = AssetLib/FileIO/S4/TransferFile/Builtins.readValuaFlocFile(src);
-    ///     let mm      = MutMap.empty();
-    ///     let _       = List.foreach(x1 -> addCounter(mm, x1.funcloc, x1.intCounterValue), xs);
-    ///     Ok(mm)
-            
+              
 
     pub def readCounters(src: SearchPath): Result[Counters, String] & Impure = 
         use Result.{flatMap};

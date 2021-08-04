@@ -36,12 +36,12 @@ namespace AssetScripts/NonOp/Utils {
 
     /// Sometimes pgdesc may be aninvalid and `getEquipName` wont work.
     /// In this case take whatever is after the rightmost "/"
-    pub def getShortName(pgdesc: String, pdesc: String, commonName: String): String = 
+    pub def getDescription(pgdesc: String, pdesc: String, commonName: String): String = 
         match getEquipName(pgdesc, pdesc, commonName) { 
             case "" => snd(String.breakOnRight("/", commonName))
             case s1 => s1
         }
-            |> shorten
+            |> AssetLib/Base/Utils.properCaseName
 
     def getEquipName(pgdesc: String, pdesc: String, commonName: String): String = 
         match (pgdesc, pdesc) {
@@ -51,8 +51,7 @@ namespace AssetScripts/NonOp/Utils {
             case (_, _) => snd(String.breakOnRight("${pgdesc}/${pdesc}/", commonName))
         } 
 
-    def shorten(s: String): String = 
-        s |> AssetLib/Base/Utils.properCaseName |> String.takeLeft(40)
+
 
 
 

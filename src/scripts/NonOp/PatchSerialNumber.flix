@@ -39,28 +39,6 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
         Ok(r1 <+> r2)
 
 
-    pub def patchSerialNumber(facts: #{SerialNumber, PandiTag, 
-                                        HasSerialNumber, HasPandiTag, EquiWorkItem1, SerialNumberPatch | r}, 
-                                    xs: List[SLEquipment]): Result[List[SLEquipment], String] & Impure = 
-        use Result.flatMap;
-        let patches = genManufacturerModelPatches(facts, xs);
-        Ok(AssetLib/GenS4/Patch.softPatchEquipment(patches, xs))
-
-
-    def evalSerialNumber(): NamedRowEvaluator[#{SerialNumber | r}] =
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> if (not String.isEmpty(x2)) #{ SerialNumber(x1, x2). } else #{})
-            <&> getTrimmedContentNamed("Reference")
-            <*> getTrimmedContentNamed("Serial No")
-
-
-    def evalPandiTag(): NamedRowEvaluator[#{PandiTag | r}] =
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> if (not String.isEmpty(x2)) #{ PandiTag(x1, x2). } else #{})
-            <&> getTrimmedContentNamed("Reference")
-            <*> getTrimmedContentNamed("P AND I Tag No")
 
     pub rel SerialNumberPatch(equiId: String, serialNumber: String, pandiTag: String)
 
@@ -73,6 +51,14 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
     pub rel HasPandiTag(equiId: String)
 
     pub rel EquiWorkItem1(equiId: String)
+
+    pub def patchSerialNumber(facts: #{SerialNumber, PandiTag, 
+                                        HasSerialNumber, HasPandiTag, EquiWorkItem1, SerialNumberPatch | r}, 
+                                    xs: List[SLEquipment]): Result[List[SLEquipment], String] & Impure = 
+        use Result.flatMap;
+        let patches = genManufacturerModelPatches(facts, xs);
+        Ok(AssetLib/GenS4/Patch.softPatchEquipment(patches, xs))
+
 
     def genManufacturerModelPatches(db: #{SerialNumber, PandiTag, 
                                                 HasSerialNumber, HasPandiTag, EquiWorkItem1, SerialNumberPatch | r}, 
@@ -124,6 +110,22 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
     def makePatch1(serialNumber: String, pandiTag: String, r1: SLEquipment): SLEquipment =
         {serialNumber = serialNumber, techIdentNo = pandiTag | r1}
 
+
+
+    def evalSerialNumber(): NamedRowEvaluator[#{SerialNumber | r}] =
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2) -> if (not String.isEmpty(x2)) #{ SerialNumber(x1, x2). } else #{})
+            <&> getTrimmedContentNamed("Reference")
+            <*> getTrimmedContentNamed("Serial No")
+
+
+    def evalPandiTag(): NamedRowEvaluator[#{PandiTag | r}] =
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2) -> if (not String.isEmpty(x2)) #{ PandiTag(x1, x2). } else #{})
+            <&> getTrimmedContentNamed("Reference")
+            <*> getTrimmedContentNamed("P AND I Tag No")
 
 }
 

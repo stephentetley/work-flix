@@ -29,7 +29,7 @@ namespace AssetScripts/NonOp/Relations {
     /// PlantEquip (aka Super equipment)
     /// This covers both PlantEquip and PlatItems with no parent (typically lifting equipment)
 
-    type alias SuperEquiWorkItem = 
+    type alias EquiWorkItem = 
         { plinum: String                                /// Column: "AV"/"CM"
         , commonName: String                            /// Column: "AM"/"CD"
         , manufacturer: String                          /// Column: "AZ"/"CQ"
@@ -42,6 +42,7 @@ namespace AssetScripts/NonOp/Relations {
         , parentSainum: String                          /// Column: "AK"/"CB" [needed for AI2_AIB_REFERENCE]
         , installationSainum: String                    /// Column: "E"
         , subinstallationSainum: String                 /// Column: "M"  (might be "NULL")
+        , description: String                           /// Synthesized
         }
 
 
@@ -70,6 +71,8 @@ namespace AssetScripts/NonOp/Relations {
                             objectClass: String, 
                             category: String)
 
+
+    pub rel IH08Mapping(plinum: String, equiNum: String)
 
     /// temp
     pub rel PlantAssetType(code: String, desc: String)
