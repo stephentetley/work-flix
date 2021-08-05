@@ -104,7 +104,7 @@ namespace AssetScripts/NonOp/SuperEqui {
         let chars       = genCharacteristics(factDb, xs);
         let s4lite      = genS4Lite(equis, longTexts, chars);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(false, args1, s4lite);
         Ok(i + 1)
 
 

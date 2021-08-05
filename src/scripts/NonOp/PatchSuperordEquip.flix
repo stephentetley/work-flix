@@ -96,19 +96,20 @@ namespace AssetScripts/NonOp/PatchSuperordEquip {
     def evalAibPliNumToParent(): RowEvaluator[#{AibPliNumToParent | r}] =
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
-        ((av1, cm1) -> 
-            if ((av1 `String.startsWith` "PLI") and (cm1 `String.startsWith` "PLI"))
-                #{ AibPliNumToParent(av1, cm1). }
+        ((cm1, av1) -> 
+            if ((cm1 `String.startsWith` "PLI") and (av1 `String.startsWith` "PLI"))
+                #{ AibPliNumToParent(cm1, av1). }
             else
                 #{})
-            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// PlantEquipReference
-            <*> (getColumnIndex("CM") >>= getTrimmedContentAt)      /// PlantItemEquipReference
+            <&> (getColumnIndex("CM") >>= getTrimmedContentAt)      /// PlantItemEquipReference
+            <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
+
 
 
     def evalS4PliNumToEquiNum(): NamedRowEvaluator[#{S4PliNumToEquiNum | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> if (x2 `String.startsWith` "PLI") #{ S4PliNumToEquiNum(x1, x2). } else #{})
+        ((x1, x2) -> if (x1 `String.startsWith` "PLI") #{ S4PliNumToEquiNum(x1, x2). } else #{})
             <&> getTrimmedContentNamed("AI2 AIB Reference")
             <*> getTrimmedContentNamed("Equipment")
 

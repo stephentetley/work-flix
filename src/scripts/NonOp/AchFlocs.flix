@@ -49,7 +49,7 @@ namespace AssetScripts/NonOp/AchFlocs {
         let solns       = genFlocs(workitems <+> db);
         let s4lite      = genS4Lite(solns);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(args1, s4lite);
+        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(false, args1, s4lite);
         Ok(i + 1)
 
 

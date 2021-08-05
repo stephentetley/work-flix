@@ -22,10 +22,10 @@ namespace AssetLib/S4Lite/Internal/FreshRenumber {
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
     
-
-    pub def equiRenmumber(src: UxlSource): UxlSource & Impure = 
+    /// Exposing `updateSuper` here is a bad API choice - needs to be done elsewhere...
+    pub def equiRenumber(updateSuper: Bool, src: UxlSource): UxlSource & Impure = 
         let n1 = start();
-        let (st, equis) = Chain.mapAccumLeft(renumberEqui, (n1, Map.empty()), src.equipment);
+        let (st, equis) = Chain.mapAccumLeft(renumberEqui(updateSuper), (n1, Map.empty()), src.equipment);
         let lookups     = snd(st);
         let texts       = Chain.map(renumberLongText(lookups), src.equiLongTexts);
         let chars       = Chain.map(renumberCharacteristic(lookups), src.equiCharacteristics);
@@ -40,11 +40,16 @@ namespace AssetLib/S4Lite/Internal/FreshRenumber {
         let x4  = Time/LocalDateTime.getMinute(dt);
         200000000 + x1 + x2 + x3 + x4
 
-    def renumberEqui(st: (Int32, Map[String, String]), x: SLEquipment): ((Int32, Map[String, String]), SLEquipment) = 
+    def renumberEqui(updateSuper: Bool, st: (Int32, Map[String, String]), x: SLEquipment): ((Int32, Map[String, String]), SLEquipment) = 
         let (n1, lookups) = st;
         let equi0 = x.equiId;
         let equi1 = "$" + "${n1}";
-        let super1 = if (String.isEmpty(x.superOrdinateEqui)) "" else Map.getWithDefault(x.superOrdinateEqui, "$BAD", lookups);
+        let super1 = {
+            if (updateSuper) 
+                if (String.isEmpty(x.superOrdinateEqui)) "" else Map.getWithDefault(x.superOrdinateEqui, "$BAD", lookups)
+            else
+                x.superOrdinateEqui
+        };
         ((n1 + 1, Map.insert(equi0, equi1, lookups)), {equiId = equi1, superOrdinateEqui = super1 | x})
 
     def renumberLongText(lookups: Map[String, String], x: SLEquiLongText): SLEquiLongText = 
