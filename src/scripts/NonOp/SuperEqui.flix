@@ -28,6 +28,7 @@ namespace AssetScripts/NonOp/SuperEqui {
         ManufacturerModelPatch, EquiWorkItem => PatchEquiWorkItem};
     use AssetScripts/NonOp/Relations.{EquiWorkItem, EquipmentMapping, InstallationMapping, SiteEastNorth};
     use AssetScripts/NonOp/PatchSerialNumber.{SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1};
+    use AssetScripts/NonOp/PatchSuperordEquip.{SuperordEquipPatch, AibPliNumToParent, S4PliNumToEquiNum, WorkItemForSuperord};
 
     type alias FileSources = 
         { aibReport: XlsxSource
@@ -38,6 +39,7 @@ namespace AssetScripts/NonOp/SuperEqui {
         , ztableManuModel: System.FilePath
         , aibSerialNumbers: XlsxSource
         , aibPandiTags: XlsxSource
+        , ih08PliNumExport: Option[XlsxSource]
         }
 
 
@@ -75,10 +77,16 @@ namespace AssetScripts/NonOp/SuperEqui {
         let* sitesEN        = AssetScripts/NonOp/Loader.readSiteEastNorth(srcs.siteEastNorth);
         let* manuFacts      = AssetLib/GenS4/Rules/PatchManufacturer.loadFacts({ztableObjManu = srcs.ztableObjManu, ztableManuModel = srcs.ztableManuModel});
         let* serialNums     = AssetScripts/NonOp/PatchSerialNumber.loadFacts({aibSerialNumbers = srcs.aibSerialNumbers, aibPandiTags = srcs.aibPandiTags});
-        let factDb          = equipMapping <+> instMapping <+> sitesEN <+> manuFacts <+> serialNums;
+        let* parents        = match srcs.ih08PliNumExport {
+            case Some(xls) => AssetScripts/NonOp/PatchSuperordEquip.loadFacts({aibReport = srcs.aibReport, ih08Export = xls})
+            case None => Ok(#{})
+        };
+        let factDb          = equipMapping <+> instMapping <+> sitesEN <+> manuFacts <+> serialNums <+> parents;
         let worklists       = AssetScripts/NonOp/Utils.sublists(batchSize, items);
         let* _              = Result.foldLeftM((ac, xs1) -> genEquiUxl1(ac, factDb, xs1, outputArgs), 1, worklists);
         Ok()
+
+    
 
 
     def genEquiUxl1(i: Int32, 
@@ -86,6 +94,7 @@ namespace AssetScripts/NonOp/SuperEqui {
                                 WorkItem, SiteEastNorth, 
                                 HasAllowedManufacturer, HasAllowedManufacturerModel, PatchEquiWorkItem, ManufacturerModelPatch,
                                 SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1, 
+                                SuperordEquipPatch, AibPliNumToParent, S4PliNumToEquiNum, WorkItemForSuperord,
                                 EquiCharacteristic, EquipmentPatch | r},
                     xs: List[EquiWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
@@ -122,6 +131,7 @@ namespace AssetScripts/NonOp/SuperEqui {
     def genEquis(factDb: #{AllowedManufacturer, AllowedManufacturerModel, EquipmentMapping, InstallationMapping, 
                             HasAllowedManufacturer, HasAllowedManufacturerModel, WorkItem, PatchEquiWorkItem, 
                             SerialNumber, PandiTag, HasSerialNumber, HasPandiTag, SerialNumberPatch, EquiWorkItem1, 
+                            SuperordEquipPatch, AibPliNumToParent, S4PliNumToEquiNum, WorkItemForSuperord,
                             ManufacturerModelPatch, EquipmentPatch | r}, 
                     xs: List[EquiWorkItem]): Result[List[SLEquipment], String] & Impure = 
         use Result.flatMap;
@@ -130,7 +140,9 @@ namespace AssetScripts/NonOp/SuperEqui {
         let equis2          = AssetLib/GenS4/Patch.softPatchEquipment(patches, equis1);
         let* equis3         = AssetLib/GenS4/Rules/PatchManufacturer.patchManufacturerModel(factDb, equis2);
         let* equis4         = AssetScripts/NonOp/PatchSerialNumber.patchSerialNumber(factDb, equis3);
-        Ok(equis4)
+        let* equis5         = AssetScripts/NonOp/PatchSuperordEquip.patchSuperordEquip(factDb, equis4);
+        Ok(equis5)
+
 
 
     def genEqui1(x: EquiWorkItem): SLEquipment & Impure =

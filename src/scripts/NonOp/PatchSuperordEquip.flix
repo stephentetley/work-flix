@@ -19,6 +19,7 @@
 namespace AssetScripts/NonOp/PatchSuperordEquip {
 
     use SheetIO.NamedRowEvaluator;
+    use SheetIO.RowEvaluator;
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
     use AssetLib/GenS4/Patch.{EquipmentPatches};
@@ -43,7 +44,7 @@ namespace AssetScripts/NonOp/PatchSuperordEquip {
 
     pub def loadFacts(src: SuperordTables): Result[#{AibPliNumToParent, S4PliNumToEquiNum | r}, String] & Impure = 
         use Result.flatMap;
-        let* r1     = SheetIO/Reader.allNamedRelations(src.aibReport, evalAibPliNumToParent());
+        let* r1     = SheetIO/Reader.allRelations(src.aibReport, evalAibPliNumToParent());
         let* r2     = SheetIO/Reader.allNamedRelations(src.ih08Export, evalS4PliNumToEquiNum());
         Ok(r1 <+> r2)
 
@@ -92,21 +93,24 @@ namespace AssetScripts/NonOp/PatchSuperordEquip {
         {superOrdinateEqui = superordEquip | r1}
 
 
-
-    def evalAibPliNumToParent(): NamedRowEvaluator[#{AibPliNumToParent | r}] =
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> if (not String.isEmpty(x2)) #{ SerialNumber(x1, x2). } else #{})
-            <&> getTrimmedContentNamed("Reference")
-            <*> getTrimmedContentNamed("Serial No")
+    def evalAibPliNumToParent(): RowEvaluator[#{AibPliNumToParent | r}] =
+        use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
+        use SheetIO/RowEvaluator.{<&>, <*>, >>=};
+        ((av1, cm1) -> 
+            if ((av1 `String.startsWith` "PLI") and (cm1 `String.startsWith` "PLI"))
+                #{ AibPliNumToParent(av1, cm1). }
+            else
+                #{})
+            <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// PlantEquipReference
+            <*> (getColumnIndex("CM") >>= getTrimmedContentAt)      /// PlantItemEquipReference
 
 
     def evalS4PliNumToEquiNum(): NamedRowEvaluator[#{S4PliNumToEquiNum | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> if (not String.isEmpty(x2)) #{ PandiTag(x1, x2). } else #{})
-            <&> getTrimmedContentNamed("Reference")
-            <*> getTrimmedContentNamed("P AND I Tag No")
+        ((x1, x2) -> if (x2 `String.startsWith` "PLI") #{ S4PliNumToEquiNum(x1, x2). } else #{})
+            <&> getTrimmedContentNamed("AI2 AIB Reference")
+            <*> getTrimmedContentNamed("Equipment")
 
 }
 

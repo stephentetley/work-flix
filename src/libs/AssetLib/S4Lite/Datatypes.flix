@@ -26,6 +26,8 @@ namespace AssetLib/S4Lite/Datatypes {
 
     /// TODO - group with List or Chain?
     /// If we use Chain we should probably make it an opaque type...
+    /// The (assumed) speed loss of List concat is probably not enough to merit 
+    /// a non-standard type (Chain)
     
     type alias UxlSource = 
         { funclocs: Chain[SLFunctionalLocation]
@@ -37,12 +39,12 @@ namespace AssetLib/S4Lite/Datatypes {
         }
 
     pub def emptyUxlSource(): UxlSource = 
-        { funclocs = Monoid.empty()
-        , funclocLongTexts = Monoid.empty()
-        , funclocCharacteristics = Monoid.empty()
-        , equipment = Monoid.empty()
-        , equiLongTexts = Monoid.empty()
-        , equiCharacteristics = Monoid.empty()
+        { funclocs = Chain.empty()
+        , funclocLongTexts = Chain.empty()
+        , funclocCharacteristics = Chain.empty()
+        , equipment = Chain.empty()
+        , equiLongTexts = Chain.empty()
+        , equiCharacteristics = Chain.empty()
         }
 
     pub def combineUxlSource(s1: UxlSource, s2: UxlSource): UxlSource = 
