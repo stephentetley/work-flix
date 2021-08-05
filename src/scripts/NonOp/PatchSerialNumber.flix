@@ -115,9 +115,41 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
     def evalSerialNumber(): NamedRowEvaluator[#{SerialNumber | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> if (not String.isEmpty(x2)) #{ SerialNumber(x1, x2). } else #{})
+        ((x1, x2) -> 
+            if (not String.isEmpty(x2)) 
+                #{ SerialNumber(x1, sciNumCheck(x2)). } 
+            else 
+                #{})
             <&> getTrimmedContentNamed("Reference")
             <*> getTrimmedContentNamed("Serial No")
+
+ 
+
+    /// def longNumCheck(s: String): String = 
+    ///     match Text/Regex/Pattern.compile("\\d{10,}") {
+    ///         case Some(patt1) => if (Text/Regex.matches(s, patt1)) "#${s}" else sciNumCheck(s)
+    ///         case None => bug!("Impossible")
+    ///     }
+
+    /// e.g 4.50137E+11
+    def sciNumCheck(s: String): String = 
+        let scipatt = "\\d{1}.\\d{1,}E\\+\\d{1,}";
+        match Text/Regex/Pattern.compile(scipatt) {
+            case Some(patt1) => if (Text/Regex.matches(s, patt1)) unsci(s) else s
+            case None => bug!("Impossible")
+        }
+
+    /// TODO - probably add this functionality to SheetIO...
+    def unsci(s: String): String = 
+        import new java.math.BigDecimal(String) as newBigDecimal;
+        import java.math.BigDecimal.longValueExact();
+        try {
+            let bd = newBigDecimal(s) as & Pure;
+            let i = longValueExact(bd) as & Pure;
+            ToString.toString(i)
+        } catch {
+            case _: ##java.lang.Exception => s
+        }
 
 
     def evalPandiTag(): NamedRowEvaluator[#{PandiTag | r}] =
