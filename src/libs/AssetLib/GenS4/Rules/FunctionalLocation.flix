@@ -53,15 +53,15 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
     pub def flocCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
         let rules = #{
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String("")) :- 
-                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _, _),
+                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", 1, S4String("")) :- 
-                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _, _),
+                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", 1, S4String(systemDescr)) :- 
-                FlocWorkItem(funcloc, _, level, _, _, _, _, className, systemDescr, _, _),
+                FlocWorkItem(funcloc, _, level, _, _, _, className, systemDescr, _, _),
                 if level == 5.
         };
         solve (rules <+> workitems) project FlocCharacteristic

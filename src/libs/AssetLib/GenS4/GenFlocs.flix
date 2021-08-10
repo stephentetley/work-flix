@@ -40,14 +40,15 @@ namespace AssetLib/GenS4/GenFlocs {
         let* flocs          = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitemRecs);
         let workitems       = AssetLib/GenS4/WorkLists.makeFlocWorkItems(workitemRecs);
         let c1              = AssetLib/Gens4/Rules/FunctionalLocation.flocCharacteristics1(workitems);
-        let c2              = AssetLib/GenS4/Rules/Characteristics/AibReference.flocAibReference(workitems);
-        let c3              = AssetLib/GenS4/Rules/Characteristics/EastNorth.flocEastNorth(workitems);
+        /// TODO use all gen_ functions rather than pass relations about...
+        let* ch2            = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitemRecs);
+        let* ch3            = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitemRecs);
         let c4              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
         let chars           = 
-            (solve (c1 <+> c2 <+> c3 <+> c4) project FlocCharacteristic) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+            (solve (c1 <+> c4) project FlocCharacteristic) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
         Ok( { funclocs = Chain.fromList(flocs)
             , funclocLongTexts = Chain.empty()
-            , funclocCharacteristics = chars
+            , funclocCharacteristics = (chars `Chain.append` ch2) `Chain.append` ch3
             , equipment = Chain.empty()
             , equiLongTexts = Chain.empty()
             , equiCharacteristics = Chain.empty()

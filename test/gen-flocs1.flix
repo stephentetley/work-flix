@@ -1,17 +1,17 @@
-use AssetLib/GenS4/GenFlocs.{GenFlocsArguments};
+use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 
-def programArgs(): GenFlocsArguments & Impure = 
+def programArgs(): UxlOutputArgs & Impure = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , flocWorkList = {file = System/FilePath.new("G:/work/assets/genflocs/worklist1.xlsx"), sheet = "Sheet1"}
     , changeRequestName = "New Flocs ${Time/LocalDate.now()}"
-    , outpath = System/FilePath.new("G:/work/assets/genflocs/uxl-output1.xlsx")
+    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/nonop-site-flocs-UXL.xlsx")
     }
 
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
     let progArgs = programArgs();
-    let ans = AssetLib/GenS4/GenFlocs.emitFlocUxl(progArgs);
+    let workList = {path = System/FilePath.new("G:/work/assets/non-op-bins/gen-site-flocs-worklist.xlsx"), sheet = "Sheet1"};
+    let ans = AssetLib/GenS4/GenFlocs.emitFlocUxl(workList, progArgs);
     match ans {
         case Ok() => Console.printLine("Success, wrote ${progArgs.outpath}")
         case Err(msg) => Console.printLine("Error: ${msg}")

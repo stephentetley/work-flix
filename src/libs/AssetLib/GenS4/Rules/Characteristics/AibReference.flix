@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         Ok(ans) 
 
     /// 
-    pub def equiAibReference(input: #{EquiWorkItem, ParentRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    def equiAibReference(input: #{EquiWorkItem, ParentRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
@@ -50,20 +50,28 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         };
         solve (rules <+> input) project EquiCharacteristic
 
+    pub rel FlocAibRef(funcloc: String, sainum: String)
+
+    def makeFlocAibRef(x: FlocWorkItemRec): #{FlocAibRef | r} = 
+        List.foldLeft((ac, sai) -> ac <+> #{ FlocAibRef(x.funcloc, sai). }, #{}, x.sainums)
 
     pub def genFlocAibReference(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
-        let ans         = flocAibReference(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        let workitems1  = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
+        let workitems2  = List.foldLeft((ac, x) -> ac <+> makeFlocAibRef(x), #{}, worklist);
+        let ans         = flocAibReference(workitems1 <+> workitems2) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
         Ok(ans) 
 
-    pub def flocAibReference(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+    def flocAibReference(workitems: #{FlocAibRef, FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         let rules = #{
+            
+            /// 1-to-1 to work item
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, _, _).
+                FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, _).
 
+            /// 1-to-1 work item to AI2_AIB_REFERENCE
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
-                FlocWorkItem(funcloc, _, _, sainum, _, _, _, _, _, _, _).                
+                FlocAibRef(funcloc, sainum).                
         };
         solve (rules <+> workitems) project FlocCharacteristic
 

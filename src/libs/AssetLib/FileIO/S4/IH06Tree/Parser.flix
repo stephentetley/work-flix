@@ -109,10 +109,10 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
         symbol("Valid From") `seqRight` lexeme(dateStamp())
 
     def indenting(): Parser[t1, Unit] = 
-        ignore(lookingAts("(\||\-|\s)+")) `swapError` "indenting"
+        ignore(lookingAts("(\\||\\-|\\s)+")) `swapError` "indenting"
     
     def equipmentId(): Parser[t1, String] = 
-        lookingAts("\$?\d+") `swapError` "equipmentId"
+        lookingAts("\\$?\\d+") `swapError` "equipmentId"
 
     pub def funcLocHeaderLine(): Parser[t1, (String, LocalDate)] = 
         use FlixParsec/Prim.{flatMap};
@@ -125,11 +125,11 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
         symbol("Description") `seqRight` map(String.trim, restOfLine(true))
     
     pub def funcloc(): Parser[t1, String] = 
-        (lookingAts("[A-Z]{1}([A-Z0-9]|\-)*") |> lexeme) `swapError` "funcloc"
+        (lookingAts("[A-Z]{1}([A-Z0-9]|\\-)*") |> lexeme) `swapError` "funcloc"
 
     def dateStamp(): Parser[t1, LocalDate] = 
         use FlixParsec/Prim.{flatMap};
-        let* s = lookingAts("\d{2}\.\d{2}\.\d{2}");
+        let* s = lookingAts("\\d{2}\\.\\d{2}\\.\\d{2}");
         let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yy"),  "DateFormatter.fromPattern failed");
         let* ans = liftOption(Time/LocalDate.parse(s, fmt), "LocalDate.parse failed");
         return(ans)

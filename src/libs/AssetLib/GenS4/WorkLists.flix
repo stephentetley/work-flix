@@ -69,7 +69,7 @@ namespace AssetLib/GenS4/WorkLists {
         { funcloc: String
         , description: String
         , level: Int32
-        , sainum: String
+        , sainums: List[String]
         , installedFrom: Time.LocalDate
         , structureIndicator: String
         , objectType: String 
@@ -83,7 +83,6 @@ namespace AssetLib/GenS4/WorkLists {
     pub rel FlocWorkItem(funcloc: String, 
                         description: String, 
                         level: Int32, 
-                        sainum: String,
                         installedFrom: Time.LocalDate,
                         structureIndicator: String,
                         objectType: String, 
@@ -101,7 +100,6 @@ namespace AssetLib/GenS4/WorkLists {
         FlocWorkItem(x.funcloc, 
                         x.description, 
                         x.level,
-                        x.sainum,
                         x.installedFrom,
                         x.structureIndicator,
                         x.objectType, 
@@ -175,7 +173,7 @@ namespace AssetLib/GenS4/WorkLists {
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
-        let* sainum         = map(String.trim, getNonEmptyContentNamed("Aib Reference"));
+        let* sainums        = map(stringList, getNonEmptyContentNamed("Aib References (semi sep list)"));
         let* installedFrom  = getS4LocalDateNamed("Installed From");
         let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
@@ -185,17 +183,24 @@ namespace AssetLib/GenS4/WorkLists {
         let* solutionId     = map(String.trim, getContentNamed("Solution ID"));
         let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
         let level           = AssetLib/Base/S4/Floc.level(objfloc);
-        return({ funcloc = floc
-                , description = name
-                , level = level
-                , sainum = sainum
-                , installedFrom = installedFrom
-                , structureIndicator = structureInd
-                , objectType = objType
-                , systemClass = sysClass
+        return({ funcloc                = floc
+                , description           = name
+                , level                 = level
+                , sainums               = sainums
+                , installedFrom         = installedFrom
+                , structureIndicator    = structureInd
+                , objectType            = objType
+                , systemClass           = sysClass
                 , systemTypeDescription = sysType
-                , gridRef = ngr
-                , solutionId = solutionId
+                , gridRef               = ngr
+                , solutionId            = solutionId
                 })
-        
+
+    def stringList(s: String): List[String] = 
+        String.splitOn(s, ";")
+            |> List.map(String.trim)
+            |> List.filter(s1 -> not String.isEmpty(s1))
+
+
+
 }
