@@ -90,7 +90,7 @@ namespace AssetLib/S4Lite/Datatypes {
         { equiId: String
         , category: String              /// e.g "M", "I", "E"
         , description: String
-        , validFrom: Time.LocalDate
+        , validFrom: Time.LocalDate     /// usually today (i.e. Time/LocaleDate.now())
         , objectType: String
         , weightKg: Option[Float64]
         , startupDate: Time.LocalDate

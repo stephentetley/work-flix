@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-namespace AssetLib/PDT/Equipment {
+namespace AssetLib/ProductData/PDT/Equipment {
 
     use SheetIO/SheetParser.SheetParser;
 
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
-
-    use AssetLib/PDT/Utils.{rowKeyValue, rowKeyLocalDate};
+    use AssetLib/ProductData/PDT/Utils.{rowKeyValue, rowKeyLocalDate};
 
     type alias EquipmentInfo = 
         { assetType: String
@@ -32,7 +31,7 @@ namespace AssetLib/PDT/Equipment {
         let* r1 = assetIntro();
         let* r2 = manufacturerData();
         let* r3 = assetData();
-        let* today = AssetLib/PDT/Utils.validFromToday();
+        let* today = AssetLib/ProductData/PDT/Utils.validFromToday();
         let noPosn: Option[Int32] = None;
         let noWeight: Option[Float64] = None;
         return(
@@ -106,8 +105,5 @@ namespace AssetLib/PDT/Equipment {
                 , memoLine = s7
                 , assetStatus = s8
                 })
-
-
-
 
 }

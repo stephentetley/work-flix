@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/PDT/Utils {
+namespace AssetLib/ProductData/PDT/Utils {
 
     use SheetIO/SheetParser.SheetParser;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/PDT/Products/Conveyor {
+namespace AssetLib/ProductData/PDT/Products/Conveyor {
 
     use SheetIO/SheetParser.SheetParser;
 
@@ -31,7 +31,7 @@ namespace AssetLib/PDT/Products/Conveyor {
     
     pub def parseConveyor(equiId: String): SheetParser[ka1, UxlSource] = 
         use SheetIO/SheetParser.{flatMap, return};
-        let* info = AssetLib/PDT/Equipment.parseEquipmentInfo(equiId, "M", "CVYR");
+        let* info = AssetLib/ProductData/PDT/Equipment.parseEquipmentInfo(equiId, "M", "CVYR");
         let* chars = parseConveyorCharacteristics(equiId, info.assetType);
         return(
             { funclocs = Chain.empty()
@@ -61,15 +61,15 @@ namespace AssetLib/PDT/Products/Conveyor {
     pub def parseCVYRSC(equiId: String): SheetParser[ka1, List[SLEquiCharacteristic]] = 
         use SheetIO/SheetParser.{<&>, <*>};
         ((x1, x2, x3, x4) -> x1 :: x2 :: x3 :: x4 :: Nil)
-            <&> AssetLib/PDT/Utils.getUNICLASS_CODE(equiId, "CVYRSC")
-            <*> AssetLib/PDT/Utils.getUNICLASS_DESC(equiId, "CVYRSC")
+            <&> AssetLib/ProductData/PDT/Utils.getUNICLASS_CODE(equiId, "CVYRSC")
+            <*> AssetLib/ProductData/PDT/Utils.getUNICLASS_DESC(equiId, "CVYRSC")
             <*> getCVYR_DIAMETER_MM(equiId, "CVYRSC")
             <*> getCVYR_LENGTH_MM(equiId, "CVYRSC")
 
 
     def getCVYR_DIAMETER_MM(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
         use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
-        use AssetLib/PDT/Utils.{rowKeyValue};
+        use AssetLib/ProductData/PDT/Utils.{rowKeyValue};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Dimension & Weight Data")));
         let* s1 = island(rowKeyValue("Overall width"));
@@ -84,7 +84,7 @@ namespace AssetLib/PDT/Products/Conveyor {
 
     def getCVYR_LENGTH_MM(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
         use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
-        use AssetLib/PDT/Utils.{rowKeyValue};
+        use AssetLib/ProductData/PDT/Utils.{rowKeyValue};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Dimension & Weight Data")));
         let* s1 = island(rowKeyValue("Overall length"));

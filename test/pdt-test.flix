@@ -57,8 +57,8 @@ def test01(args: ProgramArgs): Result[Unit, String] & Impure =
         , changeRequestName = "PDT Sample"
         , outpath = System/FilePath.new("G:/work/assets/product-data-templates/pdt-output-uxl.xlsx")
         };
-    let* uxlsrc = SheetIO/SheetParser.runXlsx(AssetLib/PDT/Products/Conveyor.parseConveyor("00001"), "PDT_Conveyor", (), src);    
-    let* _ =  AssetLib/S4Lite/EmitUxl.outputUxl(emitParams, uxlsrc);
+    let* uxlsrc = SheetIO/SheetParser.runXlsx(AssetLib/ProductData/PDT/Products/Conveyor.parseConveyor("00001"), "PDT_Conveyor", (), src);    
+    let* _ =  AssetLib/S4Lite/EmitUxl.outputUxl(true, emitParams, uxlsrc);
     Ok()
 
 
