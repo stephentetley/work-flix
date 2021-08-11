@@ -20,11 +20,50 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/AibReference.{ParentRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
     
+    /// # Floc
+
+
+
+
+    pub def genFlocAibReference(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = makeFlocAibRefWorkItems(worklist);
+        let aibrefs     = List.foldLeft((ac, x) -> ac <+> makeFlocAibRef(x), #{}, worklist);
+        let ans         = flocAibReference(workitems <+> aibrefs) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        Ok(ans) 
+
+    /// Case specific WorkItem...
+    rel FlocAibRefWorkItem(floc: String)
+    
+    /// Local relation as a floc may have many sainums
+    rel FlocAibRef(funcloc: String, sainum: String)
+
+    def makeFlocAibRefWorkItems(xs: List[FlocWorkItemRec]): #{FlocAibRefWorkItem | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ FlocAibRefWorkItem(x.funcloc). }, #{}, xs)
+
+    def makeFlocAibRef(x: FlocWorkItemRec): #{FlocAibRef | r} = 
+        List.foldLeft((ac, sai) -> ac <+> #{ FlocAibRef(x.funcloc, sai). }, #{}, x.sainums)
+
+
+    def flocAibReference(workitems: #{FlocAibRefWorkItem, FlocAibRef, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+        let rules = #{
+            
+            /// 1-to-1 to work item
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :- 
+                FlocAibRefWorkItem(funcloc).
+
+            /// 1-to-1 work item to AI2_AIB_REFERENCE
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
+                FlocAibRef(funcloc, sainum).                
+        };
+        solve (rules <+> workitems) project FlocCharacteristic
+
+    /// # Equi
 
     pub def genEquiAibReference(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
@@ -56,30 +95,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         };
         solve (rules <+> input) project EquiCharacteristic
 
-    pub rel FlocAibRef(funcloc: String, sainum: String)
-
-    def makeFlocAibRef(x: FlocWorkItemRec): #{FlocAibRef | r} = 
-        List.foldLeft((ac, sai) -> ac <+> #{ FlocAibRef(x.funcloc, sai). }, #{}, x.sainums)
-
-    pub def genFlocAibReference(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
-        use Result.{flatMap};
-        let workitems1  = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
-        let workitems2  = List.foldLeft((ac, x) -> ac <+> makeFlocAibRef(x), #{}, worklist);
-        let ans         = flocAibReference(workitems1 <+> workitems2) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
-        Ok(ans) 
-
-    def flocAibReference(workitems: #{FlocAibRef, FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
-        let rules = #{
-            
-            /// 1-to-1 to work item
-            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, _, _).
-
-            /// 1-to-1 work item to AI2_AIB_REFERENCE
-            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
-                FlocAibRef(funcloc, sainum).                
-        };
-        solve (rules <+> workitems) project FlocCharacteristic
 
 
 }

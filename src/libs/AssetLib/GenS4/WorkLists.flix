@@ -51,7 +51,7 @@ namespace AssetLib/GenS4/WorkLists {
         , solutionId: String
         }
 
-
+    /// The relation is version is DEPRECATED
     pub rel FlocWorkItem(funcloc: String, 
                         description: String, 
                         level: Int32, 

@@ -43,12 +43,12 @@ namespace AssetLib/GenS4/GenFlocs {
         /// TODO use all gen_ functions rather than pass relations about...
         let* ch2            = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitemRecs);
         let* ch3            = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitemRecs);
-        let c4              = AssetLib/GenS4/Rules/Characteristics/SolutionId.flocSolutionId(workitems);
+        let* ch4            = AssetLib/GenS4/Rules/Characteristics/SolutionId.genFlocSolutionId(workitemRecs);
         let chars           = 
-            (solve (c1 <+> c4) project FlocCharacteristic) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+            (solve c1 project FlocCharacteristic) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
         Ok( { funclocs = Chain.fromList(flocs)
             , funclocLongTexts = Chain.empty()
-            , funclocCharacteristics = (chars `Chain.append` ch2) `Chain.append` ch3
+            , funclocCharacteristics = Monoid.combineAll(chars :: ch2 :: ch3 :: ch4 :: Nil)
             , equipment = Chain.empty()
             , equiLongTexts = Chain.empty()
             , equiCharacteristics = Chain.empty()

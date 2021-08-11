@@ -18,47 +18,63 @@
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
+
+    /// # Floc
+
+
+
+    pub def genFlocSolutionId(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = makeFlocSolnIdWorkItems(worklist);
+        let ans         = flocSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        Ok(ans)
+
+    /// Case specific WorkItem...
+    pub rel FlocSolnIdWorkItem(floc: String, soulutionId: String)
+
+    /// SolutionId specific
+    def makeFlocSolnIdWorkItems(xs: List[FlocWorkItemRec]): #{FlocSolnIdWorkItem | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ FlocSolnIdWorkItem(x.funcloc, x.solutionId). }, #{}, xs)
+
+    pub def flocSolutionId(input: #{FlocSolnIdWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+        let rules = #{
+            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :- 
+                FlocSolnIdWorkItem(funcloc, solutionId), 
+                if not String.isEmpty(solutionId).
+        };
+        solve (rules <+> input) project FlocCharacteristic
+
+
+    /// # Equi
+
     pub def genEquiSolutionId(worklist: List[EquiWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = makeEquiSolnIdWorkItems(worklist);
         let ans         = equiSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
     /// Case specific WorkItem...
-    pub rel SolutionIdWorkItem(equiId: String, soulutionId: String)
+    pub rel EquiSolnIdWorkItem(equiId: String, soulutionId: String)
 
     /// SolutionId specific
-    def makeWorkItems(xs: List[EquiWorkItem]): #{SolutionIdWorkItem | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ SolutionIdWorkItem(x.equipmentId, x.solutionId). }, #{}, xs)
+    def makeEquiSolnIdWorkItems(xs: List[EquiWorkItem]): #{EquiSolnIdWorkItem | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiSolnIdWorkItem(x.equipmentId, x.solutionId). }, #{}, xs)
 
 
     /// This generates a SOLUTION_ID class and characteristic for every item in the change request list
     /// that has a `Solution ID`.
     ///
-    pub def equiSolutionId(workitems: #{SolutionIdWorkItem, EquiCharacteristic | r}): #{EquiCharacteristic | r1} =
+    pub def equiSolutionId(input: #{EquiSolnIdWorkItem, EquiCharacteristic | r}): #{EquiCharacteristic | r1} =
        let rules =  #{
             EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
-                SolutionIdWorkItem(equiId, solutionId),
+                EquiSolnIdWorkItem(equiId, solutionId),
                 if not String.isEmpty(solutionId).
         };
-        solve (rules <+> workitems) project EquiCharacteristic
+        solve (input <+> rules) project EquiCharacteristic
         
-    pub def genFlocSolutionId(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
-        use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
-        let ans         = flocSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
-        Ok(ans)
-
-    pub def flocSolutionId(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
-        let rules = #{
-            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, solutionId), 
-                if not String.isEmpty(solutionId).
-        };
-        solve (rules <+> workitems) project FlocCharacteristic
-
+    
 }
