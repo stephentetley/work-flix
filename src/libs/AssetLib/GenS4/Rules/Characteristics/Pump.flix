@@ -24,7 +24,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
-    use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
     /// src should be pump facts
@@ -35,6 +34,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
         let ans         = pump(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
+    /// TODO - this would be resuable to other generators (rather than just Aib-to-S4)
+    /// If we had a Pump specific work item...
+    /// pub rel PumpWorkItem(equiId: String, s4Class: String).
 
     pub def pump(input: #{EquiWorkItem, DiaphragmMaterial, DutyHead, DutyHeadUnits,
                             Flow, FlowUnits, ImpellerType, LiftingType, 

@@ -1,29 +1,30 @@
 /// This is a temporary script to work out how we make the S4Lite backend configurable
 /// and how we can collect configurable sets of facts.
+use SheetIO/Reader.{XlsxSource};
 
 use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-use AssetLib/GenS4/WorkLists.{EquipmentWorkItem};
+use AssetLib/GenS4/WorkLists.{EquiWorkItemRec};
 use AssetLib/GenS4/GenEqui.{GenEquiArguments};
-use AssetLib/GenS4/XlsxSource.{XlsxSource};
+
 
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , changeRequestName = "Elvin (BF)"
+    , changeRequestName = "Rivelin"
     , outpath = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/rivel-uxl-output1.xlsx")
     }
 
 def genEquiArgs(): GenEquiArguments = 
     { workList = 
-        {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-sodium-hypo-worklist.xlsx"), sheet = "Sheet1"}
+        {path = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-sodium-hypo-worklist.xlsx"), sheet = "Sheet1"}
     , aibEquipmentExport = 
-        {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"}
+        {path = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"}
     , aibMemosExport = 
-        {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-memos-export.xlsx"), sheet = "Sheet1"}
+        {path = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-memos-export.xlsx"), sheet = "Sheet1"}
     }
 
 def genFlocSource(): XlsxSource = 
-    {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-sodium-hypo-worklist.xlsx"), sheet = "New_Flocs"}
+    {path = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-sodium-hypo-worklist.xlsx"), sheet = "New_Flocs"}
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -41,15 +42,15 @@ def genRivelPhase1(): Result[Unit, String] & Impure =
     let* flocs      = AssetLib/GenS4/GenFlocs.generateFlocUxl(genFlocSource());
     let* equis      = AssetLib/GenS4/GenEqui.generateEquiUxl(equiArgs);
     let uxl         = AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis);
-    let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(emitArgs, uxl);
+    let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(true, emitArgs, uxl);
     let _           = Console.printLine("Wrote: ${emitArgs.outpath}");
     Ok()
 
 def _genFlocEastNorthUpload(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
-    let flocArgs    = genFlocSource();
+    let flocSource  = genFlocSource();
     let outdir      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/");
-    let* xs         = AssetLib/GenS4/WorkLists.readFlocWorkList(flocArgs.sheet, flocArgs.file);
+    let* xs         = AssetLib/GenS4/WorkLists.readFlocWorkList(flocSource);
     let _           = Console.printLine("Floc work list length: ${List.length(xs)}");
     let* flocchars  = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(xs);    
     let _           = Console.printLine("flocchars length: ${Chain.length(flocchars)}");
@@ -66,10 +67,10 @@ def _genFlocEastNorthUpload(): Result[Unit, String] & Impure =
 /// TSTN    Instrument
 /// VALV    Valve
 
-type alias Phase2Step = List[EquipmentWorkItem] ~> Result[Chain[SLEquiCharacteristic], String]
+type alias Phase2Step = List[EquiWorkItemRec] ~> Result[Chain[SLEquiCharacteristic], String]
 
 def aibReference(): Phase2Step = xs -> 
-    let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
+    let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
     AssetLib/GenS4/Rules/Characteristics/AibReference.genEquiAibReference(xs, src) 
 
 /// def assetCondition(): Phase2Step = xs -> 
@@ -127,21 +128,22 @@ def _genRivelPhase2(): Result[Unit, String] & Impure =
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
     let outdir      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/output/");
-    let* xs         = AssetLib/GenS4/WorkLists.readEquiWorkList(equiArgs.workList.sheet, equiArgs.workList.file);    
+    let* xs         = AssetLib/GenS4/WorkLists.readEquiWorkList(equiArgs.workList);    
     let _           = Console.printLine("xs length: ${List.length(xs)}");
     let* cs         = runSteps(phase2Steps(), xs);
     let _           = Console.printLine("cs length: ${Chain.length(cs)}");
     let crpath      = System/FilePath.new("G:/work/assets/capital_schemes/rivel/CR7956-rivel-equis.xlsx");
     let renamings   = AssetLib/GenS4/WorkLists.getEquipmentWorkItemKeyMap(xs);
     let* cs1        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(renamings, "Data", crpath, cs);
-    let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs1, "rivel", outdir);
+    let filter      = AssetLib/S4Lite/EmitUpload.namedClassFilter("AIB_REFERENCE" :: Nil);
+    let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs1, "rivel", filter, outdir);
     Ok()
 
-def runSteps(steps: List[Phase2Step], xs: List[EquipmentWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
+def runSteps(steps: List[Phase2Step], xs: List[EquiWorkItemRec]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
     runStepsHelper(steps, xs, msg -> Err(msg), cs -> Ok(cs))
 
 def runStepsHelper(steps: List[Phase2Step], 
-                    xs: List[EquipmentWorkItem], 
+                    xs: List[EquiWorkItemRec], 
                     fk: String -> Result[Chain[SLEquiCharacteristic], String],
                     sk: Chain[SLEquiCharacteristic] -> Result[Chain[SLEquiCharacteristic], String]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
     match steps {

@@ -28,6 +28,9 @@ namespace AssetLib/GenS4/Rules/LongText {
     rel HasLocationOnSite(id: String)
     rel HasMemoLines(id: String)
 
+    /// TODO - we could have easier (and more flexible rules) if we groupBy `equiId`
+    /// as a post-processing step (and change the answer type to a record not a relation...)
+
     pub def genEquiLongText(input: #{EquiWorkItem, AibMemoLine, LocationOnSite, 
                                     HasLocationOnSite, HasMemoLines,
                                     EquiLongText | r}): #{EquiLongText | r} = 
