@@ -25,34 +25,38 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
-    
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
     /// src should be electrical facts
     pub def genSole(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
         let ans         = sole(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
-    pub def sole(input: #{EquiWorkItem, IPRating, InsulationClass, CurrentIn, PowerUnits, Power, 
-                            EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
+    pub def sole(input: #{EquiWorkItem3, IPRating, InsulationClass, CurrentIn, PowerUnits, Power, 
+                            EquiCharacteristic | r}): #{EquiCharacteristic | r1} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
+                EquiWorkItem3(equiId, "SOLE", s4Class),
                 IPRating(equiId, rating).
 
             EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(insulationClass(insClass))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
+                EquiWorkItem3(equiId, "SOLE", s4Class),
                 InsulationClass(equiId, insClass),
                 if recognizedInsulationClass(insClass).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
+                EquiWorkItem3(equiId, "SOLE", s4Class),
                 CurrentIn(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "SOLE", s4Class),
+                EquiWorkItem3(equiId, "SOLE", s4Class),
                 PowerUnits(equiId, "KILOWATTS"),
                 Power(equiId, power).
         }; 

@@ -17,6 +17,8 @@
 
 namespace AssetLib/GenS4/Rules/Characteristics/Utils {
 
+
+
     pub def iEqual(x: Float64, y: Int32): Bool = 
         let y1 = Int32.toFloat64(y);
         tEqual(0.01f64, x, y1)

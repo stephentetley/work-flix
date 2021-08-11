@@ -23,29 +23,35 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
     
 
     pub def genEquiAibReference(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/AibReference.readHierarchyRelations(src);
         let ans         = equiAibReference(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
+
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
     /// 
-    def equiAibReference(input: #{EquiWorkItem, ParentRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    def equiAibReference(input: #{EquiWorkItem3, ParentRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _).
+                EquiWorkItem3(equiId, _, _).
 
             /// AIB_REFERENCE (item)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(equiId)) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _).
+                EquiWorkItem3(equiId, _, _).
 
             /// AI2_AIB_REFERENCE (parent)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parent)) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 ParentRef(equiId, _, parent).
         };
         solve (rules <+> input) project EquiCharacteristic

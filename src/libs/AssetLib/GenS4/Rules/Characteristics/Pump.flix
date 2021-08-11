@@ -21,50 +21,55 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     use AssetLib/AibFacts/Attributes/Pump.{DiaphragmMaterial, DutyHead, DutyHeadUnits,
         Flow, FlowUnits, ImpellerType, LiftingType, RatingPower, RatingUnits};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
-    
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
     /// src should be pump facts
     pub def genPump(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src);
         let ans         = pump(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
     /// TODO - this would be resuable to other generators (rather than just Aib-to-S4)
-    /// If we had a Pump specific work item...
-    /// pub rel PumpWorkItem(equiId: String, s4Class: String).
+    /// If we had a more specificwork item...
 
-    pub def pump(input: #{EquiWorkItem, DiaphragmMaterial, DutyHead, DutyHeadUnits,
+
+    
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
+    pub def pump(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead, DutyHeadUnits,
                             Flow, FlowUnits, ImpellerType, LiftingType, 
                             RatingPower, RatingUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                EquiWorkItem3(equiId, "PUMP", s4Class),
                 Flow(equiId, flow),
                 FlowUnits(equiId, units),
                 if recognizedFlowUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "PUMP_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                EquiWorkItem3(equiId, "PUMP", s4Class),
                 DutyHead(equiId, ans),
                 DutyHeadUnits(equiId, "METRES").
 
             /// TODO may have to limit pump-classes here...
             EquiCharacteristic(equiId, s4Class, "PUMP_IMPELLER_TYPE", 1, S4String(ans)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                EquiWorkItem3(equiId, "PUMP", s4Class),
                 ImpellerType(equiId, ans).
 
             EquiCharacteristic(equiId, s4Class, "PUMP_DIAPHRAGM_MATERIAL", 1, S4String(diaphragmMaterial(material))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                EquiWorkItem3(equiId, "PUMP", s4Class),
                 DiaphragmMaterial(equiId, material),
                 if recognizedDiaphragmMaterial(material).
 
             EquiCharacteristic(equiId, s4Class, "PUMP_RATED_POWER_KW", 1, S4Float(ans)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "PUMP", s4Class),
+                EquiWorkItem3(equiId, "PUMP", s4Class),
                 RatingPower(equiId, ans),
                 RatingUnits(equiId, "KILOWATTS").
         };

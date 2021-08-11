@@ -24,38 +24,42 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
     use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
-    use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
     
 
     /// src should be lifting facts
     pub def genCrht(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Lifting.readLiftingData(src);
         let ans         = crht(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
 
     /// Note LOCATION_ON_SITE already created.
-    pub def crht(input: #{EquiWorkItem, WorkLoad, WorkLoadUnits, TestCertNo, YWRef, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+    pub def crht(input: #{EquiWorkItem3, WorkLoad, WorkLoadUnits, TestCertNo, YWRef, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "CRHT", s4Class),
+                EquiWorkItem3(equiId, "CRHT", s4Class),
                 YWRef(equiId, ywref).
 
             EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "CRHT", s4Class),
+                EquiWorkItem3(equiId, "CRHT", s4Class),
                 TestCertNo(equiId, number).
 
 
             EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "CRHT", s4Class),
+                EquiWorkItem3(equiId, "CRHT", s4Class),
                 WorkLoad(equiId, load),
                 WorkLoadUnits(equiId,  units),
                 if recognizedLoadUnit(units).
 
             EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD_UNITS", 1, S4String(loadUnit(units))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "CRHT", s4Class),
+                EquiWorkItem3(equiId, "CRHT", s4Class),
                 WorkLoadUnits(equiId, units),
                 if recognizedLoadUnit(units).
 

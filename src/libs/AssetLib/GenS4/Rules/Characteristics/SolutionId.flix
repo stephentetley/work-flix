@@ -24,17 +24,25 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     pub def genEquiSolutionId(worklist: List[EquiWorkItemRec]): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let ans         = equiSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
+
+    /// Merits specific WorkItem...
+    pub rel SolutionIdWorkItem(equiId: String, soulutionId: String)
+
+    /// SolutionId specific
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{SolutionIdWorkItem | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ SolutionIdWorkItem(x.equipmentId, x.solutionId). }, #{}, xs)
+
 
     /// This generates a SOLUTION_ID class and characteristic for every item in the change request list
     /// that has a `Solution ID`.
     ///
-    pub def equiSolutionId(workitems: #{EquiWorkItem, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    pub def equiSolutionId(workitems: #{SolutionIdWorkItem, EquiCharacteristic | r}): #{EquiCharacteristic | r1} =
        let rules =  #{
             EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
-                EquiWorkItem(equiId, _, _,  _, solutionId, _,  _, _, _),
+                SolutionIdWorkItem(equiId, solutionId),
                 if not String.isEmpty(solutionId).
         };
         solve (rules <+> workitems) project EquiCharacteristic

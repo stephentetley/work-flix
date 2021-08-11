@@ -23,25 +23,31 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
+    
 
     /// src should be valve facts
     pub def genValv(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Valve.readValveData(src);
         let ans         = valv(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
-    pub def valv(input: #{EquiWorkItem, ValveType, Size, SizeUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
+    pub def valv(input: #{EquiWorkItem3, ValveType, Size, SizeUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
-                EquiWorkItem(equiId, _, _, _, _, _, _, "VALV", s4Class),
+                EquiWorkItem3(equiId, "VALV", s4Class),
                 Size(equiId, size),
                 SizeUnits(equiId, units),
                 if recognizedSizeUnits(units) and s4Class != "VALVRE".
 
             EquiCharacteristic(equiId, "VALVRE", "VALV_BORE_DIAMETER_MM", 1, S4Int(sizeMM(size, units))) :- 
-                EquiWorkItem(equiId, _, _, _, _, _, _, "VALV", "VALVRE"),
+                EquiWorkItem3(equiId, "VALV", "VALVRE"),
                 Size(equiId, size),
                 SizeUnits(equiId, units),
                 if recognizedSizeUnits(units).

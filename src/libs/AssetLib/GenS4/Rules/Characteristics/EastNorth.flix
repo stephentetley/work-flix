@@ -23,24 +23,29 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
     
     pub def genEquiEastNorth(worklist: List[EquiWorkItemRec], 
                             src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let* facts      = AssetLib/AibFacts/Attributes/LocationData.readOsgb36GridRefData(src);
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let ans         = equiEastNorth(facts <+> workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
-    pub def equiEastNorth(input: #{EquiWorkItem, Osgb36GridRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
+    pub def equiEastNorth(input: #{EquiWorkItem3, Osgb36GridRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{            
             EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 Osgb36GridRef(equiId, ngr).
 
             EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 Osgb36GridRef(equiId, ngr).
         };
         solve (rules <+> input) project EquiCharacteristic

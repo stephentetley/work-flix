@@ -25,49 +25,54 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
 
     /// src should be instrument facts
     pub def genFstn(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src);
         let ans         = fstn(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
 
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
     /// Note LOCATION_ON_SITE already created.
-    pub def fstn(input: #{EquiWorkItem, RangeMin, RangeMax, RangeUnit,
+    pub def fstn(input: #{EquiWorkItem3, RangeMin, RangeMax, RangeUnit,
                             SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                EquiWorkItem3(equiId, "FSTN", s4Class),
                 SignalMin(equiId, smin),
                 SignalMax(equiId, smax),
                 SignalUnit(equiId, "mA"),
                 if iEqual(smin, 4) and iEqual(smax, 20).
 
             EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                EquiWorkItem3(equiId, "FSTN", s4Class),
                 SignalMin(equiId, smin),
                 SignalMax(equiId, smax),
                 SignalUnit(equiId, "Digital"),
                 if iEqual(smin, 0) and iEqual(smax, 1).
 
            EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MIN", 1, S4Float(rmin)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                EquiWorkItem3(equiId, "FSTN", s4Class),
                 RangeMin(equiId, rmin),
                 RangeUnit(equiId, unit),
                 if recognizedRangeUnit(unit).
 
             EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MAX", 1, S4Float(rmax)) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                EquiWorkItem3(equiId, "FSTN", s4Class),
                 RangeMax(equiId, rmax),
                 RangeUnit(equiId,  units),
                 if recognizedRangeUnit(units).
 
             EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_UNITS", 1, S4String(rangeUnit(units))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "FSTN", s4Class),
+                EquiWorkItem3(equiId, "FSTN", s4Class),
                 RangeUnit(equiId, units),
                 if recognizedRangeUnit(units).
 

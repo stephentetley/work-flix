@@ -26,50 +26,54 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
-    
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
 
     /// src should be asset condition facts
     pub def genAssetCondition(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(src);
         let ans = assetCondition(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
-    pub def assetCondition(input: #{EquiWorkItem, ConditionGrade, ConditionGradeReason, 
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
+    pub def assetCondition(input: #{EquiWorkItem3, ConditionGrade, ConditionGradeReason, 
                                     LoadingFactor, LoadingFactorReason, 
                                     PerformanceGrade, PerformanceGradeReason, 
                                     SurveyYear, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(s4ConditionGrade(grade))) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 ConditionGrade(equiId, grade).
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 ConditionGradeReason(equiId, reason).
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR", 1, S4String(s4LoadingFactor(factor))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 LoadingFactor(equiId, factor).
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR_REASON", 1, S4String(String.toUpperCase(reason))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 LoadingFactorReason(equiId, reason).
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE", 1, S4String(s4PerformanceGrade(grade))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 PerformanceGrade(equiId, grade).
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 PerformanceGradeReason(equiId, reason).
 
             /// NOTE in Aib this is called "SURVEY_YEAR"
             EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", 1, S4Int(year)) :- 
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, _, _),
+                EquiWorkItem3(equiId, _, _),
                 SurveyYear(equiId, year).           
 
         }; 

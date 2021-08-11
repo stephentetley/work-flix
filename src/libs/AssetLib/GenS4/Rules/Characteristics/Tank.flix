@@ -27,27 +27,32 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
     
 
 
     /// src should be tank facts
     pub def genTank(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItems(worklist);
+        let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src);
         let ans         = tank(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
-    pub def tank(input: #{EquiWorkItem, TankLevel, 
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+
+    pub def tank(input: #{EquiWorkItem3, TankLevel, 
                             TankConstruction, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
         let rules = #{
             EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(tankLevel(level))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "TANK", s4Class),
+                EquiWorkItem3(equiId, "TANK", s4Class),
                 TankLevel(equiId, level),
                 if recognizedTankLevel(level).
                 
             EquiCharacteristic(equiId, "002", "TANK_TANK_CONSTRUCTION", 1, S4String(tankConstruction(ans))) :-
-                EquiWorkItem(equiId, _, _,  _, _, _,  _, "TANK", s4Class),
+                EquiWorkItem3(equiId, "TANK", s4Class),
                 TankConstruction(equiId, ans),
                 if recognizedTankConstruction(ans).                
         };
