@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
         let ans         = equiSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
         Ok(ans) 
 
-    /// Merits specific WorkItem...
+    /// Case specific WorkItem...
     pub rel SolutionIdWorkItem(equiId: String, soulutionId: String)
 
     /// SolutionId specific

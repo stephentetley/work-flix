@@ -17,12 +17,13 @@
 
 namespace AssetLib/GenS4/Rules/LongText {
 
-    use SheetIO.NamedRowEvaluator;
-    use SheetIO.SheetReader;
 
+    use SheetIO/Reader.{XlsxSource};
+
+    use AssetLib/S4Lite/Datatypes.{SLEquiLongText};
     use AssetLib/AibFacts/Attributes/LocationData.{LocationOnSite};
     use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText};
 
     rel HasLocationOnSite(id: String)
@@ -31,7 +32,24 @@ namespace AssetLib/GenS4/Rules/LongText {
     /// TODO - we could have easier (and more flexible rules) if we groupBy `equiId`
     /// as a post-processing step (and change the answer type to a record not a relation...)
 
-    pub def genEquiLongText(input: #{EquiWorkItem, AibMemoLine, LocationOnSite, 
+
+    pub def genEquiLongText(worklist: List[EquiWorkItemRec], memosSrc: XlsxSource): Result[Chain[SLEquiLongText], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = makeLongTextWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
+        let ans         = equiLongText(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiLongText;
+        Ok(ans) 
+
+
+    /// Case specific WorkItem...
+    pub rel LongTextWorkItem(equiId: String, equiName: String)
+
+    /// SolutionId specific
+    pub def makeLongTextWorkItems(xs: List[EquiWorkItemRec]): #{LongTextWorkItem | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ LongTextWorkItem(x.equipmentId, x.s4Name). }, #{}, xs)
+
+
+    pub def equiLongText(input: #{LongTextWorkItem, AibMemoLine, LocationOnSite, 
                                     HasLocationOnSite, HasMemoLines,
                                     EquiLongText | r}): #{EquiLongText | r} = 
         let rules = #{
@@ -40,25 +58,25 @@ namespace AssetLib/GenS4/Rules/LongText {
             HasLocationOnSite(equiId) :- LocationOnSite(equiId, _).
 
             EquiLongText(equiId, description, combine(memoText, location) ) :- 
-                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                LongTextWorkItem(equiId, description),
                 AibMemoLine(equiId, memoText),
                 LocationOnSite(equiId, location), 
                 if (String.length(location) > 30).
 
             EquiLongText(equiId, description, String.trim(memoText)) :- 
-                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                LongTextWorkItem(equiId, description),
                 AibMemoLine(equiId, memoText), 
                 not HasLocationOnSite(equiId).
 
             EquiLongText(equiId, description, String.trim(memoText)) :- 
-                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                LongTextWorkItem(equiId, description),
                 AibMemoLine(equiId, memoText), 
                 LocationOnSite(equiId, location), 
                 if (String.length(location) <= 30).
 
 
             EquiLongText(equiId, description, locationOnSite(location) ) :- 
-                EquiWorkItem(equiId, description, _, _, _, _, _, _, _),
+                LongTextWorkItem(equiId, description),
                 LocationOnSite(equiId, location), 
                 not HasMemoLines(equiId),
                 if (String.length(location) > 30).
