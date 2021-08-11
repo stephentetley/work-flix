@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Electrical.{IPRating, InsulationClass, CurrentIn, PowerUnits, Power};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
     /// src should be electrical facts
-    pub def genSole(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genSole(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
@@ -36,7 +36,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
         Ok(ans) 
 
     /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
         List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def sole(input: #{EquiWorkItem3, IPRating, InsulationClass, CurrentIn, PowerUnits, Power, 

@@ -20,13 +20,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/AibReference.{ParentRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItemRec, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
     
 
-    pub def genEquiAibReference(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genEquiAibReference(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/AibReference.readHierarchyRelations(src);
@@ -35,7 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
 
     /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
         List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     /// 

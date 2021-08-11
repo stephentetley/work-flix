@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/WorkLists {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    type alias EquiWorkItemRec = 
+    type alias EquiWorkItem = 
         { equipmentId: String
         , s4Name: String
         , s4Floc: String
@@ -34,34 +34,6 @@ namespace AssetLib/GenS4/WorkLists {
         }
 
 
-
-    /// `equipmentId` (and `superEquiId`) will get transposed by S4Lite
-    /// `s4EquiClass` should be mandatory (even for valves) this simplifies things significatly.
-    /// Arity 9
-    pub rel EquiWorkItem(equipmentId: String,
-                            s4Name: String,  
-                            s4Floc: String,
-                            superEquiId: String,
-                            solutionId: String,
-                            position: Option[Int32],
-                            s4Category: String, 
-                            s4EquiType: String, 
-                            s4EquiClass: String)
-
-    pub def makeEquiWorkItems(xs: List[EquiWorkItemRec]): #{ EquiWorkItem | r} = 
-        List.foldLeft((ac, a) -> ac <+> makeEquiWorkItem(a), #{}, xs)
-
-    pub def makeEquiWorkItem(x: EquiWorkItemRec): #{ EquiWorkItem | r} = #{
-        EquiWorkItem(x.equipmentId,
-                        x.s4Name,  
-                        x.s4Floc,
-                        x.superEquiId,
-                        x.solutionId,
-                        x.position,
-                        x.s4Category, 
-                        x.s4EquiType, 
-                        x.s4EquiClass).
-    }
 
     /// Functional Location (under-developed at the moment)
 
@@ -112,13 +84,13 @@ namespace AssetLib/GenS4/WorkLists {
 
 
     /// Read from Aib xlsx export file...
-    pub def readEquiWorkList(src: XlsxSource): Result[List[EquiWorkItemRec], String] & Impure =
+    pub def readEquiWorkList(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =
         use SheetIO/NamedRowEvaluator.{optional};
         SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem()))
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory
-    def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItemRec] =
+    def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
         let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
         let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
@@ -142,14 +114,14 @@ namespace AssetLib/GenS4/WorkLists {
 
 
  
-    pub def getEquipmentWorkItemKeyMap(xs: List[EquiWorkItemRec]): Map[String, String] =
+    pub def getEquipmentWorkItemKeyMap(xs: List[EquiWorkItem]): Map[String, String] =
         let dict1 = buildKeyToDesc(xs);
         List.foldLeft((ac, x) ->  Map.insert(x.equipmentId, makeThreePartName(x, dict1), ac), Map.empty(), xs)
         
-    def buildKeyToDesc(xs: List[EquiWorkItemRec]): Map[String, String] = 
+    def buildKeyToDesc(xs: List[EquiWorkItem]): Map[String, String] = 
         List.foldLeft((ac, x) -> Map.insert(x.equipmentId, x.s4Name, ac), Map.empty(), xs)
 
-    def makeThreePartName(x: EquiWorkItemRec, descs: Map[String, String]): String = 
+    def makeThreePartName(x: EquiWorkItem, descs: Map[String, String]): String = 
         if (not String.isEmpty(x.superEquiId)) {
             let superName = Map.getWithDefault(x.superEquiId, "Impossible", descs);
             "${x.s4Name}::${x.s4Floc}::${superName}"

@@ -23,7 +23,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     use AssetLib/S4Lite/Datatypes.{SLEquiLongText};
     use AssetLib/AibFacts/Attributes/LocationData.{LocationOnSite};
     use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText};
 
     rel HasLocationOnSite(id: String)
@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     /// as a post-processing step (and change the answer type to a record not a relation...)
 
 
-    pub def genEquiLongText(worklist: List[EquiWorkItemRec], memosSrc: XlsxSource): Result[Chain[SLEquiLongText], String] & Impure =
+    pub def genEquiLongText(worklist: List[EquiWorkItem], memosSrc: XlsxSource): Result[Chain[SLEquiLongText], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeLongTextWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
@@ -45,7 +45,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     pub rel LongTextWorkItem(equiId: String, equiName: String)
 
     /// SolutionId specific
-    pub def makeLongTextWorkItems(xs: List[EquiWorkItemRec]): #{LongTextWorkItem | r}  = 
+    pub def makeLongTextWorkItems(xs: List[EquiWorkItem]): #{LongTextWorkItem | r}  = 
         List.foldLeft((ac, x) -> ac <+> #{ LongTextWorkItem(x.equipmentId, x.s4Name). }, #{}, xs)
 
 

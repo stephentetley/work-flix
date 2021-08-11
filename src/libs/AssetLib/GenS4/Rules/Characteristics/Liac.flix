@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Liac {
     use AssetLib/AibFacts/Attributes/Lifting.{WorkLoad, WorkLoadUnits,
         TestCertNo, YWRef};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Liac {
     
 
     /// src should be lifting facts
-    pub def genLiac(worklist: List[EquiWorkItemRec], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genLiac(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeWorkItems(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Lifting.readLiftingData(src);
@@ -38,7 +38,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Liac {
 
 
     /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
         List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     /// Note LOCATION_ON_SITE already created.

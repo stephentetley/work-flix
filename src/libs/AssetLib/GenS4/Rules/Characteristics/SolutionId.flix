@@ -18,11 +18,11 @@
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItemRec, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
-    pub def genEquiSolutionId(worklist: List[EquiWorkItemRec]): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genEquiSolutionId(worklist: List[EquiWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeWorkItems(worklist);
         let ans         = equiSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     pub rel SolutionIdWorkItem(equiId: String, soulutionId: String)
 
     /// SolutionId specific
-    def makeWorkItems(xs: List[EquiWorkItemRec]): #{SolutionIdWorkItem | r}  = 
+    def makeWorkItems(xs: List[EquiWorkItem]): #{SolutionIdWorkItem | r}  = 
         List.foldLeft((ac, x) -> ac <+> #{ SolutionIdWorkItem(x.equipmentId, x.solutionId). }, #{}, xs)
 
 

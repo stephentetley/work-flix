@@ -20,12 +20,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/LocationData.{Osgb36GridRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItemRec, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
     use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
     
-    pub def genEquiEastNorth(worklist: List[EquiWorkItemRec], 
+    pub def genEquiEastNorth(worklist: List[EquiWorkItem], 
                             src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let* facts      = AssetLib/AibFacts/Attributes/LocationData.readOsgb36GridRefData(src);
@@ -34,7 +34,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
         Ok(ans) 
 
     /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItemRec]): #{EquiWorkItem3 | r}  = 
+    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
         List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def equiEastNorth(input: #{EquiWorkItem3, Osgb36GridRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =

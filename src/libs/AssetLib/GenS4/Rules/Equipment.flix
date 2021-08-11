@@ -16,25 +16,27 @@
 
 namespace AssetLib/GenS4/Rules/Equipment {
 
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttributes};
     use AssetLib/AibFacts/Attributes/LocationData.{LocationOnSite};
-    use AssetLib/S4Lite/Datatypes.{SLEquipment};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItemRec, EquiWorkItem};
+    use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
 
     /// # Equipment
 
 
-    pub def genEquis(attribs: List[EquipmentAttributes], xs: List[EquiWorkItemRec]): Result[List[SLEquipment], String] & Impure = 
+    pub def genEquis(attribs: List[EquipmentAttributes], xs: List[EquiWorkItem]): Result[List[SLEquipment], String] & Impure = 
         let patches = AssetLib/GenS4/Patch.makeEquipmentAttributesPatches(attribs);
         let today = Time/LocalDate.now();
         List.map(genEqui1(today), xs) 
             |> AssetLib/GenS4/Patch.patchEquipment(patches)
 
 
-    def genEqui1(today: Time.LocalDate, x: EquiWorkItemRec): SLEquipment =
+    def genEqui1(today: Time.LocalDate, x: EquiWorkItem): SLEquipment =
         { equiId                = x.equipmentId
         , category              = x.s4Category              /// e.g "M", "I", "E"
         , description           = String.takeLeft(40, x.s4Name)
@@ -56,25 +58,31 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
     
     /// # Characteristics
+    /// src should be valve facts
+    pub def genCommonCharacteristics(worklist: List[EquiWorkItem], locationSrc: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = makeWorkItems(worklist);
+        let* facts      = AssetLib/AibFacts/Attributes/LocationData.readLocationOnSiteData(locationSrc);
+        let ans         = equiCommonCharacteristics(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        Ok(ans) 
 
-    pub rel WorkItem(equiId: String, s4ClassId: String) 
+    /// Where to put this?
+    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
-    pub def makeWorkItems(xs: List[EquiWorkItemRec]): #{WorkItem | r} = 
-        let makeRel = row -> #{ WorkItem(row.equipmentId, row.s4EquiClass). };
-        List.foldLeft((ac, x1) -> ac <+> makeRel(x1), #{}, xs)
 
-    pub def equiCharacteristics1(input: #{WorkItem,
+    pub def equiCommonCharacteristics(input: #{EquiWorkItem3,
                                             LocationOnSite,  EquiCharacteristic| r1}): #{EquiCharacteristic | r} =
         let rules = #{
             
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
-                WorkItem(equiId, s4EquiClass).
+                EquiWorkItem3(equiId, _, s4EquiClass).
 
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
-                WorkItem(equiId, s4EquiClass).
+                EquiWorkItem3(equiId, _, s4EquiClass).
 
             EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(s4Location(location))) :-
-                WorkItem(equiId, s4EquiClass),
+                EquiWorkItem3(equiId, _, s4EquiClass),
                 LocationOnSite(equiId, location).
 
         };

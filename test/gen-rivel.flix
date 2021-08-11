@@ -4,7 +4,7 @@ use SheetIO/Reader.{XlsxSource};
 
 use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-use AssetLib/GenS4/WorkLists.{EquiWorkItemRec};
+use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 use AssetLib/GenS4/GenEqui.{GenEquiArguments};
 
 
@@ -67,7 +67,7 @@ def _genFlocEastNorthUpload(): Result[Unit, String] & Impure =
 /// TSTN    Instrument
 /// VALV    Valve
 
-type alias Phase2Step = List[EquiWorkItemRec] ~> Result[Chain[SLEquiCharacteristic], String]
+type alias Phase2Step = List[EquiWorkItem] ~> Result[Chain[SLEquiCharacteristic], String]
 
 def aibReference(): Phase2Step = xs -> 
     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
@@ -139,11 +139,11 @@ def _genRivelPhase2(): Result[Unit, String] & Impure =
     let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads("tetleys", cs1, "rivel", filter, outdir);
     Ok()
 
-def runSteps(steps: List[Phase2Step], xs: List[EquiWorkItemRec]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
+def runSteps(steps: List[Phase2Step], xs: List[EquiWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
     runStepsHelper(steps, xs, msg -> Err(msg), cs -> Ok(cs))
 
 def runStepsHelper(steps: List[Phase2Step], 
-                    xs: List[EquiWorkItemRec], 
+                    xs: List[EquiWorkItem], 
                     fk: String -> Result[Chain[SLEquiCharacteristic], String],
                     sk: Chain[SLEquiCharacteristic] -> Result[Chain[SLEquiCharacteristic], String]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
     match steps {
