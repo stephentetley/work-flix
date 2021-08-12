@@ -21,37 +21,31 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-
+    use AssetLib/GenS4/Base/CommonRelations.{ValveType, ValveSize};
 
     /// Read from Aib file...
 
 
-    pub def readValveData(src: XlsxSource): Result[#{ValveType, Size, SizeUnits | r}, String] & Impure =
-        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibValve(), true, src)
+    pub def readValveData(src: XlsxSource): Result[#{ValveType, ValveSize | r}, String] & Impure =
+        SheetIO/Reader.someNamedRelations(src, evalValve())
         
     
-    pub def aibValve(): NamedRowEvaluator[#{ValveType, Size, SizeUnits | r}] =
+    pub def evalValve(): NamedRowEvaluator[#{ValveType, ValveSize | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
-        let* c1 = withDefault(getValveType(), #{});
-        let* c2 = withDefault(getSize(), #{});
-        let* c3 = withDefault(getSizeUnits(), #{});
-        return(c1 <+> c2 <+> c3)    
+        let* c1 = withDefault(evalValveType(), #{});
+        let* c2 = withDefault(evalValveSize(), #{});
+        return(c1 <+> c2)    
 
-    pub rel ValveType(aibref: String, valveType: String)
+    
 
-    def getValveType(): NamedRowEvaluator[#{ValveType | r}] =
+    def evalValveType(): NamedRowEvaluator[#{ValveType | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Valve Type", (x1, x2) -> #{ ValveType(x1, x2). })
 
     
-    pub rel Size(aibref: String, size: Float64)
     
-    def getSize(): NamedRowEvaluator[#{Size | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Size", (x1, x2) -> #{ Size(x1, x2). })
-
-
-    pub rel SizeUnits(aibref: String, units: String)
-
-    def getSizeUnits(): NamedRowEvaluator[#{SizeUnits | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Size Units", (x1, x2) -> #{ SizeUnits(x1, x2). })
+    
+    def evalValveSize(): NamedRowEvaluator[#{ValveSize | r}] =
+        AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Size", 
+            "Size Units", (x1, x2, x3) -> #{ ValveSize(x1, x2, x3). }, #{})
 
 }

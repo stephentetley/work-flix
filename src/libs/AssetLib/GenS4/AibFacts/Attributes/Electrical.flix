@@ -23,7 +23,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
 
     use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, 
         InsulationClass, IPRating, Power, SpeedRPM, VoltageIn};
-    use AssetLib/GenS4/AibFacts/Utils.{getStringFact2, getFloatFact2, getIntFact2};
 
 
     /// Read from Aib file...
@@ -57,38 +56,22 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Insulation Class", (x1, x2) -> #{ InsulationClass(x1, x2). })
 
     def getIPRating(): NamedRowEvaluator[#{IPRating | r}] =
-        getStringFact2("IP Rating", (aibref, ans) -> #{ IPRating(aibref, ans). })
-
-
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("IP Rating", (x1, x2) -> #{ IPRating(x1, x2). })
 
     def getPower(): NamedRowEvaluator[#{Power | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            if (not String.isEmpty(x3))
-                #{ Power(x1, x2, x3). }
-            else #{}
-            )
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getFloat64Named("Power")
-        <*> getContentNamed("Power Units")
+        AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Power", 
+            "Power Units", (x1, x2, x3) -> #{ Power(x1, x2, x3). }, #{})
 
     
     def getSpeedRPM(): NamedRowEvaluator[#{SpeedRPM | r}] =
-        getIntFact2("Speed (RPM)", (aibref, ans) -> #{ SpeedRPM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getIntFact2("Speed (RPM)", (x1, x2) -> #{ SpeedRPM(x1, x2). })
 
 
     def getVoltageIn(): NamedRowEvaluator[#{VoltageIn | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getInt32Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            if (not String.isEmpty(x3))
-                #{ VoltageIn(x1, x2, x3). }
-            else #{}
-            )
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getInt32Named("Voltage In")
-        <*> getContentNamed("Voltage In (AC Or DC)")
+        AssetLib/GenS4/AibFacts/Utils.getIntFactWithUnits("Voltage In", 
+            "Voltage In (AC Or DC)", (x1, x2, x3) -> #{ VoltageIn(x1, x2, x3). }, #{})
+
+
 
 
 }

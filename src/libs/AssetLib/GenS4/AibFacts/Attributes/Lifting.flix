@@ -28,8 +28,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
     pub def readLiftingData(src: XlsxSource): Result[#{WorkLoad, TestCertNo, YWRef | r}, String] & Impure =
         SheetIO/Reader.allNamedRelations(src, evalLifting())
-        
-    
 
 
     def evalLifting(): NamedRowEvaluator[#{WorkLoad, TestCertNo, YWRef | r}] =
@@ -41,16 +39,9 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
 
     def evalWorkLoad(): NamedRowEvaluator[#{WorkLoad | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            if (not String.isEmpty(x3))
-                #{ WorkLoad(x1, x2, x3). }
-            else #{}
-            )
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getFloat64Named("Work Load")
-        <*> getContentNamed("Work Load Units")
+        AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Work Load", 
+            "Work Load Units", (x1, x2, x3) -> #{ WorkLoad(x1, x2, x3). }, #{})
+
 
     def evalTestCertNo(): NamedRowEvaluator[#{TestCertNo | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Test Cert No", (aibref, ans) -> #{ TestCertNo(aibref, ans). })

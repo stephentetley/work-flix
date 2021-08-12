@@ -97,4 +97,11 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     /// AIB: `Rating (Power)` and `Rating Units`
     pub rel RatingPower(itemId: String, rating: Float64, units: String)
+
+
+    /// Valve
+
+    pub rel ValveType(aibref: String, valveType: String)
+
+    pub rel ValveSize(aibref: String, size: Float64, units: String)
 }
