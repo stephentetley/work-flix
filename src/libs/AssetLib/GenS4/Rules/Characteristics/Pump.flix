@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Pump.{DiaphragmMaterial, DutyHead, DutyHeadUnits,
+    use AssetLib/GenS4/AibFacts/Attributes/Pump.{DiaphragmMaterial, DutyHead, DutyHeadUnits,
         Flow, FlowUnits, ImpellerType, LiftingType, RatingPower, RatingUnits};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     pub def genPump(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Pump.readPumpData(src);
         let ans         = pump(workitems <+> facts);
         Ok(ans) 
 

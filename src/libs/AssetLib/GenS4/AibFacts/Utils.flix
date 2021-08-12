@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/AibFacts/Utils {
+namespace AssetLib/GenS4/AibFacts/Utils {
     
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;

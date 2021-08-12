@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/LocationData {
+namespace AssetLib/GenS4/AibFacts/Attributes/LocationData {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact};
 
 
     pub rel LocationOnSite(aibref: String, text: String)
@@ -32,11 +32,11 @@ namespace AssetLib/AibFacts/Attributes/LocationData {
         
     /// Just reads `Location On Site`...
     pub def readLocationOnSiteData(src: XlsxSource): Result[#{LocationOnSite | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, src)
 
     /// Just reads `Osgb36GridRef`...
     pub def readOsgb36GridRefData(src: XlsxSource): Result[#{Osgb36GridRef | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(getOsgb36GridRef(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(getOsgb36GridRef(), true, src)
 
 
     /// Custom attribute `Location on Site`.

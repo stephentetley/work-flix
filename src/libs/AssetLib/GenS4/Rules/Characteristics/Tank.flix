@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Tank {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Tank.{TankConstruction, TankLevel, TankShape,
+    use AssetLib/GenS4/AibFacts/Attributes/Tank.{TankConstruction, TankLevel, TankShape,
         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, UnitLengthM, UnitSideDepthM, 
         UnitSideDepthMinM, UnitSideDepthMaxM};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
@@ -35,7 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     pub def genTank(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Tank.readTankData(src);
         let ans         = tank(workitems <+> facts);
         Ok(ans) 
 
@@ -55,7 +55,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
         };
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
-            
+
     def recognizedTankLevel(level: String): Bool = match level { 
         case "ABOVE GROUND" => true
         case "BELOW GROUND" => true

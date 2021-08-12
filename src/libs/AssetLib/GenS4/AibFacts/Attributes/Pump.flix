@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/Pump {
+namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
 
 
@@ -32,7 +32,7 @@ namespace AssetLib/AibFacts/Attributes/Pump {
     pub def readPumpData(src: XlsxSource): Result[#{DiaphragmMaterial, DutyHead, DutyHeadUnits,
                                                         Flow, FlowUnits, ImpellerType, LiftingType, 
                                                         RatingPower, RatingUnits | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibPump(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibPump(), true, src)
         
     
 

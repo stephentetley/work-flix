@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/Equipment {
+namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;

@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Patch {
 
 
-    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttributes};
+    use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttributes};
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
 
 

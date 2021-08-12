@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/Tank {
+namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
 
 
@@ -32,7 +32,7 @@ namespace AssetLib/AibFacts/Attributes/Tank {
                                                         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
                                                         UnitLengthM, UnitSideDepthM, 
                                                         UnitSideDepthMinM, UnitSideDepthMaxM | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibTank(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibTank(), true, src)
         
     
 

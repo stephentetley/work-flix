@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Sole {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Electrical.{IPRating, InsulationClass, CurrentIn, PowerUnits, Power};
+    use AssetLib/GenS4/AibFacts/Attributes/Electrical.{IPRating, InsulationClass, CurrentIn, PowerUnits, Power};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     pub def genSole(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalData(src);
         let ans         = sole(workitems <+> facts);
         Ok(ans) 
 

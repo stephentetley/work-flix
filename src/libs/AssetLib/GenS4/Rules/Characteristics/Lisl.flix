@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Lifting.{WorkLoad, WorkLoadUnits,
+    use AssetLib/GenS4/AibFacts/Attributes/Lifting.{WorkLoad, WorkLoadUnits,
         TestCertNo, YWRef};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
     pub def genLisl(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Lifting.readLiftingData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);
         let ans         = lisl(workitems <+> facts);
         Ok(ans) 
 

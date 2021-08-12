@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
+    use AssetLib/GenS4/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
         SignalMin, SignalMax, SignalUnit};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
@@ -33,14 +33,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
     pub def genTstn(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentData(src);
         let ans         = tstn(workitems <+> facts);
         Ok(ans) 
 
 
 
     pub def tstn(input: #{EquiWorkItem3, RangeMin, RangeMax, RangeUnit,
-                            SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            SignalMin, SignalMax, SignalUnit, 
+                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),

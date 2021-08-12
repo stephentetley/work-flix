@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/AibReference.{ParentRef};
+    use AssetLib/GenS4/AibFacts/Attributes/AibReference.{ParentRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
@@ -68,7 +68,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     pub def genEquiAibReference(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/AibReference.readHierarchyRelations(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/AibReference.readHierarchyRelations(src);
         let ans         = equiAibReference(workitems <+> facts);
         Ok(ans) 
 

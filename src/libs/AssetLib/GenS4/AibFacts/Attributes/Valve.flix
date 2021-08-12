@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/Valve {
+namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
 
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
 
 
@@ -29,7 +29,7 @@ namespace AssetLib/AibFacts/Attributes/Valve {
 
 
     pub def readValveData(src: XlsxSource): Result[#{ValveType, Size, SizeUnits | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibValve(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibValve(), true, src)
         
     
     pub def aibValve(): NamedRowEvaluator[#{ValveType, Size, SizeUnits | r}] =

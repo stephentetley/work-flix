@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/Lifting {
+namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
 
 
 
@@ -31,7 +31,7 @@ namespace AssetLib/AibFacts/Attributes/Lifting {
 
     pub def readLiftingData(src: XlsxSource): Result[#{WorkLoad, WorkLoadUnits,
                                                         TestCertNo, YWRef | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibLifting(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibLifting(), true, src)
         
     
 

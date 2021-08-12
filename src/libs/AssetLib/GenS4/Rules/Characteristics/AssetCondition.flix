@@ -19,7 +19,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
 
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Attributes/AssetCondition.{ConditionGrade, ConditionGradeReason, 
+    use AssetLib/GenS4/AibFacts/Attributes/AssetCondition.{ConditionGrade, ConditionGradeReason, 
         LoadingFactor, LoadingFactorReason, PerformanceGrade, PerformanceGradeReason, 
         SurveyYear};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     pub def genAssetCondition(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(src);
+        let* facts = AssetLib/GenS4/AibFacts/Attributes/AssetCondition.readAgaspData(src);
         let ans = assetCondition(workitems <+> facts);
         Ok(ans) 
 

@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Valv {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Valve.{ValveType, Size, SizeUnits};
+    use AssetLib/GenS4/AibFacts/Attributes/Valve.{ValveType, Size, SizeUnits};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     pub def genValv(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Valve.readValveData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Valve.readValveData(src);
         let ans         = valv(workitems <+> facts);
         Ok(ans) 
 

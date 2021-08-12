@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/Instrument {
+namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
 
 
 
@@ -31,7 +31,7 @@ namespace AssetLib/AibFacts/Attributes/Instrument {
     pub def readInstrumentData(src: XlsxSource): Result[#{RangeMin, RangeMax, RangeUnit,
                                                                 SignalMin, SignalMax, SignalUnit, 
                                                                 TransducerType, TransducerSerialNumber | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibInstrument(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibInstrument(), true, src)
         
     
 

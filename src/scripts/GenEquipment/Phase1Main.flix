@@ -20,8 +20,8 @@ namespace ValveReport/Phase1Main {
     use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
     use AssetLib/GenS4/XlsxSource.{XlsxSource};
-    use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
-    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
+    use AssetLib/GenS4/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
+    use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttibutes};
     use AssetLib/GenS4/MemoLines.{MemoText};
     use AssetLib/GenS4/GenEqui.{GenEquiArguments};
 

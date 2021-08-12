@@ -17,8 +17,8 @@
 namespace AssetLib/GenS4/Rules/Equipment {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Equipment.{EquipmentAttributes};
-    use AssetLib/AibFacts/Attributes/LocationData.{LocationOnSite};
+    use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttributes};
+    use AssetLib/GenS4/AibFacts/Attributes/LocationData.{LocationOnSite};
     use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
@@ -62,7 +62,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
     pub def genCommonCharacteristics(worklist: List[EquiWorkItem], locationSrc: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/LocationData.readLocationOnSiteData(locationSrc);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/LocationData.readLocationOnSiteData(locationSrc);
         let ans         = equiCommonCharacteristics(workitems <+> facts);
         Ok(ans) 
 

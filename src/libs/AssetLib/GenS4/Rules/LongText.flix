@@ -21,8 +21,8 @@ namespace AssetLib/GenS4/Rules/LongText {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiLongText};
-    use AssetLib/AibFacts/Attributes/LocationData.{LocationOnSite};
-    use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
+    use AssetLib/GenS4/AibFacts/Attributes/LocationData.{LocationOnSite};
+    use AssetLib/GenS4/AibFacts/Attributes/MemoLines.{AibMemoLine};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText};
 
@@ -36,7 +36,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     pub def genEquiLongText(worklist: List[EquiWorkItem], memosSrc: XlsxSource): Result[Chain[SLEquiLongText], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeLongTextWorkItems(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
         let ans         = equiLongText(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiLongText;
         Ok(ans) 
 

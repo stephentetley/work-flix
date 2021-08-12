@@ -18,9 +18,9 @@
 namespace AssetLib/GenS4/GenEqui {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
-    use AssetLib/AibFacts/Attributes/MemoLines.{AibMemoLine};
-    use AssetLib/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
+    use AssetLib/GenS4/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
+    use AssetLib/GenS4/AibFacts/Attributes/MemoLines.{AibMemoLine};
+    use AssetLib/GenS4/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
     use AssetLib/S4Lite/Datatypes.{UxlSource};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
@@ -45,7 +45,7 @@ namespace AssetLib/GenS4/GenEqui {
     pub def generateEquiUxl(args: GenEquiArguments): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
         let* workitems      = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
-        let* equiAttrs      = AssetLib/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
+        let* equiAttrs      = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* equis          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
         let* equiLongText   = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport);
         let* equiChars      = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport);

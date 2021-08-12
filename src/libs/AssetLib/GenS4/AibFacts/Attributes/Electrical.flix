@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/Electrical {
+namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
 
 
     /// Read from Aib file...
@@ -30,7 +30,7 @@ namespace AssetLib/AibFacts/Attributes/Electrical {
     pub def readElectricalData(src: XlsxSource): Result[#{CurrentIn, InsulationClass, 
                                                                 IPRating, Power, PowerUnits, SpeedRPM,
                                                                 VoltageIn, VoltageInACOrDC | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibElectrical(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibElectrical(), true, src)
         
 
 

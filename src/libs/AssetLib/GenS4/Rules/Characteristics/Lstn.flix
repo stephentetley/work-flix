@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
+    use AssetLib/GenS4/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
         SignalMin, SignalMax, SignalUnit, TransducerType, TransducerSerialNumber};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
     pub def genLstn(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentData(src);
         let ans         = lstn(workitems <+> facts);
         Ok(ans) 
 
@@ -84,7 +84,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
-            
+
     def recognizedRangeUnit(s: String): Bool = match s { 
         case "m" => true
         case "cm/s" => true

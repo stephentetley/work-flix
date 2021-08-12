@@ -15,13 +15,13 @@
  */
 
 
-namespace AssetLib/AibFacts/Attributes/AssetCondition {
+namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/AibFacts/Utils.{getStringValuedFact, getIntValuedFact};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getIntValuedFact};
 
     /// Read from Aib file...
 
@@ -30,7 +30,7 @@ namespace AssetLib/AibFacts/Attributes/AssetCondition {
                                                             LoadingFactor, LoadingFactorReason, 
                                                             PerformanceGrade, PerformanceGradeReason, 
                                                             SurveyYear | r}, String] & Impure =
-        AssetLib/AibFacts/Utils.readAibFacts(aibAssetCondition(), true, src)
+        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibAssetCondition(), true, src)
 
     pub def aibAssetCondition(): NamedRowEvaluator[#{ConditionGrade, ConditionGradeReason, 
                                                         LoadingFactor, LoadingFactorReason, 
