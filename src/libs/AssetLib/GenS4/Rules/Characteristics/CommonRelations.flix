@@ -23,7 +23,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/CommonRelations {
     pub rel EquiWorkItem3(itemId: String, s4ObjType: String, s4Class: String)
 
     
-    /// pub rel FlocWorkItem4(funcloc: String, level: Int32, systemClass: String, systemTypeDescription: String)
+    /// Floc equivalent to `EquiWorkItem3` is local to the `FunctionalLocation` module
 
     /// Electrical
     

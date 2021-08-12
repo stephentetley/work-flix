@@ -20,27 +20,35 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/AibFacts/Attributes/LocationData.{Osgb36GridRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
     use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
     /// # Floc
     
-    pub def genFlocEastNorth(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
+    pub def genFlocEastNorth(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeFlocWorkItems(worklist);
+        let workitems   = makeFlocEastNorthWorkItems(worklist);
         let ans         = flocEastNorth(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
         Ok(ans) 
 
-    pub def flocEastNorth(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+    /// Case specific WorkItem...
+    rel FlocEastNorthWorkItem(floc: String, ngr: String)
+
+
+    def makeFlocEastNorthWorkItems(xs: List[FlocWorkItem]): #{FlocEastNorthWorkItem | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ FlocEastNorthWorkItem(x.funcloc, x.gridRef). }, #{}, xs)
+
+
+    pub def flocEastNorth(workitems: #{FlocEastNorthWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{
             FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, _).
+                FlocEastNorthWorkItem(funcloc, ngr).
 
             FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
-                FlocWorkItem(funcloc, _, _, _, _, _, _, _, ngr, _).
+                FlocEastNorthWorkItem(funcloc, ngr).
         };
         solve (rules <+> workitems) project FlocCharacteristic
 

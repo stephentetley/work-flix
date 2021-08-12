@@ -20,7 +20,6 @@ namespace AssetLib/GenS4/GenFlocs {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
 
 
@@ -35,20 +34,16 @@ namespace AssetLib/GenS4/GenFlocs {
     /// Generate all characteristics 
     pub def generateFlocUxl(workList: XlsxSource): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
-        let* workitemRecs   = AssetLib/GenS4/WorkLists.readFlocWorkList(workList);
-        let _               = Console.printLine("flocs: ${List.length(workitemRecs)}");
-        let* flocs          = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitemRecs);
-        let workitems       = AssetLib/GenS4/WorkLists.makeFlocWorkItems(workitemRecs);
-        let c1              = AssetLib/Gens4/Rules/FunctionalLocation.flocCharacteristics1(workitems);
-        /// TODO use all gen_ functions rather than pass relations about...
-        let* ch2            = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitemRecs);
-        let* ch3            = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitemRecs);
-        let* ch4            = AssetLib/GenS4/Rules/Characteristics/SolutionId.genFlocSolutionId(workitemRecs);
-        let chars           = 
-            (solve c1 project FlocCharacteristic) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        let* workitems  = AssetLib/GenS4/WorkLists.readFlocWorkList(workList);
+        let _           = Console.printLine("flocs: ${List.length(workitems)}");
+        let* flocs      = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
+        let* ch1        = AssetLib/Gens4/Rules/FunctionalLocation.genFlocCharacteristics1(workitems);
+        let* ch2        = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitems);
+        let* ch3        = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitems);
+        let* ch4        = AssetLib/GenS4/Rules/Characteristics/SolutionId.genFlocSolutionId(workitems);
         Ok( { funclocs = Chain.fromList(flocs)
             , funclocLongTexts = Chain.empty()
-            , funclocCharacteristics = Monoid.combineAll(chars :: ch2 :: ch3 :: ch4 :: Nil)
+            , funclocCharacteristics = Monoid.combineAll(ch1 :: ch2 :: ch3 :: ch4 :: Nil)
             , equipment = Chain.empty()
             , equiLongTexts = Chain.empty()
             , equiCharacteristics = Chain.empty()

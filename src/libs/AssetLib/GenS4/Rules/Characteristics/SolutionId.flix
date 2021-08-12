@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
 
 
-    pub def genFlocSolutionId(worklist: List[FlocWorkItemRec]): Result[Chain[SLFlocCharacteristic], String] & Impure =
+    pub def genFlocSolutionId(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeFlocSolnIdWorkItems(worklist);
         let ans         = flocSolutionId(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
@@ -37,7 +37,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     pub rel FlocSolnIdWorkItem(floc: String, soulutionId: String)
 
     /// SolutionId specific
-    def makeFlocSolnIdWorkItems(xs: List[FlocWorkItemRec]): #{FlocSolnIdWorkItem | r}  = 
+    def makeFlocSolnIdWorkItems(xs: List[FlocWorkItem]): #{FlocSolnIdWorkItem | r}  = 
         List.foldLeft((ac, x) -> ac <+> #{ FlocSolnIdWorkItem(x.funcloc, x.solutionId). }, #{}, xs)
 
     pub def flocSolutionId(input: #{FlocSolnIdWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} =

@@ -16,17 +16,17 @@
 
 namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
-    use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation};
+    use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation, SLFlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/WorkLists.{FlocWorkItemRec, FlocWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItem};
 
 
 
-    pub def genFlocs(workitems: List[FlocWorkItemRec]): Result[List[SLFunctionalLocation], String] = 
+    pub def genFlocs(workitems: List[FlocWorkItem]): Result[List[SLFunctionalLocation], String] = 
         Result.traverse(genFloc1, workitems)
 
-    def genFloc1(x: FlocWorkItemRec): Result[SLFunctionalLocation, String] = 
+    def genFloc1(x: FlocWorkItem): Result[SLFunctionalLocation, String] = 
         use Result.flatMap;
         let* floc   = AssetLib/Base/S4/Floc.new(x.funcloc);
         let level   = AssetLib/Base/S4/Floc.level(floc);
@@ -48,23 +48,35 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
         case _ => false
     }
 
+    pub def genFlocCharacteristics1(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
+        use Result.{flatMap};
+        let workitems   = makeFlocWorkItem4s(worklist);
+        let ans         = flocCharacteristics1(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        Ok(ans) 
+
+    /// Case specific WorkItem...
+    pub rel FlocWorkItem4(floc: String, level: Int32, systemClass: String, systemDescription: String)
 
 
-    pub def flocCharacteristics1(workitems: #{FlocWorkItem, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
+    def makeFlocWorkItem4s(xs: List[FlocWorkItem]): #{FlocWorkItem4 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ FlocWorkItem4(x.funcloc, x.level, x.systemClass, x.systemTypeDescription). }, #{}, xs)
+
+
+    pub def flocCharacteristics1(input: #{FlocWorkItem4, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
         let rules = #{
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String("")) :- 
-                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _),
+                FlocWorkItem4(funcloc, level, _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", 1, S4String("")) :- 
-                FlocWorkItem(funcloc, _, level, _, _, _, _, _, _, _),
+                FlocWorkItem4(funcloc, level, _, _),
                 if level != 5.
 
             FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", 1, S4String(systemDescr)) :- 
-                FlocWorkItem(funcloc, _, level, _, _, _, className, systemDescr, _, _),
+                FlocWorkItem4(funcloc, level, className, systemDescr),
                 if level == 5.
         };
-        solve (rules <+> workitems) project FlocCharacteristic
+        solve (rules <+> input) project FlocCharacteristic
 
 }
 
