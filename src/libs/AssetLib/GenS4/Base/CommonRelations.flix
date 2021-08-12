@@ -66,6 +66,13 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     pub rel Transducer(itemId: String, model: String, serialNumber: String)
 
+    /// Lifting
+
+    pub rel WorkLoad(aibref: String, load: Float64, units: String)
+
+    pub rel TestCertNo(aibref: String, number: String)
+    
+    pub rel YWRef(aibref: String, refnum: String)
 
     /// Pump / Pums
 

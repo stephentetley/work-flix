@@ -18,9 +18,9 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Lifting.{WorkLoad, WorkLoadUnits,
-        TestCertNo, YWRef};
+    
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{WorkLoad, TestCertNo, YWRef};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
@@ -38,7 +38,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
 
 
     /// Note LOCATION_ON_SITE already created.
-    pub def lisl(input: #{EquiWorkItem3, WorkLoad, WorkLoadUnits, 
+    pub def lisl(input: #{EquiWorkItem3, WorkLoad, 
                             TestCertNo, YWRef, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
@@ -52,13 +52,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
 
             EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
                 EquiWorkItem3(equiId, "LISL", s4Class),
-                WorkLoad(equiId, load),
-                WorkLoadUnits(equiId,  units),
+                WorkLoad(equiId, load, units),
                 if recognizedLoadUnit(units).
 
             EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD_UNITS", 1, S4String(loadUnit(units))) :-
                 EquiWorkItem3(equiId, "LISL", s4Class),
-                WorkLoadUnits(equiId, units),
+                WorkLoad(equiId, _, units),
                 if recognizedLoadUnit(units).
 
         }; 

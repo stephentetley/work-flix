@@ -21,45 +21,41 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4/Base/CommonRelations.{WorkLoad, TestCertNo, YWRef};
+
     /// Read from Aib file...
 
 
-    pub def readLiftingData(src: XlsxSource): Result[#{WorkLoad, WorkLoadUnits,
-                                                        TestCertNo, YWRef | r}, String] & Impure =
-        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibLifting(), true, src)
+    pub def readLiftingData(src: XlsxSource): Result[#{WorkLoad, TestCertNo, YWRef | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalLifting())
         
     
 
 
-    pub def aibLifting(): NamedRowEvaluator[#{WorkLoad, WorkLoadUnits,
-                                            TestCertNo, YWRef | r}] =
+    def evalLifting(): NamedRowEvaluator[#{WorkLoad, TestCertNo, YWRef | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
-        let* c1 = withDefault(getWorkLoad(), #{});
-        let* c2 = withDefault(getWorkLoadUnits(), #{});
-        let* c3 = withDefault(getTestCertNo(), #{});
-        let* c4 = withDefault(getYWRef(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4)
-
-    pub rel WorkLoad(aibref: String, load: Float64)
-
-    def getWorkLoad(): NamedRowEvaluator[#{WorkLoad | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Work Load", (aibref, ans) -> #{ WorkLoad(aibref, ans). })
+        let* c1 = withDefault(evalWorkLoad(), #{});
+        let* c2 = withDefault(evalTestCertNo(), #{});
+        let* c3 = withDefault(evalYWRef(), #{});
+        return(c1 <+> c2 <+> c3)
 
 
-    pub rel WorkLoadUnits(aibref: String, units: String)
+    def evalWorkLoad(): NamedRowEvaluator[#{WorkLoad | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) ->
+            if (not String.isEmpty(x3))
+                #{ WorkLoad(x1, x2, x3). }
+            else #{}
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getFloat64Named("Work Load")
+        <*> getContentNamed("Work Load Units")
 
-    def getWorkLoadUnits(): NamedRowEvaluator[#{WorkLoadUnits | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Work Load Units", (aibref, ans) -> #{ WorkLoadUnits(aibref, ans). })
-
-    pub rel TestCertNo(aibref: String, number: String)
-
-    def getTestCertNo(): NamedRowEvaluator[#{TestCertNo | r}] =
+    def evalTestCertNo(): NamedRowEvaluator[#{TestCertNo | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Test Cert No", (aibref, ans) -> #{ TestCertNo(aibref, ans). })
-
     
-    pub rel YWRef(aibref: String, refnum: String)
-
-    pub def getYWRef(): NamedRowEvaluator[#{YWRef | r}] =
+    def evalYWRef(): NamedRowEvaluator[#{YWRef | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("YWRef", (aibref, ans) -> #{ YWRef(aibref, ans). })
 
 
