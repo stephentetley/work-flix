@@ -18,9 +18,9 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Instrument.{RangeMin, RangeMax, RangeUnit,
-        SignalMin, SignalMax, SignalUnit};
+
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{RangeMinMax, SignalMinMax};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
@@ -39,39 +39,32 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
 
 
 
-    pub def tstn(input: #{EquiWorkItem3, RangeMin, RangeMax, RangeUnit,
-                            SignalMin, SignalMax, SignalUnit, 
+    pub def tstn(input: #{EquiWorkItem3, RangeMinMax, SignalMinMax,
                             EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),
-                SignalMin(equiId, smin),
-                SignalMax(equiId, smax),
-                SignalUnit(equiId, "mA"),
+                SignalMinMax(equiId, smin, smax, "mA"),
                 if iEqual(smin, 4) and iEqual(smax, 20).
 
             EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),
-                SignalMin(equiId, smin),
-                SignalMax(equiId, smax),
-                SignalUnit(equiId, "Digital"),
+                SignalMinMax(equiId, smin, smax, "Digital"),
                 if iEqual(smin, 0) and iEqual(smax, 1).
 
             EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),
-                RangeMin(equiId, rmin),
-                RangeUnit(equiId, units),
+                RangeMinMax(equiId, rmin, _, units),
                 if recognizedRangeUnit(units).
 
             EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),
-                RangeMax(equiId, rmax),
-                RangeUnit(equiId, units),
+                RangeMinMax(equiId, _, rmax, units),
                 if recognizedRangeUnit(units).
 
             EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_UNITS", 1, S4String(rangeUnit(units))) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),
-                RangeUnit(equiId, units),
+                RangeMinMax(equiId, _, _, units),
                 if recognizedRangeUnit(units).
         };
         solve (rules <+> input) project EquiCharacteristic

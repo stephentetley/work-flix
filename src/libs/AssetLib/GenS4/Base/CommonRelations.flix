@@ -58,6 +58,14 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     pub rel VoltageIn(itemId: String, voltage: Int32, voltageACOrDC: String)
 
+    /// Instrument
+
+    pub rel RangeMinMax(itemId: String, rmin: Float64, rmax: Float64, units: String)
+
+    pub rel SignalMinMax(itemId: String, smin: Float64, smax: Float64, units: String)
+
+    pub rel Transducer(itemId: String, model: String, serialNumber: String)
+
 
     /// Pump / Pums
 

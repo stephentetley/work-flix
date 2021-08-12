@@ -20,79 +20,65 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
+    use AssetLib/GenS4/Base/CommonRelations.{RangeMinMax, SignalMinMax, Transducer};
 
     /// Read from Aib file...
 
 
-    pub def readInstrumentData(src: XlsxSource): Result[#{RangeMin, RangeMax, RangeUnit,
-                                                                SignalMin, SignalMax, SignalUnit, 
-                                                                TransducerType, TransducerSerialNumber | r}, String] & Impure =
-        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibInstrument(), true, src)
-        
+    pub def readInstrumentData(src: XlsxSource): Result[#{RangeMinMax, SignalMinMax, Transducer | r}, String] & Impure =
+        SheetIO/Reader.allNamedRelations(src, evalInstrument())
     
 
-
-    pub def aibInstrument(): NamedRowEvaluator[#{RangeMin, RangeMax, RangeUnit,
-                                                SignalMin, SignalMax, SignalUnit, 
-                                                TransducerType, TransducerSerialNumber | r}] =
+    def evalInstrument(): NamedRowEvaluator[#{RangeMinMax, SignalMinMax, Transducer | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
-        let* c1 = withDefault(getRangeMin(), #{});
-        let* c2 = withDefault(getRangeMax(), #{});
-        let* c3 = withDefault(getRangeUnit(), #{});
-        let* c4 = withDefault(getSignalMin(), #{});
-        let* c5 = withDefault(getSignalMax(), #{});
-        let* c6 = withDefault(getSignalUnit(), #{});
-        let* c7 = withDefault(getTransducerType(), #{});
-        let* c8 = withDefault(getTransducerSerialNumber(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6 <+> c7 <+> c8)
+        let* c1 = withDefault(evalRangeMinMax(), #{});
+        let* c2 = withDefault(evalSignalMinMax(), #{});
+        let* c3 = withDefault(evalTransducer(), #{});
+        return(c1 <+> c2 <+> c3)
 
 
     /// Range max	Range min	Range unit	Signal max	Signal min	Signal unit
 
-    pub rel RangeMin(aibref: String, rmin: Float64)
-
-    def getRangeMin(): NamedRowEvaluator[#{RangeMin | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Range min", (aibref, ans) -> #{ RangeMin(aibref, ans). })
 
 
-    pub rel RangeMax(aibref: String, rmax: Float64)
-
-    def getRangeMax(): NamedRowEvaluator[#{RangeMax | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Range max", (aibref, ans) -> #{ RangeMax(aibref, ans). })
-
-
-    pub rel RangeUnit(aibref: String, units: String)
-
-    def getRangeUnit(): NamedRowEvaluator[#{RangeUnit | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Range unit", (aibref, ans) -> #{ RangeUnit(aibref, ans). })
-
-    pub rel SignalMin(aibref: String, smin: Float64)
-
-    def getSignalMin(): NamedRowEvaluator[#{SignalMin | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Signal min", (aibref, ans) -> #{ SignalMin(aibref, ans). })
+    def evalRangeMinMax(): NamedRowEvaluator[#{RangeMinMax | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4) ->
+            if (not String.isEmpty(x4))
+                #{ RangeMinMax(x1, x2, x3, x4). }
+            else #{}
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getFloat64Named("Range min")
+        <*> getFloat64Named("Range max")
+        <*> getContentNamed("Range unit")
 
 
-    pub rel SignalMax(aibref: String, smax: Float64)
+    def evalSignalMinMax(): NamedRowEvaluator[#{SignalMinMax | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4) ->
+            if (not String.isEmpty(x4))
+                #{ SignalMinMax(x1, x2, x3, x4). }
+            else #{}
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getFloat64Named("Signal min")
+        <*> getFloat64Named("Signal max")
+        <*> getContentNamed("Signal unit")
 
-    def getSignalMax(): NamedRowEvaluator[#{SignalMax | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Signal max", (aibref, ans) -> #{ SignalMax(aibref, ans). })
 
-
-    pub rel SignalUnit(aibref: String, units: String)
-
-    def getSignalUnit(): NamedRowEvaluator[#{SignalUnit | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Signal unit", (aibref, ans) -> #{ SignalUnit(aibref, ans). })
-
-
-    pub rel TransducerType(aibref: String, model: String)
-
-    def getTransducerType(): NamedRowEvaluator[#{TransducerType | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Transducer Type", (aibref, ans) -> #{ TransducerType(aibref, ans). })
-
-    pub rel TransducerSerialNumber(aibref: String, serialNum: String)
-
-    def getTransducerSerialNumber(): NamedRowEvaluator[#{TransducerSerialNumber | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Transducer Serial No", (aibref, ans) -> #{ TransducerSerialNumber(aibref, ans). })
-
+    def evalTransducer(): NamedRowEvaluator[#{Transducer | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) ->
+            if (not String.isEmpty(x2) or not String.isEmpty(x3))
+                #{ Transducer(x1, x2, x3). }
+            else #{}
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getContentNamed("Transducer Type")
+        <*> getContentNamed("Transducer Serial No")
 
 }
