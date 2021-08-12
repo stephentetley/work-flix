@@ -18,9 +18,10 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Star {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass,
-        IPRating, SpeedRPM, Power, PowerUnits, VoltageIn, VoltageInACOrDC};
+
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, 
+        InsulationClass, IPRating, Power, SpeedRPM, VoltageIn};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
@@ -39,9 +40,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
 
     /// TODO "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
 
-    pub def star(input: #{EquiWorkItem3, CurrentIn,
-                            IPRating, SpeedRPM, Power, PowerUnits, 
-                            VoltageIn, VoltageInACOrDC, 
+    pub def star(input: #{EquiWorkItem3, CurrentInA,
+                            IPRating, SpeedRPM, Power, 
+                            VoltageIn, 
                             EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :-
@@ -50,23 +51,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
 
             EquiCharacteristic(equiId, s4Class, "STAR_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
-                CurrentIn(equiId, current).
+                CurrentInA(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "STAR_RATED_POWER_KW", 1, S4Float(power)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
-                PowerUnits(equiId, "KILOWATTS"),
-                Power(equiId, power).
+                Power(equiId, power, "KILOWATTS").
 
             EquiCharacteristic(equiId, s4Class, "STAR_RATED_VOLTAGE", 1, S4Int(voltage)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, voltage),
+                VoltageIn(equiId, voltage, units),
                 if recognizedVoltageUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "STAR_RATED_VOLTAGE_UNITS", 1 , S4String(voltageUnits(units))) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, _),
+                VoltageIn(equiId, _, units),
                 if recognizedVoltageUnits(units).
         }; 
         solve (rules <+> input) project EquiCharacteristic

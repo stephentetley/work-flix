@@ -21,9 +21,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
-
-
 
     /// Read from Aib file...
 
@@ -58,59 +55,59 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
     pub rel TankConstruction(aibref: String, construction: String)
 
     def getTankConstruction(): NamedRowEvaluator[#{TankConstruction | r}] =
-        getStringValuedFact("Tank Construction", (aibref, ans) -> #{ TankConstruction(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Construction", (aibref, ans) -> #{ TankConstruction(aibref, ans). })
 
 
     pub rel TankLevel(aibref: String, level: String)
     
     def getTankLevel(): NamedRowEvaluator[#{TankLevel | r}] =
-        getStringValuedFact("Tank Level", (aibref, ans) -> #{ TankLevel(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Level", (aibref, ans) -> #{ TankLevel(aibref, ans). })
 
 
     pub rel TankShape(aibref: String, shape: String)
 
     def getTankShape(): NamedRowEvaluator[#{TankShape | r}] =
-        getStringValuedFact("Tank Shape", (aibref, ans) -> #{ TankShape(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Shape", (aibref, ans) -> #{ TankShape(aibref, ans). })
 
 
     pub rel UnitCapacityCum(aibref: String, capacity: Float64)
 
     def getUnitCapacityCum(): NamedRowEvaluator[#{UnitCapacityCum | r}] =
-        getFloatValuedFact("Unit Capacity cum", (aibref, ans) -> #{ UnitCapacityCum(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Capacity cum", (aibref, ans) -> #{ UnitCapacityCum(aibref, ans). })
 
     
     pub rel UnitCentreDepthM(aibref: String, depth: Float64)
     
     def getUnitCentreDepthM(): NamedRowEvaluator[#{UnitCentreDepthM | r}] =
-        getFloatValuedFact("Unit Centre Depth m", (aibref, ans) -> #{ UnitCentreDepthM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Centre Depth m", (aibref, ans) -> #{ UnitCentreDepthM(aibref, ans). })
 
 
     pub rel UnitDiameterM(aibref: String, diameter: Float64)
     
     def getUnitDiameterM(): NamedRowEvaluator[#{UnitDiameterM | r}] =
-        getFloatValuedFact("Unit Diameter  m", (aibref, ans) -> #{ UnitDiameterM(aibref, ans). }) /// double space in aib field      
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Diameter  m", (aibref, ans) -> #{ UnitDiameterM(aibref, ans). }) /// double space in aib field      
 
     pub rel UnitLengthM(aibref: String, length: Float64)
     
     def getUnitLengthM(): NamedRowEvaluator[#{UnitLengthM | r}] =
-        getFloatValuedFact("Unit Length m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Length m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
  
     
     pub rel UnitSideDepthM(aibref: String, depth: Float64)
     
     def getUnitSideDepthM(): NamedRowEvaluator[#{UnitSideDepthM | r}] =
-        getFloatValuedFact("Unit Side Depth m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
 
     
     pub rel UnitSideDepthMaxM(aibref: String, depth: Float64)
     
     def getUnitSideDepthMaxM(): NamedRowEvaluator[#{UnitSideDepthMaxM | r}] =
-        getFloatValuedFact("Unit Side Depth Max m", (aibref, ans) -> #{ UnitSideDepthMaxM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth Max m", (aibref, ans) -> #{ UnitSideDepthMaxM(aibref, ans). })
 
     
     pub rel UnitSideDepthMinM(aibref: String, depth: Float64)
 
     def getUnitSideDepthMinM(): NamedRowEvaluator[#{UnitSideDepthMinM | r}] =
-        getFloatValuedFact("Unit Side Depth Min m", (aibref, ans) -> #{ UnitSideDepthMinM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth Min m", (aibref, ans) -> #{ UnitSideDepthMinM(aibref, ans). })
 
 }

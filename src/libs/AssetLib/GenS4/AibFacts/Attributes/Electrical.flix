@@ -21,79 +21,74 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
+    use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, 
+        InsulationClass, IPRating, Power, SpeedRPM, VoltageIn};
+    use AssetLib/GenS4/AibFacts/Utils.{getStringFact2, getFloatFact2, getIntFact2};
 
 
     /// Read from Aib file...
 
 
-    pub def readElectricalData(src: XlsxSource): Result[#{CurrentIn, InsulationClass, 
-                                                                IPRating, Power, PowerUnits, SpeedRPM,
-                                                                VoltageIn, VoltageInACOrDC | r}, String] & Impure =
+    pub def readElectricalData(src: XlsxSource): Result[#{CurrentInA, InsulationClass, 
+                                                            IPRating, Power, SpeedRPM,
+                                                            VoltageIn | r}, String] & Impure =
         AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibElectrical(), true, src)
         
 
 
-    pub def aibElectrical(): NamedRowEvaluator[#{CurrentIn, InsulationClass, 
-                                                IPRating, Power, PowerUnits, SpeedRPM,
-                                                VoltageIn, VoltageInACOrDC | r}] =
+    pub def aibElectrical(): NamedRowEvaluator[#{CurrentInA, InsulationClass, 
+                                                IPRating, Power, SpeedRPM,
+                                                VoltageIn | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
-        let* c1 = withDefault(getCurrentIn(), #{});
+        let* c1 = withDefault(evalCurrentInA(), #{});
         let* c2 = withDefault(getInsulationClass(), #{});
         let* c3 = withDefault(getIPRating(), #{});
         let* c4 = withDefault(getPower(), #{});
-        let* c5 = withDefault(getPowerUnits(), #{});
-        let* c6 = withDefault(getSpeedRPM(), #{});
-        let* c7 = withDefault(getVoltageIn(), #{});
-        let* c8 = withDefault(getVoltageInACOrDC(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6 <+> c7 <+> c8)
+        let* c5 = withDefault(getSpeedRPM(), #{});
+        let* c6 = withDefault(getVoltageIn(), #{});
+        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6)
 
-    pub rel CurrentIn(aibref: String, current: Float64)
 
-    def getCurrentIn(): NamedRowEvaluator[#{CurrentIn | r}] =
-        getFloatValuedFact("Current In", (aibref, ans) -> #{ CurrentIn(aibref, ans). })
-        
+    def evalCurrentInA(): NamedRowEvaluator[#{CurrentInA | r}] =
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Current In", (x1, x2) -> #{ CurrentInA(x1, x2). })
 
-    pub rel InsulationClass(aibref: String, insclass: String)
 
     def getInsulationClass(): NamedRowEvaluator[#{InsulationClass | r}] =
-        getStringValuedFact("Insulation Class", (aibref, ans) -> #{ InsulationClass(aibref, ans). })
-
-
-    pub rel IPRating(aibref: String, insclass: String)
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Insulation Class", (x1, x2) -> #{ InsulationClass(x1, x2). })
 
     def getIPRating(): NamedRowEvaluator[#{IPRating | r}] =
-        getStringValuedFact("IP Rating", (aibref, ans) -> #{ IPRating(aibref, ans). })
+        getStringFact2("IP Rating", (aibref, ans) -> #{ IPRating(aibref, ans). })
 
 
-    pub rel Power(aibref: String, power: Float64)
 
     def getPower(): NamedRowEvaluator[#{Power | r}] =
-        getFloatValuedFact("Power", (aibref, ans) -> #{ Power(aibref, ans). })
-        
-
-    pub rel PowerUnits(aibref: String, units: String)
-
-    def getPowerUnits(): NamedRowEvaluator[#{PowerUnits | r}] =
-        getStringValuedFact("Power Units", (aibref, ans) -> #{ PowerUnits(aibref, ans). })
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) ->
+            if (not String.isEmpty(x3))
+                #{ Power(x1, x2, x3). }
+            else #{}
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getFloat64Named("Power")
+        <*> getContentNamed("Power Units")
 
     
-    pub rel SpeedRPM(aibref: String, speed: Int32)
-
     def getSpeedRPM(): NamedRowEvaluator[#{SpeedRPM | r}] =
-        getIntValuedFact("Speed (RPM)", (aibref, ans) -> #{ SpeedRPM(aibref, ans). })
+        getIntFact2("Speed (RPM)", (aibref, ans) -> #{ SpeedRPM(aibref, ans). })
 
-
-    pub rel VoltageIn(aibref: String, voltage: Int32)
 
     def getVoltageIn(): NamedRowEvaluator[#{VoltageIn | r}] =
-        getIntValuedFact("Voltage In", (aibref, ans) -> #{ VoltageIn(aibref, ans). })
-
-
-    rel VoltageInACOrDC(aibref: String, voltageACOrDC: String)
-
-    def getVoltageInACOrDC(): NamedRowEvaluator[#{VoltageInACOrDC | r}] =
-        getStringValuedFact("Voltage In (AC Or DC)", (aibref, ans) -> #{ VoltageInACOrDC(aibref, ans). })
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getInt32Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) ->
+            if (not String.isEmpty(x3))
+                #{ VoltageIn(x1, x2, x3). }
+            else #{}
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getInt32Named("Voltage In")
+        <*> getContentNamed("Voltage In (AC Or DC)")
 
 
 }

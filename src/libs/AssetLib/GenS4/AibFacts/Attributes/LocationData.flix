@@ -21,9 +21,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/LocationData {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact};
-
-
     pub rel LocationOnSite(aibref: String, text: String)
     pub rel Osgb36GridRef(aibref: String, gridRef: String)
 
@@ -41,12 +38,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/LocationData {
 
     /// Custom attribute `Location on Site`.
     pub def getLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
-        getStringValuedFact("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
         
     
     /// On all AI2 exports.
     pub def getOsgb36GridRef(): NamedRowEvaluator[#{Osgb36GridRef | r}] =
-        getStringValuedFact("Loc.Ref.",  (aibref, ans) -> #{ Osgb36GridRef(aibref, ans). })        
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Loc.Ref.",  (aibref, ans) -> #{ Osgb36GridRef(aibref, ans). })        
 
 
 }

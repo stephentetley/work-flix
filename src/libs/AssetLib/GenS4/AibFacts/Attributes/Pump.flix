@@ -21,10 +21,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
-
-
-
 
     /// Read from Aib file...
 
@@ -55,53 +51,53 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
     pub rel DiaphragmMaterial(aibref: String, material: String)
 
     def getDiaphragmMaterial(): NamedRowEvaluator[#{DiaphragmMaterial | r}] =
-        getStringValuedFact("Diaphragm Material", (aibref, ans) -> #{ DiaphragmMaterial(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Diaphragm Material", (aibref, ans) -> #{ DiaphragmMaterial(aibref, ans). })
 
 
     pub rel DutyHead(aibref: String, size: Float64)
 
     def getDutyHead(): NamedRowEvaluator[#{DutyHead | r}] =
-        getFloatValuedFact("Duty Head", (aibref, ans) -> #{ DutyHead(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Duty Head", (aibref, ans) -> #{ DutyHead(aibref, ans). })
 
     pub rel DutyHeadUnits(aibref: String, units: String)
 
     def getDutyHeadUnits(): NamedRowEvaluator[#{DutyHeadUnits | r}] =
-        getStringValuedFact("Duty Head Units", (aibref, ans) -> #{ DutyHeadUnits(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Duty Head Units", (aibref, ans) -> #{ DutyHeadUnits(aibref, ans). })
 
     
     pub rel Flow(aibref: String, flow: Float64)
 
     pub def getFlow(): NamedRowEvaluator[#{Flow | r}] =
-        getFloatValuedFact("Flow", (aibref, ans) -> #{ Flow(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Flow", (aibref, ans) -> #{ Flow(aibref, ans). })
 
 
     pub rel FlowUnits(aibref: String, units: String)
 
     pub def getFlowUnits(): NamedRowEvaluator[#{FlowUnits | r}] =
-        getStringValuedFact("Flow Units", (aibref, ans) -> #{ FlowUnits(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Flow Units", (aibref, ans) -> #{ FlowUnits(aibref, ans). })
 
 
     pub rel ImpellerType(aibref: String, impellerType: String)
 
     pub def getImpellerType(): NamedRowEvaluator[#{ImpellerType | r}] =
-        getStringValuedFact("Impeller Type", (aibref, ans) -> #{ ImpellerType(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Impeller Type", (aibref, ans) -> #{ ImpellerType(aibref, ans). })
 
 
     pub rel LiftingType(aibref: String, liftingType: String)
 
     pub def getLiftingType(): NamedRowEvaluator[#{LiftingType | r}] =
-        getStringValuedFact("Lifting Type", (aibref, ans) -> #{ LiftingType(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Lifting Type", (aibref, ans) -> #{ LiftingType(aibref, ans). })
  
 
     pub rel RatingPower(aibref: String, power: Float64)
 
     pub def getRatingPower(): NamedRowEvaluator[#{RatingPower | r}] =
-        getFloatValuedFact("Rating (Power)", (aibref, ans) -> #{ RatingPower(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Rating (Power)", (aibref, ans) -> #{ RatingPower(aibref, ans). })
 
     
     pub rel RatingUnits(aibref: String, units: String)
 
     pub def getRatingUnits(): NamedRowEvaluator[#{RatingUnits | r}] =
-        getStringValuedFact("Rating Units", (aibref, ans) -> #{ RatingUnits(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Rating Units", (aibref, ans) -> #{ RatingUnits(aibref, ans). })
 
 }

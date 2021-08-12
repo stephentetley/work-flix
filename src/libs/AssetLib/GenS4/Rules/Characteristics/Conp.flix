@@ -18,9 +18,9 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Conp {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass, 
-                            IPRating, Power, PowerUnits, SpeedRPM,
-                            VoltageIn, VoltageInACOrDC};
+
+    use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, InsulationClass, 
+        IPRating, Power, SpeedRPM, VoltageIn};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
@@ -38,23 +38,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
         Ok(ans) 
 
 
-    pub def conp(input: #{EquiWorkItem3, CurrentIn,
-                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+    pub def conp(input: #{EquiWorkItem3, CurrentInA, VoltageIn, 
+                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "CONP", s4Class),
-                CurrentIn(equiId, current).
+                CurrentInA(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE", 1, S4Int(voltage)) :-
                 EquiWorkItem3(equiId, "CONP", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, voltage),
+                VoltageIn(equiId, voltage, units),
                 if recognizedVoltageUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
                 EquiWorkItem3(equiId, "CONP", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, _),
+                VoltageIn(equiId, _, units),
                 if recognizedVoltageUnits(units).
         }; 
         solve (rules <+> input) project EquiCharacteristic

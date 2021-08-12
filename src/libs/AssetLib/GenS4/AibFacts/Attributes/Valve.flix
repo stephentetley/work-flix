@@ -21,8 +21,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
-
 
 
     /// Read from Aib file...
@@ -42,18 +40,18 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
     pub rel ValveType(aibref: String, valveType: String)
 
     def getValveType(): NamedRowEvaluator[#{ValveType | r}] =
-        getStringValuedFact("Valve Type", (aibref, ans) -> #{ ValveType(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Valve Type", (x1, x2) -> #{ ValveType(x1, x2). })
 
     
     pub rel Size(aibref: String, size: Float64)
     
     def getSize(): NamedRowEvaluator[#{Size | r}] =
-        getFloatValuedFact("Size", (aibref, ans) -> #{ Size(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Size", (x1, x2) -> #{ Size(x1, x2). })
 
 
     pub rel SizeUnits(aibref: String, units: String)
 
     def getSizeUnits(): NamedRowEvaluator[#{SizeUnits | r}] =
-        getStringValuedFact("Size Units", (aibref, ans) -> #{ SizeUnits(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Size Units", (x1, x2) -> #{ SizeUnits(x1, x2). })
 
 }

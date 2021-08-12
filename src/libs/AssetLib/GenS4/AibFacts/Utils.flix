@@ -22,6 +22,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     use AssetLib/Base/Osgb36.{EastingNorthing};
 
+    /// DEPRECATED
     pub def readAibFacts(eval: NamedRowEvaluator[#{| r}],
                         allowEmpty: Bool, 
                         src: XlsxSource): Result[#{| r}, String] & Impure =
@@ -29,7 +30,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
         let eval1 = if (allowEmpty) withDefault(eval, #{}) else eval;
         SheetIO/SheetReader.runXlsx(readAibSheet(eval1, src.sheet), src.path)
         
-
+    /// DEPRECATED
     pub def readAibSheet(eval: NamedRowEvaluator[#{| r}], sheetName: String): SheetReader[#{| r}] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
@@ -37,20 +38,20 @@ namespace AssetLib/GenS4/AibFacts/Utils {
         let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
         return(relns)
 
-    pub def getStringValuedFact(columnName: String, f: (String, String) -> ans): NamedRowEvaluator[ans] =
+    pub def getStringFact2(columnName: String, f: (String, String) -> ans): NamedRowEvaluator[ans] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getNonEmptyContentNamed(columnName);
         return(f(x1, x2))
 
-    pub def getIntValuedFact(columnName: String, f: (String, Int32) -> ans): NamedRowEvaluator[ans] =
+    pub def getIntFact2(columnName: String, f: (String, Int32) -> ans): NamedRowEvaluator[ans] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getInt32Named};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getInt32Named(columnName);
         return(f(x1, x2))
 
 
-    pub def getFloatValuedFact(columnName: String, f: (String, Float64) -> ans): NamedRowEvaluator[ans] =
+    pub def getFloatFact2(columnName: String, f: (String, Float64) -> ans): NamedRowEvaluator[ans] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getFloat64Named};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getFloat64Named(columnName);

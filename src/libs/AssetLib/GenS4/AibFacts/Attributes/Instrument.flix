@@ -21,10 +21,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact, getIntValuedFact};
-
-
-
     /// Read from Aib file...
 
 
@@ -56,47 +52,47 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
     pub rel RangeMin(aibref: String, rmin: Float64)
 
     def getRangeMin(): NamedRowEvaluator[#{RangeMin | r}] =
-        getFloatValuedFact("Range min", (aibref, ans) -> #{ RangeMin(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Range min", (aibref, ans) -> #{ RangeMin(aibref, ans). })
 
 
     pub rel RangeMax(aibref: String, rmax: Float64)
 
     def getRangeMax(): NamedRowEvaluator[#{RangeMax | r}] =
-        getFloatValuedFact("Range max", (aibref, ans) -> #{ RangeMax(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Range max", (aibref, ans) -> #{ RangeMax(aibref, ans). })
 
 
     pub rel RangeUnit(aibref: String, units: String)
 
     def getRangeUnit(): NamedRowEvaluator[#{RangeUnit | r}] =
-        getStringValuedFact("Range unit", (aibref, ans) -> #{ RangeUnit(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Range unit", (aibref, ans) -> #{ RangeUnit(aibref, ans). })
 
     pub rel SignalMin(aibref: String, smin: Float64)
 
     def getSignalMin(): NamedRowEvaluator[#{SignalMin | r}] =
-        getFloatValuedFact("Signal min", (aibref, ans) -> #{ SignalMin(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Signal min", (aibref, ans) -> #{ SignalMin(aibref, ans). })
 
 
     pub rel SignalMax(aibref: String, smax: Float64)
 
     def getSignalMax(): NamedRowEvaluator[#{SignalMax | r}] =
-        getFloatValuedFact("Signal max", (aibref, ans) -> #{ SignalMax(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Signal max", (aibref, ans) -> #{ SignalMax(aibref, ans). })
 
 
     pub rel SignalUnit(aibref: String, units: String)
 
     def getSignalUnit(): NamedRowEvaluator[#{SignalUnit | r}] =
-        getStringValuedFact("Signal unit", (aibref, ans) -> #{ SignalUnit(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Signal unit", (aibref, ans) -> #{ SignalUnit(aibref, ans). })
 
 
     pub rel TransducerType(aibref: String, model: String)
 
     def getTransducerType(): NamedRowEvaluator[#{TransducerType | r}] =
-        getStringValuedFact("Transducer Type", (aibref, ans) -> #{ TransducerType(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Transducer Type", (aibref, ans) -> #{ TransducerType(aibref, ans). })
 
     pub rel TransducerSerialNumber(aibref: String, serialNum: String)
 
     def getTransducerSerialNumber(): NamedRowEvaluator[#{TransducerSerialNumber | r}] =
-        getStringValuedFact("Transducer Serial No", (aibref, ans) -> #{ TransducerSerialNumber(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Transducer Serial No", (aibref, ans) -> #{ TransducerSerialNumber(aibref, ans). })
 
 
 }

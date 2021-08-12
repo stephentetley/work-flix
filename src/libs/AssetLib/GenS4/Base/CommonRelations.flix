@@ -45,7 +45,7 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     /// Electrical
     
-    pub rel CurrentIn(itemId: String, current: Float64, units: String)
+    pub rel CurrentInA(itemId: String, current: Float64)
 
     pub rel InsulationClass(itemId: String, insclass: String)
 

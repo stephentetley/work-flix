@@ -87,11 +87,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
 
 
     def getSurveyYear(): NamedRowEvaluator[#{SurveyYear | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getInt32Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> 
-            #{ SurveyYear(x1, x2). })
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getInt32Named("AGASP Survey Year")
-
+        AssetLib/GenS4/AibFacts/Utils.getIntFact2("AGASP Survey Year", (x1, x2) -> #{ SurveyYear(x1, x2). }) 
+        
 }

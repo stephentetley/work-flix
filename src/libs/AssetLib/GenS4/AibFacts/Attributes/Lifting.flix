@@ -21,11 +21,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/GenS4/AibFacts/Utils.{getStringValuedFact, getFloatValuedFact};
-
-
-
-
     /// Read from Aib file...
 
 
@@ -48,24 +43,24 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
     pub rel WorkLoad(aibref: String, load: Float64)
 
     def getWorkLoad(): NamedRowEvaluator[#{WorkLoad | r}] =
-        getFloatValuedFact("Work Load", (aibref, ans) -> #{ WorkLoad(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Work Load", (aibref, ans) -> #{ WorkLoad(aibref, ans). })
 
 
     pub rel WorkLoadUnits(aibref: String, units: String)
 
     def getWorkLoadUnits(): NamedRowEvaluator[#{WorkLoadUnits | r}] =
-        getStringValuedFact("Work Load Units", (aibref, ans) -> #{ WorkLoadUnits(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Work Load Units", (aibref, ans) -> #{ WorkLoadUnits(aibref, ans). })
 
     pub rel TestCertNo(aibref: String, number: String)
 
     def getTestCertNo(): NamedRowEvaluator[#{TestCertNo | r}] =
-        getStringValuedFact("Test Cert No", (aibref, ans) -> #{ TestCertNo(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Test Cert No", (aibref, ans) -> #{ TestCertNo(aibref, ans). })
 
     
     pub rel YWRef(aibref: String, refnum: String)
 
     pub def getYWRef(): NamedRowEvaluator[#{YWRef | r}] =
-        getStringValuedFact("YWRef", (aibref, ans) -> #{ YWRef(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("YWRef", (aibref, ans) -> #{ YWRef(aibref, ans). })
 
 
 

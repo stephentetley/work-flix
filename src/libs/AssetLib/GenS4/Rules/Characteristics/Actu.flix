@@ -18,8 +18,8 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Actu {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass, 
-        IPRating, Power, PowerUnits, SpeedRPM, VoltageIn, VoltageInACOrDC};
+    use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, InsulationClass, 
+        IPRating, Power, SpeedRPM, VoltageIn};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
@@ -38,9 +38,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
         Ok(ans) 
 
 
-    pub def actu(input: #{EquiWorkItem3, CurrentIn, InsulationClass, 
-                            IPRating, Power, PowerUnits,
-                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+    pub def actu(input: #{EquiWorkItem3, CurrentInA, InsulationClass, 
+                            IPRating, Power, VoltageIn, 
+                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules =#{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "ACTU", s4Class),
@@ -53,23 +53,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "ACTU", s4Class),
-                CurrentIn(equiId, current).
+                CurrentInA(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
                 EquiWorkItem3(equiId, "ACTU", s4Class),
-                PowerUnits(equiId, "KILOWATTS"),
-                Power(equiId, power).
+                Power(equiId, power, "KILOWATTS").
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
                 EquiWorkItem3(equiId, "ACTU", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, voltage),
+                VoltageIn(equiId, voltage, units),
                 if recognizedVoltageUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
                 EquiWorkItem3(equiId, "ACTU", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, _),
+                VoltageIn(equiId, _, units),
                 if recognizedVoltageUnits(units).
         };
         solve (rules <+> input) project EquiCharacteristic

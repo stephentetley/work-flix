@@ -18,8 +18,8 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Electrical.{CurrentIn, InsulationClass, 
-        IPRating, SpeedRPM, Power, PowerUnits, VoltageIn, VoltageInACOrDC};
+    use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, InsulationClass, 
+        IPRating, SpeedRPM, Power, VoltageIn};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
@@ -39,9 +39,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
 
     /// IP_RATING should be generated on per type (per class?)
-    pub def emtr(input: #{EquiWorkItem3, CurrentIn, InsulationClass, 
-                            IPRating, SpeedRPM, Power, 
-                            PowerUnits, VoltageIn, VoltageInACOrDC, 
+    pub def emtr(input: #{EquiWorkItem3, CurrentInA, InsulationClass, 
+                            IPRating, SpeedRPM, Power, VoltageIn, 
                             EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
@@ -55,27 +54,25 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
             EquiCharacteristic(equiId, s4Class, "EMTR_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "EMTR", s4Class),
-                CurrentIn(equiId, current).
+                CurrentInA(equiId, current).
 
             EquiCharacteristic(equiId, s4Class, "EMTR_RATED_POWER_KW", 1, S4Float(power)) :-
                 EquiWorkItem3(equiId, "EMTR", s4Class),
-                PowerUnits(aibref, "KILOWATTS"),
-                Power(equiId, power).
+                Power(equiId, power, "KILOWATTS").
 
             EquiCharacteristic(equiId, s4Class, "EMTR_RATED_SPEED_RPM", 1, S4Int(speed)) :- 
                 EquiWorkItem3(equiId, "EMTR", s4Class),
                 SpeedRPM(equiId, speed).
 
+            /// Units are just VAC or VDC - no conversion
             EquiCharacteristic(equiId, s4Class, "EMTR_RATED_VOLTAGE", 1, S4Int(voltage)) :-
                 EquiWorkItem3(equiId, "EMTR", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, voltage),
+                VoltageIn(equiId, voltage, units),
                 if recognizedVoltageUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "EMTR_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
                 EquiWorkItem3(equiId, "EMTR", s4Class),
-                VoltageInACOrDC(equiId, units),
-                VoltageIn(equiId, _),
+                VoltageIn(equiId, _, units),
                 if recognizedVoltageUnits(units).
 
         };
