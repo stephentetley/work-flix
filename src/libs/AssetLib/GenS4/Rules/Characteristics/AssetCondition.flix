@@ -26,7 +26,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
-    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
 
     /// src should be asset condition facts

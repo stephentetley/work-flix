@@ -25,7 +25,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
-    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
 
     /// src should be lifting facts

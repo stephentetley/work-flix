@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
     
-    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
     /// src should be electrical facts
     pub def genActu(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =

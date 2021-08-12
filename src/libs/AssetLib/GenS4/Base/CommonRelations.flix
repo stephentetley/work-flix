@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/GenS4/Rules/Characteristics/CommonRelations {
+namespace AssetLib/GenS4/Base/CommonRelations {
 
     /// `itemId` will be pli-number for facts extracted from Aib Exports.
     /// But it can represent other item types depending where the facts come from.

@@ -23,7 +23,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
 
     /// # Equipment

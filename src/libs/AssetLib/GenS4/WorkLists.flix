@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/WorkLists {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
     
-    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
     type alias EquiWorkItem = 
         { equipmentId: String
