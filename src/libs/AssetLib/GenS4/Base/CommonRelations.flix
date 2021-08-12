@@ -74,6 +74,13 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     
     pub rel YWRef(aibref: String, refnum: String)
 
+    /// Location Data 
+    
+    pub rel LocationOnSite(aibref: String, text: String)
+    
+    pub rel NationalGridRef(aibref: String, gridRef: String)
+
+
     /// Pump / Pums
 
     pub rel PumpDiaphragmMaterial(itemId: String, material: String)

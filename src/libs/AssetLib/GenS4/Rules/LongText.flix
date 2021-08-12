@@ -21,8 +21,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiLongText};
-    use AssetLib/GenS4/Base/CommonRelations.{AibMemoLine};
-    use AssetLib/GenS4/AibFacts/Attributes/LocationData.{LocationOnSite};
+    use AssetLib/GenS4/Base/CommonRelations.{AibMemoLine, LocationOnSite};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiLongText};
 

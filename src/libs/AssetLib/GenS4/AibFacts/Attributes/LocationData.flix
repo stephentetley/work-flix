@@ -20,30 +20,28 @@ namespace AssetLib/GenS4/AibFacts/Attributes/LocationData {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
-
-    pub rel LocationOnSite(aibref: String, text: String)
-    pub rel Osgb36GridRef(aibref: String, gridRef: String)
+    use AssetLib/GenS4/Base/CommonRelations.{LocationOnSite, NationalGridRef};
 
     /// Read from Aib file, `Location on Site` needs to be added as an attribute
 
         
     /// Just reads `Location On Site`...
     pub def readLocationOnSiteData(src: XlsxSource): Result[#{LocationOnSite | r}, String] & Impure =
-        AssetLib/GenS4/AibFacts/Utils.readAibFacts(getLocationOnSite(), true, src)
-
-    /// Just reads `Osgb36GridRef`...
-    pub def readOsgb36GridRefData(src: XlsxSource): Result[#{Osgb36GridRef | r}, String] & Impure =
-        AssetLib/GenS4/AibFacts/Utils.readAibFacts(getOsgb36GridRef(), true, src)
-
+        SheetIO/Reader.someNamedRelations(src, evalLocationOnSite())
+        
+    /// Just reads `NationalGridRef`...
+    pub def readNationalGridRefData(src: XlsxSource): Result[#{NationalGridRef | r}, String] & Impure =
+        SheetIO/Reader.someNamedRelations(src, evalNationalGridRef())
+        
 
     /// Custom attribute `Location on Site`.
-    pub def getLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
+    def evalLocationOnSite(): NamedRowEvaluator[#{LocationOnSite | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Location On Site",  (aibref, ans) -> #{ LocationOnSite(aibref, ans). })
         
     
     /// On all AI2 exports.
-    pub def getOsgb36GridRef(): NamedRowEvaluator[#{Osgb36GridRef | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Loc.Ref.",  (aibref, ans) -> #{ Osgb36GridRef(aibref, ans). })        
+    def evalNationalGridRef(): NamedRowEvaluator[#{NationalGridRef | r}] =
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Loc.Ref.",  (aibref, ans) -> #{ NationalGridRef(aibref, ans). })        
 
 
 }

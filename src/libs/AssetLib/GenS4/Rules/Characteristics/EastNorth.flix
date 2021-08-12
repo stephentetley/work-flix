@@ -18,8 +18,9 @@
 namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/LocationData.{Osgb36GridRef};
+
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{NationalGridRef};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
@@ -55,21 +56,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
                             src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/LocationData.readOsgb36GridRefData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/LocationData.readNationalGridRefData(src);
         let ans         = equiEastNorth(facts <+> workitems);
         Ok(ans) 
         
 
-    pub def equiEastNorth(input: #{EquiWorkItem3, Osgb36GridRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
+    pub def equiEastNorth(input: #{EquiWorkItem3, NationalGridRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{            
             EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
                 EquiWorkItem3(equiId, _, _),
-                Osgb36GridRef(equiId, ngr).
+                NationalGridRef(equiId, ngr).
 
             EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
                 EquiWorkItem3(equiId, _, _),
-                Osgb36GridRef(equiId, ngr).
+                NationalGridRef(equiId, ngr).
         };
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic

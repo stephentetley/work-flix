@@ -17,13 +17,15 @@
 namespace AssetLib/GenS4/Rules/Equipment {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttributes};
-    use AssetLib/GenS4/AibFacts/Attributes/LocationData.{LocationOnSite};
+    
     use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, LocationOnSite};
+    use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttributes};
+    use AssetLib/GenS4/AibFacts/Attributes/LocationData.{};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
+    
 
 
     /// # Equipment
