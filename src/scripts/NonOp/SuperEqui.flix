@@ -22,8 +22,8 @@ namespace AssetScripts/NonOp/SuperEqui {
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/GenS4/Patch.{EquipmentPatches};
-    use AssetLib/GenS4/S4LiteRelations.{EquiLongText, EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiLongText, EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetLib/GenS4/Rules/PatchManufacturer.{HasAllowedManufacturer, HasAllowedManufacturerModel, 
         ManufacturerModelPatch, EquiWorkItem => PatchEquiWorkItem};
     use AssetScripts/NonOp/Relations.{EquiWorkItem, EquipmentMapping, InstallationMapping, SiteEastNorth};
@@ -289,7 +289,7 @@ namespace AssetScripts/NonOp/SuperEqui {
         };
         let workitems = makeWorkItems(xs);
         solve (workitems <+> db <+> rules) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
 
 }

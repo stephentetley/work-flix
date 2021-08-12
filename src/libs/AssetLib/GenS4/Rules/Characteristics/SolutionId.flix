@@ -18,9 +18,9 @@
 namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
 
 
     /// # Floc
@@ -45,7 +45,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
                 if not String.isEmpty(solutionId).
         };
         solve (rules <+> input) project FlocCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic
 
     /// # Equi
 
@@ -70,6 +70,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
                 if not String.isEmpty(solutionId).
         };
         solve (input <+> rules) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
     
 }

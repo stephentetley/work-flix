@@ -20,12 +20,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{RangeMinMax, SignalMinMax, Transducer};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, RangeMinMax, SignalMinMax, Transducer};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
 
     /// src should be instrument facts
@@ -74,7 +73,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
         };
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
 
     def recognizedRangeUnit(s: String): Bool = match s { 

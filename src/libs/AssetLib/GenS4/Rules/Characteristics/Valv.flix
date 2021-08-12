@@ -20,11 +20,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{ValveType, ValveSize};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4Int};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ValveType, ValveSize};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
 
     /// src should be valve facts
@@ -51,7 +50,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
 
         };
         solve (rules <+> input) project EquiCharacteristic
-             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedSizeUnits(units: String): Bool = match units { 
         case "MILLIMETRES" => true

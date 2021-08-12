@@ -20,12 +20,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{DiaphragmMaterial, 
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, DiaphragmMaterial, 
         DutyHead, PumpFlow, ImpellerType, PumpLiftingType, RatingPower};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
     /// src should be pump facts
     pub def genPump(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
@@ -65,7 +64,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
                 RatingPower(equiId, ans, "KILOWATTS").
         };
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedFlowUnits(units: String): Bool = match units { 
         case "LITRE PER HOUR" => true

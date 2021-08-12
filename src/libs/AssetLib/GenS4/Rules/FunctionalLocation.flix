@@ -17,8 +17,8 @@
 namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
     use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation, SLFlocCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem};
 
 
@@ -74,7 +74,7 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
                 if level == 5.
         };
         solve (rules <+> input) project FlocCharacteristic 
-            |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic
 
 }
 

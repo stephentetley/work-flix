@@ -20,12 +20,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{ConditionGrade, 
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ConditionGrade, 
         LoadingFactor, PerformanceGrade, SurveyYear};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Int};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
 
     /// src should be asset condition facts
@@ -76,7 +75,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
 
         }; 
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
 
     def s4ConditionGrade(s: String): String = match String.trim(s) { 

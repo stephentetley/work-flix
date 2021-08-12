@@ -20,7 +20,7 @@ namespace AssetLib/GenS4/GenFlocs {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
 
 
 

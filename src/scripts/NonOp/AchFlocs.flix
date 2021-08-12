@@ -21,8 +21,8 @@ namespace AssetScripts/NonOp/AchFlocs {
     use SheetIO/Reader.{XlsxSource};
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Date, S4Int, S4Float};
     use AssetScripts/NonOp/Relations.{AchFlocWorkItem, InstallationMapping, SiteEastNorth};
 
     /// Split worklist...
@@ -149,7 +149,7 @@ namespace AssetScripts/NonOp/AchFlocs {
     def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
         { funclocs = toSLFunctionalLocation(relns)
         , funclocLongTexts = Monoid.empty()
-        , funclocCharacteristics = AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic(relns)
+        , funclocCharacteristics = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic(relns)
         , equipment = Monoid.empty()
         , equiLongTexts = Monoid.empty()
         , equiCharacteristics = Monoid.empty()

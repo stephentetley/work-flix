@@ -18,12 +18,13 @@
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     use SheetIO/Reader.{XlsxSource};
+
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{AibParentRef};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, AibParentRef};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
+
     
     /// # Floc
 
@@ -34,7 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         use Result.{flatMap};
         let workitems   = makeFlocAibRefWorkItems(worklist);
         let aibrefs     = List.foldLeft((ac, x) -> ac <+> makeFlocAibRef(x), #{}, worklist);
-        let ans         = flocAibReference(workitems <+> aibrefs) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        let ans         = flocAibReference(workitems <+> aibrefs) |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic;
         Ok(ans) 
 
     /// Case specific WorkItem...
@@ -90,7 +91,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
                 AibParentRef(equiId, _, parent).
         };
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
 
 }

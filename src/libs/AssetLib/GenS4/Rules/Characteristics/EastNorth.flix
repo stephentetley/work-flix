@@ -20,11 +20,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{NationalGridRef};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4Int};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, NationalGridRef};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
     /// # Floc
     
@@ -48,7 +47,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
                 FlocEastNorthWorkItem(funcloc, ngr).
         };
         solve (rules <+> workitems) project FlocCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic
 
     /// # Equi
 
@@ -73,6 +72,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
                 NationalGridRef(equiId, ngr).
         };
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
 }

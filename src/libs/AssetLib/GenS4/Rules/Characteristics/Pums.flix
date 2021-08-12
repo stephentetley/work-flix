@@ -23,8 +23,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
     use AssetLib/GenS4/Base/CommonRelations.{DiaphragmMaterial, 
         DutyHead, PumpFlow, ImpellerType, PumpLiftingType, RatingPower};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
@@ -65,7 +65,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
                 RatingPower(equiId, ans, "KILOWATTS").
         };
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedFlowUnits(units: String): Bool = match units { 
         case "LITRE PER HOUR" => true

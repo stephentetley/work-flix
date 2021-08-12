@@ -20,12 +20,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
     use SheetIO/Reader.{XlsxSource};
     
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{WorkLoad, TestCertNo, YWRef};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, WorkLoad, TestCertNo, YWRef};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
 
     /// src should be lifting facts
@@ -62,7 +61,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
 
         }; 
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedLoadUnit(s: String): Bool = match s { 
         case "KILOGRAM" => true

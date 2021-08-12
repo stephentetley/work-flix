@@ -23,8 +23,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
         IPRating, Power, SpeedRPM, VoltageIn};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
@@ -56,6 +56,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
                 if recognizedVoltageUnits(units).
         }; 
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
 }

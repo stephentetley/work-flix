@@ -15,13 +15,16 @@
  */
 
 
-namespace AssetLib/GenS4/S4LiteRelations {
+namespace AssetLib/S4Lite/S4LiteRelations {
 
     use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
         SLEquipment, SLEquiLongText, SLEquiCharacteristic, 
         SLDatatype};
 
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, Date, NumericInt, NumericFloat};
+
+
+    /// Target relations for generating S4Lite from Datalog
 
     pub enum CharValue {
         case S4String(String)

@@ -18,13 +18,10 @@
 namespace AssetLib/GenS4/GenEqui {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/HierarchyFacts.{AibRootNode, AibFloc, AibEquipment};
-    use AssetLib/GenS4/AibFacts/Attributes/MemoLines.{AibMemoLine};
-    use AssetLib/GenS4/AibFacts/Attributes/Equipment.{LocationOnSite, EquipmentAttibutes};
+
+
     use AssetLib/S4Lite/Datatypes.{UxlSource};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{Equipment, EquiLongText, EquiCharacteristic};
 
 
     /// TODO - need to be able to generate EquiCharacteristics from a Worklist and an XlsxSource

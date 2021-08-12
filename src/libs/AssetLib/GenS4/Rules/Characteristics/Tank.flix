@@ -20,12 +20,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         TankConstruction, TankLevel, TankShape, UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
         UnitLengthM, UnitSideDepthM, UnitSideDepthMaxM, UnitSideDepthMinM};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
     
     
 
@@ -53,7 +53,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
                 if recognizedTankConstruction(ans).                
         };
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedTankLevel(level: String): Bool = match level { 
         case "ABOVE GROUND" => true

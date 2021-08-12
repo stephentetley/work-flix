@@ -21,9 +21,9 @@ namespace AssetLib/GenS4/Rules/LongText {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiLongText};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiLongText};
     use AssetLib/GenS4/Base/CommonRelations.{AibMemoLine, LocationOnSite};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiLongText};
 
     rel HasLocationOnSite(id: String)
     rel HasMemoLines(id: String)
@@ -36,7 +36,7 @@ namespace AssetLib/GenS4/Rules/LongText {
         use Result.{flatMap};
         let workitems   = makeLongTextWorkItems(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
-        let ans         = equiLongText(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiLongText;
+        let ans         = equiLongText(workitems <+> facts) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongText;
         Ok(ans) 
 
 

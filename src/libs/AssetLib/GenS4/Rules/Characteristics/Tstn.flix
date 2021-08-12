@@ -20,12 +20,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{RangeMinMax, SignalMinMax};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, RangeMinMax, SignalMinMax};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
 
 
@@ -68,7 +67,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
                 if recognizedRangeUnit(units).
         };
         solve (rules <+> input) project EquiCharacteristic
-             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedRangeUnit(s: String): Bool = match s { 
         case "Deg C" => true

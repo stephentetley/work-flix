@@ -18,12 +18,13 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Actu {
 
     use SheetIO/Reader.{XlsxSource};
+
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, InsulationClass, 
         IPRating, Power, SpeedRPM, VoltageIn};
-    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
     
@@ -70,5 +71,5 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
                 if recognizedVoltageUnits(units).
         };
         solve (rules <+> input) project EquiCharacteristic
-             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 }

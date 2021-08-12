@@ -18,15 +18,15 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, InsulationClass, 
-        IPRating, SpeedRPM, Power, VoltageIn};
+
+    use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
+        CurrentInA, InsulationClass, IPRating, SpeedRPM, Power, VoltageIn};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
-    use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
 
     /// src should be electrical facts
@@ -77,5 +77,5 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
         };
         solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 }
