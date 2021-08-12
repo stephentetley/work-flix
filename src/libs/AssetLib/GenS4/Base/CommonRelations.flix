@@ -75,7 +75,7 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     pub rel YWRef(aibref: String, refnum: String)
 
     /// Location Data 
-    
+
     pub rel LocationOnSite(aibref: String, text: String)
     
     pub rel NationalGridRef(aibref: String, gridRef: String)
@@ -83,18 +83,18 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     /// Pump / Pums
 
-    pub rel PumpDiaphragmMaterial(itemId: String, material: String)
+    pub rel DiaphragmMaterial(itemId: String, material: String)
 
-    pub rel PumpDutyHead(itemId: String, size: Float64, units: String)
+    pub rel DutyHead(itemId: String, size: Float64, units: String)
     
     pub rel PumpFlow(itemId: String, flow: Float64, units: String)
 
-    pub rel PumpImpellerType(itemId: String, impellerType: String)
+    pub rel ImpellerType(itemId: String, impellerType: String)
 
     /// AIB: `Lifting Type`
     pub rel PumpLiftingType(itemId: String, liftingType: String)
 
 
     /// AIB: `Rating (Power)` and `Rating Units`
-    pub rel PumpRatingPower(itemId: String, rating: Float64, units: String)
+    pub rel RatingPower(itemId: String, rating: Float64, units: String)
 }

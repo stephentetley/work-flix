@@ -18,9 +18,10 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Pump.{DiaphragmMaterial, DutyHead, DutyHeadUnits,
-        Flow, FlowUnits, ImpellerType, LiftingType, RatingPower, RatingUnits};
+
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{DiaphragmMaterial, 
+        DutyHead, PumpFlow, ImpellerType, PumpLiftingType, RatingPower};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String, S4Float};
@@ -36,20 +37,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
 
 
-    pub def pump(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead, DutyHeadUnits,
-                            Flow, FlowUnits, ImpellerType, LiftingType, 
-                            RatingPower, RatingUnits, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+    pub def pump(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead,
+                            PumpFlow, ImpellerType, PumpLiftingType, RatingPower, 
+                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMP", s4Class),
-                Flow(equiId, flow),
-                FlowUnits(equiId, units),
+                PumpFlow(equiId, flow, units),
                 if recognizedFlowUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "PUMP_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
                 EquiWorkItem3(equiId, "PUMP", s4Class),
-                DutyHead(equiId, ans),
-                DutyHeadUnits(equiId, "METRES").
+                DutyHead(equiId, ans, "METRES").
 
             /// TODO may have to limit pump-classes here...
             EquiCharacteristic(equiId, s4Class, "PUMP_IMPELLER_TYPE", 1, S4String(ans)) :-
@@ -63,8 +62,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
 
             EquiCharacteristic(equiId, s4Class, "PUMP_RATED_POWER_KW", 1, S4Float(ans)) :-
                 EquiWorkItem3(equiId, "PUMP", s4Class),
-                RatingPower(equiId, ans),
-                RatingUnits(equiId, "KILOWATTS").
+                RatingPower(equiId, ans, "KILOWATTS").
         };
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic

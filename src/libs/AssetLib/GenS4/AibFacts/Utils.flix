@@ -57,6 +57,38 @@ namespace AssetLib/GenS4/AibFacts/Utils {
         let* x2     = getFloat64Named(columnName);
         return(f(x1, x2))
 
+
+    pub def getIntFactWithUnits(columnName: String,                                     
+                                    unitsColumn: String, 
+                                    f: (String, Int32, String) -> ans, 
+                                    missingVal: ans): NamedRowEvaluator[ans] =
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getInt32Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) ->
+            if (not String.isEmpty(x3))
+                f(x1, x2, x3)
+            else missingVal
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getInt32Named(columnName)
+        <*> getContentNamed(unitsColumn)
+
+    pub def getFloatFactWithUnits(columnName: String,                                     
+                                    unitsColumn: String, 
+                                    f: (String, Float64, String) -> ans, 
+                                    missingVal: ans): NamedRowEvaluator[ans] =
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) ->
+            if (not String.isEmpty(x3))
+                f(x1, x2, x3)
+            else missingVal
+            )
+        <&> getNonEmptyContentNamed("Reference")
+        <*> getFloat64Named(columnName)
+        <*> getContentNamed(unitsColumn)
+
+
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
     /// 
