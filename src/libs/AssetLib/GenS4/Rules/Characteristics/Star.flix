@@ -31,21 +31,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
     /// src should be electrical facts
     pub def genStar(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
-        let ans         = star(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = star(workitems <+> facts);
         Ok(ans) 
 
-
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     /// TODO "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
 
     pub def star(input: #{EquiWorkItem3, CurrentIn,
                             IPRating, SpeedRPM, Power, PowerUnits, 
-                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            VoltageIn, VoltageInACOrDC, 
+                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
@@ -73,6 +70,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
                 if recognizedVoltageUnits(units).
         }; 
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
 }

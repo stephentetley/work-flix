@@ -32,16 +32,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
     /// src should be electrical facts
     pub def genConp(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
-        let ans         = conp(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = conp(workitems <+> facts);
         Ok(ans) 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
-    pub def conp(input: #{EquiWorkItem3, CurrentIn, VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+    pub def conp(input: #{EquiWorkItem3, CurrentIn,
+                            VoltageIn, VoltageInACOrDC, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "CONP", s4Class),
@@ -60,6 +58,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
                 if recognizedVoltageUnits(units).
         }; 
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
 }

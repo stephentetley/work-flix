@@ -31,19 +31,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
     /// src should be instrument facts
     pub def genLstn(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src);
-        let ans         = lstn(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = lstn(workitems <+> facts);
         Ok(ans) 
-
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def lstn(input: #{EquiWorkItem3, RangeMin, RangeMax, RangeUnit,
                             SignalMin, SignalMax, SignalUnit, 
                             TransducerType, TransducerSerialNumber, 
-                            EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "LSTN", s4Class),
@@ -86,7 +82,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
 
         };
         solve (rules <+> input) project EquiCharacteristic
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
+            
     def recognizedRangeUnit(s: String): Bool = match s { 
         case "m" => true
         case "cm/s" => true

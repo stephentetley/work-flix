@@ -50,19 +50,16 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
     pub def genFlocCharacteristics1(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeFlocWorkItem4s(worklist);
-        let ans         = flocCharacteristics1(workitems) |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic;
+        let make1 = x1 -> #{ FlocWorkItem4(x1.funcloc, x1.level, x1.systemClass, x1.systemTypeDescription). };        
+        let workitems   = List.foldLeft((ac, x) -> ac <+> make1(x), #{}, worklist);
+        let ans         = flocCharacteristics1(workitems);
         Ok(ans) 
 
     /// Case specific WorkItem...
     pub rel FlocWorkItem4(floc: String, level: Int32, systemClass: String, systemDescription: String)
 
 
-    def makeFlocWorkItem4s(xs: List[FlocWorkItem]): #{FlocWorkItem4 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ FlocWorkItem4(x.funcloc, x.level, x.systemClass, x.systemTypeDescription). }, #{}, xs)
-
-
-    pub def flocCharacteristics1(input: #{FlocWorkItem4, FlocCharacteristic | r}): #{FlocCharacteristic | r} = 
+    pub def flocCharacteristics1(input: #{FlocWorkItem4, FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure = 
         let rules = #{
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String("")) :- 
                 FlocWorkItem4(funcloc, level, _, _),
@@ -76,7 +73,8 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
                 FlocWorkItem4(funcloc, level, className, systemDescr),
                 if level == 5.
         };
-        solve (rules <+> input) project FlocCharacteristic
+        solve (rules <+> input) project FlocCharacteristic 
+            |> AssetLib/GenS4/S4LiteRelations.toSLFlocCharacteristic
 
 }
 

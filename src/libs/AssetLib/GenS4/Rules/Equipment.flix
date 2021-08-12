@@ -61,18 +61,15 @@ namespace AssetLib/GenS4/Rules/Equipment {
     /// src should be valve facts
     pub def genCommonCharacteristics(worklist: List[EquiWorkItem], locationSrc: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/LocationData.readLocationOnSiteData(locationSrc);
-        let ans         = equiCommonCharacteristics(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = equiCommonCharacteristics(workitems <+> facts);
         Ok(ans) 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
 
     pub def equiCommonCharacteristics(input: #{EquiWorkItem3,
-                                            LocationOnSite,  EquiCharacteristic| r1}): #{EquiCharacteristic | r} =
+                                            LocationOnSite,  EquiCharacteristic| r1}): Chain[SLEquiCharacteristic] & Impure =
         let rules = #{
             
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
@@ -86,7 +83,8 @@ namespace AssetLib/GenS4/Rules/Equipment {
                 LocationOnSite(equiId, location).
 
         };
-        solve (rules <+> input) project EquiCharacteristic
+        solve (rules <+> input) project EquiCharacteristic 
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
 
     def s4Location(s: String): String =

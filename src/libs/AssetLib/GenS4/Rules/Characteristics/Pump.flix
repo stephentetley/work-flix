@@ -29,23 +29,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     /// src should be pump facts
     pub def genPump(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src);
-        let ans         = pump(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = pump(workitems <+> facts);
         Ok(ans) 
 
-    /// TODO - this would be resuable to other generators (rather than just Aib-to-S4)
-    /// If we had a more specificwork item...
 
-
-    
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def pump(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead, DutyHeadUnits,
                             Flow, FlowUnits, ImpellerType, LiftingType, 
-                            RatingPower, RatingUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            RatingPower, RatingUnits, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMP", s4Class),
@@ -74,7 +67,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
                 RatingUnits(equiId, "KILOWATTS").
         };
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedFlowUnits(units: String): Bool = match units { 
         case "LITRE PER HOUR" => true

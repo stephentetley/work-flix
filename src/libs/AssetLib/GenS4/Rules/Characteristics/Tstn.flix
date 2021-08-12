@@ -32,18 +32,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
     /// src should be instrument facts
     pub def genTstn(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Instrument.readInstrumentData(src);
-        let ans         = tstn(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = tstn(workitems <+> facts);
         Ok(ans) 
 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def tstn(input: #{EquiWorkItem3, RangeMin, RangeMax, RangeUnit,
-                            SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            SignalMin, SignalMax, SignalUnit, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),
@@ -77,6 +74,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
                 if recognizedRangeUnit(units).
         };
         solve (rules <+> input) project EquiCharacteristic
+             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedRangeUnit(s: String): Bool = match s { 
         case "Deg C" => true

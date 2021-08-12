@@ -31,19 +31,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
     /// src should be pump facts
     pub def genPums(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Pump.readPumpData(src);
-        let ans         = pums(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = pums(workitems <+> facts);
         Ok(ans) 
-
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
 
     pub def pums(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead, DutyHeadUnits,
                             Flow, FlowUnits, ImpellerType, LiftingType, 
-                            RatingPower, RatingUnits, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            RatingPower, RatingUnits, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMS_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMS", s4Class),
@@ -71,7 +67,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
                 RatingUnits(equiId, "KILOWATTS").
         };
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedFlowUnits(units: String): Bool = match units { 
         case "LITRE PER HOUR" => true

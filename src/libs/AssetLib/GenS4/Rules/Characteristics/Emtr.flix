@@ -32,21 +32,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
     /// src should be electrical facts
     pub def genEmtr(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
-        let ans         = emtr(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = emtr(workitems <+> facts);
         Ok(ans) 
-
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
 
     /// IP_RATING should be generated on per type (per class?)
     pub def emtr(input: #{EquiWorkItem3, CurrentIn, InsulationClass, 
                             IPRating, SpeedRPM, Power, 
                             PowerUnits, VoltageIn, VoltageInACOrDC, 
-                            EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "EMTR", s4Class),
@@ -84,5 +80,5 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
         };
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 }

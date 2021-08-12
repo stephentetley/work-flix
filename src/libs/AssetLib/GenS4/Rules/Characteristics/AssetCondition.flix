@@ -32,19 +32,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     /// src should be asset condition facts
     pub def genAssetCondition(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts = AssetLib/AibFacts/Attributes/AssetCondition.readAgaspData(src);
-        let ans = assetCondition(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans = assetCondition(workitems <+> facts);
         Ok(ans) 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def assetCondition(input: #{EquiWorkItem3, ConditionGrade, ConditionGradeReason, 
                                     LoadingFactor, LoadingFactorReason, 
                                     PerformanceGrade, PerformanceGradeReason, 
-                                    SurveyYear, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                                    SurveyYear, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(s4ConditionGrade(grade))) :- 
@@ -78,11 +75,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
 
         }; 
         solve (rules <+> input) project EquiCharacteristic
-        
-
-
-
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
 
     def s4ConditionGrade(s: String): String = match String.trim(s) { 

@@ -34,17 +34,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     /// src should be tank facts
     pub def genTank(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Tank.readTankData(src);
-        let ans         = tank(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = tank(workitems <+> facts);
         Ok(ans) 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def tank(input: #{EquiWorkItem3, TankLevel, 
-                            TankConstruction, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+                            TankConstruction, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(tankLevel(level))) :-
                 EquiWorkItem3(equiId, "TANK", s4Class),
@@ -57,7 +54,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
                 if recognizedTankConstruction(ans).                
         };
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
+            
     def recognizedTankLevel(level: String): Bool = match level { 
         case "ABOVE GROUND" => true
         case "BELOW GROUND" => true

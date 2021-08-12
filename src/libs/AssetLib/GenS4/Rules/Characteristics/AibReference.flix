@@ -67,18 +67,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     pub def genEquiAibReference(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/AibReference.readHierarchyRelations(src);
-        let ans         = equiAibReference(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = equiAibReference(workitems <+> facts);
         Ok(ans) 
 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
-
     /// 
-    def equiAibReference(input: #{EquiWorkItem3, ParentRef, EquiCharacteristic | r}): #{EquiCharacteristic | r} =
+    def equiAibReference(input: #{EquiWorkItem3, ParentRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
@@ -94,7 +90,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
                 ParentRef(equiId, _, parent).
         };
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
 
 }

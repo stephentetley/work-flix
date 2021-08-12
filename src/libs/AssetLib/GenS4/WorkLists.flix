@@ -20,6 +20,8 @@ namespace AssetLib/GenS4/WorkLists {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
+    
+    use AssetLib/GenS4/Rules/Characteristics/CommonRelations.{EquiWorkItem3};
 
     type alias EquiWorkItem = 
         { equipmentId: String
@@ -34,6 +36,8 @@ namespace AssetLib/GenS4/WorkLists {
         }
 
 
+    pub def makeEquiWorkItem3(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
+        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     /// Functional Location (under-developed at the moment)
 

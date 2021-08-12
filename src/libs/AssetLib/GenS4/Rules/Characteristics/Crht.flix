@@ -30,18 +30,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
     /// src should be lifting facts
     pub def genCrht(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Lifting.readLiftingData(src);
-        let ans         = crht(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = crht(workitems <+> facts);
         Ok(ans) 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
 
     /// Note LOCATION_ON_SITE already created.
-    pub def crht(input: #{EquiWorkItem3, WorkLoad, WorkLoadUnits, TestCertNo, YWRef, EquiCharacteristic | r1}): #{EquiCharacteristic | r} = 
+    pub def crht(input: #{EquiWorkItem3, WorkLoad, WorkLoadUnits,
+                            TestCertNo, YWRef, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "CRHT", s4Class),
@@ -65,7 +63,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
 
         }; 
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
     def recognizedLoadUnit(s: String): Bool = match s { 
         case "KILOGRAM" => true

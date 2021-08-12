@@ -30,17 +30,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     /// src should be electrical facts
     pub def genSole(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let workitems   = makeWorkItems(worklist);
+        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/AibFacts/Attributes/Electrical.readElectricalData(src);
-        let ans         = sole(workitems <+> facts) |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic;
+        let ans         = sole(workitems <+> facts);
         Ok(ans) 
 
-    /// Where to put this?
-    def makeWorkItems(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
 
     pub def sole(input: #{EquiWorkItem3, IPRating, InsulationClass, CurrentIn, PowerUnits, Power, 
-                            EquiCharacteristic | r}): #{EquiCharacteristic | r1} = 
+                            EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "SOLE", s4Class),
@@ -61,6 +58,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
                 Power(equiId, power).
         }; 
         solve (rules <+> input) project EquiCharacteristic
-
+            |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic
 
 }
