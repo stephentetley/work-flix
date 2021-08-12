@@ -18,8 +18,8 @@
 namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/AibReference.{ParentRef};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{AibParentRef};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
@@ -74,7 +74,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
 
     /// 
-    def equiAibReference(input: #{EquiWorkItem3, ParentRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
+    def equiAibReference(input: #{EquiWorkItem3, AibParentRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
@@ -87,7 +87,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
             /// AI2_AIB_REFERENCE (parent)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parent)) :- 
                 EquiWorkItem3(equiId, _, _),
-                ParentRef(equiId, _, parent).
+                AibParentRef(equiId, _, parent).
         };
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/GenS4/S4LiteRelations.toSLEquiCharacteristic

@@ -25,6 +25,24 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     
     /// Floc equivalent to `EquiWorkItem3` is local to the `FunctionalLocation` module
 
+
+
+    pub rel AibMemoLine(aibref: String, text: String)
+
+    
+    pub rel AibParentRef(aibref: String, commonName: String, parent: String)
+
+
+    /// Asset Condition
+
+    pub rel ConditionGrade(itemId: String, grade: String, reason: String)
+
+    pub rel LoadingFactor(itemId: String, factor: String, reason: String)
+
+    pub rel PerformanceGrade(itemId: String, grade: String, reason: String)
+
+    pub rel SurveyYear(itemId: String, year: Int32)
+
     /// Electrical
     
     pub rel CurrentIn(itemId: String, current: Float64, units: String)

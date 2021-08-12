@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    pub rel ParentRef(aibref: String, commonName: String, parent: String)
+    use AssetLib/GenS4/Base/CommonRelations.{AibParentRef};
 
 
     /// Read from Aib file...
@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
         , commonName: String
         }
 
-    pub def readHierarchyRelations(src: XlsxSource): Result[#{ParentRef | r}, String] & Impure =
+    pub def readHierarchyRelations(src: XlsxSource): Result[#{AibParentRef | r}, String] & Impure =
         use Result.{flatMap, map};
         let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName);
         let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> map(List.sortWith(cmp));
@@ -53,30 +53,30 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
             <&> getContentNamed("Reference")
             <*> getContentNamed("Common Name")
 
-    def extractHierarchyFacts(xs: List[AibRow]): #{ParentRef | r} = 
+    def extractHierarchyFacts(xs: List[AibRow]): #{AibParentRef | r} = 
         getAibRootNode(xs) <+> getDescendants(xs)
         
 
     /// First node is site
-    def getAibRootNode(xs: List[AibRow]): #{ParentRef | r} = match xs {
-        case x :: _ => #{ ParentRef(x.reference, x.commonName, ""). }
+    def getAibRootNode(xs: List[AibRow]): #{AibParentRef | r} = match xs {
+        case x :: _ => #{ AibParentRef(x.reference, x.commonName, ""). }
         case Nil => #{}
     }
     
     /// First node is root which we put on a a stack...
     /// Spelling reminder for me - descendants with "dants" (things which descend from)
-    def getDescendants(xs: List[AibRow]): #{ParentRef | r} = match xs {
+    def getDescendants(xs: List[AibRow]): #{AibParentRef | r} = match xs {
         case x :: rs => getDescendantsHelper(Nel(x, Nil), #{}, rs)
         case Nil => #{}
     }
     
     /// Parent or stack of parents?
     def getDescendantsHelper(stack: Nel[AibRow], 
-                             ac: #{ParentRef | r}, 
-                             xs: List[AibRow]): #{ParentRef | r} = match xs {
+                             ac: #{AibParentRef | r}, 
+                             xs: List[AibRow]): #{AibParentRef | r} = match xs {
         case x :: rs => { 
             let (parent, stack1) = getParent(x.commonName, stack);
-            let r1 = #{ ParentRef(x.reference, x.commonName, parent.reference). };
+            let r1 = #{ AibParentRef(x.reference, x.commonName, parent.reference). };
             getDescendantsHelper(Nel.cons(x, stack1), r1 <+> ac, rs)
         }
         case Nil => ac
