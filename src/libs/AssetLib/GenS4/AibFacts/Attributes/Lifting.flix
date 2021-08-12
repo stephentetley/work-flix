@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
 
     pub def readLiftingData(src: XlsxSource): Result[#{WorkLoad, TestCertNo, YWRef | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(src, evalLifting())
+        SheetIO/Reader.someNamedRelations(src, evalLifting())
 
 
     def evalLifting(): NamedRowEvaluator[#{WorkLoad, TestCertNo, YWRef | r}] =

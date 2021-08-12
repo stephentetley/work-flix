@@ -63,7 +63,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
             "Flow Units", (x1, x2, x3) -> #{ PumpFlow(x1, x2, x3). }, #{})
 
     
-    pub def evalImpellerType(): NamedRowEvaluator[#{ImpellerType | r}] =
+    def evalImpellerType(): NamedRowEvaluator[#{ImpellerType | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Impeller Type", (x1, x2) -> #{ ImpellerType(x1, x2). })
 
     

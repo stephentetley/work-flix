@@ -18,16 +18,15 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Tank {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Tank.{TankConstruction, TankLevel, TankShape,
-        UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, UnitLengthM, UnitSideDepthM, 
-        UnitSideDepthMinM, UnitSideDepthMaxM};
+
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
+        TankConstruction, TankLevel, TankShape, UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
+        UnitLengthM, UnitSideDepthM, UnitSideDepthMaxM, UnitSideDepthMinM};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
-        recognizedInsulationClass, insulationClass};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
+    
     
 
 

@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
     /// Read from Aib file...
 
     pub def readMemoLinesData(src: XlsxSource): Result[#{AibMemoLine | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(src, evalAibMemoLine())
+        SheetIO/Reader.someNamedRelations(src, evalAibMemoLine())
         
     
     def evalAibMemoLine(): NamedRowEvaluator[#{AibMemoLine | r}] =

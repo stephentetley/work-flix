@@ -31,20 +31,20 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
     pub def readElectricalData(src: XlsxSource): Result[#{CurrentInA, InsulationClass, 
                                                             IPRating, Power, SpeedRPM,
                                                             VoltageIn | r}, String] & Impure =
-        AssetLib/GenS4/AibFacts/Utils.readAibFacts(aibElectrical(), true, src)
+        SheetIO/Reader.someNamedRelations(src, evalElectrical())
         
 
 
-    pub def aibElectrical(): NamedRowEvaluator[#{CurrentInA, InsulationClass, 
+    def evalElectrical(): NamedRowEvaluator[#{CurrentInA, InsulationClass, 
                                                 IPRating, Power, SpeedRPM,
                                                 VoltageIn | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(evalCurrentInA(), #{});
-        let* c2 = withDefault(getInsulationClass(), #{});
-        let* c3 = withDefault(getIPRating(), #{});
-        let* c4 = withDefault(getPower(), #{});
-        let* c5 = withDefault(getSpeedRPM(), #{});
-        let* c6 = withDefault(getVoltageIn(), #{});
+        let* c2 = withDefault(evalInsulationClass(), #{});
+        let* c3 = withDefault(evalIPRating(), #{});
+        let* c4 = withDefault(evalPower(), #{});
+        let* c5 = withDefault(evalSpeedRPM(), #{});
+        let* c6 = withDefault(evalVoltageIn(), #{});
         return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6)
 
 
@@ -52,22 +52,22 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
         AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Current In", (x1, x2) -> #{ CurrentInA(x1, x2). })
 
 
-    def getInsulationClass(): NamedRowEvaluator[#{InsulationClass | r}] =
+    def evalInsulationClass(): NamedRowEvaluator[#{InsulationClass | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Insulation Class", (x1, x2) -> #{ InsulationClass(x1, x2). })
 
-    def getIPRating(): NamedRowEvaluator[#{IPRating | r}] =
+    def evalIPRating(): NamedRowEvaluator[#{IPRating | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("IP Rating", (x1, x2) -> #{ IPRating(x1, x2). })
 
-    def getPower(): NamedRowEvaluator[#{Power | r}] =
+    def evalPower(): NamedRowEvaluator[#{Power | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Power", 
             "Power Units", (x1, x2, x3) -> #{ Power(x1, x2, x3). }, #{})
 
     
-    def getSpeedRPM(): NamedRowEvaluator[#{SpeedRPM | r}] =
+    def evalSpeedRPM(): NamedRowEvaluator[#{SpeedRPM | r}] =
         AssetLib/GenS4/AibFacts/Utils.getIntFact2("Speed (RPM)", (x1, x2) -> #{ SpeedRPM(x1, x2). })
 
 
-    def getVoltageIn(): NamedRowEvaluator[#{VoltageIn | r}] =
+    def evalVoltageIn(): NamedRowEvaluator[#{VoltageIn | r}] =
         AssetLib/GenS4/AibFacts/Utils.getIntFactWithUnits("Voltage In", 
             "Voltage In (AC Or DC)", (x1, x2, x3) -> #{ VoltageIn(x1, x2, x3). }, #{})
 

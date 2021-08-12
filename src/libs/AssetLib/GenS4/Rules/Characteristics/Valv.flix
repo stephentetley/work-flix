@@ -18,8 +18,9 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Valv {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/GenS4/AibFacts/Attributes/Valve.{ValveType, Size, SizeUnits};
+
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
+    use AssetLib/GenS4/Base/CommonRelations.{ValveType, ValveSize};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/GenS4/S4LiteRelations.CharValue.{S4Int};
@@ -35,19 +36,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
         Ok(ans) 
 
 
-    pub def valv(input: #{EquiWorkItem3, ValveType, Size, SizeUnits, 
+    pub def valv(input: #{EquiWorkItem3, ValveType, ValveSize,
                             EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
                 EquiWorkItem3(equiId, "VALV", s4Class),
-                Size(equiId, size),
-                SizeUnits(equiId, units),
+                ValveSize(equiId, size, units),
                 if recognizedSizeUnits(units) and s4Class != "VALVRE".
 
             EquiCharacteristic(equiId, "VALVRE", "VALV_BORE_DIAMETER_MM", 1, S4Int(sizeMM(size, units))) :- 
                 EquiWorkItem3(equiId, "VALV", "VALVRE"),
-                Size(equiId, size),
-                SizeUnits(equiId, units),
+                ValveSize(equiId, size, units),
                 if recognizedSizeUnits(units).
 
         };

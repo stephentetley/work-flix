@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
 
 
     pub def readInstrumentData(src: XlsxSource): Result[#{RangeMinMax, SignalMinMax, Transducer | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(src, evalInstrument())
+        SheetIO/Reader.someNamedRelations(src, evalInstrument())
     
 
     def evalInstrument(): NamedRowEvaluator[#{RangeMinMax, SignalMinMax, Transducer | r}] =

@@ -30,12 +30,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     pub def readAgaspData(src: XlsxSource): Result[#{ConditionGrade, 
                                                         LoadingFactor, PerformanceGrade,
                                                         SurveyYear | r}, String] & Impure =
-        SheetIO/Reader.allNamedRelations(src, evalAssetConditionFacts())
+        SheetIO/Reader.someNamedRelations(src, evalAssetConditionFacts())
 
 
-    pub def evalAssetConditionFacts(): NamedRowEvaluator[#{ConditionGrade, 
-                                                            LoadingFactor, PerformanceGrade,
-                                                            SurveyYear | r}] =
+    def evalAssetConditionFacts(): NamedRowEvaluator[#{ConditionGrade, 
+                                                        LoadingFactor, PerformanceGrade,
+                                                        SurveyYear | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(getConditionGrade(), #{});
         let* c2 = withDefault(getLoadingFactor(), #{});

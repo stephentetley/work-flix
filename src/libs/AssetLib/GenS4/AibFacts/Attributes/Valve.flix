@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
         SheetIO/Reader.someNamedRelations(src, evalValve())
         
     
-    pub def evalValve(): NamedRowEvaluator[#{ValveType, ValveSize | r}] =
+    def evalValve(): NamedRowEvaluator[#{ValveType, ValveSize | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(evalValveType(), #{});
         let* c2 = withDefault(evalValveSize(), #{});

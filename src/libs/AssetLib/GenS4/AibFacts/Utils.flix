@@ -22,21 +22,6 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     use AssetLib/Base/Osgb36.{EastingNorthing};
 
-    /// DEPRECATED
-    pub def readAibFacts(eval: NamedRowEvaluator[#{| r}],
-                        allowEmpty: Bool, 
-                        src: XlsxSource): Result[#{| r}, String] & Impure =
-        use SheetIO/NamedRowEvaluator.{withDefault};
-        let eval1 = if (allowEmpty) withDefault(eval, #{}) else eval;
-        SheetIO/SheetReader.runXlsx(readAibSheet(eval1, src.sheet), src.path)
-        
-    /// DEPRECATED
-    pub def readAibSheet(eval: NamedRowEvaluator[#{| r}], sheetName: String): SheetReader[#{| r}] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
-        let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, eval);
-        let relns   = List.foldLeft((ac, x) -> ac <+> x, #{}, xs);
-        return(relns)
 
     pub def getStringFact2(columnName: String, f: (String, String) -> ans): NamedRowEvaluator[ans] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  

@@ -98,6 +98,29 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     /// AIB: `Rating (Power)` and `Rating Units`
     pub rel RatingPower(itemId: String, rating: Float64, units: String)
 
+    /// Tank
+
+    pub rel TankConstruction(aibref: String, construction: String)
+    
+    pub rel TankLevel(aibref: String, level: String)
+    
+    pub rel TankShape(aibref: String, shape: String)
+    
+    pub rel UnitCapacityCum(aibref: String, capacity: Float64)
+    
+    pub rel UnitCentreDepthM(aibref: String, depth: Float64)
+    
+    pub rel UnitDiameterM(aibref: String, diameter: Float64)
+    
+    pub rel UnitLengthM(aibref: String, length: Float64)
+    
+    pub rel UnitSideDepthM(aibref: String, depth: Float64)
+    
+    pub rel UnitSideDepthMaxM(aibref: String, depth: Float64)
+    
+    pub rel UnitSideDepthMinM(aibref: String, depth: Float64)
+
+
 
     /// Valve
 
