@@ -28,9 +28,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     
     /// # Floc
 
-
-
-
     pub def genFlocAibReference(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeFlocAibRefWorkItems(worklist);
@@ -55,11 +52,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
                                     FlocAibRef, FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure =
         let rules = #{
             
-            /// 1-to-1 to work item
+            /// 1-to-1 - 1 work item to 1 blank "S4_AIB_REFERENCE"
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :- 
                 FlocAibRefWorkItem(funcloc).
 
-            /// 1-to-1 work item to AI2_AIB_REFERENCE
+            /// 1-to-many - 1 funcloc to many "AI2_AIB_REFERENCE"
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
                 FlocAibRef(funcloc, sainum).                
         };
@@ -78,7 +75,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
 
     /// 
-    def equiAibReference(input: #{EquiWorkItem3, AibParentRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
+    pub def equiAibReference(input: #{EquiWorkItem3, AibParentRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-

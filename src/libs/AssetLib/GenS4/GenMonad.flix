@@ -97,4 +97,12 @@ namespace AssetLib/GenS4/GenMonad {
             let w1 = {characteristics = Chain.append(w.characteristics, cs) | w} as & Impure;        
             Ok((st, w1, ()))
         )
+
+    pub def equiCharacteristicsSkeleton(makeFacts: EquiRef -> row -> #{| reln}, 
+                                    genChars: #{| reln} ~> Chain[SLEquiCharacteristic], 
+                                    xs: List[(EquiRef, row)]): GenMonad[Unit] =
+        let facts   = List.foldLeft((ac, xy) -> {let (x1, y1) = xy; ac <+> makeFacts(x1,y1)}, #{}, xs);
+        let* chars  = liftAction(_ -> genChars(facts));
+        appendCharacteristics(chars)
+
 }

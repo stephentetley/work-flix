@@ -21,7 +21,9 @@ namespace AssetLib/ProductData/AC/Products/Pump {
 
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
+        ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear, 
+        PumpFlow};
     use AssetLib/GenS4.GenMonad;
     use AssetLib/GenS4/GenMonad.EquiRef;
     use AssetLib/GenS4/GenMonad.EquiRef.{EquiRef};
@@ -141,14 +143,34 @@ namespace AssetLib/ProductData/AC/Products/Pump {
         }
 
 
+
+
+
+    /// ## Aib Reference
+
+    /// Set-oriented (should generate all facts in one go)
+    pub def genPumpAibReference(xs: List[(EquiRef, PumpRow)]): GenMonad[Unit] =
+        use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
+        AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(pumpAibReferenceFacts,equiAibReference, xs)
+        
+
+    def pumpAibReferenceFacts(x: EquiRef, 
+                                    pump: PumpRow): #{EquiWorkItem3 | r} = 
+        AssetLib/GenS4/GenMonad.withEquiRef(x, x1 -> 
+            let classification      = pumpClassification(pump.className);
+            #{ 
+                EquiWorkItem3(x1, classification.objectType, classification.classType). 
+            })
+
+
+
     /// ## Asset Condition
 
-    /// TODO - not set-oriented...
-    pub def genPumpAssetCondition(x: EquiRef, pump: PumpRow): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap, liftAction, appendCharacteristics};
-        let facts   = pumpAssetConditionFacts(x, pump);
-        let* chars  = liftAction(_ -> AssetLib/GenS4/Rules/Characteristics/AssetCondition.assetCondition(facts));
-        appendCharacteristics(chars)
+    /// Set-oriented (should generate all facts in one go)
+    pub def genPumpAssetCondition(xs: List[(EquiRef, PumpRow)]): GenMonad[Unit] =
+        use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{assetCondition};
+        AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(pumpAssetConditionFacts, assetCondition, xs)
+
 
 
     def pumpAssetConditionFacts(x: EquiRef, 
@@ -164,7 +186,24 @@ namespace AssetLib/ProductData/AC/Products/Pump {
                 SurveyYear(x1, installYear).
             })
 
+    /// # Pump (not pums)
 
+    pub def genPumpPump(xs: List[(EquiRef, PumpRow)]): GenMonad[Unit] =
+        AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(pumpPumpFacts, AssetLib/GenS4/Rules/Characteristics/Pump.pump, xs)
+
+    def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, PumpFlow | r} = 
+        AssetLib/GenS4/GenMonad.withEquiRef(x, x1 -> 
+            let classification      = pumpClassification(pump.className);
+            if (classification.objectType == "PUMS")
+                #{}
+            else {
+                let z1 = #{ EquiWorkItem3(x1, classification.objectType, classification.classType). };
+                let z2 = match pump.flowLS { 
+                    case None => #{}
+                    case Some(d) => #{ PumpFlow(x1, d, "LITRES PER SECOND"). }
+                };
+                z1 <+> z2
+            })
 
 
 }
