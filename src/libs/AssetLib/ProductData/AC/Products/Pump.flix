@@ -23,7 +23,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear, 
-        PumpFlow};
+        PumpFlow, DutyHead, ImpellerType};
     use AssetLib/GenS4.GenMonad;
     use AssetLib/GenS4/GenMonad.EquiRef;
     use AssetLib/GenS4/GenMonad.EquiRef.{EquiRef};
@@ -152,7 +152,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
     pub def genPumpAibReference(xs: List[(EquiRef, PumpRow)]): GenMonad[Unit] =
         use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
         AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(pumpAibReferenceFacts,equiAibReference, xs)
-        
+
 
     def pumpAibReferenceFacts(x: EquiRef, 
                                     pump: PumpRow): #{EquiWorkItem3 | r} = 
@@ -191,19 +191,23 @@ namespace AssetLib/ProductData/AC/Products/Pump {
     pub def genPumpPump(xs: List[(EquiRef, PumpRow)]): GenMonad[Unit] =
         AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(pumpPumpFacts, AssetLib/GenS4/Rules/Characteristics/Pump.pump, xs)
 
-    def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, PumpFlow | r} = 
+    def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, PumpFlow, DutyHead, 
+                                                    ImpellerType | r} = 
         AssetLib/GenS4/GenMonad.withEquiRef(x, x1 -> 
             let classification      = pumpClassification(pump.className);
             if (classification.objectType == "PUMS")
                 #{}
             else {
                 let z1 = #{ EquiWorkItem3(x1, classification.objectType, classification.classType). };
-                let z2 = match pump.flowLS { 
-                    case None => #{}
-                    case Some(d) => #{ PumpFlow(x1, d, "LITRES PER SECOND"). }
-                };
-                z1 <+> z2
+                let z2 = Relation.optional(pump.flowLS,                d -> #{ PumpFlow(x1, d, "LITRES PER SECOND"). });
+                let z3 = Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
+                let z4 = Relation.guard(pump.impellerType, String.isEmpty >> notf, s -> #{ ImpellerType(x1, s). });
+                z1 <+> z2 <+> z3 <+> z4
             })
+
+    def notf(x: Bool): Bool = not x
+
+
 
 
 }

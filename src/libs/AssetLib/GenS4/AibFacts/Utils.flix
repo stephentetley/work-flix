@@ -22,21 +22,28 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     use AssetLib/Base/Osgb36.{EastingNorthing};
 
+    /// TODO - to put in flix-sandbox Relation
+    pub def when(test: Bool, reln: #{| r}): #{| r} = match test {
+        case true => reln
+        case _ => #{}
+    }
 
-    pub def getStringFact2(columnName: String, f: (String, String) -> ans): NamedRowEvaluator[ans] =
+    /// Also NameRowEvaluator etc need a relation version of withDefault that defaults to `#{}`
+
+    pub def getStringFact2(columnName: String, f: (String, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getNonEmptyContentNamed(columnName);
         return(f(x1, x2))
 
-    pub def getIntFact2(columnName: String, f: (String, Int32) -> ans): NamedRowEvaluator[ans] =
+    pub def getIntFact2(columnName: String, f: (String, Int32) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getInt32Named};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getInt32Named(columnName);
         return(f(x1, x2))
 
 
-    pub def getFloatFact2(columnName: String, f: (String, Float64) -> ans): NamedRowEvaluator[ans] =
+    pub def getFloatFact2(columnName: String, f: (String, Float64) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getFloat64Named};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getFloat64Named(columnName);
@@ -45,33 +52,23 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     pub def getIntFactWithUnits(columnName: String,                                     
                                     unitsColumn: String, 
-                                    f: (String, Int32, String) -> ans, 
-                                    missingVal: ans): NamedRowEvaluator[ans] =
+                                    f: (String, Int32, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getInt32Named}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            if (not String.isEmpty(x3))
-                f(x1, x2, x3)
-            else missingVal
-            )
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getInt32Named(columnName)
-        <*> getContentNamed(unitsColumn)
+        ((x1, x2, x3) -> when(not String.isEmpty(x3), f(x1, x2, x3)))
+            <&> getNonEmptyContentNamed("Reference")
+            <*> getInt32Named(columnName)
+            <*> getContentNamed(unitsColumn)
 
     pub def getFloatFactWithUnits(columnName: String,                                     
                                     unitsColumn: String, 
-                                    f: (String, Float64, String) -> ans, 
-                                    missingVal: ans): NamedRowEvaluator[ans] =
+                                    f: (String, Float64, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            if (not String.isEmpty(x3))
-                f(x1, x2, x3)
-            else missingVal
-            )
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getFloat64Named(columnName)
-        <*> getContentNamed(unitsColumn)
+        ((x1, x2, x3) -> when(not String.isEmpty(x3), f(x1, x2, x3)))
+            <&> getNonEmptyContentNamed("Reference")
+            <*> getFloat64Named(columnName)
+            <*> getContentNamed(unitsColumn)
 
 
     ///

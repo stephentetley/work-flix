@@ -55,12 +55,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
     
     def evalDutyHead(): NamedRowEvaluator[#{DutyHead | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Duty Head", 
-            "Duty Head Units", (x1, x2, x3) -> #{ DutyHead(x1, x2, x3). }, #{})
+            "Duty Head Units", (x1, x2, x3) -> #{ DutyHead(x1, x2, x3). })
     
     
     def evalPumpFlow(): NamedRowEvaluator[#{PumpFlow | r}] =        
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Flow", 
-            "Flow Units", (x1, x2, x3) -> #{ PumpFlow(x1, x2, x3). }, #{})
+            "Flow Units", (x1, x2, x3) -> #{ PumpFlow(x1, x2, x3). })
 
     
     def evalImpellerType(): NamedRowEvaluator[#{ImpellerType | r}] =
@@ -73,6 +73,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
 
     def evalRatingPower(): NamedRowEvaluator[#{RatingPower | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Rating (Power)", 
-            "Rating Units", (x1, x2, x3) -> #{ RatingPower(x1, x2, x3). }, #{})
+            "Rating Units", (x1, x2, x3) -> #{ RatingPower(x1, x2, x3). })
         
 }

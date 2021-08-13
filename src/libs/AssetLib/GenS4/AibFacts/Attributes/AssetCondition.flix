@@ -43,14 +43,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
         let* c4 = withDefault(getSurveyYear(), #{});
         return(c1 <+> c2 <+> c3 <+> c4)
 
+
     def getConditionGrade(): NamedRowEvaluator[#{ConditionGrade | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            if (not String.isEmpty(x2))
-                #{ ConditionGrade(x1, x2, x3). }
-            else #{}
-            )
+        ((x1, x2, x3) -> 
+            AssetLib/GenS4/AibFacts/Utils.when(not String.isEmpty(x2), #{ ConditionGrade(x1, x2, x3). }))
         <&> getNonEmptyContentNamed("Reference")
         <*> getContentNamed("Condition Grade")
         <*> getContentNamed("Condition Grade Reason")
@@ -60,10 +58,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) ->
-            if (not String.isEmpty(x2))
-                #{ LoadingFactor(x1, x2, x3). }
-            else #{}
-            )
+            AssetLib/GenS4/AibFacts/Utils.when(not String.isEmpty(x2), #{ LoadingFactor(x1, x2, x3). }))
         <&> getNonEmptyContentNamed("Reference")
         <*> getContentNamed("Loading Factor")
         <*> getContentNamed("Loading Factor Reason")
@@ -75,10 +70,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) ->
-            if (not String.isEmpty(x2))
-                #{ LoadingFactor(x1, x2, x3). }
-            else #{}
-            )
+            AssetLib/GenS4/AibFacts/Utils.when(not String.isEmpty(x2), #{ PerformanceGrade(x1, x2, x3). }))
         <&> getNonEmptyContentNamed("Reference")
         <*> getContentNamed("Performance Grade")
         <*> getContentNamed("Performance Grade Reason")

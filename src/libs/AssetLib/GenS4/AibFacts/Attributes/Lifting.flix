@@ -40,7 +40,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
     def evalWorkLoad(): NamedRowEvaluator[#{WorkLoad | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Work Load", 
-            "Work Load Units", (x1, x2, x3) -> #{ WorkLoad(x1, x2, x3). }, #{})
+            "Work Load Units", (x1, x2, x3) -> #{ WorkLoad(x1, x2, x3). })
 
 
     def evalTestCertNo(): NamedRowEvaluator[#{TestCertNo | r}] =

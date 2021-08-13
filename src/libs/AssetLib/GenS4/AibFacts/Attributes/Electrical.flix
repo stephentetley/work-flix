@@ -60,7 +60,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
 
     def evalPower(): NamedRowEvaluator[#{Power | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Power", 
-            "Power Units", (x1, x2, x3) -> #{ Power(x1, x2, x3). }, #{})
+            "Power Units", (x1, x2, x3) -> #{ Power(x1, x2, x3). })
 
     
     def evalSpeedRPM(): NamedRowEvaluator[#{SpeedRPM | r}] =
@@ -69,7 +69,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
 
     def evalVoltageIn(): NamedRowEvaluator[#{VoltageIn | r}] =
         AssetLib/GenS4/AibFacts/Utils.getIntFactWithUnits("Voltage In", 
-            "Voltage In (AC Or DC)", (x1, x2, x3) -> #{ VoltageIn(x1, x2, x3). }, #{})
+            "Voltage In (AC Or DC)", (x1, x2, x3) -> #{ VoltageIn(x1, x2, x3). })
 
 
 
