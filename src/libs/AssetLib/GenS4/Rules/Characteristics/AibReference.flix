@@ -35,7 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         use Result.{flatMap};
         let workitems   = makeFlocAibRefWorkItems(worklist);
         let aibrefs     = List.foldLeft((ac, x) -> ac <+> makeFlocAibRef(x), #{}, worklist);
-        let ans         = flocAibReference(workitems <+> aibrefs) |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic;
+        let ans         = flocAibReference(workitems <+> aibrefs);
         Ok(ans) 
 
     /// Case specific WorkItem...
@@ -51,7 +51,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         List.foldLeft((ac, sai) -> ac <+> #{ FlocAibRef(x.funcloc, sai). }, #{}, x.sainums)
 
 
-    def flocAibReference(workitems: #{FlocAibRefWorkItem, FlocAibRef, FlocCharacteristic | r}): #{FlocCharacteristic | r} =
+    pub def flocAibReference(input: #{FlocAibRefWorkItem, 
+                                    FlocAibRef, FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure =
         let rules = #{
             
             /// 1-to-1 to work item
@@ -62,7 +63,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
                 FlocAibRef(funcloc, sainum).                
         };
-        solve (rules <+> workitems) project FlocCharacteristic
+        solve (rules <+> input) project FlocCharacteristic
+            |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic
+
 
     /// # Equi
 

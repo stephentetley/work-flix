@@ -21,8 +21,12 @@ namespace AssetLib/ProductData/AC/Products/Pump {
 
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear};
+    use AssetLib/GenS4.GenMonad;
+    use AssetLib/GenS4/GenMonad.EquiRef;
+    use AssetLib/GenS4/GenMonad.EquiRef.{EquiRef};
     use AssetLib/ProductData/Base/Classification.{ObjectClassification};
-
+    
     /// Base is PUMP (category "M") / PUMS (category "E")
     /// PUMPDI | ...
 
@@ -46,7 +50,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
         , flowLS: Option[Float64]
         , dateOfInstallation: Option[Time.LocalDate]
         , locationOnSite: String
-        , functionalLocation: String
+        , locationInHierarchy: String
         , memoLine: String
         }
 
@@ -77,7 +81,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
             , flowLS                = x16
             , dateOfInstallation    = x17
             , locationOnSite        = x18
-            , functionalLocation    = x19
+            , locationInHierarchy   = x19
             , memoLine              = x20
             })
         <&> getTrimmedContentNamed("Description")
@@ -104,33 +108,63 @@ namespace AssetLib/ProductData/AC/Products/Pump {
 
 
     pub def pumpClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
-        case "CENTRIFUGAL" => { category = "M", objectType = "PUMP", classType = "PUMPCE"}
-        case _  => { category = "M", objectType = "PUMP", classType = "PUMPMISC"}
+        case "CENTRIFUGAL"                      => { category = "M", objectType = "PUMP", classType = "PUMPCE"}
+        case s if s `String.startsWith` "RAM"   => { category = "M", objectType = "PUMP", classType = "PUMPRA"}
+        case _                                  => { category = "M", objectType = "PUMP", classType = "PUMPMISC"}
     }
 
 
-
+    pub def genPump(x: PumpRow): GenMonad[EquiRef] = 
+        AssetLib/GenS4/GenMonad.genEqui((x1, x2) -> pumpToSLEquipment({equiId = x1, today = x2}, x))
 
     /// Translation
-    pub def pumpToSLEquipment(params: {equiId: String, today: Time.LocalDate, funcloc: String}, x: PumpRow): SLEquipment = 
+    pub def pumpToSLEquipment(params: {equiId: String, today: Time.LocalDate}, x: PumpRow): SLEquipment = 
         let i32None: Option[Int32] = None;
         let classification = pumpClassification(x.className);
+        let defaultDate = Time/LocalDate.new({dayOfMonth = 1, month = 1, year = 1970});
         { equiId                = params.equiId
         , category              = classification.category
         , description           = x.description
         , validFrom             = params.today
         , objectType            = classification.objectType
         , weightKg              = x.weight
-        , startupDate           = params.today      // Should be x.dateOfInstallation
+        , startupDate           = Option.getWithDefault(x.dateOfInstallation, defaultDate)
         , manufacturer          = x.manufacturer
         , model                 = x.modelNumber
         , partNumber            = x.specificModel
         , serialNumber          = x.manufSerialNumber
-        , functionalLocation    = params.funcloc
+        , functionalLocation    = x.locationInHierarchy
         , superOrdinateEqui     = ""
         , position              = i32None
         , techIdentNo           = x.pandiTag
         , status                = "OPER"
         }
+
+
+    /// ## Asset Condition
+
+    /// TODO - not set-oriented...
+    pub def genPumpAssetCondition(x: EquiRef, pump: PumpRow): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap, liftAction, appendCharacteristics};
+        let facts   = pumpAssetConditionFacts(x, pump);
+        let* chars  = liftAction(_ -> AssetLib/GenS4/Rules/Characteristics/AssetCondition.assetCondition(facts));
+        appendCharacteristics(chars)
+
+
+    def pumpAssetConditionFacts(x: EquiRef, 
+                                    pump: PumpRow): #{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear | r} = 
+        AssetLib/GenS4/GenMonad.withEquiRef(x, x1 -> 
+            let classification      = pumpClassification(pump.className);
+            let installYear         = Option.map(Time/LocalDate.getYear, pump.dateOfInstallation) |> flip(Option.getWithDefault, 1970);
+            #{ 
+                EquiWorkItem3(x1, classification.objectType, classification.classType). 
+                ConditionGrade(x1, "1 - Good", "New").
+                LoadingFactor(x1, "1 - Significantly Under Loaded", "New").
+                PerformanceGrade(x1, "1 - Availability  95%", "New").
+                SurveyYear(x1, installYear).
+            })
+
+
+
 
 }

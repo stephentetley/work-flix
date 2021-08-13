@@ -77,7 +77,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
-
+    /// TODO should be an enum...
+    
     def s4ConditionGrade(s: String): String = match String.trim(s) { 
         case "1 - Good"         => "1 - GOOD"
         case "2 - Fair"         => "2 - FAIR"

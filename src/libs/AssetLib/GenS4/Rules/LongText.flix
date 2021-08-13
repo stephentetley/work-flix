@@ -36,7 +36,7 @@ namespace AssetLib/GenS4/Rules/LongText {
         use Result.{flatMap};
         let workitems   = makeLongTextWorkItems(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
-        let ans         = equiLongText(workitems <+> facts) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongText;
+        let ans         = equiLongText(workitems <+> facts);
         Ok(ans) 
 
 
@@ -50,7 +50,7 @@ namespace AssetLib/GenS4/Rules/LongText {
 
     pub def equiLongText(input: #{LongTextWorkItem, AibMemoLine, LocationOnSite, 
                                     HasLocationOnSite, HasMemoLines,
-                                    EquiLongText | r}): #{EquiLongText | r} = 
+                                    EquiLongText | r}): Chain[SLEquiLongText] & Impure = 
         let rules = #{
 
             HasMemoLines(equiId) :- AibMemoLine(equiId, _).
@@ -82,6 +82,7 @@ namespace AssetLib/GenS4/Rules/LongText {
 
         };
         solve (rules <+> input) project EquiLongText
+            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongText
 
 
     def combine(memos: String, location: String): String = 
