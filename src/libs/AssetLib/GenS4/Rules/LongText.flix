@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/LongText {
     rel HasMemoLines(id: String)
 
     /// TODO - we could have easier (and more flexible rules) if we groupBy `equiId`
-    /// as a post-processing step (and change the answer type to a record not a relation...)
+    /// as a post-processing step then concatenate the answers to make a `SLEquiLongText` ...
 
 
     pub def genEquiLongText(worklist: List[EquiWorkItem], memosSrc: XlsxSource): Result[Chain[SLEquiLongText], String] & Impure =

@@ -21,6 +21,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
 
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
+    use AssetLib/ProductData/Base/Classification.{ObjectClassification};
 
     /// Base is PUMP (category "M") / PUMS (category "E")
     /// PUMPDI | ...
@@ -34,16 +35,16 @@ namespace AssetLib/ProductData/AC/Products/Pump {
         , modelNumber: String
         , specificModel: String
         , manufSerialNumber: String
-        , weight: String
+        , weight: Option[Float64]
         , impellerType: String
         , insulationClass: String
         , ipRating: String
-        , installedDesignHeadM: String
-        , inletSizeMM: String
-        , outletSizeMM: String
-        , ratedSpeedRPM: String
-        , flowLS: String
-        , dateOfInstallation: String
+        , installedDesignHeadM: Option[Float64]
+        , inletSizeMM: Option[Int32]
+        , outletSizeMM: Option[Int32]
+        , ratedSpeedRPM: Option[Int32]
+        , flowLS: Option[Float64]
+        , dateOfInstallation: Option[Time.LocalDate]
         , locationOnSite: String
         , functionalLocation: String
         , memoLine: String
@@ -54,7 +55,8 @@ namespace AssetLib/ProductData/AC/Products/Pump {
 
 
     pub def evalPumpRow(): NamedRowEvaluator[PumpRow] = 
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, 
+            getInt32Named, getFloat64Named, getLocalDateNamed, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20) -> 
             { description           = x1
@@ -85,19 +87,50 @@ namespace AssetLib/ProductData/AC/Products/Pump {
         <*> getTrimmedContentNamed("Model Number")
         <*> getTrimmedContentNamed("Specific Model")
         <*> getTrimmedContentNamed("Manufacturer's serial number")
-        <*> getTrimmedContentNamed("Weight")
+        <*> optional(getFloat64Named("Weight"))
         <*> getTrimmedContentNamed("Impeller type")
         <*> getTrimmedContentNamed("Insulation Class (\u00B0c)")
         <*> getTrimmedContentNamed("IP Rating")
-        <*> getTrimmedContentNamed("Installed Design Head (m)")
-        <*> getTrimmedContentNamed("Inlet Size (mm)")
-        <*> getTrimmedContentNamed("Outlet Size (mm)")
-        <*> getTrimmedContentNamed("Rated Speed (RPM)")
-        <*> getTrimmedContentNamed("Flow (l/s)")
-        <*> getTrimmedContentNamed("Date of installation")
+        <*> optional(getFloat64Named("Installed Design Head (m)"))
+        <*> optional(getInt32Named("Inlet Size (mm)"))
+        <*> optional(getInt32Named("Outlet Size (mm)"))
+        <*> optional(getInt32Named("Rated Speed (RPM)"))
+        <*> optional(getFloat64Named("Flow (l/s)"))
+        <*> optional(getLocalDateNamed("Date of installation"))
         <*> getTrimmedContentNamed("Location on Site")
         <*> getTrimmedContentNamed("Location in Asset Hierarchy")
         <*> getTrimmedContentNamed("Memo Line")
         
+
+
+    pub def pumpClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
+        case "CENTRIFUGAL" => { category = "M", objectType = "PUMP", classType = "PUMPCE"}
+        case _  => { category = "M", objectType = "PUMP", classType = "PUMPMISC"}
+    }
+
+
+
+
+    /// Translation
+    pub def pumpToSLEquipment(params: {equiId: String, today: Time.LocalDate, funcloc: String}, x: PumpRow): SLEquipment = 
+        let i32None: Option[Int32] = None;
+        let classification = pumpClassification(x.className);
+        { equiId                = params.equiId
+        , category              = classification.category
+        , description           = x.description
+        , validFrom             = params.today
+        , objectType            = classification.objectType
+        , weightKg              = x.weight
+        , startupDate           = params.today      // Should be x.dateOfInstallation
+        , manufacturer          = x.manufacturer
+        , model                 = x.modelNumber
+        , partNumber            = x.specificModel
+        , serialNumber          = x.manufSerialNumber
+        , functionalLocation    = params.funcloc
+        , superOrdinateEqui     = ""
+        , position              = i32None
+        , techIdentNo           = x.pandiTag
+        , status                = "OPER"
+        }
 
 }

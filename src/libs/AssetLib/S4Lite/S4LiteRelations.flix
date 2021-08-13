@@ -23,79 +23,6 @@ namespace AssetLib/S4Lite/S4LiteRelations {
 
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, Date, NumericInt, NumericFloat};
 
-
-    /// Target relations for generating S4Lite from Datalog
-
-    pub enum CharValue {
-        case S4String(String)
-        case S4Date(Time.LocalDate)
-        case S4Int(Int32)
-        case S4Float(Float64)
-    }
-
-    def typeOfValue(x: CharValue): SLDatatype = match x { 
-        case S4String(_)    => Character
-        case S4Date(_)      => Date
-        case S4Int(_)       => NumericInt
-        case S4Float(_)     => NumericFloat
-    }
-
-    def stringOfValue(x: CharValue): String = match x { 
-        case S4String(s)    => s
-        case S4Date(dt)     => AssetLib/Base/S4/Utils.printS4Date(dt)
-        case S4Int(i)       => ToString.toString(i)
-        case S4Float(d)     => ToString.toString(d)
-    }
-
-    instance ToString[CharValue] {
-        pub def toString(x: CharValue): String = match x {
-            case S4String(s)    => "S4String(${s})"
-            case S4Date(dt)     => {let s = AssetLib/Base/S4/Utils.printS4Date(dt); "S4Date(${s})"}
-            case S4Int(i)       => "S4Int(${i})"
-            case S4Float(d)     => "S4Float(${d})"
-        }
-    }
-
-    instance Eq[CharValue] {
-        pub def eq(x: CharValue, y: CharValue): Bool = match (x, y) {
-            case (S4String(s1), S4String(s2)) => s1 == s2
-            case (S4Date(dt1), S4Date(dt2)) => dt1 == dt2
-            case (S4Int(i1), S4Int(i2)) => i1 == i2
-            case (S4Float(d1), S4Float(d2)) => d1 == d2
-            case (_, _) => false
-        }
-    }
-
-    instance Order[CharValue] {
-        pub def compare(x: CharValue, y: CharValue): Comparison = match (x, y) {
-            case (S4String(s1), S4String(s2)) => s1 <=> s2
-            case (S4Date(dt1), S4Date(dt2)) => dt1<=> dt2
-            case (S4Int(i1), S4Int(i2)) => i1 <=> i2
-            case (S4Float(d1), S4Float(d2)) => d1 <=> d2
-            case (S4String(_), _) => LessThan
-            case (S4Date(_), _) => LessThan
-            case (S4Int(_), _) => LessThan
-            case (_, _) => GreaterThan
-        }
-    }
-
-    instance Hash[CharValue] {
-        pub def hash(x: CharValue): Int = Hash.hash(ToString.toString(x))
-    }
-
-    instance Boxable[CharValue] {
-        pub def box(x: CharValue): Boxed = {
-            let value = x as ##java.lang.Object;
-            let compare = (o1, o2) -> Order.compare(o1 as CharValue, o2 as CharValue);
-            let toString = o -> ToString.toString(o as CharValue);
-            BoxedObject(value, compare, toString)
-        }
-        pub def unbox(x: Boxed): CharValue = match x {
-            case BoxedObject(v, _, _) => v as CharValue
-            case _                    => ?bug
-        }
-    }
-
     /// No relation for `FunctionalLocation`.
     /// Use the record `SLFunctionalLocation` instead, or use a custom 
     /// relation that uses a minimal set of fields to generate an
@@ -191,5 +118,79 @@ namespace AssetLib/S4Lite/S4LiteRelations {
         , intCounterValue   = x4
         , charValue         = stringOfValue(x5)
         }
+
+
+    /// Target relations for generating S4Lite from Datalog
+
+    pub enum CharValue {
+        case S4String(String)
+        case S4Date(Time.LocalDate)
+        case S4Int(Int32)
+        case S4Float(Float64)
+    }
+
+    def typeOfValue(x: CharValue): SLDatatype = match x { 
+        case S4String(_)    => Character
+        case S4Date(_)      => Date
+        case S4Int(_)       => NumericInt
+        case S4Float(_)     => NumericFloat
+    }
+
+    def stringOfValue(x: CharValue): String = match x { 
+        case S4String(s)    => s
+        case S4Date(dt)     => AssetLib/Base/S4/Utils.printS4Date(dt)
+        case S4Int(i)       => ToString.toString(i)
+        case S4Float(d)     => ToString.toString(d)
+    }
+
+    instance ToString[CharValue] {
+        pub def toString(x: CharValue): String = match x {
+            case S4String(s)    => "S4String(${s})"
+            case S4Date(dt)     => {let s = AssetLib/Base/S4/Utils.printS4Date(dt); "S4Date(${s})"}
+            case S4Int(i)       => "S4Int(${i})"
+            case S4Float(d)     => "S4Float(${d})"
+        }
+    }
+
+    instance Eq[CharValue] {
+        pub def eq(x: CharValue, y: CharValue): Bool = match (x, y) {
+            case (S4String(s1), S4String(s2)) => s1 == s2
+            case (S4Date(dt1), S4Date(dt2)) => dt1 == dt2
+            case (S4Int(i1), S4Int(i2)) => i1 == i2
+            case (S4Float(d1), S4Float(d2)) => d1 == d2
+            case (_, _) => false
+        }
+    }
+
+    instance Order[CharValue] {
+        pub def compare(x: CharValue, y: CharValue): Comparison = match (x, y) {
+            case (S4String(s1), S4String(s2)) => s1 <=> s2
+            case (S4Date(dt1), S4Date(dt2)) => dt1<=> dt2
+            case (S4Int(i1), S4Int(i2)) => i1 <=> i2
+            case (S4Float(d1), S4Float(d2)) => d1 <=> d2
+            case (S4String(_), _) => LessThan
+            case (S4Date(_), _) => LessThan
+            case (S4Int(_), _) => LessThan
+            case (_, _) => GreaterThan
+        }
+    }
+
+    instance Hash[CharValue] {
+        pub def hash(x: CharValue): Int = Hash.hash(ToString.toString(x))
+    }
+
+    instance Boxable[CharValue] {
+        pub def box(x: CharValue): Boxed = {
+            let value = x as ##java.lang.Object;
+            let compare = (o1, o2) -> Order.compare(o1 as CharValue, o2 as CharValue);
+            let toString = o -> ToString.toString(o as CharValue);
+            BoxedObject(value, compare, toString)
+        }
+        pub def unbox(x: Boxed): CharValue = match x {
+            case BoxedObject(v, _, _) => v as CharValue
+            case _                    => ?bug
+        }
+    }
+
 
 }
