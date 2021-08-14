@@ -59,49 +59,50 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
 
 
     def evalTankConstruction(): NamedRowEvaluator[#{TankConstruction | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Construction", (aibref, ans) -> #{ TankConstruction(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Construction", (x1, x2) -> #{ TankConstruction(x1, x2). })
 
     
     def evalTankLevel(): NamedRowEvaluator[#{TankLevel | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Level", (aibref, ans) -> #{ TankLevel(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Level", (x1, x2) -> #{ TankLevel(x1, x2). })
 
 
 
     def evalTankShape(): NamedRowEvaluator[#{TankShape | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Shape", (aibref, ans) -> #{ TankShape(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Tank Shape", (x1, x2) -> #{ TankShape(x1, x2). })
 
 
 
     def evalUnitCapacityCum(): NamedRowEvaluator[#{UnitCapacityCum | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Capacity cum", (aibref, ans) -> #{ UnitCapacityCum(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Capacity cum", (x1, x2) -> #{ UnitCapacityCum(x1, x2). })
 
     
     
     def evalUnitCentreDepthM(): NamedRowEvaluator[#{UnitCentreDepthM | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Centre Depth m", (aibref, ans) -> #{ UnitCentreDepthM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Centre Depth m", (x1, x2) -> #{ UnitCentreDepthM(x1, x2). })
 
 
     
     def evalUnitDiameterM(): NamedRowEvaluator[#{UnitDiameterM | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Diameter  m", (aibref, ans) -> #{ UnitDiameterM(aibref, ans). }) /// double space in aib field      
+        /// Note - double space in aib field name
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Diameter  m", (x1, x2) -> #{ UnitDiameterM(x1, x2). }) 
 
     
     def evalUnitLengthM(): NamedRowEvaluator[#{UnitLengthM | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Length m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Length m", (x1, x2) -> #{ UnitSideDepthM(x1, x2). })
  
     
     
     def evalUnitSideDepthM(): NamedRowEvaluator[#{UnitSideDepthM | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth m", (aibref, ans) -> #{ UnitSideDepthM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth m", (x1, x2) -> #{ UnitSideDepthM(x1, x2). })
 
     
     
     def evalUnitSideDepthMaxM(): NamedRowEvaluator[#{UnitSideDepthMaxM | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth Max m", (aibref, ans) -> #{ UnitSideDepthMaxM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth Max m", (x1, x2) -> #{ UnitSideDepthMaxM(x1, x2). })
 
     
 
     def evalUnitSideDepthMinM(): NamedRowEvaluator[#{UnitSideDepthMinM | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth Min m", (aibref, ans) -> #{ UnitSideDepthMinM(aibref, ans). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Side Depth Min m", (x1, x2) -> #{ UnitSideDepthMinM(x1, x2). })
 
 }

@@ -42,8 +42,10 @@ namespace DwfOverflow/Rules {
     def loadFlocTransferFiles[r](srcs: List[System.FilePath]): Result[#{ExistingFloc | r}, String] & Impure = 
         use Result.{flatMap};
         let* xs     = Result.traverse(DwfOverflow/Rules/TransferFileLoader.readFlocTransferFile, srcs);
-        let relns   = List.foldLeft((ac, r1) -> r1 <+> ac, #{}, xs);
+        let relns   = Relation.combineAll(xs);
         Ok(relns)
+
+
 
     /// 6xDWF
 

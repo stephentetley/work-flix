@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     pub def genFlocEastNorth(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let make1       = x1 -> #{ FlocEastNorthWorkItem(x1.funcloc, x1.gridRef). };
-        let workitems   = List.foldLeft((ac, x) -> ac <+> make1(x), #{}, worklist);
+        let workitems   = Relation.foldMap(make1, worklist);
         let ans         = flocEastNorth(workitems);
         Ok(ans) 
 

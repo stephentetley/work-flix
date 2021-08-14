@@ -31,11 +31,9 @@ namespace DwfOverflow/Rules/ExcelLoader {
         }
 
     pub def readWorkList[r](sheetName: String, src: System.FilePath): Result[#{WorkListItem | r}, String] & Impure =
-        let step = (ac, x) -> {
-            let x1 = #{ WorkListItem(x.reference, x.commonName, x.assetType, siteName(x.commonName)). };
-            x1 <+> ac
-        };
-        Result.map(xs -> solve List.foldLeft(step, #{}, xs), SheetIO/SheetReader.runXlsx(readWorkListSheet(sheetName), src))
+        let make1 = x1 -> #{ WorkListItem(x1.reference, x1.commonName, x1.assetType, siteName(x1.commonName)). };
+        let makeAll = Relation.foldMap(make1);
+        Result.map(xs -> solve makeAll(xs), SheetIO/SheetReader.runXlsx(readWorkListSheet(sheetName), src))
         
 
     def readWorkListSheet(sheetName: String) : SheetReader[List[WorkListRow1]] =
@@ -72,11 +70,8 @@ namespace DwfOverflow/Rules/ExcelLoader {
         }
     /// pub rel AibSite(siteName: String, installedFrom: Time.LocalDate, ngr: String)
     pub def readAibSites[r](src: System.FilePath): Result[#{AibSite | r}, String] & Impure =
-        let step = (ac, x) -> {
-            let x1 = #{ AibSite(x.commonName, x.constructionYear, x.ngr). };
-            x1 <+> ac
-        };
-        Result.map(xs -> solve List.foldLeft(step, #{}, xs), SheetIO/SheetReader.runXlsx(readAibSiteSheet(), src))
+        let make1 = x1 ->  #{ AibSite(x1.commonName, x1.constructionYear, x1.ngr). };
+        Result.map(xs -> solve Relation.foldMap(make1, xs), SheetIO/SheetReader.runXlsx(readAibSiteSheet(), src))
         
 
     def readAibSiteSheet() : SheetReader[List[AibSite1]] =

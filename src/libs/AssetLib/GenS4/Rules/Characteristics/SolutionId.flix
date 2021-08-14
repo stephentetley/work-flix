@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     pub def genFlocSolutionId(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let make1       = x1 -> #{ FlocSolnIdWorkItem(x1.funcloc, x1.solutionId). };
-        let workitems   = List.foldLeft((ac, x) -> ac <+> make1(x), #{}, worklist);
+        let workitems   = Relation.foldMap(make1, worklist);
         let ans         = flocSolutionId(workitems);
         Ok(ans)
 
@@ -52,7 +52,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     pub def genEquiSolutionId(worklist: List[EquiWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let make1       = x1 -> #{ EquiSolnIdWorkItem(x1.equipmentId, x1.solutionId). };
-        let workitems   = List.foldLeft((ac, x) -> ac <+> make1(x), #{}, worklist);
+        let workitems   = Relation.foldMap(make1, worklist);
         let ans         = equiSolutionId(workitems);
         Ok(ans) 
 

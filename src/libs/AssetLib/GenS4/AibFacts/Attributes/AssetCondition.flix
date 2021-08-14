@@ -47,36 +47,26 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     def getConditionGrade(): NamedRowEvaluator[#{ConditionGrade | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> 
-            AssetLib/GenS4/AibFacts/Utils.when(not String.isEmpty(x2), #{ ConditionGrade(x1, x2, x3). }))
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getContentNamed("Condition Grade")
-        <*> getContentNamed("Condition Grade Reason")
-
+        ((x1, x2, x3) -> Relation.whenNot(String.isEmpty(x2), #{ ConditionGrade(x1, x2, x3). }))
+            <&> getNonEmptyContentNamed("Reference")
+            <*> getContentNamed("Condition Grade")
+            <*> getContentNamed("Condition Grade Reason")
 
     def getLoadingFactor(): NamedRowEvaluator[#{LoadingFactor | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            AssetLib/GenS4/AibFacts/Utils.when(not String.isEmpty(x2), #{ LoadingFactor(x1, x2, x3). }))
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getContentNamed("Loading Factor")
-        <*> getContentNamed("Loading Factor Reason")
-
-
-
+        ((x1, x2, x3) -> Relation.whenNot(String.isEmpty(x2), #{ LoadingFactor(x1, x2, x3). }))
+            <&> getNonEmptyContentNamed("Reference")
+            <*> getContentNamed("Loading Factor")
+            <*> getContentNamed("Loading Factor Reason")
 
     def getPerformanceGrade(): NamedRowEvaluator[#{PerformanceGrade | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) ->
-            AssetLib/GenS4/AibFacts/Utils.when(not String.isEmpty(x2), #{ PerformanceGrade(x1, x2, x3). }))
-        <&> getNonEmptyContentNamed("Reference")
-        <*> getContentNamed("Performance Grade")
-        <*> getContentNamed("Performance Grade Reason")
-
-
-
+        ((x1, x2, x3) -> Relation.whenNot(String.isEmpty(x2), #{ PerformanceGrade(x1, x2, x3). }))
+            <&> getNonEmptyContentNamed("Reference")
+            <*> getContentNamed("Performance Grade")
+            <*> getContentNamed("Performance Grade Reason")
 
     def getSurveyYear(): NamedRowEvaluator[#{SurveyYear | r}] =
         AssetLib/GenS4/AibFacts/Utils.getIntFact2("AGASP Survey Year", (x1, x2) -> #{ SurveyYear(x1, x2). }) 

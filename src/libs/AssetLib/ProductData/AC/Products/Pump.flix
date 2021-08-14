@@ -195,18 +195,13 @@ namespace AssetLib/ProductData/AC/Products/Pump {
                                                     ImpellerType | r} = 
         AssetLib/GenS4/GenMonad.withEquiRef(x, x1 -> 
             let classification      = pumpClassification(pump.className);
-            if (classification.objectType == "PUMS")
-                #{}
-            else {
+            Relation.when(classification.objectType == "PUMP", {
                 let z1 = #{ EquiWorkItem3(x1, classification.objectType, classification.classType). };
                 let z2 = Relation.optional(pump.flowLS,                d -> #{ PumpFlow(x1, d, "LITRES PER SECOND"). });
                 let z3 = Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
-                let z4 = Relation.guard(pump.impellerType, String.isEmpty >> notf, s -> #{ ImpellerType(x1, s). });
+                let z4 = Relation.whenNot(String.isEmpty(pump.impellerType), #{ ImpellerType(x1, pump.impellerType). });
                 z1 <+> z2 <+> z3 <+> z4
-            })
-
-    def notf(x: Bool): Bool = not x
-
+            }))
 
 
 

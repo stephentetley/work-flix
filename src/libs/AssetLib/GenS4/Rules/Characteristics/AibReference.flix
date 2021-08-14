@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     pub def genFlocAibReference(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = makeFlocAibRefWorkItems(worklist);
-        let aibrefs     = List.foldLeft((ac, x) -> ac <+> makeFlocAibRef(x), #{}, worklist);
+        let aibrefs     = Relation.foldMap(makeFlocAibRef, worklist);
         let ans         = flocAibReference(workitems <+> aibrefs);
         Ok(ans) 
 
@@ -42,10 +42,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     rel FlocAibRef(funcloc: String, sainum: String)
 
     def makeFlocAibRefWorkItems(xs: List[FlocWorkItem]): #{FlocAibRefWorkItem | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ FlocAibRefWorkItem(x.funcloc). }, #{}, xs)
+        Relation.foldMap(x1 -> #{ FlocAibRefWorkItem(x1.funcloc). }, xs)
 
     def makeFlocAibRef(x: FlocWorkItem): #{FlocAibRef | r} = 
-        List.foldLeft((ac, sai) -> ac <+> #{ FlocAibRef(x.funcloc, sai). }, #{}, x.sainums)
+        Relation.foldMap(x1 -> #{ FlocAibRef(x.funcloc, x1). }, x.sainums)
 
 
     pub def flocAibReference(input: #{FlocAibRefWorkItem, 

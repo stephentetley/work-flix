@@ -91,12 +91,7 @@ namespace UploadCheck/EntityTypes/ValuaFloc {
 
     pub def getRelations[r](src: ValuaFlocFile): #{ ValuaFloc | r } = 
         let ChangeFile(body) = src;
-        let step = (ac, x) -> { 
-            let (ix, db) = ac;
-            let r1 = makeValuaFloc(ix, x);
-            (ix + 1, db <+> r1)
-        };
-        let (_, rels) = List.foldLeft(step, (1, #{ }), body.dataRows);
+        let rels = Relation.foldMapWithIndex(flip(makeValuaFloc), body.dataRows);
         solve rels
 
 

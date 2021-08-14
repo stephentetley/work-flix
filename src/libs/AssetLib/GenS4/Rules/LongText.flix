@@ -45,7 +45,7 @@ namespace AssetLib/GenS4/Rules/LongText {
 
     /// SolutionId specific
     pub def makeLongTextWorkItems(xs: List[EquiWorkItem]): #{LongTextWorkItem | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ LongTextWorkItem(x.equipmentId, x.s4Name). }, #{}, xs)
+        Relation.foldMap(x1 -> #{ LongTextWorkItem(x1.equipmentId, x1.s4Name). }, xs)
 
 
     pub def equiLongText(input: #{LongTextWorkItem, AibMemoLine, LocationOnSite, 

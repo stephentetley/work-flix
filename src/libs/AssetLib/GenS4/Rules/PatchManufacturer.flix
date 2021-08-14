@@ -93,10 +93,8 @@ namespace AssetLib/GenS4/Rules/PatchManufacturer {
     def partNumber(s: String): String = if (s == "UNSPECIFIED") "" else s
 
     def makeWorkItems(xs: List[SLEquipment]): #{EquiWorkItem | r} = 
-        let mkWorkItem1 = x1 -> #{ 
-            EquiWorkItem(x1.equiId, x1.objectType, x1.manufacturer, x1.model). 
-        };
-        List.foldLeft((ac, x1) -> ac <+> mkWorkItem1(x1), #{}, xs)
+        let mkWorkItem1 = x1 -> #{ EquiWorkItem(x1.equiId, x1.objectType, x1.manufacturer, x1.model). };
+        Relation.foldMap(mkWorkItem1, xs)
 
 
     def makeEquipmentPatches(relns: #{ManufacturerModelPatch | r}): EquipmentPatches & Impure = 

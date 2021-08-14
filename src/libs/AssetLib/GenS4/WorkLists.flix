@@ -37,7 +37,7 @@ namespace AssetLib/GenS4/WorkLists {
 
 
     pub def makeEquiWorkItem3(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        List.foldLeft((ac, x) -> ac <+> #{ EquiWorkItem3(x.equipmentId, x.s4EquiType, x.s4EquiClass). }, #{}, xs)
+        Relation.foldMap(x1 -> #{ EquiWorkItem3(x1.equipmentId, x1.s4EquiType, x1.s4EquiClass). }, xs)
 
     /// Functional Location (under-developed at the moment)
 

@@ -71,10 +71,7 @@ namespace AssetScripts/NonOp/PatchSuperordEquip {
             |> makeEquipmentPatches
 
     def makeWorkItems(xs: List[SLEquipment]): #{WorkItemForSuperord | r} = 
-        let mkWorkItem1 = x1 -> #{ 
-            WorkItemForSuperord(x1.equiId). 
-        };
-        List.foldLeft((ac, x1) -> ac <+> mkWorkItem1(x1), #{}, xs)
+        Relation.foldMap(x1 -> #{ WorkItemForSuperord(x1.equiId). }, xs)
 
 
     def makeEquipmentPatches(relns: #{SuperordEquipPatch | r}): EquipmentPatches & Impure = 
@@ -97,10 +94,8 @@ namespace AssetScripts/NonOp/PatchSuperordEquip {
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((cm1, av1) -> 
-            if ((cm1 `String.startsWith` "PLI") and (av1 `String.startsWith` "PLI"))
-                #{ AibPliNumToParent(cm1, av1). }
-            else
-                #{})
+            Relation.when(String.startsWith(cm1, "PLI") and String.startsWith(av1, "PLI"), 
+                            #{ AibPliNumToParent(cm1, av1). }))
             <&> (getColumnIndex("CM") >>= getTrimmedContentAt)      /// PlantItemEquipReference
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
 
@@ -109,7 +104,7 @@ namespace AssetScripts/NonOp/PatchSuperordEquip {
     def evalS4PliNumToEquiNum(): NamedRowEvaluator[#{S4PliNumToEquiNum | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> if (x1 `String.startsWith` "PLI") #{ S4PliNumToEquiNum(x1, x2). } else #{})
+        ((x1, x2) -> Relation.when(String.startsWith(x1, "PLI"), #{ S4PliNumToEquiNum(x1, x2). }))
             <&> getTrimmedContentNamed("AI2 AIB Reference")
             <*> getTrimmedContentNamed("Equipment")
 

@@ -44,8 +44,7 @@ namespace AssetScripts/NonOp/AchFlocs {
                     db: #{InstallationWorkItem, InstallationMapping, SiteEastNorth, FunctionalLocation, FlocCharacteristic | r},  
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let mkItem      = x -> #{ InstallationWorkItem(x.instAibRef). };
-        let workitems   = List.foldLeft((ac, x) -> ac <+> mkItem(x), #{}, xs);
+        let workitems   = Relation.foldMap(x1 -> #{ InstallationWorkItem(x1.instAibRef). }, xs);
         let solns       = genFlocs(workitems <+> db);
         let s4lite      = genS4Lite(solns);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);

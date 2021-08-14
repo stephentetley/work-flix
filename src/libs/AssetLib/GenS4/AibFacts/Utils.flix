@@ -22,11 +22,6 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     use AssetLib/Base/Osgb36.{EastingNorthing};
 
-    /// TODO - to put in flix-sandbox Relation
-    pub def when(test: Bool, reln: #{| r}): #{| r} = match test {
-        case true => reln
-        case _ => #{}
-    }
 
     /// Also NameRowEvaluator etc need a relation version of withDefault that defaults to `#{}`
 
@@ -55,7 +50,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
                                     f: (String, Int32, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getInt32Named}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> when(not String.isEmpty(x3), f(x1, x2, x3)))
+        ((x1, x2, x3) -> Relation.whenNot(String.isEmpty(x3), f(x1, x2, x3)))
             <&> getNonEmptyContentNamed("Reference")
             <*> getInt32Named(columnName)
             <*> getContentNamed(unitsColumn)
@@ -65,7 +60,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
                                     f: (String, Float64, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> when(not String.isEmpty(x3), f(x1, x2, x3)))
+        ((x1, x2, x3) -> Relation.whenNot(String.isEmpty(x3), f(x1, x2, x3)))
             <&> getNonEmptyContentNamed("Reference")
             <*> getFloat64Named(columnName)
             <*> getContentNamed(unitsColumn)

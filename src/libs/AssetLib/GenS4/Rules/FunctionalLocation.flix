@@ -50,8 +50,8 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
     pub def genFlocCharacteristics1(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
         use Result.{flatMap};
-        let make1 = x1 -> #{ FlocWorkItem4(x1.funcloc, x1.level, x1.systemClass, x1.systemTypeDescription). };        
-        let workitems   = List.foldLeft((ac, x) -> ac <+> make1(x), #{}, worklist);
+        let make1       = x1 -> #{ FlocWorkItem4(x1.funcloc, x1.level, x1.systemClass, x1.systemTypeDescription). };        
+        let workitems   = Relation.foldMap(make1, worklist);
         let ans         = flocCharacteristics1(workitems);
         Ok(ans) 
 
