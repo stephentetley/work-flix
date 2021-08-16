@@ -24,21 +24,13 @@ namespace AssetLib/S4Lite/Internal/FreshRenumber {
     
     /// Exposing `updateSuper` here is a bad API choice - needs to be done elsewhere...
     pub def equiRenumber(updateSuper: Bool, src: UxlSource): UxlSource & Impure = 
-        let n1 = start();
+        let n1 = AssetLib/S4Lite/Utils.getStartUid();
         let (st, equis) = Chain.mapAccumLeft(renumberEqui(updateSuper), (n1, Map.empty()), src.equipment);
         let lookups     = snd(st);
         let texts       = Chain.map(renumberLongText(lookups), src.equiLongTexts);
         let chars       = Chain.map(renumberCharacteristic(lookups), src.equiCharacteristics);
         {equipment = equis, equiLongTexts = texts, equiCharacteristics = chars | src}
 
-    /// 9-digit
-    def start(): Int32 & Impure = 
-        let dt = Time/LocalDateTime.now();
-        let x1  = Time/LocalDateTime.getMonthValue(dt) * 1000000;
-        let x2  = Time/LocalDateTime.getDayOfMonth(dt) * 10000;
-        let x3  = Time/LocalDateTime.getHour(dt) * 100;
-        let x4  = Time/LocalDateTime.getMinute(dt);
-        200000000 + x1 + x2 + x3 + x4
 
     def renumberEqui(updateSuper: Bool, st: (Int32, Map[String, String]), x: SLEquipment): ((Int32, Map[String, String]), SLEquipment) = 
         let (n1, lookups) = st;

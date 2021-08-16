@@ -18,8 +18,8 @@ def main(_args: Array[String]): Int32 & Impure =
 
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , changeRequestName = "PlantEquip for Existing Sites Batch ##"
-    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/existing-site-plant-equip-uxl-output##.xlsx")
+    , changeRequestName = "Lifting equip for Existing Sites Batch ##"
+    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/existing-site-lift-equip-uxl-output##.xlsx")
     }
 
 
@@ -29,8 +29,8 @@ def main1(): Result[Unit, String] & Impure =
     let srcs            = 
         { aibReport = { sheet = "NonOpStatus_S4Presence"
             , path = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx")}
-        , equipmentMapping = { sheet = "PlantEquip" 
-            , path = System/FilePath.new("G:/work/assets/non-op-bins/equipment-mapping2.xlsx")}
+        , equipmentMapping = { sheet = "Equi_mapping"
+            , path = System/FilePath.new("G:/work/assets/non-op-bins/equipment-mapping3.xlsx")}
         , installationMapping = { sheet = "Sheet1" 
             , path = System/FilePath.new("G:/work/assets/non-op-bins/InstallationsMapping_.xlsx")}
         , siteEastNorth = { sheet = "Sheet1" 
@@ -41,9 +41,9 @@ def main1(): Result[Unit, String] & Impure =
             , path = System/FilePath.new("G:/work/assets/non-op-bins/aib-nonop-serial-numbers.xlsx")}
         , aibPandiTags= { sheet = "Sheet1" 
             , path = System/FilePath.new("G:/work/assets/non-op-bins/aib-nonop-pandi-tags.xlsx")}
-        , ih08PliNumExport = None            
+        , ih08PliNumExport = None
         };
-    let* _              = AssetScripts/NonOp/SuperEqui.genPlantEquipUxl(srcs, outputArgs);
+    let* _              = AssetScripts/NonOp/SuperEqui.genPlantItemNoParentUxl(srcs, outputArgs);
     Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
     Ok()
 

@@ -148,7 +148,7 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
     def evalPandiTag(): NamedRowEvaluator[#{PandiTag | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x2), #{ PandiTag(x1, x2). })
+        ((x1, x2) -> Relation.whenNot(String.isEmpty(x2), #{ PandiTag(x1, x2). }))
             <&> getTrimmedContentNamed("Reference")
             <*> getTrimmedContentNamed("P AND I Tag No")
 
