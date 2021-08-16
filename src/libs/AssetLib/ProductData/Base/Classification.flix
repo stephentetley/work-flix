@@ -21,5 +21,5 @@ namespace AssetLib/ProductData/Base/Classification {
         , objectType: String
         , classType: String
         }
-        
+
 }

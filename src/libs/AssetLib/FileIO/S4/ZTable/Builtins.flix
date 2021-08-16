@@ -30,7 +30,7 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     // EquipObject
 
     pub def loadSuperSubEquipObject(path: System.FilePath): Result[#{SuperSubEquipObject | r}, String] & Impure = 
-        let build = Realation.foldMap(x1 -> #{ SuperSubEquipObject(x1.superObject, x1.subObject, x1.category). });
+        let build = Relation.foldMap(x1 -> #{ SuperSubEquipObject(x1.superObject, x1.subObject, x1.category). });
         loadEquipObject(path)
             |> Result.map(build)
 

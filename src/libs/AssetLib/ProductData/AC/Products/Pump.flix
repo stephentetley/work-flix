@@ -37,6 +37,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
         { description: String
         , className: String
         , pandiTag: String
+        , comment: String
         , manufacturer: String
         , modelNumber: String
         , specificModel: String
@@ -64,31 +65,33 @@ namespace AssetLib/ProductData/AC/Products/Pump {
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, 
             getInt32Named, getFloat64Named, getLocalDateNamed, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20) -> 
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21) -> 
             { description           = x1
             , className             = x2
             , pandiTag              = x3
-            , manufacturer          = x4
-            , modelNumber           = x5
-            , specificModel         = x6
-            , manufSerialNumber     = x7
-            , weight                = x8
-            , impellerType          = x9
-            , insulationClass       = x10
-            , ipRating              = x11
-            , installedDesignHeadM  = x12
-            , inletSizeMM           = x13
-            , outletSizeMM          = x14
-            , ratedSpeedRPM         = x15
-            , flowLS                = x16
-            , dateOfInstallation    = x17
-            , locationOnSite        = x18
-            , locationInHierarchy   = x19
-            , memoLine              = x20
+            , comment               = x4
+            , manufacturer          = x5
+            , modelNumber           = x6
+            , specificModel         = x7
+            , manufSerialNumber     = x8
+            , weight                = x9
+            , impellerType          = x10
+            , insulationClass       = x11
+            , ipRating              = x12
+            , installedDesignHeadM  = x13
+            , inletSizeMM           = x14
+            , outletSizeMM          = x15
+            , ratedSpeedRPM         = x16
+            , flowLS                = x17
+            , dateOfInstallation    = x18
+            , locationOnSite        = x19
+            , locationInHierarchy   = x20
+            , memoLine              = x21
             })
         <&> getTrimmedContentNamed("Description")
         <*> getTrimmedContentNamed("Class Name")
         <*> getTrimmedContentNamed("Tag")
+        <*> getTrimmedContentNamed("Comment")
         <*> getTrimmedContentNamed("Manufacturer")
         <*> getTrimmedContentNamed("Model Number")
         <*> getTrimmedContentNamed("Specific Model")
@@ -122,6 +125,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
         let* pairs  = mapM(x1 -> genPump(x1) >>= a1 -> return((a1, x1)), xs);
         let* _      = genPumpAibReference(pairs);
         let* _      = genPumpAssetCondition(pairs);
+        let* _      = genPumpPump(pairs);
         return()
 
     def genPump(x: PumpRow): GenEquiMonad[EquiRef] = 
@@ -157,7 +161,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
     /// ## Aib Reference
 
     /// Set-oriented (should generate all facts in one go)
-    pub def genPumpAibReference(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
+    def genPumpAibReference(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
         use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
         AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpAibReferenceFacts,equiAibReference, xs)
 
@@ -175,7 +179,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
     /// ## Asset Condition
 
     /// Set-oriented (should generate all facts in one go)
-    pub def genPumpAssetCondition(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
+    def genPumpAssetCondition(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
         use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{assetCondition};
         AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpAssetConditionFacts, assetCondition, xs)
 
@@ -196,7 +200,7 @@ namespace AssetLib/ProductData/AC/Products/Pump {
 
     /// # Pump (not pums)
 
-    pub def genPumpPump(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
+    def genPumpPump(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
         AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpPumpFacts, AssetLib/GenS4/Rules/Characteristics/Pump.pump, xs)
 
     def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, PumpFlow, DutyHead, 
