@@ -33,9 +33,9 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
     
     type alias EquipmentCommon = 
         { description: String
-        , className: String
         , category: String
-        , objectType: String
+        , objectName: String
+        , className: String
         , pandiTag: String
         , comment: String
         , manufacturer: String
@@ -51,30 +51,29 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
 
 
 
-    /// An equi-specific pasrer must decode className to supply category and objectType.
+    /// An equi-specific pasrer must suply ObjectClassification for category, objectType and className.
     pub def evalEquipmentCommon(x: ObjectClassification): NamedRowEvaluator[EquipmentCommon] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, 
             getInt32Named, getFloat64Named, getLocalDateNamed, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) -> 
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12) -> 
             { description           = x1
-            , className             = x2
             , category              = x.category
-            , objectType            = x.objectType
-            , pandiTag              = x3
-            , comment               = x4
-            , manufacturer          = x5
-            , modelNumber           = x6
-            , specificModel         = x7
-            , manufSerialNumber     = x8
-            , weight                = x9
-            , dateOfInstallation    = x10
-            , locationOnSite        = x11
-            , locationInHierarchy   = x12
-            , memoLine              = x13
+            , objectName            = x.objectName
+            , className             = x.className
+            , pandiTag              = x2
+            , comment               = x3
+            , manufacturer          = x4
+            , modelNumber           = x5
+            , specificModel         = x6
+            , manufSerialNumber     = x7
+            , weight                = x8
+            , dateOfInstallation    = x9
+            , locationOnSite        = x10
+            , locationInHierarchy   = x11
+            , memoLine              = x12
             })
         <&> getTrimmedContentNamed("Description")
-        <*> getTrimmedContentNamed("Class Name")
         <*> getTrimmedContentNamed("Tag")
         <*> getTrimmedContentNamed("Comment")
         <*> getTrimmedContentNamed("Manufacturer")
@@ -100,7 +99,7 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
         , category              = x.category
         , description           = x.description
         , validFrom             = params.today
-        , objectType            = x.objectType
+        , objectType            = x.objectName
         , weightKg              = x.weight
         , startupDate           = Option.getWithDefault(x.dateOfInstallation, defaultDate)
         , manufacturer          = x.manufacturer

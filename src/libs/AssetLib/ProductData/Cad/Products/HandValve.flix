@@ -33,7 +33,7 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
 
     
     type alias HandValveRow = 
-        { equiBody: EquipmentCommon
+        { equipmentBody: EquipmentCommon
         , sizeMM: Int32
         }
 
@@ -47,12 +47,14 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
         let classification  = valveClassification(className);
         let* sizeMM         = getInt32Named("Size");
         let* body           = AssetLib/ProductData/Cad/EquipmentCommon.evalEquipmentCommon(classification);
-        return({equiBody = body, sizeMM = sizeMM})
+        return({ equipmentBody = body
+            , sizeMM = sizeMM
+            })
         
 
     pub def valveClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
-        case "ANGLE BALL VALVE"                 => { category = "M", objectType = "VALV", classType = "VALVBA"}
-        case _                                  => { category = "M", objectType = "VALV", classType = "VALVMISC"}
+        case "ANGLE BALL VALVE"                 => { category = "M", objectName = "VALV", className = "VALVBA"}
+        case _                                  => { category = "M", objectName = "VALV", className = "VALVMISC"}
     }
 
 

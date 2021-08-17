@@ -26,7 +26,7 @@ def test01(args: ProgramArgs): Result[Unit, String] & Impure =
         };
     let* worklist   = AssetLib/ProductData/Cad/Products/Pump.loadPumpRows(args.inputSource);    
     
-    worklist |> List.foreach(x1 -> Console.printLine("${x1.description} ${x1.className} [${x1.manufacturer}]"));
+    worklist |> List.foreach(x1 -> Console.printLine("${x1.equipmentBody.description} ${x1.equipmentBody.className} [${x1.equipmentBody.manufacturer}]"));
     /// let* _      =  AssetLib/S4Lite/EmitUxl.outputUxl(true, emitParams, uxlsrc);
 
     let* uxl        = AssetLib/GenS4/GenEquiMonad.execGenEquiMonad(AssetLib/ProductData/Cad/Products/Pump.genPumps(worklist));

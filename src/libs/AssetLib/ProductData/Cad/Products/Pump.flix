@@ -28,21 +28,14 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     use AssetLib/GenS4/GenEquiMonad.EquiRef;
     use AssetLib/GenS4/GenEquiMonad.EquiRef.{EquiRef};
     use AssetLib/ProductData/Base/Classification.{ObjectClassification};
-    
+    use AssetLib/ProductData/Cad/EquipmentCommon.{EquipmentCommon};
+
     /// Base is PUMP (category "M") / PUMS (category "E")
     /// PUMPDI | ...
 
     
     type alias PumpRow = 
-        { description: String
-        , className: String
-        , pandiTag: String
-        , comment: String
-        , manufacturer: String
-        , modelNumber: String
-        , specificModel: String
-        , manufSerialNumber: String
-        , weight: Option[Float64]
+        { equipmentBody: EquipmentCommon
         , impellerType: String
         , insulationClass: String
         , ipRating: String
@@ -51,10 +44,6 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
         , outletSizeMM: Option[Int32]
         , ratedSpeedRPM: Option[Int32]
         , flowLS: Option[Float64]
-        , dateOfInstallation: Option[Time.LocalDate]
-        , locationOnSite: String
-        , locationInHierarchy: String
-        , memoLine: String
         }
 
     pub def loadPumpRows(src: XlsxSource): Result[List[PumpRow], String] & Impure = 
@@ -62,99 +51,49 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
 
 
     pub def evalPumpRow(): NamedRowEvaluator[PumpRow] = 
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, 
             getInt32Named, getFloat64Named, getLocalDateNamed, optional};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21) -> 
-            { description           = x1
-            , className             = x2
-            , pandiTag              = x3
-            , comment               = x4
-            , manufacturer          = x5
-            , modelNumber           = x6
-            , specificModel         = x7
-            , manufSerialNumber     = x8
-            , weight                = x9
-            , impellerType          = x10
-            , insulationClass       = x11
-            , ipRating              = x12
-            , installedDesignHeadM  = x13
-            , inletSizeMM           = x14
-            , outletSizeMM          = x15
-            , ratedSpeedRPM         = x16
-            , flowLS                = x17
-            , dateOfInstallation    = x18
-            , locationOnSite        = x19
-            , locationInHierarchy   = x20
-            , memoLine              = x21
+        let* className      = getTrimmedContentNamed("Class Name");
+        let classification  = pumpClassification(className);
+        let* x1             = getTrimmedContentNamed("Impeller type");
+        let* x2             = getTrimmedContentNamed("Insulation Class (\u00B0c)");
+        let* x3             = getTrimmedContentNamed("IP Rating");
+        let* x4             = optional(getFloat64Named("Installed Design Head (m)"));
+        let* x5             = optional(getInt32Named("Inlet Size (mm)"));
+        let* x6             = optional(getInt32Named("Outlet Size (mm)"));
+        let* x7             = optional(getInt32Named("Rated Speed (RPM)"));
+        let* x8             = optional(getFloat64Named("Flow (l/s)"));
+        let* body           = AssetLib/ProductData/Cad/EquipmentCommon.evalEquipmentCommon(classification);
+        return({ equipmentBody      = body
+            , impellerType          = x1
+            , insulationClass       = x2
+            , ipRating              = x3
+            , installedDesignHeadM  = x4
+            , inletSizeMM           = x5
+            , outletSizeMM          = x6
+            , ratedSpeedRPM         = x7
+            , flowLS                = x8
             })
-        <&> getTrimmedContentNamed("Description")
-        <*> getTrimmedContentNamed("Class Name")
-        <*> getTrimmedContentNamed("Tag")
-        <*> getTrimmedContentNamed("Comment")
-        <*> getTrimmedContentNamed("Manufacturer")
-        <*> getTrimmedContentNamed("Model Number")
-        <*> getTrimmedContentNamed("Specific Model")
-        <*> getTrimmedContentNamed("Manufacturer's serial number")
-        <*> optional(getFloat64Named("Weight"))
-        <*> getTrimmedContentNamed("Impeller type")
-        <*> getTrimmedContentNamed("Insulation Class (\u00B0c)")
-        <*> getTrimmedContentNamed("IP Rating")
-        <*> optional(getFloat64Named("Installed Design Head (m)"))
-        <*> optional(getInt32Named("Inlet Size (mm)"))
-        <*> optional(getInt32Named("Outlet Size (mm)"))
-        <*> optional(getInt32Named("Rated Speed (RPM)"))
-        <*> optional(getFloat64Named("Flow (l/s)"))
-        <*> optional(getLocalDateNamed("Date of installation"))
-        <*> getTrimmedContentNamed("Location on Site")
-        <*> getTrimmedContentNamed("Location in Asset Hierarchy")
-        <*> getTrimmedContentNamed("Memo Line")
+
         
 
 
     pub def pumpClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
-        case "CENTRIFUGAL"                      => { category = "M", objectType = "PUMP", classType = "PUMPCE"}
-        case s if s `String.startsWith` "RAM"   => { category = "M", objectType = "PUMP", classType = "PUMPRA"}
-        case _                                  => { category = "M", objectType = "PUMP", classType = "PUMPMISC"}
+        case "CENTRIFUGAL"                      => { category = "M", objectName = "PUMP", className = "PUMPCE"}
+        case s if s `String.startsWith` "RAM"   => { category = "M", objectName = "PUMP", className = "PUMPRA"}
+        case _                                  => { category = "M", objectName = "PUMP", className = "PUMPMISC"}
     }
 
 
     pub def genPumps(xs: List[PumpRow]): GenEquiMonad[Unit] = 
         use AssetLib/GenS4/GenEquiMonad.{flatMap, return, mapM};
         use AssetLib/GenS4/GenEquiMonad.{>>=};
-        let* pairs  = mapM(x1 -> genPump(x1) >>= a1 -> return((a1, x1)), xs);
+        use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
+        let* pairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
         let* _      = genPumpAibReference(pairs);
         let* _      = genPumpAssetCondition(pairs);
         let* _      = genPumpPump(pairs);
         return()
-
-    def genPump(x: PumpRow): GenEquiMonad[EquiRef] = 
-        AssetLib/GenS4/GenEquiMonad.genEqui((x1, x2) -> pumpToSLEquipment({equiId = x1, today = x2}, x))
-
-    /// Translation
-    pub def pumpToSLEquipment(params: {equiId: String, today: Time.LocalDate}, x: PumpRow): SLEquipment = 
-        let i32None: Option[Int32] = None;
-        let classification = pumpClassification(x.className);
-        let defaultDate = Time/LocalDate.new({dayOfMonth = 1, month = 1, year = 1970});
-        { equiId                = params.equiId
-        , category              = classification.category
-        , description           = x.description
-        , validFrom             = params.today
-        , objectType            = classification.objectType
-        , weightKg              = x.weight
-        , startupDate           = Option.getWithDefault(x.dateOfInstallation, defaultDate)
-        , manufacturer          = x.manufacturer
-        , model                 = x.modelNumber
-        , partNumber            = x.specificModel
-        , serialNumber          = x.manufSerialNumber
-        , functionalLocation    = x.locationInHierarchy
-        , superOrdinateEqui     = ""
-        , position              = i32None
-        , techIdentNo           = x.pandiTag
-        , status                = "OPER"
-        }
-
-
 
 
 
@@ -163,15 +102,13 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     /// Set-oriented (should generate all facts in one go)
     def genPumpAibReference(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
         use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
-        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpAibReferenceFacts,equiAibReference, xs)
+        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpAibReferenceFacts, equiAibReference, xs)
 
 
-    def pumpAibReferenceFacts(x: EquiRef, 
-                                    pump: PumpRow): #{EquiWorkItem3 | r} = 
+    def pumpAibReferenceFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3 | r} = 
         AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-            let classification      = pumpClassification(pump.className);
             #{ 
-                EquiWorkItem3(x1, classification.objectType, classification.classType). 
+                EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). 
             })
 
 
@@ -188,10 +125,9 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     def pumpAssetConditionFacts(x: EquiRef, 
                                     pump: PumpRow): #{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear | r} = 
         AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-            let classification      = pumpClassification(pump.className);
-            let installYear         = Option.map(Time/LocalDate.getYear, pump.dateOfInstallation) |> flip(Option.getWithDefault, 1970);
+            let installYear         = Option.map(Time/LocalDate.getYear, pump.equipmentBody.dateOfInstallation) |> flip(Option.getWithDefault, 1970);
             #{ 
-                EquiWorkItem3(x1, classification.objectType, classification.classType). 
+                EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). 
                 ConditionGrade(x1, "1 - Good", "New").
                 LoadingFactor(x1, "1 - Significantly Under Loaded", "New").
                 PerformanceGrade(x1, "1 - Availability  95%", "New").
@@ -206,15 +142,13 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, PumpFlow, DutyHead, 
                                                     ImpellerType | r} = 
         AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-            let classification      = pumpClassification(pump.className);
-            Relation.when(classification.objectType == "PUMP", {
-                let z1 = #{ EquiWorkItem3(x1, classification.objectType, classification.classType). };
+            Relation.when(pump.equipmentBody.objectName == "PUMP", {
+                let z1 = #{ EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). };
                 let z2 = Relation.optional(pump.flowLS,                d -> #{ PumpFlow(x1, d, "LITRES PER SECOND"). });
                 let z3 = Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
                 let z4 = Relation.whenNot(String.isEmpty(pump.impellerType), #{ ImpellerType(x1, pump.impellerType). });
                 z1 <+> z2 <+> z3 <+> z4
             }))
-
 
 
 }
