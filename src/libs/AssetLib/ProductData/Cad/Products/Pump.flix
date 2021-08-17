@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/ProductData/AC/Products/Pump {
+namespace AssetLib/ProductData/Cad/Products/Pump {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.XlsxSource;

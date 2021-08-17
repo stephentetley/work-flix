@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/ProductData/AC/Utils {
+namespace AssetLib/ProductData/Cad/Utils {
 
         
 }

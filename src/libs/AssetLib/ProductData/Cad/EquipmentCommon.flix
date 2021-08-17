@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/ProductData/AC/EquipmentCommon {
+namespace AssetLib/ProductData/Cad/EquipmentCommon {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.XlsxSource;
@@ -52,15 +52,15 @@ namespace AssetLib/ProductData/AC/EquipmentCommon {
 
 
     /// An equi-specific pasrer must decode className to supply category and objectType.
-    pub def evalEquipmentCommon(category: String, objectType: String): NamedRowEvaluator[EquipmentCommon] = 
+    pub def evalEquipmentCommon(x: ObjectClassification): NamedRowEvaluator[EquipmentCommon] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, 
             getInt32Named, getFloat64Named, getLocalDateNamed, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) -> 
             { description           = x1
             , className             = x2
-            , category              = category
-            , objectType            = objectType
+            , category              = x.category
+            , objectType            = x.objectType
             , pandiTag              = x3
             , comment               = x4
             , manufacturer          = x5
