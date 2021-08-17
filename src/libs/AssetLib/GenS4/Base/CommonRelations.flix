@@ -125,7 +125,6 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     /// Valve
 
-    pub rel ValveType(aibref: String, valveType: String)
-
     pub rel ValveSize(aibref: String, size: Float64, units: String)
+    
 }

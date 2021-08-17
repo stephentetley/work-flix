@@ -89,50 +89,15 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
         use AssetLib/GenS4/GenEquiMonad.{flatMap, return, mapM};
         use AssetLib/GenS4/GenEquiMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
-        let* pairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
-        let* _      = genPumpAibReference(pairs);
-        let* _      = genPumpAssetCondition(pairs);
-        let* _      = genPumpPump(pairs);
+        let* pumpPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
+        let eqbPairs    = List.map(xy -> {let (x,y) = xy; (x, y.equipmentBody)}, pumpPairs);
+        let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAibReference(eqbPairs);
+        let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAssetCondition(eqbPairs);
+        let* _          = genPumpPump(pumpPairs);
         return()
 
 
 
-    /// ## Aib Reference
-
-    /// Set-oriented (should generate all facts in one go)
-    def genPumpAibReference(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
-        use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
-        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpAibReferenceFacts, equiAibReference, xs)
-
-
-    def pumpAibReferenceFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3 | r} = 
-        AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-            #{ 
-                EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). 
-            })
-
-
-
-    /// ## Asset Condition
-
-    /// Set-oriented (should generate all facts in one go)
-    def genPumpAssetCondition(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
-        use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{assetCondition};
-        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpAssetConditionFacts, assetCondition, xs)
-
-
-
-    def pumpAssetConditionFacts(x: EquiRef, 
-                                    pump: PumpRow): #{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear | r} = 
-        AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-            let installYear         = Option.map(Time/LocalDate.getYear, pump.equipmentBody.dateOfInstallation) |> flip(Option.getWithDefault, 1970);
-            #{ 
-                EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). 
-                ConditionGrade(x1, "1 - Good", "New").
-                LoadingFactor(x1, "1 - Significantly Under Loaded", "New").
-                PerformanceGrade(x1, "1 - Availability  95%", "New").
-                SurveyYear(x1, installYear).
-            })
 
     /// # Pump (not pums)
 

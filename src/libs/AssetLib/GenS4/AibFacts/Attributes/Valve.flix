@@ -21,25 +21,18 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
-    use AssetLib/GenS4/Base/CommonRelations.{ValveType, ValveSize};
+    use AssetLib/GenS4/Base/CommonRelations.{ValveSize};
 
     /// Read from Aib file...
 
 
-    pub def readValveData(src: XlsxSource): Result[#{ValveType, ValveSize | r}, String] & Impure =
+    pub def readValveData(src: XlsxSource): Result[#{ValveSize | r}, String] & Impure =
         SheetIO/Reader.someNamedRelations(src, evalValve())
         
     
-    def evalValve(): NamedRowEvaluator[#{ValveType, ValveSize | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
-        let* c1 = withDefault(evalValveType(), #{});
-        let* c2 = withDefault(evalValveSize(), #{});
-        return(c1 <+> c2)    
-
-
-    def evalValveType(): NamedRowEvaluator[#{ValveType | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Valve Type", (x1, x2) -> #{ ValveType(x1, x2). })
-
+    def evalValve(): NamedRowEvaluator[#{ValveSize | r}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};
+        withDefault(evalValveSize(), #{})
     
     def evalValveSize(): NamedRowEvaluator[#{ValveSize | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Size", 

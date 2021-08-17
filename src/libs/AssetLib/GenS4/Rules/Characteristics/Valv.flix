@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4Int};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ValveType, ValveSize};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ValveSize};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
 
@@ -35,7 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
         Ok(ans) 
 
 
-    pub def valv(input: #{EquiWorkItem3, ValveType, ValveSize,
+    pub def valv(input: #{EquiWorkItem3, ValveSize,
                             EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 

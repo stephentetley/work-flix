@@ -22,8 +22,7 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
-        ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear, 
-        PumpFlow, DutyHead, ImpellerType};
+        ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear};
     use AssetLib/GenS4.GenEquiMonad;
     use AssetLib/GenS4/GenEquiMonad.EquiRef;
     use AssetLib/GenS4/GenEquiMonad.EquiRef.{EquiRef};
@@ -113,5 +112,39 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
         , status                = "OPER"
         }
 
+    /// ## Aib Reference
+
+    /// Set-oriented (should generate all facts in one go)
+    pub def genCommonAibReference(xs: List[(EquiRef, EquipmentCommon)]): GenEquiMonad[Unit] =
+        use AssetLib/GenS4/Rules/Characteristics/AibReference.{equiAibReference};
+        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(aibReferenceFacts, equiAibReference, xs)
+
+
+    def aibReferenceFacts(x: EquiRef, body: EquipmentCommon): #{EquiWorkItem3 | r} = 
+        AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
+            #{ 
+                EquiWorkItem3(x1, body.objectName, body.className). 
+            })
+
+    /// ## Asset Condition
+
+    /// Set-oriented (should generate all facts in one go)
+    pub def genCommonAssetCondition(xs: List[(EquiRef, EquipmentCommon)]): GenEquiMonad[Unit] =
+        use AssetLib/GenS4/Rules/Characteristics/AssetCondition.{assetCondition};
+        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(assetConditionFacts, assetCondition, xs)
+
+
+
+    def assetConditionFacts(x: EquiRef, 
+                                    body: EquipmentCommon): #{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear | r} = 
+        AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
+            let installYear         = Option.map(Time/LocalDate.getYear, body.dateOfInstallation) |> flip(Option.getWithDefault, 1970);
+            #{ 
+                EquiWorkItem3(x1, body.objectName, body.className). 
+                ConditionGrade(x1, "1 - Good", "New").
+                LoadingFactor(x1, "1 - Significantly Under Loaded", "New").
+                PerformanceGrade(x1, "1 - Availability  95%", "New").
+                SurveyYear(x1, installYear).
+            })
 
 }
