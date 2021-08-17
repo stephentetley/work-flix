@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, AibParentRef};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, AibPliNum, AibParentRef};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
 
     
@@ -74,21 +74,27 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         Ok(ans) 
 
 
-    /// 
-    pub def equiAibReference(input: #{EquiWorkItem3, AibParentRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
+    
+
+
+    /// Use AibPliNum...
+    pub def equiAibReference(input: #{EquiWorkItem3, AibPliNum, AibParentRef, 
+                                        EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
                 EquiWorkItem3(equiId, _, _).
 
             /// AIB_REFERENCE (item)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(equiId)) :- 
-                EquiWorkItem3(equiId, _, _).
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(pliNum)) :- 
+                EquiWorkItem3(equiId, _, _),
+                AibPliNum(equiId, pliNum).
 
             /// AI2_AIB_REFERENCE (parent)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parent)) :- 
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parentSaiNum)) :- 
                 EquiWorkItem3(equiId, _, _),
-                AibParentRef(equiId, _, parent).
+                AibParentRef(equiId, parentSaiNum), 
+                if not String.isEmpty(parentSaiNum).
         };
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic

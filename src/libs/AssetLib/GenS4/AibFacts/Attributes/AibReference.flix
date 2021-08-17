@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/GenS4/Base/CommonRelations.{AibParentRef};
+    use AssetLib/GenS4/Base/CommonRelations.{AibPliNum, AibParentRef};
 
 
     /// Read from Aib file...
@@ -31,15 +31,16 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
         , commonName: String
         }
 
-    pub def readHierarchyRelations(src: XlsxSource): Result[#{AibParentRef | r}, String] & Impure =
+    pub def readHierarchyRelations(src: XlsxSource): Result[#{AibPliNum, AibParentRef | r}, String] & Impure =
         use Result.{flatMap, map};
-        let cmp  = (x,y) -> Order.compare(x.commonName, y.commonName);
-        let* xs = SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> map(List.sortWith(cmp));
-        let facts = extractHierarchyFacts(xs);
-        Ok(facts)
+        let cmp         = (x,y) -> Order.compare(x.commonName, y.commonName);
+        let* xs         = SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> map(List.sortWith(cmp));
+        let parents     = extractHierarchyFacts(xs);
+        let plinums     = Relation.foldMap(x1 -> #{ AibPliNum(x1.reference, x1.reference). }, xs);
+        Ok(parents <+> plinums)
 
 
-    pub def readAibSheet(sheetName: String): SheetReader[List[AibRow]] = 
+    def readAibSheet(sheetName: String): SheetReader[List[AibRow]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(s1, evalAibRow());
@@ -59,7 +60,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
 
     /// First node is site
     def getAibRootNode(xs: List[AibRow]): #{AibParentRef | r} = match xs {
-        case x :: _ => #{ AibParentRef(x.reference, x.commonName, ""). }
+        case x :: _ => #{ AibParentRef(x.reference, ""). }
         case Nil => #{}
     }
     
@@ -76,7 +77,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
                              xs: List[AibRow]): #{AibParentRef | r} = match xs {
         case x :: rs => { 
             let (parent, stack1) = getParent(x.commonName, stack);
-            let r1 = #{ AibParentRef(x.reference, x.commonName, parent.reference). };
+            let r1 = #{ AibParentRef(x.reference, parent.reference). };
             getDescendantsHelper(Nel.cons(x, stack1), r1 <+> ac, rs)
         }
         case Nil => ac

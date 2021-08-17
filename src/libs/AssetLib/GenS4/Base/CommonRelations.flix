@@ -30,8 +30,9 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     pub rel AibMemoLine(aibref: String, text: String)
 
     
-    pub rel AibParentRef(aibref: String, commonName: String, parent: String)
+    pub rel AibParentRef(equiId: String, parentSaiNum: String)
 
+    pub rel AibPliNum(equiId: String, pliNum: String)
 
     /// Asset Condition
 
