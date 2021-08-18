@@ -22,13 +22,13 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/GenS4/Base/CommonRelations.{DiaphragmMaterial, 
-        DutyHead, PumpFlow, ImpellerType, PumpLiftingType, RatingPower};
+        DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower};
 
     /// Read from Aib file...
 
 
     pub def readPumpData(src: XlsxSource): Result[#{DiaphragmMaterial, DutyHead,
-                                                    PumpFlow, ImpellerType, PumpLiftingType, 
+                                                    Flow, ImpellerType, PumpLiftingType, 
                                                     RatingPower | r}, String] & Impure =
         SheetIO/Reader.someNamedRelations(src, evalPump())
         
@@ -36,12 +36,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
 
 
     pub def evalPump(): NamedRowEvaluator[#{DiaphragmMaterial, DutyHead,
-                                            PumpFlow, ImpellerType, PumpLiftingType, 
+                                            Flow, ImpellerType, PumpLiftingType, 
                                             RatingPower | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(evalDiaphragmMaterial(), #{});
         let* c2 = withDefault(evalDutyHead(), #{});
-        let* c3 = withDefault(evalPumpFlow(), #{});
+        let* c3 = withDefault(evalFlow(), #{});
         let* c4 = withDefault(evalImpellerType(), #{});
         let* c5 = withDefault(evalPumpLiftingType(), #{});
         let* c6 = withDefault(evalRatingPower(), #{});
@@ -58,9 +58,9 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
             "Duty Head Units", (x1, x2, x3) -> #{ DutyHead(x1, x2, x3). })
     
     
-    def evalPumpFlow(): NamedRowEvaluator[#{PumpFlow | r}] =        
+    def evalFlow(): NamedRowEvaluator[#{Flow | r}] =        
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Flow", 
-            "Flow Units", (x1, x2, x3) -> #{ PumpFlow(x1, x2, x3). })
+            "Flow Units", (x1, x2, x3) -> #{ Flow(x1, x2, x3). })
 
     
     def evalImpellerType(): NamedRowEvaluator[#{ImpellerType | r}] =

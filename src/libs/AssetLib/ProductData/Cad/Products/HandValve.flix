@@ -35,28 +35,28 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
         , sizeMM: Option[Int32]
         }
 
-    pub def loadPumpRows(src: XlsxSource): Result[List[HandValveRow], String] & Impure = 
+    pub def loadRows(src: XlsxSource): Result[List[HandValveRow], String] & Impure = 
         SheetIO/Reader.readAllNamedRows(src, evalHandValveRow())
 
 
-    pub def evalHandValveRow(): NamedRowEvaluator[HandValveRow] = 
+    def evalHandValveRow(): NamedRowEvaluator[HandValveRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, getInt32Named, optional};
         let* className      = getTrimmedContentNamed("Class Name");
         let classification  = valveClassification(className);
-        let* sizeMM         = optional(getInt32Named("Size"));
+        let* x1             = optional(getInt32Named("Size"));
         let* body           = AssetLib/ProductData/Cad/EquipmentCommon.evalEquipmentCommon(classification);
-        return({ equipmentBody = body
-            , sizeMM = sizeMM
+        return({ equipmentBody  = body
+            , sizeMM            = x1
             })
         
 
-    pub def valveClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
+    def valveClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
         case "ANGLE BALL VALVE"                 => { category = "M", objectName = "VALV", className = "VALVBA"}
         case _                                  => { category = "M", objectName = "VALV", className = "VALVMISC"}
     }
 
 
-    pub def genHandValves(xs: List[HandValveRow]): GenEquiMonad[Unit] = 
+    pub def generateHandValves(xs: List[HandValveRow]): GenEquiMonad[Unit] = 
         use AssetLib/GenS4/GenEquiMonad.{flatMap, return, mapM};
         use AssetLib/GenS4/GenEquiMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};

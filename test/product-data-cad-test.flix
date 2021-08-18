@@ -24,12 +24,12 @@ def test01(args: ProgramArgs): Result[Unit, String] & Impure =
         , changeRequestName = "P and I Pump Extract Sample"
         , outpath = args.outputFile
         };
-    let* worklist   = AssetLib/ProductData/Cad/Products/Pump.loadPumpRows(args.inputSource);    
+    let* worklist   = AssetLib/ProductData/Cad/Products/Pump.loadRows(args.inputSource);    
     
     worklist |> List.foreach(x1 -> Console.printLine("${x1.equipmentBody.description} ${x1.equipmentBody.className} [${x1.equipmentBody.manufacturer}]"));
     /// let* _      =  AssetLib/S4Lite/EmitUxl.outputUxl(true, emitParams, uxlsrc);
 
-    let* uxl        = AssetLib/GenS4/GenEquiMonad.execGenEquiMonad(AssetLib/ProductData/Cad/Products/Pump.genPumps(worklist));
+    let* uxl        = AssetLib/GenS4/GenEquiMonad.execGenEquiMonad(AssetLib/ProductData/Cad/Products/Pump.generatePumps(worklist));
     let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(false, emitParams, uxl);
     Ok()
 

@@ -18,6 +18,20 @@
 namespace AssetLib/GenS4/Rules/Characteristics/Utils {
 
 
+    pub def recognizedFlowUnits(units: String): Bool = match units { 
+        case "LITRE PER HOUR" => true
+        case "LITRE PER MINUTE" => true
+        case "LITRES PER SECOND" => true
+        case _ => false
+    }
+
+    
+    pub def flowLitresPerSecond(flow: Float64, units: String): Float64 = match units { 
+        case "LITRE PER HOUR" => flow / 3600.0f64
+        case "LITRE PER MINUTE" => flow / 60.0f64
+        case "LITRES PER SECOND" => flow
+        case _ => -1.0f64
+    }
 
     pub def iEqual(x: Float64, y: Int32): Bool = 
         let y1 = Int32.toFloat64(y);

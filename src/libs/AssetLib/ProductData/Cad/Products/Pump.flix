@@ -23,7 +23,7 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear, 
-        PumpFlow, DutyHead, ImpellerType};
+        Flow, DutyHead, ImpellerType};
     use AssetLib/GenS4.GenEquiMonad;
     use AssetLib/GenS4/GenEquiMonad.EquiRef;
     use AssetLib/GenS4/GenEquiMonad.EquiRef.{EquiRef};
@@ -46,11 +46,11 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
         , flowLS: Option[Float64]
         }
 
-    pub def loadPumpRows(src: XlsxSource): Result[List[PumpRow], String] & Impure = 
+    pub def loadRows(src: XlsxSource): Result[List[PumpRow], String] & Impure = 
         SheetIO/Reader.readAllNamedRows(src, evalPumpRow())
 
 
-    pub def evalPumpRow(): NamedRowEvaluator[PumpRow] = 
+    def evalPumpRow(): NamedRowEvaluator[PumpRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, 
             getInt32Named, getFloat64Named, getLocalDateNamed, optional};
         let* className      = getTrimmedContentNamed("Class Name");
@@ -78,14 +78,14 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
         
 
 
-    pub def pumpClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
+    def pumpClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
         case "CENTRIFUGAL"                      => { category = "M", objectName = "PUMP", className = "PUMPCE"}
         case s if s `String.startsWith` "RAM"   => { category = "M", objectName = "PUMP", className = "PUMPRA"}
         case _                                  => { category = "M", objectName = "PUMP", className = "PUMPMISC"}
     }
 
 
-    pub def genPumps(xs: List[PumpRow]): GenEquiMonad[Unit] = 
+    pub def generatePumps(xs: List[PumpRow]): GenEquiMonad[Unit] = 
         use AssetLib/GenS4/GenEquiMonad.{flatMap, return, mapM};
         use AssetLib/GenS4/GenEquiMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
@@ -104,12 +104,12 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     def genPumpPump(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
         AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpPumpFacts, AssetLib/GenS4/Rules/Characteristics/Pump.pump, xs)
 
-    def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, PumpFlow, DutyHead, 
+    def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, Flow, DutyHead, 
                                                     ImpellerType | r} = 
         AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
             Relation.when(pump.equipmentBody.objectName == "PUMP", {
                 let z1 = #{ EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). };
-                let z2 = Relation.optional(pump.flowLS,                d -> #{ PumpFlow(x1, d, "LITRES PER SECOND"). });
+                let z2 = Relation.optional(pump.flowLS,                d -> #{ Flow(x1, d, "LITRES PER SECOND"). });
                 let z3 = Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
                 let z4 = Relation.whenNot(String.isEmpty(pump.impellerType), #{ ImpellerType(x1, pump.impellerType). });
                 z1 <+> z2 <+> z3 <+> z4
