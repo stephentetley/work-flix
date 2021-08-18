@@ -46,7 +46,6 @@ namespace AssetLib/GenS4/GenEqui {
         let* equis          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
         let* equiLongText   = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport);
         let* equiChars      = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport);
-        /// let relns       = solve longText <+> c1;
         Ok( { funclocs                  = Chain.empty()
             , funclocLongTexts          = Chain.empty()
             , funclocCharacteristics    = Chain.empty()

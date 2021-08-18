@@ -22,9 +22,9 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ValveSize};
-    use AssetLib/GenS4.GenEquiMonad;
-    use AssetLib/GenS4/GenEquiMonad.EquiRef;
-    use AssetLib/GenS4/GenEquiMonad.EquiRef.{EquiRef};
+    use AssetLib/GenS4.GenMonad;
+    use AssetLib/GenS4/GenMonad.EquiRef;
+    use AssetLib/GenS4/GenMonad.EquiRef.{EquiRef};
     use AssetLib/ProductData/Base/Classification.{ObjectClassification};
     use AssetLib/ProductData/Cad/EquipmentCommon.{EquipmentCommon};
 
@@ -56,9 +56,9 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
     }
 
 
-    pub def generateHandValves(xs: List[HandValveRow]): GenEquiMonad[Unit] = 
-        use AssetLib/GenS4/GenEquiMonad.{flatMap, return, mapM};
-        use AssetLib/GenS4/GenEquiMonad.{>>=};
+    pub def generateHandValves(xs: List[HandValveRow]): GenMonad[Unit] = 
+        use AssetLib/GenS4/GenMonad.{flatMap, return, mapM};
+        use AssetLib/GenS4/GenMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
         let* valvPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
         let eqbPairs    = List.map(xy -> {let (x,y) = xy; (x, y.equipmentBody)}, valvPairs);
@@ -70,15 +70,15 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
 
     /// # Valv
 
-    def genValveValv(xs: List[(EquiRef, HandValveRow)]): GenEquiMonad[Unit] =
-        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(valveValvFacts, AssetLib/GenS4/Rules/Characteristics/Valv.valv, xs)
+    def genValveValv(xs: List[(EquiRef, HandValveRow)]): GenMonad[Unit] =
+        AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(valveValvFacts, AssetLib/GenS4/Rules/Characteristics/Valv.valv, xs)
 
     def valveValvFacts(x: EquiRef, valve: HandValveRow): #{EquiWorkItem3, ValveSize | r} = 
-        AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-            Relation.when(valve.equipmentBody.objectName == "VALV", {
-                let z1 = #{ EquiWorkItem3(x1, valve.equipmentBody.objectName, valve.equipmentBody.className). };
-                let z2 = Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
-                z1 <+> z2
-            }))
+        let EquiRef(x1) = x;
+        Relation.when(valve.equipmentBody.objectName == "VALV", {
+            let z1 = #{ EquiWorkItem3(x1, valve.equipmentBody.objectName, valve.equipmentBody.className). };
+            let z2 = Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
+            z1 <+> z2
+        })
 
 }

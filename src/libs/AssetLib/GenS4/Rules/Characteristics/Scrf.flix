@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Scrf {
     
 
     /// /// src should be (SpeedRPM / PowerKW...)
-    /// pub def genMixr(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    /// pub def genScrf(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
     ///     use Result.{flatMap};
     ///     let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
     ///     let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);

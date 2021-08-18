@@ -15,71 +15,67 @@
  */
 
 
-namespace AssetLib/GenS4/Rules/Characteristics/Crht {
+namespace AssetLib/GenS4/Rules/Characteristics/Sfer {
 
     use SheetIO/Reader.{XlsxSource};
-
+    
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, WorkLoad, TestCertNo, YWRef};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
     /// src should be lifting facts
-    pub def genCrht(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
+    pub def genSfer(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
         use Result.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);
-        let ans         = crht(workitems <+> facts);
+        let ans         = sfer(workitems <+> facts);
         Ok(ans) 
 
 
-
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def crht(input: #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, 
-                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+    pub def sfer(input: #{EquiWorkItem3, WorkLoad, 
+                            TestCertNo, YWRef, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
-                EquiWorkItem3(equiId, "CRHT", s4Class),
+                EquiWorkItem3(equiId, "SFER", s4Class),
                 YWRef(equiId, ywref).
 
             EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
-                EquiWorkItem3(equiId, "CRHT", s4Class),
+                EquiWorkItem3(equiId, "SFER", s4Class),
                 TestCertNo(equiId, number).
 
-            EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
-                EquiWorkItem3(equiId, "CRHT", s4Class),
+            /// Note every SFER__ class has "SFER_SAFE_WORKING_LOAD" but they should not
+            /// have `WorkLoad` if they don't (need to check this assumption).
+            EquiCharacteristic(equiId, s4Class, "SFER_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
+                EquiWorkItem3(equiId, "SFER", s4Class),
                 WorkLoad(equiId, load, units),
-                if recognizedWorkLoadUnit(units).
+                if recognizedLoadUnit(units).
 
-            EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD_UNITS", 1, S4String(workLoadUnits(units))) :-
-                EquiWorkItem3(equiId, "CRHT", s4Class),
+            EquiCharacteristic(equiId, s4Class, "SFER_SAFE_WORKING_LOAD_UNITS", 1, S4String(loadUnit(units))) :-
+                EquiWorkItem3(equiId, "SFER", s4Class),
                 WorkLoad(equiId, _, units),
-                if recognizedWorkLoadUnit(units).
+                if recognizedLoadUnit(units).
 
         }; 
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
-    /// This is local - recognized units may vary according to ObjectType/ClassType...
-    def recognizedWorkLoadUnit(s: String): Bool = match s { 
+    def recognizedLoadUnit(s: String): Bool = match s { 
         case "KILOGRAM" => true
-        case "KILONEWTON" => true
         case "MAN" => true
-        case "TON (UK)" => true
-        case "TONNE" => true
         case _ => false
     }
 
     
-    def workLoadUnits(s: String): String = match s { 
+    def loadUnit(s: String): String = match s { 
         case "KILOGRAM" => "KG"
-        case "KILONEWTON" => "KN"
         case "MAN" => "MAN"
-        case "TON (UK)" => "TON (UK)"
-        case "TONNE" => "TON"
         case _ => ""
     }
+
 
 }

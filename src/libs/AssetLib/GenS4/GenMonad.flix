@@ -16,21 +16,21 @@
 
 namespace AssetLib/GenS4 {
 
-    use AssetLib/GenS4/GenEquiMonad.{Env, Output};
+    use AssetLib/GenS4/GenMonad.{Env, Output};
 
     /// State (for id gen and Output) + Env
-    pub opaque type GenEquiMonad[a] = (Int32, Output, Env) ~> Result[(Int32, Output, a), String]
+    pub opaque type GenMonad[a] = (Int32, Output, Env) ~> Result[(Int32, Output, a), String]
 }
 
-namespace AssetLib/GenS4/GenEquiMonad {
+namespace AssetLib/GenS4/GenMonad {
 
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
-    use AssetLib/GenS4.GenEquiMonad;
-    use AssetLib/GenS4.GenEquiMonad.{GenEquiMonad};
+    use AssetLib/GenS4.GenMonad;
+    use AssetLib/GenS4.GenMonad.{GenMonad};
 
 
-    /// Potentially Env should have SolutionId...
+    /// Potentially Env should be open to the user: `Env[e] = (Time.LocalDate, e)`
     type alias Env = Time.LocalDate
 
     type alias Output = 
@@ -47,7 +47,7 @@ namespace AssetLib/GenS4/GenEquiMonad {
 
     /// Alternative to `WorkLists` for generating equipment ...
 
-    pub def runGenEquiMonad(mx: GenEquiMonad[a]): Result[(UxlSource, a), String] & Impure = 
+    pub def runGenMonad(mx: GenMonad[a]): Result[(UxlSource, a), String] & Impure = 
         use Result.flatMap;
         let today           = Time/LocalDate.now();
         let index           = AssetLib/S4Lite/Utils.getStartUid();
@@ -62,18 +62,18 @@ namespace AssetLib/GenS4/GenEquiMonad {
                             };
         Ok((uxl, ans))
 
-    pub def execGenEquiMonad(mx: GenEquiMonad[a]): Result[UxlSource, String] & Impure = 
-        runGenEquiMonad(mx) |> Result.map(fst)
+    pub def execGenMonad(mx: GenMonad[a]): Result[UxlSource, String] & Impure = 
+        runGenMonad(mx) |> Result.map(fst)
 
-    pub def return(x: a): GenEquiMonad[a] = 
-        GenEquiMonad((st, w, _) -> Ok((st, w, x)) as & Impure)
+    pub def return(x: a): GenMonad[a] = 
+        GenMonad((st, w, _) -> Ok((st, w, x)) as & Impure)
 
-    def apply1(x: GenEquiMonad[a], st: Int32, w: Output, r: Env): Result[(Int32, Output, a), String] & Impure =
-        let GenEquiMonad(f) = x;
+    def apply1(x: GenMonad[a], st: Int32, w: Output, r: Env): Result[(Int32, Output, a), String] & Impure =
+        let GenMonad(f) = x;
         f(st, w, r)
 
-    pub def map(f: a -> b & ef, x: GenEquiMonad[a]): GenEquiMonad[b] =
-        GenEquiMonad((st, w, r) -> 
+    pub def map(f: a -> b & ef, x: GenMonad[a]): GenMonad[b] =
+        GenMonad((st, w, r) -> 
             match apply1(x, st, w, r) {
                 case Ok((st1, w1, a)) => {
                     let ans = f(a) as & Impure;
@@ -84,8 +84,8 @@ namespace AssetLib/GenS4/GenEquiMonad {
         )  
 
 
-    pub def ap(mf: GenEquiMonad[a -> b & ef], ma: GenEquiMonad[a]): GenEquiMonad[b] = 
-        GenEquiMonad((st, w, r) -> 
+    pub def ap(mf: GenMonad[a -> b & ef], ma: GenMonad[a]): GenMonad[b] = 
+        GenMonad((st, w, r) -> 
             match apply1(mf, st, w, r) {
                 case Ok((st1, w1, f)) => 
                     match apply1(ma, st1, w1, r) { 
@@ -96,8 +96,8 @@ namespace AssetLib/GenS4/GenEquiMonad {
             })
 
 
-    pub def seqLeft(ma: GenEquiMonad[a], mb: GenEquiMonad[b]): GenEquiMonad[a] = 
-        GenEquiMonad((st, w, r) -> 
+    pub def seqLeft(ma: GenMonad[a], mb: GenMonad[b]): GenMonad[a] = 
+        GenMonad((st, w, r) -> 
             match apply1(ma, st, w, r) { 
                 case Ok((st1, w1, a)) => 
                     match apply1(mb, st1, w1, r) {
@@ -107,103 +107,110 @@ namespace AssetLib/GenS4/GenEquiMonad {
                 case Err(e) => Err(e)
             })
 
-    pub def seqRight(ma: GenEquiMonad[a], mb: GenEquiMonad[b]): GenEquiMonad[b] = 
-        GenEquiMonad((st, w, r) ->  
+    pub def seqRight(ma: GenMonad[a], mb: GenMonad[b]): GenMonad[b] = 
+        GenMonad((st, w, r) ->  
             match apply1(ma, st, w, r) {  
                 case Ok((st1, w1, _)) => apply1(mb, st1, w1, r)
                 case Err(e) => Err(e)
             })
 
 
-    pub def bind(x: GenEquiMonad[a], k: a -> GenEquiMonad[b]): GenEquiMonad[b] = 
-        GenEquiMonad((st, w, r) -> 
+    pub def bind(x: GenMonad[a], k: a -> GenMonad[b]): GenMonad[b] = 
+        GenMonad((st, w, r) -> 
             match apply1(x, st, w, r) {
                 case Ok((st1, w1, a)) => { let ans = k(a); apply1(ans, st1, w1, r) }
                 case Err(e) => Err(e)
             }
         )
 
-    pub def flatMap(k: a -> GenEquiMonad[b], x: GenEquiMonad[a]): GenEquiMonad[b] = bind(x, k)
+    pub def flatMap(k: a -> GenMonad[b], x: GenMonad[a]): GenMonad[b] = bind(x, k)
 
 
-    pub def kleisliLeft(f1: a -> GenEquiMonad[b], f2: b -> GenEquiMonad[c], x: a): GenEquiMonad[c] =
-        GenEquiMonad((st, w, r) -> 
+    pub def kleisliLeft(f1: a -> GenMonad[b], f2: b -> GenMonad[c], x: a): GenMonad[c] =
+        GenMonad((st, w, r) -> 
             match apply1(f1(x), st, w, r) { 
                 case Ok((st1, w1, a)) => apply1(f2(a), st1, w1, r)
                 case Err(e) => Err(e)
             })
 
-    pub def kleisliRight(f1: b -> GenEquiMonad[c], f2: a -> GenEquiMonad[b], x: a): GenEquiMonad[c] =
+    pub def kleisliRight(f1: b -> GenMonad[c], f2: a -> GenMonad[b], x: a): GenMonad[c] =
         kleisliLeft(f2, f1, x)
 
 
-    pub def alt(ma: GenEquiMonad[a], mb: GenEquiMonad[a]): GenEquiMonad[a] =
-        GenEquiMonad((st, w, r) -> 
+    pub def alt(ma: GenMonad[a], mb: GenMonad[a]): GenMonad[a] =
+        GenMonad((st, w, r) -> 
             match apply1(ma, st, w, r) { 
                 case Ok((st1, w1, a)) => Ok((st1, w1, a))
                 case Err(_) => apply1(mb, st, w, r)
             })
 
 
-    pub def genEqui(f: (String, Time.LocalDate) -> SLEquipment & ef): GenEquiMonad[EquiRef] = 
-        GenEquiMonad((st, w, r) -> 
+
+    pub def liftAction(f: Unit ~> a): GenMonad[a] = 
+        GenMonad((st, w, _) -> 
+            let ans = f() as & Impure;
+            Ok((st, w, ans))
+        )
+
+
+    pub def genEqui(f: (String, Time.LocalDate) -> SLEquipment & ef): GenMonad[EquiRef] = 
+        GenMonad((st, w, r) -> 
             let equiId = "$" + ToString.toString(st);
             let equi = f(equiId, r) as & Impure;
             let w1 = {equipment = Chain.snoc(w.equipment, equi) | w};
             Ok((st + 1, w1, EquiRef(equiId)))
         )  
 
-
-    pub def liftAction(f: Unit ~> a): GenEquiMonad[a] = 
-        GenEquiMonad((st, w, _) -> 
-            let ans = f() as & Impure;
-            Ok((st, w, ans))
-        )
-
-
-    pub def appendCharacteristics(cs: Chain[SLEquiCharacteristic]): GenEquiMonad[Unit] = 
-        GenEquiMonad((st, w, _) ->  
+    /// In this instance it might be nicer to pass `#{EquiCharacteristics | r}` then
+    /// were aren't leaking `Chain[SLEquiCharacteristic]` 
+    ///
+    /// > pub def appendCharacteristics(cs: #{EquiCharacteristics | r}): GenMonad[Unit] = 
+    /// 
+    pub def appendCharacteristics(cs: Chain[SLEquiCharacteristic]): GenMonad[Unit] = 
+        GenMonad((st, w, _) ->  
             let w1 = {characteristics = Chain.append(w.characteristics, cs) | w} as & Impure;        
             Ok((st, w1, ()))
         )
 
+    /// Maybe this is too specific to be defined here. 
+    /// Might just be needed for ProductData/Cad...
     pub def equiCharacteristicsSkeleton(makeFacts: EquiRef -> row -> #{| reln}, 
                                     genChars: #{| reln} ~> Chain[SLEquiCharacteristic], 
-                                    xs: List[(EquiRef, row)]): GenEquiMonad[Unit] =
+                                    xs: List[(EquiRef, row)]): GenMonad[Unit] =
         let facts   = Relation.foldMap(uncurry(makeFacts), xs);
         let* chars  = liftAction(_ -> genChars(facts));
         appendCharacteristics(chars)
 
     /// Alias for `seqRight`
-    pub def *>(p1: GenEquiMonad[a], p2: GenEquiMonad[b]): GenEquiMonad[b] = seqRight(p1, p2)
+    pub def *>(p1: GenMonad[a], p2: GenMonad[b]): GenMonad[b] = seqRight(p1, p2)
 
     /// Alias for `seqLeft`
-    pub def <*(p1: GenEquiMonad[a], p2: GenEquiMonad[b]): GenEquiMonad[a] = seqLeft(p1, p2)
+    pub def <*(p1: GenMonad[a], p2: GenMonad[b]): GenMonad[a] = seqLeft(p1, p2)
 
     /// Haskell's <|>
-    pub def <!>(p1: GenEquiMonad[a], p2: GenEquiMonad[a]): GenEquiMonad[a] =
+    pub def <!>(p1: GenMonad[a], p2: GenMonad[a]): GenMonad[a] =
         alt(p1, p2)
 
     // Haskell's <$>
-    pub def <&>(f: a -> b, p2: GenEquiMonad[a]): GenEquiMonad[b] =
+    pub def <&>(f: a -> b, p2: GenMonad[a]): GenMonad[b] =
         map(f, p2)
 
-    pub def <&(x: b, p2: GenEquiMonad[a]): GenEquiMonad[b] =
+    pub def <&(x: b, p2: GenMonad[a]): GenMonad[b] =
         p2 *> return(x)
 
     /// Alias for `bind`
-    pub def >>=(ma: GenEquiMonad[a], k: a -> GenEquiMonad[b]): GenEquiMonad[b] = bind(ma, k)
+    pub def >>=(ma: GenMonad[a], k: a -> GenMonad[b]): GenMonad[b] = bind(ma, k)
 
     /// Alias for `flatMap` (flipped `bind`)
-    pub def =<<(k: a -> GenEquiMonad[b], ma: GenEquiMonad[a]): GenEquiMonad[b] = flatMap(k, ma)
+    pub def =<<(k: a -> GenMonad[b], ma: GenMonad[a]): GenMonad[b] = flatMap(k, ma)
 
 
-    pub def mapM(mf: a -> GenEquiMonad[b], xs: List[a]): GenEquiMonad[List[b]] =
-        GenEquiMonad((st, w, r) -> 
+    pub def mapM(mf: a -> GenMonad[b], xs: List[a]): GenMonad[List[b]] =
+        GenMonad((st, w, r) -> 
             mapMHelper(st, w, r, mf, xs, e -> Err(e), (kst, kw, ks) -> Ok((kst, kw, ks)))
         )
 
-    /// (Int32, Output, AssetLib/GenS4/GenEquiMonad.Env) ~> Result[(Int32, Output, a), String]
+    /// (Int32, Output, AssetLib/GenS4/GenMonad.Env) ~> Result[(Int32, Output, a), String]
 
     ///
     /// Helper function for `mapM`.
@@ -211,7 +218,7 @@ namespace AssetLib/GenS4/GenEquiMonad {
     def mapMHelper(st: Int32, 
                     w: Output,
                     r: Env,
-                    mf: a -> GenEquiMonad[b], 
+                    mf: a -> GenMonad[b], 
                     xs: List[a], 
                     fk: String -> Result[(Int32, Output, List[b]), String], 
                     sk: (Int32, Output, List[b]) -> Result[(Int32, Output, List[b]), String]): Result[(Int32, Output, List[b]), String] & Impure =

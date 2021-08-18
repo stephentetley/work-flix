@@ -36,7 +36,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Liac {
         Ok(ans) 
 
 
-    /// Note LOCATION_ON_SITE already created.
+    /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def liac(input: #{EquiWorkItem3, WorkLoad, TestCertNo, 
                             YWRef, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{

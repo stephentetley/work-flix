@@ -22,9 +22,9 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ValveSize};
-    use AssetLib/GenS4.GenEquiMonad;
-    use AssetLib/GenS4/GenEquiMonad.EquiRef;
-    use AssetLib/GenS4/GenEquiMonad.EquiRef.{EquiRef};
+    use AssetLib/GenS4.GenMonad;
+    use AssetLib/GenS4/GenMonad.EquiRef;
+    use AssetLib/GenS4/GenMonad.EquiRef.{EquiRef};
     use AssetLib/ProductData/Base/Classification.{ObjectClassification};
     use AssetLib/ProductData/Cad/EquipmentCommon.{EquipmentCommon};
 
@@ -57,30 +57,29 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
     }
 
 
-    pub def generateMixerFlocculators(xs: List[MixerFlocculatorRow]): GenEquiMonad[Unit] = 
-        use AssetLib/GenS4/GenEquiMonad.{flatMap, return, mapM};
-        use AssetLib/GenS4/GenEquiMonad.{>>=};
+    pub def generateMixerFlocculators(xs: List[MixerFlocculatorRow]): GenMonad[Unit] = 
+        use AssetLib/GenS4/GenMonad.{flatMap, return, mapM};
+        use AssetLib/GenS4/GenMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
         let* scrnPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
         let eqbPairs    = List.map(xy -> {let (x,y) = xy; (x, y.equipmentBody)}, scrnPairs);
         let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAibReference(eqbPairs);
         let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAssetCondition(eqbPairs);
-        /// let* _          = genScreenScrc(scrnPairs);
-        /// let* _          = genScreenScrf(scrnPairs);
+        /// let* _          = genMixerMixr(scrnPairs);
         return()
 
 
-    /// # Scrc / Scrf
+    /// # Mixr
 
-    /// def genValveValv(xs: List[(EquiRef, ScreenRow)]): GenEquiMonad[Unit] =
-    ///     AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(valveValvFacts, AssetLib/GenS4/Rules/Characteristics/Valv.valv, xs)
+    /// def genMixerMixr(xs: List[(EquiRef, ScreenRow)]): GenMonad[Unit] =
+    ///     AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(valveValvFacts, AssetLib/GenS4/Rules/Characteristics/Valv.valv, xs)
 
-    /// def valveValvFacts(x: EquiRef, valve: ScreenRow): #{EquiWorkItem3, ValveSize | r} = 
-    ///     AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-    ///         Relation.when(valve.equipmentBody.objectName == "VALV", {
-    ///             let z1 = #{ EquiWorkItem3(x1, valve.equipmentBody.objectName, valve.equipmentBody.className). };
-    ///             let z2 = Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
-    ///             z1 <+> z2
-    ///         }))
+    /// def mixerMixracts(x: EquiRef, valve: ScreenRow): #{EquiWorkItem3, ValveSize | r} = 
+    ///     let EquiRef(x1) = x;
+    ///     Relation.when(valve.equipmentBody.objectName == "MIXR", {
+    ///         let z1 = #{ EquiWorkItem3(x1, valve.equipmentBody.objectName, valve.equipmentBody.className). };
+    ///         let z2 = Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
+    ///         z1 <+> z2
+    ///     })
 
 }

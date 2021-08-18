@@ -24,9 +24,9 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear, 
         Flow, DutyHead, ImpellerType};
-    use AssetLib/GenS4.GenEquiMonad;
-    use AssetLib/GenS4/GenEquiMonad.EquiRef;
-    use AssetLib/GenS4/GenEquiMonad.EquiRef.{EquiRef};
+    use AssetLib/GenS4.GenMonad;
+    use AssetLib/GenS4/GenMonad.EquiRef;
+    use AssetLib/GenS4/GenMonad.EquiRef.{EquiRef};
     use AssetLib/ProductData/Base/Classification.{ObjectClassification};
     use AssetLib/ProductData/Cad/EquipmentCommon.{EquipmentCommon};
 
@@ -85,9 +85,9 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     }
 
 
-    pub def generatePumps(xs: List[PumpRow]): GenEquiMonad[Unit] = 
-        use AssetLib/GenS4/GenEquiMonad.{flatMap, return, mapM};
-        use AssetLib/GenS4/GenEquiMonad.{>>=};
+    pub def generatePumps(xs: List[PumpRow]): GenMonad[Unit] = 
+        use AssetLib/GenS4/GenMonad.{flatMap, return, mapM};
+        use AssetLib/GenS4/GenMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
         let* pumpPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
         let eqbPairs    = List.map(xy -> {let (x,y) = xy; (x, y.equipmentBody)}, pumpPairs);
@@ -101,19 +101,19 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
 
     /// # Pump (not pums)
 
-    def genPumpPump(xs: List[(EquiRef, PumpRow)]): GenEquiMonad[Unit] =
-        AssetLib/GenS4/GenEquiMonad.equiCharacteristicsSkeleton(pumpPumpFacts, AssetLib/GenS4/Rules/Characteristics/Pump.pump, xs)
+    def genPumpPump(xs: List[(EquiRef, PumpRow)]): GenMonad[Unit] =
+        AssetLib/GenS4/GenMonad.equiCharacteristicsSkeleton(pumpPumpFacts, AssetLib/GenS4/Rules/Characteristics/Pump.pump, xs)
 
     def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, Flow, DutyHead, 
                                                     ImpellerType | r} = 
-        AssetLib/GenS4/GenEquiMonad.withEquiRef(x, x1 -> 
-            Relation.when(pump.equipmentBody.objectName == "PUMP", {
-                let z1 = #{ EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). };
-                let z2 = Relation.optional(pump.flowLS,                d -> #{ Flow(x1, d, "LITRES PER SECOND"). });
-                let z3 = Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
-                let z4 = Relation.whenNot(String.isEmpty(pump.impellerType), #{ ImpellerType(x1, pump.impellerType). });
-                z1 <+> z2 <+> z3 <+> z4
-            }))
+        let EquiRef(x1) = x;
+        Relation.when(pump.equipmentBody.objectName == "PUMP", {
+            let z1 = #{ EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). };
+            let z2 = Relation.optional(pump.flowLS,                d -> #{ Flow(x1, d, "LITRES PER SECOND"). });
+            let z3 = Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
+            let z4 = Relation.whenNot(String.isEmpty(pump.impellerType), #{ ImpellerType(x1, pump.impellerType). });
+            z1 <+> z2 <+> z3 <+> z4
+        })
 
 
 }
