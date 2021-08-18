@@ -88,7 +88,7 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     pub rel DutyHead(itemId: String, size: Float64, units: String)
     
-    pub rel PumpFlow(itemId: String, flow: Float64, units: String)
+    pub rel Flow(itemId: String, flow: Float64, units: String)
 
     pub rel ImpellerType(itemId: String, impellerType: String)
 

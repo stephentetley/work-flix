@@ -33,6 +33,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Utils {
         case _ => -1.0f64
     }
 
+
+    pub def recognizedWorkLoadUnit(s: String): Bool = match s { 
+        case "KILOGRAM" => true
+        case "MAN" => true
+        case _ => false
+    }
+
+    
+    pub def workLoadUnits(s: String): String = match s { 
+        case "KILOGRAM" => "KG"
+        case "MAN" => "MAN"
+        case _ => ""
+    }
+
     pub def iEqual(x: Float64, y: Int32): Bool = 
         let y1 = Int32.toFloat64(y);
         tEqual(0.01f64, x, y1)

@@ -39,6 +39,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
     /// Note LOCATION_ON_SITE already created.
     pub def crht(input: #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, 
                             EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+        use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedWorkLoadUnit, workLoadUnits};
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "CRHT", s4Class),
@@ -51,29 +52,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
             EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
                 EquiWorkItem3(equiId, "CRHT", s4Class),
                 WorkLoad(equiId, load, units),
-                if recognizedLoadUnit(units).
+                if recognizedWorkLoadUnit(units).
 
-            EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD_UNITS", 1, S4String(loadUnit(units))) :-
+            EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD_UNITS", 1, S4String(workLoadUnits(units))) :-
                 EquiWorkItem3(equiId, "CRHT", s4Class),
                 WorkLoad(equiId, _, units),
-                if recognizedLoadUnit(units).
+                if recognizedWorkLoadUnit(units).
 
         }; 
         solve (rules <+> input) project EquiCharacteristic
             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
 
-    def recognizedLoadUnit(s: String): Bool = match s { 
-        case "KILOGRAM" => true
-        case "MAN" => true
-        case _ => false
-    }
-
-    
-    def loadUnit(s: String): String = match s { 
-        case "KILOGRAM" => "KG"
-        case "MAN" => "MAN"
-        case _ => ""
-    }
 
 
 }

@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/Base/CommonRelations.{DiaphragmMaterial, 
-        DutyHead, PumpFlow, ImpellerType, PumpLiftingType, RatingPower};
+        DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
@@ -39,12 +39,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
 
 
     pub def pums(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead,
-                            PumpFlow, ImpellerType, PumpLiftingType, RatingPower, 
+                            Flow, ImpellerType, PumpLiftingType, RatingPower, 
                             EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMS_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMS", s4Class),
-                PumpFlow(equiId, flow, units),
+                Flow(equiId, flow, units),
                 if recognizedFlowUnits(units).
 
             EquiCharacteristic(equiId, s4Class, "PUMS_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
