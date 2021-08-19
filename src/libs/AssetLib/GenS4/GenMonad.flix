@@ -33,11 +33,7 @@ namespace AssetLib/GenS4/GenMonad {
     /// Potentially Env should be open to the user: `Env[e] = (Time.LocalDate, e)`
     type alias Env = Time.LocalDate
 
-    type alias Output = 
-        { equipment: Chain[SLEquipment]
-        , longText: Chain[SLEquiLongText]
-        , characteristics: Chain[SLEquiCharacteristic]
-        }
+    type alias Output = UxlSource
 
     pub opaque type EquiRef = String
 
@@ -49,17 +45,10 @@ namespace AssetLib/GenS4/GenMonad {
 
     pub def runGenMonad(mx: GenMonad[a]): Result[(UxlSource, a), String] & Impure = 
         use Result.flatMap;
-        let today           = Time/LocalDate.now();
-        let index           = AssetLib/S4Lite/Utils.getStartUid();
-        let acc             = {equipment = Chain.empty(), longText = Chain.empty(), characteristics = Chain.empty()};
-        let* ((_, w, ans))  = apply1(mx, index, acc, today);
-        let uxl             = {funclocs                 = Chain.empty()
-                            , funclocLongTexts          = Chain.empty()
-                            , funclocCharacteristics    = Chain.empty()
-                            , equipment                 = w.equipment
-                            , equiLongTexts             = w.longText
-                            , equiCharacteristics       = w.characteristics
-                            };
+        let today               = Time/LocalDate.now();
+        let index               = AssetLib/S4Lite/Utils.getStartUid();
+        let acc                 = AssetLib/S4Lite/Datatypes.emptyUxlSource();
+        let* ((_, uxl, ans))    = apply1(mx, index, acc, today);
         Ok((uxl, ans))
 
     pub def execGenMonad(mx: GenMonad[a]): Result[UxlSource, String] & Impure = 
@@ -164,11 +153,11 @@ namespace AssetLib/GenS4/GenMonad {
     /// In this instance it might be nicer to pass `#{EquiCharacteristics | r}` then
     /// were aren't leaking `Chain[SLEquiCharacteristic]` 
     ///
-    /// > pub def appendCharacteristics(cs: #{EquiCharacteristics | r}): GenMonad[Unit] = 
+    /// > pub def appendEquiCharacteristics(cs: #{EquiCharacteristics | r}): GenMonad[Unit] = 
     /// 
-    pub def appendCharacteristics(cs: Chain[SLEquiCharacteristic]): GenMonad[Unit] = 
+    pub def appendEquiCharacteristics(cs: Chain[SLEquiCharacteristic]): GenMonad[Unit] = 
         GenMonad((st, w, _) ->  
-            let w1 = {characteristics = Chain.append(w.characteristics, cs) | w} as & Impure;        
+            let w1 = {equiCharacteristics = Chain.append(w.equiCharacteristics, cs) | w} as & Impure;        
             Ok((st, w1, ()))
         )
 
@@ -179,7 +168,7 @@ namespace AssetLib/GenS4/GenMonad {
                                     xs: List[(EquiRef, row)]): GenMonad[Unit] =
         let facts   = Relation.foldMap(uncurry(makeFacts), xs);
         let* chars  = liftAction(_ -> genChars(facts));
-        appendCharacteristics(chars)
+        appendEquiCharacteristics(chars)
 
     /// Alias for `seqRight`
     pub def *>(p1: GenMonad[a], p2: GenMonad[b]): GenMonad[b] = seqRight(p1, p2)

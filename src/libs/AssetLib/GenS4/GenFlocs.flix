@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/GenFlocs {
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(true, args, answers);
         Ok()
 
-
+    /// Move to GenMonad...
     /// Generate all characteristics 
     pub def generateFlocUxl(workList: XlsxSource): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
