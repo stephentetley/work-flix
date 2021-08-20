@@ -23,7 +23,7 @@ namespace ChangeDoc/Loader {
     use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow, Instruction, EntityType};
     use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};
     use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
-        AttrKey, CharDescrKey, AddrAttrKey};
+        AttrKey, ValuaKey, AddrAttrKey};
     use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
     use ChangeDoc/Datatypes.Instruction.{New, Change, Delete};
     
@@ -34,12 +34,22 @@ namespace ChangeDoc/Loader {
 
 
 
+    /// Sheet always called "Data"
+    pub def readChangeDoc(src: System.FilePath): Result[ChangeDoc, String] & Impure = 
+        let xlsx = {path = src, sheet = "Data"};
+        SheetIO/Reader.readSomeRows(xlsx, evalChangeRow())
 
-    pub def readChangeDoc(src: XlsxSource): Result[ChangeDoc, String] & Impure = 
-        SheetIO/Reader.readSomeRows(src, evalRow())
+    /// Needs a Change Request export of the Functional Location tab...
+    /// Sheet always called "Data"
+    ///
+    pub def readFlocMapping(src: System.FilePath): Result[Map[String, String], String] & Impure = 
+        use SheetIO/NamedRowEvaluator.{tuple2, getTrimmedContentNamed};
+        let xlsx = {path = src, sheet = "Data"};
+        let evalRow = tuple2(getTrimmedContentNamed("Int. Functional Location"), getTrimmedContentNamed("Functional Location"));
+        SheetIO/Reader.readAllNamedRows(xlsx, evalRow) |> Result.map(List.toMap)
 
 
-    def evalRow(): RowEvaluator[Option[ChangeRow]] =
+    def evalChangeRow(): RowEvaluator[Option[ChangeRow]] =
         use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
         use SheetIO/RowEvaluator.{>>=};
         let* entityType     = optional(getEntityType());
@@ -100,7 +110,7 @@ namespace ChangeDoc/Loader {
         let* counter        = getIntCounter();
         let* change         = optional(getInstruction()); 
         match (attribute, change) {
-            case ("Description", Some(instr)) => return(Some(ChangeRow(CharDescrKey(entityType, itemId, charName, counter), instr)))
+            case ("Description", Some(instr)) => return(Some(ChangeRow(ValuaKey(entityType, itemId, charName, counter), instr)))
             case _ => return(None)
         }
 
@@ -111,8 +121,8 @@ namespace ChangeDoc/Loader {
         let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
         let* number         = getAddressNumber(entityType);
         let* change         = optional(getInstruction()); 
-        match (attribute, change) {
-            case ("Description", Some(instr)) => return(Some(ChangeRow(AddrAttrKey(entityType, itemId, attribute, number), instr)))
+        match change {
+            case Some(instr) => return(Some(ChangeRow(AddrAttrKey(entityType, itemId, attribute, number), instr)))
             case _ => return(None)
         }
 

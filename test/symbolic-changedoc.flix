@@ -20,8 +20,7 @@ def test01(): Unit & Impure =
 
 def test02(): Result[Unit, String] & Impure =
     use Result.flatMap;
-    let src         = {path = System/FilePath.new("G:/work/assets/change-requests/cr8600/cr8600-change-doc-attributes.xlsx")
-                        , sheet = "Data"};
-    let* patches    = ChangeDoc/Loader.readChangeDoc(src);
-    let _           = ChangeDoc/Interpreter.interpret(patches) |> println;
+    let changeSource    = System/FilePath.new("G:/work/assets/change-requests/cr8600/cr8600-change-doc-attributes.xlsx");
+    let* patches    = ChangeDoc/Loader.readChangeDoc(changeSource);
+    let _           = ChangeDoc/Interpreter.interpret(patches) |> Map.foreach((k, v) -> Console.printLine("${k} -> ${v}"));
     Ok()

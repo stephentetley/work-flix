@@ -170,6 +170,10 @@ namespace AssetLib/GenS4/GenMonad {
         let* chars  = liftAction(_ -> genChars(facts));
         appendEquiCharacteristics(chars)
 
+
+    /// Alias for `ap`
+    pub def <*>(p1: GenMonad[a -> b], p2: GenMonad[a]): GenMonad[b] = ap(p1, p2)
+
     /// Alias for `seqRight`
     pub def *>(p1: GenMonad[a], p2: GenMonad[b]): GenMonad[b] = seqRight(p1, p2)
 

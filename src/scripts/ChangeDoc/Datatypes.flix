@@ -36,7 +36,7 @@ namespace ChangeDoc/Datatypes {
         case NameKey(EntityType, ItemId)             
         case ClassKey(EntityType, ItemId, ClassName)
         case AttrKey(EntityType, ItemId, AttributeName)
-        case CharDescrKey(EntityType, ItemId, CharId, IntCounter)
+        case ValuaKey(EntityType, ItemId, CharId, IntCounter)
         case AddrAttrKey(EntityType, ItemId, AttributeName, AddressNumber)
     }
 
@@ -45,7 +45,7 @@ namespace ChangeDoc/Datatypes {
             case NameKey(x1, x2)                => "NameKey(${x1}, ${x2})"
             case ClassKey(x1, x2, x3)           => "ClassKey(${x1}, ${x2}, ${x3})"
             case AttrKey(x1, x2, x3)            => "AttrKey(${x1}, ${x2}, ${x3})"
-            case CharDescrKey(x1, x2, x3, x4)   => "CharDescrKey(${x1}, ${x2}, ${x3}, ${x4})"
+            case ValuaKey(x1, x2, x3, x4)       => "ValuaKey(${x1}, ${x2}, ${x3}, ${x4})"
             case AddrAttrKey(x1, x2, x3, x4)    => "AddrAttrKey(${x1}, ${x2}, ${x3}, ${x4})"
         }
     }
@@ -55,8 +55,8 @@ namespace ChangeDoc/Datatypes {
             case (NameKey(x1, x2), NameKey(y1, y2))             => x1 == y1 and x2 == y2
             case (ClassKey(x1, x2, x3), ClassKey(y1, y2, y3))   => x1 == y1 and x2 == y2 and x3 == y3
             case (AttrKey(x1, x2, x3), AttrKey(y1, y2, y3))     => x1 == y1 and x2 == y2 and x3 == y3
-            case (CharDescrKey(x1, x2, x3, x4), CharDescrKey(y1, y2, y3, y4))   => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
-            case (AddrAttrKey(x1, x2, x3, x4), AddrAttrKey(y1, y2, y3, y4))     => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
+            case (ValuaKey(x1, x2, x3, x4), ValuaKey(y1, y2, y3, y4))       => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
+            case (AddrAttrKey(x1, x2, x3, x4), AddrAttrKey(y1, y2, y3, y4)) => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
             case _ => false
         }
     }
@@ -68,7 +68,7 @@ namespace ChangeDoc/Datatypes {
                 case (NameKey(x1, x2), NameKey(y1, y2))         => (x1 <=> y1) `thenCompare` lazy (x2 <=> y2)
                 case (NameKey(_, _), ClassKey(_, _, _))         => LessThan
                 case (NameKey(_, _), AttrKey(_, _, _))          => LessThan
-                case (NameKey(_, _), CharDescrKey(_, _, _, _))  => LessThan                
+                case (NameKey(_, _), ValuaKey(_, _, _, _))      => LessThan                
                 case (NameKey(_, _), AddrAttrKey(_, _, _, _))   => LessThan            
                 
 
@@ -77,7 +77,7 @@ namespace ChangeDoc/Datatypes {
                     (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
 
                 case (ClassKey(_, _, _), AttrKey(_, _, _))          => LessThan
-                case (ClassKey(_, _, _), CharDescrKey(_, _, _, _))  => LessThan
+                case (ClassKey(_, _, _), ValuaKey(_, _, _, _))      => LessThan
                 case (ClassKey(_, _, _), AddrAttrKey(_, _, _, _))   => LessThan
 
 
@@ -86,23 +86,23 @@ namespace ChangeDoc/Datatypes {
                 case (AttrKey(x1, x2, x3), AttrKey(y1, y2, y3))     => 
                     (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
 
-                case (AttrKey(_, _, _), CharDescrKey(_, _, _, _))   => LessThan
+                case (AttrKey(_, _, _), ValuaKey(_, _, _, _))       => LessThan
                 case (AttrKey(_, _, _), AddrAttrKey(_, _, _, _))    => LessThan
             
 
-                case (CharDescrKey(_, _, _, _), NameKey(_, _))             => GreaterThan
-                case (CharDescrKey(_, _, _, _), ClassKey(_, _, _))         => GreaterThan
-                case (CharDescrKey(_, _, _, _), AttrKey(_, _, _))          => GreaterThan
-                case (CharDescrKey(x1, x2, x3, x4), CharDescrKey(y1, y2, y3, y4))   => 
+                case (ValuaKey(_, _, _, _), NameKey(_, _))             => GreaterThan
+                case (ValuaKey(_, _, _, _), ClassKey(_, _, _))         => GreaterThan
+                case (ValuaKey(_, _, _, _), AttrKey(_, _, _))          => GreaterThan
+                case (ValuaKey(x1, x2, x3, x4), ValuaKey(y1, y2, y3, y4))   => 
                     (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3) `thenCompare` lazy (x4 <=> y4)
 
-                case (CharDescrKey(_, _, _, _), AddrAttrKey(_, _, _, _))    => LessThan
+                case (ValuaKey(_, _, _, _), AddrAttrKey(_, _, _, _))    => LessThan
                 
 
                 case (AddrAttrKey(_, _, _, _), NameKey(_, _))               => GreaterThan
                 case (AddrAttrKey(_, _, _, _), ClassKey(_, _, _))           => GreaterThan
                 case (AddrAttrKey(_, _, _, _), AttrKey(_, _, _))            => GreaterThan
-                case (AddrAttrKey(_, _, _, _), CharDescrKey(_, _, _, _))    => GreaterThan
+                case (AddrAttrKey(_, _, _, _), ValuaKey(_, _, _, _))        => GreaterThan
                 case (AddrAttrKey(x1, x2, x3, x4), AddrAttrKey(y1, y2, y3, y4)) =>
                     (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3) `thenCompare` lazy (x4 <=> y4)
 
@@ -171,6 +171,48 @@ namespace ChangeDoc/Datatypes {
             case (Floc, Equi)   => GreaterThan
         }
     }
+
+
+    pub enum Origin {
+        case Direct
+        case HSuperior
+        case RRef
+    }
+
+    instance ToString[Origin] {
+        pub def toString(x: Origin): String = match x {
+            case Direct     => "Equi"
+            case HSuperior  => "Floc"
+            case RRef       => "RRef"
+        }
+    }
+
+
+    instance Eq[Origin] {
+        pub def eq(x: Origin, y: Origin): Bool = match (x, y) {
+            case (Direct, Direct)       => true
+            case (HSuperior, HSuperior) => true
+            case (RRef, RRef)           => true
+            case (_, _)                 => false
+        }
+    }
+
+    instance Order[Origin] {
+        pub def compare(x: Origin, y: Origin): Comparison = match (x, y) {
+            case (Direct, Direct)       => EqualTo
+            case (Direct, HSuperior)    => LessThan
+            case (Direct, RRef)         => LessThan
+
+            case (HSuperior, Direct)    => GreaterThan
+            case (HSuperior, HSuperior) => EqualTo
+            case (HSuperior, RRef)      => LessThan
+
+            case (RRef, Direct)         => GreaterThan
+            case (RRef, HSuperior)      => GreaterThan
+            case (RRef, RRef)           => EqualTo
+        }
+    }
+
 
     pub enum CharValue {
         case S4String(String)
