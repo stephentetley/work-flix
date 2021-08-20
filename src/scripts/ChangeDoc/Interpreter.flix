@@ -15,7 +15,7 @@
  */
 
 
-namespace ChangeDoc/Interpret {
+namespace ChangeDoc/Interpreter {
 
     use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow, ChangeKey, Instruction, ValueState};
     use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};

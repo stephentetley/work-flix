@@ -22,9 +22,8 @@ namespace ChangeDoc/Loader {
 
     use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow, Instruction, EntityType};
     use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};
-    use ChangeDoc/Datatypes.ChangeKey.{EquiNameKey, FlocNameKey, 
-        EquiClassKey, FlocClassKey, EquiAttrKey, FlocAttrKey,
-        EquiCharDescrKey, FlocCharDescrKey, ZEquiaddrAttrKey, ZFuncloadAttrKey};
+    use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
+        AttrKey, CharDescrKey, AddrAttrKey};
     use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
     use ChangeDoc/Datatypes.Instruction.{New, Change, Delete};
     
@@ -46,22 +45,34 @@ namespace ChangeDoc/Loader {
         let* entityType     = optional(getEntityType());
         let* table          = getColumnIndex("R") >>= getTrimmedContentAt;
         match (entityType, table) {
-            case (Some(et1), "Text Table") => evalName(et1)
+            case (Some(et1), "Text Table") => evalNameChange(et1)
+            case (Some(Equi), "Table for Relationship CLASSEQUI") => evalClassChange(Equi)
+            case (Some(Floc), "Table for Relationship CLASSFLOC") => evalClassChange(Floc)
             case (_, _) => return(None)
         }
 
-    def evalName(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
+    def evalNameChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
         use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
         use SheetIO/RowEvaluator.{>>=};
-        let* equiId         = getColumnIndex("E") >>= getTrimmedContentAt;
+        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
         let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
         let* change         = optional(getInstruction()); 
-        match (attribute, entityType, change) {
-            case ("Description (medium text)", Equi, Some(instr)) => return(Some(ChangeRow(EquiNameKey(equiId), instr)))
-            case ("Description (medium text)", Floc, Some(instr)) => return(Some(ChangeRow(FlocNameKey(equiId), instr)))
-            case (_, _, _) => return(None)
+        match (attribute, change) {
+            case ("Description (medium text)", Some(instr)) => return(Some(ChangeRow(NameKey(entityType, itemId), instr)))
+            case (_, _) => return(None)
         }
 
+    def evalClassChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
+        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
+        use SheetIO/RowEvaluator.{>>=};
+        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
+        let* className      = getColumnIndex("G") >>= getTrimmedContentAt;
+        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
+        let* change         = optional(getInstruction()); 
+        match (attribute, change) {
+            case ("Status", Some(instr)) => return(Some(ChangeRow(ClassKey(entityType, itemId, className), instr)))
+            case (_, _) => return(None)
+        }
 
     def getInstruction(): RowEvaluator[Instruction] =
         use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, throwError};
