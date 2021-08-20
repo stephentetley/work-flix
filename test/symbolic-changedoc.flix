@@ -9,7 +9,7 @@ use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
     test01();
-    test02();
+    test02() |> println;
     0
 
 def test01(): Unit & Impure = 
