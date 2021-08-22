@@ -28,12 +28,18 @@ def test02(): Result[Unit, String] & Impure =
     let _           = st1 |> Map.foreach((k, v) -> Console.printLine("${k} -> ${v}"));
     let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
     let rules       = ChangeDoc/BuildRel.rules();
-    let database    = (relns <+> rules);
-    Console.printLine("Funcloc...");    
-    let _           = query database select (x1, x2, x3) from Funcloc(x1, x2, x3) |> Array.foreach(println);
-    Console.printLine("Equipment...");
-    let _           = query database select (x1, x2) from Equipment(x1, x2) |> Array.foreach(println);
+    let database    = (relns <+> rules<+> ChangeDoc/BuildRel.query1());
+    /// Console.printLine("Funcloc...");    
+    /// let _           = query database select (x1, x2, x3) from Funcloc(x1, x2, x3) |> Array.foreach(println);
+    /// Console.printLine("Equipment...");
+    /// let _           = query database select (x1, x2) from Equipment(x1, x2) |> Array.foreach(println);
     Console.printLine("ClassName...");
-    let _           = query (database <+> ChangeDoc/BuildRel.query1()) select (x1, x2) from ClassName(x1, x2) 
+    let _           = query database select (x1, x2) from ClassName(x1, x2) 
                         |> Array.foreach(println);
+    Console.printLine("buildFlocRows...");
+    let _           = ChangeDoc/Report1.buildFlocRows(database)
+                        |> List.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine);
+    Console.printLine("buildEquiRows...");
+    let _           = ChangeDoc/Report1.buildEquiRows(database)
+                        |> List.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine);
     Ok()
