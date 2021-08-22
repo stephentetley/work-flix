@@ -5,6 +5,7 @@ use ChangeDoc/Datatypes.Instruction.{New, Delete, Change};
 use ChangeDoc/Datatypes.ChangeKey.{NameKey};
 use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
 use ChangeDoc/Relations.{Funcloc, Equipment};
+use ChangeDoc/BuildRel.{ClassName};
 
 
 def main(_args: Array[String]): Int32 & Impure = 
@@ -27,10 +28,12 @@ def test02(): Result[Unit, String] & Impure =
     let _           = st1 |> Map.foreach((k, v) -> Console.printLine("${k} -> ${v}"));
     let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
     let rules       = ChangeDoc/BuildRel.rules();
-    Console.printLine("Funcloc...");
-    let arr1        = query (relns <+> rules) select (x1, x2, x3) from Funcloc(x1, x2, x3);
-    let _           = Array.foreach(println, arr1);
+    let database    = (relns <+> rules);
+    Console.printLine("Funcloc...");    
+    let _           = query database select (x1, x2, x3) from Funcloc(x1, x2, x3) |> Array.foreach(println);
     Console.printLine("Equipment...");
-    let arr2        = query (relns <+> rules) select (x1, x2) from Equipment(x1, x2);
-    let _           = Array.foreach(println, arr2);
+    let _           = query database select (x1, x2) from Equipment(x1, x2) |> Array.foreach(println);
+    Console.printLine("ClassName...");
+    let _           = query (database <+> ChangeDoc/BuildRel.query1()) select (x1, x2) from ClassName(x1, x2) 
+                        |> Array.foreach(println);
     Ok()

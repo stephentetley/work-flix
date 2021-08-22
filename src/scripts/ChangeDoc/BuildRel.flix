@@ -18,15 +18,47 @@
 namespace ChangeDoc/BuildRel {
     
     use ChangeDoc/Datatypes.{EntityType};
-    use ChangeDoc/Relations.{Funcloc, Equipment, FlocNameChange, EquiNameChange};
+    use ChangeDoc/Datatypes.EntityType.{Floc, Equi};
+    use ChangeDoc/Relations.{Funcloc, Equipment,
+        ObjectType, Attribute, Class, Characteristic,
+        NameChange, AttrChange, ClassChange, ValuaChange};
 
-    pub def rules(): #{Funcloc, Equipment, FlocNameChange, EquiNameChange | r} = #{
+
+
+    pub def rules(): #{Funcloc, Equipment, ObjectType, Attribute, Class, Characteristic,
+                        NameChange, AttrChange, ClassChange, ValuaChange | r} = #{
 
         Funcloc(itemId, "TODO", name) :-
-            FlocNameChange(itemId, name).
+            NameChange("Floc", itemId, name).
 
         Equipment(itemId, name) :- 
-            EquiNameChange(itemId, name).
+            NameChange("Equi", itemId, name).
+
+        ObjectType(itemId, value) :- 
+            AttrChange(itemId, "Object Type", value).
+
+        Attribute(itemId, name, value) :- 
+            AttrChange(itemId, name, value), 
+            if name != "Object Type".
+
+        Class(itemId, className) :- 
+            ClassChange(itemId, className).
+
+
+        Characteristic(itemId, name, intCounter, value) :-
+            ValuaChange(itemId, name, intCounter, value).
+
     }
+
+    pub rel ClassName(itemId: String, className: String)
+
+    pub def query1(): #{ClassChange, ObjectType, ClassName | r} = #{
+     
+        ClassName(itemId, className) :- 
+            ClassChange(itemId, className), 
+            ObjectType(itemId, objName),
+            if className `String.startsWith` objName.
+    }
+
 
 }

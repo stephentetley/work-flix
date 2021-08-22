@@ -25,25 +25,45 @@ namespace ChangeDoc/Relations {
         UpdateGlobal, DeleteGlobal};
     use ChangeDoc/Interpreter.{State};
     
+    /// entity should be "Floc" or "Equi"
+    pub rel NameChange(entity: String, itemId: String, name: String)
 
-    pub rel FlocNameChange(itemId: String, name: String)
-    pub rel EquiNameChange(itemId: String, name: String)
+    
+    pub rel AttrChange(itemId: String, name: String, value: String)
+    
+    pub rel ClassChange(itemId: String, className: String)
 
-
+    pub rel ValuaChange(itemId: String, charName: String, intCounter: Int32, value: String)
 
     pub rel Funcloc(internalId: String, functionalLocation: String, description: String)
 
     pub rel Equipment(equiId: String, description: String)
 
+    pub rel ObjectType(itemId: String, objType: String)
 
-    pub def makeChangeRelations(st: State): #{FlocNameChange, EquiNameChange | r} = 
+    pub rel Attribute(itemId: String, attrName: String, attrValue: String)
+
+    pub rel Class(itemId: String, name: String)
+
+    pub rel Characteristic(itemId: String, name: String, intCounter: Int32, value: String)
+
+    pub def makeChangeRelations(st: State): #{NameChange, AttrChange | r} = 
         Relation.foldMap(makeChangeRelation1, Map.toList(st))
 
-    def makeChangeRelation1(xy: (ChangeKey, ValueState)): #{FlocNameChange, EquiNameChange | r} = match xy { 
-        case (NameKey(Floc, itemId), CreateLocal(name)) => #{ FlocNameChange(itemId, name). }
-        case (NameKey(Floc, itemId), UpdateGlobal(name)) => #{ FlocNameChange(itemId, name). }
-        case (NameKey(Equi, itemId), CreateLocal(name)) => #{ EquiNameChange(itemId, name). }
-        case (NameKey(Equi, itemId), UpdateGlobal(name)) => #{ EquiNameChange(itemId, name). }
+    /// To do this should make relations that include value "state".
+    def makeChangeRelation1(xy: (ChangeKey, ValueState)): #{NameChange, AttrChange | r} = match xy { 
+        case (NameKey(entity, itemId), CreateLocal(name)) => #{ NameChange("${entity}", itemId, name). }
+        case (NameKey(entity, itemId), UpdateGlobal(name)) => #{ NameChange("${entity}", itemId, name). }
+
+        case (ClassKey(_, itemId, className), CreateLocal("1")) => #{ ClassChange(itemId, className). }
+        case (ClassKey(_, itemId, className), UpdateGlobal("1")) => #{ ClassChange(itemId, className). }
+
+        case (AttrKey(_, itemId, name), CreateLocal(value)) => #{ AttrChange(itemId, name, value). }
+        case (AttrKey(_, itemId, name), UpdateGlobal(value)) => #{ AttrChange(itemId, name, value). }
+
+        case (ValuaKey(_, itemId, name, intCount), CreateLocal(value)) => #{ ValuaChange(itemId, name, intCount, value). }
+        case (ValuaKey(_, itemId, name, intCount), UpdateGlobal(value)) => #{ ValuaChange(itemId, name, intCount, value). }
+
         case (_,_) => #{}
 
     }
