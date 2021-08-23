@@ -47,7 +47,7 @@ namespace ChangeDoc/Report1 {
         List.map(updateAttrs, xs)
             |> List.sortBy(x1 -> x1.internalFloc)
         
-    def makeFlocRow1(x: (String, String, String)): {FlocRow} = 
+    def makeFlocRow1(x: (String, String, String)): FlocRow = 
         let (x1, x2, x3) = x;
         { internalFloc          = x1
         , functionalLocation    = x2

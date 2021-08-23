@@ -211,7 +211,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <&> getContentNamed("Equi")                             /// equiId
             <*> getContentNamed("Eqtyp")                            /// equipCategory
             <*> getContentNamed("Txtmi")                            /// description
-            <*> getS4LocalDateNamed("DATA_EEQZ")                    /// validFrom
+            <*> getS4LocalDateNamed("DataEeqz")                    /// validFrom
             <*> getContentNamed("EqartEqu")                         /// objectType
             <*> optional(getFloat64Named("Brgew"))                  /// grossWeight
             <*> getContentNamed("Gewei")                            /// unitOfWeight
@@ -231,7 +231,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getInt32Named("WergwEqi")                           /// plantWorkCenter
             <*> getContentNamed("TplnEilo")                          /// functionalLoc
             <*> getContentNamed("HequEeqz")                          /// superordEquip
-            <*> getOptionInt32Named("HeqnEeqz")                     /// position
+            <*> optional(getInt32Named("HeqnEeqz"))                     /// position
             <*> getContentNamed("TidnEeqz")                          /// techIdentNo
             <*> getContentNamed("StsmEqui")                          /// statusProfile
             <*> getContentNamed("UstwEqui")                          /// statusOfAnObject
