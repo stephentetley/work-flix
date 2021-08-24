@@ -20,7 +20,7 @@ namespace ChangeDoc/Report1 {
     use SheetIO.RowSetter;
 
     use ChangeDoc/Relations.{Funcloc, Equipment, Attribute};
-
+    
     type alias FlocRow = 
         { internalFloc: String
         , functionalLocation: String
@@ -73,23 +73,12 @@ namespace ChangeDoc/Report1 {
         , attributes    = Map.empty()
         }
 
-    /// TODO simpler to insert into Map-of-Maps...
-    def makeAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
-        let fst3 = xyz -> {let (x1, _, _) = xyz; x1};
-        let makeGroup = ys -> match ys {
-            case Nil => bug!("makeAttributes - unlikely...")
-            case yyy :: rs => { 
-                let (y1, y2, y3) = yyy;
-                let ac1 = Map.singleton(y2, y3);
-                (y1, List.foldLeft((ac, zzz) -> {let (_, z2, z3) = zzz; Map.insert(z2, z3, ac)}, ac1, rs))
-            }
-        };
-        query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
-            |> Array.toList 
-            |> List.groupBy((x1, y1) -> fst3(x1) == fst3(y1))
-            |> List.map(makeGroup)
-            |> List.toMap
 
+    def makeAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
+        let key1of3 = xyz -> {let (x1, _, _) = xyz; x1};
+        let innerKV = xyz -> {let (_, y1, z1) = xyz; (y1, z1)};
+        query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
+            |> ChangeDoc/Organization.collectToMapM(key1of3, innerKV)
 
     pub def setFlocRow(x: FlocRow): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putOptionStringAt!};

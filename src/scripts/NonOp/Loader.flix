@@ -106,7 +106,10 @@ namespace AssetScripts/NonOp/Loader {
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((ah1, cm1, cn1, cd1, cq1, cr1, cj1, cv1, cp1, aa1, cb1, e1, m1, av1) -> 
-            if (String.startsWith(cm1, "PLI") and cn1 == false and ah1 != "CATCHMENT" and test(av1))
+            if (String.startsWith(cm1, "PLI") and cn1 == false and ah1 != "CATCHMENT" and test(av1)
+                    and cv1 != "EQUIPMENT: BUILDINGS + STRUCTURES" 
+                    and cv1 != "EQUIPMENT: MISCELLANEOUS ELECTRICAL PLANT"
+                    and cv1 != "EQUIPMENT: LAND AND GROUNDS")
                 Some({ plinum               = cm1
                     , commonName            = cd1
                     , manufacturer          = cq1
