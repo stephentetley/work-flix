@@ -3,7 +3,9 @@ use SheetIO.RowEvaluator;
 use SheetIO.SheetReader;
 use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 
-    
+/// WARNING
+/// The IH08 report (aib plinum => s4 equiId) needs remaking after plant-equipment has been uploaded
+/// G:/work/assets/non-op-bins/superequi-ih08-report.xlsx"
 
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -17,8 +19,8 @@ def main(_args: Array[String]): Int32 & Impure =
 
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , changeRequestName = "Subord Equipment for Existing Sites Batch ##"
-    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/existing-site-subord-equip-uxl-output##.xlsx")
+    , changeRequestName = "Subord Equipment for Added Sites Batch ##"
+    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/added-site-subord-equip-uxl-output##.xlsx")
     }
 
 
@@ -28,7 +30,7 @@ def main1(): Result[Unit, String] & Impure =
     let srcs            = 
         { aibReport = 
             { path = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx")
-            , sheet = "NonOpStatus_S4Presence" }
+            , sheet = "NonOpStatus_NoS4Presence" }
         , equipmentMapping = 
             { path = System/FilePath.new("G:/work/assets/non-op-bins/equipment-mapping3.xlsx")
             , sheet = "Equi_mapping" }
@@ -47,7 +49,7 @@ def main1(): Result[Unit, String] & Impure =
             { path = System/FilePath.new("G:/work/assets/non-op-bins/aib-nonop-pandi-tags.xlsx")
             , sheet = "Sheet1" }
         , ih08PliNumExport = 
-            Some({ path = System/FilePath.new("G:/work/assets/non-op-bins/superequi-ih08-report.xlsx")
+            Some({ path = System/FilePath.new("G:/work/assets/non-op-bins/superequi-ih08-reportXYZ.xlsx")
                 , sheet = "Sheet1"})
         };
     let* _              = AssetScripts/NonOp/SuperEqui.genPlantItemChilds(srcs, outputArgs);

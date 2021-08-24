@@ -18,21 +18,17 @@ def main(_args: Array[String]): Int32 & Impure =
 /// Need to be annotated with an index...
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , changeRequestName = "ACH Flocs for Existing Sites Batch ##"
-    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/existing-site-new-flocs-uxl-output##.xlsx")
+    , changeRequestName = "ACH Flocs for Added Sites Batch ##"
+    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/nonop-added-flocs2-ACH-uxl##.xlsx")
     }
 
 
 def main1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let outputArgs      = uxlOutputArgs();
-    let aibReport       = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx");
-    let sitesAIB        = System/FilePath.new("G:/work/assets/non-op-bins/InstallationsMapping_.xlsx");
-    let sitesEN         = System/FilePath.new("G:/work/assets/non-op-bins/allsites-ih06-east_north.xlsx");
-    let* siteMap        = AssetScripts/NonOp/Loader.readInstallationMapping({sheet = "Sheet1", path = sitesAIB});
-    let* eastNorthMap   = AssetScripts/NonOp/Loader.readSiteEastNorth({sheet = "Sheet1", path = sitesEN});
-    let worklist        = {sheet = "NonOpStatus_S4Presence", path = aibReport};
-    let* _              = AssetScripts/NonOp/AchFlocs.genFlocUxl(worklist, siteMap <+> eastNorthMap, outputArgs);
+    let worklist        = {sheet = "Sheet1", 
+                            path = System/FilePath.new("G:/work/assets/non-op-bins/gen-site-flocs-worklist.xlsx")};
+    let* _              = AssetScripts/NonOp/AchFlocs.genFlocUxl(worklist, outputArgs);
     Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
     Ok()
 

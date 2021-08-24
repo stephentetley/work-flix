@@ -18,8 +18,8 @@ def main(_args: Array[String]): Int32 & Impure =
 
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , changeRequestName = "Lifting equip for Existing Sites Batch ##"
-    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/existing-site-lift-equip-uxl-output##.xlsx")
+    , changeRequestName = "Lifting equip for Added Sites Batch ##"
+    , outpath = System/FilePath.new("G:/work/assets/non-op-bins/output/added-site-lift-equip-uxl-output##.xlsx")
     }
 
 
@@ -27,7 +27,7 @@ def main1(): Result[Unit, String] & Impure =
     use Result.{flatMap};
     let outputArgs      = uxlOutputArgs();
     let srcs            = 
-        { aibReport = { sheet = "NonOpStatus_S4Presence"
+        { aibReport = { sheet = "NonOpStatus_NoS4Presence"
             , path = System/FilePath.new("G:/work/assets/non-op-bins/AI2NonOp_S4ImportBatches.xlsx")}
         , equipmentMapping = { sheet = "Equi_mapping"
             , path = System/FilePath.new("G:/work/assets/non-op-bins/equipment-mapping3.xlsx")}
