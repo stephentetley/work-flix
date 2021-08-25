@@ -21,13 +21,13 @@ namespace ChangeDoc/Organization {
 
     /// Fix to Array or generalize to Foldable?
 
-    pub def collectToMapL(f: a -> k & ef, g: a -> b & ef, arr: Array[a]): Map[k, List[b]] & Impure with Order[k] = 
+    pub def collectToMapList(f: a -> k & ef, g: a -> b & ef, arr: Array[a]): Map[k, List[b]] & Impure with Order[k] = 
         collectToMapWith(f, Nil, (x1, xs) -> {let v1 = g(x1); v1 :: xs}, arr)
 
-    pub def collectToMapS(f: a -> k & ef, g: a -> b & ef, arr: Array[a]): Map[k, Set[b]] & Impure with Order[k], Order[b] = 
+    pub def collectToMapSet(f: a -> k & ef, g: a -> b & ef, arr: Array[a]): Map[k, Set[b]] & Impure with Order[k], Order[b] = 
         collectToMapWith(f, Set.empty(), (x1, s) -> {let v1 = g(x1); Set.insert(v1, s)}, arr)
 
-    pub def collectToMapM(f: a -> k & ef, g: a -> (k1, v1) & ef, arr: Array[a]): Map[k, Map[k1, v1]] & Impure with Order[k], Order[k1] = 
+    pub def collectToMapMap(f: a -> k & ef, g: a -> (k1, v1) & ef, arr: Array[a]): Map[k, Map[k1, v1]] & Impure with Order[k], Order[k1] = 
         collectToMapWith(f, Map.empty(), (x1, m) -> {let (k1, v1) = g(x1); Map.insert(k1, v1, m)}, arr)
 
     pub def collectToMapWith(f: a -> k & ef, zero: v, combine: (a, v) -> v & ef, arr: Array[a]): Map[k, v] & Impure with Order[k] = 
@@ -37,9 +37,10 @@ namespace ChangeDoc/Organization {
         };        
         Array.foldRight(step, Map.empty(), arr)
 
-
-    pub def zipWithAM(f: a -> k, g: (a, Option[v]) -> b & ef, 
-                        arr: Array[a], m: Map[k, v]): Array[b] & Impure with Order[k] = 
+    /// TODO - this is "just a map", we should "skeletonize" the parts of the mapped function
+    /// rather than provide a new combinator...
+    pub def elaborateWith(f: a -> k, g: (a, Option[v]) -> b & ef, 
+                        m: Map[k, v], arr: Array[a]): Array[b] & Impure with Order[k] = 
         let step = x1 -> {
             let k = f(x1);
             let v = Map.get(k, m);

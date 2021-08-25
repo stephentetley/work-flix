@@ -38,15 +38,17 @@ namespace ChangeDoc/Report1 {
 
 
     pub def buildFlocRows(db: #{Funcloc, Attribute | r}): List[FlocRow] & Impure = 
-        let xs      = query db select (x1, x2, x3) from Funcloc(x1, x2, x3) |> Array.toList |> List.map(makeFlocRow1);
-        let attrs   = makeAttributes(db);
-        let updateAttrs = row -> match Map.get(row.internalFloc, attrs) { 
+        let attrs = makeAttributes(db);
+        let updateAttrs = (row, opt) -> match opt { 
             case None => row
             case Some(attrs1) => {attributes = attrs1 | row}
         };
-        List.map(updateAttrs, xs)
-            |> List.sortBy(x1 -> x1.internalFloc)
-        
+        query db select (x1, x2, x3) from Funcloc(x1, x2, x3)
+            |> Array.map(makeFlocRow1)
+            |> ChangeDoc/Organization.elaborateWith(x1 -> x1.internalFloc, updateAttrs, attrs)
+            |> Array.toList
+
+
     def makeFlocRow1(x: (String, String, String)): FlocRow = 
         let (x1, x2, x3) = x;
         { internalFloc          = x1
@@ -57,15 +59,17 @@ namespace ChangeDoc/Report1 {
 
 
     pub def buildEquiRows(db: #{Equipment, Attribute | r}): List[EquiRow] & Impure = 
-        let xs      = query db select (x1, x2) from Equipment(x1, x2) |> Array.toList |> List.map(makeEquiRow1);
-        let attrs   = makeAttributes(db);
-        let updateAttrs = row -> match Map.get(row.equiId, attrs) { 
+        let attrs = makeAttributes(db);
+        let updateAttrs = (row, opt) -> match opt { 
             case None => row
             case Some(attrs1) => {attributes = attrs1 | row}
         };
-        List.map(updateAttrs, xs)
-            |> List.sortBy(x1 -> x1.equiId)
-        
+        query db select (x1, x2) from Equipment(x1, x2) 
+            |> Array.map(makeEquiRow1)
+            |> ChangeDoc/Organization.elaborateWith(x1 -> x1.equiId, updateAttrs, attrs)
+            |> Array.toList
+
+
     def makeEquiRow1(x: (String, String)): EquiRow = 
         let (x1, x2) = x;
         { equiId        = x1
@@ -78,7 +82,7 @@ namespace ChangeDoc/Report1 {
         let key1of3 = xyz -> {let (x1, _, _) = xyz; x1};
         let innerKV = xyz -> {let (_, y1, z1) = xyz; (y1, z1)};
         query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
-            |> ChangeDoc/Organization.collectToMapM(key1of3, innerKV)
+            |> ChangeDoc/Organization.collectToMapMap(key1of3, innerKV)
 
     pub def setFlocRow(x: FlocRow): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putOptionStringAt!};

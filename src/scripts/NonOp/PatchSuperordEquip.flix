@@ -60,10 +60,15 @@ namespace AssetScripts/NonOp/PatchSuperordEquip {
                             xs: List[SLEquipment]): EquipmentPatches & Impure = 
         let rules = #{
             
-            SuperordEquipPatch(workItemId, superordId) :- 
+            SuperordEquipPatch(workItemId, aibParent) :- 
                 WorkItemForSuperord(workItemId), 
-                AibPliNumToParent(workItemId, aibParent),
-                S4PliNumToEquiNum(aibParent, superordId).
+                AibPliNumToParent(workItemId, aibParent).
+                /// ATTENTION - this has been hacked for the final run of the script
+                /// We want to write the origin AI2 parent instead of the lookup so 
+                /// that we can generate the file in advance.
+                /// We will need to modify the output file "directly" once we know 
+                /// the s4 id.
+                /// S4PliNumToEquiNum(aibParent, superordId). 
 
         };
         let workitems = makeWorkItems(xs);
