@@ -37,16 +37,12 @@ namespace ChangeDoc/Report1 {
 
 
 
-    pub def buildFlocRows(db: #{Funcloc, Attribute | r}): List[FlocRow] & Impure = 
+    pub def buildFlocRows(db: #{Funcloc, Attribute | r}): Array[FlocRow] & Impure = 
         let attrs = makeAttributes(db);
-        let updateAttrs = (row, opt) -> match opt { 
-            case None => row
-            case Some(attrs1) => {attributes = attrs1 | row}
-        };
+        let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
         query db select (x1, x2, x3) from Funcloc(x1, x2, x3)
             |> Array.map(makeFlocRow1)
-            |> ChangeDoc/Organization.elaborateWith(x1 -> x1.internalFloc, updateAttrs, attrs)
-            |> Array.toList
+            |> ChangeDoc/Organization.updateWithLookup(x1 -> x1.internalFloc, updateAttrs, attrs)
 
 
     def makeFlocRow1(x: (String, String, String)): FlocRow = 
@@ -58,16 +54,12 @@ namespace ChangeDoc/Report1 {
         }
 
 
-    pub def buildEquiRows(db: #{Equipment, Attribute | r}): List[EquiRow] & Impure = 
+    pub def buildEquiRows(db: #{Equipment, Attribute | r}): Array[EquiRow] & Impure = 
         let attrs = makeAttributes(db);
-        let updateAttrs = (row, opt) -> match opt { 
-            case None => row
-            case Some(attrs1) => {attributes = attrs1 | row}
-        };
+        let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
         query db select (x1, x2) from Equipment(x1, x2) 
             |> Array.map(makeEquiRow1)
-            |> ChangeDoc/Organization.elaborateWith(x1 -> x1.equiId, updateAttrs, attrs)
-            |> Array.toList
+            |> ChangeDoc/Organization.updateWithLookup(x1 -> x1.equiId, updateAttrs, attrs)
 
 
     def makeEquiRow1(x: (String, String)): EquiRow = 

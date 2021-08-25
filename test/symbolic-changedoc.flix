@@ -38,8 +38,8 @@ def test02(): Result[Unit, String] & Impure =
                         |> Array.foreach(println);
     Console.printLine("buildFlocRows...");
     let _           = ChangeDoc/Report1.buildFlocRows(database)
-                        |> List.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine);
+                        |> Array.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine);
     Console.printLine("buildEquiRows...");
     let _           = ChangeDoc/Report1.buildEquiRows(database)
-                        |> List.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine);
+                        |> Array.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine);
     Ok()

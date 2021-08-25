@@ -37,9 +37,9 @@ namespace ChangeDoc/Organization {
         };        
         Array.foldRight(step, Map.empty(), arr)
 
-    /// TODO - this is "just a map", we should "skeletonize" the parts of the mapped function
-    /// rather than provide a new combinator...
-    pub def elaborateWith(f: a -> k, g: (a, Option[v]) -> b & ef, 
+    /// This is "just a `map` traversal" but it seems to merit a new combinator because we
+    /// want to highlight that we are combining with the (finite) Map...
+    pub def mapWithLookup(f: a -> k, g: (a, Option[v]) -> b & ef, 
                         m: Map[k, v], arr: Array[a]): Array[b] & Impure with Order[k] = 
         let step = x1 -> {
             let k = f(x1);
@@ -47,5 +47,38 @@ namespace ChangeDoc/Organization {
             g(x1, v) as & Impure
         };
         Array.map(step, arr)
+
+
+    pub def mapWithLookupAndIndex(f: a -> k, g: (a, Option[v], Int) -> b & ef, 
+                        m: Map[k, v], arr: Array[a]): Array[b] & Impure with Order[k] = 
+        let step = (x1, ix) -> {
+            let k = f(x1);
+            let v = Map.get(k, m);
+            g(x1, v, ix) as & Impure
+        };
+        Array.mapWithIndex(step, arr)
+
+    /// Simpler version of mapWithLookup
+    pub def updateWithLookup(f: a -> k, g: (a, v) -> a & ef, 
+                        m: Map[k, v], arr: Array[a]): Array[a] & Impure with Order[k] = 
+        let step = x1 -> {
+            let k = f(x1);
+            match Map.get(k, m) {
+                case None => x1
+                case Some(v1) => g(x1, v1) as & Impure
+            }
+        };
+        Array.map(step, arr)
+
+
+
+    pub def foldLeftWithLookup(f: a -> k, g: (b, a, Option[v]) -> b & ef, 
+                                initial: b, m: Map[k, v], arr: Array[a]): b & Impure with Order[k] = 
+        let step = (st, x1) -> {
+            let k = f(x1);
+            let v = Map.get(k, m);
+            g(st, x1, v) as & Impure
+        };
+        Array.foldLeft(step, initial, arr)        
 
 }

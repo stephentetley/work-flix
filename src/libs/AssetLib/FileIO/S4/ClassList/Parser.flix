@@ -26,11 +26,11 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
 
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{parseFile, return, failure, map, alt, liftResult, liftOption, swapError};
+    use FlixParsec/Prim.{parseFile, return, map, alt, throwError, liftResult, liftOption, swapError};
     use FlixParsec/Regex.{lookingAts};
     use FlixParsec/Combinators.{optional, manyWith};
     use FlixParsec/Text.{parseLine, restOfLine, restOfLineLength, content, anchorLine, upperLetters};
-    use FlixParsec/Token1.{lexeme, symbol, int32};
+    use FlixParsec/TokenSimple.{lexeme, symbol, int32};
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{SourceType, ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
     use AssetLib/FileIO/S4/ClassList/Datatypes.SourceType.{FlocClasses, EquiClasses};
@@ -48,14 +48,14 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         let* _  = symbol("Class List");
         let* d  = pDateStamp();
         let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
-        let* _  = anchorLine("\-{40,}");
+        let* _  = anchorLine("\\-{40,}");
         let* rows = manyWith(append, empty(), parseLine(classListRow(srctype), true));
         return({ dateStamp = d, rows = toList(rows)})
 
     def pDateStamp(): Parser[t1, LocalDate] = 
         use FlixParsec/Prim.{flatMap};
-        let* d = lexeme(lookingAts("\d{2}\.\d{2}\.\d{4}"));
-        let* fmt = liftOption(Time/Format/DateFormatter.fromPattern("dd.MM.yyyy"), "pDateStamp");
+        let* d = lexeme(lookingAts("\\d{2}\\.\\d{2}\\.\\d{4}"));
+        let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "pDateStamp");
         let* ans = liftOption(Time/LocalDate.parse(d, fmt), "pDateStamp");
         return(ans)
         
@@ -99,7 +99,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
             case ("DATE", _)        => return(Date(length))
             case ("NUM", None)      => return(NumInt(length))
             case ("NUM", Some(p))   => return(NumDecimal(length, p))
-            case _                  => failure("Unknown datatype: " + tyname)
+            case _                  => throwError("Unknown datatype: ${tyname}")
         }
 
     def valueLine(): Parser[t1, String] = 
@@ -107,11 +107,11 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
 
 
     def indentingLevel(): Parser[t1, Int32] = 
-        map(String.length, lookingAts("(\||\-|\s)+")) `swapError` "indentingLevel"
+        map(String.length, lookingAts("(\\||\\-|\\s)+")) `swapError` "indentingLevel"
 
     /// Utils
     
-    def append(x: Option[a], ac: DList[a]): DList[a] = 
+    def append(ac: DList[a], x: Option[a]): DList[a] = 
         use Data/Transient/DList.{snoc};
         match x { 
             case Some(a) => snoc(ac, a)
