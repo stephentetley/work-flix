@@ -40,8 +40,8 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
         match src { 
             case ClassRow(r1) :: rest => {
                 characteristicsList(rest, (cxs, rest1) -> 
-                    let c1 = { classType = r1.classType, name = r1.name
-                            , description = r1.description, characteristics = cxs };
+                    let c1 = {classtype = r1.classtype, name = r1.name, 
+                                description = r1.description, characteristics = cxs};
                     classesList(rest1, cs -> k(c1 :: cs)))
             }
             case _ => k(Nil)
@@ -51,8 +51,8 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
         match src { 
             case CharacteristicRow(r1) :: rest => {
                 listOfValuesList(rest, (vals, rest1) ->
-                    let c1 = {  name = r1.name, description = r1.description
-                            , datatype = r1.datatype, refinement = makeRefinement(vals) };
+                    let c1 = {name = r1.name, description = r1.description, 
+                                chartype = r1.chartype, refinement = makeRefinement(vals)};
                     characteristicsList(rest1, (cs, rest2) -> k(c1 :: cs, rest2)))
             }
             case xs => k(Nil, xs)

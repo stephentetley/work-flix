@@ -78,7 +78,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         let* name   = content(namelen);
         let* len    = restOfLineLength();
         let* desc   = if (len > desclen) content(desclen) else restOfLine(false);
-        return({ classType = ctype, name = name, description = desc })
+        return({name = name, description = desc, classtype = ctype})
 
     def characteristicLine(srctype: SourceType): Parser[t1, CharacteristicRow] =
         use FlixParsec/Prim.{flatMap};
@@ -87,7 +87,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         let* name   = content(namelen);
         let* desc   = content(desclen);
         let* dtype  = datatype();
-        return({ name = name, description = desc, datatype = dtype})
+        return({name = name, description = desc, chartype = dtype})
 
     def datatype(): Parser[t1, Datatype] = 
         use FlixParsec/Prim.{flatMap};
