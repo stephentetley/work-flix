@@ -23,6 +23,7 @@ def test01(): Unit & Impure =
 def test02(): Result[Unit, String] & Impure =
     use Result.flatMap;
     let changeSource    = System/FilePath.new("G:/work/assets/change-requests/cr8600/cr8600-change-doc-attributes.xlsx");
+    let changeDest      = System/FilePath.new("G:/work/assets/change-requests/cr8600/cr8600-report1.xlsx");
     let* patches    = ChangeDoc/Loader.readChangeDoc(changeSource);
     let st1         = ChangeDoc/Interpreter.interpret(patches);
     let _           = st1 |> Map.foreach((k, v) -> Console.printLine("${k} -> ${v}"));
@@ -38,8 +39,16 @@ def test02(): Result[Unit, String] & Impure =
                         |> Array.foreach(println);
     Console.printLine("buildFlocRows...");
     let _           = ChangeDoc/Report1.buildFlocRows(database)
-                        |> Array.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine);
+                        |> perform(Array.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine))
+                        |> ChangeDoc/Report1.writeFlocRows(changeDest);
     Console.printLine("buildEquiRows...");
     let _           = ChangeDoc/Report1.buildEquiRows(database)
-                        |> Array.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine);
+                        |> perform(Array.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine))
+                        |> ChangeDoc/Report1.addEquiRows(changeDest);
     Ok()
+
+
+def perform(f: a -> b & ef, x: a): a & ef = 
+    let _ = f(x);
+    x
+

@@ -15,7 +15,7 @@
  */
 
 
-namespace ChangeDoc/Organization {
+namespace Relation/Organization {
     
     /// pub def groupBy(f: (a, a) -> Bool, a: Array[a]): Array[Array[a]] & Impure =
 
@@ -23,6 +23,10 @@ namespace ChangeDoc/Organization {
 
     pub def collectToMapList(f: a -> k & ef, g: a -> b & ef, arr: Array[a]): Map[k, List[b]] & Impure with Order[k] = 
         collectToMapWith(f, Nil, (x1, xs) -> {let v1 = g(x1); v1 :: xs}, arr)
+
+    pub def collectToMapArray(f: a -> k & ef, g: a -> b & ef, arr: Array[a]): Map[k, Array[b]] & Impure with Order[k] = 
+        collectToMapWith(f, Nil, (x1, xs) -> {let v1 = g(x1); v1 :: xs}, arr)
+            |> Map.map(List.toArray)
 
     pub def collectToMapSet(f: a -> k & ef, g: a -> b & ef, arr: Array[a]): Map[k, Set[b]] & Impure with Order[k], Order[b] = 
         collectToMapWith(f, Set.empty(), (x1, s) -> {let v1 = g(x1); Set.insert(v1, s)}, arr)
@@ -80,5 +84,33 @@ namespace ChangeDoc/Organization {
             g(st, x1, v) as & Impure
         };
         Array.foldLeft(step, initial, arr)        
+
+
+
+    /// Produces values in the output array only if the key extracted by `f(x1)` is present.
+    pub def filterMapWithLookup(f: a -> k, g: (a, v) -> b & ef, 
+                        m: Map[k, v], arr: Array[a]): Array[b] & Impure with Order[k] = 
+        let step = x1 -> {
+            let k = f(x1);
+            Map.get(k, m) |> Option.map(v1 -> g(x1, v1) as & Impure)
+        };
+        Array.filterMap(step, arr)
+
+    /// Produces (possibly multiple) values in the output array only if the key extracted by `f(x1)` is present.
+    pub def flatMapWithLookup(f: a -> k, g: (a, v) -> Array[b] & ef, 
+                        m: Map[k, v], arr: Array[a]): Array[b] & Impure with Order[k] = 
+        let step = x1 -> {
+            let k = f(x1);
+            match Map.get(k, m) { 
+                case None => {let ans: Array[b] = []; ans} 
+                case Some(v1) => g(x1, v1) as & Impure
+            }
+        };
+        Array.flatMap(step, arr)
+
+
+    /// Already have `count` on Arrays: 
+    /// pub def count(f: a -> Bool, arr: Array[a]): Int32 & Impure = 
+
 
 }

@@ -2,14 +2,8 @@
 
 use AssetLib/FileIO/S4/IH06Tree/Parser.{parseFileWithBOM};
 use AssetLib/FileIO/S4/IH06Tree/Builder.{buildIH06Tree, toLabelledTree};
-use AssetLib/FileIO/S4/IH06Tree/ExportCsv.{CsvOutputPaths, exportCsv};
-use AssetLib/FileIO/S4/IH06Tree/ExportDb.{defaultTableNames, storeIH06Trees};
     
 
-def csvDest(): CsvOutputPaths = 
-    { flocOutpath = System/FilePath.new("G:/work/assets/capital_schemes/wethe-ih06-flocs.csv")
-    , equiOutpath = System/FilePath.new("G:/work/assets/capital_schemes/wethe-ih06-equis.csv")
-    }
 
 def main(_args: Array[String]): Int32 & Impure =
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -24,15 +18,12 @@ def main1(): Result[Unit, String] & Impure =
     use AssetLib/FileIO/S4/IH06Tree/ExportJson.{exportJson};
     let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
     let htmldest    = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.html");
-    let dbdest      = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.sqlite");
-    let jsondest    = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.json");
-    let* _          = exportCsv(src, Text/Charset.utf_8(), true, csvDest());    
+    let jsondest    = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.json");   
     let* ast        = parseFileWithBOM(src);
     let _           = Console.printLine("Count: " + Int32.toString(List.length(ast.rows))); 
     let* tree1      = buildIH06Tree(ast);
     let* _          = writeHtmlTree(htmldest, toLabelledTree(tree1));
     let* _          = exportJson(jsondest, tree1);
-    let* _          = BasicDb/DbMonad.runSQLite(storeIH06Trees(defaultTableNames(), src, Text/Charset.utf_8(), true), dbdest);
     Ok()
 
 
