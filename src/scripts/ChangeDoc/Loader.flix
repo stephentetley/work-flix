@@ -23,7 +23,7 @@ namespace ChangeDoc/Loader {
     use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow, Instruction, EntityType};
     use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};
     use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
-        AttrKey, ValuaKey, AddrAttrKey};
+        LongTextKey, AttrKey, ValuaKey, AddrAttrKey};
     use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
     use ChangeDoc/Datatypes.Instruction.{New, Change, Delete};
     
@@ -58,6 +58,8 @@ namespace ChangeDoc/Loader {
             case (Some(entype), "Text Table") => evalNameChange(entype)
             case (Some(Equi),   "Table for Relationship CLASSEQUI") => evalClassChange(Equi)
             case (Some(Floc),   "Table for Relationship CLASSFLOC") => evalClassChange(Floc)
+            case (Some(Equi),   "Table for Relationship EQMLTXT") => evalLongTextChange(Equi)
+            case (Some(Floc),   "Table for Relationship IFLOTX") => evalLongTextChange(Floc)    /// "IFLOTX" needs checking
             case (Some(entype), "Check Table") => evalAttrChange(entype)
             case (Some(Equi),   "Table for Relationship VALUAEQUI") =>  evalCharacteristicChange(Equi)
             case (Some(Floc),   "Table for Relationship VALUAFLOC") =>  evalCharacteristicChange(Floc)
@@ -97,6 +99,18 @@ namespace ChangeDoc/Loader {
         let* change         = optional(getInstruction()); 
         match change {
             case Some(instr) => return(Some(ChangeRow(AttrKey(entityType, itemId, attribute), instr)))
+            case _ => return(None)
+        }
+
+
+    def evalLongTextChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
+        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
+        use SheetIO/RowEvaluator.{>>=};
+        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
+        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
+        let* change         = optional(getInstruction()); 
+        match change {
+            case Some(instr) => return(Some(ChangeRow(LongTextKey(entityType, itemId, attribute), instr)))
             case _ => return(None)
         }
 

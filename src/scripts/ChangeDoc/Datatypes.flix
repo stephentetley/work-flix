@@ -35,6 +35,7 @@ namespace ChangeDoc/Datatypes {
     pub enum ChangeKey {
         case NameKey(EntityType, ItemId)             
         case ClassKey(EntityType, ItemId, ClassName)
+        case LongTextKey(EntityType, ItemId, AttributeName)
         case AttrKey(EntityType, ItemId, AttributeName)
         case ValuaKey(EntityType, ItemId, CharId, IntCounter)
         case AddrAttrKey(EntityType, ItemId, AttributeName, AddressNumber)
@@ -44,6 +45,7 @@ namespace ChangeDoc/Datatypes {
         pub def toString(x: ChangeKey): String = match x {
             case NameKey(x1, x2)                => "NameKey(${x1}, ${x2})"
             case ClassKey(x1, x2, x3)           => "ClassKey(${x1}, ${x2}, ${x3})"
+            case LongTextKey(x1, x2, x3)        => "LongTextKey(${x1}, ${x2}, ${x3})"
             case AttrKey(x1, x2, x3)            => "AttrKey(${x1}, ${x2}, ${x3})"
             case ValuaKey(x1, x2, x3, x4)       => "ValuaKey(${x1}, ${x2}, ${x3}, ${x4})"
             case AddrAttrKey(x1, x2, x3, x4)    => "AddrAttrKey(${x1}, ${x2}, ${x3}, ${x4})"
@@ -52,9 +54,10 @@ namespace ChangeDoc/Datatypes {
 
     instance Eq[ChangeKey] {
         pub def eq(x: ChangeKey, y: ChangeKey): Bool = match (x, y) {
-            case (NameKey(x1, x2), NameKey(y1, y2))             => x1 == y1 and x2 == y2
-            case (ClassKey(x1, x2, x3), ClassKey(y1, y2, y3))   => x1 == y1 and x2 == y2 and x3 == y3
-            case (AttrKey(x1, x2, x3), AttrKey(y1, y2, y3))     => x1 == y1 and x2 == y2 and x3 == y3
+            case (NameKey(x1, x2), NameKey(y1, y2))                         => x1 == y1 and x2 == y2
+            case (ClassKey(x1, x2, x3), ClassKey(y1, y2, y3))               => x1 == y1 and x2 == y2 and x3 == y3
+            case (LongTextKey(x1, x2, x3), LongTextKey(y1, y2, y3))         => x1 == y1 and x2 == y2 and x3 == y3
+            case (AttrKey(x1, x2, x3), AttrKey(y1, y2, y3))                 => x1 == y1 and x2 == y2 and x3 == y3
             case (ValuaKey(x1, x2, x3, x4), ValuaKey(y1, y2, y3, y4))       => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
             case (AddrAttrKey(x1, x2, x3, x4), AddrAttrKey(y1, y2, y3, y4)) => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
             case _ => false
@@ -67,6 +70,7 @@ namespace ChangeDoc/Datatypes {
             match (x, y) {
                 case (NameKey(x1, x2), NameKey(y1, y2))         => (x1 <=> y1) `thenCompare` lazy (x2 <=> y2)
                 case (NameKey(_, _), ClassKey(_, _, _))         => LessThan
+                case (NameKey(_, _), LongTextKey(_, _, _))      => LessThan
                 case (NameKey(_, _), AttrKey(_, _, _))          => LessThan
                 case (NameKey(_, _), ValuaKey(_, _, _, _))      => LessThan                
                 case (NameKey(_, _), AddrAttrKey(_, _, _, _))   => LessThan            
@@ -76,13 +80,27 @@ namespace ChangeDoc/Datatypes {
                 case (ClassKey(x1, x2, x3), ClassKey(y1, y2, y3))   => 
                     (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
 
+                case (ClassKey(_, _, _), LongTextKey(_, _, _))      => LessThan
                 case (ClassKey(_, _, _), AttrKey(_, _, _))          => LessThan
                 case (ClassKey(_, _, _), ValuaKey(_, _, _, _))      => LessThan
                 case (ClassKey(_, _, _), AddrAttrKey(_, _, _, _))   => LessThan
 
 
+
+                case (LongTextKey(_, _, _), NameKey(_, _))              => GreaterThan
+                case (LongTextKey(_, _, _), ClassKey(_, _, _))          => GreaterThan
+                case (LongTextKey(x1, x2, x3), LongTextKey(y1, y2, y3)) => 
+                    (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
+
+                case (LongTextKey(_, _, _), AttrKey(_, _, _))          => LessThan
+                case (LongTextKey(_, _, _), ValuaKey(_, _, _, _))      => LessThan
+                case (LongTextKey(_, _, _), AddrAttrKey(_, _, _, _))   => LessThan
+
+
+
                 case (AttrKey(_, _, _), NameKey(_, _))              => GreaterThan
                 case (AttrKey(_, _, _), ClassKey(_, _, _))          => GreaterThan
+                case (AttrKey(_, _, _), LongTextKey(_, _, _))       => GreaterThan
                 case (AttrKey(x1, x2, x3), AttrKey(y1, y2, y3))     => 
                     (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
 
@@ -92,6 +110,7 @@ namespace ChangeDoc/Datatypes {
 
                 case (ValuaKey(_, _, _, _), NameKey(_, _))             => GreaterThan
                 case (ValuaKey(_, _, _, _), ClassKey(_, _, _))         => GreaterThan
+                case (ValuaKey(_, _, _, _), LongTextKey(_, _, _))      => GreaterThan
                 case (ValuaKey(_, _, _, _), AttrKey(_, _, _))          => GreaterThan
                 case (ValuaKey(x1, x2, x3, x4), ValuaKey(y1, y2, y3, y4))   => 
                     (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3) `thenCompare` lazy (x4 <=> y4)
@@ -101,6 +120,7 @@ namespace ChangeDoc/Datatypes {
 
                 case (AddrAttrKey(_, _, _, _), NameKey(_, _))               => GreaterThan
                 case (AddrAttrKey(_, _, _, _), ClassKey(_, _, _))           => GreaterThan
+                case (AddrAttrKey(_, _, _, _), LongTextKey(_, _, _))        => GreaterThan
                 case (AddrAttrKey(_, _, _, _), AttrKey(_, _, _))            => GreaterThan
                 case (AddrAttrKey(_, _, _, _), ValuaKey(_, _, _, _))        => GreaterThan
                 case (AddrAttrKey(x1, x2, x3, x4), AddrAttrKey(y1, y2, y3, y4)) =>

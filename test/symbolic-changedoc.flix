@@ -38,14 +38,19 @@ def test02(): Result[Unit, String] & Impure =
     let _           = query database select (x1, x2) from ClassName(x1, x2) 
                         |> Array.foreach(println);
     Console.printLine("buildFlocRows...");
-    let _           = ChangeDoc/Report1.buildFlocRows(database)
+    let* _          = ChangeDoc/Report1.buildFlocRows(database)
                         |> perform(Array.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine))
                         |> ChangeDoc/Report1.writeFlocRows(changeDest);
     Console.printLine("buildEquiRows...");
-    let _           = ChangeDoc/Report1.buildEquiRows(database)
+    let* _          = ChangeDoc/Report1.buildEquiRows(database)
                         |> perform(Array.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine))
                         |> ChangeDoc/Report1.addEquiRows(changeDest);
+    
+    let* _          = ChangeDoc/Report1.extractEquiLongTextRows(database)
+                        |> ChangeDoc/Report1.addEquiLongTextRows(changeDest);
+    Console.printLine("Done");
     Ok()
+
 
 
 def perform(f: a -> b & ef, x: a): a & ef = 

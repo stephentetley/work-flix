@@ -19,7 +19,7 @@ namespace ChangeDoc/Relations {
     
     use ChangeDoc/Datatypes.{ChangeKey, ValueState, EntityType};
     use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
-        AttrKey, ValuaKey, AddrAttrKey};
+        LongTextKey, AttrKey, ValuaKey, AddrAttrKey};
     use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
     use ChangeDoc/Datatypes.ValueState.{CreateLocal, DeleteLocal, 
         UpdateGlobal, DeleteGlobal};
@@ -33,11 +33,19 @@ namespace ChangeDoc/Relations {
     
     pub rel ClassChange(itemId: String, className: String)
 
+    pub rel LongTextChange(entity: String, itemId: String, attribute: String, value: String)
+
     pub rel ValuaChange(itemId: String, charName: String, intCounter: Int32, value: String)
 
     pub rel Funcloc(internalId: String, functionalLocation: String, description: String)
 
     pub rel Equipment(equiId: String, description: String)
+
+
+    pub rel FlocLongText(equiId: String, description: String, longText: String)
+
+    pub rel EquiLongText(equiId: String, description: String, longText: String)
+
 
     pub rel ObjectType(itemId: String, objType: String)
 
@@ -57,6 +65,9 @@ namespace ChangeDoc/Relations {
 
         case (ClassKey(_, itemId, className), CreateLocal("1")) => #{ ClassChange(itemId, className). }
         case (ClassKey(_, itemId, className), UpdateGlobal("1")) => #{ ClassChange(itemId, className). }
+
+        case (LongTextKey(entity, itemId, name), CreateLocal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
+        case (LongTextKey(entity, itemId, name), UpdateGlobal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
 
         case (AttrKey(_, itemId, name), CreateLocal(value)) => #{ AttrChange(itemId, name, value). }
         case (AttrKey(_, itemId, name), UpdateGlobal(value)) => #{ AttrChange(itemId, name, value). }

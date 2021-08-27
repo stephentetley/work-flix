@@ -19,7 +19,7 @@ namespace ChangeDoc/Report1 {
     
     use SheetIO.RowSetter;
 
-    use ChangeDoc/Relations.{Funcloc, Equipment, Attribute};
+    use ChangeDoc/Relations.{Funcloc, Equipment, EquiLongText, Attribute};
     
     type alias FlocRow = 
         { internalFloc: String
@@ -32,6 +32,12 @@ namespace ChangeDoc/Report1 {
         { equiId: String
         , description: String
         , attributes: Map[String, String]
+        }
+
+    type alias EquiLongTextRow =         
+        { equiId: String
+        , description: String
+        , longText: String
         }
 
     /// Note - qjbrowser / TyRuBa-JQuery build relations differently - they build a single big
@@ -73,11 +79,28 @@ namespace ChangeDoc/Report1 {
         }
 
 
+    pub def extractEquiLongTextRows(db: #{EquiLongText | r}): Array[EquiLongTextRow] & Impure = 
+        query db select (x1, x2, x3) from EquiLongText(x1, x2, x3) 
+            |> Array.map(makeEquiLongTextRow1)
+
+
+    def makeEquiLongTextRow1(x: (String, String, String)): EquiLongTextRow = 
+        let (x1, x2, x3) = x;
+        { equiId        = x1
+        , description   = x2
+        , longText      = x3
+        }
+
+    /// Helpers
+
     def makeAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
         let key1of3 = xyz -> {let (x1, _, _) = xyz; x1};
         let innerKV = xyz -> {let (_, y1, z1) = xyz; (y1, z1)};
         query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
             |> Relation/Organization.collectToMapMap(key1of3, innerKV)
+
+
+    /// Output
 
     pub def writeFlocRows(path: System.FilePath, arr: Array[FlocRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Floc",
@@ -225,6 +248,27 @@ namespace ChangeDoc/Report1 {
         ++> flip(putString!, getAttr("Work Center", x.attributes))
         *> return()
 
+
+    pub def addEquiLongTextRows(path: System.FilePath, arr: Array[EquiLongTextRow]): Result[Unit, String] & Impure = 
+        let writer = {sheetName = "Eqmltext",
+            headers = Some(["Equipment", "Description (medium text)", "Long Text"]),
+            setter = setEquiLongTextRow,
+            rows = Array.toList(arr)
+        };
+        SheetIO/Writer.addWorkSheet(writer, path)
+
+
+    pub def setEquiLongTextRow(x: EquiLongTextRow): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>};
+            startingAt(0)
+        ++> flip(putString!, x.equiId)
+        ++> flip(putString!, x.description)
+        ++> flip(putString!, x.longText)
+        *> return()
+
+    /// For SheetIO.RowSetter...
+
     def startingAt(i: Int32): RowSetter[Int32] = SheetIO/RowSetter.return(i)
 
 
@@ -234,18 +278,6 @@ namespace ChangeDoc/Report1 {
         let* ix = mi;
         let* _ = mx(ix);
         return(ix + 1)
-
-    pub def setEquiRow2(x: EquiRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
-        use SheetIO/RowSetter.{*>};
-            startingAt(0)
-        ++> flip(putString!, x.equiId)
-        ++> flip(putString!, x.description)
-        ++> flip(putString!, getAttr("ABC indic. origin", x.attributes))
-        ++> flip(putString!, getAttr("ABC Indicator", x.attributes))
-        *> return()
-
-
 
     ///// 
 
@@ -265,22 +297,38 @@ namespace ChangeDoc/Report1 {
 
     /// Just a little experiment to see if we can make a convenient idiom for using StringBuilder
     /// flip(StringBuilder.appendString!, ...) is just noise - if Flix loses UFCS then
-    /// appendString! should have a different arg order...
+    /// appendString! might warrant a different arg order...
     ///
     pub def equiRowToString(x: EquiRow): String = 
-        (flip(StringBuilder.appendString!, x.equiId + " ")
+        useStringBuilder(
+                flip(StringBuilder.appendString!, x.equiId + " ")
             *>> flip(StringBuilder.appendString!, x.description + " ")
             *>> flip(StringBuilder.appendString!, getAttr("Cost Center", x.attributes) + " ")
             *>> flip(StringBuilder.appendString!, getAttr("Manufacturer", x.attributes) + " ")
             *>> flip(StringBuilder.appendString!, getAttr("Start-up date", x.attributes))
-            )
-            |> useStringBuilder
+        )
             
 
-    /// aka `seqR` for functions
+    /// aka `seqR` for the function applicative
     pub def *>>(f: a -> b & ef1, g: a -> c & ef2, a: a): c & (ef1 and ef2) = 
         let _ = f(a);
         g(a)
+
+    /// Alternative use `perform` rather than a new composition combinator...
+    pub def equiRowToString2(x: EquiRow): String = 
+        let appendString! = (s, sb) -> StringBuilder.appendString!(sb, s);
+        useStringBuilder(
+               perform(appendString!(x.equiId))
+            >> perform(appendString!(" " + x.description))
+            >> perform(appendString!(" " + getAttr("Cost Center", x.attributes)))
+            >> perform(appendString!(" " + getAttr("Manufacturer", x.attributes)))
+            >> perform(appendString!(" " + getAttr("Start-up date", x.attributes)))
+            >> constant()
+        )
+
+    def perform(f: a -> b & ef, x: a): a & ef = 
+        let _ = f(x);
+        x
 
 
     def useStringBuilder(f: StringBuilder ~> Unit): String = 

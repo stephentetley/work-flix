@@ -20,12 +20,12 @@ namespace ChangeDoc/BuildRel {
     use ChangeDoc/Datatypes.{EntityType};
     use ChangeDoc/Datatypes.EntityType.{Floc, Equi};
     use ChangeDoc/Relations.{Funcloc, Equipment,
-        ObjectType, Attribute, Class, Characteristic,
-        NameChange, AttrChange, ClassChange, ValuaChange};
+        EquiLongText, ObjectType, Attribute, Class, Characteristic,
+        NameChange, AttrChange, ClassChange, LongTextChange, ValuaChange};
 
 
 
-    pub def rules(): #{Funcloc, Equipment, ObjectType, Attribute, Class, Characteristic,
+    pub def rules(): #{Funcloc, Equipment, EquiLongText, ObjectType, Attribute, Class, Characteristic,
                         NameChange, AttrChange, ClassChange, ValuaChange | r} = #{
 
         Funcloc(itemId, "TODO", name) :-
@@ -33,6 +33,9 @@ namespace ChangeDoc/BuildRel {
 
         Equipment(itemId, name) :- 
             NameChange("Equi", itemId, name).
+
+        EquiLongText(itemId, descr, "") :- 
+            LongTextChange("Equi", itemId, "Description (medium text)", descr).
 
         ObjectType(itemId, value) :- 
             AttrChange(itemId, "Object Type", value).
