@@ -31,11 +31,11 @@ namespace ChangeDoc/Relations {
     
     pub rel AttrChange(itemId: String, name: String, value: String)
     
-    pub rel ClassChange(itemId: String, className: String)
+    pub rel ClassChange(entity: String, itemId: String, className: String)
 
     pub rel LongTextChange(entity: String, itemId: String, attribute: String, value: String)
 
-    pub rel ValuaChange(itemId: String, charName: String, intCounter: Int32, value: String)
+    pub rel ValuaChange(entity: String, itemId: String, charName: String, intCounter: Int32, value: String)
 
     pub rel Funcloc(internalId: String, functionalLocation: String, description: String)
 
@@ -50,10 +50,14 @@ namespace ChangeDoc/Relations {
     pub rel ObjectType(itemId: String, objType: String)
 
     pub rel Attribute(itemId: String, attrName: String, attrValue: String)
+    
+    pub rel ClassFloc(itemId: String, name: String)
 
-    pub rel Class(itemId: String, name: String)
+    pub rel ClassEqui(itemId: String, name: String)
 
-    pub rel Characteristic(itemId: String, name: String, intCounter: Int32, value: String)
+    pub rel ValuaFloc(itemId: String, name: String, intCounter: Int32, value: String)
+
+    pub rel ValuaEqui(itemId: String, name: String, intCounter: Int32, value: String)
 
     pub def makeChangeRelations(st: State): #{NameChange, AttrChange | r} = 
         Relation.foldMap(makeChangeRelation1, Map.toList(st))
@@ -63,8 +67,8 @@ namespace ChangeDoc/Relations {
         case (NameKey(entity, itemId), CreateLocal(name)) => #{ NameChange("${entity}", itemId, name). }
         case (NameKey(entity, itemId), UpdateGlobal(name)) => #{ NameChange("${entity}", itemId, name). }
 
-        case (ClassKey(_, itemId, className), CreateLocal("1")) => #{ ClassChange(itemId, className). }
-        case (ClassKey(_, itemId, className), UpdateGlobal("1")) => #{ ClassChange(itemId, className). }
+        case (ClassKey(entity, itemId, className), CreateLocal("1")) => #{ ClassChange("${entity}", itemId, className). }
+        case (ClassKey(entity, itemId, className), UpdateGlobal("1")) => #{ ClassChange("${entity}", itemId, className). }
 
         case (LongTextKey(entity, itemId, name), CreateLocal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
         case (LongTextKey(entity, itemId, name), UpdateGlobal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
@@ -72,8 +76,8 @@ namespace ChangeDoc/Relations {
         case (AttrKey(_, itemId, name), CreateLocal(value)) => #{ AttrChange(itemId, name, value). }
         case (AttrKey(_, itemId, name), UpdateGlobal(value)) => #{ AttrChange(itemId, name, value). }
 
-        case (ValuaKey(_, itemId, name, intCount), CreateLocal(value)) => #{ ValuaChange(itemId, name, intCount, value). }
-        case (ValuaKey(_, itemId, name, intCount), UpdateGlobal(value)) => #{ ValuaChange(itemId, name, intCount, value). }
+        case (ValuaKey(entity, itemId, name, intCount), CreateLocal(value)) => #{ ValuaChange("${entity}", itemId, name, intCount, value). }
+        case (ValuaKey(entity, itemId, name, intCount), UpdateGlobal(value)) => #{ ValuaChange("${entity}", itemId, name, intCount, value). }
 
         case (_,_) => #{}
 

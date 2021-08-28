@@ -19,7 +19,8 @@ namespace ChangeDoc/Report1 {
     
     use SheetIO.RowSetter;
 
-    use ChangeDoc/Relations.{Funcloc, Equipment, EquiLongText, Attribute};
+    use ChangeDoc/Relations.{Funcloc, Equipment, EquiLongText, 
+        ClassFloc, ClassEqui, ValuaFloc, ValuaEqui, Attribute};
     
     type alias FlocRow = 
         { internalFloc: String
@@ -39,6 +40,24 @@ namespace ChangeDoc/Report1 {
         , description: String
         , longText: String
         }
+
+    type alias ClassFlocRow = 
+        { internalFloc: String
+        , name: String
+        }
+
+    type alias ClassEquiRow = 
+        { equiId: String
+        , name: String
+        }
+
+    type alias ValuaEquiRow = 
+        { equiId: String
+        , name: String
+        , intCounter: Int32
+        , value: String
+        }
+
 
     /// Note - qjbrowser / TyRuBa-JQuery build relations differently - they build a single big
     /// jointable then recover the hierarchy with an organization criteria.
@@ -91,6 +110,43 @@ namespace ChangeDoc/Report1 {
         , longText      = x3
         }
 
+
+    pub def extractClassFlocRows(db: #{ClassFloc | r}): Array[ClassFlocRow] & Impure = 
+        query db select (x1, x2) from ClassFloc(x1, x2) 
+            |> Array.map(makeClassFlocRow1)
+
+
+    def makeClassFlocRow1(x: (String, String)): ClassFlocRow = 
+        let (x1, x2) = x;
+        { internalFloc  = x1
+        , name          = x2
+        }
+
+    pub def extractClassEquiRows(db: #{ClassEqui | r}): Array[ClassEquiRow] & Impure = 
+        query db select (x1, x2) from ClassEqui(x1, x2) 
+            |> Array.map(makeClassEquiRow1)
+
+
+    def makeClassEquiRow1(x: (String, String)): ClassEquiRow = 
+        let (x1, x2) = x;
+        { equiId        = x1
+        , name          = x2
+        }
+
+
+    pub def extractValuaEquiRows(db: #{ValuaEqui | r}): Array[ValuaEquiRow] & Impure = 
+        query db select (x1, x2, x3, x4) from ValuaEqui(x1, x2, x3, x4) 
+            |> Array.map(makeValuaEquiRow1)
+
+
+    def makeValuaEquiRow1(x: (String, String, Int32, String)): ValuaEquiRow = 
+        let (x1, x2, x3, x4) = x;
+        { equiId        = x1
+        , name          = x2
+        , intCounter    = x3
+        , value         = x4
+        }
+
     /// Helpers
 
     def makeAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
@@ -121,7 +177,7 @@ namespace ChangeDoc/Report1 {
         };
         SheetIO/Writer.writeWorkSheet(writer, path)
 
-    pub def setFlocRow(x: FlocRow): RowSetter[Unit] = 
+    def setFlocRow(x: FlocRow): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>};
             startingAt(0)
@@ -191,7 +247,7 @@ namespace ChangeDoc/Report1 {
         SheetIO/Writer.addWorkSheet(writer, path)
 
 
-    pub def setEquiRow(x: EquiRow): RowSetter[Unit] = 
+    def setEquiRow(x: EquiRow): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>};
             startingAt(0)
@@ -258,13 +314,67 @@ namespace ChangeDoc/Report1 {
         SheetIO/Writer.addWorkSheet(writer, path)
 
 
-    pub def setEquiLongTextRow(x: EquiLongTextRow): RowSetter[Unit] = 
+    def setEquiLongTextRow(x: EquiLongTextRow): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.description)
         ++> flip(putString!, x.longText)
+        *> return()
+
+    pub def addClassFlocRows(path: System.FilePath, arr: Array[ClassFlocRow]): Result[Unit, String] & Impure = 
+        let writer = {sheetName = "Classfloc",
+            headers = Some(["Int. Functional Location", "Name"]),
+            setter = setClassFlocRow,
+            rows = Array.toList(arr)
+        };
+        SheetIO/Writer.addWorkSheet(writer, path)
+
+
+    def setClassFlocRow(x: ClassFlocRow): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>};
+            startingAt(0)
+        ++> flip(putString!, x.internalFloc)
+        ++> flip(putString!, x.name)
+        *> return()
+
+    pub def addClassEquiRows(path: System.FilePath, arr: Array[ClassEquiRow]): Result[Unit, String] & Impure = 
+        let writer = {sheetName = "Classequi",
+            headers = Some(["Equipment", "Name"]),
+            setter = setClassEquiRow,
+            rows = Array.toList(arr)
+        };
+        SheetIO/Writer.addWorkSheet(writer, path)
+
+
+    def setClassEquiRow(x: ClassEquiRow): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>};
+            startingAt(0)
+        ++> flip(putString!, x.equiId)
+        ++> flip(putString!, x.name)
+        *> return()
+
+
+    pub def addValuaEquiRows(path: System.FilePath, arr: Array[ValuaEquiRow]): Result[Unit, String] & Impure = 
+        let writer = {sheetName = "Valuaequi",
+            headers = Some(["Equipment", "Name", "Int Counter", "Value"]),
+            setter = setValuaEquiRow,
+            rows = Array.toList(arr)
+        };
+        SheetIO/Writer.addWorkSheet(writer, path)
+
+
+    def setValuaEquiRow(x: ValuaEquiRow): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!, putInt32At! => putInt32!};
+        use SheetIO/RowSetter.{*>};
+            startingAt(0)
+        ++> flip(putString!, x.equiId)
+        ++> flip(putString!, x.name)
+        ++> flip(putInt32!, x.intCounter)
+        ++> flip(putString!, x.value)
         *> return()
 
     /// For SheetIO.RowSetter...

@@ -48,6 +48,12 @@ def test02(): Result[Unit, String] & Impure =
     
     let* _          = ChangeDoc/Report1.extractEquiLongTextRows(database)
                         |> ChangeDoc/Report1.addEquiLongTextRows(changeDest);
+    let* _          = ChangeDoc/Report1.extractClassFlocRows(database)
+                        |> ChangeDoc/Report1.addClassFlocRows(changeDest);
+    let* _          = ChangeDoc/Report1.extractClassEquiRows(database)
+                        |> ChangeDoc/Report1.addClassEquiRows(changeDest);
+    let* _          = ChangeDoc/Report1.extractValuaEquiRows(database)
+                        |> ChangeDoc/Report1.addValuaEquiRows(changeDest);
     Console.printLine("Done");
     Ok()
 

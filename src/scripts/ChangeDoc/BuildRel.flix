@@ -20,12 +20,13 @@ namespace ChangeDoc/BuildRel {
     use ChangeDoc/Datatypes.{EntityType};
     use ChangeDoc/Datatypes.EntityType.{Floc, Equi};
     use ChangeDoc/Relations.{Funcloc, Equipment,
-        EquiLongText, ObjectType, Attribute, Class, Characteristic,
+        EquiLongText, ObjectType, Attribute, ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
         NameChange, AttrChange, ClassChange, LongTextChange, ValuaChange};
 
 
 
-    pub def rules(): #{Funcloc, Equipment, EquiLongText, ObjectType, Attribute, Class, Characteristic,
+    pub def rules(): #{Funcloc, Equipment, EquiLongText, ObjectType, Attribute, 
+                        ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
                         NameChange, AttrChange, ClassChange, ValuaChange | r} = #{
 
         Funcloc(itemId, "TODO", name) :-
@@ -44,12 +45,17 @@ namespace ChangeDoc/BuildRel {
             AttrChange(itemId, name, value), 
             if name != "Object Type".
 
-        Class(itemId, className) :- 
-            ClassChange(itemId, className).
+        ClassEqui(itemId, className) :- 
+            ClassChange("Equi", itemId, className).
 
+        ClassFloc(itemId, className) :- 
+            ClassChange("Floc", itemId, className).
 
-        Characteristic(itemId, name, intCounter, value) :-
-            ValuaChange(itemId, name, intCounter, value).
+        ValuaFloc(itemId, name, intCounter, value) :-
+            ValuaChange("Floc", itemId, name, intCounter, value).
+
+        ValuaEqui(itemId, name, intCounter, value) :-
+            ValuaChange("Equi", itemId, name, intCounter, value).
 
     }
 
@@ -58,7 +64,7 @@ namespace ChangeDoc/BuildRel {
     pub def query1(): #{ClassChange, ObjectType, ClassName | r} = #{
      
         ClassName(itemId, className) :- 
-            ClassChange(itemId, className), 
+            ClassChange(_, itemId, className), 
             ObjectType(itemId, objName),
             if className `String.startsWith` objName.
     }
