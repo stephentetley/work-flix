@@ -21,16 +21,28 @@ namespace ChangeDoc/BuildRel {
     use ChangeDoc/Datatypes.EntityType.{Floc, Equi};
     use ChangeDoc/Relations.{Funcloc, Equipment,
         EquiLongText, ObjectType, Attribute, ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
+        FlocNameMap, 
         NameChange, AttrChange, ClassChange, LongTextChange, ValuaChange};
 
-
+    pub rel HasFlocNameMap(internalFuncloc: String)
 
     pub def rules(): #{Funcloc, Equipment, EquiLongText, ObjectType, Attribute, 
                         ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
-                        NameChange, AttrChange, ClassChange, ValuaChange | r} = #{
+                        NameChange, AttrChange, ClassChange, ValuaChange, 
+                        HasFlocNameMap | r} = #{
 
-        Funcloc(itemId, "TODO", name) :-
-            NameChange("Floc", itemId, name).
+        HasFlocNameMap(itemId):- 
+            FlocNameMap(itemId, _).
+
+        Funcloc(itemId, floc, descr) :-
+            NameChange("Floc", itemId, descr),
+            FlocNameMap(itemId, floc).
+
+        Funcloc(itemId, "TODO", descr) :-
+            NameChange("Floc", itemId, descr),
+            not HasFlocNameMap(itemId).
+
+
 
         Equipment(itemId, name) :- 
             NameChange("Equi", itemId, name).

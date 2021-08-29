@@ -20,8 +20,49 @@ namespace ChangeDoc/Report1 {
     use SheetIO.RowSetter;
 
     use ChangeDoc/Relations.{Funcloc, Equipment, EquiLongText, 
-        ClassFloc, ClassEqui, ValuaFloc, ValuaEqui, Attribute};
+        ClassFloc, ClassEqui, ValuaFloc, ValuaEqui, FlocNameMap, Attribute};
+
+
+    /// Note - qjbrowser / TyRuBa-JQuery build relations differently - they build a single big
+    /// jointable then recover the hierarchy with an organization criteria.
+    /// 
+    /// Currently (at least) we are building multiple tables of relations.
     
+    type alias Report1Config = 
+        { changeAttributesExport: System.FilePath
+        , flocChangeRequestExport: System.FilePath
+        , outputPath: System.FilePath
+        , flocClassList: System.FilePath
+        , equiClassList: System.FilePath
+        }
+
+    pub def report1(cfg: Report1Config): Result[Unit, String] & Impure =
+        use Result.flatMap;
+        let changeDest  = cfg.outputPath;
+        let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
+        let st1         = ChangeDoc/Interpreter.interpret(patches);
+        let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
+        let* flocmap    = ChangeDoc/Loader.readFlocMapping(cfg.flocChangeRequestExport)
+                            |> Result.map(Relation.foldMap(xy -> let (x1, y1) = xy; #{ FlocNameMap(x1, y1). }));
+        let rules       = ChangeDoc/BuildRel.rules();
+        let database    = (relns <+> flocmap <+> rules <+> ChangeDoc/BuildRel.query1());
+        let* _          = ChangeDoc/Report1.buildFlocRows(database)
+                            |> ChangeDoc/Report1.writeFlocRows(changeDest);
+        let* _          = ChangeDoc/Report1.buildEquiRows(database)
+                            |> ChangeDoc/Report1.addEquiRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractEquiLongTextRows(database)
+                            |> ChangeDoc/Report1.addEquiLongTextRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractClassFlocRows(database)
+                            |> ChangeDoc/Report1.addClassFlocRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractClassEquiRows(database)
+                            |> ChangeDoc/Report1.addClassEquiRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractValuaFlocRows(database)
+                            |> ChangeDoc/Report1.addValuaFlocRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractValuaEquiRows(database)
+                            |> ChangeDoc/Report1.addValuaEquiRows(changeDest);
+        Ok()
+
+
     type alias FlocRow = 
         { internalFloc: String
         , functionalLocation: String
@@ -65,44 +106,6 @@ namespace ChangeDoc/Report1 {
         , value: String
         }
 
-
-    /// Note - qjbrowser / TyRuBa-JQuery build relations differently - they build a single big
-    /// jointable then recover the hierarchy with an organization criteria.
-    /// 
-    /// Currently (at least) we are building multiple tables of relations.
-    
-    type alias Report1Config = 
-        { changeAttributesExport: System.FilePath
-        , outputPath: System.FilePath
-        }
-
-    pub def report1(cfg: Report1Config): Result[Unit, String] & Impure =
-        use Result.flatMap;
-        let changeDest  = cfg.outputPath;
-        let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
-        let st1         = ChangeDoc/Interpreter.interpret(patches);
-        let _           = st1 |> Map.foreach((k, v) -> Console.printLine("${k} -> ${v}"));
-        let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
-        let rules       = ChangeDoc/BuildRel.rules();
-        let database    = (relns <+> rules<+> ChangeDoc/BuildRel.query1());
-        let* _          = ChangeDoc/Report1.buildFlocRows(database)
-                            |> perform(Array.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine))
-                            |> ChangeDoc/Report1.writeFlocRows(changeDest);
-        let* _          = ChangeDoc/Report1.buildEquiRows(database)
-                            |> perform(Array.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine))
-                            |> ChangeDoc/Report1.addEquiRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractEquiLongTextRows(database)
-                            |> ChangeDoc/Report1.addEquiLongTextRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractClassFlocRows(database)
-                            |> ChangeDoc/Report1.addClassFlocRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractClassEquiRows(database)
-                            |> ChangeDoc/Report1.addClassEquiRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractValuaFlocRows(database)
-                            |> ChangeDoc/Report1.addValuaFlocRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractValuaEquiRows(database)
-                            |> ChangeDoc/Report1.addValuaEquiRows(changeDest);
-        Console.printLine("Done");
-        Ok()
 
 
 

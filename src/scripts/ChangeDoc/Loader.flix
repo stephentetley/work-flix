@@ -42,11 +42,11 @@ namespace ChangeDoc/Loader {
     /// Needs a Change Request export of the Functional Location tab...
     /// Sheet always called "Data"
     ///
-    pub def readFlocMapping(src: System.FilePath): Result[Map[String, String], String] & Impure = 
+    pub def readFlocMapping(src: System.FilePath): Result[List[(String, String)], String] & Impure = 
         use SheetIO/NamedRowEvaluator.{tuple2, getTrimmedContentNamed};
         let xlsx = {path = src, sheet = "Data"};
         let evalRow = tuple2(getTrimmedContentNamed("Int. Functional Location"), getTrimmedContentNamed("Functional Location"));
-        SheetIO/Reader.readAllNamedRows(xlsx, evalRow) |> Result.map(List.toMap)
+        SheetIO/Reader.readAllNamedRows(xlsx, evalRow)
 
 
     def evalChangeRow(): RowEvaluator[Option[ChangeRow]] =
