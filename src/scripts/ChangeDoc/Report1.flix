@@ -51,6 +51,13 @@ namespace ChangeDoc/Report1 {
         , name: String
         }
 
+    type alias ValuaFlocRow = 
+        { internalFloc: String
+        , name: String
+        , intCounter: Int32
+        , value: String
+        }
+
     type alias ValuaEquiRow = 
         { equiId: String
         , name: String
@@ -64,6 +71,9 @@ namespace ChangeDoc/Report1 {
     /// 
     /// Currently (at least) we are building multiple tables of relations.
 
+
+
+    /// ## Floc
 
     pub def buildFlocRows(db: #{Funcloc, Attribute | r}): Array[FlocRow] & Impure = 
         let attrs = makeAttributes(db);
@@ -80,83 +90,6 @@ namespace ChangeDoc/Report1 {
         , description           = x3
         , attributes            = Map.empty()
         }
-
-
-    pub def buildEquiRows(db: #{Equipment, Attribute | r}): Array[EquiRow] & Impure = 
-        let attrs = makeAttributes(db);
-        let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
-        query db select (x1, x2) from Equipment(x1, x2) 
-            |> Array.map(makeEquiRow1)
-            |> Relation/Organization.updateWithLookup(x1 -> x1.equiId, updateAttrs, attrs)
-
-
-    def makeEquiRow1(x: (String, String)): EquiRow = 
-        let (x1, x2) = x;
-        { equiId        = x1
-        , description   = x2
-        , attributes    = Map.empty()
-        }
-
-
-    pub def extractEquiLongTextRows(db: #{EquiLongText | r}): Array[EquiLongTextRow] & Impure = 
-        query db select (x1, x2, x3) from EquiLongText(x1, x2, x3) 
-            |> Array.map(makeEquiLongTextRow1)
-
-
-    def makeEquiLongTextRow1(x: (String, String, String)): EquiLongTextRow = 
-        let (x1, x2, x3) = x;
-        { equiId        = x1
-        , description   = x2
-        , longText      = x3
-        }
-
-
-    pub def extractClassFlocRows(db: #{ClassFloc | r}): Array[ClassFlocRow] & Impure = 
-        query db select (x1, x2) from ClassFloc(x1, x2) 
-            |> Array.map(makeClassFlocRow1)
-
-
-    def makeClassFlocRow1(x: (String, String)): ClassFlocRow = 
-        let (x1, x2) = x;
-        { internalFloc  = x1
-        , name          = x2
-        }
-
-    pub def extractClassEquiRows(db: #{ClassEqui | r}): Array[ClassEquiRow] & Impure = 
-        query db select (x1, x2) from ClassEqui(x1, x2) 
-            |> Array.map(makeClassEquiRow1)
-
-
-    def makeClassEquiRow1(x: (String, String)): ClassEquiRow = 
-        let (x1, x2) = x;
-        { equiId        = x1
-        , name          = x2
-        }
-
-
-    pub def extractValuaEquiRows(db: #{ValuaEqui | r}): Array[ValuaEquiRow] & Impure = 
-        query db select (x1, x2, x3, x4) from ValuaEqui(x1, x2, x3, x4) 
-            |> Array.map(makeValuaEquiRow1)
-
-
-    def makeValuaEquiRow1(x: (String, String, Int32, String)): ValuaEquiRow = 
-        let (x1, x2, x3, x4) = x;
-        { equiId        = x1
-        , name          = x2
-        , intCounter    = x3
-        , value         = x4
-        }
-
-    /// Helpers
-
-    def makeAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
-        let key1of3 = xyz -> {let (x1, _, _) = xyz; x1};
-        let innerKV = xyz -> {let (_, y1, z1) = xyz; (y1, z1)};
-        query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
-            |> Relation/Organization.collectToMapMap(key1of3, innerKV)
-
-
-    /// Output
 
     pub def writeFlocRows(path: System.FilePath, arr: Array[FlocRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Floc",
@@ -223,6 +156,35 @@ namespace ChangeDoc/Report1 {
         ++> flip(putString!, getAttr("Work center origin", x.attributes))
         *> return()
 
+
+    /// ## Equi
+
+    pub def extractEquiLongTextRows(db: #{EquiLongText | r}): Array[EquiLongTextRow] & Impure = 
+        query db select (x1, x2, x3) from EquiLongText(x1, x2, x3) 
+            |> Array.map(makeEquiLongTextRow1)
+
+
+    def makeEquiLongTextRow1(x: (String, String, String)): EquiLongTextRow = 
+        let (x1, x2, x3) = x;
+        { equiId        = x1
+        , description   = x2
+        , longText      = x3
+        }
+
+    pub def buildEquiRows(db: #{Equipment, Attribute | r}): Array[EquiRow] & Impure = 
+        let attrs = makeAttributes(db);
+        let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
+        query db select (x1, x2) from Equipment(x1, x2) 
+            |> Array.map(makeEquiRow1)
+            |> Relation/Organization.updateWithLookup(x1 -> x1.equiId, updateAttrs, attrs)
+
+
+    def makeEquiRow1(x: (String, String)): EquiRow = 
+        let (x1, x2) = x;
+        { equiId        = x1
+        , description   = x2
+        , attributes    = Map.empty()
+        }
 
     pub def addEquiRows(path: System.FilePath, arr: Array[EquiRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Equi",
@@ -304,6 +266,7 @@ namespace ChangeDoc/Report1 {
         ++> flip(putString!, getAttr("Work Center", x.attributes))
         *> return()
 
+    /// ## Eqmltxt
 
     pub def addEquiLongTextRows(path: System.FilePath, arr: Array[EquiLongTextRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Eqmltext",
@@ -323,6 +286,22 @@ namespace ChangeDoc/Report1 {
         ++> flip(putString!, x.longText)
         *> return()
 
+
+    /// ## Classfloc
+
+    pub def extractClassFlocRows(db: #{ClassFloc | r}): Array[ClassFlocRow] & Impure = 
+        query db select (x1, x2) from ClassFloc(x1, x2) 
+            |> Array.map(makeClassFlocRow1)
+
+
+    def makeClassFlocRow1(x: (String, String)): ClassFlocRow = 
+        let (x1, x2) = x;
+        { internalFloc  = x1
+        , name          = x2
+        }
+
+
+
     pub def addClassFlocRows(path: System.FilePath, arr: Array[ClassFlocRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Classfloc",
             headers = Some(["Int. Functional Location", "Name"]),
@@ -340,6 +319,21 @@ namespace ChangeDoc/Report1 {
         ++> flip(putString!, x.name)
         *> return()
 
+
+    /// ## Classequi
+
+    pub def extractClassEquiRows(db: #{ClassEqui | r}): Array[ClassEquiRow] & Impure = 
+        query db select (x1, x2) from ClassEqui(x1, x2) 
+            |> Array.map(makeClassEquiRow1)
+
+
+    def makeClassEquiRow1(x: (String, String)): ClassEquiRow = 
+        let (x1, x2) = x;
+        { equiId        = x1
+        , name          = x2
+        }
+
+
     pub def addClassEquiRows(path: System.FilePath, arr: Array[ClassEquiRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Classequi",
             headers = Some(["Equipment", "Name"]),
@@ -356,6 +350,56 @@ namespace ChangeDoc/Report1 {
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.name)
         *> return()
+
+
+    pub def addValuaFlocRows(path: System.FilePath, arr: Array[ValuaFlocRow]): Result[Unit, String] & Impure = 
+        let writer = {sheetName = "Valuafloc",
+            headers = Some(["Int. Functional Location", "Name", "Int Counter", "Value"]),
+            setter = setValuaFlocRow,
+            rows = Array.toList(arr)
+        };
+        SheetIO/Writer.addWorkSheet(writer, path)
+
+    /// ## Valuafloc
+
+    pub def extractValuaFlocRows(db: #{ValuaFloc | r}): Array[ValuaFlocRow] & Impure = 
+        query db select (x1, x2, x3, x4) from ValuaFloc(x1, x2, x3, x4) 
+            |> Array.map(makeValuaFlocRow1)
+
+
+    def makeValuaFlocRow1(x: (String, String, Int32, String)): ValuaFlocRow = 
+        let (x1, x2, x3, x4) = x;
+        { internalFloc  = x1
+        , name          = x2
+        , intCounter    = x3
+        , value         = x4
+        }
+
+
+    def setValuaFlocRow(x: ValuaFlocRow): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!, putInt32At! => putInt32!};
+        use SheetIO/RowSetter.{*>};
+            startingAt(0)
+        ++> flip(putString!, x.internalFloc)
+        ++> flip(putString!, x.name)
+        ++> flip(putInt32!, x.intCounter)
+        ++> flip(putString!, x.value)
+        *> return()
+
+    /// ## Valuaequi
+
+    pub def extractValuaEquiRows(db: #{ValuaEqui | r}): Array[ValuaEquiRow] & Impure = 
+        query db select (x1, x2, x3, x4) from ValuaEqui(x1, x2, x3, x4) 
+            |> Array.map(makeValuaEquiRow1)
+
+
+    def makeValuaEquiRow1(x: (String, String, Int32, String)): ValuaEquiRow = 
+        let (x1, x2, x3, x4) = x;
+        { equiId        = x1
+        , name          = x2
+        , intCounter    = x3
+        , value         = x4
+        }
 
 
     pub def addValuaEquiRows(path: System.FilePath, arr: Array[ValuaEquiRow]): Result[Unit, String] & Impure = 
@@ -376,6 +420,17 @@ namespace ChangeDoc/Report1 {
         ++> flip(putInt32!, x.intCounter)
         ++> flip(putString!, x.value)
         *> return()
+
+    /// Helpers
+
+    def makeAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
+        let key1of3 = xyz -> {let (x1, _, _) = xyz; x1};
+        let innerKV = xyz -> {let (_, y1, z1) = xyz; (y1, z1)};
+        query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
+            |> Relation/Organization.collectToMapMap(key1of3, innerKV)
+
+
+
 
     /// For SheetIO.RowSetter...
 

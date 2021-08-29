@@ -52,6 +52,8 @@ def test02(): Result[Unit, String] & Impure =
                         |> ChangeDoc/Report1.addClassFlocRows(changeDest);
     let* _          = ChangeDoc/Report1.extractClassEquiRows(database)
                         |> ChangeDoc/Report1.addClassEquiRows(changeDest);
+    let* _          = ChangeDoc/Report1.extractValuaFlocRows(database)
+                        |> ChangeDoc/Report1.addValuaFlocRows(changeDest);
     let* _          = ChangeDoc/Report1.extractValuaEquiRows(database)
                         |> ChangeDoc/Report1.addValuaEquiRows(changeDest);
     Console.printLine("Done");
