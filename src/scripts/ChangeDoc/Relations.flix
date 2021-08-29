@@ -31,7 +31,7 @@ namespace ChangeDoc/Relations {
     
     pub rel AttrChange(itemId: String, name: String, value: String)
     
-    pub rel ClassChange(entity: String, itemId: String, className: String)
+    pub rel ClassChange(entity: String, itemId: String, className: String, status: String)
 
     pub rel LongTextChange(entity: String, itemId: String, attribute: String, value: String)
 
@@ -52,9 +52,9 @@ namespace ChangeDoc/Relations {
 
     pub rel Attribute(itemId: String, attrName: String, attrValue: String)
     
-    pub rel ClassFloc(itemId: String, name: String)
+    pub rel ClassFloc(itemId: String, funcloc: String, name: String, status: String)
 
-    pub rel ClassEqui(itemId: String, name: String)
+    pub rel ClassEqui(itemId: String, name: String, status: String)
 
     pub rel ValuaFloc(itemId: String, name: String, intCounter: Int32, value: String)
 
@@ -68,8 +68,9 @@ namespace ChangeDoc/Relations {
         case (NameKey(entity, itemId), CreateLocal(name)) => #{ NameChange("${entity}", itemId, name). }
         case (NameKey(entity, itemId), UpdateGlobal(name)) => #{ NameChange("${entity}", itemId, name). }
 
-        case (ClassKey(entity, itemId, className), CreateLocal("1")) => #{ ClassChange("${entity}", itemId, className). }
-        case (ClassKey(entity, itemId, className), UpdateGlobal("1")) => #{ ClassChange("${entity}", itemId, className). }
+        case (ClassKey(entity, itemId, className), CreateLocal(_)) => #{ ClassChange("${entity}", itemId, className, "New"). }
+        case (ClassKey(entity, itemId, className), UpdateGlobal(_)) => #{ ClassChange("${entity}", itemId, className, "Update"). }
+        case (ClassKey(entity, itemId, className), DeleteGlobal(_)) => #{ ClassChange("${entity}", itemId, className, "Delete"). }
 
         case (LongTextKey(entity, itemId, name), CreateLocal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
         case (LongTextKey(entity, itemId, name), UpdateGlobal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }

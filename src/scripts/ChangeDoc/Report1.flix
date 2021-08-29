@@ -45,7 +45,7 @@ namespace ChangeDoc/Report1 {
         let* flocmap    = ChangeDoc/Loader.readFlocMapping(cfg.flocChangeRequestExport)
                             |> Result.map(Relation.foldMap(xy -> let (x1, y1) = xy; #{ FlocNameMap(x1, y1). }));
         let rules       = ChangeDoc/BuildRel.rules();
-        let database    = (relns <+> flocmap <+> rules <+> ChangeDoc/BuildRel.query1());
+        let database    = (relns <+> flocmap <+> rules);
         let* _          = ChangeDoc/Report1.buildFlocRows(database)
                             |> ChangeDoc/Report1.writeFlocRows(changeDest);
         let* _          = ChangeDoc/Report1.buildEquiRows(database)
@@ -84,24 +84,27 @@ namespace ChangeDoc/Report1 {
 
     type alias ClassFlocRow = 
         { internalFloc: String
-        , name: String
+        , funcloc: String
+        , className: String
+        , status: String
         }
 
     type alias ClassEquiRow = 
         { equiId: String
-        , name: String
+        , className: String
+        , status: String
         }
 
     type alias ValuaFlocRow = 
         { internalFloc: String
-        , name: String
+        , charName: String
         , intCounter: Int32
         , value: String
         }
 
     type alias ValuaEquiRow = 
         { equiId: String
-        , name: String
+        , charName: String
         , intCounter: Int32
         , value: String
         }
@@ -326,21 +329,23 @@ namespace ChangeDoc/Report1 {
     /// ## Classfloc
 
     pub def extractClassFlocRows(db: #{ClassFloc | r}): Array[ClassFlocRow] & Impure = 
-        query db select (x1, x2) from ClassFloc(x1, x2) 
+        query db select (x1, x2, x3, x4) from ClassFloc(x1, x2, x3, x4) 
             |> Array.map(makeClassFlocRow1)
 
 
-    def makeClassFlocRow1(x: (String, String)): ClassFlocRow = 
-        let (x1, x2) = x;
+    def makeClassFlocRow1(x: (String, String, String, String)): ClassFlocRow = 
+        let (x1, x2, x3, x4) = x;
         { internalFloc  = x1
-        , name          = x2
+        , funcloc       = x2
+        , className     = x3
+        , status        = x4
         }
 
 
 
     pub def addClassFlocRows(path: System.FilePath, arr: Array[ClassFlocRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Classfloc",
-            headers = Some(["Int. Functional Location", "Name"]),
+            headers = Some(["Int. Functional Location", "Functional Location", "Name", "Status"]),
             setter = setClassFlocRow,
             rows = Array.toList(arr)
         };
@@ -352,27 +357,30 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
-        ++> flip(putString!, x.name)
+        ++> flip(putString!, x.funcloc)
+        ++> flip(putString!, x.className)
+        ++> flip(putString!, x.status)
         *> return()
 
 
     /// ## Classequi
 
     pub def extractClassEquiRows(db: #{ClassEqui | r}): Array[ClassEquiRow] & Impure = 
-        query db select (x1, x2) from ClassEqui(x1, x2) 
+        query db select (x1, x2, x3) from ClassEqui(x1, x2, x3) 
             |> Array.map(makeClassEquiRow1)
 
 
-    def makeClassEquiRow1(x: (String, String)): ClassEquiRow = 
-        let (x1, x2) = x;
+    def makeClassEquiRow1(x: (String, String, String)): ClassEquiRow = 
+        let (x1, x2, x3) = x;
         { equiId        = x1
-        , name          = x2
+        , className     = x2
+        , status        = x3
         }
 
 
     pub def addClassEquiRows(path: System.FilePath, arr: Array[ClassEquiRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Classequi",
-            headers = Some(["Equipment", "Name"]),
+            headers = Some(["Equipment", "Name", "Status"]),
             setter = setClassEquiRow,
             rows = Array.toList(arr)
         };
@@ -384,7 +392,8 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
-        ++> flip(putString!, x.name)
+        ++> flip(putString!, x.className)
+        ++> flip(putString!, x.status)
         *> return()
 
 
@@ -406,7 +415,7 @@ namespace ChangeDoc/Report1 {
     def makeValuaFlocRow1(x: (String, String, Int32, String)): ValuaFlocRow = 
         let (x1, x2, x3, x4) = x;
         { internalFloc  = x1
-        , name          = x2
+        , charName      = x2
         , intCounter    = x3
         , value         = x4
         }
@@ -417,7 +426,7 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
-        ++> flip(putString!, x.name)
+        ++> flip(putString!, x.charName)
         ++> flip(putInt32!, x.intCounter)
         ++> flip(putString!, x.value)
         *> return()
@@ -432,7 +441,7 @@ namespace ChangeDoc/Report1 {
     def makeValuaEquiRow1(x: (String, String, Int32, String)): ValuaEquiRow = 
         let (x1, x2, x3, x4) = x;
         { equiId        = x1
-        , name          = x2
+        , charName      = x2
         , intCounter    = x3
         , value         = x4
         }
@@ -452,7 +461,7 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
-        ++> flip(putString!, x.name)
+        ++> flip(putString!, x.charName)
         ++> flip(putInt32!, x.intCounter)
         ++> flip(putString!, x.value)
         *> return()

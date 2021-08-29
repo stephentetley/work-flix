@@ -34,11 +34,11 @@ namespace ChangeDoc/BuildRel {
         HasFlocNameMap(itemId):- 
             FlocNameMap(itemId, _).
 
-        Funcloc(itemId, floc, descr) :-
+        Funcloc(itemId, funcloc, descr) :-
             NameChange("Floc", itemId, descr),
-            FlocNameMap(itemId, floc).
+            FlocNameMap(itemId, funcloc).
 
-        Funcloc(itemId, "TODO", descr) :-
+        Funcloc(itemId, "[Unknown]", descr) :-
             NameChange("Floc", itemId, descr),
             not HasFlocNameMap(itemId).
 
@@ -57,29 +57,37 @@ namespace ChangeDoc/BuildRel {
             AttrChange(itemId, name, value), 
             if name != "Object Type".
 
-        ClassEqui(itemId, className) :- 
-            ClassChange("Equi", itemId, className).
+        ClassFloc(itemId, funcloc, className, status) :- 
+            ClassChange("Floc", itemId, className, status), 
+            FlocNameMap(itemId, funcloc).
+        
+        ClassFloc(itemId, "[Unknown]]", className, status) :- 
+            ClassChange("Floc", itemId, className, status), 
+            not HasFlocNameMap(itemId).
+        
 
-        ClassFloc(itemId, className) :- 
-            ClassChange("Floc", itemId, className).
+        ClassEqui(itemId, className, status) :- 
+            ClassChange("Equi", itemId, className, status).
 
-        ValuaFloc(itemId, name, intCounter, value) :-
-            ValuaChange("Floc", itemId, name, intCounter, value).
+        
+        ValuaFloc(itemId, charname, intCounter, value) :-
+            ValuaChange("Floc", itemId, charname, intCounter, value).
+            
 
         ValuaEqui(itemId, name, intCounter, value) :-
             ValuaChange("Equi", itemId, name, intCounter, value).
 
     }
 
-    pub rel ClassName(itemId: String, className: String)
+    /// pub rel ClassName(itemId: String, className: String)
 
-    pub def query1(): #{ClassChange, ObjectType, ClassName | r} = #{
+    /// pub def query1(): #{ClassChange, ObjectType, ClassName | r} = #{
      
-        ClassName(itemId, className) :- 
-            ClassChange(_, itemId, className), 
-            ObjectType(itemId, objName),
-            if className `String.startsWith` objName.
-    }
+    ///     ClassName(itemId, className) :- 
+    ///         ClassChange(_, itemId, className), 
+    ///         ObjectType(itemId, objName),
+    ///         if className `String.startsWith` objName.
+    /// }
 
 
 }
