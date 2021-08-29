@@ -37,9 +37,9 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
     use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
     use AssetLib/FileIO/S4/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
-    /// Always UTF-8? no if parsing fails try iso_8859_1()
-    pub def parseFile(path: System.FilePath, srctype: SourceType, cs: Text.Charset) : Result[ClassListFile, String] & Impure = 
-        FlixParsec/Prim.parsesFile(classListParser(srctype), 4, path, cs) 
+    /// Always UTF-8 with BOM? 
+    pub def parseFile(path: System.FilePath, srctype: SourceType) : Result[ClassListFile, String] & Impure = 
+        FlixParsec/Prim.parsesFileWithBOM(classListParser(srctype), 4, path) 
 
 
     def classListParser(srctype: SourceType): Parser[t1, ClassListFile] = 

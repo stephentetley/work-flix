@@ -24,7 +24,19 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
     use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
     use AssetLib/FileIO/S4/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
     use AssetLib/FileIO/S4/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
+    use AssetLib/FileIO/S4/ClassList/Datatypes.SourceType.{FlocClasses, EquiClasses};
 
+    pub def loadFlocClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
+        use Result.{flatMap};
+        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseFile(path, FlocClasses);
+        let ans     = buildClassList(ast);
+        Ok(ans)
+
+    pub def loadEquiClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
+        use Result.{flatMap};
+        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseFile(path, EquiClasses);
+        let ans     = buildClassList(ast);
+        Ok(ans)
 
 
     pub def buildClassList(src: ClassListFile): ClassList = 
