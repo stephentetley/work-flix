@@ -44,8 +44,10 @@ namespace ChangeDoc/Report1 {
         let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
         let* flocmap    = ChangeDoc/Loader.readFlocMapping(cfg.flocChangeRequestExport)
                             |> Result.map(Relation.foldMap(xy -> let (x1, y1) = xy; #{ FlocNameMap(x1, y1). }));
+        let* flocCR     = AssetLib/FileIO/S4/ClassList/Relations.loadFlocClassRelations(cfg.flocClassList);
+        let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
         let rules       = ChangeDoc/BuildRel.rules();
-        let database    = (relns <+> flocmap <+> rules);
+        let database    = (relns <+> flocmap <+> flocCR <+> equiCR <+> rules);
         let* _          = ChangeDoc/Report1.buildFlocRows(database)
                             |> ChangeDoc/Report1.writeFlocRows(changeDest);
         let* _          = ChangeDoc/Report1.buildEquiRows(database)
