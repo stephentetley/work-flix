@@ -70,6 +70,39 @@ namespace ChangeDoc/Report1 {
     /// jointable then recover the hierarchy with an organization criteria.
     /// 
     /// Currently (at least) we are building multiple tables of relations.
+    
+    type alias Report1Config = 
+        { changeAttributesExport: System.FilePath
+        , outputPath: System.FilePath
+        }
+
+    pub def report1(cfg: Report1Config): Result[Unit, String] & Impure =
+        use Result.flatMap;
+        let changeDest  = cfg.outputPath;
+        let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
+        let st1         = ChangeDoc/Interpreter.interpret(patches);
+        let _           = st1 |> Map.foreach((k, v) -> Console.printLine("${k} -> ${v}"));
+        let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
+        let rules       = ChangeDoc/BuildRel.rules();
+        let database    = (relns <+> rules<+> ChangeDoc/BuildRel.query1());
+        let* _          = ChangeDoc/Report1.buildFlocRows(database)
+                            |> perform(Array.foreach(ChangeDoc/Report1.flocRowToString >> Console.printLine))
+                            |> ChangeDoc/Report1.writeFlocRows(changeDest);
+        let* _          = ChangeDoc/Report1.buildEquiRows(database)
+                            |> perform(Array.foreach(ChangeDoc/Report1.equiRowToString >> Console.printLine))
+                            |> ChangeDoc/Report1.addEquiRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractEquiLongTextRows(database)
+                            |> ChangeDoc/Report1.addEquiLongTextRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractClassFlocRows(database)
+                            |> ChangeDoc/Report1.addClassFlocRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractClassEquiRows(database)
+                            |> ChangeDoc/Report1.addClassEquiRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractValuaFlocRows(database)
+                            |> ChangeDoc/Report1.addValuaFlocRows(changeDest);
+        let* _          = ChangeDoc/Report1.extractValuaEquiRows(database)
+                            |> ChangeDoc/Report1.addValuaEquiRows(changeDest);
+        Console.printLine("Done");
+        Ok()
 
 
 
@@ -111,8 +144,8 @@ namespace ChangeDoc/Report1 {
         SheetIO/Writer.writeWorkSheet(writer, path)
 
     def setFlocRow(x: FlocRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
-        use SheetIO/RowSetter.{*>};
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
         ++> flip(putString!, x.functionalLocation)
@@ -210,8 +243,8 @@ namespace ChangeDoc/Report1 {
 
 
     def setEquiRow(x: EquiRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
-        use SheetIO/RowSetter.{*>};
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.description)
@@ -278,8 +311,8 @@ namespace ChangeDoc/Report1 {
 
 
     def setEquiLongTextRow(x: EquiLongTextRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
-        use SheetIO/RowSetter.{*>};
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.description)
@@ -312,8 +345,8 @@ namespace ChangeDoc/Report1 {
 
 
     def setClassFlocRow(x: ClassFlocRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
-        use SheetIO/RowSetter.{*>};
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
         ++> flip(putString!, x.name)
@@ -344,8 +377,8 @@ namespace ChangeDoc/Report1 {
 
 
     def setClassEquiRow(x: ClassEquiRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!};
-        use SheetIO/RowSetter.{*>};
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.name)
@@ -377,8 +410,8 @@ namespace ChangeDoc/Report1 {
 
 
     def setValuaFlocRow(x: ValuaFlocRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!, putInt32At! => putInt32!};
-        use SheetIO/RowSetter.{*>};
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!, putInt32At! => putInt32!};
+        use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
         ++> flip(putString!, x.name)
@@ -412,8 +445,8 @@ namespace ChangeDoc/Report1 {
 
 
     def setValuaEquiRow(x: ValuaEquiRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt! => putString!, putInt32At! => putInt32!};
-        use SheetIO/RowSetter.{*>};
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!, putInt32At! => putInt32!};
+        use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.name)
@@ -430,21 +463,12 @@ namespace ChangeDoc/Report1 {
             |> Relation/Organization.collectToMapMap(key1of3, innerKV)
 
 
+        
 
+    def getAttr(name: String, attrs: Map[String, String]): String = 
+        Map.getWithDefault(name, "", attrs)
 
-    /// For SheetIO.RowSetter...
-
-    def startingAt(i: Int32): RowSetter[Int32] = SheetIO/RowSetter.return(i)
-
-
-    /// incrementing `bind`
-    def ++>(mi: RowSetter[Int32], mx: Int32 -> RowSetter[b]): RowSetter[Int32] = 
-        use SheetIO/RowSetter.{flatMap, return};
-        let* ix = mi;
-        let* _ = mx(ix);
-        return(ix + 1)
-
-    ///// 
+    ///// Experiments...
 
 
     pub def flocRowToString(x: FlocRow): String = 
@@ -504,9 +528,5 @@ namespace ChangeDoc/Report1 {
         f(sb);
         StringBuilder.toString(sb)
 
-        
-
-    def getAttr(name: String, attrs: Map[String, String]): String = 
-        Map.getWithDefault(name, "", attrs)
 
 }
