@@ -56,6 +56,7 @@ namespace ChangeDoc/BuildRel {
         Equipment(itemId, name) :- 
             NameChange("Equi", itemId, name).
 
+        /// TODO need a sample with long text to see how to replace the empty string...
         EquiLongText(itemId, descr, "") :- 
             LongTextChange("Equi", itemId, "Description (medium text)", descr).
 
@@ -67,17 +68,19 @@ namespace ChangeDoc/BuildRel {
             if name != "Object Type".
 
 
-        ClassFloc(itemId, funcloc, className, status) :- 
+        ClassFloc(itemId, funcloc, flocName, className, status) :- 
             ClassChange("Floc", itemId, className, status), 
+            NameChange("Floc", itemId, flocName),
             FlocNameMap(itemId, funcloc).
         
-        ClassFloc(itemId, "[Unknown]", className, status) :- 
+        ClassFloc(itemId, "[Unknown]", flocName, className, status) :- 
             ClassChange("Floc", itemId, className, status), 
+            NameChange("Floc", itemId, flocName),
             not HasFlocNameMap(itemId).
 
-        ClassEqui(itemId, className, status) :- 
-            ClassChange("Equi", itemId, className, status).
-
+        ClassEqui(itemId, equiName, className, status) :- 
+            ClassChange("Equi", itemId, className, status),
+            NameChange("Equi", itemId, equiName).
         
         HasFlocClassName(itemId, charName) :-
             ClassChange(_, itemId, className, _),
@@ -91,13 +94,15 @@ namespace ChangeDoc/BuildRel {
             ValuaChange(_, itemId, charName, _, _, _),
             not HasFlocClassName(itemId, charName).
 
-        ValuaFloc(itemId, funcloc, className, charName, intCounter, status, value) :-
+        ValuaFloc(itemId, funcloc, flocName, className, charName, intCounter, status, value) :-
             ValuaChange("Floc", itemId, charName, intCounter, value, status),
-            FlocNameMap(itemId, funcloc), 
+            FlocNameMap(itemId, funcloc),
+            NameChange("Floc", itemId, flocName), 
             GetFlocClassName(itemId, charName, className).
 
-        ValuaFloc(itemId, "[Unknown]", className, charName, intCounter, status, value) :-
+        ValuaFloc(itemId, "[Unknown]", flocName, className, charName, intCounter, status, value) :-
             ValuaChange("Floc", itemId, charName, intCounter, value, status),
+            NameChange("Floc", itemId, flocName), 
             GetFlocClassName(itemId, charName, className),
             not HasFlocNameMap(itemId).
 
@@ -114,8 +119,9 @@ namespace ChangeDoc/BuildRel {
             not HasEquiClassName(itemId, charName).
 
 
-        ValuaEqui(itemId, className, charName, intCounter, status, value) :-
-            ValuaChange("Equi", itemId, charName, intCounter, value, status), 
+        ValuaEqui(itemId, equiName, className, charName, intCounter, status, value) :-
+            ValuaChange("Equi", itemId, charName, intCounter, value, status),
+            NameChange("Equi", itemId, equiName),  
             GetEquiClassName(itemId, charName, className).
 
     }

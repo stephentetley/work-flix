@@ -52,13 +52,13 @@ namespace ChangeDoc/Relations {
 
     pub rel Attribute(itemId: String, attrName: String, attrValue: String)
     
-    pub rel ClassFloc(itemId: String, funcloc: String, className: String, status: String)
+    pub rel ClassFloc(itemId: String, funcloc: String, flocName: String, className: String, status: String)
 
-    pub rel ClassEqui(itemId: String, className: String, status: String)
+    pub rel ClassEqui(itemId: String, equiName: String, className: String, status: String)
 
-    pub rel ValuaFloc(itemId: String, funcloc: String, className: String, charName: String, intCounter: Int32, status: String, value: String)
+    pub rel ValuaFloc(itemId: String, funcloc: String, flocName: String, className: String, charName: String, intCounter: Int32, status: String, value: String)
 
-    pub rel ValuaEqui(itemId: String, className: String, charName: String, intCounter: Int32, status: String, value: String)
+    pub rel ValuaEqui(itemId: String, equiName: String, className: String, charName: String, intCounter: Int32, status: String, value: String)
 
     pub def makeChangeRelations(st: State): #{NameChange, AttrChange | r} = 
         Relation.foldMap(makeChangeRelation1, Map.toList(st))

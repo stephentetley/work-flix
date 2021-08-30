@@ -88,12 +88,14 @@ namespace ChangeDoc/Report1 {
     type alias ClassFlocRow = 
         { internalFloc: String
         , funcloc: String
+        , flocName: String
         , className: String
         , status: String
         }
 
     type alias ClassEquiRow = 
         { equiId: String
+        , equiName: String
         , className: String
         , status: String
         }
@@ -101,6 +103,7 @@ namespace ChangeDoc/Report1 {
     type alias ValuaFlocRow = 
         { internalFloc: String
         , funcloc: String
+        , flocName: String
         , className: String
         , charName: String
         , intCounter: Int32
@@ -110,6 +113,7 @@ namespace ChangeDoc/Report1 {
 
     type alias ValuaEquiRow = 
         { equiId: String
+        , equiName: String
         , charName: String
         , className: String
         , intCounter: Int32
@@ -337,23 +341,24 @@ namespace ChangeDoc/Report1 {
     /// ## Classfloc
 
     pub def extractClassFlocRows(db: #{ClassFloc | r}): Array[ClassFlocRow] & Impure = 
-        query db select (x1, x2, x3, x4) from ClassFloc(x1, x2, x3, x4) 
+        query db select (x1, x2, x3, x4, x5) from ClassFloc(x1, x2, x3, x4, x5) 
             |> Array.map(makeClassFlocRow1)
 
 
-    def makeClassFlocRow1(x: (String, String, String, String)): ClassFlocRow = 
-        let (x1, x2, x3, x4) = x;
+    def makeClassFlocRow1(x: (String, String, String, String, String)): ClassFlocRow = 
+        let (x1, x2, x3, x4, x5) = x;
         { internalFloc  = x1
         , funcloc       = x2
-        , className     = x3
-        , status        = x4
+        , flocName      = x3
+        , className     = x4
+        , status        = x5
         }
 
 
 
     pub def addClassFlocRows(path: System.FilePath, arr: Array[ClassFlocRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Classfloc",
-            headers = Some(["Int. Functional Location", "Status", "Functional Location", "Name"]),
+            headers = Some(["Int. Functional Location", "Functional Location", "Floc Description", "Status", "Class Name"]),
             setter = setClassFlocRow,
             rows = Array.toList(arr)
         };
@@ -365,8 +370,9 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
-        ++> flip(putString!, x.status)
         ++> flip(putString!, x.funcloc)
+        ++> flip(putString!, x.flocName)
+        ++> flip(putString!, x.status)
         ++> flip(putString!, x.className)
         *> return()
 
@@ -374,21 +380,22 @@ namespace ChangeDoc/Report1 {
     /// ## Classequi
 
     pub def extractClassEquiRows(db: #{ClassEqui | r}): Array[ClassEquiRow] & Impure = 
-        query db select (x1, x2, x3) from ClassEqui(x1, x2, x3) 
+        query db select (x1, x2, x3, x4) from ClassEqui(x1, x2, x3, x4) 
             |> Array.map(makeClassEquiRow1)
 
 
-    def makeClassEquiRow1(x: (String, String, String)): ClassEquiRow = 
-        let (x1, x2, x3) = x;
+    def makeClassEquiRow1(x: (String, String, String, String)): ClassEquiRow = 
+        let (x1, x2, x3, x4) = x;
         { equiId        = x1
-        , className     = x2
-        , status        = x3
+        , equiName      = x2
+        , className     = x3
+        , status        = x4
         }
 
 
     pub def addClassEquiRows(path: System.FilePath, arr: Array[ClassEquiRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Classequi",
-            headers = Some(["Equipment", "Status", "Name"]),
+            headers = Some(["Equipment Id", "Equi Description", "Status", "Class Name"]),
             setter = setClassEquiRow,
             rows = Array.toList(arr)
         };
@@ -400,6 +407,7 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
+        ++> flip(putString!, x.equiName)
         ++> flip(putString!, x.status)
         ++> flip(putString!, x.className)
         *> return()
@@ -409,25 +417,26 @@ namespace ChangeDoc/Report1 {
     /// ## Valuafloc
 
     pub def extractValuaFlocRows(db: #{ValuaFloc | r}): Array[ValuaFlocRow] & Impure = 
-        query db select (x1, x2, x3, x4, x5, x6, x7) from ValuaFloc(x1, x2, x3, x4, x5, x6, x7) 
+        query db select (x1, x2, x3, x4, x5, x6, x7, x8) from ValuaFloc(x1, x2, x3, x4, x5, x6, x7, x8) 
             |> Array.map(makeValuaFlocRow1)
 
 
-    def makeValuaFlocRow1(x: (String, String, String, String, Int32, String, String)): ValuaFlocRow = 
-        let (x1, x2, x3, x4, x5, x6, x7) = x;
+    def makeValuaFlocRow1(x: (String, String, String, String, String, Int32, String, String)): ValuaFlocRow = 
+        let (x1, x2, x3, x4, x5, x6, x7, x8) = x;
         { internalFloc  = x1
         , funcloc       = x2
-        , className     = x3
-        , charName      = x4
-        , intCounter    = x5
-        , status        = x6
-        , value         = x7
+        , flocName      = x3
+        , className     = x4
+        , charName      = x5
+        , intCounter    = x6
+        , status        = x7
+        , value         = x8
         }
 
 
     pub def addValuaFlocRows(path: System.FilePath, arr: Array[ValuaFlocRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Valuafloc",
-            headers = Some(["Int. Functional Location", "Status", "Functional Location", "Class Name", "Characteristic Name", "Int Counter", "Value"]),
+            headers = Some(["Int. Functional Location", "Functional Location", "Floc Description", "Class Name", "Status", "Characteristic Name", "Int Counter", "Value"]),
             setter = setValuaFlocRow,
             rows = Array.toList(arr)
         };
@@ -438,9 +447,10 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
-        ++> flip(putString!, x.status)
         ++> flip(putString!, x.funcloc)
+        ++> flip(putString!, x.flocName)
         ++> flip(putString!, x.className)
+        ++> flip(putString!, x.status)
         ++> flip(putString!, x.charName)
         ++> flip(putInt32!, x.intCounter)
         ++> flip(putString!, x.value)
@@ -449,24 +459,25 @@ namespace ChangeDoc/Report1 {
     /// ## Valuaequi
 
     pub def extractValuaEquiRows(db: #{ValuaEqui | r}): Array[ValuaEquiRow] & Impure = 
-        query db select (x1, x2, x3, x4, x5, x6) from ValuaEqui(x1, x2, x3, x4, x5, x6) 
+        query db select (x1, x2, x3, x4, x5, x6, x7) from ValuaEqui(x1, x2, x3, x4, x5, x6, x7) 
             |> Array.map(makeValuaEquiRow1)
 
 
-    def makeValuaEquiRow1(x: (String, String, String, Int32, String, String)): ValuaEquiRow = 
-        let (x1, x2, x3, x4, x5, x6) = x;
+    def makeValuaEquiRow1(x: (String, String, String, String, Int32, String, String)): ValuaEquiRow = 
+        let (x1, x2, x3, x4, x5, x6, x7) = x;
         { equiId        = x1
-        , className     = x2
-        , charName      = x3
-        , intCounter    = x4
-        , status        = x5
-        , value         = x6
+        , equiName      = x2
+        , className     = x3
+        , charName      = x4
+        , intCounter    = x5
+        , status        = x6
+        , value         = x7
         }
 
 
     pub def addValuaEquiRows(path: System.FilePath, arr: Array[ValuaEquiRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Valuaequi",
-            headers = Some(["Equipment", "Status", "Class Name", "Characteristic Name", "Int Counter", "Value"]),
+            headers = Some(["Equipment", "Equi Description", "Class Name", "Status", "Characteristic Name", "Int Counter", "Value"]),
             setter = setValuaEquiRow,
             rows = Array.toList(arr)
         };
@@ -478,8 +489,9 @@ namespace ChangeDoc/Report1 {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
-        ++> flip(putString!, x.status)
+        ++> flip(putString!, x.equiName)
         ++> flip(putString!, x.className)
+        ++> flip(putString!, x.status)
         ++> flip(putString!, x.charName)
         ++> flip(putInt32!, x.intCounter)
         ++> flip(putString!, x.value)
