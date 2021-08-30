@@ -21,6 +21,7 @@ namespace ChangeDoc/Report1 {
 
     use ChangeDoc/Relations.{Funcloc, Equipment, EquiLongText, 
         ClassFloc, ClassEqui, ValuaFloc, ValuaEqui, FlocNameMap, Attribute};
+    use AssetLib/FileIO/S4/ClassList/Relations.{S4FlocClassMember, S4EquiClassMember};
 
 
     /// Note - qjbrowser / TyRuBa-JQuery build relations differently - they build a single big
@@ -45,6 +46,8 @@ namespace ChangeDoc/Report1 {
         let* flocmap    = ChangeDoc/Loader.readFlocMapping(cfg.flocChangeRequestExport)
                             |> Result.map(Relation.foldMap(xy -> let (x1, y1) = xy; #{ FlocNameMap(x1, y1). }));
         let* flocCR     = AssetLib/FileIO/S4/ClassList/Relations.loadFlocClassRelations(cfg.flocClassList);
+        let _           = query flocCR select (x1, x2) from S4FlocClassMember(x1, x2)
+                            |> Array.foreach(println);
         let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
         let rules       = ChangeDoc/BuildRel.rules();
         let database    = (relns <+> flocmap <+> flocCR <+> equiCR <+> rules);

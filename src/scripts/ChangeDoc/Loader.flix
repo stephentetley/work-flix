@@ -114,7 +114,7 @@ namespace ChangeDoc/Loader {
             case _ => return(None)
         }
 
-
+    /// Valuafloc records "Functional Location" for New+Blank
     def evalCharacteristicChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
         use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
         use SheetIO/RowEvaluator.{>>=};
@@ -125,6 +125,7 @@ namespace ChangeDoc/Loader {
         let* change         = optional(getInstruction()); 
         match (attribute, change) {
             case ("Description", Some(instr)) => return(Some(ChangeRow(ValuaKey(entityType, itemId, charName, counter), instr)))
+            case ("Functional Location", Some(instr)) => return(Some(ChangeRow(ValuaKey(entityType, itemId, charName, counter), instr)))
             case _ => return(None)
         }
 
