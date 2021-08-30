@@ -27,12 +27,18 @@ namespace ChangeDoc/BuildRel {
 
     pub rel HasFlocNameMap(internalFuncloc: String)
 
-    pub rel ClassUsed(itemId: String, className: String)
+    pub rel HasFlocClassName(itemId: String, className: String)
+    pub rel GetFlocClassName(itemId: String, charName: String, className: String)
+
+    pub rel HasEquiClassName(itemId: String, className: String)
+    pub rel GetEquiClassName(itemId: String, charName: String, className: String)
+
 
     pub def rules(): #{Funcloc, Equipment, EquiLongText, ObjectType, Attribute, 
                         ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
                         NameChange, AttrChange, ClassChange, ValuaChange, LongTextChange, 
-                        FlocNameMap, HasFlocNameMap, S4FlocClassMember, S4EquiClassMember, ClassUsed | r} = #{
+                        FlocNameMap, HasFlocNameMap, S4FlocClassMember, S4EquiClassMember, 
+                        HasFlocClassName, GetFlocClassName, HasEquiClassName, GetEquiClassName | r} = #{
 
         HasFlocNameMap(itemId) :- 
             FlocNameMap(itemId, _).
@@ -72,36 +78,45 @@ namespace ChangeDoc/BuildRel {
         ClassEqui(itemId, className, status) :- 
             ClassChange("Equi", itemId, className, status).
 
-        ClassUsed(itemId, className) :- 
-            ClassChange(_, itemId, className, _).
         
-        /// HasClassName(itemId, charName) :-
-        ///     ClassChange(_, itemId, className, _),
-        ///     S4FlocClassMember(className, charName).
+        HasFlocClassName(itemId, charName) :-
+            ClassChange(_, itemId, className, _),
+            S4FlocClassMember(className, charName).
         
-        /// GetClassName(itemId, charName, className) :- 
-        ///     ClassUsed(itemId, className),
+        GetFlocClassName(itemId, charName, className) :- 
+            ClassChange(_, itemId, className, _),
+            S4FlocClassMember(className, charName).
 
-        /// GetClassName(itemId, charName, "[Unknown]") :- 
-        ///     not HasClassName(itemId, charName),
+        GetFlocClassName(itemId, charName, "[Unknown/Orphan]") :- 
+            ValuaChange(_, itemId, charName, _, _, _),
+            not HasFlocClassName(itemId, charName).
 
         ValuaFloc(itemId, funcloc, className, charName, intCounter, status, value) :-
             ValuaChange("Floc", itemId, charName, intCounter, value, status),
             FlocNameMap(itemId, funcloc), 
-            ClassUsed(itemId, className),
-            S4FlocClassMember(className, charName).
+            GetFlocClassName(itemId, charName, className).
 
         ValuaFloc(itemId, "[Unknown]", className, charName, intCounter, status, value) :-
             ValuaChange("Floc", itemId, charName, intCounter, value, status),
-            ClassUsed(itemId, className),
-            S4FlocClassMember(className, charName),
+            GetFlocClassName(itemId, charName, className),
             not HasFlocNameMap(itemId).
+
+        HasEquiClassName(itemId, charName) :-
+            ClassChange(_, itemId, className, _),
+            S4EquiClassMember(className, charName).
+        
+        GetEquiClassName(itemId, charName, className) :- 
+            ClassChange(_, itemId, className, _),
+            S4EquiClassMember(className, charName).
+
+        GetEquiClassName(itemId, charName, "[Unknown/Orphan]") :- 
+            ValuaChange(_, itemId, charName, _, _, _),
+            not HasEquiClassName(itemId, charName).
 
 
         ValuaEqui(itemId, className, charName, intCounter, status, value) :-
             ValuaChange("Equi", itemId, charName, intCounter, value, status), 
-            ClassUsed(itemId, className),
-            S4EquiClassMember(className, charName).
+            GetEquiClassName(itemId, charName, className).
 
     }
 
