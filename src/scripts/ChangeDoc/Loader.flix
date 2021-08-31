@@ -17,7 +17,7 @@
 
 namespace ChangeDoc/Loader {
 
-    use SheetIO.RowEvaluator;
+    use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
     use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow, Instruction, EntityType};
@@ -36,8 +36,10 @@ namespace ChangeDoc/Loader {
 
     /// Sheet always called "Data"
     pub def readChangeDoc(src: System.FilePath): Result[ChangeDoc, String] & Impure = 
-        let xlsx = {path = src, sheet = "Data"};
-        SheetIO/Reader.readSomeRows(xlsx, evalChangeRow())
+        use SheetIO/SheetReader.{flatMap, getSheetNamed, namedRowsFrom};
+        let action = {let* sheet1 = getSheetNamed("Data"); namedRowsFrom(sheet1, 2, 3, evalChangeRow())};
+        SheetIO/SheetReader.runXlsx(action, src)
+            |> Result.map(List.filterMap(identity))
 
     /// Needs a Change Request export of the Functional Location tab...
     /// Sheet always called "Data"
@@ -49,11 +51,10 @@ namespace ChangeDoc/Loader {
         SheetIO/Reader.readAllNamedRows(xlsx, evalRow)
 
 
-    def evalChangeRow(): RowEvaluator[Option[ChangeRow]] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
-        use SheetIO/RowEvaluator.{>>=};
+    def evalChangeRow(): NamedRowEvaluator[Option[ChangeRow]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
         let* entityType     = optional(getEntityType());
-        let* table          = getColumnIndex("R") >>= getTrimmedContentAt;
+        let* table          = getTrimmedContentNamed("Table");
         match (entityType, table) {
             case (Some(entype), "Text Table") => evalNameChange(entype)
             case (Some(Equi),   "Table for Relationship CLASSEQUI") => evalClassChange(Equi)
@@ -68,34 +69,31 @@ namespace ChangeDoc/Loader {
             case (_, _) => return(None)
         }
 
-    def evalNameChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
-        use SheetIO/RowEvaluator.{>>=};
-        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
-        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
+    def evalNameChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
+        let* itemId         = getTrimmedContentNamed("Value");
+        let* attribute      = getTrimmedContentNamed("Attribute");
         let* change         = optional(getInstruction()); 
         match (attribute, change) {
             case ("Description (medium text)", Some(instr)) => return(Some(ChangeRow(NameKey(entityType, itemId), instr)))
             case (_, _) => return(None)
         }
 
-    def evalClassChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
-        use SheetIO/RowEvaluator.{>>=};
-        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
-        let* className      = getColumnIndex("G") >>= getTrimmedContentAt;
-        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
+    def evalClassChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
+        let* itemId         = getTrimmedContentNamed("Value");
+        let* className      = getTrimmedContentNamed("Class");
+        let* attribute      = getTrimmedContentNamed("Attribute");
         let* change         = optional(getInstruction()); 
         match (attribute, change) {
             case ("Status", Some(instr)) => return(Some(ChangeRow(ClassKey(entityType, itemId, className), instr)))
             case (_, _) => return(None)
         }
 
-    def evalAttrChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
-        use SheetIO/RowEvaluator.{>>=};
-        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
-        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
+    def evalAttrChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
+        let* itemId         = getTrimmedContentNamed("Value");
+        let* attribute      = getTrimmedContentNamed("Attribute");
         let* change         = optional(getInstruction()); 
         match change {
             case Some(instr) => return(Some(ChangeRow(AttrKey(entityType, itemId, attribute), instr)))
@@ -103,11 +101,10 @@ namespace ChangeDoc/Loader {
         }
 
 
-    def evalLongTextChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
-        use SheetIO/RowEvaluator.{>>=};
-        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
-        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
+    def evalLongTextChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
+        let* itemId         = getTrimmedContentNamed("Value");
+        let* attribute      = getTrimmedContentNamed("Attribute");
         let* change         = optional(getInstruction()); 
         match change {
             case Some(instr) => return(Some(ChangeRow(LongTextKey(entityType, itemId, attribute), instr)))
@@ -115,12 +112,11 @@ namespace ChangeDoc/Loader {
         }
 
     /// Valuafloc records "Functional Location" for New+Blank
-    def evalCharacteristicChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
-        use SheetIO/RowEvaluator.{>>=};
-        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
-        let* charName       = getColumnIndex("F") >>= getTrimmedContentAt;
-        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
+    def evalCharacteristicChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
+        let* itemId         = getTrimmedContentNamed("Value");
+        let* charName       = getTrimmedContentNamed("Character ID");
+        let* attribute      = getTrimmedContentNamed("Attribute");
         let* counter        = getIntCounter();
         let* change         = optional(getInstruction()); 
         match (attribute, change) {
@@ -129,12 +125,11 @@ namespace ChangeDoc/Loader {
             case _ => return(None)
         }
 
-    def evalAddressChange(entityType: EntityType): RowEvaluator[Option[ChangeRow]] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, optional};
-        use SheetIO/RowEvaluator.{>>=};
-        let* itemId         = getColumnIndex("E") >>= getTrimmedContentAt;
-        let* attribute      = getColumnIndex("O") >>= getTrimmedContentAt;
-        let* number         = getAddressNumber(entityType);
+    def evalAddressChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
+        let* itemId         = getTrimmedContentNamed("Value");
+        let* attribute      = getTrimmedContentNamed("Attribute");
+        let* number         = getAddressNumber();
         let* change         = optional(getInstruction()); 
         match change {
             case Some(instr) => return(Some(ChangeRow(AddrAttrKey(entityType, itemId, attribute, number), instr)))
@@ -144,35 +139,31 @@ namespace ChangeDoc/Loader {
 
     /// Helpers
 
-    def getIntCounter(): RowEvaluator[Int32] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, throwError};
-        use SheetIO/RowEvaluator.{>>=};
-        let* counter        = getColumnIndex("K") >>= getTrimmedContentAt;
+    def getIntCounter(): NamedRowEvaluator[Int32] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
+        let* counter        = getTrimmedContentNamed("Int counter");
         match Int32.fromString(counter) {
             case Ok(i) => return(i)
             case Err(msg) => throwError("getIntCounter [${msg}] - `${counter}`")
         }
 
-
-    def getAddressNumber(entity: EntityType): RowEvaluator[Int32] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, throwError};
-        use SheetIO/RowEvaluator.{>>=};
-        let column          = match entity {
-            case Equi => "L"
-            case Floc => "M"
-        };
-        let* number        = getColumnIndex(column) >>= getTrimmedContentAt;
-        match Int32.fromString(number) {
-            case Ok(i) => return(i)
-            case Err(msg) => throwError("getAddressNumber [${msg}] - `${number}`")
-        }
+    /// Note - may or may not have two "Address Number" columns- it will not have content in both...
+    def getAddressNumber(): NamedRowEvaluator[String] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
+        let* number        = getTrimmedContentNamed("Address Number");
+        if (String.isEmpty(number)) {
+            getTrimmedContentNamed("Address Number.1")
+        } 
+        else return(number)
 
 
-    def getInstruction(): RowEvaluator[Instruction] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, throwError};
-        use SheetIO/RowEvaluator.{>>=};
-        let* change         = getColumnIndex("N") >>= getTrimmedContentAt;
-        let* newValue       = getColumnIndex("Q") >>= getTrimmedContentAt;
+    
+
+    def getInstruction(): NamedRowEvaluator[Instruction] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
+        use SheetIO/NamedRowEvaluator.{>>=};
+        let* change         = getTrimmedContentNamed("Change");
+        let* newValue       = getTrimmedContentNamed("New Value");
         match change {
             case "New" => return(New(newValue))
             case "Changed" => return(Change(newValue))
@@ -181,10 +172,10 @@ namespace ChangeDoc/Loader {
         }
 
 
-    def getEntityType(): RowEvaluator[EntityType] =
-        use SheetIO/RowEvaluator.{flatMap, return, getColumnIndex, getTrimmedContentAt, throwError};
-        use SheetIO/RowEvaluator.{>>=};
-        let* entityType     = getColumnIndex("D") >>= getTrimmedContentAt;
+    def getEntityType(): NamedRowEvaluator[EntityType] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
+        use SheetIO/NamedRowEvaluator.{>>=};
+        let* entityType     = getTrimmedContentNamed("Entity Type");
         match entityType {
             case "Equipment" => return(Equi)
             case "Functional Location" => return(Floc)

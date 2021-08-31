@@ -22,7 +22,7 @@ namespace ChangeDoc/Datatypes {
     type alias AttributeName = String
     type alias CharId = String
     type alias IntCounter = Int32
-    type alias AddressNumber = Int32
+    type alias AddressNumber = String
 
 
     type alias ChangeDoc = List[ChangeRow]
