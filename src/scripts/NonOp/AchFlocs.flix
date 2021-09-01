@@ -19,6 +19,7 @@
 namespace AssetScripts/NonOp/AchFlocs {
 
     use SheetIO/Reader.{XlsxSource};
+    use SheetIO.NamedRowEvaluator;
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
@@ -26,28 +27,43 @@ namespace AssetScripts/NonOp/AchFlocs {
     use AssetLib/GenS4/WorkLists.{FlocWorkItem};
 
     /// Split worklist...
-                        
+    
+
+    type alias TempWorkItem = 
+        { site: String
+        , easting: Int32
+        , northing: Int32
+        }
+
     pub def genFlocUxl(src: XlsxSource, 
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* items      = AssetLib/GenS4/WorkLists.readFlocWorkList(src);
+        let* items      = readTempWorkItems(src);
         let worklists   = AssetScripts/NonOp/Utils.sublists(50, items);
         let* _          = Result.foldLeftM((ac, xs) -> genFlocUxl1(ac, xs, args), 1, worklists);
         Ok()
 
 
+
+
     pub rel InstallationWorkItem(sainum: String)
 
     def genFlocUxl1(i: Int32, 
-                    xs: List[FlocWorkItem],
+                    xs: List[TempWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let workitems   = Relation.foldMap(x1 -> #{ SiteWorkItem(x1.funcloc, x1.gridRef). }, xs);
+        let workitems   = Relation.foldMap(x1 -> #{ SiteWorkItem(x1.site, makeNGR(x1.easting, x1.northing)). }, xs);
         let solns       = genFlocs(workitems);
         let s4lite      = genS4Lite(solns);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(false, args1, s4lite);
         Ok(i + 1)
+
+
+    def makeNGR(easting: Int32, northing: Int32): String = 
+        AssetLib/Base/Osgb36.toNGR({easting = easting, northing = northing})
+            |> Option.map(ToString.toString)
+            |> flip(Option.getWithDefault, "..Fail..")
 
 
     /// Use a custom relation for FunctionalLocation.
@@ -158,5 +174,15 @@ namespace AssetScripts/NonOp/AchFlocs {
         , status                = "UCON"
         }
 
+    pub def readTempWorkItems(src: XlsxSource): Result[List[TempWorkItem], String] & Impure =
+        SheetIO/Reader.readAllNamedRows(src, evalTempWorkItem())
+
+    def evalTempWorkItem(): NamedRowEvaluator[TempWorkItem] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3) -> {site = x1, easting = x2, northing = x3})
+            <&> getTrimmedContentNamed("Site")
+            <*> getInt32Named("Easting")
+            <*> getInt32Named("Northing")
 
 }
