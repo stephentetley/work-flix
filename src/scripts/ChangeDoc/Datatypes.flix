@@ -25,6 +25,23 @@ namespace ChangeDoc/Datatypes {
     type alias AddressNumber = String
 
 
+
+    type alias FlocWorkItem = 
+        { internalFuncloc: String
+        , funcloc: String
+        , description: String
+        , structureInd: String
+        , objectType: String
+        }
+    
+    type alias EquiWorkItem = 
+        { equiId: String
+        , description: String
+        , funcloc: String
+        , objectType: String
+        , objectClass: String
+        }
+
     type alias ChangeDoc = List[ChangeRow]
 
     pub enum ChangeRow {

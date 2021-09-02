@@ -19,7 +19,8 @@ namespace ChangeDoc/Report1 {
     
     use SheetIO.RowSetter;
 
-    use ChangeDoc/Relations.{Funcloc, Equipment, EquiLongText, 
+    use ChangeDoc/Datatypes.{FlocWorkItem};
+    use ChangeDoc/Relations.{Equipment, EquiLongText, 
         ClassFloc, ClassEqui, ValuaFloc, ValuaEqui, FlocNameMap, Attribute};
     use AssetLib/FileIO/S4/ClassList/Relations.{S4FlocClassMember, S4EquiClassMember};
 
@@ -31,7 +32,7 @@ namespace ChangeDoc/Report1 {
     
     type alias Report1Config = 
         { changeAttributesExport: System.FilePath
-        , flocChangeRequestExport: System.FilePath
+        , flocChangeRequestExport: Option[System.FilePath]
         , outputPath: System.FilePath
         , flocClassList: System.FilePath
         , equiClassList: System.FilePath
@@ -43,14 +44,15 @@ namespace ChangeDoc/Report1 {
         let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
         let st1         = ChangeDoc/Interpreter.interpret(patches);
         let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
-        let* flocmap    = ChangeDoc/Loader.readFlocMapping(cfg.flocChangeRequestExport)
-                            |> Result.map(Relation.foldMap(xy -> let (x1, y1) = xy; #{ FlocNameMap(x1, y1). }));
+        let* flocs      = match cfg.flocChangeRequestExport { 
+            case Some(path) => ChangeDoc/Loader.readFlocWorkItems(path)
+            case None => Ok(Nil)
+        };
         let* flocCR     = AssetLib/FileIO/S4/ClassList/Relations.loadFlocClassRelations(cfg.flocClassList);
         let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
         let rules       = ChangeDoc/BuildRel.rules();
-        let database    = (relns <+> flocmap <+> flocCR <+> equiCR <+> rules);
-        let* _          = ChangeDoc/Report1.buildFlocRows(database)
-                            |> ChangeDoc/Report1.writeFlocRows(changeDest);
+        let database    = (relns <+> flocCR <+> equiCR <+> rules);
+        let* _          = buildFlocRows(flocs, database) |> writeFlocRows(changeDest);
         let* _          = ChangeDoc/Report1.buildEquiRows(database)
                             |> ChangeDoc/Report1.addEquiRows(changeDest);
         let* _          = ChangeDoc/Report1.extractEquiLongTextRows(database)
@@ -126,19 +128,18 @@ namespace ChangeDoc/Report1 {
 
     /// ## Floc
 
-    pub def buildFlocRows(db: #{Funcloc, Attribute | r}): Array[FlocRow] & Impure = 
+    pub def buildFlocRows(xs: List[FlocWorkItem], db: #{Attribute | r}): Array[FlocRow] & Impure = 
         let attrs = makeAttributes(db);
         let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
-        query db select (x1, x2, x3) from Funcloc(x1, x2, x3)
+        List.toArray(xs)
             |> Array.map(makeFlocRow1)
             |> Relation/Organization.updateWithLookup(x1 -> x1.internalFloc, updateAttrs, attrs)
 
 
-    def makeFlocRow1(x: (String, String, String)): FlocRow = 
-        let (x1, x2, x3) = x;
-        { internalFloc          = x1
-        , functionalLocation    = x2
-        , description           = x3
+    def makeFlocRow1(x: FlocWorkItem): FlocRow = 
+        { internalFloc          = x.internalFuncloc
+        , functionalLocation    = x.funcloc
+        , description           = x.description
         , attributes            = Map.empty()
         }
 

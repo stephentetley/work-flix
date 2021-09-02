@@ -25,11 +25,12 @@ namespace ChangeDoc/Relations {
         UpdateGlobal, DeleteGlobal};
     use ChangeDoc/Interpreter.{State};
     
+
     /// entity should be "Floc" or "Equi"
     pub rel NameChange(entity: String, itemId: String, name: String)
 
     
-    pub rel AttrChange(itemId: String, name: String, value: String)
+    pub rel AttrChange(entity: String, itemId: String, name: String, value: String)
     
     pub rel ClassChange(entity: String, itemId: String, className: String, status: String)
 
@@ -60,11 +61,11 @@ namespace ChangeDoc/Relations {
 
     pub rel ValuaEqui(itemId: String, equiName: String, className: String, charName: String, intCounter: Int32, status: String, value: String)
 
-    pub def makeChangeRelations(st: State): #{NameChange, AttrChange | r} = 
+    pub def makeChangeRelations(st: State): #{NameChange, AttrChange, LongTextChange, ClassChange, ValuaChange | r} = 
         Relation.foldMap(makeChangeRelation1, Map.toList(st))
 
     /// To do this should make relations that include value "state".
-    def makeChangeRelation1(xy: (ChangeKey, ValueState)): #{NameChange, AttrChange | r} = match xy { 
+    def makeChangeRelation1(xy: (ChangeKey, ValueState)): #{NameChange, AttrChange, LongTextChange, ClassChange, ValuaChange | r} = match xy { 
         case (NameKey(entity, itemId), CreateLocal(name)) => #{ NameChange("${entity}", itemId, name). }
         case (NameKey(entity, itemId), UpdateGlobal(name)) => #{ NameChange("${entity}", itemId, name). }
 
@@ -76,12 +77,12 @@ namespace ChangeDoc/Relations {
         case (LongTextKey(entity, itemId, name), UpdateGlobal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
 
         /// AttrChanges are merged into Flocs and Equis so we only care about Create/Update
-        case (AttrKey(_, itemId, name), CreateLocal(value)) => #{ AttrChange(itemId, name, value). }
-        case (AttrKey(_, itemId, name), UpdateGlobal(value)) => #{ AttrChange(itemId, name, value). }
+        case (AttrKey(entity, itemId, attrName), CreateLocal(value)) => #{ AttrChange("${entity}", itemId, attrName, value). }
+        case (AttrKey(entity, itemId, attrName), UpdateGlobal(value)) => #{ AttrChange("${entity}", itemId, attrName, value). }
 
-        case (ValuaKey(entity, itemId, name, intCount), CreateLocal(value)) => #{ ValuaChange("${entity}", itemId, name, intCount, value, "New"). }
-        case (ValuaKey(entity, itemId, name, intCount), UpdateGlobal(value)) => #{ ValuaChange("${entity}", itemId, name, intCount, value, "Update"). }
-        case (ValuaKey(entity, itemId, name, intCount), DeleteGlobal) => #{ ValuaChange("${entity}", itemId, name, intCount, "", "Delete"). }
+        case (ValuaKey(entity, itemId, charName, intCount), CreateLocal(value)) => #{ ValuaChange("${entity}", itemId, charName, intCount, value, "New"). }
+        case (ValuaKey(entity, itemId, charName, intCount), UpdateGlobal(value)) => #{ ValuaChange("${entity}", itemId, charName, intCount, value, "Update"). }
+        case (ValuaKey(entity, itemId, charName, intCount), DeleteGlobal) => #{ ValuaChange("${entity}", itemId, charName, intCount, "", "Delete"). }
 
         case (_,_) => #{}
 

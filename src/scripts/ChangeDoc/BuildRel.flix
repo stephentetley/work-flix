@@ -43,6 +43,7 @@ namespace ChangeDoc/BuildRel {
         HasFlocNameMap(itemId) :- 
             FlocNameMap(itemId, _).
 
+        /// Floc or Equipment are 1-to-1 with their respective tab exports rather than relational.
 
         Funcloc(itemId, funcloc, descr) :-
             NameChange("Floc", itemId, descr),
@@ -52,19 +53,23 @@ namespace ChangeDoc/BuildRel {
             NameChange("Floc", itemId, descr),
             not HasFlocNameMap(itemId).
 
+        /// Can have an equipment change without NameChange()
+        Equipment(itemId, "TODO") :- 
+            /// NameChange("Equi", itemId, name).
+            AttrChange("Equi", itemId, _, _).
 
-        Equipment(itemId, name) :- 
-            NameChange("Equi", itemId, name).
+        Equipment(itemId, "TODO") :- 
+            NameChange("Equi", itemId, _).
 
         /// TODO need a sample with long text to see how to replace the empty string...
         EquiLongText(itemId, descr, "") :- 
             LongTextChange("Equi", itemId, "Description (medium text)", descr).
 
         ObjectType(itemId, value) :- 
-            AttrChange(itemId, "Object Type", value).
+            AttrChange(_, itemId, "Object Type", value).
 
         Attribute(itemId, name, value) :- 
-            AttrChange(itemId, name, value), 
+            AttrChange(_, itemId, name, value), 
             if name != "Object Type".
 
 
@@ -100,6 +105,7 @@ namespace ChangeDoc/BuildRel {
             NameChange("Floc", itemId, flocName), 
             GetFlocClassName(itemId, charName, className).
 
+        /// Don't join on NameChange
         ValuaFloc(itemId, "[Unknown]", flocName, className, charName, intCounter, status, value) :-
             ValuaChange("Floc", itemId, charName, intCounter, value, status),
             NameChange("Floc", itemId, flocName), 
@@ -118,10 +124,10 @@ namespace ChangeDoc/BuildRel {
             ValuaChange(_, itemId, charName, _, _, _),
             not HasEquiClassName(itemId, charName).
 
-
-        ValuaEqui(itemId, equiName, className, charName, intCounter, status, value) :-
+        /// Don't join on name change
+        ValuaEqui(itemId, "Name - todo", className, charName, intCounter, status, value) :-
             ValuaChange("Equi", itemId, charName, intCounter, value, status),
-            NameChange("Equi", itemId, equiName),  
+            /// NameChange("Equi", itemId, equiName),  
             GetEquiClassName(itemId, charName, className).
 
     }

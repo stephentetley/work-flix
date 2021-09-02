@@ -20,20 +20,40 @@ namespace ChangeDoc/Loader {
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
-    use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow, Instruction, EntityType};
+    use ChangeDoc/Datatypes.{FlocWorkItem, EquiWorkItem, ChangeDoc, ChangeRow, Instruction, EntityType};
     use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};
     use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
         LongTextKey, AttrKey, ValuaKey, AddrAttrKey};
     use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
     use ChangeDoc/Datatypes.Instruction.{New, Change, Delete};
     
-    
+
+
+    /// Needs a Change Request export of the Functional Location tab...
+    /// Sheet always called "Data"
+    ///
+    pub def readFlocWorkItems(src: System.FilePath): Result[List[FlocWorkItem], String] & Impure = 
+        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalFlocWorkItem())
+
+
+    def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5) -> 
+                { internalFuncloc   = x1
+                , funcloc           = x2
+                , description       = x3
+                , structureInd      = x4
+                , objectType        = x5
+                })
+            <&> getTrimmedContentNamed("Int. Functional Location")
+            <*> getTrimmedContentNamed("Functional Location")
+            <*> getTrimmedContentNamed("Description")
+            <*> getTrimmedContentNamed("Structure indicator")
+            <*> getTrimmedContentNamed("Object Type")
+
     /// Rows are ordered by datetime
-
     /// Warning duplicate column names - "Address Number"
-
-
-
     /// Sheet always called "Data"
     pub def readChangeDoc(src: System.FilePath): Result[ChangeDoc, String] & Impure = 
         use SheetIO/SheetReader.{flatMap, getSheetNamed, namedRowsFrom};
@@ -41,14 +61,7 @@ namespace ChangeDoc/Loader {
         SheetIO/SheetReader.runXlsx(action, src)
             |> Result.map(List.filterMap(identity))
 
-    /// Needs a Change Request export of the Functional Location tab...
-    /// Sheet always called "Data"
-    ///
-    pub def readFlocMapping(src: System.FilePath): Result[List[(String, String)], String] & Impure = 
-        use SheetIO/NamedRowEvaluator.{tuple2, getTrimmedContentNamed};
-        let xlsx = {path = src, sheet = "Data"};
-        let evalRow = tuple2(getTrimmedContentNamed("Int. Functional Location"), getTrimmedContentNamed("Functional Location"));
-        SheetIO/Reader.readAllNamedRows(xlsx, evalRow)
+
 
 
     def evalChangeRow(): NamedRowEvaluator[Option[ChangeRow]] =

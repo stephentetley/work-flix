@@ -8,12 +8,20 @@ use ChangeDoc/Relations.{Funcloc, Equipment};
 use ChangeDoc/Report1.{Report1Config};
 
 
+/// def config(): Report1Config = 
+///     { flocClassList = System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")
+///     , equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
+///     , changeAttributesExport = System/FilePath.new("G:/work/assets/change-requests/cr7246-capital-scheme/cr7426-changeattrs.xlsx")
+///     , flocChangeRequestExport = Some(System/FilePath.new("G:/work/assets/change-requests/cr7246-capital-scheme/cr7426-floctab.xlsx"))
+///     , outputPath = System/FilePath.new("G:/work/assets/change-requests/output/cr7246-capital-scheme-report1.xlsx")
+///     }
+
 def config(): Report1Config = 
     { flocClassList = System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")
     , equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
-    , changeAttributesExport = System/FilePath.new("G:/work/assets/change-requests/cr-new-sites/cr-new-site-flocs-changeattrs.xlsx")
-    , flocChangeRequestExport = System/FilePath.new("G:/work/assets/change-requests/cr-new-sites/cr-new-site-flocs-floctab.xlsx")
-    , outputPath = System/FilePath.new("G:/work/assets/change-requests/cr-new-sites/cr-new-sites-report1.xlsx")
+    , changeAttributesExport = System/FilePath.new("G:/work/assets/change-requests/cr9003-just-equi-updates/cr9003-changeattrs.xlsx")
+    , flocChangeRequestExport = None
+    , outputPath = System/FilePath.new("G:/work/assets/change-requests/output/cr9003-just-equi-report1.xlsx")
     }
 
 def main(_args: Array[String]): Int32 & Impure = 
