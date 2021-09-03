@@ -45,7 +45,7 @@ namespace AssetLib/GenS4/GenEqui {
         let _               = Console.printLine("workitems count: ${List.length(workitems)}");
         let* equiAttrs      = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* equis          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
-        let* equiLongText   = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport);
+        let* equiLongText   = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport, args.aibEquipmentExport);
         let* equiChars      = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport);
         Ok( { funclocs                  = Chain.empty()
             , funclocLongTexts          = Chain.empty()
