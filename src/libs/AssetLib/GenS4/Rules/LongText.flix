@@ -66,16 +66,12 @@ namespace AssetLib/GenS4/Rules/LongText {
                 AibMemoLine(equiId, memoText), 
                 if (String.length(memoText) > 30).
         };
-        let getKey = x1 -> (x1.equiId, x1.description);
-        /// TODO - obviously these representation changes need to be minimized...
-        solve (rules <+> input) project EquiLongText
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongText
-            |> Chain.toArray
-            |> Relation/Organization.collectToMapList(getKey, x1 -> x1.longText)
-            |> Map.map(String.unlines)
-            |> Map.toList
-            |> Chain.fromList
-            |> Chain.map(xy -> {let (r1, s) = xy; {equiId = fst(r1), description = snd(r1), longText = s}})
+        let getKey = xyz -> {let (x1, y1, _) = xyz; (x1, y1)};
+        let getLongText = xyz -> {let (_, _, z1) = xyz; z1};
+        query (rules <+> input) select (x1, x2, x3) from EquiLongText(x1, x2, x3)
+            |> Relation/Organization.collectToMapList(getKey, getLongText)
+            |> Chain.fromMap
+            |> Chain.map(xy -> {let ((x1, x2), xs) = xy; {equiId = x1, description = x2, longText = String.unlines(xs)}})
 
 
     def locationOnSite(location: String): String = "Location on Site: ${String.trim(location)}"
