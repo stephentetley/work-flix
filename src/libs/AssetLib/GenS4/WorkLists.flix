@@ -73,8 +73,8 @@ namespace AssetLib/GenS4/WorkLists {
         let* solutionId = map(String.trim, getContentNamed("Solution ID"));
         let* position   = optional(getInt32Named("Position"));
         let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
-        let* s4Type     = map(String.trim, getNonEmptyContentNamed("Equi Type"));
-        let* s4Class    = map(String.trim, getNonEmptyContentNamed("Equi Class"));
+        let* s4Type     = map(String.trim, getNonEmptyContentNamed("Object Type"));
+        let* s4Class    = map(String.trim, getNonEmptyContentNamed("Object Class"));
         return({ equipmentId = aibref
                 , s4Name = s4Name
                 , s4Floc = s4Floc
@@ -119,7 +119,7 @@ namespace AssetLib/GenS4/WorkLists {
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
-        let* sainums        = map(stringList, getNonEmptyContentNamed("Aib References (semi sep list)"));
+        let* sainums        = map(stringList, getContentNamed("Aib References (semi sep list)"));
         let* installedFrom  = getS4LocalDateNamed("Installed From");
         let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));

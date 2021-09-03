@@ -42,6 +42,7 @@ namespace AssetLib/GenS4/GenEqui {
     pub def generateEquiUxl(args: GenEquiArguments): Result[UxlSource, String] & Impure = 
         use Result.{flatMap};
         let* workitems      = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
+        let _               = Console.printLine("workitems count: ${List.length(workitems)}");
         let* equiAttrs      = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* equis          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
         let* equiLongText   = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport);

@@ -44,8 +44,8 @@ namespace AssetLib/Base/S4/SheetIOUtils {
     pub def getS4LocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, liftOption, getStringNamed};
         let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4LocalDateNamed date format error");
-        let* s      = getStringNamed(label); 
-        liftOption(Time/LocalDate.parse(s, fmt), "getS4LocalDateNamed('${label}')")
+        let* s1     = getStringNamed(label); 
+        liftOption(Time/LocalDate.parse(s1, fmt), "getS4LocalDateNamed('${label}') - seen '${s1}'")
 
     /// Must allows blank (false)
     pub def getS4BoolNamed(label: String): NamedRowEvaluator[Bool] = 

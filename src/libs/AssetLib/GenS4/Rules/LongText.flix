@@ -36,7 +36,8 @@ namespace AssetLib/GenS4/Rules/LongText {
         Ok(ans) 
 
 
-    /// Case specific WorkItem...
+    /// Case specific WorkItem so this might be usable to different "EquiWorkList"
+    /// although rules are probably too specific...
     pub rel EquiLongTextWorkItem(equiId: String, equiName: String)
 
     /// SolutionId specific

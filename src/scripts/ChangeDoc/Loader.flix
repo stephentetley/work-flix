@@ -29,7 +29,7 @@ namespace ChangeDoc/Loader {
     
 
 
-    /// Needs a Change Request export of the Functional Location tab...
+    /// Reads an export of the Change Request "Functional Location" tab.
     /// Sheet always called "Data"
     ///
     pub def readFlocWorkItems(src: System.FilePath): Result[List[FlocWorkItem], String] & Impure = 
@@ -40,17 +40,41 @@ namespace ChangeDoc/Loader {
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
-                { internalFuncloc   = x1
-                , funcloc           = x2
-                , description       = x3
-                , structureInd      = x4
-                , objectType        = x5
-                })
+            { internalFuncloc   = x1
+            , funcloc           = x2
+            , description       = x3
+            , structureInd      = x4
+            , objectType        = x5
+            })
             <&> getTrimmedContentNamed("Int. Functional Location")
             <*> getTrimmedContentNamed("Functional Location")
             <*> getTrimmedContentNamed("Description")
             <*> getTrimmedContentNamed("Structure indicator")
             <*> getTrimmedContentNamed("Object Type")
+
+    /// Reads an export of the Change Request "Equipment" tab.
+    /// Sheet always called "Data"
+    ///
+    pub def readEquiWorkItems(src: System.FilePath): Result[List[EquiWorkItem], String] & Impure = 
+        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalEquiWorkItem())
+
+
+    def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItem] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5) -> 
+            { equiId        = x1
+            , description   = x2
+            , funcloc       = x3
+            , objectType    = x4
+            , objectClass   = x5
+            })
+            <&> getTrimmedContentNamed("Equipment")
+            <*> getTrimmedContentNamed("Description")
+            <*> getTrimmedContentNamed("Functional Location")
+            <*> getTrimmedContentNamed("Object Type")
+            <*> getTrimmedContentNamed("Object Type Class")
+
 
     /// Rows are ordered by datetime
     /// Warning duplicate column names - "Address Number"
