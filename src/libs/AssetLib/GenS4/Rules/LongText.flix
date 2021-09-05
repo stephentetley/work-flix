@@ -22,6 +22,7 @@ namespace AssetLib/GenS4/Rules/LongText {
 
     use AssetLib/S4Lite/Datatypes.{SLEquiLongText};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{AibMemoLine, LocationOnSite};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
@@ -30,13 +31,12 @@ namespace AssetLib/GenS4/Rules/LongText {
 
     pub def genEquiLongText(worklist: List[EquiWorkItem], 
                             memosSrc: XlsxSource, 
-                            locsSrc: XlsxSource): Result[Chain[SLEquiLongText], String] & Impure =
-        use Result.{flatMap};
+                            locsSrc: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = makeLongTextWorkItems(worklist);
         let* memos      = AssetLib/GenS4/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
         let* locs       = AssetLib/GenS4/AibFacts/Attributes/LocationData.readLocationOnSiteData(locsSrc);
-        let ans         = equiLongText(workitems <+> memos <+> locs);
-        Ok(ans) 
+        equiLongText(workitems <+> memos <+> locs)
 
 
     /// Case specific WorkItem so this might be usable to different "EquiWorkList"
@@ -53,7 +53,8 @@ namespace AssetLib/GenS4/Rules/LongText {
     /// as a post-processing step then concatenate the answers to make a `SLEquiLongText` ...
 
     pub def equiLongText(input: #{EquiLongTextWorkItem, AibMemoLine, LocationOnSite,
-                                    EquiLongText | r}): Chain[SLEquiLongText] & Impure = 
+                                    EquiLongText | r}): GenMonad[Unit] = 
+        use AssetLib/GenS4/GenMonad.{flatMap, liftAction};
         let rules = #{
 
             EquiLongText(equiId, description, locationOnSite(location) ) :- 
@@ -66,13 +67,18 @@ namespace AssetLib/GenS4/Rules/LongText {
                 AibMemoLine(equiId, memoText), 
                 if (String.length(memoText) > 30).
         };
-        let getKey = xyz -> {let (x1, y1, _) = xyz; (x1, y1)};
-        let getLongText = xyz -> {let (_, _, z1) = xyz; z1};
-        query (rules <+> input) select (x1, x2, x3) from EquiLongText(x1, x2, x3)
-            |> Relation/Organization.collectToMapList(getKey, getLongText)
-            |> Chain.fromMap
-            |> Chain.map(xy -> {let ((x1, x2), xs) = xy; {equiId = x1, description = x2, longText = String.unlines(xs)}})
+        let getKey = detuple3((x1, y1, _) -> (x1, y1));
+        let getLongText = detuple3((_, _, z1) -> z1);
+        let* answers = liftAction(_ -> query (rules <+> input) select (x1, x2, x3) from EquiLongText(x1, x2, x3)
+                        |> Relation/Organization.collectToMapList(getKey, getLongText)
+                        |> Map.toList
+                        |> List.map(xy -> {let ((x1, x2), xs) = xy; {equiId = x1, description = x2, longText = String.unlines(xs)}}));
+        AssetLib/GenS4/GenMonad.mapX(AssetLib/GenS4/GenMonad.tellSLEquiLongText, answers)
 
+    /// For Relation/Organization ... ? [Tuple.decons3 ?]
+    def detuple3(f: (u1, u2, u3) -> a & ef, x: (u1, u2, u3)): a & ef = 
+        let (x1, x2, x3) = x;
+        f(x1, x2, x3)
 
     def locationOnSite(location: String): String = "Location on Site: ${String.trim(location)}"
 

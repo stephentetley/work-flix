@@ -24,8 +24,8 @@ namespace AssetLib/GenS4 {
 
 namespace AssetLib/GenS4/GenMonad {
 
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4.GenMonad;
     use AssetLib/GenS4.GenMonad.{GenMonad};
 
@@ -141,6 +141,15 @@ namespace AssetLib/GenS4/GenMonad {
             Ok((st, w, ans))
         )
 
+    pub def liftActionResult(f: Unit ~> Result[a, String]): GenMonad[a] = 
+        GenMonad((st, w, _) -> 
+            match f() as & Impure {
+                case Ok(ans) => Ok((st, w, ans))
+                case Err(msg) => Err(msg)
+            }
+            
+        )
+
 
     pub def genEqui(f: (String, Time.LocalDate) -> SLEquipment & ef): GenMonad[EquiRef] = 
         GenMonad((st, w, r) -> 
@@ -150,25 +159,51 @@ namespace AssetLib/GenS4/GenMonad {
             Ok((st + 1, w1, EquiRef(equiId)))
         )  
 
+
+    def tell(update: Output -> Output & ef): GenMonad[Unit] = 
+        GenMonad((st, w, _) ->  
+            let w1 = update(w) as & Impure;        
+            Ok((st, w1, ()))
+        )
+
+    
+    pub def tellSLFunctionalLocation(x: SLFunctionalLocation): GenMonad[Unit] = 
+        tell(r1 -> {funclocs = Chain.snoc(r1.funclocs, x)  | r1})
+
+    
+    pub def tellSLEquipment(x: SLEquipment): GenMonad[Unit] = 
+        tell(r1 -> {equipment = Chain.snoc(r1.equipment, x)  | r1})
+
+
+    pub def tellSLEquiLongText(x: SLEquiLongText): GenMonad[Unit] = 
+        tell(r1 -> {equiLongTexts = Chain.snoc(r1.equiLongTexts, x)  | r1})
+
+
+    pub def tellFlocCharacteristics(rels: #{FlocCharacteristic | r}): GenMonad[Unit] = 
+        tell(r1 ->  
+            let cs = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics(rels) |> Chain.fromArray;
+            {funclocCharacteristics = Chain.append(r1.funclocCharacteristics, cs) | r1}
+        )
+
     /// In this instance it might be nicer to pass `#{EquiCharacteristics | r}` then
     /// were aren't leaking `Chain[SLEquiCharacteristic]` 
     ///
-    /// > pub def appendEquiCharacteristics(cs: #{EquiCharacteristics | r}): GenMonad[Unit] = 
+    /// > pub def tellEquiCharacteristics(cs: #{EquiCharacteristics | r}): GenMonad[Unit] = 
     /// 
-    pub def appendEquiCharacteristics(cs: Chain[SLEquiCharacteristic]): GenMonad[Unit] = 
-        GenMonad((st, w, _) ->  
-            let w1 = {equiCharacteristics = Chain.append(w.equiCharacteristics, cs) | w} as & Impure;        
-            Ok((st, w1, ()))
+    pub def tellEquiCharacteristics(rels: #{EquiCharacteristic | r}): GenMonad[Unit] = 
+        tell(r1 -> 
+            let cs = AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics(rels) |> Chain.fromArray;
+            {equiCharacteristics = Chain.append(r1.equiCharacteristics, cs) | r1}
         )
 
     /// Maybe this is too specific to be defined here. 
     /// Might just be needed for ProductData/Cad...
     pub def equiCharacteristicsSkeleton(makeFacts: EquiRef -> row -> #{| reln}, 
-                                    genChars: #{| reln} ~> Chain[SLEquiCharacteristic], 
+                                    genChars: #{| reln} ~> Array[SLEquiCharacteristic], 
                                     xs: List[(EquiRef, row)]): GenMonad[Unit] =
         let facts   = Relation.foldMap(uncurry(makeFacts), xs);
-        let* chars  = liftAction(_ -> genChars(facts));
-        appendEquiCharacteristics(chars)
+        let* chars  = liftAction(_ -> genChars(facts) |> Chain.fromArray);
+        tell(r1 -> {equiCharacteristics = Chain.append(r1.equiCharacteristics, chars) | r1})
 
 
     /// Alias for `ap`
@@ -224,6 +259,32 @@ namespace AssetLib/GenS4/GenMonad {
                     case Ok((st1, w1, x1)) => mapMHelper(st1, w1, r, mf, rs, fk, (st3, w3, ks) -> sk(st3, w3, x1 :: ks))
                 }
             }
-        }        
+        }
+
+    pub def mapX(mf: a -> GenMonad[b], xs: List[a]): GenMonad[Unit] =
+        GenMonad((st, w, r) -> 
+            mapXHelper(st, w, r, mf, xs, e -> Err(e), (kst, kw) -> Ok((kst, kw, ())))
+        )
+
+    ///
+    /// Helper function for `mapM`.
+    ///
+    def mapXHelper(st: Int32, 
+                    w: Output,
+                    r: Env,
+                    mf: a -> GenMonad[b], 
+                    xs: List[a], 
+                    fk: String -> Result[(Int32, Output, Unit), String], 
+                    sk: (Int32, Output) -> Result[(Int32, Output, Unit), String]): Result[(Int32, Output, Unit), String] & Impure =
+        match xs {
+            case Nil => sk(st, w)
+            case x :: rs => {
+                let ma = mf(x);
+                match apply1(ma, st, w, r) {
+                    case Err(e) => fk(e)
+                    case Ok((st1, w1, _)) => mapXHelper(st1, w1, r, mf, rs, fk, sk)
+                }
+            }
+        }
 
 }

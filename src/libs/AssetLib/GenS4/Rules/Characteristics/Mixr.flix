@@ -21,7 +21,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mixr {
     
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};  
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         RatingPower, SpeedRPM};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
@@ -40,7 +41,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mixr {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def mixr(input: #{EquiWorkItem3, 
                             RatingPower, SpeedRPM, 
-                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
 
             /// Not generated for static mixer
@@ -55,8 +56,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mixr {
                 SpeedRPM(equiId, ans).
 
         }; 
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
 
 

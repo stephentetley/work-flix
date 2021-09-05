@@ -23,6 +23,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, LocationOnSite};
     use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttributes};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
 
@@ -30,11 +31,13 @@ namespace AssetLib/GenS4/Rules/Equipment {
     /// # Equipment
 
 
-    pub def genEquis(attribs: List[EquipmentAttributes], xs: List[EquiWorkItem]): Result[List[SLEquipment], String] & Impure = 
-        let patches = AssetLib/GenS4/Patch.makeEquipmentAttributesPatches(attribs);
-        let today = Time/LocalDate.now();
-        List.map(genEqui1(today), xs) 
-            |> AssetLib/GenS4/Patch.patchEquipment(patches)
+    pub def genEquis(attribs: List[EquipmentAttributes], xs: List[EquiWorkItem]): GenMonad[Unit] = 
+        use AssetLib/GenS4/GenMonad.{flatMap, liftAction, liftActionResult, mapX, tellSLEquipment};
+        let* patches    = liftAction(_ -> AssetLib/GenS4/Patch.makeEquipmentAttributesPatches(attribs));
+        let* today      = liftAction(_ -> Time/LocalDate.now());
+        let* answers    = liftActionResult(_ -> List.map(genEqui1(today), xs) 
+                                                    |> AssetLib/GenS4/Patch.patchEquipment(patches));
+        mapX(tellSLEquipment, answers)    
 
 
     def genEqui1(today: Time.LocalDate, x: EquiWorkItem): SLEquipment =
@@ -60,17 +63,16 @@ namespace AssetLib/GenS4/Rules/Equipment {
     
     /// # Characteristics
     /// src should be valve facts
-    pub def genCommonCharacteristics(worklist: List[EquiWorkItem], locationSrc: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genCommonCharacteristics(worklist: List[EquiWorkItem], locationSrc: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/LocationData.readLocationOnSiteData(locationSrc);
-        let ans         = equiCommonCharacteristics(workitems <+> facts);
-        Ok(ans) 
+        equiCommonCharacteristics(workitems <+> facts)
 
 
 
     pub def equiCommonCharacteristics(input: #{EquiWorkItem3,
-                                            LocationOnSite,  EquiCharacteristic| r1}): Chain[SLEquiCharacteristic] & Impure =
+                                            LocationOnSite,  EquiCharacteristic| r1}): GenMonad[Unit] =
         let rules = #{
             
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
@@ -84,9 +86,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
                 LocationOnSite(equiId, location).
 
         };
-        solve (rules <+> input) project EquiCharacteristic 
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
-
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
     def s4Location(s: String): String =
         if (String.length(s) > 30) "SEE LONG TEXT" else s

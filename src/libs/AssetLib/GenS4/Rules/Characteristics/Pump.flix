@@ -24,21 +24,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, DiaphragmMaterial, 
         DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
     /// src should be pump facts
-    pub def genPump(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genPump(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Pump.readPumpData(src);
-        let ans         = pump(workitems <+> facts);
-        Ok(ans) 
+        pump(workitems <+> facts)
 
 
 
     pub def pump(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead,
                             Flow, ImpellerType, PumpLiftingType, RatingPower, 
-                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMP", s4Class),
@@ -63,8 +63,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
                 EquiWorkItem3(equiId, "PUMP", s4Class),
                 RatingPower(equiId, ans, "KILOWATTS").
         };
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
     def recognizedFlowUnits(units: String): Bool = match units { 
         case "LITRE PER HOUR" => true

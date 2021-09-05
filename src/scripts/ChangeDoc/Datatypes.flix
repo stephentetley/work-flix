@@ -214,18 +214,7 @@ namespace ChangeDoc/Datatypes {
         pub def hash(x: EntityType): Int32 = Hash.hash(ToString.toString(x))
     }
 
-    instance Boxable[EntityType] {
-        pub def box(x: EntityType): Boxed = {
-            let value = x as ##java.lang.Object;
-            let compare = (o1, o2) -> Order.compare(o1 as EntityType, o2 as EntityType);
-            let toString = o -> ToString.toString(o as EntityType);
-            BoxedObject(value, compare, toString)
-        }
-        pub def unbox(x: Boxed): EntityType = match x {
-            case BoxedObject(v, _, _) => v as EntityType
-            case _                    => ?bug
-        }
-    }
+    instance Boxable[EntityType]
 
     pub enum Origin {
         case Direct

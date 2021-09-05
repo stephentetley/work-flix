@@ -21,6 +21,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{TankConstruction, 
         TankLevel, TankShape, UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
         UnitLengthM, UnitSideDepthM, UnitSideDepthMaxM, UnitSideDepthMinM};
@@ -29,11 +30,11 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
     /// Read from Aib file...
 
 
-    pub def readTankData(src: XlsxSource): Result[#{TankConstruction, TankLevel, TankShape,
+    pub def readTankData(src: XlsxSource): GenMonad[#{TankConstruction, TankLevel, TankShape,
                                                         UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
                                                         UnitLengthM, UnitSideDepthM, 
-                                                        UnitSideDepthMinM, UnitSideDepthMaxM | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalTank())
+                                                        UnitSideDepthMinM, UnitSideDepthMaxM | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalTank()))
         
     
 

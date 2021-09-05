@@ -21,6 +21,7 @@ namespace AssetLib/GenS4/WorkLists {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
     
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
     type alias EquiWorkItem = 
@@ -58,9 +59,9 @@ namespace AssetLib/GenS4/WorkLists {
 
 
     /// Read from Aib xlsx export file...
-    pub def readEquiWorkList(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =
+    pub def readEquiWorkList(src: XlsxSource): GenMonad[List[EquiWorkItem]] =
         use SheetIO/NamedRowEvaluator.{optional};
-        SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem())))
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory
@@ -105,14 +106,14 @@ namespace AssetLib/GenS4/WorkLists {
     /// Flocs
 
     /// Read from Aib xlsx export file...
-    pub def readFlocWorkList(src: XlsxSource): Result[List[FlocWorkItem], String] & Impure =
+    pub def readFlocWorkList(src: XlsxSource): GenMonad[List[FlocWorkItem]] =
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};
         let readStep = () -> { 
             let* s1     = getSheetNamed(src.sheet);
             let* xs     = allNamedRows(s1, evalFlocWorkItem());
             return(xs)
         };
-        SheetIO/SheetReader.runXlsx(readStep(), src.path)
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readStep(), src.path))
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed, liftResult}; 

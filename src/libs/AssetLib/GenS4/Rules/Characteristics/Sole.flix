@@ -22,22 +22,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, PowerUnits, Power};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         recognizedInsulationClass, insulationClass};
 
     /// src should be electrical facts
-    pub def genSole(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genSole(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalData(src);
-        let ans         = sole(workitems <+> facts);
-        Ok(ans) 
-
+        sole(workitems <+> facts)
 
     pub def sole(input: #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, 
-                            EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure = 
+                            EquiCharacteristic | r}): GenMonad[Unit] =
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "SOLE", s4Class),
@@ -56,7 +55,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
                 EquiWorkItem3(equiId, "SOLE", s4Class),
                 Power(equiId, power, "KILOWATTS").
         }; 
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
 }

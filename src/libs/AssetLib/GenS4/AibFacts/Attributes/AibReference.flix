@@ -21,6 +21,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{AibPliNum, AibParentRef};
 
 
@@ -31,13 +32,13 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
         , commonName: String
         }
 
-    pub def readHierarchyRelations(src: XlsxSource): Result[#{AibPliNum, AibParentRef | r}, String] & Impure =
-        use Result.{flatMap, map};
+    pub def readHierarchyRelations(src: XlsxSource): GenMonad[#{AibPliNum, AibParentRef | r}] =
+        use AssetLib/GenS4/GenMonad.{flatMap, return, liftActionResult};
         let cmp         = (x,y) -> Order.compare(x.commonName, y.commonName);
-        let* xs         = SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> map(List.sortWith(cmp));
+        let* xs         = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> Result.map(List.sortWith(cmp)));
         let parents     = extractHierarchyFacts(xs);
         let plinums     = Relation.foldMap(x1 -> #{ AibPliNum(x1.reference, x1.reference). }, xs);
-        Ok(parents <+> plinums)
+        return(parents <+> plinums)
 
 
     def readAibSheet(sheetName: String): SheetReader[List[AibRow]] = 

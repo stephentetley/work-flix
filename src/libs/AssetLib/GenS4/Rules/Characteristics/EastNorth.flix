@@ -22,22 +22,22 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4Int};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, NationalGridRef};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
 
     /// # Floc
     
-    pub def genFlocEastNorth(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genFlocEastNorth(worklist: List[FlocWorkItem]): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let make1       = x1 -> #{ FlocEastNorthWorkItem(x1.funcloc, x1.gridRef). };
         let workitems   = Relation.foldMap(make1, worklist);
-        let ans         = flocEastNorth(workitems);
-        Ok(ans) 
+        flocEastNorth(workitems)
 
     /// Case specific WorkItem...
     pub rel FlocEastNorthWorkItem(floc: String, ngr: String)
 
-    pub def flocEastNorth(workitems: #{FlocEastNorthWorkItem, FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure =
+    pub def flocEastNorth(workitems: #{FlocEastNorthWorkItem, FlocCharacteristic | r}): GenMonad[Unit] =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{
             FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
@@ -46,21 +46,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
             FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
                 FlocEastNorthWorkItem(funcloc, ngr).
         };
-        solve (rules <+> workitems) project FlocCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic
+        AssetLib/GenS4/GenMonad.tellFlocCharacteristics(rules <+> workitems)
 
     /// # Equi
 
-    pub def genEquiEastNorth(worklist: List[EquiWorkItem], 
-                            src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genEquiEastNorth(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/LocationData.readNationalGridRefData(src);
-        let ans         = equiEastNorth(facts <+> workitems);
-        Ok(ans) 
+        equiEastNorth(facts <+> workitems) 
         
 
-    pub def equiEastNorth(input: #{EquiWorkItem3, NationalGridRef, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
+    pub def equiEastNorth(input: #{EquiWorkItem3, NationalGridRef, EquiCharacteristic | r}): GenMonad[Unit] =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{            
             EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
@@ -71,7 +68,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
                 EquiWorkItem3(equiId, _, _),
                 NationalGridRef(equiId, ngr).
         };
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
 }

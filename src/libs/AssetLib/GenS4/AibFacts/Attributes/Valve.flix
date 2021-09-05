@@ -21,13 +21,14 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{ValveSize};
 
     /// Read from Aib file...
 
 
-    pub def readValveData(src: XlsxSource): Result[#{ValveSize | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalValve())
+    pub def readValveData(src: XlsxSource): GenMonad[#{ValveSize | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalValve()))
         
     
     def evalValve(): NamedRowEvaluator[#{ValveSize | r}] =

@@ -21,14 +21,15 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{AibMemoLine};
 
 
 
     /// Read from Aib file...
 
-    pub def readMemoLinesData(src: XlsxSource): Result[#{AibMemoLine | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalAibMemoLine())
+    pub def readMemoLinesData(src: XlsxSource): GenMonad[#{AibMemoLine | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalAibMemoLine()))
         
     
     def evalAibMemoLine(): NamedRowEvaluator[#{AibMemoLine | r}] =

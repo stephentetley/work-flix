@@ -25,22 +25,22 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         TankConstruction, TankLevel, TankShape, UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
         UnitLengthM, UnitSideDepthM, UnitSideDepthMaxM, UnitSideDepthMinM};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
     
 
 
     /// src should be tank facts
-    pub def genTank(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genTank(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Tank.readTankData(src);
-        let ans         = tank(workitems <+> facts);
-        Ok(ans) 
+        tank(workitems <+> facts)
 
 
     pub def tank(input: #{EquiWorkItem3, TankLevel, 
-                            TankConstruction, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            TankConstruction, EquiCharacteristic | r1}): GenMonad[Unit] =
         let rules = #{
             EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(tankLevel(level))) :-
                 EquiWorkItem3(equiId, "TANK", s4Class),
@@ -52,8 +52,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
                 TankConstruction(equiId, ans),
                 if recognizedTankConstruction(ans).                
         };
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input) 
 
     def recognizedTankLevel(level: String): Bool = match level { 
         case "ABOVE GROUND" => true

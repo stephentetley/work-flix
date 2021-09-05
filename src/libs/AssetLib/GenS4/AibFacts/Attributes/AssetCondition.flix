@@ -21,16 +21,17 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{ConditionGrade, 
         LoadingFactor, PerformanceGrade, SurveyYear};
 
     /// Read from Aib file...
 
 
-    pub def readAgaspData(src: XlsxSource): Result[#{ConditionGrade, 
+    pub def readAgaspData(src: XlsxSource): GenMonad[#{ConditionGrade, 
                                                         LoadingFactor, PerformanceGrade,
-                                                        SurveyYear | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalAssetConditionFacts())
+                                                        SurveyYear | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalAssetConditionFacts()))
 
 
     def evalAssetConditionFacts(): NamedRowEvaluator[#{ConditionGrade, 

@@ -39,3 +39,16 @@ def genPhase1(): Result[Unit, String] & Impure =
     Ok()
 
 
+/// def aibReference(): Phase2Step = xs -> 
+///     AssetLib/GenS4/Rules/Characteristics/AibReference.genEquiAibReference(xs, equiArgs.aibEquipmentExport) 
+
+/// def assetCondition(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-agasp-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(xs, src) 
+
+/// def eastNorth(): Phase2Step = xs -> 
+///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(xs, src) 
+
+/// def solutionId(): Phase2Step = xs -> 
+///     AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(xs) 

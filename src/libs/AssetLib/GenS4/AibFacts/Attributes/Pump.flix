@@ -21,16 +21,17 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{DiaphragmMaterial, 
         DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower};
 
     /// Read from Aib file...
 
 
-    pub def readPumpData(src: XlsxSource): Result[#{DiaphragmMaterial, DutyHead,
+    pub def readPumpData(src: XlsxSource): GenMonad[#{DiaphragmMaterial, DutyHead,
                                                     Flow, ImpellerType, PumpLiftingType, 
-                                                    RatingPower | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalPump())
+                                                    RatingPower | r}]  =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalPump()))
         
     
 

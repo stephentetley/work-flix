@@ -20,41 +20,38 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
 
 
     /// # Floc
 
-
-
-    pub def genFlocSolutionId(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genFlocSolutionId(worklist: List[FlocWorkItem]): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let make1       = x1 -> #{ FlocSolnIdWorkItem(x1.funcloc, x1.solutionId). };
         let workitems   = Relation.foldMap(make1, worklist);
-        let ans         = flocSolutionId(workitems);
-        Ok(ans)
+        flocSolutionId(workitems)
 
     /// Case specific WorkItem...
     pub rel FlocSolnIdWorkItem(floc: String, soulutionId: String)
 
 
-    pub def flocSolutionId(input: #{FlocSolnIdWorkItem, FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure =
+    pub def flocSolutionId(input: #{FlocSolnIdWorkItem, FlocCharacteristic | r}): GenMonad[Unit] =
         let rules = #{
             FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :- 
                 FlocSolnIdWorkItem(funcloc, solutionId), 
                 if not String.isEmpty(solutionId).
         };
-        solve (rules <+> input) project FlocCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic
+        AssetLib/GenS4/GenMonad.tellFlocCharacteristics(rules <+> input)
 
+            
     /// # Equi
 
-    pub def genEquiSolutionId(worklist: List[EquiWorkItem]): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genEquiSolutionId(worklist: List[EquiWorkItem]): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let make1       = x1 -> #{ EquiSolnIdWorkItem(x1.equipmentId, x1.solutionId). };
         let workitems   = Relation.foldMap(make1, worklist);
-        let ans         = equiSolutionId(workitems);
-        Ok(ans) 
+        equiSolutionId(workitems)
 
     /// Case specific WorkItem...
     pub rel EquiSolnIdWorkItem(equiId: String, soulutionId: String)
@@ -63,13 +60,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     /// This generates a SOLUTION_ID class and characteristic for every item in the change request list
     /// that has a `Solution ID`.
     ///
-    pub def equiSolutionId(input: #{EquiSolnIdWorkItem, EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
+    pub def equiSolutionId(input: #{EquiSolnIdWorkItem, EquiCharacteristic | r}): GenMonad[Unit] =
        let rules =  #{
             EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
                 EquiSolnIdWorkItem(equiId, solutionId),
                 if not String.isEmpty(solutionId).
         };
-        solve (input <+> rules) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(input <+> rules) 
+
     
 }

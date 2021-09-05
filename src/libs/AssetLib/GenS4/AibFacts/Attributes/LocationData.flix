@@ -20,18 +20,20 @@ namespace AssetLib/GenS4/AibFacts/Attributes/LocationData {
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
+
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{LocationOnSite, NationalGridRef};
 
     /// Read from Aib file, `Location on Site` needs to be added as an attribute
 
         
     /// Just reads `Location On Site`...
-    pub def readLocationOnSiteData(src: XlsxSource): Result[#{LocationOnSite | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalLocationOnSite())
+    pub def readLocationOnSiteData(src: XlsxSource): GenMonad[#{LocationOnSite | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalLocationOnSite()))
         
     /// Just reads `NationalGridRef`...
-    pub def readNationalGridRefData(src: XlsxSource): Result[#{NationalGridRef | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalNationalGridRef())
+    pub def readNationalGridRefData(src: XlsxSource): GenMonad[#{NationalGridRef | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalNationalGridRef()))
         
 
     /// Custom attribute `Location on Site`.

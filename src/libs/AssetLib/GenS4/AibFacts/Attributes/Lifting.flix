@@ -21,13 +21,14 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{WorkLoad, TestCertNo, YWRef};
 
     /// Read from Aib file...
 
 
-    pub def readLiftingData(src: XlsxSource): Result[#{WorkLoad, TestCertNo, YWRef | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalLifting())
+    pub def readLiftingData(src: XlsxSource): GenMonad[#{WorkLoad, TestCertNo, YWRef | r}]  =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalLifting()))
 
 
     def evalLifting(): NamedRowEvaluator[#{WorkLoad, TestCertNo, YWRef | r}] =

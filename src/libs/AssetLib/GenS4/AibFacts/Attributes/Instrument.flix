@@ -21,13 +21,14 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
     
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{RangeMinMax, SignalMinMax, Transducer};
 
     /// Read from Aib file...
 
 
-    pub def readInstrumentData(src: XlsxSource): Result[#{RangeMinMax, SignalMinMax, Transducer | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalInstrument())
+    pub def readInstrumentData(src: XlsxSource): GenMonad[#{RangeMinMax, SignalMinMax, Transducer | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalInstrument()))
     
 
     def evalInstrument(): NamedRowEvaluator[#{RangeMinMax, SignalMinMax, Transducer | r}] =

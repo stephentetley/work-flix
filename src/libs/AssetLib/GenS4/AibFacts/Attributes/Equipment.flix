@@ -21,6 +21,8 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
+
 
     /// This reads a record not a relation!
 
@@ -51,12 +53,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
     /// Read from Aib file...
 
     /// Reads `Location On Site` at same time...
-    pub def readEquipmentData(src: XlsxSource): Result[List[EquipmentAttributes], String] & Impure =
-        SheetIO/Reader.readAllNamedRows(src, getEquipmentAttibutes())
+    pub def readEquipmentData(src: XlsxSource): GenMonad[List[EquipmentAttributes]] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.readAllNamedRows(src, getEquipmentAttibutes()))
             
 
 
-    pub def getEquipmentAttibutes(): NamedRowEvaluator[EquipmentAttributes] =
+    def getEquipmentAttibutes(): NamedRowEvaluator[EquipmentAttributes] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getNonEmptyContentNamed, getContentNamed, 
             getFloat64Named, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};

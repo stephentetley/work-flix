@@ -24,22 +24,22 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, RangeMinMax, SignalMinMax};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
 
 
     /// src should be instrument facts
-    pub def genTstn(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genTstn(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentData(src);
-        let ans         = tstn(workitems <+> facts);
-        Ok(ans) 
+        tstn(workitems <+> facts)
 
 
 
     pub def tstn(input: #{EquiWorkItem3, RangeMinMax, SignalMinMax,
-                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),
@@ -66,8 +66,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
                 RangeMinMax(equiId, _, _, units),
                 if recognizedRangeUnit(units).
         };
-        solve (rules <+> input) project EquiCharacteristic
-             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
+
 
     def recognizedRangeUnit(s: String): Bool = match s { 
         case "Deg C" => true

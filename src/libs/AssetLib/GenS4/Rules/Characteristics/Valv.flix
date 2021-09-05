@@ -23,20 +23,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4Int};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ValveSize};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
 
     /// src should be valve facts
-    pub def genValv(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genValv(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Valve.readValveData(src);
-        let ans         = valv(workitems <+> facts);
-        Ok(ans) 
+        valv(workitems <+> facts)
 
 
     pub def valv(input: #{EquiWorkItem3, ValveSize,
-                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
                 EquiWorkItem3(equiId, "VALV", s4Class),
@@ -49,8 +49,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
                 if recognizedSizeUnits(units).
 
         };
-        solve (rules <+> input) project EquiCharacteristic
-             |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
+
 
     def recognizedSizeUnits(units: String): Bool = match units { 
         case "MILLIMETRES" => true

@@ -22,23 +22,23 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, WorkLoad, TestCertNo, YWRef};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
     /// src should be lifting facts
-    pub def genLisl(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genLisl(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);
-        let ans         = lisl(workitems <+> facts);
-        Ok(ans) 
+        lisl(workitems <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def lisl(input: #{EquiWorkItem3, WorkLoad, 
-                            TestCertNo, YWRef, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            TestCertNo, YWRef, EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "LISL", s4Class),
@@ -60,8 +60,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
                 if recognizedLoadUnit(units).
 
         }; 
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
     def recognizedLoadUnit(s: String): Bool = match s { 
         case "KILOGRAM" => true

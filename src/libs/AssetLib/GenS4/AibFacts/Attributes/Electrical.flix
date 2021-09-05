@@ -21,6 +21,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{CurrentInA, 
         InsulationClass, IPRating, Power, SpeedRPM, VoltageIn};
 
@@ -28,10 +29,10 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
     /// Read from Aib file...
 
 
-    pub def readElectricalData(src: XlsxSource): Result[#{CurrentInA, InsulationClass, 
+    pub def readElectricalData(src: XlsxSource): GenMonad[#{CurrentInA, InsulationClass, 
                                                             IPRating, Power, SpeedRPM,
-                                                            VoltageIn | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalElectrical())
+                                                            VoltageIn | r}] =
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalElectrical()))
         
 
 

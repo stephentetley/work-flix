@@ -22,23 +22,23 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ConditionGrade, 
         LoadingFactor, PerformanceGrade, SurveyYear};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
 
     /// src should be asset condition facts
-    pub def genAssetCondition(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genAssetCondition(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts = AssetLib/GenS4/AibFacts/Attributes/AssetCondition.readAgaspData(src);
-        let ans = assetCondition(workitems <+> facts);
-        Ok(ans) 
+        assetCondition(workitems <+> facts)
 
 
     pub def assetCondition(input: #{EquiWorkItem3, ConditionGrade, 
                                     LoadingFactor, PerformanceGrade, 
-                                    SurveyYear, EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                                    SurveyYear, EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(s4ConditionGrade(grade))) :- 
@@ -74,8 +74,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
                 SurveyYear(equiId, year).           
 
         }; 
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
     /// TODO should be an enum...
     

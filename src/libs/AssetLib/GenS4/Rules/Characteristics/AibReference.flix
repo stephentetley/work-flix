@@ -22,18 +22,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, AibPliNum, AibParentRef};
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
 
     
     /// # Floc
 
-    pub def genFlocAibReference(worklist: List[FlocWorkItem]): Result[Chain[SLFlocCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genFlocAibReference(worklist: List[FlocWorkItem]): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = makeFlocAibRefWorkItems(worklist);
         let aibrefs     = Relation.foldMap(makeFlocAibRef, worklist);
-        let ans         = flocAibReference(workitems <+> aibrefs);
-        Ok(ans) 
+        flocAibReference(workitems <+> aibrefs)
 
     /// Case specific WorkItem...
     pub rel FlocAibRefWorkItem(floc: String)
@@ -49,7 +49,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
 
 
     pub def flocAibReference(input: #{FlocAibRefWorkItem, 
-                                    FlocAibRef, FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure =
+                                    FlocAibRef, FlocCharacteristic | r}): GenMonad[Unit] =
         let rules = #{
             
             /// 1-to-1 - 1 work item to 1 blank "S4_AIB_REFERENCE"
@@ -60,26 +60,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
                 FlocAibRef(funcloc, sainum).                
         };
-        solve (rules <+> input) project FlocCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic
+        AssetLib/GenS4/GenMonad.tellFlocCharacteristics(rules <+> input)
 
 
     /// # Equi
 
-    pub def genEquiAibReference(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genEquiAibReference(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/AibReference.readHierarchyRelations(src);
-        let ans         = equiAibReference(workitems <+> facts);
-        Ok(ans) 
-
-
-    
-
+        equiAibReference(workitems <+> facts)
+        
 
     /// Use AibPliNum...
     pub def equiAibReference(input: #{EquiWorkItem3, AibPliNum, AibParentRef, 
-                                        EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure =
+                                        EquiCharacteristic | r}): GenMonad[Unit] =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
             EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
@@ -96,8 +91,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
                 AibParentRef(equiId, parentSaiNum), 
                 if not String.isEmpty(parentSaiNum).
         };
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
 
 }

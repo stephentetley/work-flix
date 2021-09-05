@@ -61,10 +61,9 @@ namespace AssetLib/S4Lite/S4LiteRelations {
 
 
 
-    pub def toSLFlocLongText(src: #{FlocLongText | r}): Chain[SLFlocLongText] & Impure = 
+    pub def toSLFlocLongText(src: #{FlocLongText | r}): Array[SLFlocLongText] & Impure = 
         query src select (x1, x2, x3) from FlocLongText(x1, x2, x3)
-            |> Chain.fromArray
-            |> Chain.map(flocLongTextToS4Lite)
+            |> Array.map(flocLongTextToS4Lite)
 
     def flocLongTextToS4Lite(x: (String, String, String)): SLFlocLongText = 
         let (x1, x2, x3) = x;
@@ -74,10 +73,9 @@ namespace AssetLib/S4Lite/S4LiteRelations {
         }
 
 
-    pub def toSLFlocCharacteristic(src: #{FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure = 
+    pub def toSLFlocCharacteristics(src: #{FlocCharacteristic | r}): Array[SLFlocCharacteristic] & Impure = 
         query src select (x1, x2, x3, x4, x5) from FlocCharacteristic(x1, x2, x3, x4, x5)
-            |> Chain.fromArray
-            |> Chain.map(flocCharacteristicToS4Lite)
+            |> Array.map(flocCharacteristicToS4Lite)
 
     def flocCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): SLFlocCharacteristic = 
         let (x1, x2, x3, x4, x5) = x;
@@ -91,10 +89,9 @@ namespace AssetLib/S4Lite/S4LiteRelations {
 
 
 
-    pub def toSLEquiLongText(src: #{ EquiLongText | r }): Chain[SLEquiLongText] & Impure = 
+    pub def toSLEquiLongTexts(src: #{ EquiLongText | r }): Array[SLEquiLongText] & Impure = 
         query src select (x1, x2, x3) from EquiLongText(x1, x2, x3)
-            |> Chain.fromArray
-            |> Chain.map(equiLongTextToS4Lite)
+            |> Array.map(equiLongTextToS4Lite)
 
     def equiLongTextToS4Lite(x: (String, String, String)): SLEquiLongText = 
         let (x1, x2, x3) = x;
@@ -104,10 +101,9 @@ namespace AssetLib/S4Lite/S4LiteRelations {
         }
 
 
-    pub def toSLEquiCharacteristic(src: #{ EquiCharacteristic | r }): Chain[SLEquiCharacteristic] & Impure = 
+    pub def toSLEquiCharacteristics(src: #{ EquiCharacteristic | r }): Array[SLEquiCharacteristic] & Impure = 
         query src select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5)
-            |> Chain.fromArray
-            |> Chain.map(equiCharacteristicToS4Lite)
+            |> Array.map(equiCharacteristicToS4Lite)
 
     def equiCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): SLEquiCharacteristic = 
         let (x1, x2, x3, x4, x5) = x;
@@ -179,18 +175,7 @@ namespace AssetLib/S4Lite/S4LiteRelations {
         pub def hash(x: CharValue): Int = Hash.hash(ToString.toString(x))
     }
 
-    instance Boxable[CharValue] {
-        pub def box(x: CharValue): Boxed = {
-            let value = x as ##java.lang.Object;
-            let compare = (o1, o2) -> Order.compare(o1 as CharValue, o2 as CharValue);
-            let toString = o -> ToString.toString(o as CharValue);
-            BoxedObject(value, compare, toString)
-        }
-        pub def unbox(x: Boxed): CharValue = match x {
-            case BoxedObject(v, _, _) => v as CharValue
-            case _                    => ?bug
-        }
-    }
+    instance Boxable[CharValue] 
 
 
 }

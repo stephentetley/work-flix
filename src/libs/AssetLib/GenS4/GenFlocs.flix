@@ -18,36 +18,29 @@
 namespace AssetLib/GenS4/GenFlocs {
 
     use SheetIO/Reader.{XlsxSource};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
-
+    
 
 
     pub def emitFlocUxl(workList: XlsxSource, args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* answers    = generateFlocUxl(workList);
+        let* answers    = AssetLib/GenS4/GenMonad.execGenMonad(generateFlocUxl(workList));
         let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(true, args, answers);
         Ok()
 
-    /// Move to GenMonad...
     /// Generate all characteristics 
-    pub def generateFlocUxl(workList: XlsxSource): Result[UxlSource, String] & Impure = 
-        use Result.{flatMap};
+    pub def generateFlocUxl(workList: XlsxSource): GenMonad[Unit] = 
+        use  AssetLib/GenS4/GenMonad.{flatMap, return};
         let* workitems  = AssetLib/GenS4/WorkLists.readFlocWorkList(workList);
-        let _           = Console.printLine("flocs: ${List.length(workitems)}");
-        let* flocs      = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
-        let* ch1        = AssetLib/Gens4/Rules/FunctionalLocation.genFlocCharacteristics1(workitems);
-        let* ch2        = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitems);
-        let* ch3        = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitems);
-        let* ch4        = AssetLib/GenS4/Rules/Characteristics/SolutionId.genFlocSolutionId(workitems);
-        Ok( { funclocs = Chain.fromList(flocs)
-            , funclocLongTexts = Chain.empty()
-            , funclocCharacteristics = Monoid.combineAll(ch1 :: ch2 :: ch3 :: ch4 :: Nil)
-            , equipment = Chain.empty()
-            , equiLongTexts = Chain.empty()
-            , equiCharacteristics = Chain.empty()
-            })
+        let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
+        let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocCharacteristics(workitems);
+        let* _  = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitems);
+        let* _  = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitems);
+        let* _  = AssetLib/GenS4/Rules/Characteristics/SolutionId.genFlocSolutionId(workitems);
+        return()
 
 
 }

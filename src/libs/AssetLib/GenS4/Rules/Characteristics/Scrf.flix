@@ -24,6 +24,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Scrf {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         Flow};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
@@ -40,7 +41,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Scrf {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def scrf(input: #{EquiWorkItem3, 
                             Flow, 
-                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            EquiCharacteristic | r1}): GenMonad[Unit] = 
         use AssetLib/GenS4/Rules/Characteristics/Utils.{flowLitresPerSecond, recognizedFlowUnits};
                             
         let rules = #{
@@ -57,8 +58,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Scrf {
             ///     SpeedRPM(equiId, ans).
 
         }; 
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 
 
 

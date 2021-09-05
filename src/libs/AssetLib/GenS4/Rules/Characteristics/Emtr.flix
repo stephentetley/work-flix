@@ -23,6 +23,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         CurrentInA, InsulationClass, IPRating, SpeedRPM, Power, VoltageIn};
+    use AssetLib/GenS4.{GenMonad};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
@@ -30,18 +31,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
     
 
     /// src should be electrical facts
-    pub def genEmtr(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-        use Result.{flatMap};
+    pub def genEmtr(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+        use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalData(src);
-        let ans         = emtr(workitems <+> facts);
-        Ok(ans) 
+        emtr(workitems <+> facts)
 
 
     /// IP_RATING should be generated on per type (per class?)
     pub def emtr(input: #{EquiWorkItem3, CurrentInA, InsulationClass, 
                             IPRating, SpeedRPM, Power, VoltageIn, 
-                            EquiCharacteristic | r1}): Chain[SLEquiCharacteristic] & Impure = 
+                            EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "EMTR", s4Class),
@@ -76,6 +76,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
                 if recognizedVoltageUnits(units).
 
         };
-        solve (rules <+> input) project EquiCharacteristic
-            |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristic
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
+        
 }
