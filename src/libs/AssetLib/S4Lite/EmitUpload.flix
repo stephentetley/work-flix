@@ -16,6 +16,8 @@
 
 namespace AssetLib/S4Lite/EmitUpload {
     
+    use SheetIO/Reader.{XlsxSource};
+
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic, SLEquiCharacteristic};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, Date, NumericInt, NumericFloat};
@@ -112,10 +114,9 @@ namespace AssetLib/S4Lite/EmitUpload {
     /// EQUI
 
     pub def renumberSLEquiCharacteristics(sourceKeyMap: Map[String, String], 
-                                            crSheet: String, 
-                                            crPath: System.FilePath, 
+                                            s4ChangeRequstEquitab: XlsxSource, 
                                             xs: Chain[SLEquiCharacteristic]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
-        AssetLib/S4Lite/Internal/Phase2Renumber.renumber(sourceKeyMap, crSheet, crPath, Chain.toList(xs)) 
+        AssetLib/S4Lite/Internal/Phase2Renumber.renumber(sourceKeyMap, s4ChangeRequstEquitab, Chain.toList(xs)) 
             |> Result.map(Chain.fromList)
 
     pub def allClassFilter(): ClassEquiRow -> Bool = _row -> true

@@ -20,10 +20,10 @@ namespace AssetLib/GenS4/GenEqui {
     use SheetIO/Reader.{XlsxSource};
 
 
-    use AssetLib/GenS4.{GenMonad};
     use AssetLib/S4Lite/Datatypes.{UxlSource};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
-
+    use AssetLib/GenS4.{GenMonad};
+    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
     type alias GenEquiArguments = 
         { workList: XlsxSource
@@ -54,5 +54,35 @@ namespace AssetLib/GenS4/GenEqui {
         let* _          = AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(workitems, args.aibAgaspExport);
         return()
 
+    /// Phase 2
+
+    type alias Phase2GenEquiArguments = 
+        { workList: XlsxSource
+        , s4ChangeRequestEquiTab: System.FilePath       /// Sheet always called Data
+        , aibElectricalExport: XlsxSource
+        }
+
+    type alias FileUploadOutputArgs = 
+        { outputDirectory: System.FilePath
+        , userName: String
+        , filePrefix: String
+        }    
+
+    pub def emitPhase2EquiUxl(genArgs: Phase2GenEquiArguments, outputArgs: FileUploadOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let* (uxl, workitems) = AssetLib/GenS4/GenMonad.runGenMonad(generatePhase2Equi(genArgs));
+        let chars       = uxl.equiCharacteristics;
+        let renamings   = AssetLib/GenS4/WorkLists.getEquipmentWorkItemKeyMap(workitems);
+        let* cs1        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(renamings, {path = genArgs.s4ChangeRequestEquiTab, sheet = "Data"}, chars);
+        let filter      = AssetLib/S4Lite/EmitUpload.allClassFilter();
+        let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads(outputArgs.userName, cs1, outputArgs.filePrefix, filter, outputArgs.outputDirectory);
+        Ok()
+
+
+    pub def generatePhase2Equi(args: Phase2GenEquiArguments): GenMonad[List[EquiWorkItem]] = 
+        use AssetLib/GenS4/GenMonad.{flatMap, return, liftAction};
+        let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
+        let* _          = AssetLib/GenS4/Rules/Characteristics/Actu.genActu(workitems, args.aibElectricalExport);
+        return(workitems)
 
 }

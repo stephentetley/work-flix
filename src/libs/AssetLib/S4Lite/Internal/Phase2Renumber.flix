@@ -19,6 +19,7 @@ namespace AssetLib/S4Lite/Internal/Phase2Renumber {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
+    use SheetIO/Reader.{XlsxSource};
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
 
     type alias ChangeRequestRow = 
@@ -30,11 +31,10 @@ namespace AssetLib/S4Lite/Internal/Phase2Renumber {
 
 
     pub def renumber(sourceKeyMap: Map[String, String], 
-                    crSheet: String, 
-                    crPath: System.FilePath, 
+                    s4ChangeRequstEquitab: XlsxSource, 
                     xs: List[SLEquiCharacteristic]): Result[List[SLEquiCharacteristic], String] & Impure = 
         use Result.{flatMap};
-        let* crKeyMap   = getChangeRequestKeyMap(crSheet, crPath);
+        let* crKeyMap   = getChangeRequestKeyMap(s4ChangeRequstEquitab);
         renumberHelper(sourceKeyMap, crKeyMap, xs)
 
 
@@ -52,9 +52,8 @@ namespace AssetLib/S4Lite/Internal/Phase2Renumber {
 
 
     /// Read from S4 Change Request Equi export file...
-    def getChangeRequestKeyMap(sheetName: String, 
-                                    path: System.FilePath): Result[Map[String, String], String] & Impure =
-        SheetIO/SheetReader.runXlsx(readChangeRequest(sheetName), path)
+    def getChangeRequestKeyMap(s4ChangeRequstEquitab: XlsxSource): Result[Map[String, String], String] & Impure =
+        SheetIO/SheetReader.runXlsx(readChangeRequest(s4ChangeRequstEquitab.sheet), s4ChangeRequstEquitab.path)
 
     def readChangeRequest(sheetName: String): SheetReader[Map[String, String]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};
