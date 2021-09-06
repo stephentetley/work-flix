@@ -25,29 +25,34 @@ namespace AssetLib/GenS4/GenEqui {
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 
 
-    /// TODO - need to be able to generate EquiCharacteristics from a Worklist and an XlsxSource
-    /// and aggregate them 
     type alias GenEquiArguments = 
         { workList: XlsxSource
         , aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
+        , aibGridRefsExport: XlsxSource
+        , aibAgaspExport: XlsxSource
         }
 
     pub def emitEquiUxl(genArgs: GenEquiArguments, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* answers    = AssetLib/GenS4/GenMonad.execGenMonad(generateEquiUxl(genArgs));
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, answers);
+        let* equis  = AssetLib/GenS4/GenMonad.execGenMonad(generateEquiUxl(genArgs));
+        let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, equis);
         Ok()
 
     /// Empty string for no solution id.
     pub def generateEquiUxl(args: GenEquiArguments): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return, liftAction};
-        let* workitems      = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
-        let* _              = liftAction(_ -> Console.printLine("workitems count: ${List.length(workitems)}"));
-        let* equiAttrs      = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
-        let* _              = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
-        let* _              = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport, args.aibEquipmentExport);
-        let* _              = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport);
+        let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
+        let* _          = liftAction(_ -> Console.printLine("workitems count: ${List.length(workitems)}"));
+        let* equiAttrs  = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
+        let* _          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
+        let* _          = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport, args.aibEquipmentExport);
+        let* _          = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport);
+        let* _          = AssetLib/GenS4/Rules/Characteristics/AibReference.genEquiAibReference(workitems, args.aibEquipmentExport);
+        let* _          = AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(workitems);
+        let* _          = AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(workitems, args.aibGridRefsExport);
+        let* _          = AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(workitems, args.aibAgaspExport);
         return()
+
 
 }

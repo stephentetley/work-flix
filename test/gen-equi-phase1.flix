@@ -17,6 +17,10 @@ def genEquiArgs(): GenEquiArguments =
         {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-equipment-export.xlsx"), sheet = "Sheet1"}
     , aibMemosExport = 
         {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-memo-export.xlsx"), sheet = "Sheet1"}
+    , aibGridRefsExport = 
+        {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-equipment-export.xlsx"), sheet = "Sheet1"}
+    , aibAgaspExport = 
+        {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-agasp-export.xlsx"), sheet = "Sheet1"}
     }
 
 
@@ -32,23 +36,8 @@ def main(_args: Array[String]): Int32 & Impure =
 def genPhase1(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
-    let emitArgs    = uxlOutputArgs();
-    let* equis      = AssetLib/GenS4/GenEqui.generateEquiUxl(equiArgs);
-    let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(true, emitArgs, equis);
-    let _           = Console.printLine("Wrote: ${emitArgs.outpath}");
+    let outputArgs  = uxlOutputArgs();
+    let* _          = AssetLib/GenS4/GenEqui.emitEquiUxl(equiArgs, outputArgs);
+    let _           = Console.printLine("Wrote: ${outputArgs.outpath}");
     Ok()
 
-
-/// def aibReference(): Phase2Step = xs -> 
-///     AssetLib/GenS4/Rules/Characteristics/AibReference.genEquiAibReference(xs, equiArgs.aibEquipmentExport) 
-
-/// def assetCondition(): Phase2Step = xs -> 
-///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-agasp-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(xs, src) 
-
-/// def eastNorth(): Phase2Step = xs -> 
-///     let src = {file = System/FilePath.new("G:/work/assets/capital_schemes/rivel/rivel-equipment-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(xs, src) 
-
-/// def solutionId(): Phase2Step = xs -> 
-///     AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(xs) 

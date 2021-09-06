@@ -27,8 +27,8 @@ namespace AssetLib/GenS4/GenFlocs {
 
     pub def emitFlocUxl(workList: XlsxSource, args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* answers    = AssetLib/GenS4/GenMonad.execGenMonad(generateFlocUxl(workList));
-        let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(true, args, answers);
+        let* flocs  = AssetLib/GenS4/GenMonad.execGenMonad(generateFlocUxl(workList));
+        let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, args, flocs);
         Ok()
 
     /// Generate all characteristics 
