@@ -133,7 +133,10 @@ namespace AssetLib/GenS4/GenMonad {
                 case Err(_) => apply1(mb, st, w, r)
             })
 
-
+    pub def whenSome(x: Option[a], k: a -> GenMonad[Unit]): GenMonad[Unit] = match x { 
+        case Some(a) => k(a)
+        case None => return()
+    }
 
     pub def liftAction(f: Unit ~> a): GenMonad[a] = 
         GenMonad((st, w, _) -> 

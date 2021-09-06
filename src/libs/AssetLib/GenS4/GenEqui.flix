@@ -59,7 +59,11 @@ namespace AssetLib/GenS4/GenEqui {
     type alias Phase2GenEquiArguments = 
         { workList: XlsxSource
         , s4ChangeRequestEquiTab: System.FilePath       /// Sheet always called Data
-        , aibElectricalExport: XlsxSource
+        , aibElectricalExport: Option[XlsxSource]
+        , aibInstrumentExport: Option[XlsxSource]
+        , aibLiftingExport: Option[XlsxSource]
+        , aibPumpExport: Option[XlsxSource]
+        , aibValveExport: Option[XlsxSource]
         }
 
     type alias FileUploadOutputArgs = 
@@ -80,9 +84,61 @@ namespace AssetLib/GenS4/GenEqui {
 
 
     pub def generatePhase2Equi(args: Phase2GenEquiArguments): GenMonad[List[EquiWorkItem]] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return, liftAction};
+        use AssetLib/GenS4/GenMonad.{flatMap, return, whenSome};
         let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
-        let* _          = AssetLib/GenS4/Rules/Characteristics/Actu.genActu(workitems, args.aibElectricalExport);
+        let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Actu.genActu(workitems));
+        let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Crht.genCrht(workitems));
+        let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(workitems));
+        let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Lstn.genLstn(workitems));
+        let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Pstn.genPstn(workitems));
+        let* _          = whenSome(args.aibPumpExport, AssetLib/GenS4/Rules/Characteristics/Pump.genPump(workitems));
+        let* _          = whenSome(args.aibPumpExport, AssetLib/GenS4/Rules/Characteristics/Pums.genPums(workitems));
+        let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Sole.genSole(workitems));
+        let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(workitems));
+        let* _          = whenSome(args.aibValveExport, AssetLib/GenS4/Rules/Characteristics/Valv.genValv(workitems));
         return(workitems)
+
+
+/// ACTU    Electrical
+/// FSTN    Instrument
+/// LSTN    Instrument
+/// PSTN    Instrument
+/// PUMP    Pump
+/// SOLE    Electrical
+/// TANK
+
+
+
+/// def crht(): Phase2Step = xs -> 
+///     let src = {path = System/FilePath.new("G:/work/assets/lifting-equipment-2021/knost/knost-lifting-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Crht.genCrht(xs, src) 
+
+/// def emtr(): Phase2Step = xs -> 
+///     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/dri02/driff-electrical-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(xs, src) 
+
+/// def fstn(): Phase2Step = xs -> 
+///     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/dri02/driff-instrument-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(xs, src) 
+
+
+/// def liac(): Phase2Step = xs -> 
+///     let src = {path = System/FilePath.new("G:/work/assets/lifting-equipment-2021/knost/knost-lifting-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Liac.genLiac(xs, src) 
+
+/// def lisl(): Phase2Step = xs -> 
+///     let src = {path = System/FilePath.new("G:/work/assets/lifting-equipment-2021/knost/knost-lifting-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Lisl.genLisl(xs, src) 
+
+
+
+/// def pstn(): Phase2Step = xs -> 
+///     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/dri02/driff-instrument-export.xlsx"), sheet = "Sheet1"};
+///     AssetLib/GenS4/Rules/Characteristics/Pstn.genPstn(xs, src) 
+
+
+
+
+
 
 }
