@@ -8,12 +8,14 @@ use AssetLib/GenS4/GenEqui.{Phase2GenEquiArguments, FileUploadOutputArgs};
 def genEquiArgs(): Phase2GenEquiArguments = 
     { workList = 
         {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-equi-worklist.xlsx"), sheet = "Sheet1"}
-    , s4ChangeRequestEquiTab = System/FilePath.new("MISSING.xlsx")
+    , s4ChangeRequestEquiTab = System/FilePath.new("G:/work/assets/capital_schemes/hudub/fake-equitab.xlsx")
     , aibElectricalExport = 
-        Some({path = System/FilePath.new("MISSING.xlsx"), sheet = "Sheet1"})
-    , aibInstrumentExport = None
+        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-electrical-export.xlsx"), sheet = "Sheet1"})
+    , aibInstrumentExport = 
+        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-instrument-export.xlsx"), sheet = "Sheet1"})
     , aibLiftingExport = None
     , aibPumpExport = None
+    , aibTankExport = None
     , aibValveExport = None
     }
 

@@ -121,6 +121,8 @@ namespace AssetLib/S4Lite/EmitUpload {
 
     pub def allClassFilter(): ClassEquiRow -> Bool = _row -> true
 
+    pub def noneClassFilter(): ClassEquiRow -> Bool = _row -> false
+
     pub def namedClassFilter(names: List[String]): ClassEquiRow -> Bool = row -> 
         List.memberOf(row.className, names)
 
@@ -132,13 +134,20 @@ namespace AssetLib/S4Lite/EmitUpload {
         use Result.flatMap;
         let input1          = Chain.toList(input);
         let classEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload1-classequi.txt"));
-        let _               = Console.printLine("Writing '${classEquiPath}'");
+
         let classEquiRows   = makeClassEquiRows(input1) |> List.filter(classFilter);
-        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeClassEquiFile(userName, classEquiRows, classEquiPath);        
-        let valuaEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload2-valuaequi.txt"));
-        let _               = Console.printLine("Writing '${valuaEquiPath}'");
+        let* _              = 
+            if (not List.isEmpty(classEquiRows)) {
+                let _ = Console.printLine("Writing '${classEquiPath}'");
+                AssetLib/FileIO/S4/TransferFile/Builtins.writeClassEquiFile(userName, classEquiRows, classEquiPath)
+            } else Ok();        
+        let valuaEquiPath   = System/FilePath.append(outdir, System/FilePath.new("${nameRoot}-upload2-valuaequi.txt"));        
         let valuaEquiRows   = makeValuaEquiRows(input1);
-        let* _              = AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath);
+        let* _              = 
+            if (not List.isEmpty(valuaEquiRows)) {
+                let _ = Console.printLine("Writing '${valuaEquiPath}'");
+                AssetLib/FileIO/S4/TransferFile/Builtins.writeValuaEquiFile(userName, valuaEquiRows, valuaEquiPath)
+            } else Ok();
         Ok()
 
     pub def outputClassEquis(userName: String,

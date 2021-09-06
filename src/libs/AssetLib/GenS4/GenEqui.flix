@@ -55,6 +55,7 @@ namespace AssetLib/GenS4/GenEqui {
         return()
 
     /// Phase 2
+    /// Phase 2 is hopefully a temporary fix to overcome limitations in the target system
 
     type alias Phase2GenEquiArguments = 
         { workList: XlsxSource
@@ -63,6 +64,7 @@ namespace AssetLib/GenS4/GenEqui {
         , aibInstrumentExport: Option[XlsxSource]
         , aibLiftingExport: Option[XlsxSource]
         , aibPumpExport: Option[XlsxSource]
+        , aibTankExport: Option[XlsxSource]
         , aibValveExport: Option[XlsxSource]
         }
 
@@ -78,7 +80,7 @@ namespace AssetLib/GenS4/GenEqui {
         let chars       = uxl.equiCharacteristics;
         let renamings   = AssetLib/GenS4/WorkLists.getEquipmentWorkItemKeyMap(workitems);
         let* cs1        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(renamings, {path = genArgs.s4ChangeRequestEquiTab, sheet = "Data"}, chars);
-        let filter      = AssetLib/S4Lite/EmitUpload.allClassFilter();
+        let filter      = AssetLib/S4Lite/EmitUpload.noneClassFilter();
         let* _          = AssetLib/S4Lite/EmitUpload.outputEquiUploads(outputArgs.userName, cs1, outputArgs.filePrefix, filter, outputArgs.outputDirectory);
         Ok()
 
@@ -87,13 +89,20 @@ namespace AssetLib/GenS4/GenEqui {
         use AssetLib/GenS4/GenMonad.{flatMap, return, whenSome};
         let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
         let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Actu.genActu(workitems));
+        let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Conp.genConp(workitems));
         let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Crht.genCrht(workitems));
+        let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(workitems));
         let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(workitems));
+        let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Liac.genLiac(workitems));
+        let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Lisl.genLisl(workitems));
         let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Lstn.genLstn(workitems));
         let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Pstn.genPstn(workitems));
         let* _          = whenSome(args.aibPumpExport, AssetLib/GenS4/Rules/Characteristics/Pump.genPump(workitems));
         let* _          = whenSome(args.aibPumpExport, AssetLib/GenS4/Rules/Characteristics/Pums.genPums(workitems));
+        let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Sfer.genSfer(workitems));
         let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Sole.genSole(workitems));
+        let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Star.genStar(workitems));
+        let* _          = whenSome(args.aibTankExport, AssetLib/GenS4/Rules/Characteristics/Tank.genTank(workitems));
         let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(workitems));
         let* _          = whenSome(args.aibValveExport, AssetLib/GenS4/Rules/Characteristics/Valv.genValv(workitems));
         return(workitems)
