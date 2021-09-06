@@ -11,6 +11,8 @@ def genEquiArgs(): Phase2GenEquiArguments =
     , s4ChangeRequestEquiTab = System/FilePath.new("G:/work/assets/capital_schemes/hudub/fake-equitab.xlsx")
     , aibElectricalExport = 
         Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-electrical-export.xlsx"), sheet = "Sheet1"})
+    , aibFanExport = 
+        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-fan-export.xlsx"), sheet = "Sheet1"})
     , aibInstrumentExport = 
         Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-instrument-export.xlsx"), sheet = "Sheet1"})
     , aibLiftingExport = None

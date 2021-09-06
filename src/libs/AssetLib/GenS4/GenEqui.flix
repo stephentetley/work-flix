@@ -61,6 +61,7 @@ namespace AssetLib/GenS4/GenEqui {
         { workList: XlsxSource
         , s4ChangeRequestEquiTab: System.FilePath       /// Sheet always called Data
         , aibElectricalExport: Option[XlsxSource]
+        , aibFanExport: Option[XlsxSource]
         , aibInstrumentExport: Option[XlsxSource]
         , aibLiftingExport: Option[XlsxSource]
         , aibPumpExport: Option[XlsxSource]
@@ -92,6 +93,7 @@ namespace AssetLib/GenS4/GenEqui {
         let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Conp.genConp(workitems));
         let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Crht.genCrht(workitems));
         let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(workitems));
+        let* _          = whenSome(args.aibFanExport, AssetLib/GenS4/Rules/Characteristics/Fans.genFans(workitems));
         let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(workitems));
         let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Liac.genLiac(workitems));
         let* _          = whenSome(args.aibLiftingExport, AssetLib/GenS4/Rules/Characteristics/Lisl.genLisl(workitems));

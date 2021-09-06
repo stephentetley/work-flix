@@ -59,6 +59,11 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     pub rel VoltageIn(itemId: String, voltage: Int32, voltageACOrDC: String)
 
+
+    /// Fan
+
+    pub rel TypeOfFan(itemId: String, aibType: String)
+
     /// Instrument
 
     pub rel RangeMinMax(itemId: String, rmin: Float64, rmax: Float64, units: String)
