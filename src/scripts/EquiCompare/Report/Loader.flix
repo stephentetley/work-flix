@@ -126,7 +126,7 @@ namespace EquiCompare/Report/Loader {
     def evalSiteMapRow[r](): RowEvaluator[#{SiteMap | r}] = 
         use BasicDb/RowEvaluator.{getStringNamed, getFloat64Named, optional};
         use BasicDb/RowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x2), #{ SiteMap(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x2), #{ SiteMap(x1, x2). }))
             <&> getStringNamed("installation_common_name")
             <*> getStringNamed("s4_level1_code")
 

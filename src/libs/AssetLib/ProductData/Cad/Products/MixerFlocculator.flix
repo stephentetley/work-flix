@@ -76,9 +76,9 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
 
     /// def mixerMixracts(x: EquiRef, valve: ScreenRow): #{EquiWorkItem3, ValveSize | r} = 
     ///     let EquiRef(x1) = x;
-    ///     Relation.when(valve.equipmentBody.objectName == "MIXR", {
+    ///     RelLib/Relation.when(valve.equipmentBody.objectName == "MIXR", {
     ///         let z1 = #{ EquiWorkItem3(x1, valve.equipmentBody.objectName, valve.equipmentBody.className). };
-    ///         let z2 = Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
+    ///         let z2 = RelLib/Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
     ///         z1 <+> z2
     ///     })
 

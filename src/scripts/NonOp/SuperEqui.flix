@@ -125,7 +125,7 @@ namespace AssetScripts/NonOp/SuperEqui {
             WorkItem(x1.plinum, x1.plantAssetType, x1.plantEquipAssetType, 
                         x1.parentSainum, x1.installationSainum, x1.subinstallationSainum). 
         };
-        Relation.foldMap(mkWorkItem1, xs)
+        RelLib/Relation.foldMap(mkWorkItem1, xs)
 
     /// TODO - patching should be a pipeline...
     def genEquis(factDb: #{AllowedManufacturer, AllowedManufacturerModel, EquipmentMapping, InstallationMapping, 

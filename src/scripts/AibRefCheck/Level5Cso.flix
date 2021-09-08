@@ -115,7 +115,7 @@ namespace AibRefCheck/Level5Cso {
     def evalMaptoS4(): NamedRowEvaluator[#{MaptoS4 | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x2), #{ MaptoS4(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x2), #{ MaptoS4(x1, x2). }))
             <&> getTrimmedContentNamed("AI2_InstallationCommonName")
             <*> getTrimmedContentNamed("S/4 Hana Floc Lvl1_Code")
 

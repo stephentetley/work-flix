@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/Patch {
     use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttributes};
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
 
-    /// TODO can we use Relation.Organization instead?
+    /// TODO can we use RelLib/Relation.Organization instead?
 
     type alias EquipmentPatches = MutMap[String, SLEquipment -> SLEquipment]
 

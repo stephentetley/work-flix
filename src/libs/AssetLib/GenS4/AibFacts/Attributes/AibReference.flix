@@ -37,7 +37,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
         let cmp         = (x,y) -> Order.compare(x.commonName, y.commonName);
         let* xs         = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> Result.map(List.sortWith(cmp)));
         let parents     = extractHierarchyFacts(xs);
-        let plinums     = Relation.foldMap(x1 -> #{ AibPliNum(x1.reference, x1.reference). }, xs);
+        let plinums     = RelLib/Relation.foldMap(x1 -> #{ AibPliNum(x1.reference, x1.reference). }, xs);
         return(parents <+> plinums)
 
 

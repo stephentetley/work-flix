@@ -30,7 +30,7 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     // EquipObject
 
     pub def loadSuperSubEquipObject(path: System.FilePath): Result[#{SuperSubEquipObject | r}, String] & Impure = 
-        let build = Relation.foldMap(x1 -> #{ SuperSubEquipObject(x1.superObject, x1.subObject, x1.category). });
+        let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubEquipObject(x1.superObject, x1.subObject, x1.category). });
         loadEquipObject(path)
             |> Result.map(build)
 
@@ -47,7 +47,7 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     // FlocObject
 
     pub def loadSuperSubFlocObject(path: System.FilePath): Result[#{SuperSubFlocObject | r}, String] & Impure = 
-        let build = Relation.foldMap(x1 -> #{ SuperSubFlocObject(x1.superObject, x1.subObject, x1.structure). });
+        let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubFlocObject(x1.superObject, x1.subObject, x1.structure). });
         loadFlocObject(path)
             |> Result.map(build)
 
@@ -64,7 +64,7 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     // FlocDescription
     
     pub def loadFlocObjectDescription(path: System.FilePath): Result[#{FlocObjectDescription | r}, String] & Impure = 
-        let build = Relation.foldMap(x1 -> #{ FlocObjectDescription(x1.objectType, x1.description). });
+        let build = RelLib/Relation.foldMap(x1 -> #{ FlocObjectDescription(x1.objectType, x1.description). });
         loadFlocDescription(path)
             |> Result.map(build)
 
@@ -80,7 +80,7 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     // ObjTypeManufacturer
     
     pub def loadAllowedManufacturer(path: System.FilePath): Result[#{AllowedManufacturer | r}, String] & Impure = 
-        let build = Relation.foldMap(x1 -> #{ AllowedManufacturer(x1.objectType, x1.manufacturer). });
+        let build = RelLib/Relation.foldMap(x1 -> #{ AllowedManufacturer(x1.objectType, x1.manufacturer). });
         loadObjTypeManufacturer(path)
             |> Result.map(build)
 
@@ -96,7 +96,7 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     // ManufacturerModel
     
     pub def loadAllowedManufacturerModel(path: System.FilePath): Result[#{AllowedManufacturerModel | r}, String] & Impure = 
-        let build = Relation.foldMap(x1 -> #{ AllowedManufacturerModel(x1.manufacturer, x1.model). });
+        let build = RelLib/Relation.foldMap(x1 -> #{ AllowedManufacturerModel(x1.manufacturer, x1.model). });
         loadManufacturerModel(path)
             |> Result.map(build)
 

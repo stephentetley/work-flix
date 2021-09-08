@@ -35,7 +35,7 @@ namespace AibRefCheck/Level1/Loader {
     def evalSiteMapping(): NamedRowEvaluator[#{SiteMapping | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x1) or String.isEmpty(x2)), #{ SiteMapping(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x1) or String.isEmpty(x2)), #{ SiteMapping(x1, x2). }))
             <&> getTrimmedContentNamed("S/4 Hana Floc Lvl1_Code")
             <*> getTrimmedContentNamed("SITE_REF")
             
@@ -47,7 +47,7 @@ namespace AibRefCheck/Level1/Loader {
     def evalInstMapping(): NamedRowEvaluator[#{InstMapping | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x1) or String.isEmpty(x2), #{ InstMapping(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x1) or String.isEmpty(x2), #{ InstMapping(x1, x2). }))
             <&> getTrimmedContentNamed("S/4 Hana Floc Lvl1_Code")
             <*> getTrimmedContentNamed("AI2_InstallationReference")
 
@@ -59,7 +59,7 @@ namespace AibRefCheck/Level1/Loader {
     def evalIH06Match(): NamedRowEvaluator[#{IH06Match | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x1) or String.isEmpty(x2), #{ IH06Match(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x1) or String.isEmpty(x2), #{ IH06Match(x1, x2). }))
             <&> getTrimmedContentNamed("Functional Loc.")
             <*> getTrimmedContentNamed("AI2 AIB Reference")
     
@@ -71,7 +71,7 @@ namespace AibRefCheck/Level1/Loader {
     def evalSiteExists(): NamedRowEvaluator[#{SiteExists | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        (x1 -> Relation.whenNot(String.isEmpty(x1), #{ SiteExists(x1). }))
+        (x1 -> RelLib/Relation.whenNot(String.isEmpty(x1), #{ SiteExists(x1). }))
             <&> getTrimmedContentNamed("Functional Loc.")
 
 

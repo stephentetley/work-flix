@@ -107,11 +107,11 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     def pumpPumpFacts(x: EquiRef, pump: PumpRow): #{EquiWorkItem3, Flow, DutyHead, 
                                                     ImpellerType | r} = 
         let EquiRef(x1) = x;
-        Relation.when(pump.equipmentBody.objectName == "PUMP", {
+        RelLib/Relation.when(pump.equipmentBody.objectName == "PUMP", {
             let z1 = #{ EquiWorkItem3(x1, pump.equipmentBody.objectName, pump.equipmentBody.className). };
-            let z2 = Relation.optional(pump.flowLS,                d -> #{ Flow(x1, d, "LITRES PER SECOND"). });
-            let z3 = Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
-            let z4 = Relation.whenNot(String.isEmpty(pump.impellerType), #{ ImpellerType(x1, pump.impellerType). });
+            let z2 = RelLib/Relation.optional(pump.flowLS,                d -> #{ Flow(x1, d, "LITRES PER SECOND"). });
+            let z3 = RelLib/Relation.optional(pump.installedDesignHeadM,  d -> #{ DutyHead(x1, d, "METRES"). });
+            let z4 = RelLib/Relation.whenNot(String.isEmpty(pump.impellerType), #{ ImpellerType(x1, pump.impellerType). });
             z1 <+> z2 <+> z3 <+> z4
         })
 

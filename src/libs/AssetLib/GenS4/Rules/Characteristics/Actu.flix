@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
         IPRating, Power, SpeedRPM, VoltageIn};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
-        recognizedInsulationClass, insulationClass};
+        S4InsulationClass, s4InsulationClassRules};
     
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
@@ -40,17 +40,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
 
 
     pub def actu(input: #{EquiWorkItem3, CurrentInA, InsulationClass, 
-                            IPRating, Power, VoltageIn, 
+                            IPRating, Power, VoltageIn, S4InsulationClass, 
                             EquiCharacteristic | r1}): GenMonad[Unit] = 
-        let rules =#{
+        let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "ACTU", s4Class),
                 IPRating(equiId, rating).
 
-            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(insulationClass(insClass))) :-
+            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
                 EquiWorkItem3(equiId, "ACTU", s4Class),
                 InsulationClass(equiId, insClass),
-                if recognizedInsulationClass(insClass).
+                S4InsulationClass(insClass, s4InsClass).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "ACTU", s4Class),

@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     pub def genFlocSolutionId(worklist: List[FlocWorkItem]): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let make1       = x1 -> #{ FlocSolnIdWorkItem(x1.funcloc, x1.solutionId). };
-        let workitems   = Relation.foldMap(make1, worklist);
+        let workitems   = RelLib/Relation.foldMap(make1, worklist);
         flocSolutionId(workitems)
 
     /// Case specific WorkItem...
@@ -50,7 +50,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     pub def genEquiSolutionId(worklist: List[EquiWorkItem]): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let make1       = x1 -> #{ EquiSolnIdWorkItem(x1.equipmentId, x1.solutionId). };
-        let workitems   = Relation.foldMap(make1, worklist);
+        let workitems   = RelLib/Relation.foldMap(make1, worklist);
         equiSolutionId(workitems)
 
     /// Case specific WorkItem...

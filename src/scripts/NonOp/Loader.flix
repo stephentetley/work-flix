@@ -250,7 +250,7 @@ namespace AssetScripts/NonOp/Loader {
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((ah1, av1, aw1, aa1) -> 
-            Relation.when(String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT", 
+            RelLib/Relation.when(String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT", 
                             #{ GrandParentParentNames(av1, aa1, ah1). }))
             <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
@@ -262,7 +262,7 @@ namespace AssetScripts/NonOp/Loader {
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((ah1, av1, aw1, as1, be1) -> 
-            Relation.when(String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT", 
+            RelLib/Relation.when(String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT", 
                             #{ AssetTypeDescription(av1, as1, be1). }))
             <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
@@ -276,7 +276,7 @@ namespace AssetScripts/NonOp/Loader {
         use SheetIO/RowEvaluator.{getColumnIndex, getTrimmedContentAt};
         use SheetIO/RowEvaluator.{<&>, <*>, >>=};
         ((ah1, av1, aw1, az1, ba1, ay1) -> 
-            Relation.when(String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT",
+            RelLib/Relation.when(String.startsWith(av1, "PLI") and aw1 == false and ah1 != "CATCHMENT",
                             #{ EquipProperties(av1, az1, ba1, ay1). }))
             <&> (getColumnIndex("AH") >>= getTrimmedContentAt)      /// ProcessAssetTypeDescription (could be "NULL")
             <*> (getColumnIndex("AV") >>= getTrimmedContentAt)      /// PlantEquipReference
@@ -295,7 +295,7 @@ namespace AssetScripts/NonOp/Loader {
     def evalPandITag(): NamedRowEvaluator[#{PandITag | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x1), #{ PandITag(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x1), #{ PandITag(x1, x2). }))
             <&> getTrimmedContentNamed("Reference")
             <*> getTrimmedContentNamed("P AND I Tag No")
             
@@ -320,7 +320,7 @@ namespace AssetScripts/NonOp/Loader {
     def evalIH08Mapping(): NamedRowEvaluator[#{IH08Mapping | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.when(String.startsWith(x1, "PLI"), #{ IH08Mapping(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.when(String.startsWith(x1, "PLI"), #{ IH08Mapping(x1, x2). }))
             <&> getTrimmedContentNamed("AI2 AIB Reference")
             <*> getTrimmedContentNamed("Equipment")
 

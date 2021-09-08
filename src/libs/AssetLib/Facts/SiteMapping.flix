@@ -118,7 +118,7 @@ namespace AssetLib/Facts/SiteMapping {
         use Result.{flatMap};
         let* xs = SheetIO/SheetReader.runXlsx(readXlsSiteMappingTable(), src);
         let make1 = x -> #{ SiteMapping(x.installationCommonName, Option.getWithDefault(x.s4Level1Code, "")). };
-        let relns = Relation.foldMap(make1, xs);
+        let relns = RelLib/Relation.foldMap(make1, xs);
         Ok(relns)   
 
 }

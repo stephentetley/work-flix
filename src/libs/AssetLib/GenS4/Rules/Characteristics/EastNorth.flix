@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     pub def genFlocEastNorth(worklist: List[FlocWorkItem]): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let make1       = x1 -> #{ FlocEastNorthWorkItem(x1.funcloc, x1.gridRef). };
-        let workitems   = Relation.foldMap(make1, worklist);
+        let workitems   = RelLib/Relation.foldMap(make1, worklist);
         flocEastNorth(workitems)
 
     /// Case specific WorkItem...

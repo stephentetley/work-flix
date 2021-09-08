@@ -52,7 +52,7 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
     pub def genFlocCharacteristics(worklist: List[FlocWorkItem]): GenMonad[Unit] =
         use Result.{flatMap};
         let make1       = x1 -> #{ FlocWorkItem4(x1.funcloc, x1.level, x1.systemClass, x1.systemTypeDescription). };        
-        let workitems   = Relation.foldMap(make1, worklist);
+        let workitems   = RelLib/Relation.foldMap(make1, worklist);
         flocCharacteristics(workitems)
 
     /// Case specific WorkItem...

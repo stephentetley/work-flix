@@ -90,7 +90,7 @@ namespace UploadCheck/EntityTypes/ValuaEqui {
     /// 1-indexed
     pub def getRelations[r](src: ValuaEquiFile): #{ ValuaEqui | r } = 
         let ChangeFile(body) = src;
-        let rels = Relation.foldMapWithIndex(flip(makeValuaEqui), body.dataRows);
+        let rels = RelLib/Relation.foldMapWithIndex(flip(makeValuaEqui), body.dataRows);
         solve rels
 
 }

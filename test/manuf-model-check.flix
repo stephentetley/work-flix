@@ -21,7 +21,7 @@ def main1(): Result[Unit, String] & Impure =
     let ztable2         = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
     let* allowedModel   = AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(ztable2) |> Result.map(buildManufModel);
 
-    let uxl1            = System/FilePath.new("G:/work/assets/non-op-bins/output/added-site-lift-equip-uxl-output1.xlsx");
+    let uxl1            = System/FilePath.new("G:/work/assets/capital_schemes/hudub/output/hudub-oc-equi-uxl-output1.xlsx");
     let* equis          = AssetLib/FileIO/S4/UxlFile/XlsxReader.loadEquipmentData(uxl1);
     let _               = println(uxl1);
     let _               = reportErrors(equis, allowedManuf, allowedModel);

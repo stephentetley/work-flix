@@ -20,9 +20,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fans {
     use SheetIO/Reader.{XlsxSource};
     
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4Int, S4String};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4Int, S4Float, S4String};
     use AssetLib/GenS4.{GenMonad};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, SpeedRPM, TypeOfFan};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, SpeedRPM, TypeOfFan, RatingPower};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
 
@@ -35,7 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fans {
 
     rel S4FanType(aibType: String, s4Type: String)
 
-    pub def fans(input: #{EquiWorkItem3, SpeedRPM, TypeOfFan, S4FanType, EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def fans(input: #{EquiWorkItem3, SpeedRPM, RatingPower, TypeOfFan, S4FanType, EquiCharacteristic | r1}): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "FANS_RATED_SPEED_RPM", 1, S4Int(speed)) :- 
                 EquiWorkItem3(equiId, "FANS", s4Class),
@@ -49,6 +49,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fans {
             S4FanType("EXTRACTOR FAN", "EXTRACTOR"). 
             S4FanType("FORCED AIR FAN", "FORCED AIR"). 
 
+            EquiCharacteristic(equiId, s4Class, "FANS_RATED_POWER_KW", 1, S4Float(power)) :- 
+                EquiWorkItem3(equiId, "FANS", s4Class),
+                RatingPower(equiId, power, "KILOWATTS").
+                
         }; 
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 

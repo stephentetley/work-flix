@@ -42,7 +42,7 @@ namespace DwfOverflow/Rules {
     def loadFlocTransferFiles[r](srcs: List[System.FilePath]): Result[#{ExistingFloc | r}, String] & Impure = 
         use Result.{flatMap};
         let* xs     = Result.traverse(DwfOverflow/Rules/TransferFileLoader.readFlocTransferFile, srcs);
-        let relns   = Relation.combineAll(xs);
+        let relns   = RelLib/Relation.combineAll(xs);
         Ok(relns)
 
 

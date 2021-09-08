@@ -45,7 +45,7 @@ namespace AssetLib/GenS4/Rules/LongText {
 
     /// SolutionId specific
     pub def makeLongTextWorkItems(xs: List[EquiWorkItem]): #{EquiLongTextWorkItem | r}  = 
-        Relation.foldMap(x1 -> #{ EquiLongTextWorkItem(x1.equipmentId, x1.s4Name). }, xs)
+        RelLib/Relation.foldMap(x1 -> #{ EquiLongTextWorkItem(x1.equipmentId, x1.s4Name). }, xs)
 
 
 
@@ -67,18 +67,15 @@ namespace AssetLib/GenS4/Rules/LongText {
                 AibMemoLine(equiId, memoText), 
                 if (String.length(memoText) > 30).
         };
-        let getKey = detuple3((x1, y1, _) -> (x1, y1));
-        let getLongText = detuple3((_, _, z1) -> z1);
+        let getKey = RelLib/Tuple.decons3((x1, y1, _) -> (x1, y1));
+        let getLongText = RelLib/Tuple.decons3((_, _, z1) -> z1);
         let* answers = liftAction(_ -> query (rules <+> input) select (x1, x2, x3) from EquiLongText(x1, x2, x3)
-                        |> Relation/Organization.collectToMapList(getKey, getLongText)
+                        |> RelLib/Organization.collectToMapList(getKey, getLongText)
                         |> Map.toList
                         |> List.map(xy -> {let ((x1, x2), xs) = xy; {equiId = x1, description = x2, longText = String.unlines(xs)}}));
         AssetLib/GenS4/GenMonad.mapX(AssetLib/GenS4/GenMonad.tellSLEquiLongText, answers)
 
-    /// For Relation/Organization ... ? [Tuple.decons3 ?]
-    def detuple3(f: (u1, u2, u3) -> a & ef, x: (u1, u2, u3)): a & ef = 
-        let (x1, x2, x3) = x;
-        f(x1, x2, x3)
+
 
     def locationOnSite(location: String): String = "Location on Site: ${String.trim(location)}"
 

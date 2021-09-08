@@ -89,8 +89,8 @@ namespace AibRefCheck/Level1MissingExtra {
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) -> { 
-                let r1 = Relation.when(not String.isEmpty(x1) and not String.isEmpty(x2), #{ S4MaptoAib(x1, x2). });
-                let r2 = Relation.when(not String.isEmpty(x1) and not String.isEmpty(x3), #{ S4MaptoAib(x1, x3). });
+                let r1 = RelLib/Relation.when(not String.isEmpty(x1) and not String.isEmpty(x2), #{ S4MaptoAib(x1, x2). });
+                let r2 = RelLib/Relation.when(not String.isEmpty(x1) and not String.isEmpty(x3), #{ S4MaptoAib(x1, x3). });
                 r1 <+> r2})
             <&> getTrimmedContentNamed("S/4 Hana Floc Lvl1_Code")
             <*> getTrimmedContentNamed("AI2_InstallationReference")

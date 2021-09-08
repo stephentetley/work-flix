@@ -26,7 +26,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, PowerUnits, Power};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
-        recognizedInsulationClass, insulationClass};
+        S4InsulationClass, s4InsulationClassRules};
 
     /// src should be electrical facts
     pub def genSole(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
@@ -35,17 +35,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
         let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalData(src);
         sole(workitems <+> facts)
 
-    pub def sole(input: #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, 
+    pub def sole(input: #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, S4InsulationClass,
                             EquiCharacteristic | r}): GenMonad[Unit] =
-        let rules = #{
+        let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "SOLE", s4Class),
                 IPRating(equiId, rating).
 
-            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(insulationClass(insClass))) :-
+            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
                 EquiWorkItem3(equiId, "SOLE", s4Class),
                 InsulationClass(equiId, insClass),
-                if recognizedInsulationClass(insClass).
+                S4InsulationClass(insClass, s4InsClass).
 
             EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "SOLE", s4Class),

@@ -52,7 +52,7 @@ namespace AssetScripts/NonOp/AchFlocs {
                     xs: List[TempWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let workitems   = Relation.foldMap(x1 -> #{ SiteWorkItem(x1.site, makeNGR(x1.easting, x1.northing)). }, xs);
+        let workitems   = RelLib/Relation.foldMap(x1 -> #{ SiteWorkItem(x1.site, makeNGR(x1.easting, x1.northing)). }, xs);
         let solns       = genFlocs(workitems);
         let s4lite      = genS4Lite(solns);
         let args1       = AssetScripts/NonOp/Utils.updateArgs(i, args);

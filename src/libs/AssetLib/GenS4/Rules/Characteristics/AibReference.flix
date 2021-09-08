@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     pub def genFlocAibReference(worklist: List[FlocWorkItem]): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = makeFlocAibRefWorkItems(worklist);
-        let aibrefs     = Relation.foldMap(makeFlocAibRef, worklist);
+        let aibrefs     = RelLib/Relation.foldMap(makeFlocAibRef, worklist);
         flocAibReference(workitems <+> aibrefs)
 
     /// Case specific WorkItem...
@@ -42,10 +42,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
     rel FlocAibRef(funcloc: String, sainum: String)
 
     def makeFlocAibRefWorkItems(xs: List[FlocWorkItem]): #{FlocAibRefWorkItem | r}  = 
-        Relation.foldMap(x1 -> #{ FlocAibRefWorkItem(x1.funcloc). }, xs)
+        RelLib/Relation.foldMap(x1 -> #{ FlocAibRefWorkItem(x1.funcloc). }, xs)
 
     def makeFlocAibRef(x: FlocWorkItem): #{FlocAibRef | r} = 
-        Relation.foldMap(x1 -> #{ FlocAibRef(x.funcloc, x1). }, x.sainums)
+        RelLib/Relation.foldMap(x1 -> #{ FlocAibRef(x.funcloc, x1). }, x.sainums)
 
 
     pub def flocAibReference(input: #{FlocAibRefWorkItem, 

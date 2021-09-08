@@ -78,9 +78,9 @@ namespace AssetLib/ProductData/Cad/Products/Screen {
 
     /// def valveValvFacts(x: EquiRef, valve: ScreenRow): #{EquiWorkItem3, ValveSize | r} = 
     ///     AssetLib/GenS4/GenMonad.withEquiRef(x, x1 -> 
-    ///         Relation.when(valve.equipmentBody.objectName == "VALV", {
+    ///         RelLib/Relation.when(valve.equipmentBody.objectName == "VALV", {
     ///             let z1 = #{ EquiWorkItem3(x1, valve.equipmentBody.objectName, valve.equipmentBody.className). };
-    ///             let z2 = Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
+    ///             let z2 = RelLib/Relation.optional(valve.sizeMM,                i -> #{ ValveSize(x1, Int32.toFloat64(i), "MILLIMETRES"). });
     ///             z1 <+> z2
     ///         }))
 

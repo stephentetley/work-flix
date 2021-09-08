@@ -89,7 +89,7 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
             |> makeEquipmentPatches
 
     def makeWorkItems(xs: List[SLEquipment]): #{EquiWorkItem1 | r} = 
-        Relation.foldMap(x1 -> #{ EquiWorkItem1(x1.equiId). }, xs)
+        RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem1(x1.equiId). }, xs)
 
 
     def makeEquipmentPatches(relns: #{SerialNumberPatch | r}): EquipmentPatches & Impure = 
@@ -112,7 +112,7 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
     def evalSerialNumber(): NamedRowEvaluator[#{SerialNumber | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x2), #{ SerialNumber(x1, sciNumCheck(x2)). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x2), #{ SerialNumber(x1, sciNumCheck(x2)). }))
             <&> getTrimmedContentNamed("Reference")
             <*> getTrimmedContentNamed("Serial No")
 
@@ -148,7 +148,7 @@ namespace AssetScripts/NonOp/PatchSerialNumber {
     def evalPandiTag(): NamedRowEvaluator[#{PandiTag | r}] =
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> Relation.whenNot(String.isEmpty(x2), #{ PandiTag(x1, x2). }))
+        ((x1, x2) -> RelLib/Relation.whenNot(String.isEmpty(x2), #{ PandiTag(x1, x2). }))
             <&> getTrimmedContentNamed("Reference")
             <*> getTrimmedContentNamed("P AND I Tag No")
 

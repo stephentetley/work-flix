@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
-        recognizedInsulationClass, insulationClass};
+        S4InsulationClass, s4InsulationClassRules};
     
 
     /// src should be electrical facts
@@ -40,17 +40,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
 
     /// IP_RATING should be generated on per type (per class?)
     pub def emtr(input: #{EquiWorkItem3, CurrentInA, InsulationClass, 
-                            IPRating, SpeedRPM, Power, VoltageIn, 
+                            IPRating, SpeedRPM, Power, VoltageIn, S4InsulationClass,
                             EquiCharacteristic | r1}): GenMonad[Unit] = 
-        let rules = #{
+        let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "EMTR", s4Class),
                 IPRating(equiId, rating).
 
-            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(insulationClass(insClass))) :-
+            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
                 EquiWorkItem3(equiId, "EMTR", s4Class),
                 InsulationClass(equiId, insClass),
-                if recognizedInsulationClass(insClass).
+                S4InsulationClass(insClass, s4InsClass).
 
             EquiCharacteristic(equiId, s4Class, "EMTR_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "EMTR", s4Class),

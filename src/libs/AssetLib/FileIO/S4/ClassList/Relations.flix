@@ -45,29 +45,29 @@ namespace AssetLib/FileIO/S4/ClassList/Relations {
 
 
     pub def makeFlocRelations(xs: List[ClassRecord]): #{S4FlocClass, S4FlocCharacteristic, S4FlocClassMember | r} = 
-        Relation.foldMap(x1 -> makeFlocClass(x1) <+> makeFlocChars(x1) <+> makeFlocClassMembers(x1), xs)
+        RelLib/Relation.foldMap(x1 -> makeFlocClass(x1) <+> makeFlocChars(x1) <+> makeFlocClassMembers(x1), xs)
 
     def makeFlocClass(x: ClassRecord): #{S4FlocClass | r} = #{ S4FlocClass(x.name, x.description). }
 
     def makeFlocChars(x: ClassRecord): #{S4FlocCharacteristic | r} = 
         use AssetLib/FileIO/S4/ClassList/Datatypes.{s4TypeName};
-        Relation.foldMap(x1 -> #{ S4FlocCharacteristic(x1.name, x1.description, s4TypeName(x1.chartype)). }, x.characteristics)
+        RelLib/Relation.foldMap(x1 -> #{ S4FlocCharacteristic(x1.name, x1.description, s4TypeName(x1.chartype)). }, x.characteristics)
 
     def makeFlocClassMembers(x: ClassRecord): #{S4FlocClassMember | r} = 
-        Relation.foldMap(x1 -> #{ S4FlocClassMember(x.name, x1.name). }, x.characteristics)
+        RelLib/Relation.foldMap(x1 -> #{ S4FlocClassMember(x.name, x1.name). }, x.characteristics)
 
 
 
     pub def makeEquiRelations(xs: List[ClassRecord]): #{S4EquiClass, S4EquiCharacteristic, S4EquiClassMember | r} = 
-        Relation.foldMap(x1 -> makeEquiClass(x1) <+> makeEquiChars(x1) <+> makeEquiClassMembers(x1), xs)
+        RelLib/Relation.foldMap(x1 -> makeEquiClass(x1) <+> makeEquiChars(x1) <+> makeEquiClassMembers(x1), xs)
 
     def makeEquiClass(x: ClassRecord): #{S4EquiClass | r} = #{ S4EquiClass(x.name, x.description). }
 
     def makeEquiChars(x: ClassRecord): #{S4EquiCharacteristic | r} = 
         use AssetLib/FileIO/S4/ClassList/Datatypes.{s4TypeName};
-        Relation.foldMap(x1 -> #{ S4EquiCharacteristic(x1.name, x1.description, s4TypeName(x1.chartype)). }, x.characteristics)
+        RelLib/Relation.foldMap(x1 -> #{ S4EquiCharacteristic(x1.name, x1.description, s4TypeName(x1.chartype)). }, x.characteristics)
 
     def makeEquiClassMembers(x: ClassRecord): #{S4EquiClassMember | r} = 
-        Relation.foldMap(x1 -> #{ S4EquiClassMember(x.name, x1.name). }, x.characteristics)
+        RelLib/Relation.foldMap(x1 -> #{ S4EquiClassMember(x.name, x1.name). }, x.characteristics)
 
 }

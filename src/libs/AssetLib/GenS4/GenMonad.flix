@@ -204,7 +204,7 @@ namespace AssetLib/GenS4/GenMonad {
     pub def equiCharacteristicsSkeleton(makeFacts: EquiRef -> row -> #{| reln}, 
                                     genChars: #{| reln} ~> Array[SLEquiCharacteristic], 
                                     xs: List[(EquiRef, row)]): GenMonad[Unit] =
-        let facts   = Relation.foldMap(uncurry(makeFacts), xs);
+        let facts   = RelLib/Relation.foldMap(uncurry(makeFacts), xs);
         let* chars  = liftAction(_ -> genChars(facts) |> Chain.fromArray);
         tell(r1 -> {equiCharacteristics = Chain.append(r1.equiCharacteristics, chars) | r1})
 

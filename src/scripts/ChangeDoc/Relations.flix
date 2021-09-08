@@ -62,7 +62,7 @@ namespace ChangeDoc/Relations {
     pub rel ValuaEqui(itemId: String, equiName: String, className: String, charName: String, intCounter: Int32, status: String, value: String)
 
     pub def makeChangeRelations(st: State): #{NameChange, AttrChange, LongTextChange, ClassChange, ValuaChange | r} = 
-        Relation.foldMap(makeChangeRelation1, Map.toList(st))
+        RelLib/Relation.foldMap(makeChangeRelation1, Map.toList(st))
 
     /// To do this should make relations that include value "state".
     def makeChangeRelation1(xy: (ChangeKey, ValueState)): #{NameChange, AttrChange, LongTextChange, ClassChange, ValuaChange | r} = match xy { 

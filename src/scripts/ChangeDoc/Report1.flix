@@ -133,7 +133,7 @@ namespace ChangeDoc/Report1 {
         let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
         List.toArray(xs)
             |> Array.map(makeFlocRow1)
-            |> Relation/Organization.updateWithLookup(x1 -> x1.internalFloc, updateAttrs, attrs)
+            |> RelLib/Organization.updateWithLookup(x1 -> x1.internalFloc, updateAttrs, attrs)
 
 
     def makeFlocRow1(x: FlocWorkItem): FlocRow = 
@@ -228,7 +228,7 @@ namespace ChangeDoc/Report1 {
         let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
         query db select (x1, x2) from Equipment(x1, x2) 
             |> Array.map(makeEquiRow1)
-            |> Relation/Organization.updateWithLookup(x1 -> x1.equiId, updateAttrs, attrs)
+            |> RelLib/Organization.updateWithLookup(x1 -> x1.equiId, updateAttrs, attrs)
 
 
     def makeEquiRow1(x: (String, String)): EquiRow = 
@@ -504,7 +504,7 @@ namespace ChangeDoc/Report1 {
         let key1of3 = xyz -> {let (x1, _, _) = xyz; x1};
         let innerKV = xyz -> {let (_, y1, z1) = xyz; (y1, z1)};
         query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
-            |> Relation/Organization.collectToMapMap(key1of3, innerKV)
+            |> RelLib/Organization.collectToMapMap(key1of3, innerKV)
 
 
         

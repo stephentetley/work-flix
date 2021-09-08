@@ -62,27 +62,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Utils {
         case _ => ""
     }
 
-    /// recognizedInsulationClass, insulationClass
 
-    pub def recognizedInsulationClass(s: String): Bool = match s { 
-        case "200 (CLASS K)" => true
-        case "180 (CLASS H)" => true
-        case "155 (CLASS F)" => true
-        case "130 (CLASS B)" => true
-        case "120 (CLASS E)" => true
-        case "105 (CLASS A)" => true
-        case _ => false
+    pub rel S4InsulationClass(aib: String, s4: String)
+
+    pub def s4InsulationClassRules(): #{S4InsulationClass | r} = #{
+        S4InsulationClass("200 (CLASS K)",      "200 (CLASS K)").
+        S4InsulationClass("180 (CLASS H)",      "180 (CLASS H)").
+        S4InsulationClass("155 (CLASS F)",      "155 (CLASS F)").
+        S4InsulationClass("130 (CLASS B)",      "130 (CLASS B)").
+        S4InsulationClass("120 (CLASS E)",      "120 (CLASS E)").
+        S4InsulationClass("105 (CLASS A)",      "105 (CLASS A)").
     }
 
-    /// Input to check...
-    pub def insulationClass(units: String): String = match units { 
-        case "200 (CLASS K)" => "200 (CLASS K)"
-        case "180 (CLASS H)" => "180 (CLASS H)"
-        case "155 (CLASS F)" => "155 (CLASS F)"
-        case "130 (CLASS B)" => "130 (CLASS B)"
-        case "120 (CLASS E)" => "120 (CLASS E)"
-        case "105 (CLASS A)" => "105 (CLASS A)"
-        case _ => ""
-    }    
 
 }

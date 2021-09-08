@@ -103,7 +103,7 @@ namespace AibRefCheck/Level2Uploads {
     pub def readValuaFlocFile(src: System.FilePath): Result[#{ValuaFloc | r}, String] & Impure = 
         use Result.{flatMap};
         let* xs     = AssetLib/FileIO/S4/TransferFile/Builtins.readValuaFlocFile(src);
-        let ans     = Relation.foldMap(makeValuaFloc, xs);
+        let ans     = RelLib/Relation.foldMap(makeValuaFloc, xs);
         Ok(ans)
             
 
