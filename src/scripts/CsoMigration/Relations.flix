@@ -20,7 +20,7 @@ namespace CsoMigration/Relations {
 
     rel AibCso(commonName: String, sainum: String, status: String)
 
-    rel FlocMapping(aiCommonName: String, sainum: String, s4Level1Floc: String, s4Name: String)
+    rel FlocMapping(aiCommonName: String, sainum: String, siteFloc: String, s4Name: String)
 
     rel Level1(floc: String, description: String)
     rel Level2(site: String, floc: String, description: String)
