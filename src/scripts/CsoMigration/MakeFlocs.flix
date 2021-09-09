@@ -34,7 +34,7 @@ namespace CsoMigration/MakeFlocs {
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* items      = readTempWorkItems(src);
-        let worklists   = sublists(50, items);
+        let worklists   = sublists(63, items);
         let* _          = Result.foldLeftM((ac, xs) -> genFlocUxl1(ac, xs, args), 1, worklists);
         Ok()
 
@@ -43,7 +43,8 @@ namespace CsoMigration/MakeFlocs {
                     xs: List[TempWorkItem],
                     args: UxlOutputArgs): Result[Int32, String] & Impure = 
         use Result.{flatMap};
-        let workitems   = RelLib/Relation.foldMap(x1 -> #{ WorkItem(x1.site, x1.commonName, x1.level, x1.proctype, x1.ngr). }, xs);
+        let workitems   = RelLib/Relation.foldMap(x1 -> 
+                            #{ WorkItem(x1.site, x1.commonName, x1.level, x1.proctype, x1.ngr, x1.installedDate). }, xs);
         let solns       = genFlocs(workitems);
         let s4lite      = genS4Lite(solns);
         let args1       = updateArgs(i, args);
@@ -55,7 +56,7 @@ namespace CsoMigration/MakeFlocs {
 
     /// Use a custom relation for FunctionalLocation.
     /// 
-    pub rel FunctionalLocation(funcloc: String, description: String, structureInd: String, objType: String, equiInstall: Bool)
+    pub rel FunctionalLocation(funcloc: String, description: String, structureInd: String, objType: String, installedDate: Time.LocalDate, equiInstall: Bool)
 
     /// Record versoin so we can use sublists
     type alias TempWorkItem = 
@@ -64,9 +65,10 @@ namespace CsoMigration/MakeFlocs {
         , level: Int32
         , proctype: String
         , ngr: String
+        , installedDate: Time.LocalDate
         }
 
-    pub rel WorkItem(site: String, commonName: String, level: Int32, proctype: String, ngr: String)
+    pub rel WorkItem(site: String, commonName: String, level: Int32, proctype: String, ngr: String, installedDate: Time.LocalDate)
 
 
     def systemDescription(commonName: String): CharValue = match commonName { 
@@ -84,28 +86,28 @@ namespace CsoMigration/MakeFlocs {
         let rules = #{
 
             /// Level 2
-            FunctionalLocation("${site}-WTN", "Waste Water Transmission", "YW-GS", "WTN", false) :- 
-                WorkItem(site, _, level, _, _), 
+            FunctionalLocation("${site}-WTN", "Waste Water Transmission", "YW-GS", "WTN", insDate, false) :- 
+                WorkItem(site, _, level, _, _, insDate), 
                 if level == 1.
             
             /// Level 3
-            FunctionalLocation("${site}-WTN-SOF", "Storm Overflow", "YW-GS", "SOF", false) :- 
-                WorkItem(site, _, level, _, _), 
+            FunctionalLocation("${site}-WTN-SOF", "Storm Overflow", "YW-GS", "SOF", insDate, false) :- 
+                WorkItem(site, _, level, _, _, insDate), 
                 if level < 3. 
 
             
             /// Level 4
-            FunctionalLocation("${site}-WTN-SOF-FLA", "Flow Attenuation", "YW-GS", "SOF", false) :- 
-                WorkItem(site, _, level, "FLA", _), 
+            FunctionalLocation("${site}-WTN-SOF-FLA", "Flow Attenuation", "YW-GS", "SOF", insDate, false) :- 
+                WorkItem(site, _, level, "FLA", _, insDate), 
                 if level < 4. 
 
-            FunctionalLocation("${site}-WTN-SOF-FLS", "Flow Spilling", "YW-GS", "SOF", false) :- 
-                WorkItem(site, _, level, "FLS", _), 
+            FunctionalLocation("${site}-WTN-SOF-FLS", "Flow Spilling", "YW-GS", "SOF", insDate, false) :- 
+                WorkItem(site, _, level, "FLS", _, insDate), 
                 if level < 4. 
 
             /// Level 5
-            FunctionalLocation("${site}-WTN-SOF-${proctype}-SYS01", commonName, "YW-GS", "SCIV", true) :- 
-                WorkItem(site, commonName, level, proctype, _),
+            FunctionalLocation("${site}-WTN-SOF-${proctype}-SYS01", commonName, "YW-GS", "SCIV", insDate, true) :- 
+                WorkItem(site, commonName, level, proctype, _, insDate),
                 if level < 5.
 
 
@@ -113,7 +115,7 @@ namespace CsoMigration/MakeFlocs {
             /// AIB_REFERENCE - just S4_AIB_REFERENCE - forall new flocs
             
             FlocCharacteristic(floc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                FunctionalLocation(floc, _, _, _, _).
+                FunctionalLocation(floc, _, _, _, _, _).
 
 
             /// UNICLASS_CODE (Don't generate...)
@@ -121,19 +123,19 @@ namespace CsoMigration/MakeFlocs {
             /// EAST_NORTH
 
             FlocCharacteristic(floc, "EAST_NORTH", "EASTING", 1, easting(ngr)) :-
-                FunctionalLocation(floc, _, _, _, _),
-                WorkItem(site, _, level, "FLS", ngr),
+                FunctionalLocation(floc, _, _, _, _, _),
+                WorkItem(site, _, level, "FLS", ngr, _),
                 if floc `String.startsWith` site. 
             
             FlocCharacteristic(floc, "EAST_NORTH", "NORTHING", 1, northing(ngr)) :-
-                FunctionalLocation(floc, _, _, _, _),
-                WorkItem(site, _, level, "FLS", ngr),
+                FunctionalLocation(floc, _, _, _, _, _),
+                WorkItem(site, _, level, "FLS", ngr, _),
                 if floc `String.startsWith` site. 
 
 
             FlocCharacteristic(floc, "SCIVSY", "SYSTEM_TYPE", 1, systemDescription(commonName)) :-
-                FunctionalLocation(floc, _, _, "SCIV", _),
-                WorkItem(site, commonName, _, _, _),
+                FunctionalLocation(floc, _, _, "SCIV", _, _),
+                WorkItem(site, commonName, _, _, _, _),
                 if floc `String.startsWith` site. 
 
         };
@@ -153,23 +155,22 @@ namespace CsoMigration/MakeFlocs {
 
 
     def toSLFunctionalLocation(src: #{FunctionalLocation | r}): Chain[SLFunctionalLocation] & Impure = 
-        query src select (x1, x2, x3, x4, x5) from FunctionalLocation(x1, x2, x3, x4, x5)
+        query src select (x1, x2, x3, x4, x5, x6) from FunctionalLocation(x1, x2, x3, x4, x5, x6)
             |> Chain.fromArray
             |> Chain.map(functionalLocationToS4Lite)
 
 
-    def functionalLocationToS4Lite(x: (String, String, String, String, Bool)): SLFunctionalLocation = 
-        let (x1, x2, x3, x4, x5) = x;
+    def functionalLocationToS4Lite(x: (String, String, String, String, Time.LocalDate, Bool)): SLFunctionalLocation = 
+        let (x1, x2, x3, x4, x5, x6) = x;
         let floc                = AssetLib/Base/S4/Floc.new(x1);
-        let defaultDate         = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1});
         { funcloc               = x1
         , description           = x2
         , category              = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.level, floc), 0)
         , structureIndicator    = x3
         , objectType            = x4
-        , startupDate           = defaultDate
+        , startupDate           = x5
         , superiorFloc          = Result.getWithDefault(Result.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, floc), "")
-        , equipmentInstall      = x5
+        , equipmentInstall      = x6
         , status                = "UCON"
         }
 
@@ -177,20 +178,22 @@ namespace CsoMigration/MakeFlocs {
         SheetIO/Reader.readAllNamedRows(src, evalTempWorkItem())
 
     def evalTempWorkItem(): NamedRowEvaluator[TempWorkItem] = 
-        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named};
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5) ->
+        ((x1, x2, x3, x4, x5, x6) ->
             { site = String.take(5, x1)
             , commonName = x2
             , level = x3
             , proctype = x4
             , ngr = x5
+            , installedDate = x6
             })
             <&> getTrimmedContentNamed("Largest Floc")
             <*> getTrimmedContentNamed("Common Name")
             <*> getInt32Named("Existing Floc Level")
             <*> getTrimmedContentNamed("Level4")
             <*> getTrimmedContentNamed("NGR")
+            <*> getLocalDateNamed("Installed Date")
 
 
     pub def updateArgs(i: Int32, args: UxlOutputArgs): UxlOutputArgs = 
