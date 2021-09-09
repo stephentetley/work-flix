@@ -20,7 +20,7 @@
 namespace AssetLib/FileIO/S4/ClassList/Parser {
 
 
-    use Data/Transient.DList;
+    use Data.DList;
     use System.Error.{Generic};
     use Time.LocalDate;
 
@@ -44,7 +44,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
 
     def classListParser(srctype: SourceType): Parser[t1, ClassListFile] = 
         use FlixParsec/Prim.{flatMap};
-        use Data/Transient/DList.{empty, toList};
+        use Data/DList.{empty, toList};
         let* _  = symbol("Class List");
         let* d  = pDateStamp();
         let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
@@ -112,7 +112,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
     /// Utils
     
     def append(ac: DList[a], x: Option[a]): DList[a] = 
-        use Data/Transient/DList.{snoc};
+        use Data/DList.{snoc};
         match x { 
             case Some(a) => snoc(ac, a)
             case None => ac

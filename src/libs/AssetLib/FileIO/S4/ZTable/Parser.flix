@@ -19,7 +19,7 @@
 namespace AssetLib/FileIO/S4/ZTable/Parser {
 
 
-    use Data/Transient.DList;
+    use Data.DList;
     use FlixParsec.Parser;
 
     use AssetLib/FileIO/S4/ZTable.RowEvaluator;
@@ -28,13 +28,13 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
 
     pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
-        use Data/Transient/DList.{toList};
+        use Data/DList.{toList};
         let* rows = FlixParsec/Prim.parsesFile(importRowsParser(eval), 4, path, Text/Charset.utf_8());
         Ok(toList(rows))
 
 
     def importRowsParser(eval: RowEvaluator[row]): Parser[t1, DList[row]] = 
-        use Data/Transient/DList.{empty, snoc};
+        use Data/DList.{empty, snoc};
         use FlixParsec/Prim.{flatMap, return};
         use FlixParsec/Combinators.{manyTill, manyTillWith, count};
         use FlixParsec/Text.{skipLine};

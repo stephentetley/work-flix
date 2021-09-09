@@ -18,6 +18,8 @@
 
 namespace CsoMigration/FlocCalculator {
 
+    use SheetIO.RowSetter;
+
     use CsoMigration/Relations.{AibCso, FlocMapping, Level1, Level2, Level3, Level4, Level5};
 
     pub rel Answer(name: String, sainum: String, floc: String, level: Int32, status: String)
@@ -31,7 +33,9 @@ namespace CsoMigration/FlocCalculator {
     pub rel HasLevel5(sainum: String)
 
     pub def calculate(facts: #{AibCso, FlocMapping, Level1, Level2, Level3, Level4, Level5, 
-                                Answer, NotOnS4, HasLevel1, HasLevel2, HasLevel3, HasLevel4, HasLevel5 | r}): Unit & Impure = 
+                                Answer, NotOnS4, HasLevel1, HasLevel2, HasLevel3, HasLevel4, HasLevel5 | r}, 
+                        outpath: System.FilePath): Result[Unit, String] & Impure = 
+        use Result.flatMap;
         let rules = #{
             
             HasLevel1(sainum) :- 
@@ -87,10 +91,54 @@ namespace CsoMigration/FlocCalculator {
                 Level4(site, floc, _).
 
         };
-        let ans = solve (rules <+> facts);
-        Console.printLine("Not on S4...");
-        query ans select (x1, x2, x3) from NotOnS4(x1, x2, x3) |> Array.foreach(println);
-        Console.printLine("Answers...");
-        query ans select (x1, x2, x3, x4, x5) from Answer(x1, x2, x3, x4, x5) |> Array.foreach(println)            
+        let ans = solve (rules <+> facts) project NotOnS4, Answer;
+        let rows1 = query ans select (x1, x2, x3) from NotOnS4(x1, x2, x3);
+        Console.printLine("Not on S4 - ${Array.length(rows1)}");
+        let* _ = writeNotOnS4Rows(outpath, rows1);
+        let rows2 = query ans select (x1, x2, x3, x4, x5) from Answer(x1, x2, x3, x4, x5);
+        Console.printLine("Answers - ${Array.length(rows2)}");
+        let* _ = writeAnswerRows(outpath, rows2);
+        Ok()
+
+
+
+    pub def writeNotOnS4Rows(path: System.FilePath, arr: Array[(String, String, String)]): Result[Unit, String] & Impure = 
+        let writer = {sheetName = "Not on S4",
+            headers = Some(["Common Name", "Aib Reference", "AI2 Status"]),
+            setter = setNotOnS4Row,
+            rows = Array.toList(arr)
+        };
+        SheetIO/Writer.writeWorkSheet(writer, path)
+
+    def setNotOnS4Row(ans: (String, String, String)): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt!, putInt32At!};
+        use SheetIO/RowSetter.{*>, ++>};
+        ans `RelLib/Tuple.case3` ((x1, x2, x3) ->
+                startingAt(0)
+            ++> flip(putStringAt!, x1)
+            ++> flip(putStringAt!, x2)
+            ++> flip(putStringAt!, x3)
+            *> return())
+
+    pub def writeAnswerRows(path: System.FilePath, arr: Array[(String, String, String, Int32, String)]): Result[Unit, String] & Impure = 
+        let writer = {sheetName = "Largest Floc",
+            headers = Some(["Common Name", "Aib Reference", "Existing Floc", "Existing Floc Level", "AI2 Status"]),
+            setter = setAnswerRow,
+            rows = Array.toList(arr)
+        };
+        SheetIO/Writer.addWorkSheet(writer, path)
+
+    def setAnswerRow(ans: (String, String, String, Int32, String)): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt!, putInt32At!};
+        use SheetIO/RowSetter.{*>, ++>};
+        ans `RelLib/Tuple.case5` ((x1, x2, x3, x4, x5) ->
+                startingAt(0)
+            ++> flip(putStringAt!, x1)
+            ++> flip(putStringAt!, x2)
+            ++> flip(putStringAt!, x3)
+            ++> flip(putInt32At!,  x4)
+            ++> flip(putStringAt!, x5)
+            *> return())
+
 
 }
