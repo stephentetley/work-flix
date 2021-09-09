@@ -146,7 +146,7 @@ namespace AssetScripts/NonOp/AchFlocs {
     def genS4Lite(relns: #{FunctionalLocation, FlocCharacteristic | r}): UxlSource & Impure = 
         { funclocs = toSLFunctionalLocation(relns)
         , funclocLongTexts = Monoid.empty()
-        , funclocCharacteristics = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristic(relns)
+        , funclocCharacteristics = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics(relns) |> Chain.fromArray
         , equipment = Monoid.empty()
         , equiLongTexts = Monoid.empty()
         , equiCharacteristics = Monoid.empty()
