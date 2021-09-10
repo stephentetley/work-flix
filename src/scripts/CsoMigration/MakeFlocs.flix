@@ -34,7 +34,7 @@ namespace CsoMigration/MakeFlocs {
                         args: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* items      = readTempWorkItems(src);
-        let worklists   = sublists(63, items);
+        let worklists   = sublists(60, items);
         let* _          = Result.foldLeftM((ac, xs) -> genFlocUxl1(ac, xs, args), 1, worklists);
         Ok()
 
@@ -70,7 +70,6 @@ namespace CsoMigration/MakeFlocs {
 
     pub rel WorkItem(site: String, commonName: String, level: Int32, proctype: String, ngr: String, installedDate: Time.LocalDate)
 
-
     def systemDescription(commonName: String): CharValue = match commonName { 
         case s if s `String.contains` "CSO" => S4String("COMBINED SEWER OVERFLOW")
         case s if s `String.contains` "HLR" => S4String("HIGH LEVEL RELIEF")
@@ -85,6 +84,7 @@ namespace CsoMigration/MakeFlocs {
         let northing = northingfromOsgb36 >> S4Int;
         let rules = #{
 
+
             /// Level 2
             FunctionalLocation("${site}-WTN", "Waste Water Transmission", "YW-GS", "WTN", insDate, false) :- 
                 WorkItem(site, _, level, _, _, insDate), 
@@ -95,13 +95,12 @@ namespace CsoMigration/MakeFlocs {
                 WorkItem(site, _, level, _, _, insDate), 
                 if level < 3. 
 
-            
             /// Level 4
-            FunctionalLocation("${site}-WTN-SOF-FLA", "Flow Attenuation", "YW-GS", "SOF", insDate, false) :- 
+            FunctionalLocation("${site}-WTN-SOF-FLA", "Flow Attenuation", "YW-GS", "FLA", insDate, false) :- 
                 WorkItem(site, _, level, "FLA", _, insDate), 
                 if level < 4. 
 
-            FunctionalLocation("${site}-WTN-SOF-FLS", "Flow Spilling", "YW-GS", "SOF", insDate, false) :- 
+            FunctionalLocation("${site}-WTN-SOF-FLS", "Flow Spilling", "YW-GS", "FLS", insDate, false) :- 
                 WorkItem(site, _, level, "FLS", _, insDate), 
                 if level < 4. 
 
@@ -133,7 +132,7 @@ namespace CsoMigration/MakeFlocs {
                 if floc `String.startsWith` site. 
 
 
-            FlocCharacteristic(floc, "SCIVSY", "SYSTEM_TYPE", 1, systemDescription(commonName)) :-
+            FlocCharacteristic(floc, "SCIVCS", "SYSTEM_TYPE", 1, systemDescription(commonName)) :-
                 FunctionalLocation(floc, _, _, "SCIV", _, _),
                 WorkItem(site, commonName, _, _, _, _),
                 if floc `String.startsWith` site. 
@@ -176,6 +175,7 @@ namespace CsoMigration/MakeFlocs {
 
     pub def readTempWorkItems(src: XlsxSource): Result[List[TempWorkItem], String] & Impure =
         SheetIO/Reader.readAllNamedRows(src, evalTempWorkItem())
+            |> Result.map(List.distinctWith((x1, x2) -> x1.site == x2.site))
 
     def evalTempWorkItem(): NamedRowEvaluator[TempWorkItem] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getInt32Named, getLocalDateNamed};
