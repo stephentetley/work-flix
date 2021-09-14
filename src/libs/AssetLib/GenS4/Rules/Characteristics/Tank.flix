@@ -43,12 +43,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
                             TankConstruction, EquiCharacteristic | r1}): GenMonad[Unit] =
         let rules = #{
             EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(tankLevel(level))) :-
-                EquiWorkItem3(equiId, "TANK", s4Class),
+                EquiWorkItem3(equiId, "TANK", _),
                 TankLevel(equiId, level),
                 if recognizedTankLevel(level).
                 
             EquiCharacteristic(equiId, "002", "TANK_TANK_CONSTRUCTION", 1, S4String(tankConstruction(ans))) :-
-                EquiWorkItem3(equiId, "TANK", s4Class),
+                EquiWorkItem3(equiId, "TANK", _),
                 TankConstruction(equiId, ans),
                 if recognizedTankConstruction(ans).                
         };

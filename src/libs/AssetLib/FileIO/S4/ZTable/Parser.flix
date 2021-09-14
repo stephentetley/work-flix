@@ -68,8 +68,8 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Some(patt) => split(input, patt) |> Array.dropLeft(1)
-            case None       => Array.new("", 0)
+            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
+            case Err(_)   => Array.new("", 0)
         }
 
 }

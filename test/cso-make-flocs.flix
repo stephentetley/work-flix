@@ -4,7 +4,7 @@ use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 /// Need to be annotated with an index...
 pub def uxlOutputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
-    , changeRequestName = "ACH Flocs for Added Sites Batch ##"
+    , changeRequestName = "CSO Flocs upto cso system Batch ##"
     , outpath = System/FilePath.new("G:/work/assets/cso-s4-migration/output/cso-migration-flocs##-uxl.xlsx")
     }
 

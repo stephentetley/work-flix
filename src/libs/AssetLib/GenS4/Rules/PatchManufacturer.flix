@@ -77,7 +77,7 @@ namespace AssetLib/GenS4/Rules/PatchManufacturer {
 
             /// Has manufacturer / model unknown
             ManufacturerModelPatch(equiId, manufacturer, "TO BE DETERMINED", "") :- 
-                EquiWorkItem(equiId, objType, manufacturer, "UNSPECIFIED"),
+                EquiWorkItem(equiId, _, manufacturer, "UNSPECIFIED"),
                 AllowedManufacturerModel(manufacturer, "TO BE DETERMINED").
 
             ManufacturerModelPatch(equiId, manufacturer, "NOT APPLICABLE", "") :- 

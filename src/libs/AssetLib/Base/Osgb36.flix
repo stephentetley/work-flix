@@ -49,7 +49,7 @@ namespace AssetLib/Base/Osgb36 {
     pub def parse(s: String): Option[NGR] = 
         use Option.flatMap;
         let s1 = String.trim(s);
-        let* patt = Text/Regex/Pattern.compile("\\p{Alpha}{2}[0-9]{10}");
+        let* patt = Text/Regex/Pattern.compile("\\p{Alpha}{2}[0-9]{10}") |> Result.toOption;
         if (Text/Regex.matches(s1, patt))
             Some(NGR(s1))
         else 

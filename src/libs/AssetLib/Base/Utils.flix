@@ -32,7 +32,7 @@ namespace AssetLib/Base/Utils {
     def toProperCase1(s: String): Option[String] & Impure =
         use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed};
         use Option.flatMap;
-        let* patt = Text/Regex/Pattern.compile("^(?<first>\\p{IsAlphabetic})(?<rest>\\p{IsAlphabetic}*)$");
+        let* patt = Text/Regex/Pattern.compile("^(?<first>\\p{IsAlphabetic})(?<rest>\\p{IsAlphabetic}*)$") |> Result.toOption;
         let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
@@ -48,8 +48,8 @@ namespace AssetLib/Base/Utils {
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Some(patt) => split(input, patt)
-            case None   => Array.new(input, 1)
+            case Ok(patt) => split(input, patt)
+            case Err(_)   => Array.new(input, 1)
         }
 
     pub def sepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
@@ -61,8 +61,8 @@ namespace AssetLib/Base/Utils {
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Some(patt) => split(input, patt) |> Array.dropLeft(1)
-            case None   => Array.new("", 0)
+            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
+            case Err(_)   => Array.new("", 0)
         }
 
     /// Input starts with sep...
