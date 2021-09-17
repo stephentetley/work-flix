@@ -19,12 +19,34 @@ namespace AssetLib/Base/Utils {
 
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
-    /// 
+    ///
     pub def properCaseName(s: String): String =
         use Option.{flatMap};
-        let words = String.words(s);
-        let xs = Option.traverse(toProperCase1, words) as & Pure;
-        Option.getWithDefault(xs, s :: Nil) |> String.unwords
+        let toks = tokenize(s);
+        let xs = Option.traverse(toProperCase1, toks) as & Pure;
+        Option.getWithDefault(xs, s :: Nil) |> String.flatten |> String.trim
+
+
+    pub def tokenize(s: String): List[String] = 
+        let patt = match Text/Regex/Pattern.compile("\\p{Space}+|\\-|/") {
+            case Ok(p1) => p1
+            case Err(msg) => bug!(msg)
+        };
+        tokenizeWordHelper(patt, s, ks -> ks)
+
+    def tokenizeWordHelper(patt: Text/Regex.Pattern, s: String, k: List[String] -> List[String]): List[String] = 
+        let (word, rs) = Text/Regex.breakOnLeft(patt, s); 
+        if (String.isEmpty(rs)) 
+            k(word :: Nil) 
+        else
+            tokenizeSpaceHelper(patt, rs, ks -> k(word :: ks))
+
+    def tokenizeSpaceHelper(patt: Text/Regex.Pattern, s: String, k: List[String] -> List[String]): List[String] = 
+        let (word, rs) = Text/Regex.breakAfterLeft(patt, s); 
+        if (String.isEmpty(rs)) 
+            k(word :: Nil) 
+        else
+            tokenizeWordHelper(patt, rs, ks -> k(word :: ks))
 
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
