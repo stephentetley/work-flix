@@ -21,23 +21,21 @@ namespace Hierarchy/Organize {
     use Hierarchy/Loader.{ExportRow};
 
 
-    pub rel Floc(level: Int32, funcloc: String, description: String)
+    pub rel Organization(system: String, subsystem: String, description: String)
     pub rel BoosterSet(num: Int32)
 
-    pub def organize(root: String, 
-                        db: #{BoosterPump, FinalEffPump, 
-                            BoosterSet, Floc}): #{Floc} = 
+    pub def organize(db: #{BoosterPump, FinalEffPump, 
+                            BoosterSet, Organization}): #{Organization} = 
         let rules = #{
-            Floc(5, "${root}-SYS${pad2(num + 2)}", "Washwater Booster Set-${num}") :-
-                BoosterSet(num).
 
-            Floc(6, "${root}-SYS${pad2(snum + 2)}-PMP${pad2(pump)}", "${pandi} Booster Pump-${pump}") :-
+            Organization("SYS${pad2(snum + 2)}", "PMP${pad2(pump)}", "${pandi} Booster Pump-${pump}") :-
                 BoosterPump(pandi, snum, pump).
 
             BoosterSet(set) :- 
                 BoosterPump(_, set, _).
         };
-        solve (db <+> rules) project Floc
+        solve (db <+> rules) project Organization
+        /// query ans1 select (x1, x2, x3) from Organization(x1, x2, x3))
 
     def pad2(x: Int32): String = String.padLeft(2, '0', ToString.toString(x))
 
