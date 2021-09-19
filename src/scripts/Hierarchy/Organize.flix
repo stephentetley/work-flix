@@ -18,6 +18,7 @@
 
 namespace Hierarchy/Organize {
 
+    use RelLib.{RegexExtractor};
     use Hierarchy/Loader.{ExportRow};
 
 
@@ -44,7 +45,8 @@ namespace Hierarchy/Organize {
 
     pub def getBoosterPump(): RegexExtractor[#{BoosterPump | r}] & Impure = 
         use Text/Regex/MatchEvaluator.{lift3, getCaptureNamed, getInt32Named};
-        { regex   = "WASHWATER PUMPING/\\p{Blank}*(?<pandi>M[0-9]+) BOOSTER SET (?<set>[0-9]) PUMP (?<pump>[0-9])$"
+        { pattern = "WASHWATER PUMPING/\\p{Blank}*(?<pandi>M[0-9]+) BOOSTER SET (?<set>[0-9]) PUMP (?<pump>[0-9])$" 
+                        |> RelLib/RegexExtractor.unsafeCompileRegex
         , evaluator = lift3((x1, x2, x3) -> #{ BoosterPump(x1, x2,x3). }, getCaptureNamed("pandi"), getInt32Named("set"), getInt32Named("pump"))
         }
 
@@ -52,39 +54,17 @@ namespace Hierarchy/Organize {
 
     pub def getFinalEffPump(): RegexExtractor[#{FinalEffPump | r}] & Impure = 
         use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed, getInt32Named};
-        { regex   = "WASHWATER PUMPING/\\p{Blank}*(?<pandi>M[0-9]+) FINAL EFF PUMP (?<pump>[0-9])$"
+        { pattern = "WASHWATER PUMPING/\\p{Blank}*(?<pandi>M[0-9]+) FINAL EFF PUMP (?<pump>[0-9])$" 
+                        |> RelLib/RegexExtractor.unsafeCompileRegex
         , evaluator = lift2((x1, x2) -> #{ FinalEffPump(x1, x2). }, getCaptureNamed("pandi"), getInt32Named("pump"))
         }
 
 
-    type alias RegexExtractor[r] = 
-        { regex: String
-        , evaluator: Text/Regex.MatchEvaluator[r]
-        }
-
-    pub def extractFromCommonName(extract: RegexExtractor[#{|r}], commonName: String): #{|r} & Impure =  
-        let patt   = match Text/Regex/Pattern.compile(extract.regex) {
-            case Err(err) => bug!(err)
-            case Ok(p1) => p1
-        };
-        match Text/Regex.evalContains(commonName, patt, extract.evaluator) {
-            case Err(_) => #{}
-            case Ok(r1) => r1
-        }
-
-    pub def extractFromCommonName2(extract: RegexExtractor[a], commonName: String): Option[a] & Impure =  
-        let patt   = match Text/Regex/Pattern.compile(extract.regex) {
-            case Err(err) => bug!(err)
-            case Ok(p1) => p1
-        };
-        match Text/Regex.evalContains(commonName, patt, extract.evaluator) {
-            case Err(_) => None
-            case Ok(r1) => Some(r1)
-        }
+    
 
     pub def getEquipmentName(): RegexExtractor[String] & Impure = 
         use Text/Regex/MatchEvaluator.{getCaptureNamed, map};
-        { regex   = "WASHWATER PUMPING/(?<name>.+)/EQUIPMENT:"
+        { pattern = "WASHWATER PUMPING/(?<name>.+)/EQUIPMENT:" |> RelLib/RegexExtractor.unsafeCompileRegex
         , evaluator = map(AssetLib/Base/Utils.properCaseName, getCaptureNamed("name"))
         }
 
