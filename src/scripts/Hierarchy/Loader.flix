@@ -25,6 +25,9 @@ namespace Hierarchy/Loader {
         { reference: String
         , commonName: String
         , installedFrom: Time.LocalDate
+        , hkey: String
+        , assetStatus: String
+        , gridref: String
         }
 
 
@@ -34,14 +37,21 @@ namespace Hierarchy/Loader {
     def evalExportRow(): NamedRowEvaluator[ExportRow] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> 
+        ((x1, x2, x3, x4, x5, x6) -> 
             { reference         = x1
             , commonName        = x2
             , installedFrom     = x3
+            , hkey              = x4
+            , assetStatus       = x5
+            , gridref           = x6
             })
             <&> getTrimmedContentNamed("Reference")
             <*> getTrimmedContentNamed("Common Name")
             <*> getLocalDateNamed("Installed From")
+            <*> getTrimmedContentNamed("Hierarchy Key")
+            <*> getTrimmedContentNamed("AssetStatus")
+            <*> getTrimmedContentNamed("Loc.Ref.")
+
 
 
 
