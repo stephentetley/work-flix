@@ -15,34 +15,59 @@
  */
 
 
-namespace AssetLib/GenS4/GenEqui {
+namespace AssetLib/GenS4/GenUxl {
 
     use SheetIO/Reader.{XlsxSource};
-
-
-    use AssetLib/S4Lite/Datatypes.{UxlSource};
+    use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
+    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    
 
     type alias GenEquiArguments = 
-        { workList: XlsxSource
-        , aibEquipmentExport: XlsxSource
+        { aibEquipmentExport: XlsxSource
         , aibMemosExport: XlsxSource
-        , aibGridRefsExport: XlsxSource
         , aibAgaspExport: XlsxSource
         }
 
-    pub def emitEquiUxl(genArgs: GenEquiArguments, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+    pub def generateCombinedUxl(flocWorkList: XlsxSource, 
+                            equiWorkList: XlsxSource, 
+                            genEquiArgs: GenEquiArguments, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* equis  = AssetLib/GenS4/GenMonad.execGenMonad(generateEquiUxl(genArgs));
+        let* flocs  = AssetLib/GenS4/GenMonad.execGenMonad(genFlocUxl(flocWorkList));
+        let* equis  = AssetLib/GenS4/GenMonad.execGenMonad(genEquiUxl(genEquiArgs, equiWorkList));
+        let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis));
+        Ok()
+
+    pub def generateFlocUxl(workList: XlsxSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let* flocs  = AssetLib/GenS4/GenMonad.execGenMonad(genFlocUxl(workList));
+        let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, flocs);
+        Ok()
+
+    /// Generate all characteristics 
+    pub def genFlocUxl(workList: XlsxSource): GenMonad[Unit] = 
+        use  AssetLib/GenS4/GenMonad.{flatMap, return};
+        let* workitems  = AssetLib/GenS4/WorkLists.readFlocWorkList(workList);
+        let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
+        let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocCharacteristics(workitems);
+        let* _  = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitems);
+        let* _  = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitems);
+        let* _  = AssetLib/GenS4/Rules/Characteristics/SolutionId.genFlocSolutionId(workitems);
+        return()
+
+
+    pub def generateEquiUxl(genEquiArgs: GenEquiArguments, workList: XlsxSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let* equis  = AssetLib/GenS4/GenMonad.execGenMonad(genEquiUxl(genEquiArgs, workList));
         let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, equis);
         Ok()
 
     /// Empty string for no solution id.
-    pub def generateEquiUxl(args: GenEquiArguments): GenMonad[Unit] = 
+    pub def genEquiUxl(args: GenEquiArguments, workList: XlsxSource): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return, liftAction};
-        let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
+        let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(workList);
         let* _          = liftAction(_ -> Console.printLine("workitems count: ${List.length(workitems)}"));
         let* equiAttrs  = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
@@ -50,7 +75,7 @@ namespace AssetLib/GenS4/GenEqui {
         let* _          = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Characteristics/AibReference.genEquiAibReference(workitems, args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(workitems);
-        let* _          = AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(workitems, args.aibGridRefsExport);
+        let* _          = AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(workitems, args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(workitems, args.aibAgaspExport);
         return()
 
@@ -75,9 +100,9 @@ namespace AssetLib/GenS4/GenEqui {
         , filePrefix: String
         }    
 
-    pub def emitPhase2EquiUxl(genArgs: Phase2GenEquiArguments, outputArgs: FileUploadOutputArgs): Result[Unit, String] & Impure = 
+    pub def generatePhase2EquiUxl(genArgs: Phase2GenEquiArguments, outputArgs: FileUploadOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* (uxl, workitems) = AssetLib/GenS4/GenMonad.runGenMonad(generatePhase2Equi(genArgs));
+        let* (uxl, workitems) = AssetLib/GenS4/GenMonad.runGenMonad(genPhase2Equi(genArgs));
         let chars       = uxl.equiCharacteristics;
         let renamings   = AssetLib/GenS4/WorkLists.getEquipmentWorkItemKeyMap(workitems);
         let* cs1        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(renamings, {path = genArgs.s4ChangeRequestEquiTab, sheet = "Data"}, chars);
@@ -86,7 +111,7 @@ namespace AssetLib/GenS4/GenEqui {
         Ok()
 
 
-    pub def generatePhase2Equi(args: Phase2GenEquiArguments): GenMonad[List[EquiWorkItem]] = 
+    pub def genPhase2Equi(args: Phase2GenEquiArguments): GenMonad[List[EquiWorkItem]] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return, whenSome};
         let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(args.workList);
         let* _          = whenSome(args.aibElectricalExport, AssetLib/GenS4/Rules/Characteristics/Actu.genActu(workitems));
@@ -108,48 +133,6 @@ namespace AssetLib/GenS4/GenEqui {
         let* _          = whenSome(args.aibInstrumentExport, AssetLib/GenS4/Rules/Characteristics/Tstn.genTstn(workitems));
         let* _          = whenSome(args.aibValveExport, AssetLib/GenS4/Rules/Characteristics/Valv.genValv(workitems));
         return(workitems)
-
-
-/// ACTU    Electrical
-/// FSTN    Instrument
-/// LSTN    Instrument
-/// PSTN    Instrument
-/// PUMP    Pump
-/// SOLE    Electrical
-/// TANK
-
-
-
-/// def crht(): Phase2Step = xs -> 
-///     let src = {path = System/FilePath.new("G:/work/assets/lifting-equipment-2021/knost/knost-lifting-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/Crht.genCrht(xs, src) 
-
-/// def emtr(): Phase2Step = xs -> 
-///     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/dri02/driff-electrical-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(xs, src) 
-
-/// def fstn(): Phase2Step = xs -> 
-///     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/dri02/driff-instrument-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/Fstn.genFstn(xs, src) 
-
-
-/// def liac(): Phase2Step = xs -> 
-///     let src = {path = System/FilePath.new("G:/work/assets/lifting-equipment-2021/knost/knost-lifting-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/Liac.genLiac(xs, src) 
-
-/// def lisl(): Phase2Step = xs -> 
-///     let src = {path = System/FilePath.new("G:/work/assets/lifting-equipment-2021/knost/knost-lifting-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/Lisl.genLisl(xs, src) 
-
-
-
-/// def pstn(): Phase2Step = xs -> 
-///     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/dri02/driff-instrument-export.xlsx"), sheet = "Sheet1"};
-///     AssetLib/GenS4/Rules/Characteristics/Pstn.genPstn(xs, src) 
-
-
-
-
 
 
 }
