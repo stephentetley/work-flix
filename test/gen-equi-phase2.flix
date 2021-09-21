@@ -1,31 +1,32 @@
 /// This is a temporary script until UXLoader can properly handle floating point values
 
 use SheetIO/Reader.{XlsxSource};
-use AssetLib/GenS4/GenEqui.{Phase2GenEquiArguments, FileUploadOutputArgs};
+use AssetLib/GenS4/GenPhase2Uploads.{Phase2GenEquiArguments, FileUploadOutputArgs};
 
 
 
 def genEquiArgs(): Phase2GenEquiArguments = 
     { workList = 
-        {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-equi-worklist.xlsx"), sheet = "Sheet1"}
-    , s4ChangeRequestEquiTab = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-s4-equitab-export.xlsx")
+        {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-combined-worklist.xlsx"), sheet = "Equi_Worklist"}
+    , s4ChangeRequestEquiTab = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-s4-equitab-export.xlsx")
     , aibElectricalExport = 
-        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-electrical-export.xlsx"), sheet = "Sheet1"})
-    , aibFanExport = 
-        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-fan-export.xlsx"), sheet = "Sheet1"})
+        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-electrical-export.xlsx"), sheet = "Sheet1"})
+    , aibFanExport = None
     , aibInstrumentExport = 
-        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-instrument-export.xlsx"), sheet = "Sheet1"})
+        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-instrument-export.xlsx"), sheet = "Sheet1"})
     , aibLiftingExport = None
-    , aibPumpExport = None
+    , aibPumpExport = 
+        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-pump-export.xlsx"), sheet = "Sheet1"})
     , aibTankExport = None
-    , aibValveExport = None
+    , aibValveExport = 
+        Some({path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-valve-export.xlsx"), sheet = "Sheet1"})
     }
 
 
 def genOutputArgs(): FileUploadOutputArgs = 
     { outputDirectory = System/FilePath.new("G:/work/assets/capital_schemes/hudub/output")
     , userName = "tetleys"
-    , filePrefix = "hudub"
+    , filePrefix = "hudub-wwp"
     } 
 
 
@@ -42,7 +43,7 @@ def genPhase2(): Result[Unit, String] & Impure =
     use Result.{flatMap};
     let equiArgs    = genEquiArgs();
     let outputArgs  = genOutputArgs();
-    let* _          = AssetLib/GenS4/GenEqui.emitPhase2EquiUxl(equiArgs, outputArgs);
+    let* _          = AssetLib/GenS4/GenPhase2Uploads.generatePhase2EquiUploads(equiArgs, outputArgs);
     let _           = Console.printLine("Wrote files to: ${outputArgs.outputDirectory}");
     Ok()
 

@@ -11,9 +11,7 @@ pub def uxlOutputArgs(): UxlOutputArgs =
     }
 
 def genEquiArgs(): GenEquiArguments = 
-    { workList = 
-        {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-equi-worklist.xlsx"), sheet = "Sheet1"}
-    , aibEquipmentExport = 
+    { aibEquipmentExport = 
         {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-equipment-export.xlsx"), sheet = "Sheet1"}
     , aibMemosExport = 
         {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-oc-memo-export.xlsx"), sheet = "Sheet1"}
