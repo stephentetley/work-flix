@@ -59,7 +59,7 @@ namespace AssetLib/Base/Utils {
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
                             );
-        match Text/Regex.rewriteWith(s, patt, eval) { 
+        match Text/Regex.rewriteWith(patt, eval, s) { 
             case Ok(s1) if s1 != "" => Some(s1)
             case _  => Some(s)
         }
@@ -70,26 +70,26 @@ namespace AssetLib/Base/Utils {
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => split(input, patt)
+            case Ok(patt) => split(patt, input)
             case Err(_)   => Array.new(input, 1)
         }
 
     pub def sepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
         use Text/Regex.{split};
-        split(input, sep)
+        split(sep, input)
 
     /// Input starts with sep...
     pub def leadingSepBy(input: String, sep: String): Array[String] & Impure =
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
+            case Ok(patt) => split(patt, input) |> Array.dropLeft(1)
             case Err(_)   => Array.new("", 0)
         }
 
     /// Input starts with sep...
     pub def leadingSepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
         use Text/Regex.{split};
-        split(input, sep) |> Array.dropLeft(1)
+        split(sep, input) |> Array.dropLeft(1)
 
 }

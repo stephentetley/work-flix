@@ -159,7 +159,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         use FlixParsec/Prim.{flatMap};
         let* _ = asterisk();
         let* nl = makePattern("\\R");
-        let* str = restOfLine(true) |> map(s -> Text/Regex.replace(s, nl, ""));
+        let* str = restOfLine(true) |> map(s -> Text/Regex.replace(nl, "", s));
         let* arr = liftAction(_ -> String.splitOn(str, Char.toString('\u0009')) |> List.toArray);
         return(arr)
 

@@ -86,7 +86,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
                             );
-        match Text/Regex.rewriteWith(s, patt, eval) { 
+        match Text/Regex.rewriteWith(patt, eval, s) { 
             case Ok(s1) if s1 != "" => Some(s1)
             case _  => Some(s)
         }
