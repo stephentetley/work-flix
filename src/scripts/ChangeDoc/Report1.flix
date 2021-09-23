@@ -19,7 +19,7 @@ namespace ChangeDoc/Report1 {
     
     use SheetIO.RowSetter;
 
-    use ChangeDoc/Datatypes.{FlocWorkItem};
+    use ChangeDoc/Datatypes.{FlocTabItem};
     use ChangeDoc/Relations.{Equipment, EquiLongText, 
         ClassFloc, ClassEqui, ValuaFloc, ValuaEqui, FlocNameMap, Attribute};
     use AssetLib/FileIO/S4/ClassList/Relations.{S4FlocClassMember, S4EquiClassMember};
@@ -31,25 +31,30 @@ namespace ChangeDoc/Report1 {
     /// Currently (at least) we are building multiple tables of relations.
     
     type alias Report1Config = 
-        { changeAttributesExport: System.FilePath
-        , flocChangeRequestExport: Option[System.FilePath]
-        , outputPath: System.FilePath
-        , flocClassList: System.FilePath
+        { flocClassList: System.FilePath
         , equiClassList: System.FilePath
+        , changeAttributesExport: System.FilePath
+        , flocTabExport: Option[System.FilePath]
+        , equiTabExport: Option[System.FilePath]
+        , outputPath: System.FilePath
         }
 
     pub def report1(cfg: Report1Config): Result[Unit, String] & Impure =
         use Result.flatMap;
         let changeDest  = cfg.outputPath;
+        let* flocCR     = AssetLib/FileIO/S4/ClassList/Relations.loadFlocClassRelations(cfg.flocClassList);
+        let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
         let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
         let st1         = ChangeDoc/Interpreter.interpret(patches);
         let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
-        let* flocs      = match cfg.flocChangeRequestExport { 
-            case Some(path) => ChangeDoc/Loader.readFlocWorkItems(path)
-            case None => Ok(Nil)
+        let* flocs      = match cfg.flocTabExport { 
+            case None => Ok(Nil) 
+            case Some(path) => ChangeDoc/Loader.readFlocTabItems(path)
         };
-        let* flocCR     = AssetLib/FileIO/S4/ClassList/Relations.loadFlocClassRelations(cfg.flocClassList);
-        let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
+        let* _equis      = match cfg.equiTabExport { 
+            case None => Ok(Nil) 
+            case Some(path) => ChangeDoc/Loader.readEquiTabItems(path)
+        };
         let rules       = ChangeDoc/BuildRel.rules();
         let database    = (relns <+> flocCR <+> equiCR <+> rules);
         let* _          = buildFlocRows(flocs, database) |> writeFlocRows(changeDest);
@@ -128,7 +133,7 @@ namespace ChangeDoc/Report1 {
 
     /// ## Floc
 
-    pub def buildFlocRows(xs: List[FlocWorkItem], db: #{Attribute | r}): Array[FlocRow] & Impure = 
+    pub def buildFlocRows(xs: List[FlocTabItem], db: #{Attribute | r}): Array[FlocRow] & Impure = 
         let attrs = makeAttributes(db);
         let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
         List.toArray(xs)
@@ -136,7 +141,7 @@ namespace ChangeDoc/Report1 {
             |> RelLib/Organization.updateWithLookup(x1 -> x1.internalFloc, updateAttrs, attrs)
 
 
-    def makeFlocRow1(x: FlocWorkItem): FlocRow = 
+    def makeFlocRow1(x: FlocTabItem): FlocRow = 
         { internalFloc          = x.internalFuncloc
         , functionalLocation    = x.funcloc
         , description           = x.description

@@ -20,7 +20,7 @@ namespace ChangeDoc/Loader {
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
-    use ChangeDoc/Datatypes.{FlocWorkItem, EquiWorkItem, ChangeDoc, ChangeRow, Instruction, EntityType};
+    use ChangeDoc/Datatypes.{FlocTabItem, EquiTabItem, ChangeDoc, ChangeRow, Instruction, EntityType};
     use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};
     use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
         LongTextKey, AttrKey, ValuaKey, AddrAttrKey};
@@ -32,11 +32,11 @@ namespace ChangeDoc/Loader {
     /// Reads an export of the Change Request "Functional Location" tab.
     /// Sheet always called "Data"
     ///
-    pub def readFlocWorkItems(src: System.FilePath): Result[List[FlocWorkItem], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalFlocWorkItem())
+    pub def readFlocTabItems(src: System.FilePath): Result[List[FlocTabItem], String] & Impure = 
+        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalFlocTabItem())
 
 
-    def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] = 
+    def evalFlocTabItem(): NamedRowEvaluator[FlocTabItem] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
@@ -55,23 +55,25 @@ namespace ChangeDoc/Loader {
     /// Reads an export of the Change Request "Equipment" tab.
     /// Sheet always called "Data"
     ///
-    pub def readEquiWorkItems(src: System.FilePath): Result[List[EquiWorkItem], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalEquiWorkItem())
+    pub def readEquiTabItems(src: System.FilePath): Result[List[EquiTabItem], String] & Impure = 
+        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalEquiTabItem())
 
 
-    def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItem] = 
+    def evalEquiTabItem(): NamedRowEvaluator[EquiTabItem] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5) -> 
+        ((x1, x2, x3, x4, x5, x6) -> 
             { equiId        = x1
             , description   = x2
             , funcloc       = x3
-            , objectType    = x4
-            , objectClass   = x5
+            , category      = x4
+            , objectType    = x5
+            , objectClass   = x6
             })
             <&> getTrimmedContentNamed("Equipment")
             <*> getTrimmedContentNamed("Description")
             <*> getTrimmedContentNamed("Functional Location")
+            <*> getTrimmedContentNamed("Equipment category")
             <*> getTrimmedContentNamed("Object Type")
             <*> getTrimmedContentNamed("Object Type Class")
 

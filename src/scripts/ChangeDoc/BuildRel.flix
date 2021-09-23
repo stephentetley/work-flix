@@ -132,15 +132,6 @@ namespace ChangeDoc/BuildRel {
 
     }
 
-    /// pub rel ClassName(itemId: String, className: String)
-
-    /// pub def query1(): #{ClassChange, ObjectType, ClassName | r} = #{
-     
-    ///     ClassName(itemId, className) :- 
-    ///         ClassChange(_, itemId, className), 
-    ///         ObjectType(itemId, objName),
-    ///         if className `String.startsWith` objName.
-    /// }
 
 
 }

@@ -26,7 +26,7 @@ namespace ChangeDoc/Datatypes {
 
 
 
-    type alias FlocWorkItem = 
+    type alias FlocTabItem = 
         { internalFuncloc: String
         , funcloc: String
         , description: String
@@ -34,10 +34,11 @@ namespace ChangeDoc/Datatypes {
         , objectType: String
         }
     
-    type alias EquiWorkItem = 
+    type alias EquiTabItem = 
         { equiId: String
         , description: String
         , funcloc: String
+        , category: String
         , objectType: String
         , objectClass: String
         }
