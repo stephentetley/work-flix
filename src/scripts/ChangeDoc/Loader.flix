@@ -20,12 +20,12 @@ namespace ChangeDoc/Loader {
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
-    use ChangeDoc/Datatypes.{FlocTabItem, EquiTabItem, ChangeDoc, ChangeRow, Instruction, EntityType};
-    use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};
-    use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
-        LongTextKey, AttrKey, ValuaKey, AddrAttrKey};
+    use ChangeDoc/Datatypes.{FlocTabItem, EquiTabItem, ChangeDoc, ChangeRow, 
+        Level1Attrs, LongTextAttrs, ClassAttrs, CharAttrs, EntityType};
+    use ChangeDoc/Datatypes.ChangeRow.{Funcloc1, FunclocLongText, FunclocClass, FunclocChar, 
+        Equipment1, EquipmentLongText, EquipmentClass, EquipmentChar};
     use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
-    use ChangeDoc/Datatypes.Instruction.{New, Change, Delete};
+    
     
 
 
@@ -91,90 +91,108 @@ namespace ChangeDoc/Loader {
 
 
     def evalChangeRow(): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getTrimmedContentNamed, optional};
+        use SheetIO/NamedRowEvaluator.{<&>};
+        let* rowNum         = map(x1 -> x1 + 1, getRowNum);
         let* entityType     = optional(getEntityType());
+        let* ident          = getTrimmedContentNamed("Value");
         let* table          = getTrimmedContentNamed("Table");
         match (entityType, table) {
-            case (Some(entype), "Text Table") => evalNameChange(entype)
-            case (Some(Equi),   "Table for Relationship CLASSEQUI") => evalClassChange(Equi)
-            case (Some(Floc),   "Table for Relationship CLASSFLOC") => evalClassChange(Floc)
-            case (Some(Equi),   "Table for Relationship EQMLTXT") => evalLongTextChange(Equi)
-            case (Some(Floc),   "Table for Relationship IFLOTX") => evalLongTextChange(Floc)    /// "IFLOTX" needs checking
-            case (Some(entype), "Check Table") => evalAttrChange(entype)
-            case (Some(Equi),   "Table for Relationship VALUAEQUI") =>  evalCharacteristicChange(Equi)
-            case (Some(Floc),   "Table for Relationship VALUAFLOC") =>  evalCharacteristicChange(Floc)
-            case (Some(Equi),   "Table for Relationship ZEQUIADDR") =>  evalAddressChange(Equi)
-            case (Some(Floc),   "Table for Relationship ZFUNCLOAD") =>  evalAddressChange(Floc)
+            case (Some(Floc),   "Check Table") => (x1 -> Funcloc1(rowNum, ident, x1)) <&> evalLevel1Attrs()
+            case (Some(Floc),   "Table for Relationship IFLOTX") => (x1 -> FunclocLongText(rowNum, ident, x1)) <&> evalLongTextAttrs()
+            case (Some(Floc),   "Table for Relationship CLASSFLOC") => (x1 -> FunclocClass(rowNum, ident, x1)) <&> evalClassAttrs()
+            case (Some(Floc),   "Table for Relationship VALUAFLOC") => (x1 -> FunclocChar(rowNum, ident, x1)) <&> evalCharAttrs()
+            case (Some(Equi),   "Check Table") => (x1 -> Equipment1(rowNum, ident, x1)) <&> evalLevel1Attrs()
+            case (Some(Equi),   "Table for Relationship EQMLTXT") => (x1 -> EquipmentLongText(rowNum, ident, x1)) <&> evalLongTextAttrs()
+            case (Some(Equi),   "Table for Relationship CLASSEQUI") => (x1 -> EquipmentClass(rowNum, ident, x1)) <&> evalClassAttrs()
+            case (Some(Equi),   "Table for Relationship VALUAEQUI") => (x1 -> EquipmentChar(rowNum, ident, x1)) <&> evalCharAttrs()
+            /// case (Some(Equi),   "Table for Relationship ZEQUIADDR") =>  evalAddressChange(Equi)
+            /// case (Some(Floc),   "Table for Relationship ZFUNCLOAD") =>  evalAddressChange(Floc)
             case (_, _) => return(None)
         }
+  
 
-    def evalNameChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
+    def evalFuncloc1(rowNum: Int32, ident: String): NamedRowEvaluator[ChangeRow] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
-        let* itemId         = getTrimmedContentNamed("Value");
-        let* attribute      = getTrimmedContentNamed("Attribute");
-        let* change         = optional(getInstruction()); 
-        match (attribute, change) {
-            case ("Description (medium text)", Some(instr)) => return(Some(ChangeRow(NameKey(entityType, itemId), instr)))
-            case (_, _) => return(None)
-        }
-
-    def evalClassChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
-        let* itemId         = getTrimmedContentNamed("Value");
-        let* className      = getTrimmedContentNamed("Class");
-        let* attribute      = getTrimmedContentNamed("Attribute");
-        let* change         = optional(getInstruction()); 
-        match (attribute, change) {
-            case ("Status", Some(instr)) => return(Some(ChangeRow(ClassKey(entityType, itemId, className), instr)))
-            case (_, _) => return(None)
-        }
-
-    def evalAttrChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
-        let* itemId         = getTrimmedContentNamed("Value");
-        let* attribute      = getTrimmedContentNamed("Attribute");
-        let* change         = optional(getInstruction()); 
-        match change {
-            case Some(instr) => return(Some(ChangeRow(AttrKey(entityType, itemId, attribute), instr)))
-            case _ => return(None)
-        }
+        let* attrs          = evalLevel1Attrs();
+        return(Funcloc1(rowNum, ident, attrs))
 
 
-    def evalLongTextChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
-        let* itemId         = getTrimmedContentNamed("Value");
-        let* attribute      = getTrimmedContentNamed("Attribute");
-        let* change         = optional(getInstruction()); 
-        match change {
-            case Some(instr) => return(Some(ChangeRow(LongTextKey(entityType, itemId, attribute), instr)))
-            case _ => return(None)
-        }
+    def evalLevel1Attrs(): NamedRowEvaluator[Level1Attrs] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5) -> 
+            { change        = x1
+            , attribute     = x2
+            , oldValue      = x3
+            , newValue      = x4
+            , tableDest     = x5
+            })
+            <&> getTrimmedContentNamed("Change")
+            <*> getTrimmedContentNamed("Attribute")
+            <*> getTrimmedContentNamed("Old Value")
+            <*> getTrimmedContentNamed("New Value")
+            <*> getTrimmedContentNamed("Table")
 
-    /// Valuafloc records "Functional Location" for New+Blank
-    def evalCharacteristicChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
-        let* itemId         = getTrimmedContentNamed("Value");
-        let* charName       = getTrimmedContentNamed("Character ID");
-        let* attribute      = getTrimmedContentNamed("Attribute");
-        let* counter        = getIntCounter();
-        let* change         = optional(getInstruction()); 
-        match (attribute, change) {
-            case ("Description", Some(instr)) => return(Some(ChangeRow(ValuaKey(entityType, itemId, charName, counter), instr)))
-            case ("Functional Location", Some(instr)) => return(Some(ChangeRow(ValuaKey(entityType, itemId, charName, counter), instr)))
-            case _ => return(None)
-        }
+    def evalLongTextAttrs(): NamedRowEvaluator[LongTextAttrs] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5, x6) -> 
+            { language      = x1
+            , change        = x2
+            , attribute     = x3
+            , oldValue      = x4
+            , newValue      = x5
+            , tableDest     = x6
+            })
+            <&> getTrimmedContentNamed("Language.1")
+            <*> getTrimmedContentNamed("Change")
+            <*> getTrimmedContentNamed("Attribute")
+            <*> getTrimmedContentNamed("Old Value")
+            <*> getTrimmedContentNamed("New Value")
+            <*> getTrimmedContentNamed("Table")
 
-    def evalAddressChange(entityType: EntityType): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
-        let* itemId         = getTrimmedContentNamed("Value");
-        let* attribute      = getTrimmedContentNamed("Attribute");
-        let* number         = getAddressNumber();
-        let* change         = optional(getInstruction()); 
-        match change {
-            case Some(instr) => return(Some(ChangeRow(AddrAttrKey(entityType, itemId, attribute, number), instr)))
-            case _ => return(None)
-        }
+    def evalClassAttrs(): NamedRowEvaluator[ClassAttrs] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5, x6, x7) -> 
+            { className     = x1
+            , classType     = x2
+            , change        = x3
+            , attribute     = x4
+            , oldValue      = x5
+            , newValue      = x6
+            , tableDest     = x7
+            })
+            <&> getTrimmedContentNamed("Class")
+            <*> getTrimmedContentNamed("Class Type")
+            <*> getTrimmedContentNamed("Change")
+            <*> getTrimmedContentNamed("Attribute")
+            <*> getTrimmedContentNamed("Old Value")
+            <*> getTrimmedContentNamed("New Value")
+            <*> getTrimmedContentNamed("Table")
 
+    def evalCharAttrs(): NamedRowEvaluator[CharAttrs] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2, x3, x4, x5, x6, x7) -> 
+            { characterId   = x1
+            , classType     = x2
+            , intCounter    = x2
+            , change        = x3
+            , attribute     = x4
+            , oldValue      = x5
+            , newValue      = x6
+            , tableDest     = x7
+            })
+            <&> getTrimmedContentNamed("Character ID")
+            <*> getTrimmedContentNamed("Class Type")
+            <*> getIntCounter()
+            <*> getTrimmedContentNamed("Change")
+            <*> getTrimmedContentNamed("Attribute")
+            <*> getTrimmedContentNamed("Old Value")
+            <*> getTrimmedContentNamed("New Value")
+            <*> getTrimmedContentNamed("Table")
 
     /// Helpers
 
@@ -196,19 +214,7 @@ namespace ChangeDoc/Loader {
         else return(number)
 
 
-    
 
-    def getInstruction(): NamedRowEvaluator[Instruction] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
-        use SheetIO/NamedRowEvaluator.{>>=};
-        let* change         = getTrimmedContentNamed("Change");
-        let* newValue       = getTrimmedContentNamed("New Value");
-        match change {
-            case "New" => return(New(newValue))
-            case "Changed" => return(Change(newValue))
-            case "Deleted" => return(Delete)
-            case _ => throwError("getInstruction")
-        }
 
 
     def getEntityType(): NamedRowEvaluator[EntityType] =

@@ -18,11 +18,6 @@
 namespace ChangeDoc/Datatypes {
 
     type alias ItemId = String
-    type alias ClassName = String
-    type alias AttributeName = String
-    type alias CharId = String
-    type alias IntCounter = Int32
-    type alias AddressNumber = String
 
 
 
@@ -45,222 +40,76 @@ namespace ChangeDoc/Datatypes {
 
     type alias ChangeDoc = List[ChangeRow]
 
-    pub enum ChangeRow {
-        case ChangeRow(ChangeKey, Instruction)
+    /// Address not processed at the moment
+    /// Use RowNumber rather than Date and Time for an orderable.
+    pub enum ChangeRow { 
+        case Funcloc1(Int32, ItemId, Level1Attrs)
+        case FunclocLongText(Int32, ItemId, LongTextAttrs)
+        case FunclocClass(Int32, ItemId, ClassAttrs)
+        case FunclocChar(Int32, ItemId, CharAttrs)
+        case Equipment1(Int32, ItemId, Level1Attrs)
+        case EquipmentLongText(Int32, ItemId, LongTextAttrs)
+        case EquipmentClass(Int32, ItemId, ClassAttrs)
+        case EquipmentChar(Int32, ItemId, CharAttrs)
     }
 
-    
-    pub enum ChangeKey {
-        case NameKey(EntityType, ItemId)             
-        case ClassKey(EntityType, ItemId, ClassName)
-        case LongTextKey(EntityType, ItemId, AttributeName)
-        case AttrKey(EntityType, ItemId, AttributeName)
-        case ValuaKey(EntityType, ItemId, CharId, IntCounter)
-        case AddrAttrKey(EntityType, ItemId, AttributeName, AddressNumber)
-    }
-
-    instance ToString[ChangeKey] {
-        pub def toString(x: ChangeKey): String = match x {
-            case NameKey(x1, x2)                => "NameKey(${x1}, ${x2})"
-            case ClassKey(x1, x2, x3)           => "ClassKey(${x1}, ${x2}, ${x3})"
-            case LongTextKey(x1, x2, x3)        => "LongTextKey(${x1}, ${x2}, ${x3})"
-            case AttrKey(x1, x2, x3)            => "AttrKey(${x1}, ${x2}, ${x3})"
-            case ValuaKey(x1, x2, x3, x4)       => "ValuaKey(${x1}, ${x2}, ${x3}, ${x4})"
-            case AddrAttrKey(x1, x2, x3, x4)    => "AddrAttrKey(${x1}, ${x2}, ${x3}, ${x4})"
+    /// Funclocs and Equipment are considered "Level1"
+    type alias Level1Attrs = 
+        { change: String
+        , attribute: String 
+        , oldValue : String
+        , newValue : String
+        , tableDest : String
         }
-    }
 
-    instance Eq[ChangeKey] {
-        pub def eq(x: ChangeKey, y: ChangeKey): Bool = match (x, y) {
-            case (NameKey(x1, x2), NameKey(y1, y2))                         => x1 == y1 and x2 == y2
-            case (ClassKey(x1, x2, x3), ClassKey(y1, y2, y3))               => x1 == y1 and x2 == y2 and x3 == y3
-            case (LongTextKey(x1, x2, x3), LongTextKey(y1, y2, y3))         => x1 == y1 and x2 == y2 and x3 == y3
-            case (AttrKey(x1, x2, x3), AttrKey(y1, y2, y3))                 => x1 == y1 and x2 == y2 and x3 == y3
-            case (ValuaKey(x1, x2, x3, x4), ValuaKey(y1, y2, y3, y4))       => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
-            case (AddrAttrKey(x1, x2, x3, x4), AddrAttrKey(y1, y2, y3, y4)) => x1 == y1 and x2 == y2 and x3 == y3 and x4 == y4
-            case _ => false
+    type alias LongTextAttrs = 
+        { language: String
+        , change: String
+        , attribute: String 
+        , oldValue : String
+        , newValue : String
+        , tableDest : String
         }
-    }
-
-    instance Order[ChangeKey] {
-        pub def compare(x: ChangeKey, y: ChangeKey): Comparison = 
-            use Order.thenCompare;
-            match (x, y) {
-                case (NameKey(x1, x2), NameKey(y1, y2))         => (x1 <=> y1) `thenCompare` lazy (x2 <=> y2)
-                case (NameKey(_, _), ClassKey(_, _, _))         => LessThan
-                case (NameKey(_, _), LongTextKey(_, _, _))      => LessThan
-                case (NameKey(_, _), AttrKey(_, _, _))          => LessThan
-                case (NameKey(_, _), ValuaKey(_, _, _, _))      => LessThan                
-                case (NameKey(_, _), AddrAttrKey(_, _, _, _))   => LessThan            
-                
-
-                case (ClassKey(_, _, _), NameKey(_, _))             => GreaterThan
-                case (ClassKey(x1, x2, x3), ClassKey(y1, y2, y3))   => 
-                    (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
-
-                case (ClassKey(_, _, _), LongTextKey(_, _, _))      => LessThan
-                case (ClassKey(_, _, _), AttrKey(_, _, _))          => LessThan
-                case (ClassKey(_, _, _), ValuaKey(_, _, _, _))      => LessThan
-                case (ClassKey(_, _, _), AddrAttrKey(_, _, _, _))   => LessThan
 
 
-
-                case (LongTextKey(_, _, _), NameKey(_, _))              => GreaterThan
-                case (LongTextKey(_, _, _), ClassKey(_, _, _))          => GreaterThan
-                case (LongTextKey(x1, x2, x3), LongTextKey(y1, y2, y3)) => 
-                    (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
-
-                case (LongTextKey(_, _, _), AttrKey(_, _, _))          => LessThan
-                case (LongTextKey(_, _, _), ValuaKey(_, _, _, _))      => LessThan
-                case (LongTextKey(_, _, _), AddrAttrKey(_, _, _, _))   => LessThan
-
-
-
-                case (AttrKey(_, _, _), NameKey(_, _))              => GreaterThan
-                case (AttrKey(_, _, _), ClassKey(_, _, _))          => GreaterThan
-                case (AttrKey(_, _, _), LongTextKey(_, _, _))       => GreaterThan
-                case (AttrKey(x1, x2, x3), AttrKey(y1, y2, y3))     => 
-                    (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3)
-
-                case (AttrKey(_, _, _), ValuaKey(_, _, _, _))       => LessThan
-                case (AttrKey(_, _, _), AddrAttrKey(_, _, _, _))    => LessThan
-            
-
-                case (ValuaKey(_, _, _, _), NameKey(_, _))             => GreaterThan
-                case (ValuaKey(_, _, _, _), ClassKey(_, _, _))         => GreaterThan
-                case (ValuaKey(_, _, _, _), LongTextKey(_, _, _))      => GreaterThan
-                case (ValuaKey(_, _, _, _), AttrKey(_, _, _))          => GreaterThan
-                case (ValuaKey(x1, x2, x3, x4), ValuaKey(y1, y2, y3, y4))   => 
-                    (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3) `thenCompare` lazy (x4 <=> y4)
-
-                case (ValuaKey(_, _, _, _), AddrAttrKey(_, _, _, _))    => LessThan
-                
-
-                case (AddrAttrKey(_, _, _, _), NameKey(_, _))               => GreaterThan
-                case (AddrAttrKey(_, _, _, _), ClassKey(_, _, _))           => GreaterThan
-                case (AddrAttrKey(_, _, _, _), LongTextKey(_, _, _))        => GreaterThan
-                case (AddrAttrKey(_, _, _, _), AttrKey(_, _, _))            => GreaterThan
-                case (AddrAttrKey(_, _, _, _), ValuaKey(_, _, _, _))        => GreaterThan
-                case (AddrAttrKey(x1, x2, x3, x4), AddrAttrKey(y1, y2, y3, y4)) =>
-                    (x1 <=> y1) `thenCompare` lazy (x2 <=> y2) `thenCompare` lazy (x3 <=> y3) `thenCompare` lazy (x4 <=> y4)
-
-                
-            }
-    }
-
-
-
-    pub enum Instruction { 
-        case New(String)
-        case Change(String)
-        case Delete
-    }
-
-    instance ToString[Instruction] {
-        pub def toString(x: Instruction): String = match x {
-            case New(s)     => "New(${s})"
-            case Change(s)  => "Change(${s})"
-            case Delete     => "Delete"
+    type alias ClassAttrs = 
+        { className: String
+        , classType: String
+        , change: String
+        , attribute: String
+        , oldValue : String         
+        , newValue : String
+        , tableDest : String
         }
-    }
 
-    pub enum ValueState {
-        case CreateLocal(String)
-        case DeleteLocal
-        case UpdateGlobal(String)
-        case DeleteGlobal
-    }
-
-    instance ToString[ValueState] {
-        pub def toString(x: ValueState): String = match x {
-            case CreateLocal(s)     => "CreateLocal(${s})"
-            case UpdateGlobal(s)    => "UpdateGlobal(${s})"
-            case DeleteGlobal       => "DeleteGlobal"
-            case DeleteLocal        => "DeleteLocal"
+    type alias CharAttrs = 
+        { characterId: String
+        , classType: String
+        , intCounter: Int32
+        , change: String
+        , attribute: String
+        , oldValue : String 
+        , newValue : String
+        , tableDest : String
         }
-    }
 
 
-    pub enum EntityType {
+
+
+    pub enum EntityType with ToString, Eq, Order, Hash, Boxable {
         case Equi
         case Floc
     }
 
-    instance ToString[EntityType] {
-        pub def toString(x: EntityType): String = match x {
-            case Equi   => "Equi"
-            case Floc   => "Floc"
-        }
-    }
-
-    instance Eq[EntityType] {
-        pub def eq(x: EntityType, y: EntityType): Bool = match (x, y) {
-            case (Equi, Equi)   => true
-            case (Floc, Floc)   => true
-            case (_, _)         => false
-        }
-    }
-
-    instance Order[EntityType] {
-        pub def compare(x: EntityType, y: EntityType): Comparison = match (x, y) {
-            case (Equi, Equi)   => EqualTo
-            case (Equi, Floc)   => LessThan
-            case (Floc, Floc)   => EqualTo 
-            case (Floc, Equi)   => GreaterThan
-        }
-    }
 
 
-    instance Hash[EntityType] {
-        pub def hash(x: EntityType): Int32 = Hash.hash(ToString.toString(x))
-    }
-
-    instance Boxable[EntityType]
-
-    pub enum Origin {
+    pub enum Origin with ToString, Eq, Order, Hash, Boxable {
         case Direct
         case HSuperior
         case RRef
     }
 
-    instance ToString[Origin] {
-        pub def toString(x: Origin): String = match x {
-            case Direct     => "Equi"
-            case HSuperior  => "Floc"
-            case RRef       => "RRef"
-        }
-    }
 
-
-    instance Eq[Origin] {
-        pub def eq(x: Origin, y: Origin): Bool = match (x, y) {
-            case (Direct, Direct)       => true
-            case (HSuperior, HSuperior) => true
-            case (RRef, RRef)           => true
-            case (_, _)                 => false
-        }
-    }
-
-    instance Order[Origin] {
-        pub def compare(x: Origin, y: Origin): Comparison = match (x, y) {
-            case (Direct, Direct)       => EqualTo
-            case (Direct, HSuperior)    => LessThan
-            case (Direct, RRef)         => LessThan
-
-            case (HSuperior, Direct)    => GreaterThan
-            case (HSuperior, HSuperior) => EqualTo
-            case (HSuperior, RRef)      => LessThan
-
-            case (RRef, Direct)         => GreaterThan
-            case (RRef, HSuperior)      => GreaterThan
-            case (RRef, RRef)           => EqualTo
-        }
-    }
-
-
-    instance Hash[Origin] {
-        pub def hash(x: Origin): Int32 = Hash.hash(ToString.toString(x))
-    }
 
     pub enum CharValue {
         case S4String(String)
