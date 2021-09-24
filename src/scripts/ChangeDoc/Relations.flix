@@ -42,7 +42,10 @@ namespace ChangeDoc/Relations {
 
     pub rel Equipment(equiId: String, description: String)
 
-    pub rel FlocNameMap(internalFloc: String, funcloc: String)
+    pub rel FlocWorkItem(internalFloc: String, funcloc: String, description: String)
+
+    pub rel EquiWorkItem(equiId: String, description: String, funcloc: String)
+
     
 
     pub rel FlocLongText(equiId: String, description: String, longText: String)

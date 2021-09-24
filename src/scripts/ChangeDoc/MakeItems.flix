@@ -21,11 +21,10 @@ namespace ChangeDoc/MakeItems {
     use ChangeDoc/Datatypes.EntityType.{Floc, Equi};
     use ChangeDoc/Relations.{Funcloc, Equipment,
         EquiLongText, ObjectType, Attribute, ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
-        FlocNameMap, 
+        FlocWorkItem, EquiWorkItem, 
         NameChange, AttrChange, ClassChange, LongTextChange, ValuaChange};
     use AssetLib/FileIO/S4/ClassList/Relations.{S4FlocClassMember, S4EquiClassMember};
 
-    pub rel HasFlocNameMap(internalFuncloc: String)
 
     pub rel HasFlocClassName(itemId: String, className: String)
     pub rel GetFlocClassName(itemId: String, charName: String, className: String)
@@ -37,29 +36,19 @@ namespace ChangeDoc/MakeItems {
     pub def rules(): #{Funcloc, Equipment, EquiLongText, ObjectType, Attribute, 
                         ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
                         NameChange, AttrChange, ClassChange, ValuaChange, LongTextChange, 
-                        FlocNameMap, HasFlocNameMap, S4FlocClassMember, S4EquiClassMember, 
+                        FlocWorkItem, EquiWorkItem, S4FlocClassMember, S4EquiClassMember, 
                         HasFlocClassName, GetFlocClassName, HasEquiClassName, GetEquiClassName | r} = #{
 
-        HasFlocNameMap(itemId) :- 
-            FlocNameMap(itemId, _).
 
         /// Floc or Equipment are 1-to-1 with their respective tab exports rather than relational.
 
-        Funcloc(itemId, funcloc, descr) :-
-            NameChange("Floc", itemId, descr),
-            FlocNameMap(itemId, funcloc).
+        Funcloc(internalId, funcloc, descr) :-
+            FlocWorkItem(internalId, funcloc, descr).
 
-        Funcloc(itemId, "[Unknown]", descr) :-
-            NameChange("Floc", itemId, descr),
-            not HasFlocNameMap(itemId).
 
         /// Can have an equipment change without NameChange()
-        Equipment(itemId, "TODO") :- 
-            /// NameChange("Equi", itemId, name).
-            AttrChange("Equi", itemId, _, _).
-
-        Equipment(itemId, "TODO") :- 
-            NameChange("Equi", itemId, _).
+        Equipment(equiId, description) :- 
+            EquiWorkItem(equiId, description, _).
 
         /// TODO need a sample with long text to see how to replace the empty string...
         EquiLongText(itemId, descr, "") :- 
@@ -76,12 +65,9 @@ namespace ChangeDoc/MakeItems {
         ClassFloc(itemId, funcloc, flocName, className, status) :- 
             ClassChange("Floc", itemId, className, status), 
             NameChange("Floc", itemId, flocName),
-            FlocNameMap(itemId, funcloc).
+            FlocWorkItem(itemId, funcloc, _).
         
-        ClassFloc(itemId, "[Unknown]", flocName, className, status) :- 
-            ClassChange("Floc", itemId, className, status), 
-            NameChange("Floc", itemId, flocName),
-            not HasFlocNameMap(itemId).
+
 
         ClassEqui(itemId, equiName, className, status) :- 
             ClassChange("Equi", itemId, className, status),
@@ -101,16 +87,10 @@ namespace ChangeDoc/MakeItems {
 
         ValuaFloc(itemId, funcloc, flocName, className, charName, intCounter, status, value) :-
             ValuaChange("Floc", itemId, charName, intCounter, value, status),
-            FlocNameMap(itemId, funcloc),
-            NameChange("Floc", itemId, flocName), 
+            FlocWorkItem(itemId, funcloc, flocName),
             GetFlocClassName(itemId, charName, className).
 
-        /// Don't join on NameChange
-        ValuaFloc(itemId, "[Unknown]", flocName, className, charName, intCounter, status, value) :-
-            ValuaChange("Floc", itemId, charName, intCounter, value, status),
-            NameChange("Floc", itemId, flocName), 
-            GetFlocClassName(itemId, charName, className),
-            not HasFlocNameMap(itemId).
+
 
         HasEquiClassName(itemId, charName) :-
             ClassChange(_, itemId, className, _),
@@ -125,9 +105,9 @@ namespace ChangeDoc/MakeItems {
             not HasEquiClassName(itemId, charName).
 
         /// Don't join on name change
-        ValuaEqui(itemId, "Name - todo", className, charName, intCounter, status, value) :-
+        ValuaEqui(itemId, descr, className, charName, intCounter, status, value) :-
             ValuaChange("Equi", itemId, charName, intCounter, value, status),
-            /// NameChange("Equi", itemId, equiName),  
+            EquiWorkItem(itemId, descr, _), 
             GetEquiClassName(itemId, charName, className).
 
     }

@@ -22,7 +22,7 @@ namespace ChangeDoc/ItemReport {
     use ChangeDoc/Datatypes.{FlocTabItem};
     use ChangeDoc/Relations.{Equipment, EquiLongText, 
         ClassFloc, ClassEqui, ValuaFloc, ValuaEqui, FlocNameMap, Attribute};
-    use AssetLib/FileIO/S4/ClassList/Relations.{S4FlocClassMember, S4EquiClassMember};
+    use AssetLib/FileIO/S4/ClassList/Relations.{S4FlocClassMember, S4EquiClassMember, FlocWorkItem, EquiWorkItem};
 
 
     /// Note - qjbrowser / TyRuBa-JQuery build relations differently - they build a single big
@@ -46,25 +46,32 @@ namespace ChangeDoc/ItemReport {
         let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
         let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
         let st1         = ChangeDoc/InterpretChangeAttrs.interpret(patches);
-        let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
-        let* flocs      = match cfg.flocTabExport { 
+        let changes     = ChangeDoc/Relations.makeChangeRelations(st1);
+        let* flocItems  = match cfg.flocTabExport { 
             case None => Ok(Nil) 
             case Some(path) => ChangeDoc/Loader.readFlocTabItems(path)
         };
-        let* _equis      = match cfg.equiTabExport { 
+        let* equiItems  = match cfg.equiTabExport { 
             case None => Ok(Nil) 
             case Some(path) => ChangeDoc/Loader.readEquiTabItems(path)
         };
+        let flocs       = RelLib/Relation.foldMap(x1 -> #{ FlocWorkItem(x1.internalFuncloc , x1.funcloc, x1.description). }, flocItems);
+        let equis       = RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem(x1.equiId , x1.description, x1.funcloc). }, equiItems);
         let rules       = ChangeDoc/MakeItems.rules();
-        let database    = (relns <+> flocCR <+> equiCR <+> rules);
-        let* _          = buildFlocRows(flocs, database) |> writeFlocRows(changeDest);
+        let database    = (flocs <+> equis <+> changes <+> flocCR <+> equiCR <+> rules);
+        let* _          = buildFlocRows(flocItems, database) |> writeFlocRows(changeDest);
         let* _          = buildEquiRows(database) |> addEquiRows(changeDest);
         let* _          = extractEquiLongTextRows(database) |> addEquiLongTextRows(changeDest);
         let* _          = extractClassFlocRows(database) |> addClassFlocRows(changeDest);
         let* _          = extractClassEquiRows(database) |> addClassEquiRows(changeDest);
         let* _          = extractValuaFlocRows(database) |> addValuaFlocRows(changeDest);
         let* _          = extractValuaEquiRows(database) |> addValuaEquiRows(changeDest);
+        query database select (x1, x2, x3, x4, x5, x6) from ValuaChange(x1, x2, x3, x4, x5, x6) 
+            |> Array.foreach(println);
+
         Ok()
+
+
 
 
     type alias FlocRow = 
