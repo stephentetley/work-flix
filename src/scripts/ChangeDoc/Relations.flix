@@ -23,7 +23,7 @@ namespace ChangeDoc/Relations {
     use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
     use ChangeDoc/Datatypes.ValueState.{CreateLocal, DeleteLocal, 
         UpdateGlobal, DeleteGlobal};
-    use ChangeDoc/Interpreter.{State};
+    use ChangeDoc/InterpretChangeAttrs.{State};
     
 
     /// entity should be "Floc" or "Equi"

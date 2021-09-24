@@ -15,7 +15,7 @@
  */
 
 
-namespace ChangeDoc/BuildRel {
+namespace ChangeDoc/MakeItems {
     
     use ChangeDoc/Datatypes.{EntityType};
     use ChangeDoc/Datatypes.EntityType.{Floc, Equi};

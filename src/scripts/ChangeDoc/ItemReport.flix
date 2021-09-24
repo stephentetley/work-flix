@@ -15,7 +15,7 @@
  */
 
 
-namespace ChangeDoc/Report1 {
+namespace ChangeDoc/ItemReport {
     
     use SheetIO.RowSetter;
 
@@ -30,7 +30,7 @@ namespace ChangeDoc/Report1 {
     /// 
     /// Currently (at least) we are building multiple tables of relations.
     
-    type alias Report1Config = 
+    type alias ItemReportConfig = 
         { flocClassList: System.FilePath
         , equiClassList: System.FilePath
         , changeAttributesExport: System.FilePath
@@ -39,13 +39,13 @@ namespace ChangeDoc/Report1 {
         , outputPath: System.FilePath
         }
 
-    pub def report1(cfg: Report1Config): Result[Unit, String] & Impure =
+    pub def generateReport(cfg: ItemReportConfig): Result[Unit, String] & Impure =
         use Result.flatMap;
         let changeDest  = cfg.outputPath;
         let* flocCR     = AssetLib/FileIO/S4/ClassList/Relations.loadFlocClassRelations(cfg.flocClassList);
         let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
         let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
-        let st1         = ChangeDoc/Interpreter.interpret(patches);
+        let st1         = ChangeDoc/InterpretChangeAttrs.interpret(patches);
         let relns       = ChangeDoc/Relations.makeChangeRelations(st1);
         let* flocs      = match cfg.flocTabExport { 
             case None => Ok(Nil) 
@@ -55,21 +55,15 @@ namespace ChangeDoc/Report1 {
             case None => Ok(Nil) 
             case Some(path) => ChangeDoc/Loader.readEquiTabItems(path)
         };
-        let rules       = ChangeDoc/BuildRel.rules();
+        let rules       = ChangeDoc/MakeItems.rules();
         let database    = (relns <+> flocCR <+> equiCR <+> rules);
         let* _          = buildFlocRows(flocs, database) |> writeFlocRows(changeDest);
-        let* _          = ChangeDoc/Report1.buildEquiRows(database)
-                            |> ChangeDoc/Report1.addEquiRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractEquiLongTextRows(database)
-                            |> ChangeDoc/Report1.addEquiLongTextRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractClassFlocRows(database)
-                            |> ChangeDoc/Report1.addClassFlocRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractClassEquiRows(database)
-                            |> ChangeDoc/Report1.addClassEquiRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractValuaFlocRows(database)
-                            |> ChangeDoc/Report1.addValuaFlocRows(changeDest);
-        let* _          = ChangeDoc/Report1.extractValuaEquiRows(database)
-                            |> ChangeDoc/Report1.addValuaEquiRows(changeDest);
+        let* _          = buildEquiRows(database) |> addEquiRows(changeDest);
+        let* _          = extractEquiLongTextRows(database) |> addEquiLongTextRows(changeDest);
+        let* _          = extractClassFlocRows(database) |> addClassFlocRows(changeDest);
+        let* _          = extractClassEquiRows(database) |> addClassEquiRows(changeDest);
+        let* _          = extractValuaFlocRows(database) |> addValuaFlocRows(changeDest);
+        let* _          = extractValuaEquiRows(database) |> addValuaEquiRows(changeDest);
         Ok()
 
 

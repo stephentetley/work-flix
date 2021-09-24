@@ -5,11 +5,11 @@ use ChangeDoc/Datatypes.Instruction.{New, Delete, Change};
 use ChangeDoc/Datatypes.ChangeKey.{NameKey};
 use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
 use ChangeDoc/Relations.{Funcloc, Equipment};
-use ChangeDoc/Report1.{Report1Config};
+use ChangeDoc/ItemReport.{ItemReportConfig};
 
 
 
-def config(): Report1Config = 
+def config(): ItemReportConfig = 
     { flocClassList = System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")
     , equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
     , changeAttributesExport = System/FilePath.new("G:/work/assets/change-requests/cr9231-hudub-wwp/hudub-wwp-changeattrs.xlsx")
@@ -20,5 +20,5 @@ def config(): Report1Config =
 
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    ChangeDoc/Report1.report1(config()) |> println;
+    ChangeDoc/ItemReport.generateReport(config()) |> println;
     0
