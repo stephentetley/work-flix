@@ -91,9 +91,9 @@ namespace ChangeDoc/Loader {
 
 
     def evalChangeRow(): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getTrimmedContentNamed, optional};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getTrimmedContentNamed, throwError, optional};
         use SheetIO/NamedRowEvaluator.{<&>};
-        let* rowNum         = map(x1 -> x1 + 1, getRowNum);
+        let* rowNum         = (x1 -> x1 + 1) <&> getRowNum();
         let* entityType     = optional(getEntityType());
         let* ident          = getTrimmedContentNamed("Value");
         let* table          = getTrimmedContentNamed("Table");
@@ -108,14 +108,9 @@ namespace ChangeDoc/Loader {
             case (Some(Equi),   "Table for Relationship VALUAEQUI") => (x1 -> EquipmentChar(rowNum, ident, x1)) <&> evalCharAttrs()
             /// case (Some(Equi),   "Table for Relationship ZEQUIADDR") =>  evalAddressChange(Equi)
             /// case (Some(Floc),   "Table for Relationship ZFUNCLOAD") =>  evalAddressChange(Floc)
-            case (_, _) => return(None)
-        }
+            case (_, _) => throwError("none")
+        } |> optional
   
-
-    def evalFuncloc1(rowNum: Int32, ident: String): NamedRowEvaluator[ChangeRow] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, optional};
-        let* attrs          = evalLevel1Attrs();
-        return(Funcloc1(rowNum, ident, attrs))
 
 
     def evalLevel1Attrs(): NamedRowEvaluator[Level1Attrs] = 
@@ -175,15 +170,15 @@ namespace ChangeDoc/Loader {
     def evalCharAttrs(): NamedRowEvaluator[CharAttrs] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7) -> 
+        ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
             { characterId   = x1
             , classType     = x2
-            , intCounter    = x2
-            , change        = x3
-            , attribute     = x4
-            , oldValue      = x5
-            , newValue      = x6
-            , tableDest     = x7
+            , intCounter    = x3
+            , change        = x4
+            , attribute     = x5
+            , oldValue      = x6
+            , newValue      = x7
+            , tableDest     = x8
             })
             <&> getTrimmedContentNamed("Character ID")
             <*> getTrimmedContentNamed("Class Type")
@@ -205,7 +200,7 @@ namespace ChangeDoc/Loader {
         }
 
     /// Note - may or may not have two "Address Number" columns- it will not have content in both...
-    def getAddressNumber(): NamedRowEvaluator[String] =
+    def _getAddressNumber(): NamedRowEvaluator[String] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
         let* number        = getTrimmedContentNamed("Address Number");
         if (String.isEmpty(number)) {

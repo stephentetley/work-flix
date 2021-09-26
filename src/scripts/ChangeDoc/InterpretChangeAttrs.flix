@@ -17,53 +17,76 @@
 
 namespace ChangeDoc/InterpretChangeAttrs {
 
-    use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow, ChangeKey, Instruction, ValueState};
-    use ChangeDoc/Datatypes.ChangeRow.{ChangeRow};
+    use RelLib/Lattice/TaggedMax.TaggedMax;
+    use RelLib/Lattice/TaggedMax.TaggedMax.{TaggedMax};
 
-    use ChangeDoc/Datatypes.Instruction.{New, Delete, Change};
+    use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow};
+    use ChangeDoc/Datatypes.ChangeRow.{Funcloc1, FunclocLongText, FunclocClass, FunclocChar, 
+        Equipment1, EquipmentLongText, EquipmentClass, EquipmentChar};
 
-    use ChangeDoc/Datatypes.ValueState.{CreateLocal, DeleteLocal, 
-        UpdateGlobal, DeleteGlobal};
-
-    type alias State = Map[ChangeKey, ValueState]
+    pub rel FunclocRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
+    pub lat FuncLocLast(itemId: String, attribute: String, last: TaggedMax[(String, String), Int32])
 
 
-    pub def interpret(changes: ChangeDoc): State = 
-        List.foldLeft(interpret1, Map.empty(), changes)
+    pub rel EquipmentRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
+    pub lat EquipmentLast(itemId: String, attribute: String, last: TaggedMax[(String, String), Int32])
 
-    def interpret1(st: State, row: ChangeRow): State = 
-        let ChangeRow(key, instr) = row;
-        match (Map.get(key, st), instr) {
-            /// `None` indicates first appearance in the patch stream
-            case (None, New(v1))       => Map.insert(key, CreateLocal(v1), st)
-            case (None, Change(v1))    => Map.insert(key, UpdateGlobal(v1), st)
-            case (None, Delete)        => Map.insert(key, DeleteGlobal, st)
 
-            /// `Some(_)` indicates already seen in the patch stream
-            case (Some(x1), New(v1))       => Map.insert(key, newValue(v1, x1), st)
-            case (Some(x1), Change(v1))    => Map.insert(key, changeValue(v1, x1), st)
-            case (Some(x1), Delete)        => Map.insert(key, deleteValue(x1), st)
-        }
+    def makeRowRelations1(x: ChangeRow): #{FunclocRow, EquipmentRow | r} = match x {
+        case Funcloc1(rowNum, itemId, attrs) => #{ FunclocRow(rowNum, itemId, attrs.change, attrs.attribute, attrs.newValue). }
         
-    def newValue(x: String, st: ValueState): ValueState = match st {
-        case CreateLocal(_)     => CreateLocal(x)
-        case DeleteGlobal       => UpdateGlobal(x)
-        case DeleteLocal        => CreateLocal(x)
-        case UpdateGlobal(_)    => UpdateGlobal(x)      /// unreachable for valid patch sequence
+        case Equipment1(rowNum, itemId, attrs) => #{ EquipmentRow(rowNum, itemId, attrs.change, attrs.attribute, attrs.newValue). }
+        case _ => #{}
     }
 
-    def changeValue(x: String, st: ValueState): ValueState = match st {
-        case CreateLocal(_)     => CreateLocal(x)
-        case DeleteGlobal       => UpdateGlobal(x)      /// unreachable for valid patch sequence
-        case DeleteLocal        => CreateLocal(x)      
-        case UpdateGlobal(_)    => UpdateGlobal(x)
-    }
 
-    def deleteValue(st: ValueState): ValueState = match st {
-        case CreateLocal(_)     => DeleteLocal
-        case DeleteGlobal       => DeleteGlobal
-        case DeleteLocal        => DeleteLocal
-        case UpdateGlobal(_)    => DeleteGlobal
-    }
+    pub def getFuncLocLast(xs: List[ChangeRow]): #{FuncLocLast, EquipmentLast | r1} = 
+        let db = RelLib/Relation.foldMap(makeRowRelations1, xs);
+        let rules = #{
+            FuncLocLast(itemId, attrName; TaggedMax((change, newValue), rowNum)) :- 
+                FunclocRow(rowNum, itemId, change, attrName, newValue).
+
+            EquipmentLast(itemId, attrName; TaggedMax((change, newValue), rowNum)) :- 
+                EquipmentRow(rowNum, itemId, change, attrName, newValue).
+        };
+        solve (db <+> rules) project FuncLocLast, EquipmentLast
+
+    /// pub def interpret(changes: ChangeDoc): State = 
+    ///     List.foldLeft(interpret1, Map.empty(), changes)
+
+    /// def interpret1(st: State, row: ChangeRow): State = 
+    ///     let ChangeRow(key, instr) = row;
+    ///     match (Map.get(key, st), instr) {
+    ///         /// `None` indicates first appearance in the patch stream
+    ///         case (None, New(v1))       => Map.insert(key, CreateLocal(v1), st)
+    ///         case (None, Change(v1))    => Map.insert(key, UpdateGlobal(v1), st)
+    ///         case (None, Delete)        => Map.insert(key, DeleteGlobal, st)
+
+    ///         /// `Some(_)` indicates already seen in the patch stream
+    ///         case (Some(x1), New(v1))       => Map.insert(key, newValue(v1, x1), st)
+    ///         case (Some(x1), Change(v1))    => Map.insert(key, changeValue(v1, x1), st)
+    ///         case (Some(x1), Delete)        => Map.insert(key, deleteValue(x1), st)
+    ///     }
+        
+    /// def newValue(x: String, st: ValueState): ValueState = match st {
+    ///     case CreateLocal(_)     => CreateLocal(x)
+    ///     case DeleteGlobal       => UpdateGlobal(x)
+    ///     case DeleteLocal        => CreateLocal(x)
+    ///     case UpdateGlobal(_)    => UpdateGlobal(x)      /// unreachable for valid patch sequence
+    /// }
+
+    /// def changeValue(x: String, st: ValueState): ValueState = match st {
+    ///     case CreateLocal(_)     => CreateLocal(x)
+    ///     case DeleteGlobal       => UpdateGlobal(x)      /// unreachable for valid patch sequence
+    ///     case DeleteLocal        => CreateLocal(x)      
+    ///     case UpdateGlobal(_)    => UpdateGlobal(x)
+    /// }
+
+    /// def deleteValue(st: ValueState): ValueState = match st {
+    ///     case CreateLocal(_)     => DeleteLocal
+    ///     case DeleteGlobal       => DeleteGlobal
+    ///     case DeleteLocal        => DeleteLocal
+    ///     case UpdateGlobal(_)    => DeleteGlobal
+    /// }
 
 }
