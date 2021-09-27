@@ -20,5 +20,5 @@ def main1(): Result[Unit, String] & Impure =
     let changes = System/FilePath.new("G:/work/assets/change-requests/cr9231-hudub-wwp/hudub-wwp-changeattrs.xlsx");
     let* rows = ChangeDoc/Loader.readChangeDoc(changes);
     let updates = ChangeDoc/InterpretChangeAttrs.getFuncLocLast(rows);
-    query updates select (x1, x2; x3) from EquipmentLast(x1, x2; x3) |> Array.foreach(println);
+    query updates select (x1, x2, x3, x4) from FunctionalLocation(x1, x2, x3, x4) |> Array.foreach(println);
     Ok()

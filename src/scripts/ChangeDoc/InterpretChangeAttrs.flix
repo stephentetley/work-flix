@@ -17,24 +17,30 @@
 
 namespace ChangeDoc/InterpretChangeAttrs {
 
-    use RelLib/Lattice/TaggedMax.TaggedMax;
-    use RelLib/Lattice/TaggedMax.TaggedMax.{TaggedMax};
+    use RelLib/Lattice/Min.Min;
+    use RelLib/Lattice/Min.{min1};
+
+    use RelLib/Lattice/Max.Max;
+    use RelLib/Lattice/Max.{max1};
 
     use ChangeDoc/Datatypes.{ChangeDoc, ChangeRow};
     use ChangeDoc/Datatypes.ChangeRow.{Funcloc1, FunclocLongText, FunclocClass, FunclocChar, 
         Equipment1, EquipmentLongText, EquipmentClass, EquipmentChar};
 
+
     pub rel FunclocRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
-    pub lat FuncLocLast(itemId: String, attribute: String, last: TaggedMax[(String, String), Int32])
+    pub lat FuncLocLast(itemId: String, attribute: String, last: Max[Int32])
+    pub lat FuncLocFirst(itemId: String, attribute: String, first: Min[Int32])
+    pub rel FunctionalLocation(itemId: String, attrName: String, change: String, value: String)
 
     pub rel FunclocLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
-    pub lat FunclocLongTextLast(itemId: String, language: String, attribute: String, last: TaggedMax[(String, String), Int32])
+    pub lat FunclocLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
 
     pub rel EquipmentRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
-    pub lat EquipmentLast(itemId: String, attribute: String, last: TaggedMax[(String, String), Int32])
+    pub lat EquipmentLast(itemId: String, attribute: String, last: Max[Int32])
 
     pub rel EquipmentLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
-    pub lat EquipmentLongTextLast(itemId: String, language: String, attribute: String, last: TaggedMax[(String, String), Int32])
+    pub lat EquipmentLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
 
     def makeRowRelations1(x: ChangeRow): #{FunclocRow, EquipmentRow | r} = match x {
         case Funcloc1(rowNum, itemId, attrs) => #{ FunclocRow(rowNum, itemId, attrs.change, attrs.attribute, attrs.newValue). }
@@ -44,60 +50,52 @@ namespace ChangeDoc/InterpretChangeAttrs {
         case _ => #{}
     }
 
-
-    pub def getFuncLocLast(xs: List[ChangeRow]): #{FuncLocLast, EquipmentLast | r1} = 
+    /// TODO change lattice to Max(rowNum), this will be easier to integrate into subsequent Datalog rules...
+    pub def getFuncLocLast(xs: List[ChangeRow]): #{FunctionalLocation | r1} = 
         let db = RelLib/Relation.foldMap(makeRowRelations1, xs);
         let rules = #{
-            FuncLocLast(itemId, attrName; TaggedMax((change, newValue), rowNum)) :- 
-                FunclocRow(rowNum, itemId, change, attrName, newValue).
+            FuncLocLast(itemId, attrName; max1(rowNum)) :- 
+                FunclocRow(rowNum, itemId, _, attrName, _).
 
-            FunclocLongTextLast(itemId, language, attrName; TaggedMax((change, newValue), rowNum)) :-
-                FunclocLongTextRow(rowNum, itemId, language, change, attrName, newValue).
+            FuncLocFirst(itemId, attrName; min1(rowNum)) :- 
+                FunclocRow(rowNum, itemId, _, attrName, _).
 
-            EquipmentLast(itemId, attrName; TaggedMax((change, newValue), rowNum)) :- 
-                EquipmentRow(rowNum, itemId, change, attrName, newValue).
+            FunctionalLocation1(itemId, attrName, RelLib/Lattice/Min.getValue(first), RelLib/Lattice/Max.getValue(last)) :- 
+                FuncLocFirst(itemId, attrName; first), 
+                FuncLocLast(itemId, attrName; last). 
 
-            EquipmentLongTextLast(itemId, language, attrName; TaggedMax((change, newValue), rowNum)) :-
-                EquipmentLongTextRow(rowNum, itemId, language, change, attrName, newValue).
+            FunctionalLocation(itemId, attrName, changeStatus(changeF, changeL), value) :-
+                FunctionalLocation1(itemId, attrName, rowF, rowL),
+                FunclocRow(rowF, _, changeF, _, _),
+                FunclocRow(rowL, _, changeL, _, value), 
+                if not invisible(changeF, changeL).
+
+
+            FunclocLongTextLast(itemId, language, attrName; max1(rowNum)) :-
+                FunclocLongTextRow(rowNum, itemId, language, _, attrName, _).
+
+            EquipmentLast(itemId, attrName; max1(rowNum)) :- 
+                EquipmentRow(rowNum, itemId, _, attrName, _).
+
+            EquipmentLongTextLast(itemId, language, attrName; max1(rowNum)) :-
+                EquipmentLongTextRow(rowNum, itemId, language, _, attrName, _).
         };
-        solve (db <+> rules) project FuncLocLast, EquipmentLast
+        solve (db <+> rules) project FunctionalLocation
 
-    /// pub def interpret(changes: ChangeDoc): State = 
-    ///     List.foldLeft(interpret1, Map.empty(), changes)
+    /// invisible changes are elements created and deleted in the CR, they should not be reported
+    def invisible(first: String, last: String): Bool = match (first, last) {
+        case ("New", "Changed")  => true
+        case (_, _) => false
+    }
 
-    /// def interpret1(st: State, row: ChangeRow): State = 
-    ///     let ChangeRow(key, instr) = row;
-    ///     match (Map.get(key, st), instr) {
-    ///         /// `None` indicates first appearance in the patch stream
-    ///         case (None, New(v1))       => Map.insert(key, CreateLocal(v1), st)
-    ///         case (None, Change(v1))    => Map.insert(key, UpdateGlobal(v1), st)
-    ///         case (None, Delete)        => Map.insert(key, DeleteGlobal, st)
-
-    ///         /// `Some(_)` indicates already seen in the patch stream
-    ///         case (Some(x1), New(v1))       => Map.insert(key, newValue(v1, x1), st)
-    ///         case (Some(x1), Change(v1))    => Map.insert(key, changeValue(v1, x1), st)
-    ///         case (Some(x1), Delete)        => Map.insert(key, deleteValue(x1), st)
-    ///     }
+    def changeStatus(first: String, last: String): String = match (first, last) {
+        case (_,            "Deleted")  => "Deleted"
+        case ("New",        "Changed")  => "New"
+        case ("New",        "New")      => "New"            // first and last are same row
+        case ("Changed",    "Changed")  => "Changed"
+        case (_,            final)      => final
+    }
         
-    /// def newValue(x: String, st: ValueState): ValueState = match st {
-    ///     case CreateLocal(_)     => CreateLocal(x)
-    ///     case DeleteGlobal       => UpdateGlobal(x)
-    ///     case DeleteLocal        => CreateLocal(x)
-    ///     case UpdateGlobal(_)    => UpdateGlobal(x)      /// unreachable for valid patch sequence
-    /// }
 
-    /// def changeValue(x: String, st: ValueState): ValueState = match st {
-    ///     case CreateLocal(_)     => CreateLocal(x)
-    ///     case DeleteGlobal       => UpdateGlobal(x)      /// unreachable for valid patch sequence
-    ///     case DeleteLocal        => CreateLocal(x)      
-    ///     case UpdateGlobal(_)    => UpdateGlobal(x)
-    /// }
-
-    /// def deleteValue(st: ValueState): ValueState = match st {
-    ///     case CreateLocal(_)     => DeleteLocal
-    ///     case DeleteGlobal       => DeleteGlobal
-    ///     case DeleteLocal        => DeleteLocal
-    ///     case UpdateGlobal(_)    => DeleteGlobal
-    /// }
 
 }
