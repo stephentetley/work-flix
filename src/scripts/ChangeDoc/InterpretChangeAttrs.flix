@@ -27,15 +27,20 @@ namespace ChangeDoc/InterpretChangeAttrs {
     pub rel FunclocRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
     pub lat FuncLocLast(itemId: String, attribute: String, last: TaggedMax[(String, String), Int32])
 
+    pub rel FunclocLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
+    pub lat FunclocLongTextLast(itemId: String, language: String, attribute: String, last: TaggedMax[(String, String), Int32])
 
     pub rel EquipmentRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
     pub lat EquipmentLast(itemId: String, attribute: String, last: TaggedMax[(String, String), Int32])
 
+    pub rel EquipmentLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
+    pub lat EquipmentLongTextLast(itemId: String, language: String, attribute: String, last: TaggedMax[(String, String), Int32])
 
     def makeRowRelations1(x: ChangeRow): #{FunclocRow, EquipmentRow | r} = match x {
         case Funcloc1(rowNum, itemId, attrs) => #{ FunclocRow(rowNum, itemId, attrs.change, attrs.attribute, attrs.newValue). }
-        
+        case FunclocLongText(rowNum, itemId, attrs) =>#{ FunclocLongTextRow(rowNum, itemId, attrs.language, attrs.change, attrs.attribute, attrs.newValue). } 
         case Equipment1(rowNum, itemId, attrs) => #{ EquipmentRow(rowNum, itemId, attrs.change, attrs.attribute, attrs.newValue). }
+        case EquipmentLongText(rowNum, itemId, attrs) =>#{ EquipmentLongTextRow(rowNum, itemId, attrs.language, attrs.change, attrs.attribute, attrs.newValue). } 
         case _ => #{}
     }
 
@@ -46,8 +51,14 @@ namespace ChangeDoc/InterpretChangeAttrs {
             FuncLocLast(itemId, attrName; TaggedMax((change, newValue), rowNum)) :- 
                 FunclocRow(rowNum, itemId, change, attrName, newValue).
 
+            FunclocLongTextLast(itemId, language, attrName; TaggedMax((change, newValue), rowNum)) :-
+                FunclocLongTextRow(rowNum, itemId, language, change, attrName, newValue).
+
             EquipmentLast(itemId, attrName; TaggedMax((change, newValue), rowNum)) :- 
                 EquipmentRow(rowNum, itemId, change, attrName, newValue).
+
+            EquipmentLongTextLast(itemId, language, attrName; TaggedMax((change, newValue), rowNum)) :-
+                EquipmentLongTextRow(rowNum, itemId, language, change, attrName, newValue).
         };
         solve (db <+> rules) project FuncLocLast, EquipmentLast
 

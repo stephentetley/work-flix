@@ -60,15 +60,14 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{evaluateString};
         let split = s -> leadingSepBy(s, "|");
         let* s0 = restOfLine(true);
-        let s1 = Text/Regex.replace(s0, Text/Regex/Pattern.irrefutablePattern("\\R"), "");
+        let s1 = Text/Regex.replace(Text/Regex/Pattern.irrefutablePattern("\\R"), "", s0);
         liftActionResult(_ -> evaluateString(split, s1, eval))
 
 
     def leadingSepBy(input: String, sep: String): Array[String] & Impure =
-        use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => split(input, patt) |> Array.dropLeft(1)
+            case Ok(patt) => Text/Regex.split(patt, input) |> Array.dropLeft(1)
             case Err(_)   => Array.new("", 0)
         }
 
