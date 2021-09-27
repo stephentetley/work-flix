@@ -29,58 +29,115 @@ namespace ChangeDoc/InterpretChangeAttrs {
 
 
     pub rel FunclocRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
-    pub lat FuncLocLast(itemId: String, attribute: String, last: Max[Int32])
-    pub lat FuncLocFirst(itemId: String, attribute: String, first: Min[Int32])
-    pub rel FunctionalLocation(itemId: String, attrName: String, change: String, value: String)
+    pub lat FunclocFirst(itemId: String, attribute: String, first: Min[Int32])
+    pub lat FunclocLast(itemId: String, attribute: String, last: Max[Int32])
+    pub rel FunclocTemp(itemId : String, attrName: String, firstRow: Int32, lastRow: Int32)
+    pub rel FunclocChange(itemId: String, attrName: String, change: String, value: String)
 
-    pub rel FunclocLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
-    pub lat FunclocLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
+    pub rel FlocLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
+    pub lat FlocLongTextFirst(itemId: String, language: String, attribute: String, first: Min[Int32])
+    pub lat FlocLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
+    pub rel FlocLongTextTemp(itemId : String, language: String,attrName: String, firstRow: Int32, lastRow: Int32)
+    pub rel FlocLongTextChange(itemId: String, language: String,attrName: String, change: String, value: String)
 
     pub rel EquipmentRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
+    pub lat EquipmentFirst(itemId: String, attribute: String, first: Min[Int32])
     pub lat EquipmentLast(itemId: String, attribute: String, last: Max[Int32])
+    pub rel EquipmentTemp(itemId : String, attrName: String, firstRow: Int32, lastRow: Int32)
+    pub rel EquipmentChange(itemId: String, attrName: String, change: String, value: String)
 
-    pub rel EquipmentLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
-    pub lat EquipmentLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
+    pub rel EquiLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
+    pub lat EquiLongTextFirst(itemId: String, language: String, attribute: String, first: Min[Int32])
+    pub lat EquiLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
+    pub rel EquiLongTextTemp(itemId : String, language: String,attrName: String, firstRow: Int32, lastRow: Int32)
+    pub rel EquiLongTextChange(itemId: String, language: String,attrName: String, change: String, value: String)
 
-    def makeRowRelations1(x: ChangeRow): #{FunclocRow, EquipmentRow | r} = match x {
+
+    def makeRowRelations1(x: ChangeRow): #{FunclocRow, FlocLongTextRow, 
+                                            EquipmentRow, EquiLongTextRow | r} = match x {
         case Funcloc1(rowNum, itemId, attrs) => #{ FunclocRow(rowNum, itemId, attrs.change, attrs.attribute, attrs.newValue). }
-        case FunclocLongText(rowNum, itemId, attrs) =>#{ FunclocLongTextRow(rowNum, itemId, attrs.language, attrs.change, attrs.attribute, attrs.newValue). } 
+        case FunclocLongText(rowNum, itemId, attrs) => #{ FlocLongTextRow(rowNum, itemId, attrs.language, attrs.change, attrs.attribute, attrs.newValue). } 
         case Equipment1(rowNum, itemId, attrs) => #{ EquipmentRow(rowNum, itemId, attrs.change, attrs.attribute, attrs.newValue). }
-        case EquipmentLongText(rowNum, itemId, attrs) =>#{ EquipmentLongTextRow(rowNum, itemId, attrs.language, attrs.change, attrs.attribute, attrs.newValue). } 
+        case EquipmentLongText(rowNum, itemId, attrs) => #{ EquiLongTextRow(rowNum, itemId, attrs.language, attrs.change, attrs.attribute, attrs.newValue). } 
         case _ => #{}
     }
 
-    /// TODO change lattice to Max(rowNum), this will be easier to integrate into subsequent Datalog rules...
-    pub def getFuncLocLast(xs: List[ChangeRow]): #{FunctionalLocation | r1} = 
+    /// Lattices are internal...
+    pub def interpretChanges(xs: List[ChangeRow]): #{FunclocChange, FlocLongTextChange, 
+                                                        EquipmentChange, EquiLongTextChange | r1} = 
         let db = RelLib/Relation.foldMap(makeRowRelations1, xs);
         let rules = #{
-            FuncLocLast(itemId, attrName; max1(rowNum)) :- 
+
+            /// Funcloc
+            FunclocFirst(itemId, attrName; min1(rowNum)) :- 
                 FunclocRow(rowNum, itemId, _, attrName, _).
 
-            FuncLocFirst(itemId, attrName; min1(rowNum)) :- 
+            FunclocLast(itemId, attrName; max1(rowNum)) :- 
                 FunclocRow(rowNum, itemId, _, attrName, _).
 
-            FunctionalLocation1(itemId, attrName, RelLib/Lattice/Min.getValue(first), RelLib/Lattice/Max.getValue(last)) :- 
-                FuncLocFirst(itemId, attrName; first), 
-                FuncLocLast(itemId, attrName; last). 
+            FunclocTemp(itemId, attrName, RelLib/Lattice/Min.getValue(first), RelLib/Lattice/Max.getValue(last)) :- 
+                FunclocFirst(itemId, attrName; first), 
+                FunclocLast(itemId, attrName; last). 
 
-            FunctionalLocation(itemId, attrName, changeStatus(changeF, changeL), value) :-
-                FunctionalLocation1(itemId, attrName, rowF, rowL),
+            FunclocChange(itemId, attrName, changeStatus(changeF, changeL), value) :-
+                FunclocTemp(itemId, attrName, rowF, rowL),
                 FunclocRow(rowF, _, changeF, _, _),
                 FunclocRow(rowL, _, changeL, _, value), 
                 if not invisible(changeF, changeL).
 
+            /// Floc long text
+            FlocLongTextFirst(itemId, language, attrName; min1(rowNum)) :-
+                FlocLongTextRow(rowNum, itemId, language, _, attrName, _).
 
-            FunclocLongTextLast(itemId, language, attrName; max1(rowNum)) :-
-                FunclocLongTextRow(rowNum, itemId, language, _, attrName, _).
+            FlocLongTextLast(itemId, language, attrName; max1(rowNum)) :-
+                FlocLongTextRow(rowNum, itemId, language, _, attrName, _).
+
+            FlocLongTextTemp(itemId, language, attrName, RelLib/Lattice/Min.getValue(first), RelLib/Lattice/Max.getValue(last)) :- 
+                FlocLongTextFirst(itemId, language, attrName; first), 
+                FlocLongTextLast(itemId, language, attrName; last). 
+
+            FlocLongTextChange(itemId, language, attrName, changeStatus(changeF, changeL), value) :-
+                FlocLongTextTemp(itemId, language, attrName, rowF, rowL),
+                FlocLongTextRow(rowF, _, _, changeF, _, _),
+                FlocLongTextRow(rowL, _, _, changeL, _, value), 
+                if not invisible(changeF, changeL).
+
+            /// Equipment
+            EquipmentFirst(itemId, attrName; min1(rowNum)) :- 
+                EquipmentRow(rowNum, itemId, _, attrName, _).
 
             EquipmentLast(itemId, attrName; max1(rowNum)) :- 
                 EquipmentRow(rowNum, itemId, _, attrName, _).
 
-            EquipmentLongTextLast(itemId, language, attrName; max1(rowNum)) :-
-                EquipmentLongTextRow(rowNum, itemId, language, _, attrName, _).
+            EquipmentTemp(itemId, attrName, RelLib/Lattice/Min.getValue(first), RelLib/Lattice/Max.getValue(last)) :- 
+                EquipmentFirst(itemId, attrName; first), 
+                EquipmentLast(itemId, attrName; last). 
+
+            EquipmentChange(itemId, attrName, changeStatus(changeF, changeL), value) :-
+                EquipmentTemp(itemId, attrName, rowF, rowL),
+                EquipmentRow(rowF, _, changeF, _, _),
+                EquipmentRow(rowL, _, changeL, _, value), 
+                if not invisible(changeF, changeL).
+
+            /// Equi long text
+            EquiLongTextFirst(itemId, language, attrName; min1(rowNum)) :-
+                EquiLongTextRow(rowNum, itemId, language, _, attrName, _).
+
+            EquiLongTextLast(itemId, language, attrName; max1(rowNum)) :-
+                EquiLongTextRow(rowNum, itemId, language, _, attrName, _).
+
+            EquiLongTextTemp(itemId, language, attrName, RelLib/Lattice/Min.getValue(first), RelLib/Lattice/Max.getValue(last)) :- 
+                EquiLongTextFirst(itemId, language, attrName; first), 
+                EquiLongTextLast(itemId, language, attrName; last). 
+
+            EquiLongTextChange(itemId, language, attrName, changeStatus(changeF, changeL), value) :-
+                EquiLongTextTemp(itemId, language, attrName, rowF, rowL),
+                EquiLongTextRow(rowF, _, _, changeF, _, _),
+                EquiLongTextRow(rowL, _, _, changeL, _, value), 
+                if not invisible(changeF, changeL).
+
         };
-        solve (db <+> rules) project FunctionalLocation
+        solve (db <+> rules) project FunclocChange, FlocLongTextChange, EquipmentChange, EquiLongTextChange
 
     /// invisible changes are elements created and deleted in the CR, they should not be reported
     def invisible(first: String, last: String): Bool = match (first, last) {
@@ -95,7 +152,5 @@ namespace ChangeDoc/InterpretChangeAttrs {
         case ("Changed",    "Changed")  => "Changed"
         case (_,            final)      => final
     }
-        
-
 
 }
