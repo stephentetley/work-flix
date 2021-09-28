@@ -26,9 +26,9 @@ namespace AssetLib/GenS4/GenUxl {
     
 
     type alias GenEquiArguments = 
-        { aibEquipmentExport: XlsxSource
-        , aibMemosExport: XlsxSource
-        , aibAgaspExport: XlsxSource
+        { aibEquipmentExport :: XlsxSource
+        , aibMemosExport :: XlsxSource
+        , aibAgaspExport :: XlsxSource
         }
 
     pub def generateCombinedUxl(flocWorkList: XlsxSource, 

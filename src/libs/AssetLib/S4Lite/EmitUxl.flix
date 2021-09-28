@@ -27,9 +27,9 @@ namespace AssetLib/S4Lite/EmitUxl {
         SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
     type alias UxlOutputArgs = 
-        { uxlTemplate: System.FilePath
-        , changeRequestName: String
-        , outpath: System.FilePath
+        { uxlTemplate :: System.FilePath
+        , changeRequestName :: String
+        , outpath :: System.FilePath
         }
 
     pub def outputUxl(updateSuper: Bool,

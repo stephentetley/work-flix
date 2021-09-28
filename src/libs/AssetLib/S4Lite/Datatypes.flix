@@ -30,12 +30,12 @@ namespace AssetLib/S4Lite/Datatypes {
     /// a non-standard type (Chain)
     
     type alias UxlSource = 
-        { funclocs: Chain[SLFunctionalLocation]
-        , funclocLongTexts: Chain[SLFlocLongText]
-        , funclocCharacteristics: Chain[SLFlocCharacteristic]
-        , equipment: Chain[SLEquipment]
-        , equiLongTexts: Chain[SLEquiLongText]
-        , equiCharacteristics: Chain[SLEquiCharacteristic]
+        { funclocs :: Chain[SLFunctionalLocation]
+        , funclocLongTexts :: Chain[SLFlocLongText]
+        , funclocCharacteristics :: Chain[SLFlocCharacteristic]
+        , equipment :: Chain[SLEquipment]
+        , equiLongTexts :: Chain[SLEquiLongText]
+        , equiCharacteristics :: Chain[SLEquiCharacteristic]
         }
 
     pub def emptyUxlSource(): UxlSource = 
@@ -57,67 +57,67 @@ namespace AssetLib/S4Lite/Datatypes {
         }
 
     type alias SLFunctionalLocation = 
-        { funcloc: String
-        , description: String
-        , category: Int32
-        , structureIndicator: String
-        , objectType: String
-        , startupDate: Time.LocalDate
-        , superiorFloc: String
-        , equipmentInstall: Bool
-        , status: String
+        { funcloc :: String
+        , description :: String
+        , category :: Int32
+        , structureIndicator :: String
+        , objectType :: String
+        , startupDate :: Time.LocalDate
+        , superiorFloc :: String
+        , equipmentInstall :: Bool
+        , status :: String
         }
 
 
     type alias SLFlocLongText = 
-        { funcloc: String
-        , description: String
-        , longText: String
+        { funcloc :: String
+        , description :: String
+        , longText :: String
         }
 
 
     type alias SLFlocCharacteristic = 
-        { funcloc: String
-        , className: String
-        , charName: String
-        , valueType: SLDatatype
-        , intCounterValue: Int32
-        , charValue: String
+        { funcloc :: String
+        , className :: String
+        , charName :: String
+        , valueType :: SLDatatype
+        , intCounterValue :: Int32
+        , charValue :: String
         }
 
 
     type alias SLEquipment =
-        { equiId: String
-        , category: String              /// e.g "M", "I", "E"
-        , description: String
-        , validFrom: Time.LocalDate     /// usually today (i.e. Time/LocaleDate.now())
-        , objectType: String
-        , weightKg: Option[Float64]
-        , startupDate: Time.LocalDate
-        , manufacturer: String
-        , model: String
-        , partNumber: String
-        , serialNumber: String
-        , functionalLocation: String
-        , superOrdinateEqui: String
-        , position: Option[Int32]
-        , techIdentNo: String
-        , status: String
+        { equiId :: String
+        , category :: String              /// e.g "M", "I", "E"
+        , description :: String
+        , validFrom :: Time.LocalDate     /// usually today (i.e. Time/LocaleDate.now())
+        , objectType :: String
+        , weightKg :: Option[Float64]
+        , startupDate :: Time.LocalDate
+        , manufacturer :: String
+        , model :: String
+        , partNumber :: String
+        , serialNumber :: String
+        , functionalLocation :: String
+        , superOrdinateEqui :: String
+        , position :: Option[Int32]
+        , techIdentNo :: String
+        , status :: String
         }
 
     type alias SLEquiLongText = 
-        { equiId: String
-        , description: String
-        , longText: String
+        { equiId :: String
+        , description :: String
+        , longText :: String
         }
 
     type alias SLEquiCharacteristic = 
-        { equiId: String
-        , className: String
-        , charName: String
-        , valueType: SLDatatype
-        , intCounterValue: Int32
-        , charValue: String
+        { equiId :: String
+        , className :: String
+        , charName :: String
+        , valueType :: SLDatatype
+        , intCounterValue :: Int32
+        , charValue :: String
         }
 
 

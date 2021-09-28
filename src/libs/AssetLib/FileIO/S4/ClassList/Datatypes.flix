@@ -28,8 +28,8 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
 
     /// Flat representation - not a tree.
     type alias ClassListFile = 
-        { dateStamp: LocalDate
-        , rows: List[ClassListRow]
+        { dateStamp :: LocalDate
+        , rows :: List[ClassListRow]
         }
 
     /// ValueRow could be a list-of-values item or a range. It is decoded later.
@@ -40,37 +40,37 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
     }
 
     type alias ClassRow = 
-        { classtype: String
-        , name: String
-        , description: String 
+        { classtype :: String
+        , name :: String
+        , description :: String 
         }
 
     type alias CharacteristicRow = 
-        { name: String
-        , description: String
-        , chartype: Datatype 
+        { name :: String
+        , description :: String
+        , chartype :: Datatype 
         }
 
     /// Nested representation.
     type alias ClassList = 
-        { dateStamp: LocalDate
-        , classes: List[Class]
+        { dateStamp :: LocalDate
+        , classes :: List[Class]
         }
 
 
     // classType eg "002", "003"
     type alias Class = 
-        { name: String
-        , description: String
-        , classtype: String
-        , characteristics: List[Characteristic] 
+        { name :: String
+        , description :: String
+        , classtype :: String
+        , characteristics :: List[Characteristic] 
         }
 
     type alias Characteristic = 
-        { name: String
-        , description: String
-        , chartype: Datatype
-        , refinement: Option[Refinement] 
+        { name :: String
+        , description :: String
+        , chartype :: Datatype
+        , refinement :: Option[Refinement] 
         }
 
     pub enum Datatype { 

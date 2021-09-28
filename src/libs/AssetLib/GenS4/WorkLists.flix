@@ -25,15 +25,15 @@ namespace AssetLib/GenS4/WorkLists {
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
     type alias EquiWorkItem = 
-        { equipmentId: String
-        , s4Name: String
-        , s4Floc: String
-        , superEquiId: String
-        , solutionId: String
-        , position: Option[Int32]
-        , s4Category: String
-        , s4EquiType: String
-        , s4EquiClass: String
+        { equipmentId :: String
+        , s4Name :: String
+        , s4Floc :: String
+        , superEquiId :: String
+        , solutionId :: String
+        , position :: Option[Int32]
+        , s4Category :: String
+        , s4EquiType :: String
+        , s4EquiClass :: String
         }
 
 
@@ -43,17 +43,17 @@ namespace AssetLib/GenS4/WorkLists {
     /// Functional Location (under-developed at the moment)
 
     type alias FlocWorkItem = 
-        { funcloc: String
-        , description: String
-        , level: Int32
-        , sainums: List[String]
-        , installedFrom: Time.LocalDate
-        , structureIndicator: String
-        , objectType: String 
-        , systemClass: String                   /// Level 5 flocs only
-        , systemTypeDescription: String         /// Level 5 flocs only
-        , gridRef: String
-        , solutionId: String
+        { funcloc :: String
+        , description :: String
+        , level :: Int32
+        , sainums :: List[String]
+        , installedFrom :: Time.LocalDate
+        , structureIndicator :: String
+        , objectType :: String 
+        , systemClass :: String                   /// Level 5 flocs only
+        , systemTypeDescription :: String         /// Level 5 flocs only
+        , gridRef :: String
+        , solutionId :: String
         }
 
 

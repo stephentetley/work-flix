@@ -32,11 +32,11 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// IFLOTX
 
     type alias IflotxRow = 
-        { funcloc: String
-        , shortText: String
-        , langCode: String
-        , longText: String
-        , moreTextExists: Bool
+        { funcloc :: String
+        , shortText :: String
+        , langCode :: String
+        , longText :: String
+        , moreTextExists :: Bool
         }
     
 
@@ -170,11 +170,11 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// EQMLTXT
 
     type alias EqmltxtRow = 
-        { equi: String
-        , shortText: String
-        , langCode: String
-        , longText: String
-        , moreTextExists: Bool
+        { equi :: String
+        , shortText :: String
+        , langCode :: String
+        , longText :: String
+        , moreTextExists :: Bool
         }
     
 

@@ -22,20 +22,20 @@ namespace ChangeDoc/Datatypes {
 
 
     type alias FlocTabItem = 
-        { internalFuncloc: String
-        , funcloc: String
-        , description: String
-        , structureInd: String
-        , objectType: String
+        { internalFuncloc :: String
+        , funcloc :: String
+        , description :: String
+        , structureInd :: String
+        , objectType :: String
         }
     
     type alias EquiTabItem = 
-        { equiId: String
-        , description: String
-        , funcloc: String
-        , category: String
-        , objectType: String
-        , objectClass: String
+        { equiId :: String
+        , description :: String
+        , funcloc :: String
+        , category :: String
+        , objectType :: String
+        , objectClass :: String
         }
 
     type alias ChangeDoc = List[ChangeRow]
@@ -55,42 +55,42 @@ namespace ChangeDoc/Datatypes {
 
     /// Funclocs and Equipment are considered "Level1"
     type alias Level1Attrs = 
-        { change: String
-        , attribute: String 
-        , oldValue : String
-        , newValue : String
-        , tableDest : String
+        { change :: String
+        , attribute :: String 
+        , oldValue :: String
+        , newValue :: String
+        , tableDest :: String
         }
 
     type alias LongTextAttrs = 
-        { language: String
-        , change: String
-        , attribute: String 
-        , oldValue : String
-        , newValue : String
-        , tableDest : String
+        { language :: String
+        , change :: String
+        , attribute :: String 
+        , oldValue :: String
+        , newValue :: String
+        , tableDest :: String
         }
 
 
     type alias ClassAttrs = 
-        { className: String
-        , classType: String
-        , change: String
-        , attribute: String
-        , oldValue : String         
-        , newValue : String
-        , tableDest : String
+        { className :: String
+        , classType :: String
+        , change :: String
+        , attribute :: String
+        , oldValue :: String         
+        , newValue :: String
+        , tableDest :: String
         }
 
     type alias CharAttrs = 
-        { characterId: String
-        , classType: String
-        , intCounter: Int32
-        , change: String
-        , attribute: String
-        , oldValue : String 
-        , newValue : String
-        , tableDest : String
+        { characterId :: String
+        , classType :: String
+        , intCounter :: Int32
+        , change :: String
+        , attribute :: String
+        , oldValue :: String 
+        , newValue :: String
+        , tableDest :: String
         }
 
 

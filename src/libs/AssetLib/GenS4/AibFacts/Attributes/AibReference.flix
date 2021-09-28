@@ -28,8 +28,8 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
     /// Read from Aib file...
 
     type alias AibRow = 
-        { reference: String
-        , commonName: String
+        { reference :: String
+        , commonName :: String
         }
 
     pub def readHierarchyRelations(src: XlsxSource): GenMonad[#{AibPliNum, AibParentRef | r}] =

@@ -38,15 +38,15 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
 
 
     type alias EquipmentAttributes = 
-        { aibref: String
-        , installedFrom: Time.LocalDate
-        , manufacturer: String
-        , model: String
-        , status: String
-        , pandiTag: String
-        , serialNumber: String
-        , specificModelFrame: String
-        , weightKg: Option[Float64]
+        { aibref :: String
+        , installedFrom :: Time.LocalDate
+        , manufacturer :: String
+        , model :: String
+        , status :: String
+        , pandiTag :: String
+        , serialNumber :: String
+        , specificModelFrame :: String
+        , weightKg :: Option[Float64]
         }
 
 

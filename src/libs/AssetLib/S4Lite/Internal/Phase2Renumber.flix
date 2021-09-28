@@ -23,10 +23,10 @@ namespace AssetLib/S4Lite/Internal/Phase2Renumber {
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
 
     type alias ChangeRequestRow = 
-        { equipmentId: String           /// $Dollar number
-        , description: String           /// Equipment name
-        , functionalLocation: String
-        , superOrdinateEqui: String     /// $Dollar number or blank
+        { equipmentId :: String           /// $Dollar number
+        , description :: String           /// Equipment name
+        , functionalLocation :: String
+        , superOrdinateEqui :: String     /// $Dollar number or blank
         }
 
 

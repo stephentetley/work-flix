@@ -97,7 +97,7 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
 
     /// Print Html via a rose tree
 
-    type alias Label = {name: String, description: String}
+    type alias Label = {name :: String, description :: String}
 
     pub def allTrees(src: ClassList): RoseForest[Label] = 
         List.map(buildRoseTree, src.classes)

@@ -23,11 +23,11 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
     /// Just fields of interest...
     /// Either `flFunctionalLocation` or `eqEquipment`
     type alias ChangeRequestDetails = 
-        { description: String
-        , changeRequestType: String
-        , flFunctionalLocation: String
-        , eqEquipment: String
-        , processRequester: String
+        { description :: String
+        , changeRequestType :: String
+        , flFunctionalLocation :: String
+        , eqEquipment :: String
+        , processRequester :: String
         }
 
     
@@ -35,77 +35,77 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
     
     /// Just fields of interest...
     type alias FunctionalLocationData = 
-        { functionalLocation: String
-        , maskedFuncLoc: String
-        , description: String
-        , functLocCat: Int32
-        , strIndicator: String
-        , objectType: String
-        , startupDate: Time.LocalDate
-        , maintPlant: Int32
-        , workCenter: String
-        , companyCode: Int32
-        , coArea: Int32
-        , mainWorkCenter: String            /// default: DEFAULT
-        , plantWorkCenter: Int32            /// default: 2100
-        , supFunctLoc: String
-        , equipInstall: Bool
-        , statusProfile: String
-        , userStatus: String        
+        { functionalLocation :: String
+        , maskedFuncLoc :: String
+        , description :: String
+        , functLocCat :: Int32
+        , strIndicator :: String
+        , objectType :: String
+        , startupDate :: Time.LocalDate
+        , maintPlant :: Int32
+        , workCenter :: String
+        , companyCode :: Int32
+        , coArea :: Int32
+        , mainWorkCenter :: String            /// default = DEFAULT
+        , plantWorkCenter :: Int32            /// default = 2100
+        , supFunctLoc :: String
+        , equipInstall :: Bool
+        , statusProfile :: String
+        , userStatus :: String        
         } 
 
 
     /// `description` should be the same value as description on FunctionalLocationData page.
     /// `longText` is the actual long text
     type alias FlMultilingualText = 
-        { functionalLocation: String
-        , deleteIndicator: Bool
-        , language: String
-        , description: String
-        , longText: String
+        { functionalLocation :: String
+        , deleteIndicator :: Bool
+        , language :: String
+        , description :: String
+        , longText :: String
         }
 
     // Functional Location,Deletion Ind,Class Type,Class,Status,Characteristics,Char Value,Ch.Deletion Ind.
     type alias FlClassification = 
-        { functionalLocation: String
-        , deletionInd: Bool
-        , classType: String
-        , className: String
-        , status: String
-        , characteristicName: String
-        , charValue: String
-        , charDeletionInd: Bool 
+        { functionalLocation :: String
+        , deletionInd :: Bool
+        , classType :: String
+        , className :: String
+        , status :: String
+        , characteristicName :: String
+        , charValue :: String
+        , charDeletionInd :: Bool 
         }
 
     /// Just fields of interest...
     type alias EquipmentData = 
-        { equiId: String
-        , equipCategory: String
-        , description: String
-        , validFrom: Time.LocalDate
-        , objectType: String
-        , grossWeight: Option[Float64]
-        , unitOfWeight: String
-        , startupDate: Time.LocalDate
-        , manufacturer: String
-        , modelNumber: String
-        , manufPartNo: String
-        , manufSerialNo: String
-        , constructYear: Int32
-        , constructMth: Int32
-        , maintPlant: Int32
-        , workCenter: String                /// default: DEFAULT; TODO 4/6/20 needs checking
-        , companyCode: Int32
-        , coArea: Int32
-        , planningPlant: Int32
-        , mainWorkCenter: String            /// default: DEFAULT
-        , plantWorkCenter: Int32            /// default: 2100
-        , functionalLoc: String
-        , superordEquip: String
-        , position: Option[Int32]
-        , techIdentNo: String
-        , statusProfile: String
-        , statusOfAnObject: String
+        { equiId :: String
+        , equipCategory :: String
+        , description :: String
+        , validFrom :: Time.LocalDate
+        , objectType :: String
+        , grossWeight :: Option[Float64]
+        , unitOfWeight :: String
+        , startupDate :: Time.LocalDate
+        , manufacturer :: String
+        , modelNumber :: String
+        , manufPartNo :: String
+        , manufSerialNo :: String
+        , constructYear :: Int32
+        , constructMth :: Int32
+        , maintPlant :: Int32
+        , workCenter :: String                /// default = DEFAULT; TODO 4/6/20 needs checking
+        , companyCode :: Int32
+        , coArea :: Int32
+        , planningPlant :: Int32
+        , mainWorkCenter :: String            /// default = DEFAULT
+        , plantWorkCenter :: Int32            /// default = 2100
+        , functionalLoc :: String
+        , superordEquip :: String
+        , position :: Option[Int32]
+        , techIdentNo :: String
+        , statusProfile :: String
+        , statusOfAnObject :: String
         }
 
 
@@ -113,23 +113,23 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
     /// `description` should be the same value as description on FunctionalLocationData page.
     /// `longText` is the actual long text
     type alias EqMultilingualText = 
-        { equiId: String
-        , deleteIndicator: Bool
-        , language: String
-        , description: String
-        , longText: String
+        { equiId :: String
+        , deleteIndicator :: Bool
+        , language :: String
+        , description :: String
+        , longText :: String
         }
 
     // Equipment,Delete Ind.,Class Type,Class,Status,Characteristics,Char Value,Ch. Delete Ind.
     type alias EqClassification = 
-        { equiId: String
-        , deleteInd: Bool
-        , classType: String
-        , className: String
-        , status: String
-        , characteristicName: String
-        , charValue: String
-        , charDeleteInd: Bool 
+        { equiId :: String
+        , deleteInd :: Bool
+        , classType :: String
+        , className :: String
+        , status :: String
+        , characteristicName :: String
+        , charValue :: String
+        , charDeleteInd :: Bool 
         }
 
 

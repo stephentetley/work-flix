@@ -25,21 +25,21 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
 
 
     type alias TransferFile = 
-        { fileHeader: FileHeader
-        , selection: List[String]       /// uninterpreted
-        , headers: Headers
-        , dataRows: List[DataRow]
+        { fileHeader :: FileHeader
+        , selection :: List[String]       /// uninterpreted
+        , headers :: Headers
+        , dataRows :: List[DataRow]
         }
 
-    type alias  DataRow = Array[String]
+    type alias DataRow = Array[String]
 
     type alias FileHeader = 
-        { fileType: FileType
-        , dataModel : DataModel
-        , entityType: EntityType
-        , variant: String
-        , user: String
-        , dateTime: LocalDateTime
+        { fileType :: FileType
+        , dataModel :: DataModel
+        , entityType :: EntityType
+        , variant :: String
+        , user :: String
+        , dateTime :: LocalDateTime
         } 
 
 
@@ -116,49 +116,49 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
 
 
     type alias ClassFlocRow = 
-        { funcloc: String
-        , className: String
-        , classType: String
-        , internalClassNumber: String
-        , status: Option[Int32]
+        { funcloc :: String
+        , className :: String
+        , classType :: String
+        , internalClassNumber :: String
+        , status :: Option[Int32]
         }
 
 
    type alias ValuaFlocRow = 
-        { funcloc: String
-        , classType: String
-        , charId: String
-        , charValue: String
-        , code: Option[Int32]
-        , valueDescription: String
-        , instanceCounter: Int32
-        , intCounterValue: Int32
-        , valueFrom: String
-        , valueTo: String
+        { funcloc :: String
+        , classType :: String
+        , charId :: String
+        , charValue :: String
+        , code :: Option[Int32]
+        , valueDescription :: String
+        , instanceCounter :: Int32
+        , intCounterValue :: Int32
+        , valueFrom :: String
+        , valueTo :: String
         }
 
         
     /// Note status appears to be optional.
     type alias ClassEquiRow = 
-        { equi: String
-        , className: String
-        , classType: String
-        , internalClassNumber: String
-        , status: Option[Int32]
+        { equi :: String
+        , className :: String
+        , classType :: String
+        , internalClassNumber :: String
+        , status :: Option[Int32]
         }
 
 
     type alias ValuaEquiRow = 
-        { equi: String
-        , classType: String
-        , charId: String
-        , charValue: String
-        , code: Option[Int32]
-        , valueDescription: String
-        , instanceCounter: Int32
-        , intCounterValue: Int32
-        , valueFrom: String
-        , valueTo: String
+        { equi :: String
+        , classType :: String
+        , charId :: String
+        , charValue :: String
+        , code :: Option[Int32]
+        , valueDescription :: String
+        , instanceCounter :: Int32
+        , intCounterValue :: Int32
+        , valueFrom :: String
+        , valueTo :: String
         }
 
 
