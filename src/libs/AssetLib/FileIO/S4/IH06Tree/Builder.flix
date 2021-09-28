@@ -100,7 +100,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
 
     /// Print Html via a rose tree
 
-    type alias Label = {name: String, description: String}
+    type alias Label = {name :: String, description :: String}
 
 
     pub def toLabelledTree(src: IH06Tree): RoseTree[Label] = 

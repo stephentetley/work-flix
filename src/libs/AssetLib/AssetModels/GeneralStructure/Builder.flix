@@ -28,9 +28,9 @@ namespace AssetLib/AssetModels/GeneralStructure/Builder {
     /// Assume user knows what they are reading.
 
     type alias SourceFiles =
-        { ih06Text: System.FilePath
-        , ih06Table: System.FilePath            /// SheetName always Sheet1 ?
-        , ih08Table: System.FilePath            /// SheetName always Sheet1 ?
+        { ih06Text :: System.FilePath
+        , ih06Table :: System.FilePath            /// SheetName always Sheet1 ?
+        , ih08Table :: System.FilePath            /// SheetName always Sheet1 ?
         }
 
     /// TODO - add XlsSource to SheetIO?
@@ -44,8 +44,8 @@ namespace AssetLib/AssetModels/GeneralStructure/Builder {
         translateSite(flocProps, equiProps, x1)
 
     type alias FlocProp = 
-        { status: String
-        , objectType: String
+        { status :: String
+        , objectType :: String
         }
 
     def readFlocPropertiesMap(path: System.FilePath): Result[Map[String, FlocProp], String] & Impure = 
@@ -59,9 +59,9 @@ namespace AssetLib/AssetModels/GeneralStructure/Builder {
 
 
     type alias EquiProp = 
-        { status: String
-        , objectType: String
-        , position: Option[Int32]
+        { status :: String
+        , objectType :: String
+        , position :: Option[Int32]
         }
 
     def readEquiPropertiesMap(path: System.FilePath): Result[Map[String, EquiProp], String] & Impure = 
@@ -75,8 +75,6 @@ namespace AssetLib/AssetModels/GeneralStructure/Builder {
         Map.getWithDefault(equiId, {status = "", objectType = "", position = None}, dict)
 
 
-    /// type alias FlocNode = { level: Int32, floc: String, description: String, parent: String }
-    /// type alias EquiNode = { level: Int32, equiId: String, description: String, floc: String, superordinate: String }
 
     pub def translateSite(fprops: Map[String, FlocProp], eprops: Map[String, EquiProp], x: IH06Tree): Result[GSSite, String] = 
         translateSite1(fprops, eprops, x, msg -> Err(msg), ans -> Ok(ans))

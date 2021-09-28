@@ -19,13 +19,13 @@ namespace AssetLib/FileIO/S4/IH06Table/Datatypes {
 
     /// Ignore `Valid To` and `Serial Number`
     type alias IH06Row = 
-        { floc: String
-        , description: String
-        , planningPlant: Int32
-        , costCenter: Option[Int32]
-        , costCenterOrigin: String
-        , userStatus: String
-        , objectType: String
+        { floc :: String
+        , description :: String
+        , planningPlant :: Int32
+        , costCenter :: Option[Int32]
+        , costCenterOrigin :: String
+        , userStatus :: String
+        , objectType :: String
         }
     
 }

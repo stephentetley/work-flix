@@ -21,13 +21,24 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes {
     /// Flat representation - not a tree.
     type alias AibTreeFile = List[AibRow]
 
-    type alias AibRow = { reference: String, commonName: String, status: String }
+    type alias AibRow = 
+        { reference :: String
+        , commonName :: String
+        , status :: String 
+        }
     
 
     /// Nested representation.
     /// We only have a single node type so a RoseTree is adequate.
     type alias AibTree = RoseTree[AibNode]
 
-    type alias AibNode = { reference: String, level: Int32,  shortName: String, parent: String, commonName: String, status: String }
+    type alias AibNode =
+        { reference :: String
+        , level :: Int32
+        , shortName :: String
+        , parent :: String
+        , commonName :: String
+        , status :: String 
+        }
 
 }

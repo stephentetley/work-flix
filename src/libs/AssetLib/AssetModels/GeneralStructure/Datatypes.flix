@@ -17,72 +17,72 @@
 namespace AssetLib/AssetModels/GeneralStructure/Datatypes {
 
     type alias GSSite = 
-        { funcloc: String
-        , name: String
-        , status: String
-        , functions: List[GSFunction]
+        { funcloc :: String
+        , name :: String
+        , status :: String
+        , functions :: List[GSFunction]
         }
 
 
     type alias GSFunction = 
-        { funcloc: String
-        , name: String
-        , objectType: String
-        , status: String
-        , processGroups: List[GSProcessGroup]
+        { funcloc :: String
+        , name :: String
+        , objectType :: String
+        , status :: String
+        , processGroups :: List[GSProcessGroup]
         }
 
 
     type alias GSProcessGroup = 
-        { funcloc: String
-        , name: String
-        , objectType: String
-        , status: String
-        , processes: List[GSProcess]
+        { funcloc :: String
+        , name :: String
+        , objectType :: String
+        , status :: String
+        , processes :: List[GSProcess]
         }
 
     type alias GSProcess = 
-        { funcloc: String
-        , name: String
-        , objectType: String
-        , status: String
-        , systems: List[GSSystem]
+        { funcloc :: String
+        , name :: String
+        , objectType :: String
+        , status :: String
+        , systems :: List[GSSystem]
         }
 
     type alias GSSystem = 
-        { funcloc: String
-        , name: String
-        , objectType: String
-        , status: String
-        , subsystems: List[GSSubsystem]
-        , equipment: List[GSEquipment]
+        { funcloc :: String
+        , name :: String
+        , objectType :: String
+        , status :: String
+        , subsystems :: List[GSSubsystem]
+        , equipment :: List[GSEquipment]
         }
 
 
     type alias GSSubsystem = 
-        { funcloc: String
-        , name: String
-        , objectType: String
-        , status: String
-        , equipment: List[GSEquipment]
+        { funcloc :: String
+        , name :: String
+        , objectType :: String
+        , status :: String
+        , equipment :: List[GSEquipment]
         }
 
 
     type alias GSEquipment = 
-        { equiId: String
-        , name: String
-        , objectType: String
-        , status: String
-        , position: Option[Int32]
-        , subequipment: List[GSSubequipment]
+        { equiId :: String
+        , name :: String
+        , objectType :: String
+        , status :: String
+        , position :: Option[Int32]
+        , subequipment :: List[GSSubequipment]
         }
 
     type alias GSSubequipment = 
-        { equiId: String
-        , name: String
-        , objectType: String
-        , status: String
-        , position: Option[Int32]
+        { equiId :: String
+        , name :: String
+        , objectType :: String
+        , status :: String
+        , position :: Option[Int32]
         }
         
 }

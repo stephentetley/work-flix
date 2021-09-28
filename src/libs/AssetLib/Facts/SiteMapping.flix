@@ -25,8 +25,8 @@ namespace AssetLib/Facts/SiteMapping {
     /// Set up DB
 
     type alias SiteMappingRow = 
-        { installationCommonName: String
-        , s4Level1Code: Option[String]
+        { installationCommonName :: String
+        , s4Level1Code :: Option[String]
         }
         
     

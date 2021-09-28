@@ -21,14 +21,14 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
 
     /// Flat representation - not a tree.
     type alias IH06File = 
-        { header: Header
-        , rows: List[IH06Row]
+        { header :: Header
+        , rows :: List[IH06Row]
         }
 
     type alias Header = 
-        { floc: String
-        , description: String
-        , validForm: LocalDate
+        { floc :: String
+        , description :: String
+        , validForm :: LocalDate
         }
 
     pub enum IH06Row {
@@ -37,10 +37,19 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
     }
 
     /// Empty string for no parent
-    type alias FlocRow = { floc: String, description: String, parent: String }
+    type alias FlocRow = 
+        { floc :: String
+        , description :: String
+        , parent :: String 
+        }
 
     /// Empty string for no super
-    type alias EquiRow = { equiId: String, description: String, floc: String, superordinate: String }
+    type alias EquiRow = 
+        { equiId :: String
+        , description :: String
+        , floc :: String
+        , superordinate :: String 
+        }
 
 
     /// Nested representation.
@@ -53,7 +62,19 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
         case EquiNode(EquiNode)
     }
 
-    type alias FlocNode = { level: Int32, floc: String, description: String, parent: String }
-    type alias EquiNode = { level: Int32, equiId: String, description: String, floc: String, superordinate: String }
+    type alias FlocNode = 
+        { level :: Int32
+        , floc :: String
+        , description :: String
+        , parent :: String 
+        }
+
+    type alias EquiNode = 
+        { level :: Int32
+        , equiId :: String
+        , description :: String
+        , floc :: String
+        , superordinate :: String 
+        }
 
 }

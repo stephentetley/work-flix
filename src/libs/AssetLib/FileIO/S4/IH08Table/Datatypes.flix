@@ -19,21 +19,21 @@ namespace AssetLib/FileIO/S4/IH08Table/Datatypes {
 
     /// Ignore `Valid To` and `Serial Number`
     type alias IH08Row = 
-        { equiId: String
-        , description: String
-        , planningPlant: Int32
-        , functionalLoc: String
-        , techIdentNo: String
-        , superordEquip: String
-        , position: Option[Int32]
-        , manufPartNo: String
-        , manufacturer: String
-        , manufSerialNo: String
-        , modelNumber: String
-        , userStatus: String
-        , objectType: String
-        , street: String
-        , inventoryNo: Option[Int64]
+        { equiId :: String
+        , description :: String
+        , planningPlant :: Int32
+        , functionalLoc :: String
+        , techIdentNo :: String
+        , superordEquip :: String
+        , position :: Option[Int32]
+        , manufPartNo :: String
+        , manufacturer :: String
+        , manufSerialNo :: String
+        , modelNumber :: String
+        , userStatus :: String
+        , objectType :: String
+        , street :: String
+        , inventoryNo :: Option[Int64]
         }
     
 }

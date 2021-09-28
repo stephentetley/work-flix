@@ -17,11 +17,11 @@
 namespace AssetLib/FileIO/Aib/AideChangeSummary/Datatypes {
 
     type alias AibExportRow = 
-        { change: String
-        , reference: String
-        , assetName: String
-        , oldParentName: String
-        , newParentName: String
+        { change :: String
+        , reference :: String
+        , assetName :: String
+        , oldParentName :: String
+        , newParentName :: String
         }
 
 }
