@@ -17,14 +17,27 @@
 
 namespace ChangeDoc/Relations {
     
-    use ChangeDoc/Datatypes.{ChangeKey, ValueState, EntityType};
-    use ChangeDoc/Datatypes.ChangeKey.{NameKey, ClassKey, 
-        LongTextKey, AttrKey, ValuaKey, AddrAttrKey};
-    use ChangeDoc/Datatypes.EntityType.{Equi, Floc};
-    use ChangeDoc/Datatypes.ValueState.{CreateLocal, DeleteLocal, 
-        UpdateGlobal, DeleteGlobal};
-    use ChangeDoc/InterpretChangeAttrs.{State};
+
+
+    /// Relations derived from "ChangeAttrs"
     
+    pub rel FunclocChange(itemId: String, attrName: String, change: String, value: String)
+
+    pub rel FlocLongTextChange(itemId: String, language: String, attrName: String, change: String, value: String)
+
+    pub rel FlocClassChange(itemId: String, className: String, classType: String, attrName: String, change: String, value: String)
+
+    pub rel FlocCharChange(itemId: String, charName: String, classType: String, intCounter: Int32, attrName: String, change: String, value: String)
+
+    pub rel EquipmentChange(itemId: String, attrName: String, change: String, value: String)
+
+    pub rel EquiLongTextChange(itemId: String, language: String,attrName: String, change: String, value: String)
+
+    pub rel EquiClassChange(itemId: String, className: String, classType: String, attrName: String, change: String, value: String)
+
+    pub rel EquiCharChange(itemId: String, charName: String, classType: String, intCounter: Int32, attrName: String, change: String, value: String)
+
+
 
     /// entity should be "Floc" or "Equi"
     pub rel NameChange(entity: String, itemId: String, name: String)
@@ -65,32 +78,7 @@ namespace ChangeDoc/Relations {
 
     pub rel ValuaEqui(itemId: String, equiName: String, className: String, charName: String, intCounter: Int32, status: String, value: String)
 
-    pub def makeChangeRelations(st: State): #{NameChange, AttrChange, LongTextChange, ClassChange, ValuaChange | r} = 
-        RelLib/Relation.foldMap(makeChangeRelation1, Map.toList(st))
 
-    /// To do this should make relations that include value "state".
-    def makeChangeRelation1(xy: (ChangeKey, ValueState)): #{NameChange, AttrChange, LongTextChange, ClassChange, ValuaChange | r} = match xy { 
-        case (NameKey(entity, itemId), CreateLocal(name)) => #{ NameChange("${entity}", itemId, name). }
-        case (NameKey(entity, itemId), UpdateGlobal(name)) => #{ NameChange("${entity}", itemId, name). }
-
-        case (ClassKey(entity, itemId, className), CreateLocal(_)) => #{ ClassChange("${entity}", itemId, className, "New"). }
-        case (ClassKey(entity, itemId, className), UpdateGlobal(_)) => #{ ClassChange("${entity}", itemId, className, "Update"). }
-        case (ClassKey(entity, itemId, className), DeleteGlobal(_)) => #{ ClassChange("${entity}", itemId, className, "Delete"). }
-
-        case (LongTextKey(entity, itemId, name), CreateLocal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
-        case (LongTextKey(entity, itemId, name), UpdateGlobal(value)) => #{ LongTextChange("${entity}", itemId, name, value). }
-
-        /// AttrChanges are merged into Flocs and Equis so we only care about Create/Update
-        case (AttrKey(entity, itemId, attrName), CreateLocal(value)) => #{ AttrChange("${entity}", itemId, attrName, value). }
-        case (AttrKey(entity, itemId, attrName), UpdateGlobal(value)) => #{ AttrChange("${entity}", itemId, attrName, value). }
-
-        case (ValuaKey(entity, itemId, charName, intCount), CreateLocal(value)) => #{ ValuaChange("${entity}", itemId, charName, intCount, value, "New"). }
-        case (ValuaKey(entity, itemId, charName, intCount), UpdateGlobal(value)) => #{ ValuaChange("${entity}", itemId, charName, intCount, value, "Update"). }
-        case (ValuaKey(entity, itemId, charName, intCount), DeleteGlobal) => #{ ValuaChange("${entity}", itemId, charName, intCount, "", "Delete"). }
-
-        case (_,_) => #{}
-
-    }
 
 
 }

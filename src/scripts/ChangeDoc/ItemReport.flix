@@ -31,12 +31,12 @@ namespace ChangeDoc/ItemReport {
     /// Currently (at least) we are building multiple tables of relations.
     
     type alias ItemReportConfig = 
-        { flocClassList: System.FilePath
-        , equiClassList: System.FilePath
-        , changeAttributesExport: System.FilePath
-        , flocTabExport: Option[System.FilePath]
-        , equiTabExport: Option[System.FilePath]
-        , outputPath: System.FilePath
+        { flocClassList :: System.FilePath
+        , equiClassList :: System.FilePath
+        , changeAttributesExport :: System.FilePath
+        , flocTabExport :: Option[System.FilePath]
+        , equiTabExport :: Option[System.FilePath]
+        , outputPath :: System.FilePath
         }
 
     pub def generateReport(cfg: ItemReportConfig): Result[Unit, String] & Impure =
@@ -44,9 +44,8 @@ namespace ChangeDoc/ItemReport {
         let changeDest  = cfg.outputPath;
         let* flocCR     = AssetLib/FileIO/S4/ClassList/Relations.loadFlocClassRelations(cfg.flocClassList);
         let* equiCR     = AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(cfg.equiClassList);
-        let* patches    = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
-        let st1         = ChangeDoc/InterpretChangeAttrs.interpret(patches);
-        let changes     = ChangeDoc/Relations.makeChangeRelations(st1);
+        let* allChanges = ChangeDoc/Loader.readChangeDoc(cfg.changeAttributesExport);
+        let changes     = ChangeDoc/InterpretChangeAttrs.interpretChanges(allChanges);
         let* flocItems  = match cfg.flocTabExport { 
             case None => Ok(Nil) 
             case Some(path) => ChangeDoc/Loader.readFlocTabItems(path)
@@ -57,7 +56,7 @@ namespace ChangeDoc/ItemReport {
         };
         let flocs       = RelLib/Relation.foldMap(x1 -> #{ FlocWorkItem(x1.internalFuncloc , x1.funcloc, x1.description). }, flocItems);
         let equis       = RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem(x1.equiId , x1.description, x1.funcloc). }, equiItems);
-        let rules       = ChangeDoc/MakeItems.rules();
+        let rules       = ChangeDoc/ItemReportRules.rules();
         let database    = (flocs <+> equis <+> changes <+> flocCR <+> equiCR <+> rules);
         let* _          = buildFlocRows(flocItems, database) |> writeFlocRows(changeDest);
         let* _          = buildEquiRows(database) |> addEquiRows(changeDest);
@@ -75,58 +74,58 @@ namespace ChangeDoc/ItemReport {
 
 
     type alias FlocRow = 
-        { internalFloc: String
-        , functionalLocation: String
-        , description: String
-        , attributes: Map[String, String]
+        { internalFloc :: String
+        , functionalLocation :: String
+        , description :: String
+        , attributes :: Map[String, String]
         }
 
     type alias EquiRow = 
-        { equiId: String
-        , description: String
-        , attributes: Map[String, String]
+        { equiId :: String
+        , description :: String
+        , attributes :: Map[String, String]
         }
 
     type alias EquiLongTextRow =         
-        { equiId: String
-        , description: String
-        , longText: String
+        { equiId :: String
+        , description :: String
+        , longText :: String
         }
 
     type alias ClassFlocRow = 
-        { internalFloc: String
-        , funcloc: String
-        , flocName: String
-        , className: String
-        , status: String
+        { internalFloc :: String
+        , funcloc :: String
+        , flocName :: String
+        , className :: String
+        , status :: String
         }
 
     type alias ClassEquiRow = 
-        { equiId: String
-        , equiName: String
-        , className: String
-        , status: String
+        { equiId :: String
+        , equiName :: String
+        , className :: String
+        , status :: String
         }
 
     type alias ValuaFlocRow = 
-        { internalFloc: String
-        , funcloc: String
-        , flocName: String
-        , className: String
-        , charName: String
-        , intCounter: Int32
-        , status: String
-        , value: String
+        { internalFloc :: String
+        , funcloc :: String
+        , flocName :: String
+        , className :: String
+        , charName :: String
+        , intCounter :: Int32
+        , status :: String
+        , value :: String
         }
 
     type alias ValuaEquiRow = 
-        { equiId: String
-        , equiName: String
-        , charName: String
-        , className: String
-        , intCounter: Int32
-        , status: String
-        , value: String
+        { equiId :: String
+        , equiName :: String
+        , charName :: String
+        , className :: String
+        , intCounter :: Int32
+        , status :: String
+        , value :: String
         }
 
 

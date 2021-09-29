@@ -1,5 +1,5 @@
-use ChangeDoc/InterpretChangeAttrs.{FunclocChange, FlocLongTextChange, FlocClassChange, FlocCharChange,
-    EquipmentChange, EquiLongTextChange, EquiClassChange, EquiCharChange};
+use ChangeDoc/Relations.{FunclocChange, FlocLongTextChange, FlocClassChange, FlocCharChange,
+        EquipmentChange, EquiLongTextChange, EquiClassChange, EquiCharChange};
 
 /// def config(): ItemReportConfig = 
 ///     { flocClassList = System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")

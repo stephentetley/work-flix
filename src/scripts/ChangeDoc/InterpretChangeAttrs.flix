@@ -27,56 +27,50 @@ namespace ChangeDoc/InterpretChangeAttrs {
     use ChangeDoc/Datatypes.ChangeRow.{Funcloc1, FunclocLongText, FunclocClass, FunclocChar, 
         Equipment1, EquipmentLongText, EquipmentClass, EquipmentChar};
 
+    use ChangeDoc/Relations.{FunclocChange, FlocLongTextChange, FlocClassChange, FlocCharChange,
+        EquipmentChange, EquiLongTextChange, EquiClassChange, EquiCharChange};
 
     rel FunclocRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
     lat FunclocFirst(itemId: String, attribute: String, first: Min[Int32])
     lat FunclocLast(itemId: String, attribute: String, last: Max[Int32])
     rel FunclocTemp(itemId : String, attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel FunclocChange(itemId: String, attrName: String, change: String, value: String)
 
     rel FlocLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
     lat FlocLongTextFirst(itemId: String, language: String, attribute: String, first: Min[Int32])
     lat FlocLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
     rel FlocLongTextTemp(itemId : String, language: String, attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel FlocLongTextChange(itemId: String, language: String, attrName: String, change: String, value: String)
 
     /// Is Attribute always "Status"?
     rel FlocClassRow(rowNum: Int32, itemId: String, className: String, classType: String, change: String, attribute: String, newValue: String) 
     lat FlocClassFirst(itemId: String, className: String, classType: String, attribute: String, first: Min[Int32])
     lat FlocClassLast(itemId: String, className: String, classType: String, attribute: String, last: Max[Int32])
     rel FlocClassTemp(itemId : String, className: String, classType: String, attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel FlocClassChange(itemId: String, className: String, classType: String, attrName: String, change: String, value: String)
 
     pub rel FlocCharRow(rowNum: Int32, itemId: String, charName: String, classType: String, intCounter: Int32, change: String, attribute: String, newValue: String) 
     pub lat FlocCharFirst(itemId: String, charName: String, classType: String, intCounter: Int32, attribute: String, first: Min[Int32])
     pub lat FlocCharLast(itemId: String, charName: String, classType: String, intCounter: Int32, attribute: String, last: Max[Int32])
     pub rel FlocCharTemp(itemId : String, charName: String, classType: String, intCounter: Int32, attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel FlocCharChange(itemId: String, charName: String, classType: String, intCounter: Int32, attrName: String, change: String, value: String)
 
 
     rel EquipmentRow(rowNum: Int32, itemId: String, change: String, attribute: String, newValue : String)
     lat EquipmentFirst(itemId: String, attribute: String, first: Min[Int32])
     lat EquipmentLast(itemId: String, attribute: String, last: Max[Int32])
     rel EquipmentTemp(itemId : String, attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel EquipmentChange(itemId: String, attrName: String, change: String, value: String)
 
     rel EquiLongTextRow(rowNum: Int32, itemId: String, language: String, change: String, attribute: String, newValue : String) 
     lat EquiLongTextFirst(itemId: String, language: String, attribute: String, first: Min[Int32])
     lat EquiLongTextLast(itemId: String, language: String, attribute: String, last: Max[Int32])
     rel EquiLongTextTemp(itemId : String, language: String,attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel EquiLongTextChange(itemId: String, language: String,attrName: String, change: String, value: String)
 
     rel EquiClassRow(rowNum: Int32, itemId: String, className: String, classType: String, change: String, attribute: String, newValue: String) 
     lat EquiClassFirst(itemId: String, className: String, classType: String, attribute: String, first: Min[Int32])
     lat EquiClassLast(itemId: String, className: String, classType: String, attribute: String, last: Max[Int32])
     rel EquiClassTemp(itemId : String, className: String, classType: String, attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel EquiClassChange(itemId: String, className: String, classType: String, attrName: String, change: String, value: String)
 
     rel EquiCharRow(rowNum: Int32, itemId: String, charName: String, classType: String, intCounter: Int32, change: String, attribute: String, newValue: String) 
     lat EquiCharFirst(itemId: String, charName: String, classType: String, intCounter: Int32, attribute: String, first: Min[Int32])
     lat EquiCharLast(itemId: String, charName: String, classType: String, intCounter: Int32, attribute: String, last: Max[Int32])
     rel EquiCharTemp(itemId : String, charName: String, classType: String, intCounter: Int32, attrName: String, firstRow: Int32, lastRow: Int32)
-    pub rel EquiCharChange(itemId: String, charName: String, classType: String, intCounter: Int32, attrName: String, change: String, value: String)
 
     def makeRowRelations1(x: ChangeRow): #{FunclocRow, FlocLongTextRow, FlocClassRow, FlocCharRow,
                                             EquipmentRow, EquiLongTextRow, EquiClassRow, EquiCharRow | r} = match x {
