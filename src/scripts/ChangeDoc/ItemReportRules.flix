@@ -18,10 +18,11 @@
 namespace ChangeDoc/ItemReportRules {
     
 
-    use ChangeDoc/Relations.{Funcloc, Equipment,
-        EquiLongText, ObjectType, Attribute, ClassFloc, ClassEqui, ValuaFloc, ValuaEqui,
-        FlocWorkItem, EquiWorkItem, 
-        NameChange, AttrChange, ClassChange, LongTextChange, ValuaChange};
+    use ChangeDoc/Relations.{Funcloc, FlocLongText, ClassFloc, 
+            Equipment, EquiLongText, ClassEqui, Attribute,
+            FlocWorkItem, EquiWorkItem, 
+            FunclocChange, FlocLongTextChange, FlocClassChange,
+            EquipmentChange, EquiLongTextChange, EquiClassChange};
 
 
     pub rel HasFlocClassName(itemId: String, className: String)
@@ -31,8 +32,11 @@ namespace ChangeDoc/ItemReportRules {
     pub rel GetEquiClassName(itemId: String, charName: String, className: String)
 
 
-    pub def rules(): #{Funcloc, Equipment,
-                        FlocWorkItem, EquiWorkItem| r} = #{
+    pub def rules(): #{Funcloc, FlocLongText, ClassFloc, 
+                        Equipment, EquiLongText, ClassEqui, Attribute,
+                        FlocWorkItem, EquiWorkItem,
+                        FunclocChange, FlocLongTextChange, FlocClassChange,
+                        EquipmentChange, EquiLongTextChange, EquiClassChange | r} = #{
 
 
         /// Floc or Equipment are 1-to-1 with their respective tab exports rather than relational.
@@ -40,28 +44,45 @@ namespace ChangeDoc/ItemReportRules {
         Funcloc(internalId, funcloc, descr) :-
             FlocWorkItem(internalId, funcloc, descr).
 
+        /// Don't gen an attribute for deleted...
+        Attribute(itemId, attrName, value) :- 
+            FunclocChange(itemId, attrName, change, value),
+            if change == "Changed" or change == "New".
+
+        
+
+        FlocLongText(itemId, language, attrName, value) :- 
+            FlocWorkItem(itemId, _, _),
+            FlocLongTextChange(itemId, language, attrName, change, value),
+            if change == "Changed" or change == "New".
+
+
         /// Can have an equipment change without NameChange()
         Equipment(equiId, description) :- 
             EquiWorkItem(equiId, description, _).
 
+        /// Don't gen an attribute for deleted...
+        Attribute(itemId, attrName, value) :- 
+            EquipmentChange(itemId, attrName, change, value),
+            if change == "Changed" or change == "New".
+
+        
+        EquiLongText(itemId, language, attrName, value) :- 
+            EquiWorkItem(itemId, _, _),
+            EquiLongTextChange(itemId, language, attrName, change, value),
+            if change == "Changed" or change == "New".
 
 
-        /// /// TODO need a sample with long text to see how to replace the empty string...
-        /// EquiLongText(itemId, descr, "") :- 
-        ///     LongTextChange("Equi", itemId, "Description (medium text)", descr).
 
-        /// ObjectType(itemId, value) :- 
-        ///     AttrChange(_, itemId, "Object Type", value).
-
-        /// Attribute(itemId, name, value) :- 
-        ///     AttrChange(_, itemId, name, value), 
-        ///     if name != "Object Type".
-
-
-        /// ClassFloc(itemId, funcloc, flocName, className, status) :- 
-        ///     ClassChange("Floc", itemId, className, status), 
-        ///     NameChange("Floc", itemId, flocName),
-        ///     FlocWorkItem(itemId, funcloc, _).
+        ClassFloc(itemId, funcloc, flocName, className, change) :- 
+            FlocWorkItem(itemId, funcloc, flocName),
+            FlocClassChange(itemId, className, _, "Status", change, _).
+            
+        ClassEqui(itemId, description, className, change) :- 
+            EquiWorkItem(itemId, description, _),
+            EquiClassChange(itemId, className, _, "Status", change, _).
+            
+            
         
 
 

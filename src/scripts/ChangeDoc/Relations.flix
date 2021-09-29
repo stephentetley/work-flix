@@ -20,7 +20,7 @@ namespace ChangeDoc/Relations {
 
 
     /// Relations derived from "ChangeAttrs"
-    
+
     pub rel FunclocChange(itemId: String, attrName: String, change: String, value: String)
 
     pub rel FlocLongTextChange(itemId: String, language: String, attrName: String, change: String, value: String)
@@ -31,7 +31,7 @@ namespace ChangeDoc/Relations {
 
     pub rel EquipmentChange(itemId: String, attrName: String, change: String, value: String)
 
-    pub rel EquiLongTextChange(itemId: String, language: String,attrName: String, change: String, value: String)
+    pub rel EquiLongTextChange(itemId: String, language: String, attrName: String, change: String, value: String)
 
     pub rel EquiClassChange(itemId: String, className: String, classType: String, attrName: String, change: String, value: String)
 
@@ -61,9 +61,9 @@ namespace ChangeDoc/Relations {
 
     
 
-    pub rel FlocLongText(equiId: String, description: String, longText: String)
+    pub rel FlocLongText(equiId: String, language: String, description: String, longText: String)
 
-    pub rel EquiLongText(equiId: String, description: String, longText: String)
+    pub rel EquiLongText(equiId: String, language: String, description: String, longText: String)
 
 
     pub rel ObjectType(itemId: String, objType: String)

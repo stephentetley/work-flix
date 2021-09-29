@@ -80,14 +80,26 @@ namespace ChangeDoc/ItemReport {
         , attributes :: Map[String, String]
         }
 
+
     type alias EquiRow = 
         { equiId :: String
         , description :: String
         , attributes :: Map[String, String]
         }
 
+
+    type alias FlocLongTextRow =         
+        { internalFloc :: String
+        , funcloc :: String
+        , language :: String
+        , description :: String
+        , longText :: String
+        }
+
+
     type alias EquiLongTextRow =         
         { equiId :: String
+        , language :: String
         , description :: String
         , longText :: String
         }
@@ -217,15 +229,16 @@ namespace ChangeDoc/ItemReport {
     /// ## Equi
 
     pub def extractEquiLongTextRows(db: #{EquiLongText | r}): Array[EquiLongTextRow] & Impure = 
-        query db select (x1, x2, x3) from EquiLongText(x1, x2, x3) 
+        query db select (x1, x2, x3, x4) from EquiLongText(x1, x2, x3, x4) 
             |> Array.map(makeEquiLongTextRow1)
 
 
-    def makeEquiLongTextRow1(x: (String, String, String)): EquiLongTextRow = 
-        let (x1, x2, x3) = x;
+    def makeEquiLongTextRow1(x: (String, String, String, String)): EquiLongTextRow = 
+        let (x1, x2, x3, x4) = x;
         { equiId        = x1
-        , description   = x2
-        , longText      = x3
+        , language      = x2
+        , description   = x3
+        , longText      = x4
         }
 
     pub def buildEquiRows(db: #{Equipment, Attribute | r}): Array[EquiRow] & Impure = 
@@ -327,7 +340,7 @@ namespace ChangeDoc/ItemReport {
 
     pub def addEquiLongTextRows(path: System.FilePath, arr: Array[EquiLongTextRow]): Result[Unit, String] & Impure = 
         let writer = {sheetName = "Eqmltext",
-            headers = Some(["Equipment", "Description (medium text)", "Long Text"]),
+            headers = Some(["Equipment", "Language", "Description (medium text)", "Long Text"]),
             setter = setEquiLongTextRow,
             rows = Array.toList(arr)
         };
@@ -339,6 +352,7 @@ namespace ChangeDoc/ItemReport {
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
+        ++> flip(putString!, x.language)
         ++> flip(putString!, x.description)
         ++> flip(putString!, x.longText)
         *> return()
