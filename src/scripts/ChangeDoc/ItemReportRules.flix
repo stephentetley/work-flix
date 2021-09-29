@@ -18,11 +18,11 @@
 namespace ChangeDoc/ItemReportRules {
     
 
-    use ChangeDoc/Relations.{Funcloc, FlocLongText, ClassFloc, 
-            Equipment, EquiLongText, ClassEqui, Attribute,
+    use ChangeDoc/Relations.{Funcloc, FlocLongText, ClassFloc, ValuaFloc,
+            Equipment, EquiLongText, ClassEqui, ValuaEqui, Attribute,
             FlocWorkItem, EquiWorkItem, 
-            FunclocChange, FlocLongTextChange, FlocClassChange,
-            EquipmentChange, EquiLongTextChange, EquiClassChange};
+            FunclocChange, FlocLongTextChange, FlocClassChange, FlocCharChange,
+            EquipmentChange, EquiLongTextChange, EquiClassChange, EquiCharChange};
 
 
     pub rel HasFlocClassName(itemId: String, className: String)
@@ -32,11 +32,12 @@ namespace ChangeDoc/ItemReportRules {
     pub rel GetEquiClassName(itemId: String, charName: String, className: String)
 
 
-    pub def rules(): #{Funcloc, FlocLongText, ClassFloc, 
-                        Equipment, EquiLongText, ClassEqui, Attribute,
+    pub def rules(): #{Funcloc, FlocLongText, ClassFloc, ValuaFloc, 
+                        Equipment, EquiLongText, ClassEqui, ValuaEqui, Attribute,
                         FlocWorkItem, EquiWorkItem,
-                        FunclocChange, FlocLongTextChange, FlocClassChange,
-                        EquipmentChange, EquiLongTextChange, EquiClassChange | r} = #{
+                        FunclocChange, FlocLongTextChange, FlocClassChange, FlocCharChange, 
+                        EquipmentChange, EquiLongTextChange, EquiClassChange, EquiCharChange, 
+                        HasFlocClassName, GetFlocClassName, HasEquiClassName, GetEquiClassName | r} = #{
 
 
         /// Floc or Equipment are 1-to-1 with their respective tab exports rather than relational.
@@ -82,50 +83,61 @@ namespace ChangeDoc/ItemReportRules {
             EquiWorkItem(itemId, description, _),
             EquiClassChange(itemId, className, _, "Status", change, _).
             
-            
+        /// TODO, For values, need Attribute = "Instance counter"
+        /// Then test whether has "Value from" (Numeric), "Characteristic Value" (String) or neither (empty)...
+
+        ValuaFloc(itemId, funcloc, flocName, className, charName, intCounter, change, value) :-
+            FlocWorkItem(itemId, funcloc, flocName),
+            GetFlocClassName(itemId, charName, className),
+            FlocCharChange(itemId, charName, _, intCounter, "Value from", change, value).
+
+        ValuaFloc(itemId, funcloc, flocName, className, charName, intCounter, change, value) :-
+            FlocWorkItem(itemId, funcloc, flocName),
+            GetFlocClassName(itemId, charName, className),
+            FlocCharChange(itemId, charName, _, intCounter, "Characteristic Value", change, value).
+
+
+        /// TODO, For values, need Attribute = "Instance counter"
+        /// Then test whether has "Value from" (Numeric), "Characteristic Value" (String) or neither (empty)...
+
+        ValuaEqui(itemId, description, className, charName, intCounter, change, value) :-
+            EquiWorkItem(itemId, description, _),
+            GetEquiClassName(itemId, charName, className),
+            EquiCharChange(itemId, charName, _, intCounter, "Value from", change, value).
+
+        ValuaEqui(itemId, description, className, charName, intCounter, change, value) :-
+            EquiWorkItem(itemId, description, _),
+            GetEquiClassName(itemId, charName, className),
+            EquiCharChange(itemId, charName, _, intCounter, "Characteristic Value", change, value).
+
+
+        /// We won't know the class name if it wasn't created or changed...
+        HasFlocClassName(itemId, charName) :-
+            FlocClassChange(itemId, className, _, _, _, _),
+            S4FlocClassMember(className, charName).
         
+        GetFlocClassName(itemId, charName, className) :- 
+            FlocClassChange(itemId, className, _, _, _, _),
+            S4FlocClassMember(className, charName).
+
+        GetFlocClassName(itemId, charName, "[Unknown/Orphan]") :- 
+            FlocCharChange(itemId, charName, _, _, _, _, _),
+            not HasFlocClassName(itemId, charName).
 
 
-        /// ClassEqui(itemId, equiName, className, status) :- 
-        ///     ClassChange("Equi", itemId, className, status),
-        ///     NameChange("Equi", itemId, equiName).
+
+        HasEquiClassName(itemId, charName) :-
+            EquiClassChange(itemId, className, _, _, _, _),
+            S4EquiClassMember(className, charName).
         
-        /// HasFlocClassName(itemId, charName) :-
-        ///     ClassChange(_, itemId, className, _),
-        ///     S4FlocClassMember(className, charName).
-        
-        /// GetFlocClassName(itemId, charName, className) :- 
-        ///     ClassChange(_, itemId, className, _),
-        ///     S4FlocClassMember(className, charName).
+        GetEquiClassName(itemId, charName, className) :- 
+            EquiClassChange(itemId, className, _, _, _, _),
+            S4EquiClassMember(className, charName).
 
-        /// GetFlocClassName(itemId, charName, "[Unknown/Orphan]") :- 
-        ///     ValuaChange(_, itemId, charName, _, _, _),
-        ///     not HasFlocClassName(itemId, charName).
+        GetEquiClassName(itemId, charName, "[Unknown/Orphan]") :- 
+            EquiCharChange(itemId, charName, _, _, _, _, _),
+            not HasEquiClassName(itemId, charName).
 
-        /// ValuaFloc(itemId, funcloc, flocName, className, charName, intCounter, status, value) :-
-        ///     ValuaChange("Floc", itemId, charName, intCounter, value, status),
-        ///     FlocWorkItem(itemId, funcloc, flocName),
-        ///     GetFlocClassName(itemId, charName, className).
-
-
-
-        /// HasEquiClassName(itemId, charName) :-
-        ///     ClassChange(_, itemId, className, _),
-        ///     S4EquiClassMember(className, charName).
-        
-        /// GetEquiClassName(itemId, charName, className) :- 
-        ///     ClassChange(_, itemId, className, _),
-        ///     S4EquiClassMember(className, charName).
-
-        /// GetEquiClassName(itemId, charName, "[Unknown/Orphan]") :- 
-        ///     ValuaChange(_, itemId, charName, _, _, _),
-        ///     not HasEquiClassName(itemId, charName).
-
-        /// /// Don't join on name change
-        /// ValuaEqui(itemId, descr, className, charName, intCounter, status, value) :-
-        ///     ValuaChange("Equi", itemId, charName, intCounter, value, status),
-        ///     EquiWorkItem(itemId, descr, _), 
-        ///     GetEquiClassName(itemId, charName, className).
 
     }
 
