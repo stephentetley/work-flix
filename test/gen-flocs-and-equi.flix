@@ -2,9 +2,9 @@ use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 use AssetLib/GenS4/GenUxl.{GenEquiArguments};
 
 def outputArgs(): UxlOutputArgs = 
-    { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/MMOP uXL.xlsx")
+    { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/1909_AIW_MOCR_Template.xlsx")
     , changeRequestName = "AMP 7 Leger Way"
-    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/leg01/output/leger-way-UXL.xlsx")
+    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/leg01/output/1909_leger_way.xlsx")
     }
 
 def equiArgs(): GenEquiArguments = 

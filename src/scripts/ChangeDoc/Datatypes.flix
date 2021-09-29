@@ -83,7 +83,7 @@ namespace ChangeDoc/Datatypes {
         }
 
     type alias CharAttrs = 
-        { characterId :: String
+        { charId :: String
         , classType :: String
         , intCounter :: Int32
         , change :: String

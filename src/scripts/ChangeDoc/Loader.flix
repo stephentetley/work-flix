@@ -171,7 +171,7 @@ namespace ChangeDoc/Loader {
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
-            { characterId   = x1
+            { charId        = x1
             , classType     = x2
             , intCounter    = x3
             , change        = x4
