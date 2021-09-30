@@ -56,7 +56,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         use FlixParsec/Prim.{flatMap};
         let* d = lexeme(lookingAts("\\d{2}\\.\\d{2}\\.\\d{4}"));
         let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "pDateStamp");
-        let* ans = liftOption(Time/LocalDate.parse(d, fmt), "pDateStamp");
+        let* ans = liftOption(Time/LocalDate.parse(fmt, d), "pDateStamp");
         return(ans)
         
 

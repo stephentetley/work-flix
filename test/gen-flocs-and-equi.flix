@@ -19,9 +19,9 @@ def equiArgs(): GenEquiArguments =
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    let workList = System/FilePath.new("G:/work/assets/capital_schemes/leg01/leger-way-worklist.xlsx");
-    let flocWorkList = {path = workList, sheet = "FlocWorkList"};
-    let equiWorkList = {path = workList, sheet = "EquiWorkList"};                        
+    let workBook = System/FilePath.new("G:/work/assets/capital_schemes/leg01/leger-way-worklist.xlsx");
+    let flocWorkList = {path = workBook, sheet = "FlocWorkList"};
+    let equiWorkList = {path = workBook, sheet = "EquiWorkList"};                        
     let ans = AssetLib/GenS4/GenUxl.generateCombinedUxl(flocWorkList, equiWorkList, equiArgs(), outputArgs());
     match ans {
         case Ok() => Console.printLine("Success, wrote ${outputArgs().outpath}")

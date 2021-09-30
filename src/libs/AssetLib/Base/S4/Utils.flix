@@ -21,7 +21,7 @@ namespace AssetLib/Base/S4/Utils {
 
     pub def printS4Date(x: Time.LocalDate): String = 
         match Time/Format/DateFormatter.ofPattern("dd.MM.yyyy") { 
-            case Some(fmt) => Time/LocalDate.format(x, fmt)
+            case Some(fmt) => Time/LocalDate.format(fmt, x)
             case None => bug!("printS4Date format string")
         }
 

@@ -120,7 +120,7 @@ namespace ChangeDoc/ItemReportRules {
             FlocClassChange(itemId, className, _, _, _, _),
             S4FlocClassMember(className, charName).
 
-        GetFlocClassName(itemId, charName, "[Unknown/Orphan]") :- 
+        GetFlocClassName(itemId, charName, "[???]") :- 
             FlocCharChange(itemId, charName, _, _, _, _, _),
             not HasFlocClassName(itemId, charName).
 
@@ -134,7 +134,7 @@ namespace ChangeDoc/ItemReportRules {
             EquiClassChange(itemId, className, _, _, _, _),
             S4EquiClassMember(className, charName).
 
-        GetEquiClassName(itemId, charName, "[Unknown/Orphan]") :- 
+        GetEquiClassName(itemId, charName, "[???]") :- 
             EquiCharChange(itemId, charName, _, _, _, _, _),
             not HasEquiClassName(itemId, charName).
 

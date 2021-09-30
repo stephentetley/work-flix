@@ -25,7 +25,7 @@ namespace AssetLib/Base/S4/BasicDbUtils {
     pub def putS4DateAt!(ix: Int32, dt: Time.LocalDate): PreparedStatementSetter[Unit] = 
         use BasicDb/PreparedStatementSetter.{flatMap, return, liftOption, putStringAt!};
         let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "putS4DateAt!");
-        let ans     = Time/LocalDate.format(dt, fmt);
+        let ans     = Time/LocalDate.format(fmt, dt);
         let* _      = putStringAt!(ix, ans);
         return()
 
@@ -33,7 +33,7 @@ namespace AssetLib/Base/S4/BasicDbUtils {
         use BasicDb/RowEvaluator.{flatMap, return, liftOption, getStringNamed};
         let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4DateNamed");
         let* s1     = getStringNamed(label); 
-        let* ans    = liftOption(Time/LocalDate.parse(s1, fmt), "getS4DateNamed('${label}')");
+        let* ans    = liftOption(Time/LocalDate.parse(fmt, s1), "getS4DateNamed('${label}')");
         return(ans)
 
 

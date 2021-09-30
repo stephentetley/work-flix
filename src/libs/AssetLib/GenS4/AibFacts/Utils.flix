@@ -98,7 +98,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
     pub def formatDateForS4(dt: Time.LocalDate): Option[String] = 
         use Option.{flatMap};
         let* fmt = Time/Format/DateFormatter.ofPattern("dd.MM.yyyy");
-        let ans = Time/LocalDate.format(dt, fmt);
+        let ans = Time/LocalDate.format(fmt, dt);
         Some(ans)
 
 

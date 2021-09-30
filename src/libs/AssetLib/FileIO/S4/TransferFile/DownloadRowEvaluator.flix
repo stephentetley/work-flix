@@ -204,19 +204,19 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): DownloadRowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
-        liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateNamed('${label}')")
+        liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateNamed('${label}')")
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): DownloadRowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
-        liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed('${label}')")
+        liftOption(Time/LocalDateTime.parse(formatter, input), "getLocalDateTimeNamed('${label}')")
 
     pub def getLocalTime(label: String, formatter: Time/Format.TimeFormatter): DownloadRowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
-        liftOption(Time/LocalTime.parse(input, formatter), "getLocalTime('${label}')")
+        liftOption(Time/LocalTime.parse(formatter, input), "getLocalTime('${label}')")
 
     pub def getS4DateNamed(label: String): DownloadRowEvaluator[Time.LocalDate] =
-        let* formatter = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4DateNamed('${label}')");
-        getLocalDateNamed(label, formatter)
+        let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4DateNamed('${label}')");
+        getLocalDateNamed(label, fmt)
 
     pub def getS4BoolNamed(label: String): DownloadRowEvaluator[Bool] =
         bind( getStringNamed(label)

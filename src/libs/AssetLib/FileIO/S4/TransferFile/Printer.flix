@@ -95,8 +95,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
         let step = () -> {
             let* dfmt = Time/Format/DateTimeFormatter.ofPattern("yyyyMMdd");
             let* tfmt = Time/Format/DateTimeFormatter.ofPattern("HHmmss");
-            let date = Time/LocalDateTime.format(dt, dfmt);
-            let time = Time/LocalDateTime.format(dt, tfmt);
+            let date = Time/LocalDateTime.format(dfmt, dt);
+            let time = Time/LocalDateTime.format(tfmt, dt);
             Some(commentDoc(text("Date:") <<>> text(date) <<>> char('/') <<>> text("Time:") <<>> text(time)))
         };
         Option.getWithDefault(step(), comment("Date: ____ / Time: ____"))   
