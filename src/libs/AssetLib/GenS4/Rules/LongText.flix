@@ -70,9 +70,7 @@ namespace AssetLib/GenS4/Rules/LongText {
         let getKey = RelLib/Tuple.decons3((x1, y1, _) -> (x1, y1));
         let getLongText = RelLib/Tuple.decons3((_, _, z1) -> z1);
         let* answers = liftAction(_ -> query (rules <+> input) select (x1, x2, x3) from EquiLongText(x1, x2, x3)
-                        |> RelLib/Organization.collectToMapList(getKey, getLongText)
-                        |> Map.toList
-                        |> List.map(xy -> {let ((x1, x2), xs) = xy; {equiId = x1, description = x2, longText = String.unlines(xs)}}));
+                        |> RelLib/Organization.viaMapList((getKey, getLongText), (k, xs) -> {equiId = fst(k), description = snd(k), longText = String.unlines(xs)}));
         AssetLib/GenS4/GenMonad.mapX(AssetLib/GenS4/GenMonad.tellSLEquiLongText, answers)
 
 

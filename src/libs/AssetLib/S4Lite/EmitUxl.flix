@@ -82,14 +82,13 @@ namespace AssetLib/S4Lite/EmitUxl {
         , objectType            = x.objectType
         , startupDate           = x.startupDate
         , maintPlant            = 2100
-        , workCenter            = "DEFAULT"
         , companyCode           = 2100
         , coArea                = 1000
         , mainWorkCenter        = "DEFAULT"     /// default: DEFAULT
         , plantWorkCenter       = 2100          /// default: 2100
+        , position              = x.position
         , supFunctLoc           = superiorFloc
         , equipInstall          = x.equipmentInstall
-        , statusProfile         = "ZEQUIPST"
         , userStatus            = x.status
         }
 
@@ -125,7 +124,6 @@ namespace AssetLib/S4Lite/EmitUxl {
         , deletionInd           = false
         , classType             = "003"
         , className             = x.className
-        , status                = "1"
         , characteristicName    = x.charName
         , charValue             = x.charValue
         , charDeletionInd       = false
@@ -203,7 +201,6 @@ namespace AssetLib/S4Lite/EmitUxl {
         , deleteInd             = false
         , classType             = "002"
         , className             = x.className
-        , status                = "1"
         , characteristicName    = x.charName
         , charValue             = x.charValue
         , charDeleteInd         = false

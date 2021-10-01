@@ -43,14 +43,13 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , objectType :: String
         , startupDate :: Time.LocalDate
         , maintPlant :: Int32
-        , workCenter :: String
         , companyCode :: Int32
         , coArea :: Int32
         , mainWorkCenter :: String            /// default = DEFAULT
         , plantWorkCenter :: Int32            /// default = 2100
+        , position :: Option[Int32]
         , supFunctLoc :: String
         , equipInstall :: Bool
-        , statusProfile :: String
         , userStatus :: String        
         } 
 
@@ -71,7 +70,6 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , deletionInd :: Bool
         , classType :: String
         , className :: String
-        , status :: String
         , characteristicName :: String
         , charValue :: String
         , charDeletionInd :: Bool 
@@ -126,12 +124,9 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , deleteInd :: Bool
         , classType :: String
         , className :: String
-        , status :: String
         , characteristicName :: String
         , charValue :: String
         , charDeleteInd :: Bool 
         }
-
-
 
 }

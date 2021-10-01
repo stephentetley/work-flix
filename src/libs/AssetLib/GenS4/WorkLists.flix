@@ -52,6 +52,7 @@ namespace AssetLib/GenS4/WorkLists {
         , objectType :: String 
         , systemClass :: String                   /// Level 5 flocs only
         , systemTypeDescription :: String         /// Level 5 flocs only
+        , position :: Option[Int32]
         , gridRef :: String
         , solutionId :: String
         }
@@ -116,7 +117,7 @@ namespace AssetLib/GenS4/WorkLists {
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readStep(), src.path))
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed, liftResult}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed, getInt32Named, optional, liftResult}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
@@ -126,6 +127,7 @@ namespace AssetLib/GenS4/WorkLists {
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
         let* sysClass       = map(String.trim, getContentNamed("Class Name (System)"));
         let* sysType        = map(String.trim, getContentNamed("System Type (Text)"));
+        let* position       = optional(getInt32Named("Position"));
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
         let* solutionId     = map(String.trim, getContentNamed("Solution ID"));
         let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
@@ -139,6 +141,7 @@ namespace AssetLib/GenS4/WorkLists {
                 , objectType            = objType
                 , systemClass           = sysClass
                 , systemTypeDescription = sysType
+                , position              = position
                 , gridRef               = ngr
                 , solutionId            = solutionId
                 })

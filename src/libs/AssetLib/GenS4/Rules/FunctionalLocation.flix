@@ -38,6 +38,7 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
             , structureIndicator    = x.structureIndicator
             , objectType            = x.objectType
             , startupDate           = x.installedFrom
+            , position              = x.position
             , superiorFloc          = super
             , equipmentInstall      = equipmentInstall(x.structureIndicator, level)
             , status                = "UCON"

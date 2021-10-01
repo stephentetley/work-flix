@@ -60,10 +60,10 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         return(xs)
 
     def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getInt32Named};
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getInt32Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed, getS4LocalDateNamed};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) ->
                 { functionalLocation    = x1
                 , maskedFuncLoc         = x2
                 , description           = x3                
@@ -72,15 +72,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
                 , objectType            = x6
                 , startupDate           = x7
                 , maintPlant            = x8
-                , workCenter            = x9
-                , companyCode           = x10
-                , coArea                = x11
-                , mainWorkCenter        = x12
-                , plantWorkCenter       = x13
+                , companyCode           = x9
+                , coArea                = x10
+                , mainWorkCenter        = x11
+                , plantWorkCenter       = x12
+                , position              = x13
                 , supFunctLoc           = x14
                 , equipInstall          = x15
-                , statusProfile         = x16
-                , userStatus            = x17
+                , userStatus            = x16
                 })
             <&> getContentNamed("Funcloc")              /// functionalLocation
             <*> getContentNamed("FlocRef")              /// maskedFuncLoc
@@ -90,14 +89,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getContentNamed("Eqart")                /// objectType
             <*> getS4LocalDateNamed("Inbdt")            /// startupDate
             <*> getInt32Named("SwerkFl")                /// maintPlant
-            <*> getContentNamed("Arbplfloc")                /// workCenter
             <*> getInt32Named("Bukrsfloc")              /// companyCode
             <*> getInt32Named("KokrFloc")               /// coArea
             <*> getContentNamed("Gewrkfloc")            /// mainWorkCenter
             <*> getInt32Named("Wergwfloc")              /// plantWorkCenter
+            <*> optional(getInt32Named("Posnr"))        /// Position
             <*> getContentNamed("Tplma")                /// supFunctLoc
             <*> getS4BoolNamed("Iequi")                 /// equipInstall
-            <*> getContentNamed("StsmFloc")             /// statusProfile
             <*> getContentNamed("Sttxu")                /// userStatus
    
     
@@ -144,21 +142,19 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};
-        ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
+        ((x1, x2, x3, x4, x5, x6, x7) -> 
                 { functionalLocation    = x1
                 , deletionInd           = x2
                 , classType             = x3
                 , className             = x4
-                , status                = x5
-                , characteristicName    = x6
-                , charValue             = x7
-                , charDeletionInd       = x8
+                , characteristicName    = x5
+                , charValue             = x6
+                , charDeletionInd       = x7
                 })
             <&> getContentNamed("FunclocCl")
             <*> getS4BoolNamed("DeleteCl")
             <*> getContentNamed("ClasstypeCl")
             <*> getContentNamed("ClassCl")
-            <*> getContentNamed("Clstatus1Cl")
             <*> getContentNamed("CharidExtForm")
             <*> getContentNamed("Atwrt")
             <*> getS4BoolNamed("DeleteCh")
@@ -277,21 +273,19 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};
-        ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
+        ((x1, x2, x3, x4, x5, x6, x7) -> 
                 { equiId                = x1
                 , deleteInd             = x2 
                 , classType             = x3
                 , className             = x4
-                , status                = x5
-                , characteristicName    = x6 
-                , charValue             = x7
-                , charDeleteInd         = x8
+                , characteristicName    = x5 
+                , charValue             = x6
+                , charDeleteInd         = x7
                 })
             <&> getContentNamed("EquiCl")
             <*> getS4BoolNamed("DeleteCl")
             <*> getContentNamed("ClasstypeCl")
             <*> getContentNamed("ClassCl")
-            <*> getContentNamed("Clstatus1Cl")
             <*> getContentNamed("CharidExtForm")
             <*> getContentNamed("Atwrt")
             <*> getS4BoolNamed("DeleteCh")

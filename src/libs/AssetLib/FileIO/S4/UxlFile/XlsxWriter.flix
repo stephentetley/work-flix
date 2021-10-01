@@ -56,7 +56,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         mapX(x -> appendRow(s1, setFunctionalLocationData!(x)), xs)
 
 
-    /// Just write fields of interest...
+    /// Just write fields of interest... (1909)
     def setFunctionalLocationData!(x: FunctionalLocationData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!, putS4DateAt!};
@@ -67,18 +67,20 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(4, x.strIndicator);
         let* _      = putStringAt!(5, x.objectType);
         let* _      = putS4DateAt!(11, x.startupDate);
-        let* _      = putInt32At!(22, x.maintPlant);
-        let* _      = putStringAt!(26, x.workCenter);     /// Do we need to write this?
-        let* _      = putInt32At!(29, x.companyCode);
-        let* _      = putInt32At!(34, x.coArea);
-        let* _      = putStringAt!(40, x.mainWorkCenter);
-        let* _      = putInt32At!(41, x.plantWorkCenter);
-        let* _      = putStringAt!(45, x.supFunctLoc);
-        let* _      = putS4BoolAt!(46, x.equipInstall);     /// Do we need to write this?
-        let* _      = putStringAt!(48, x.statusProfile);
-        let* _      = putStringAt!(49, x.userStatus);
+        let* _      = putInt32At!(13, x.maintPlant);
+        let* _      = putInt32At!(14, x.companyCode);
+        let* _      = putInt32At!(15, x.coArea);
+        let* _      = putStringAt!(17, position4(x.position));
+        let* _      = putStringAt!(18, x.supFunctLoc);
+        let* _      = putS4BoolAt!(19, x.equipInstall);     /// Do we need to write this?
+        let* _      = putStringAt!(20, x.userStatus);
         return()
 
+
+    def position4(x: Option[Int32]): String = match x { 
+        case Some(i) => String.padLeft(4, '0', ToString.toString(i))
+        case None => ""
+    }
 
     /// FL-Multilingual Text
 
@@ -89,6 +91,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setFlMultilingualText!(x)), xs)
 
+    /// (1909)
     def setFlMultilingualText!(x: FlMultilingualText): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
@@ -109,6 +112,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setFlClassification!(x)), xs)
 
+    /// (1909)
     def setFlClassification!(x: FlClassification): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
@@ -116,10 +120,9 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putS4BoolAt!(1, x.deletionInd);
         let* _      = putStringAt!(2, x.classType);
         let* _      = putStringAt!(3, x.className);
-        let* _      = putStringAt!(4, x.status);
-        let* _      = putStringAt!(5, x.characteristicName);
-        let* _      = putStringAt!(6, x.charValue);
-        let* _      = putS4BoolAt!(7, x.charDeletionInd);
+        let* _      = putStringAt!(4, x.characteristicName);
+        let* _      = putStringAt!(5, x.charValue);
+        let* _      = putS4BoolAt!(6, x.charDeletionInd);
         return()
 
 
@@ -133,35 +136,31 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         mapX(x -> appendRow(s1, setEquipmentData!(x)), xs)
 
 
-    /// Not all fields are written...
+    /// Not all fields are written... (1909)
     def setEquipmentData!(x: EquipmentData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!, putPaddedInt32At!};
-        let position4 = x1 -> match x1 { 
-            case Some(i) => String.padLeft(4, '0', ToString.toString(i))
-            case None => ""
-        };
-        let* _      = putStringAt!(0, x.equiId);
-        let* _      = putStringAt!(1, x.equipCategory);
-        let* _      = putStringAt!(2, x.description);
-        let* _      = putS4DateAt!(3, x.validFrom);
-        let* _      = putStringAt!(4, x.objectType);
-        let* _      = putOptionFloat64At!(6, x.grossWeight);
-        let* _      = putStringAt!(7, x.unitOfWeight);
-        let* _      = putS4DateAt!(10, x.startupDate);
-        let* _      = putStringAt!(14, x.manufacturer);
-        let* _      = putStringAt!(15, x.modelNumber);
-        let* _      = putStringAt!(16, x.manufPartNo);
-        let* _      = putStringAt!(17, x.manufSerialNo);
-        let* _      = putInt32At!(19, x.constructYear);
-        let* _      = putPaddedInt32At!(20, 2, '0', x.constructMth);
-        let* _      = putInt32At!(21, x.maintPlant);
-        let* _      = putStringAt!(26, x.workCenter);
-        let* _      = putInt32At!(28, x.companyCode);           /// AC BukrEilo
-        let* _      = putInt32At!(33, x.coArea);                /// AH 
-        let* _      = putInt32At!(37, x.planningPlant);
-        let* _      = putStringAt!(39, x.mainWorkCenter);
-        let* _      = putInt32At!(40, x.plantWorkCenter);
+        let* _      = putInt32At!(0, x.plantWorkCenter);
+        let* _      = putStringAt!(1, x.equiId);
+        let* _      = putStringAt!(2, x.equipCategory);
+        let* _      = putStringAt!(3, x.description);
+        let* _      = putS4DateAt!(4, x.validFrom);
+        let* _      = putStringAt!(5, x.objectType);
+        let* _      = putOptionFloat64At!(7, x.grossWeight);
+        let* _      = putStringAt!(8, x.unitOfWeight);
+        let* _      = putS4DateAt!(11, x.startupDate);
+        let* _      = putStringAt!(15, x.manufacturer);
+        let* _      = putStringAt!(16, x.modelNumber);
+        let* _      = putStringAt!(17, x.manufPartNo);
+        let* _      = putStringAt!(18, x.manufSerialNo);
+        let* _      = putInt32At!(20, x.constructYear);
+        let* _      = putPaddedInt32At!(21, 2, '0', x.constructMth);        /// simpler to have a paddedInt function and putStringAt!
+        let* _      = putInt32At!(22, x.maintPlant);
+        let* _      = putStringAt!(27, x.workCenter);
+        let* _      = putInt32At!(29, x.companyCode);           /// AD BukrEilo
+        let* _      = putInt32At!(34, x.coArea);                /// AI 
+        let* _      = putInt32At!(38, x.planningPlant);
+        let* _      = putStringAt!(40, x.mainWorkCenter);
         let* _      = putStringAt!(42, x.functionalLoc);
         let* _      = putStringAt!(43, x.superordEquip);
         let* _      = putStringAt!(44, position4(x.position));
@@ -179,6 +178,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setEqMultilingualText!(x)), xs)
 
+    /// (1909)
     def setEqMultilingualText!(x: EqMultilingualText): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
@@ -199,6 +199,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = setCursor!(s1, 6);
         mapX(x -> appendRow(s1, setEqClassification!(x)), xs)
 
+    /// (1909)
     def setEqClassification!(x: EqClassification): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
@@ -206,10 +207,9 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putS4BoolAt!(1, x.deleteInd);
         let* _      = putStringAt!(2, x.classType);
         let* _      = putStringAt!(3, x.className);
-        let* _      = putStringAt!(4, x.status);
-        let* _      = putStringAt!(5, x.characteristicName);
-        let* _      = putStringAt!(6, x.charValue);
-        let* _      = putS4BoolAt!(7, x.charDeleteInd);
+        let* _      = putStringAt!(4, x.characteristicName);
+        let* _      = putStringAt!(5, x.charValue);
+        let* _      = putS4BoolAt!(6, x.charDeleteInd);
         return()
 
 

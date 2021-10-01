@@ -63,6 +63,7 @@ namespace AssetLib/S4Lite/Datatypes {
         , structureIndicator :: String
         , objectType :: String
         , startupDate :: Time.LocalDate
+        , position :: Option[Int32]
         , superiorFloc :: String
         , equipmentInstall :: Bool
         , status :: String
