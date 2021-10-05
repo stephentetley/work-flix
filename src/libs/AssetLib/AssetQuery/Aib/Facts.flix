@@ -16,11 +16,10 @@
 
 
 
-namespace Hierarchy/Facts {
+namespace AssetQuery/Aib/Facts {
 
     use Text/Regex.MatchEvaluator;
-    use RelLib.{RegexExtractor};
-    use Hierarchy/Loader.{ExportRow};
+    use AssetQuery/Aib/Loader.{ExportRow};
 
     pub rel Equipment(plinum: String, equiType: String, flocName: String)
 
@@ -32,7 +31,7 @@ namespace Hierarchy/Facts {
 
     pub def getEquipment(rows: List[ExportRow]): Result[#{Equipment |r}, String] & Impure = 
         let patt = "^(?<flocName>.+)/EQUIPMENT: (?<equiType>.+)$" |> RelLib/RegexExtractor.unsafeCompileRegex;
-        RelLib/Relation.foldMapResult(x1 -> Text/Regex.evalMatches(x1.commonName, patt, getEquipment1(x1.reference)), rows)
+        RelLib/Relation.foldMapResult(x1 -> Text/Regex.evalMatches(patt, getEquipment1(x1.reference), x1.commonName), rows)
 
 
     /// This should be pure?

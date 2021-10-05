@@ -15,19 +15,18 @@
  */
 
 
-
-namespace Hierarchy/Loader {
+namespace AssetQuery/Aib/Loader {
 
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
     type alias ExportRow = 
-        { reference: String
-        , commonName: String
-        , installedFrom: Time.LocalDate
-        , hkey: String
-        , assetStatus: String
-        , gridref: String
+        { reference :: String
+        , commonName :: String
+        , installedFrom :: Time.LocalDate
+        , hkey :: String
+        , assetStatus :: String
+        , gridref :: String
         }
 
 
@@ -51,8 +50,5 @@ namespace Hierarchy/Loader {
             <*> getTrimmedContentNamed("Hierarchy Key")
             <*> getTrimmedContentNamed("AssetStatus")
             <*> getTrimmedContentNamed("Loc.Ref.")
-
-
-
 
 }

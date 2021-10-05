@@ -16,11 +16,10 @@
 
 
 
-namespace Hierarchy/Organize {
+namespace Hierarchy/Organize1 {
 
     use RelLib.{RegexExtractor};
-    use Hierarchy/Loader.{ExportRow};
-
+    
 
     pub rel Organization(system: String, subsystem: String, description: String)
     pub rel BoosterSet(num: Int32)
@@ -59,8 +58,6 @@ namespace Hierarchy/Organize {
         , evaluator = lift2((x1, x2) -> #{ FinalEffPump(x1, x2). }, getCaptureNamed("pandi"), getInt32Named("pump"))
         }
 
-
-    
 
     pub def getEquipmentName(): RegexExtractor[String] & Impure = 
         use Text/Regex/MatchEvaluator.{getCaptureNamed, map};

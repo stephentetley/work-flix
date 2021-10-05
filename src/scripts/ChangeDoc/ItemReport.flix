@@ -28,7 +28,7 @@ namespace ChangeDoc/ItemReport {
     /// Note - qjbrowser / TyRuBa-JQuery build relations differently - they build a single big
     /// jointable then recover the hierarchy with an organization criteria.
     /// 
-    /// Currently (at least) we are building multiple tables of relations.
+    /// We are building multiple tables of relations to match the output report.
     
     type alias ItemReportConfig = 
         { flocClassList :: System.FilePath
@@ -146,18 +146,16 @@ namespace ChangeDoc/ItemReport {
     /// ## Floc
 
     pub def buildFlocRows(xs: List[FlocTabItem], db: #{Attribute | r}): Array[FlocRow] & Impure = 
-        let attrs = makeAttributes(db);
-        let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
+        let attrs = makeAllAttributes(db);
         List.toArray(xs)
-            |> Array.map(makeFlocRow1)
-            |> RelLib/Organization.updateWithLookup(x1 -> x1.internalFloc, updateAttrs, attrs)
+            |> Array.map(makeFlocRow1(attrs))
 
 
-    def makeFlocRow1(x: FlocTabItem): FlocRow = 
+    def makeFlocRow1(allAttrs: Map[String, Map[String, String]], x: FlocTabItem): FlocRow = 
         { internalFloc          = x.internalFuncloc
         , functionalLocation    = x.funcloc
         , description           = x.description
-        , attributes            = Map.empty()
+        , attributes            = Map.getWithDefault(x.internalFuncloc, Map.empty(), allAttrs)
         }
 
     pub def writeFlocRows(path: System.FilePath, arr: Array[FlocRow]): Result[Unit, String] & Impure = 
@@ -242,18 +240,16 @@ namespace ChangeDoc/ItemReport {
         }
 
     pub def buildEquiRows(db: #{Equipment, Attribute | r}): Array[EquiRow] & Impure = 
-        let attrs = makeAttributes(db);
-        let updateAttrs = (row, attrs1) -> {attributes = attrs1 | row};
+        let attrs = makeAllAttributes(db);
         query db select (x1, x2) from Equipment(x1, x2) 
-            |> Array.map(makeEquiRow1)
-            |> RelLib/Organization.updateWithLookup(x1 -> x1.equiId, updateAttrs, attrs)
+            |> Array.map(makeEquiRow1(attrs))
 
 
-    def makeEquiRow1(x: (String, String)): EquiRow = 
+    def makeEquiRow1(allAttrs: Map[String, Map[String, String]], x: (String, String)): EquiRow = 
         let (x1, x2) = x;
         { equiId        = x1
         , description   = x2
-        , attributes    = Map.empty()
+        , attributes    = Map.getWithDefault(x1, Map.empty(), allAttrs)
         }
 
     pub def addEquiRows(path: System.FilePath, arr: Array[EquiRow]): Result[Unit, String] & Impure = 
@@ -519,11 +515,11 @@ namespace ChangeDoc/ItemReport {
 
     /// Helpers
 
-    def makeAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
-        let key1of3 = xyz -> {let (x1, _, _) = xyz; x1};
-        let innerKV = xyz -> {let (_, y1, z1) = xyz; (y1, z1)};
+    def makeAllAttributes(db: #{Attribute |r}): Map[String, Map[String, String]] & Impure = 
+        let key1of3 = RelLib/Tuple.decons3((x1, _, _) -> x1);
+        let innerKV = RelLib/Tuple.decons3((_, y1, z1) -> (y1, z1));
         query db select (x1, x2, x3) from Attribute(x1, x2, x3) 
-            |> RelLib/Organization.collectToMapMap(key1of3, innerKV)
+            |> RelLib/Organization.intoMapMap(key1of3, innerKV)
 
 
         

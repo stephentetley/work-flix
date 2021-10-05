@@ -22,6 +22,7 @@ namespace AssetLib/GenS4/Patch {
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
 
     /// TODO can we use RelLib/Relation.Organization instead?
+    /// Also can patches be first-order, rather than update functions?
 
     type alias EquipmentPatches = MutMap[String, SLEquipment -> SLEquipment]
 
