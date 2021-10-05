@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-namespace AssetLib/AssetModels/GeneralStructure/ExportJson {
+namespace AssetLib/AssetQuery/S4/ExportJson {
 
     use BasicJson.JsonValue;
     use BasicJson/JsonBuilder.JsObject;
 
-    use AssetLib/AssetModels/GeneralStructure/Datatypes.{GSSite, GSFunction, 
+    use AssetLib/AssetQuery/S4/Datatypes.{GSSite, GSFunction, 
         GSProcessGroup, GSProcess, GSSystem, GSSubsystem, GSEquipment, GSSubequipment};
 
     /// This is very slow, must find out whether it is building the JSON / pretty printing it / ...

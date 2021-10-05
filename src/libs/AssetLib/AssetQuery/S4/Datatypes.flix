@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/AssetModels/GeneralStructure/Datatypes {
+namespace AssetLib/AssetQuery/S4/Datatypes {
 
     type alias GSSite = 
         { funcloc :: String

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-namespace AssetLib/AssetModels/GeneralStructure/Builder {
+namespace AssetLib/AssetQuery/S4/Builder {
 
     use Data.RoseTree.{RoseTree};
 
     
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06Tree, IH06Node, FlocNode, EquiNode};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
-    use AssetLib/AssetModels/GeneralStructure/Datatypes.{GSSite, GSFunction, 
+    use AssetLib/AssetQuery/S4/Datatypes.{GSSite, GSFunction, 
         GSProcessGroup, GSProcess, GSSystem, GSSubsystem, GSEquipment, GSSubequipment};
 
     /// How do we know the starting level of the input? 
