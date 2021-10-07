@@ -12,41 +12,20 @@ def main1(): Result[Unit, String] & Impure =
                 sheet="Sheet1"};
     let* rows  = AssetQuery/Aib/Loader.loadExportRows(src);
 
-    let names = allCommonNames(rows);
+    let parents = AssetLib/AssetQuery/Extra/AibHierarchyNames.getParentNamesMap(rows);
 
-    rows |> List.foreach(printRow(names) >> println);
+    rows |> List.foreach(printRow(parents) >> println);
 
     Ok()  
 
 
-def printRow(allNames: Set[String], x1: ExportRow): String = 
-    match getParentIfEqui(allNames, x1.commonName) {
-        case Some(name) => "${x1.commonName},${name}"
+def printRow(parents: Map[String, String], x1: ExportRow): String = 
+    match Map.get(x1.reference, parents) {
+        case Some(name) => 
+            if (String.contains(x1.commonName, "EQUIPMENT: "))
+                "${x1.commonName},${AssetLib/Base/Utils.properCaseName(name)}"
+            else "${x1.commonName},"
         case None => "${x1.commonName},"
     }
 
-def allCommonNames(xs: List[ExportRow]): Set[String] = 
-    List.foldLeft((s, x1) -> Set.insert(x1.commonName, s), Set.empty(), xs)
 
-
-def getParentIfEqui(s: Set[String], name: String): Option[String] = 
-    if (String.contains(name, "EQUIPMENT: "))
-        getParent(s, name) |> Option.map(AssetLib/Base/Utils.properCaseName)
-    else 
-        None
-
-def getParent(s: Set[String], name: String): Option[String] = 
-    let strip = start -> Option.flatMap(String.stripPrefix(start));
-    let parentFull = getLongestPrefix(s, name);
-    let pref = getLongestPrefix(s, parentFull);
-    String.stripPrefix(pref, parentFull) 
-        |> strip("/")
-        
-
-def getLongestPrefix(s: Set[String], name: String): String = 
-    let step = (ac, x) -> {
-        if (String.startsWith(name, x) and String.length(x) < String.length(name)) {
-            if (String.length(x) > String.length(ac)) x else ac
-        } else ac
-    };
-    Set.foldLeft(step, "", s)
