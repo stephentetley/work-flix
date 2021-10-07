@@ -22,7 +22,6 @@ namespace AssetLib/AssetQuery/S4/ExportJson {
     use AssetLib/AssetQuery/S4/Datatypes.{GSSite, GSFunction, 
         GSProcessGroup, GSProcess, GSSystem, GSSubsystem, GSEquipment, GSSubequipment};
 
-    /// This is very slow, must find out whether it is building the JSON / pretty printing it / ...
 
     pub def exportJson(path: System.FilePath, x: GSSite): Result[Unit, String] & Impure =
         let _ = Console.printLine("Building JSON... ${Time/LocalTime.now()}");
