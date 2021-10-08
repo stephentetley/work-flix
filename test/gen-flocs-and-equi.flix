@@ -1,28 +1,31 @@
 use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
-use AssetLib/GenS4/GenUxl.{GenEquiArguments};
+use AssetLib/GenS4/GenUxl.{GenUxlSource};
 
 def outputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/1909_AIW_MOCR_Template.xlsx")
-    , changeRequestName = "AMP 7 Leger Way"
-    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/leg01/output/1909_leger_way.xlsx")
+    , changeRequestName = "R/1238/001 Embsay STW Ferric (BF) 14/09/21"
+    , outpath = System/FilePath.new("G:/work/assets/capital_schemes/embsay/output/embsay_stw_ferric_uxl.xlsx")
+    /// , nameRoot = "embsay_stw_ferric"
     }
 
-def equiArgs(): GenEquiArguments = 
-    { aibEquipmentExport = 
-        {path = System/FilePath.new("G:/work/assets/capital_schemes/leg01/leger-way-equipment-export.xlsx"), sheet = "Sheet1"}
-    , aibMemosExport = 
-        {path = System/FilePath.new("G:/work/assets/capital_schemes/leg01/leger-way-memos-export.xlsx"), sheet = "Sheet1"}
-    , aibAgaspExport = 
-        {path = System/FilePath.new("G:/work/assets/capital_schemes/leg01/leger-way-agasp-export.xlsx"), sheet = "Sheet1"}
+def sourceFiles(): GenUxlSource = 
+    let workBook = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ferric-worklist.xlsx");
+    { flocWorkList = Some({path = workBook, sheet = "Floc"})
+    , equiWorkList = Some({path = workBook, sheet = "Equi"})
+    , facts =
+        { aibEquipmentExport = 
+            {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-equipment-export.xlsx"), sheet = "Sheet1"}
+        , aibMemosExport = 
+            {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-memos-export.xlsx"), sheet = "Sheet1"}
+        , aibAgaspExport = 
+            {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-agasp-export.xlsx"), sheet = "Sheet1"}
+        }
     }
 
 
 def main(_args: Array[String]): Int32 & Impure =  
-    Console.printLine("Running... ${Time/LocalTime.now()}");
-    let workBook = System/FilePath.new("G:/work/assets/capital_schemes/leg01/leger-way-worklist.xlsx");
-    let flocWorkList = {path = workBook, sheet = "FlocWorkList"};
-    let equiWorkList = {path = workBook, sheet = "EquiWorkList"};                        
-    let ans = AssetLib/GenS4/GenUxl.generateCombinedUxl(flocWorkList, equiWorkList, equiArgs(), outputArgs());
+    Console.printLine("Running... ${Time/LocalTime.now()}");                  
+    let ans = AssetLib/GenS4/GenUxl.generateUxl(sourceFiles(), outputArgs());
     match ans {
         case Ok() => Console.printLine("Success, wrote ${outputArgs().outpath}")
         case Err(msg) => Console.printLine("Error: ${msg}")

@@ -25,18 +25,30 @@ namespace AssetLib/GenS4/GenUxl {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
 
-    type alias GenEquiArguments = 
+    type alias GenUxlSource = 
+        { flocWorkList :: Option[XlsxSource]
+        , equiWorkList :: Option[XlsxSource]
+        , facts :: FactExports
+        }
+
+    type alias FactExports =         
         { aibEquipmentExport :: XlsxSource
         , aibMemosExport :: XlsxSource
         , aibAgaspExport :: XlsxSource
         }
 
-    pub def generateCombinedUxl(flocWorkList: XlsxSource, 
-                            equiWorkList: XlsxSource, 
-                            genEquiArgs: GenEquiArguments, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+    /// Must work with batching...
+    pub def generateUxl(src: GenUxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        let* flocs  = AssetLib/GenS4/GenMonad.execGenMonad(genFlocUxl(flocWorkList));
-        let* equis  = AssetLib/GenS4/GenMonad.execGenMonad(genEquiUxl(genEquiArgs, equiWorkList));
+        use AssetLib/GenS4/GenMonad.{execGenMonad, return};
+        let* flocs  = match src.flocWorkList { 
+            case Some(x1) => execGenMonad(genFlocUxl(x1))
+            case None => execGenMonad(return())
+        };
+        let* equis  = match src.equiWorkList { 
+            case Some(x1) => execGenMonad(genEquiUxl(src.facts, x1))
+            case None => execGenMonad(return())
+        };
         let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis));
         Ok()
 
@@ -58,14 +70,14 @@ namespace AssetLib/GenS4/GenUxl {
         return()
 
 
-    pub def generateEquiUxl(genEquiArgs: GenEquiArguments, workList: XlsxSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+    pub def generateEquiUxl(genEquiArgs: FactExports, workList: XlsxSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let* equis  = AssetLib/GenS4/GenMonad.execGenMonad(genEquiUxl(genEquiArgs, workList));
         let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, equis);
         Ok()
 
     /// Empty string for no solution id.
-    pub def genEquiUxl(args: GenEquiArguments, workList: XlsxSource): GenMonad[Unit] = 
+    pub def genEquiUxl(args: FactExports, workList: XlsxSource): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return, liftAction};
         let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(workList);
         let* _          = liftAction(_ -> Console.printLine("workitems count: ${List.length(workitems)}"));

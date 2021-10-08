@@ -93,6 +93,10 @@ namespace AssetLib/AssetQuery/Extra/S4EquiType {
 
         S4EquiType(itemId, "M", "STRN", "STRNER") :- 
             AibEquiType(itemId, "EQUIPMENT: STRAINER").
+
+        S4EquiType(itemId, "E", "SLIP", "SLIPRA") :- 
+            AibEquiType(itemId, "EQUIPMENT: SLIP RING ASSEMBLY").
+            
     }
 
 }
