@@ -24,7 +24,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
     use AssetLib/GenS4.{GenMonad};
 
 
-    /// This reads a record not a relation!
+    /// This reads a record not a relation.
 
 
     /// P AND I Tag No

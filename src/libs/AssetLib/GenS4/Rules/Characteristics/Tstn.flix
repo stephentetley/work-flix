@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
     pub def genTstn(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentFacts(src);
         tstn(workitems <+> facts)
 
 

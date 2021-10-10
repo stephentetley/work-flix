@@ -28,10 +28,11 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
 
     /// Read from Aib file...
 
+    type alias ElectricalFacts[r: SchemaRow] = 
+        #{CurrentInA, InsulationClass, IPRating, Power, SpeedRPM, VoltageIn | r}
 
-    pub def readElectricalData(src: XlsxSource): GenMonad[#{CurrentInA, InsulationClass, 
-                                                            IPRating, Power, SpeedRPM,
-                                                            VoltageIn | r}] =
+
+    pub def readElectricalFacts(src: XlsxSource): GenMonad[ElectricalFacts[r]] =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalElectrical()))
         
 

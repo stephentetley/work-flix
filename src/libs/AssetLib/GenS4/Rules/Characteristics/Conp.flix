@@ -34,7 +34,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
     pub def genConp(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts(src);
         conp(workitems <+> facts)
 
 

@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pstn {
     pub def genPstn(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentFacts(src);
         pstn(workitems <+> facts)
 
     pub def pstn(input: #{EquiWorkItem3, RangeMinMax, SignalMinMax, 

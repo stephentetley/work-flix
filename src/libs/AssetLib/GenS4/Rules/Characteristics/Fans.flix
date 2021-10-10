@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fans {
     pub def genFans(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Fan.readFanData(src);
+        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Fan.readFanFacts(src);
         fans(workitems <+> facts) 
 
     rel S4FanType(aibType: String, s4Type: String)

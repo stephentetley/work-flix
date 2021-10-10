@@ -28,12 +28,15 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Fan {
     /// Read from Aib file...
 
 
-    pub def readFanData(src: XlsxSource): GenMonad[#{SpeedRPM, TypeOfFan, RatingPower | r}] =
+    type alias FanFacts[r: SchemaRow] = 
+        #{SpeedRPM, TypeOfFan, RatingPower | r}
+
+    pub def readFanFacts(src: XlsxSource): GenMonad[FanFacts[r]] =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalFan()))
         
 
 
-    def evalFan(): NamedRowEvaluator[#{SpeedRPM, TypeOfFan, RatingPower | r}] =
+    def evalFan(): NamedRowEvaluator[FanFacts[r]] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(evalSpeedRPM(), #{});
         let* c2 = withDefault(evalTypeOfFan(), #{});

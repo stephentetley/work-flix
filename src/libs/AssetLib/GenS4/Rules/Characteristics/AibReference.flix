@@ -35,6 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         let aibrefs     = RelLib/Relation.foldMap(makeFlocAibRef, worklist);
         flocAibReference(workitems <+> aibrefs)
 
+
     /// Case specific WorkItem...
     pub rel FlocAibRefWorkItem(floc: String)
     

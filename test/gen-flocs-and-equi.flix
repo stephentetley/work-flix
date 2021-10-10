@@ -10,6 +10,7 @@ def outputArgs(): UxlOutputArgs =
 
 def sourceFiles(): GenUxlSource = 
     let workBook = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ferric-worklist.xlsx");
+    let opts = AssetLib/GenS4/GenUxl.emptyOptionalExports();
     { flocWorkList = Some({path = workBook, sheet = "Floc"})
     , equiWorkList = Some({path = workBook, sheet = "Equi"})
     , facts =
@@ -20,6 +21,12 @@ def sourceFiles(): GenUxlSource =
         , aibAgaspExport = 
             {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-agasp-export.xlsx"), sheet = "Sheet1"}
         }
+    , optionalFacts = 
+        { aibElectricalExport =
+            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-electrical-export.xlsx"), sheet = "Sheet1"})
+        , aibInstrumentExport =
+            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-instrument-export.xlsx"), sheet = "Sheet1"})
+        | opts}
     }
 
 

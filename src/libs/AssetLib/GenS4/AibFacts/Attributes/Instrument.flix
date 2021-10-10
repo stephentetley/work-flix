@@ -26,12 +26,13 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
 
     /// Read from Aib file...
 
+    type alias InstrumentFacts[r: SchemaRow] = #{RangeMinMax, SignalMinMax, Transducer | r}
 
-    pub def readInstrumentData(src: XlsxSource): GenMonad[#{RangeMinMax, SignalMinMax, Transducer | r}] =
+    pub def readInstrumentFacts(src: XlsxSource): GenMonad[InstrumentFacts[r]] =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalInstrument()))
     
 
-    def evalInstrument(): NamedRowEvaluator[#{RangeMinMax, SignalMinMax, Transducer | r}] =
+    def evalInstrument(): NamedRowEvaluator[InstrumentFacts[r]] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(evalRangeMinMax(), #{});
         let* c2 = withDefault(evalSignalMinMax(), #{});

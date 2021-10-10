@@ -32,16 +32,22 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
     /// src should be electrical facts
-    pub def genActu(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalData(src);
-        actu(workitems <+> facts)
+    /// pub def genActu(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
+    ///     use AssetLib/GenS4/GenMonad.{flatMap};
+    ///     let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
+    ///     let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts(src);
+    ///     actu(workitems <+> facts)
+
+    pub def genActu(workitems: #{EquiWorkItem3 | r1}, facts: ActuFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as ActuFacts[r1];
+        actu(workitems1 <+> facts)
 
 
-    pub def actu(input: #{EquiWorkItem3, CurrentInA, InsulationClass, 
-                            IPRating, Power, VoltageIn, S4InsulationClass, 
-                            EquiCharacteristic | r1}): GenMonad[Unit] = 
+    type alias ActuFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, Power, VoltageIn, S4InsulationClass, 
+            EquiCharacteristic | r1}
+
+    pub def actu(input: ActuFacts[r1]): GenMonad[Unit] = 
         let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "ACTU", s4Class),
