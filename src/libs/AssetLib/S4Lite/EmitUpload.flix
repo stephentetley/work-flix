@@ -113,11 +113,6 @@ namespace AssetLib/S4Lite/EmitUpload {
 
     /// EQUI
 
-    pub def renumberSLEquiCharacteristics(sourceKeyMap: Map[String, String], 
-                                            s4ChangeRequstEquitab: XlsxSource, 
-                                            xs: Chain[SLEquiCharacteristic]): Result[Chain[SLEquiCharacteristic], String] & Impure = 
-        AssetLib/S4Lite/Internal/Phase2Renumber.renumber(sourceKeyMap, s4ChangeRequstEquitab, Chain.toList(xs)) 
-            |> Result.map(Chain.fromList)
 
     pub def allClassFilter(): ClassEquiRow -> Bool = _row -> true
 

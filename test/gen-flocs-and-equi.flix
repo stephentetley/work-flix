@@ -5,7 +5,6 @@ def outputArgs(): UxlOutputArgs =
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/1909_AIW_MOCR_Template.xlsx")
     , changeRequestName = "R/1238/001 Embsay STW Ferric (BF) 14/09/21"
     , outpath = System/FilePath.new("G:/work/assets/capital_schemes/embsay/output/embsay_stw_ferric_uxl.xlsx")
-    /// , nameRoot = "embsay_stw_ferric"
     }
 
 def sourceFiles(): GenUxlSource = 
