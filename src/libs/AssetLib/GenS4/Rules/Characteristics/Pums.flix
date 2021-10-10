@@ -30,17 +30,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
 
-    /// src should be pump facts
-    pub def genPums(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Pump.readPumpData(src);
-        pums(workitems <+> facts)
+
+    type alias PumsFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, DiaphragmMaterial, DutyHead,  Flow, ImpellerType, PumpLiftingType, RatingPower, 
+            EquiCharacteristic  | r1}
+
+    pub def genPums(workitems: #{EquiWorkItem3 | r1}, facts: PumsFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as PumsFacts[r1];
+        pums(workitems1 <+> facts)
 
 
-    pub def pums(input: #{EquiWorkItem3, DiaphragmMaterial, DutyHead,
-                            Flow, ImpellerType, PumpLiftingType, RatingPower, 
-                            EquiCharacteristic | r}): GenMonad[Unit] = 
+    pub def pums(input: PumsFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMS_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMS", s4Class),

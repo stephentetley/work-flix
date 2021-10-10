@@ -28,21 +28,18 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
 
 
     /// Read from Aib file...
+    type alias TankFacts[r: SchemaRow] =
+        #{TankConstruction, TankLevel, TankShape, UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
+            UnitLengthM, UnitSideDepthM, UnitSideDepthMinM, UnitSideDepthMaxM | r}
 
 
-    pub def readTankData(src: XlsxSource): GenMonad[#{TankConstruction, TankLevel, TankShape,
-                                                        UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
-                                                        UnitLengthM, UnitSideDepthM, 
-                                                        UnitSideDepthMinM, UnitSideDepthMaxM | r}] =
+    pub def readTankFacts(src: XlsxSource): GenMonad[TankFacts[r]] =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalTank()))
         
     
 
 
-    def evalTank(): NamedRowEvaluator[#{TankConstruction, TankLevel, TankShape,
-                                        UnitCapacityCum, UnitCentreDepthM, UnitDiameterM,
-                                        UnitLengthM, UnitSideDepthM, 
-                                        UnitSideDepthMinM, UnitSideDepthMaxM | r}] =
+    def evalTank(): NamedRowEvaluator[TankFacts[r]] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(evalTankConstruction(), #{});
         let* c2 = withDefault(evalTankLevel(), #{});

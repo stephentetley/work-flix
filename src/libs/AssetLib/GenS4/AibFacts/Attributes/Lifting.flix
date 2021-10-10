@@ -26,12 +26,14 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
     /// Read from Aib file...
 
+    type alias LiftingFacts[r: SchemaRow] = #{WorkLoad, TestCertNo, YWRef | r}
 
-    pub def readLiftingData(src: XlsxSource): GenMonad[#{WorkLoad, TestCertNo, YWRef | r}]  =
+
+    pub def readLiftingFacts(src: XlsxSource): GenMonad[#{WorkLoad, TestCertNo, YWRef | r}]  =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalLifting()))
 
 
-    def evalLifting(): NamedRowEvaluator[#{WorkLoad, TestCertNo, YWRef | r}] =
+    def evalLifting(): NamedRowEvaluator[LiftingFacts[r]] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(evalWorkLoad(), #{});
         let* c2 = withDefault(evalTestCertNo(), #{});
@@ -39,7 +41,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
         return(c1 <+> c2 <+> c3)
 
 
-    def evalWorkLoad(): NamedRowEvaluator[#{WorkLoad | r}] =
+    def evalWorkLoad(): NamedRowEvaluator[LiftingFacts[r]] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("Work Load", 
             "Work Load Units", (x1, x2, x3) -> #{ WorkLoad(x1, x2, x3). })
 

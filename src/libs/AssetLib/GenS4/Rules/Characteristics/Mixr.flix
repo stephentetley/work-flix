@@ -29,19 +29,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mixr {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
-    /// /// src should be (SpeedRPM / PowerKW...)
-    /// pub def genMixr(worklist: List[EquiWorkItem], src: XlsxSource): Result[Chain[SLEquiCharacteristic], String] & Impure =
-    ///     use Result.{flatMap};
-    ///     let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-    ///     let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);
-    ///     let ans         = lisl(workitems <+> facts);
-    ///     Ok(ans) 
+
+    type alias MixrFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, RatingPower, SpeedRPM, EquiCharacteristic | r1}
+
+    pub def genMixr(workitems: #{EquiWorkItem3 | r1}, facts: MixrFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as MixrFacts[r1];
+        mixr(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def mixr(input: #{EquiWorkItem3, 
-                            RatingPower, SpeedRPM, 
-                            EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def mixr(input: MixrFacts[r1]): GenMonad[Unit] = 
         let rules = #{
 
             /// Not generated for static mixer

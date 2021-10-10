@@ -27,16 +27,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
 
-    /// src should be valve facts
-    pub def genValv(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Valve.readValveData(src);
-        valv(workitems <+> facts)
+
+    type alias ValvFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, ValveSize, EquiCharacteristic | r1}
+
+    pub def genValv(workitems: #{EquiWorkItem3 | r1}, facts: ValvFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as ValvFacts[r1];
+        valv(workitems1 <+> facts)
 
 
-    pub def valv(input: #{EquiWorkItem3, ValveSize,
-                            EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def valv(input: ValvFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
                 EquiWorkItem3(equiId, "VALV", s4Class),

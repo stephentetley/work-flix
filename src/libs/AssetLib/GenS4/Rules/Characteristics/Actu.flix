@@ -31,21 +31,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
     
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
-    /// src should be electrical facts
-    /// pub def genActu(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-    ///     use AssetLib/GenS4/GenMonad.{flatMap};
-    ///     let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-    ///     let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts(src);
-    ///     actu(workitems <+> facts)
+    type alias ActuFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, Power, VoltageIn, S4InsulationClass, 
+            EquiCharacteristic | r1}
 
     pub def genActu(workitems: #{EquiWorkItem3 | r1}, facts: ActuFacts[r1]): GenMonad[Unit] =
         let workitems1 = workitems as ActuFacts[r1];
         actu(workitems1 <+> facts)
 
-
-    type alias ActuFacts[r1: SchemaRow] = 
-        #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, Power, VoltageIn, S4InsulationClass, 
-            EquiCharacteristic | r1}
 
     pub def actu(input: ActuFacts[r1]): GenMonad[Unit] = 
         let rules = s4InsulationClassRules() <+> #{

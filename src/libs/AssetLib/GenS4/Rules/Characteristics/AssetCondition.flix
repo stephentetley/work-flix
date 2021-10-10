@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
     pub def genAssetCondition(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts = AssetLib/GenS4/AibFacts/Attributes/AssetCondition.readAgaspData(src);
+        let* facts = AssetLib/GenS4/AibFacts/Attributes/AssetCondition.readAgaspFacts(src);
         assetCondition(workitems <+> facts)
 
 

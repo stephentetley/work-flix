@@ -30,20 +30,19 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
     
     
     
-    /// src should be electrical facts
-    pub def genStar(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts(src);
-        star(workitems <+> facts)
+
+
+    type alias StarFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, CurrentInA, IPRating, SpeedRPM, Power, VoltageIn, EquiCharacteristic | r1}
+
+    pub def genStar(workitems: #{EquiWorkItem3 | r1}, facts: StarFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as StarFacts[r1];
+        star(workitems1 <+> facts)
 
 
     /// TODO "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
 
-    pub def star(input: #{EquiWorkItem3, CurrentInA,
-                            IPRating, SpeedRPM, Power, 
-                            VoltageIn, 
-                            EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def star(input: StarFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),

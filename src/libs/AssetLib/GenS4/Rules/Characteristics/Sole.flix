@@ -28,15 +28,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         S4InsulationClass, s4InsulationClassRules};
 
-    /// src should be electrical facts
-    pub def genSole(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts(src);
-        sole(workitems <+> facts)
+    type alias SoleFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, S4InsulationClass, EquiCharacteristic | r1}
 
-    pub def sole(input: #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, S4InsulationClass,
-                            EquiCharacteristic | r}): GenMonad[Unit] =
+    pub def genSole(workitems: #{EquiWorkItem3 | r1}, facts: SoleFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as SoleFacts[r1];
+        sole(workitems1 <+> facts)
+
+    pub def sole(input: SoleFacts[r1]): GenMonad[Unit] =
         let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "SOLE", s4Class),

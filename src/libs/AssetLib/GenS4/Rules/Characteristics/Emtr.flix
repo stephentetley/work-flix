@@ -39,7 +39,6 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
         emtr(workitems1 <+> facts)
 
 
-
     /// IP_RATING should be generated on per type (per class?)
     pub def emtr(input: EmtrFacts[r1]): GenMonad[Unit] = 
         let rules = s4InsulationClassRules() <+> #{

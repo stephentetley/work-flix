@@ -27,18 +27,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
 
-    /// src should be lifting facts
-    pub def genCrht(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);
-        crht(workitems <+> facts)
+
+    type alias CrhtFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
 
 
+    pub def genCrht(workitems: #{EquiWorkItem3 | r1}, facts: CrhtFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as CrhtFacts[r1];
+        crht(workitems1 <+> facts)
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def crht(input: #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, 
-                            EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def crht(input: CrhtFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "CRHT", s4Class),

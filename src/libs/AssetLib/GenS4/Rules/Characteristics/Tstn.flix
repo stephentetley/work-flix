@@ -29,17 +29,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
 
 
 
-    /// src should be instrument facts
-    pub def genTstn(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentFacts(src);
-        tstn(workitems <+> facts)
+    type alias TstnFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
+
+    pub def genTstn(workitems: #{EquiWorkItem3 | r1}, facts: TstnFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as TstnFacts[r1];
+        tstn(workitems1 <+> facts)
 
 
 
-    pub def tstn(input: #{EquiWorkItem3, RangeMinMax, SignalMinMax,
-                            EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def tstn(input: TstnFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "TSTN", s4Class),

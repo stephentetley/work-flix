@@ -28,19 +28,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
-    
 
 
-    /// src should be tank facts
-    pub def genTank(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Tank.readTankData(src);
-        tank(workitems <+> facts)
+    type alias TankFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, TankLevel, TankConstruction, EquiCharacteristic | r1}
+
+    pub def genTank(workitems: #{EquiWorkItem3 | r1}, facts: TankFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as TankFacts[r1];
+        tank(workitems1 <+> facts)
 
 
-    pub def tank(input: #{EquiWorkItem3, TankLevel, 
-                            TankConstruction, EquiCharacteristic | r1}): GenMonad[Unit] =
+    pub def tank(input: TankFacts[r1]): GenMonad[Unit] =
         let rules = #{
             EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(tankLevel(level))) :-
                 EquiWorkItem3(equiId, "TANK", _),

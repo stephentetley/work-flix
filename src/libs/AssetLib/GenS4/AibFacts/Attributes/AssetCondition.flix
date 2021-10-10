@@ -28,15 +28,15 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     /// Read from Aib file...
 
 
-    pub def readAgaspData(src: XlsxSource): GenMonad[#{ConditionGrade, 
-                                                        LoadingFactor, PerformanceGrade,
-                                                        SurveyYear | r}] =
+    type alias AgaspFacts[r: SchemaRow] = 
+        #{ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear  | r}
+
+
+    pub def readAgaspFacts(src: XlsxSource): GenMonad[AgaspFacts[r]] =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalAssetConditionFacts()))
 
 
-    def evalAssetConditionFacts(): NamedRowEvaluator[#{ConditionGrade, 
-                                                        LoadingFactor, PerformanceGrade,
-                                                        SurveyYear | r}] =
+    def evalAssetConditionFacts(): NamedRowEvaluator[AgaspFacts[r]] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
         let* c1 = withDefault(getConditionGrade(), #{});
         let* c2 = withDefault(getLoadingFactor(), #{});

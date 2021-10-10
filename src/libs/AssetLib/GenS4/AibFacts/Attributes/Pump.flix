@@ -26,31 +26,27 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
         DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower};
 
     /// Read from Aib file...
+    type alias PumpFacts[r: SchemaRow] = 
+        #{DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower | r}
 
-
-    pub def readPumpData(src: XlsxSource): GenMonad[#{DiaphragmMaterial, DutyHead,
-                                                    Flow, ImpellerType, PumpLiftingType, 
-                                                    RatingPower | r}]  =
+    pub def readPumpFacts(src: XlsxSource): GenMonad[PumpFacts[r]]  =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalPump()))
         
     
 
 
-    pub def evalPump(): NamedRowEvaluator[#{DiaphragmMaterial, DutyHead,
-                                            Flow, ImpellerType, PumpLiftingType, 
-                                            RatingPower | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
-        let* c1 = withDefault(evalDiaphragmMaterial(), #{});
-        let* c2 = withDefault(evalDutyHead(), #{});
-        let* c3 = withDefault(evalFlow(), #{});
-        let* c4 = withDefault(evalImpellerType(), #{});
-        let* c5 = withDefault(evalPumpLiftingType(), #{});
-        let* c6 = withDefault(evalRatingPower(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6)
+    pub def evalPump(): NamedRowEvaluator[PumpFacts[r]] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};
+        let* c1 = withDefault(evalDutyHead(), #{});
+        let* c2 = withDefault(evalFlow(), #{});
+        let* c3 = withDefault(evalImpellerType(), #{});
+        let* c4 = withDefault(evalPumpLiftingType(), #{});
+        let* c5 = withDefault(evalRatingPower(), #{});
+        return(c1 <+> c2 <+> c3 <+> c4 <+> c5)
 
     
-    def evalDiaphragmMaterial(): NamedRowEvaluator[#{DiaphragmMaterial | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Diaphragm Material", (x1, x2) -> #{ DiaphragmMaterial(x1, x2). })
+    /// def evalDiaphragmMaterial(): NamedRowEvaluator[#{DiaphragmMaterial | r}] =
+    ///     AssetLib/GenS4/AibFacts/Utils.getStringFact2("Diaphragm Material", (x1, x2) -> #{ DiaphragmMaterial(x1, x2). })
 
 
     

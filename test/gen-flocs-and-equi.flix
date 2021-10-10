@@ -26,6 +26,10 @@ def sourceFiles(): GenUxlSource =
             Some({path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-electrical-export.xlsx"), sheet = "Sheet1"})
         , aibInstrumentExport =
             Some({path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-instrument-export.xlsx"), sheet = "Sheet1"})
+        , aibPumpExport = 
+            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-pump-export.xlsx"), sheet = "Sheet1"})
+        , aibValveExport = 
+            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-valve-export.xlsx"), sheet = "Sheet1"})
         | opts}
     }
 

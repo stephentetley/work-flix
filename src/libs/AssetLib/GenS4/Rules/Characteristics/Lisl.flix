@@ -28,17 +28,19 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
-    /// src should be lifting facts
-    pub def genLisl(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);
-        lisl(workitems <+> facts)
+
+
+    type alias LislFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
+
+
+    pub def genLisl(workitems: #{EquiWorkItem3 | r1}, facts: LislFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as LislFacts[r1];
+        lisl(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def lisl(input: #{EquiWorkItem3, WorkLoad, 
-                            TestCertNo, YWRef, EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def lisl(input: LislFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "LISL", s4Class),

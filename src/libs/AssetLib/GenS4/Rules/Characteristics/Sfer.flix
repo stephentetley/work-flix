@@ -28,17 +28,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sfer {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
-    /// src should be lifting facts
-    pub def genSfer(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingData(src);
-        sfer(workitems <+> facts)
+
+    type alias SferFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
+
+    pub def genSfer(workitems: #{EquiWorkItem3 | r1}, facts: SferFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as SferFacts[r1];
+        sfer(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def sfer(input: #{EquiWorkItem3, WorkLoad, 
-                            TestCertNo, YWRef, EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def sfer(input: SferFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "SFER", s4Class),

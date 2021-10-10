@@ -30,16 +30,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
     
 
-    /// src should be electrical facts
-    pub def genConp(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts(src);
-        conp(workitems <+> facts)
+
+    type alias ConpFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, CurrentInA, VoltageIn, EquiCharacteristic | r1}
 
 
-    pub def conp(input: #{EquiWorkItem3, CurrentInA, VoltageIn, 
-                            EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def genConp(workitems: #{EquiWorkItem3 | r1}, facts: ConpFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as ConpFacts[r1];
+        conp(workitems1 <+> facts)
+
+
+    pub def conp(input: ConpFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "CONP", s4Class),

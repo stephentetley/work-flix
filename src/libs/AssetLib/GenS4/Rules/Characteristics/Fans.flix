@@ -26,16 +26,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fans {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
 
-    /// src should be Fan facts
-    pub def genFans(worklist: List[EquiWorkItem], src: XlsxSource): GenMonad[Unit] =
-        use AssetLib/GenS4/GenMonad.{flatMap};
-        let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/Fan.readFanFacts(src);
-        fans(workitems <+> facts) 
+
+    type alias FansFacts[r1: SchemaRow] = 
+        #{EquiWorkItem3, SpeedRPM, RatingPower, TypeOfFan, S4FanType, EquiCharacteristic | r1}
+
+
+    pub def genFans(workitems: #{EquiWorkItem3 | r1}, facts: FansFacts[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as FansFacts[r1];
+        fans(workitems1 <+> facts)
 
     rel S4FanType(aibType: String, s4Type: String)
 
-    pub def fans(input: #{EquiWorkItem3, SpeedRPM, RatingPower, TypeOfFan, S4FanType, EquiCharacteristic | r1}): GenMonad[Unit] = 
+    pub def fans(input: FansFacts[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "FANS_RATED_SPEED_RPM", 1, S4Int(speed)) :- 
                 EquiWorkItem3(equiId, "FANS", s4Class),
