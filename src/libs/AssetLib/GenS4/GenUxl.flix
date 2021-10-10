@@ -71,7 +71,9 @@ namespace AssetLib/GenS4/GenUxl {
             case Some(x1) => execGenMonad(genEquiUxl(src.facts, x1) *> genOptional(src.optionalFacts, x1, #{}))
             case None => execGenMonad(return())
         };
-        let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(true, outputArgs, AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis));
+        let uxlAll  = AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis);
+        /// TODO need to be able to group `uxlAll` into batches (or split into batches before this point...)
+        let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(outputArgs, uxlAll);
         Ok()
 
 

@@ -22,26 +22,21 @@ namespace AssetLib/S4Lite/Internal/FreshRenumber {
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
     
-    /// Exposing `updateSuper` here is a bad API choice - needs to be done elsewhere...
-    pub def equiRenumber(updateSuper: Bool, src: UxlSource): UxlSource & Impure = 
+    /// 
+    pub def equiRenumber(src: UxlSource): UxlSource & Impure = 
         let n1 = AssetLib/S4Lite/Utils.getStartUid();
-        let (st, equis) = Chain.mapAccumLeft(renumberEqui(updateSuper), (n1, Map.empty()), src.equipment);
+        let (st, equis) = Chain.mapAccumLeft(renumberEqui, (n1, Map.empty()), src.equipment);
         let lookups     = snd(st);
         let texts       = Chain.map(renumberLongText(lookups), src.equiLongTexts);
         let chars       = Chain.map(renumberCharacteristic(lookups), src.equiCharacteristics);
         {equipment = equis, equiLongTexts = texts, equiCharacteristics = chars | src}
 
 
-    def renumberEqui(updateSuper: Bool, st: (Int32, Map[String, String]), x: SLEquipment): ((Int32, Map[String, String]), SLEquipment) = 
+    def renumberEqui(st: (Int32, Map[String, String]), x: SLEquipment): ((Int32, Map[String, String]), SLEquipment) = 
         let (n1, lookups) = st;
         let equi0 = x.equiId;
         let equi1 = "$" + "${n1}";
-        let super1 = {
-            if (updateSuper) 
-                if (String.isEmpty(x.superOrdinateEqui)) "" else Map.getWithDefault(x.superOrdinateEqui, "$BAD", lookups)
-            else
-                x.superOrdinateEqui
-        };
+        let super1 = if (String.isEmpty(x.superOrdinateEqui)) "" else Map.getWithDefault(x.superOrdinateEqui, "$BAD", lookups);
         ((n1 + 1, Map.insert(equi0, equi1, lookups)), {equiId = equi1, superOrdinateEqui = super1 | x})
 
     def renumberLongText(lookups: Map[String, String], x: SLEquiLongText): SLEquiLongText = 

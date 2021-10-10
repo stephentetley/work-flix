@@ -24,23 +24,8 @@ namespace AssetLib/GenS4/WorkLists {
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
-    type alias EquiWorkItem = 
-        { equipmentId :: String
-        , s4Name :: String
-        , s4Floc :: String
-        , superEquiId :: String
-        , solutionId :: String
-        , position :: Option[Int32]
-        , s4Category :: String
-        , s4EquiType :: String
-        , s4EquiClass :: String
-        }
 
-
-    pub def makeEquiWorkItem3(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem3(x1.equipmentId, x1.s4EquiType, x1.s4EquiClass). }, xs)
-
-    /// Functional Location (under-developed at the moment)
+    /// Functional Location 
 
     type alias FlocWorkItem = 
         { funcloc :: String
@@ -56,53 +41,6 @@ namespace AssetLib/GenS4/WorkLists {
         , gridRef :: String
         , solutionId :: String
         }
-
-
-
-    /// Read from Aib xlsx export file...
-    pub def readEquiWorkList(src: XlsxSource): GenMonad[List[EquiWorkItem]] =
-        use SheetIO/NamedRowEvaluator.{optional};
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem())))
-        
-    /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
-    /// Note "Equi Class" is now mandatory
-    def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItem] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
-        let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
-        let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
-        let* s4Floc     = map(String.trim, getNonEmptyContentNamed("S4 Floc"));
-        let* superId    = map(String.trim, getContentNamed("Super Equi"));
-        let* solutionId = map(String.trim, getContentNamed("Solution ID"));
-        let* position   = optional(getInt32Named("Position"));
-        let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
-        let* s4Type     = map(String.trim, getNonEmptyContentNamed("Object Type"));
-        let* s4Class    = map(String.trim, getNonEmptyContentNamed("Object Class"));
-        return({ equipmentId = aibref
-                , s4Name = s4Name
-                , s4Floc = s4Floc
-                , superEquiId = superId
-                , solutionId = solutionId
-                , position = position
-                , s4Category = category
-                , s4EquiType = s4Type
-                , s4EquiClass = s4Class
-                })
-
-
- 
-    pub def getEquipmentWorkItemKeyMap(xs: List[EquiWorkItem]): Map[String, String] =
-        let dict1 = buildKeyToDesc(xs);
-        List.foldLeft((ac, x) ->  Map.insert(x.equipmentId, makeThreePartName(x, dict1), ac), Map.empty(), xs)
-        
-    def buildKeyToDesc(xs: List[EquiWorkItem]): Map[String, String] = 
-        List.foldLeft((ac, x) -> Map.insert(x.equipmentId, x.s4Name, ac), Map.empty(), xs)
-
-    def makeThreePartName(x: EquiWorkItem, descs: Map[String, String]): String = 
-        if (not String.isEmpty(x.superEquiId)) {
-            let superName = Map.getWithDefault(x.superEquiId, "Impossible", descs);
-            "${x.s4Name}::${x.s4Floc}::${superName}"
-        } else "${x.s4Name}::${x.s4Floc}::NO_SUPER"
-
 
     /// Flocs
 
@@ -150,6 +88,61 @@ namespace AssetLib/GenS4/WorkLists {
         String.splitOn(s, ";")
             |> List.map(String.trim)
             |> List.filter(s1 -> not String.isEmpty(s1))
+
+    /// Equipment
+
+    type alias EquiWorkItem = 
+        { equipmentId :: String
+        , s4Name :: String
+        , s4Floc :: String
+        , superEquiId :: String
+        , solutionId :: String
+        , position :: Option[Int32]
+        , s4Category :: String
+        , s4EquiType :: String
+        , s4EquiClass :: String
+        , batchNumber :: Int32
+        }
+
+
+    pub def makeEquiWorkItem3(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
+        RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem3(x1.equipmentId, x1.s4EquiType, x1.s4EquiClass). }, xs)
+
+
+    /// Read from Aib xlsx export file...
+    pub def readEquiWorkList(src: XlsxSource): GenMonad[List[EquiWorkItem]] =
+        use SheetIO/NamedRowEvaluator.{optional};
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem())))
+        
+    /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
+    /// Note "Equi Class" is now mandatory
+    def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItem] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
+        let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
+        let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
+        let* s4Floc     = map(String.trim, getNonEmptyContentNamed("S4 Floc"));
+        let* superId    = map(String.trim, getContentNamed("Super Equi"));
+        let* solutionId = map(String.trim, getContentNamed("Solution ID"));
+        let* position   = optional(getInt32Named("Position"));
+        let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
+        let* s4Type     = map(String.trim, getNonEmptyContentNamed("Object Type"));
+        let* s4Class    = map(String.trim, getNonEmptyContentNamed("Object Class"));
+        let* batchNo    = optional(getInt32Named("Batch"));
+        return({ equipmentId = aibref
+                , s4Name = s4Name
+                , s4Floc = s4Floc
+                , superEquiId = superId
+                , solutionId = solutionId
+                , position = position
+                , s4Category = category
+                , s4EquiType = s4Type
+                , s4EquiClass = s4Class
+                , batchNumber = Option.getWithDefault(batchNo, 1)
+                })
+
+
+ 
+
 
 
 
