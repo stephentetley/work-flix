@@ -88,9 +88,10 @@ namespace AssetLib/GenS4/GenUxl {
     def writeBatches(xs: List[UxlSource], outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let step = (ix, uxl) -> { 
-            let _       = Console.printLine("Batch: ${ix}");
             let path    = suffixFilename(ix, outputArgs.outpath);
-            let* _      = AssetLib/S4Lite/EmitUxl.outputUxl({outpath = path | outputArgs}, uxl);
+            let crname  = outputArgs.changeRequestName + " p${ix}";
+            let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
+            let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(args, uxl);
             let _       = Console.printLine("Wrote: ${path}");
             Ok(ix + 1)
         };
