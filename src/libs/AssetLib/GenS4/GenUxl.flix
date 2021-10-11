@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/GenUxl {
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/GenS4.{GenMonad};
-    use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     
 
     type alias GenUxlSource = 
@@ -59,29 +59,52 @@ namespace AssetLib/GenS4/GenUxl {
         }
 
     /// Must work with batching...
+
     pub def generateUxl(src: GenUxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        use AssetLib/GenS4/GenMonad.{execGenMonad, return};
+        use AssetLib/GenS4/GenMonad.{execGenMonad};
         use AssetLib/GenS4/GenMonad.{*>};
-        let* flocs  = match src.flocWorkList { 
-            case Some(x1) => execGenMonad(genFlocUxl(x1))
-            case None => execGenMonad(return())
+        let* flocItems      = match src.flocWorkList { 
+            case Some(x1) => AssetLib/GenS4/WorkLists.readFlocWorkList(x1)
+            case None => Ok(Nil)
         };
-        let* equis  = match src.equiWorkList { 
-            case Some(x1) => execGenMonad(genEquiUxl(src.facts, x1) *> genOptional(src.optionalFacts, x1, #{}))
-            case None => execGenMonad(return())
+        let* flocUxl        = execGenMonad(genFlocUxl(flocItems));
+        let* equiItems      = match src.equiWorkList { 
+            case Some(x1) => AssetLib/GenS4/WorkLists.readEquiWorkList(x1)
+            case None => Ok(Nil)
         };
-        let uxlAll  = AssetLib/S4Lite/Datatypes.combineUxlSource(flocs, equis);
-        /// TODO need to be able to group `uxlAll` into batches (or split into batches before this point...)
-        let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(outputArgs, uxlAll);
+        let equiGroups      = List.groupBy((x1,y1) -> x1.batchNumber == y1.batchNumber, equiItems);
+        let* equiBatches    = Result.traverse(xs -> execGenMonad(genEquiUxl(src.facts, xs) *> genOptional(src.optionalFacts, xs, #{})), equiGroups);
+        let batches         = addtoFirst(flocUxl, equiBatches);
+        let _               = Console.printLine("Batch count: ${List.length(batches)}");
+        let* _              = writeBatches(batches, outputArgs);
         Ok()
 
+    def addtoFirst(flocUxl: UxlSource, equiUxlList: List[UxlSource]): List[UxlSource] = match equiUxlList {
+        case Nil => flocUxl :: Nil
+        case x :: rs => AssetLib/S4Lite/Datatypes.combineUxlSource(flocUxl, x) :: rs
+    }
+
+    def writeBatches(xs: List[UxlSource], outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let step = (ix, uxl) -> { 
+            let _       = Console.printLine("Batch: ${ix}");
+            let path    = suffixFilename(ix, outputArgs.outpath);
+            let* _      = AssetLib/S4Lite/EmitUxl.outputUxl({outpath = path | outputArgs}, uxl);
+            let _       = Console.printLine("Wrote: ${path}");
+            Ok(ix + 1)
+        };
+        let* _  = Result.foldLeftM(step, 1, xs);
+        Ok()
+
+    def suffixFilename(ix: Int, path: System.FilePath): System.FilePath = 
+        let suffix = String.padLeft(3, '0', "${ix}");
+        System/FilePath.mapBaseName(s -> s + "." + suffix, path)
 
 
     /// Generate all characteristics 
-    def genFlocUxl(workList: XlsxSource): GenMonad[Unit] = 
+    def genFlocUxl(workitems: List[FlocWorkItem]): GenMonad[Unit] = 
         use  AssetLib/GenS4/GenMonad.{flatMap, return};
-        let* workitems  = AssetLib/GenS4/WorkLists.readFlocWorkList(workList);
         let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
         let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocCharacteristics(workitems);
         let* _  = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitems);
@@ -91,9 +114,8 @@ namespace AssetLib/GenS4/GenUxl {
 
 
     /// Empty string for no solution id.
-    def genEquiUxl(args: FactExports, workList: XlsxSource): GenMonad[Unit] = 
+    def genEquiUxl(args: FactExports, workitems: List[EquiWorkItem]): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return, liftAction};
-        let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(workList);
         let* _          = liftAction(_ -> Console.printLine("Equi workitems count: ${List.length(workitems)}"));
         let* equiAttrs  = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
@@ -106,9 +128,9 @@ namespace AssetLib/GenS4/GenUxl {
         return()
 
     /// `_dummy` and the casts of `facts` are hacks to avoid declaring a huge schema type for facts.
-    def genOptional(args: OptionalExports, workList: XlsxSource, _dummy: #{|r}): GenMonad[Unit] = 
+    def genOptional(args: OptionalExports, xs: List[EquiWorkItem], _dummy: #{|r}): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return, map};
-        let* workitems  = AssetLib/GenS4/WorkLists.readEquiWorkList(workList) |> map(AssetLib/GenS4/WorkLists.makeEquiWorkItem3);
+        let workitems  =AssetLib/GenS4/WorkLists.makeEquiWorkItem3(xs);
         let* f1     = loadOptional(args.aibElectricalExport, AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts);
         let* f2     = loadOptional(args.aibFanExport, AssetLib/GenS4/AibFacts/Attributes/Fan.readFanFacts);
         let* f3     = loadOptional(args.aibInstrumentExport, AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentFacts);

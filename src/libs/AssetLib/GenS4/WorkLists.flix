@@ -45,14 +45,14 @@ namespace AssetLib/GenS4/WorkLists {
     /// Flocs
 
     /// Read from Aib xlsx export file...
-    pub def readFlocWorkList(src: XlsxSource): GenMonad[List[FlocWorkItem]] =
+    pub def readFlocWorkList(src: XlsxSource): Result[List[FlocWorkItem], String] & Impure =
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};
         let readStep = () -> { 
             let* s1     = getSheetNamed(src.sheet);
             let* xs     = allNamedRows(s1, evalFlocWorkItem());
             return(xs)
         };
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readStep(), src.path))
+        SheetIO/SheetReader.runXlsx(readStep(), src.path)
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed, getInt32Named, optional, liftResult}; 
@@ -110,9 +110,9 @@ namespace AssetLib/GenS4/WorkLists {
 
 
     /// Read from Aib xlsx export file...
-    pub def readEquiWorkList(src: XlsxSource): GenMonad[List[EquiWorkItem]] =
+    pub def readEquiWorkList(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =
         use SheetIO/NamedRowEvaluator.{optional};
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem())))
+        SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem()))
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory
