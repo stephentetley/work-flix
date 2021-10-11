@@ -151,17 +151,17 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateAt(${ix})")
+        liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateAt(${ix})")
 
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): RowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeAt(${ix})")
+        liftOption(Time/LocalDateTime.parse(formatter, input), "getLocalDateTimeAt(${ix})")
 
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): RowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt(${ix})")
+        liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeAt(${ix})")
 
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.

@@ -1,4 +1,5 @@
-
+use SheetIO/Reader.{XlsxSource};
+use SheetIO.NamedRowEvaluator;
 use AssetLib/FileIO/S4/UxlFile/Datatypes.{EquipmentData};
 use AssetLib/FileIO/S4/ZTable/Datatypes.{ObjTypeManufacturer, ManufacturerModel};
 
@@ -12,7 +13,13 @@ def main(_args: Array[String]): Int32 & Impure =
     };
     0
 
-
+type alias WorkItem[r: RecordRow] = 
+    { equiId :: String
+    , objectType :: String 
+    , manufacturer :: String
+    , modelNumber :: String
+    | r
+    }
 
 def main1(): Result[Unit, String] & Impure = 
     use Result.flatMap;
@@ -21,20 +28,51 @@ def main1(): Result[Unit, String] & Impure =
     let ztable2         = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
     let* allowedModel   = AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(ztable2) |> Result.map(buildManufModel);
 
-    let uxl1            = System/FilePath.new("G:/work/assets/capital_schemes/leg01/output/1909_leger_way_UXL.xlsx");
-    let* equis          = AssetLib/FileIO/S4/UxlFile/XlsxReader.loadEquipmentData(uxl1);
-    let _               = println(uxl1);
+    /// let uxl1            = System/FilePath.new("G:/work/assets/capital_schemes/embsay/output/embsay_stw_ferric_uxl.001.xlsx");
+    /// let* equis          = readUxlRows(uxl1);
+
+    let worklist        = {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ferric-worklist.xlsx"), 
+                            sheet = "Equi"};
+    let* equis          = readEquiWorkListRows(worklist);
+
     let _               = reportErrors(equis, allowedManuf, allowedModel);
     Ok()
 
-def reportErrors(xs: List[EquipmentData], objMan: Allowed, manMod: Allowed): Unit & Impure = 
+pub def readUxlRows(src: System.FilePath): Result[List[WorkItem[r]], String] & Impure = 
+    let conv = x1 -> x1 as WorkItem[r];
+    Result.map(List.map(conv), AssetLib/FileIO/S4/UxlFile/XlsxReader.loadEquipmentData(src)) 
+
+
+pub def readEquiWorkListRows(src: XlsxSource): Result[List[WorkItem[r]], String] & Impure = 
+    use SheetIO/NamedRowEvaluator.{optional};
+    SheetIO/Reader.readSomeNamedRows(src, evalEquiWorkItem())
+
+
+def evalEquiWorkItem(): NamedRowEvaluator[Option[WorkItem[r]]] =
+    use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
+    use  SheetIO/NamedRowEvaluator.{<&>, <*>};
+    ((x1, x2, x3, x4) -> 
+        if (not String.isEmpty(x2))
+            Some({ equiId        = x1
+                , objectType    = x2 
+                , manufacturer  = x3
+                , modelNumber   = x4
+                } as WorkItem[r])
+        else None) 
+    <&> getTrimmedContentNamed("Reference")
+    <*> getTrimmedContentNamed("Object Type")
+    <*> getTrimmedContentNamed("Manufacturer")
+    <*> getTrimmedContentNamed("Model")
+
+
+def reportErrors(xs: List[WorkItem[r]], objMan: Allowed, manMod: Allowed): Unit & Impure = 
     let step = x1 -> match check(x1, objMan, manMod) {
         case Ok() => () as & Impure
         case Err(msg) => Console.printLine("${x1.equiId} ${x1.objectType} ${x1.manufacturer} ==> ${msg}")
     };
     List.foreach(step, xs)
 
-def check(x: EquipmentData, objMan: Allowed, manMod: Allowed): Result[Unit, String] = 
+def check(x: WorkItem[r], objMan: Allowed, manMod: Allowed): Result[Unit, String] = 
     match allowed(x.objectType, x.manufacturer, objMan) {
         case true => match allowed(x.manufacturer, x.modelNumber, manMod) {
             case true => Ok()
