@@ -64,7 +64,7 @@ namespace AssetLib/GenS4/Patch {
         , manufacturer          = x.manufacturer
         , model                 = x.model
         , partNumber            = attribs.specificModelFrame
-        , serialNumber          = attribs.serialNumber
+        , serialNumber          = if (not String.isEmpty(attribs.serialNumber)) attribs.serialNumber else "UNKNOWN"
         , functionalLocation    = x.functionalLocation
         , superOrdinateEqui     = x.superOrdinateEqui
         , position              = x.position

@@ -68,7 +68,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(5, x.objectType);
         let* _      = putS4DateAt!(8, x.startupDate);
         let* _      = putInt32At!(11, x.constructYear);
-        let* _      = putInt32At!(12, x.constructMth);
+        let* _      = putStringAt!(21, String.padLeft(2, '0', "${x.constructMth}"));
         let* _      = putInt32At!(13, x.maintPlant);
         let* _      = putInt32At!(14, x.companyCode);
         let* _      = putInt32At!(15, x.coArea);
@@ -141,7 +141,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
     /// Not all fields are written... (1909)
     def setEquipmentData!(x: EquipmentData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
-        use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!, putPaddedInt32At!};
+        use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!};
         let* _      = putInt32At!(0, x.plantWorkCenter);
         let* _      = putStringAt!(1, x.equiId);
         let* _      = putStringAt!(2, x.equipCategory);
@@ -156,7 +156,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(17, x.manufPartNo);
         let* _      = putStringAt!(18, x.manufSerialNo);
         let* _      = putInt32At!(20, x.constructYear);
-        let* _      = putPaddedInt32At!(21, 2, '0', x.constructMth);        /// simpler to have a paddedInt function and putStringAt!
+        let* _      = putStringAt!(21, String.padLeft(2, '0', "${x.constructMth}"));
         let* _      = putInt32At!(22, x.maintPlant);
         let* _      = putStringAt!(27, x.workCenter);
         let* _      = putInt32At!(29, x.companyCode);           /// AD BukrEilo
