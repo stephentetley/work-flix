@@ -61,8 +61,8 @@ namespace AssetLib/GenS4/Patch {
         , objectType            = x.objectType
         , weightKg              = attribs.weightKg
         , startupDate           = attribs.installedFrom
-        , manufacturer          = attribs.manufacturer
-        , model                 = attribs.model
+        , manufacturer          = x.manufacturer
+        , model                 = x.model
         , partNumber            = attribs.specificModelFrame
         , serialNumber          = attribs.serialNumber
         , functionalLocation    = x.functionalLocation

@@ -40,8 +40,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
     type alias EquipmentAttributes = 
         { aibref :: String
         , installedFrom :: Time.LocalDate
-        , manufacturer :: String
-        , model :: String
         , status :: String
         , pandiTag :: String
         , serialNumber :: String
@@ -62,21 +60,17 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getNonEmptyContentNamed, getContentNamed, 
             getFloat64Named, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
+        ((x1, x2, x3, x4, x5, x6, x7) -> 
             { aibref                = x1
             , installedFrom         = x2 
-            , manufacturer          = x3
-            , model                 = x4
-            , status                = x5
-            , pandiTag              = x6
-            , serialNumber          = x7
-            , specificModelFrame    = x8
-            , weightKg              = x9
+            , status                = x3
+            , pandiTag              = x4
+            , serialNumber          = x5
+            , specificModelFrame    = x6
+            , weightKg              = x7
             })
             <&> getNonEmptyContentNamed("Reference")            
             <*> getLocalDateNamed("Installed From")
-            <*> getContentNamed("Manufacturer")
-            <*> getContentNamed("Model")
             <*> getContentNamed("AssetStatus")
             <*> getContentNamed("P AND I Tag No")
             <*> getContentNamed("Serial No")

@@ -66,7 +66,9 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putInt32At!(3, x.functLocCat);
         let* _      = putStringAt!(4, x.strIndicator);
         let* _      = putStringAt!(5, x.objectType);
-        let* _      = putS4DateAt!(11, x.startupDate);
+        let* _      = putS4DateAt!(8, x.startupDate);
+        let* _      = putInt32At!(11, x.constructYear);
+        let* _      = putInt32At!(12, x.constructMth);
         let* _      = putInt32At!(13, x.maintPlant);
         let* _      = putInt32At!(14, x.companyCode);
         let* _      = putInt32At!(15, x.coArea);

@@ -63,7 +63,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getInt32Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed, getS4LocalDateNamed};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
                 { functionalLocation    = x1
                 , maskedFuncLoc         = x2
                 , description           = x3                
@@ -71,15 +71,17 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
                 , strIndicator          = x5
                 , objectType            = x6
                 , startupDate           = x7
-                , maintPlant            = x8
-                , companyCode           = x9
-                , coArea                = x10
-                , mainWorkCenter        = x11
-                , plantWorkCenter       = x12
-                , position              = x13
-                , supFunctLoc           = x14
-                , equipInstall          = x15
-                , userStatus            = x16
+                , constructYear         = x8
+                , constructMth          = x9
+                , maintPlant            = x10
+                , companyCode           = x11
+                , coArea                = x12
+                , mainWorkCenter        = x13
+                , plantWorkCenter       = x14
+                , position              = x15
+                , supFunctLoc           = x16
+                , equipInstall          = x17
+                , userStatus            = x18
                 })
             <&> getContentNamed("Funcloc")              /// functionalLocation
             <*> getContentNamed("FlocRef")              /// maskedFuncLoc
@@ -88,6 +90,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getContentNamed("TplkzFlc")             /// strIndicator
             <*> getContentNamed("Eqart")                /// objectType
             <*> getS4LocalDateNamed("Inbdt")            /// startupDate
+            <*> getInt32Named("Baujj")                              /// constructYear
+            <*> getPaddedInt32Named("BaummEqi")                     /// constructMth
             <*> getInt32Named("SwerkFl")                /// maintPlant
             <*> getInt32Named("Bukrsfloc")              /// companyCode
             <*> getInt32Named("KokrFloc")               /// coArea
@@ -207,15 +211,15 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <&> getContentNamed("Equi")                             /// equiId
             <*> getContentNamed("Eqtyp")                            /// equipCategory
             <*> getContentNamed("Txtmi")                            /// description
-            <*> getS4LocalDateNamed("DataEeqz")                    /// validFrom
+            <*> getS4LocalDateNamed("DataEeqz")                     /// validFrom
             <*> getContentNamed("EqartEqu")                         /// objectType
             <*> optional(getFloat64Named("Brgew"))                  /// grossWeight
             <*> getContentNamed("Gewei")                            /// unitOfWeight
-            <*> getS4LocalDateNamed("Inbdt")                          /// startupDate
-            <*> getContentNamed("Herst")                             /// manufacturer
-            <*> getContentNamed("Typbz")                             /// modelNumber
-            <*> getContentNamed("MapaEeqz")           /// manufPartNo
-            <*> getContentNamed("Serge")                             /// manufSerialNo
+            <*> getS4LocalDateNamed("Inbdt")                        /// startupDate
+            <*> getContentNamed("Herst")                            /// manufacturer
+            <*> getContentNamed("Typbz")                            /// modelNumber
+            <*> getContentNamed("MapaEeqz")                         /// manufPartNo
+            <*> getContentNamed("Serge")                            /// manufSerialNo
             <*> getInt32Named("Baujj")                              /// constructYear
             <*> getPaddedInt32Named("BaummEqi")                     /// constructMth
             <*> getInt32Named("SwerEilo")                           /// maintPlant 
@@ -223,11 +227,11 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getInt32Named("BukrEilo")                           /// companyCode
             <*> getInt32Named("KokrEilo")                           /// coArea
             <*> getInt32Named("PplaEeqz")                           /// planningPlant
-            <*> getContentNamed("ArbpEeqz")                          /// mainWorkCenter
+            <*> getContentNamed("ArbpEeqz")                         /// mainWorkCenter
             <*> getInt32Named("WergwEqi")                           /// plantWorkCenter
-            <*> getContentNamed("TplnEilo")                          /// functionalLoc
-            <*> getContentNamed("HequEeqz")                          /// superordEquip
-            <*> optional(getInt32Named("HeqnEeqz"))                     /// position
+            <*> getContentNamed("TplnEilo")                         /// functionalLoc
+            <*> getContentNamed("HequEeqz")                         /// superordEquip
+            <*> optional(getInt32Named("HeqnEeqz"))                 /// position
             <*> getContentNamed("TidnEeqz")                          /// techIdentNo
             <*> getContentNamed("StsmEqui")                          /// statusProfile
             <*> getContentNamed("UstwEqui")                          /// statusOfAnObject

@@ -48,8 +48,8 @@ namespace AssetLib/GenS4/Rules/Equipment {
         , objectType            = x.s4EquiType
         , weightKg              = None
         , startupDate           = today         /// Should be "patched"
-        , manufacturer          = "TO BE DETERMINED"
-        , model                 = "TO BE DETERMINED"
+        , manufacturer          = x.manufacturer
+        , model                 = x.model
         , partNumber            = ""
         , serialNumber          = "UNKNOWN"
         , functionalLocation    = x.s4Floc

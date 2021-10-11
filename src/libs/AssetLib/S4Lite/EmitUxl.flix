@@ -80,6 +80,8 @@ namespace AssetLib/S4Lite/EmitUxl {
         , strIndicator          = x.structureIndicator
         , objectType            = x.objectType
         , startupDate           = x.startupDate
+        , constructYear         = Time/LocalDate.getYear(x.startupDate)
+        , constructMth          = Time/LocalDate.getMonthValue(x.startupDate)
         , maintPlant            = 2100
         , companyCode           = 2100
         , coArea                = 1000

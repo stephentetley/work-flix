@@ -95,6 +95,8 @@ namespace AssetLib/GenS4/WorkLists {
         { equipmentId :: String
         , s4Name :: String
         , s4Floc :: String
+        , manufacturer :: String
+        , model :: String
         , superEquiId :: String
         , solutionId :: String
         , position :: Option[Int32]
@@ -117,20 +119,24 @@ namespace AssetLib/GenS4/WorkLists {
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory
     def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItem] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
-        let* aibref     = map(String.trim, getNonEmptyContentNamed("Reference"));
-        let* s4Name     = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
-        let* s4Floc     = map(String.trim, getNonEmptyContentNamed("S4 Floc"));
-        let* superId    = map(String.trim, getContentNamed("Super Equi"));
-        let* solutionId = map(String.trim, getContentNamed("Solution ID"));
-        let* position   = optional(getInt32Named("Position"));
-        let* category   = map(String.trim, getNonEmptyContentNamed("S4 Category"));
-        let* s4Type     = map(String.trim, getNonEmptyContentNamed("Object Type"));
-        let* s4Class    = map(String.trim, getNonEmptyContentNamed("Object Class"));
-        let* batchNo    = optional(getInt32Named("Batch"));
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getTrimmedContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
+        let* aibref         = map(String.trim, getNonEmptyContentNamed("Reference"));
+        let* s4Name         = map(String.trim, getNonEmptyContentNamed("S4 Equi Name"));
+        let* s4Floc         = map(String.trim, getNonEmptyContentNamed("S4 Floc"));
+        let* manufacturer   = getTrimmedContentNamed("Manufacturer");
+        let* model          = getTrimmedContentNamed("Model");
+        let* superId        = getTrimmedContentNamed("Super Equi");
+        let* solutionId     = getTrimmedContentNamed("Solution ID");
+        let* position       = optional(getInt32Named("Position"));
+        let* category       = map(String.trim, getNonEmptyContentNamed("S4 Category"));
+        let* s4Type         = map(String.trim, getNonEmptyContentNamed("Object Type"));
+        let* s4Class        = map(String.trim, getNonEmptyContentNamed("Object Class"));
+        let* batchNo        = optional(getInt32Named("Batch"));
         return({ equipmentId = aibref
                 , s4Name = s4Name
                 , s4Floc = s4Floc
+                , manufacturer = manufacturer
+                , model = model
                 , superEquiId = superId
                 , solutionId = solutionId
                 , position = position

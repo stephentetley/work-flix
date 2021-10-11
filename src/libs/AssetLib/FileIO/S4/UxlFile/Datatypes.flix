@@ -42,6 +42,8 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , strIndicator :: String
         , objectType :: String
         , startupDate :: Time.LocalDate
+        , constructYear :: Int32
+        , constructMth :: Int32
         , maintPlant :: Int32
         , companyCode :: Int32
         , coArea :: Int32
