@@ -68,14 +68,15 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(5, x.objectType);
         let* _      = putS4DateAt!(8, x.startupDate);
         let* _      = putInt32At!(11, x.constructYear);
-        let* _      = putStringAt!(21, String.padLeft(2, '0', "${x.constructMth}"));
+        let* _      = putStringAt!(12, String.padLeft(2, '0', "${x.constructMth}"));
         let* _      = putInt32At!(13, x.maintPlant);
         let* _      = putInt32At!(14, x.companyCode);
         let* _      = putInt32At!(15, x.coArea);
+        let* _      = putInt32At!(15, x.planningPlant);
         let* _      = putStringAt!(17, position4(x.position));
         let* _      = putStringAt!(18, x.supFunctLoc);
         let* _      = putS4BoolAt!(19, x.equipInstall);     /// Do we need to write this?
-        let* _      = putStringAt!(20, x.userStatus);
+        let* _      = putStringAt!(20, x.statusOfObject);
         return()
 
 

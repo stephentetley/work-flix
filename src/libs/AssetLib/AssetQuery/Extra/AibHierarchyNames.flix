@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-/// Get AIB Names from a Hierachy export.
+/// Get AIB Names from a Hierarchy export.
 /// This is arguably the safest way to account for forward-slashes in names where
 /// the slash is not a separator.
 

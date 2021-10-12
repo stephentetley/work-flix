@@ -47,12 +47,11 @@ namespace AssetLib/FileIO/S4/UxlFile/Datatypes {
         , maintPlant :: Int32
         , companyCode :: Int32
         , coArea :: Int32
-        , mainWorkCenter :: String            /// default = DEFAULT
-        , plantWorkCenter :: Int32            /// default = 2100
+        , planningPlant :: Int32            /// default = 2100
         , position :: Option[Int32]
         , supFunctLoc :: String
         , equipInstall :: Bool
-        , userStatus :: String        
+        , statusOfObject :: String
         } 
 
 

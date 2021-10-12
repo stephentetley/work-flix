@@ -85,12 +85,11 @@ namespace AssetLib/S4Lite/EmitUxl {
         , maintPlant            = 2100
         , companyCode           = 2100
         , coArea                = 1000
-        , mainWorkCenter        = "DEFAULT"     /// default: DEFAULT
-        , plantWorkCenter       = 2100          /// default: 2100
+        , planningPlant         = 2100          /// default: 2100
         , position              = x.position
         , supFunctLoc           = superiorFloc
         , equipInstall          = x.equipmentInstall
-        , userStatus            = x.status
+        , statusOfObject        = x.status
         }
 
 

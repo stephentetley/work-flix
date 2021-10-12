@@ -63,7 +63,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getInt32Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed, getS4LocalDateNamed};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17) ->
                 { functionalLocation    = x1
                 , maskedFuncLoc         = x2
                 , description           = x3                
@@ -76,12 +76,11 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
                 , maintPlant            = x10
                 , companyCode           = x11
                 , coArea                = x12
-                , mainWorkCenter        = x13
-                , plantWorkCenter       = x14
-                , position              = x15
-                , supFunctLoc           = x16
-                , equipInstall          = x17
-                , userStatus            = x18
+                , planningPlant         = x13
+                , position              = x14
+                , supFunctLoc           = x15
+                , equipInstall          = x16
+                , statusOfObject        = x17
                 })
             <&> getContentNamed("Funcloc")              /// functionalLocation
             <*> getContentNamed("FlocRef")              /// maskedFuncLoc
@@ -95,12 +94,11 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getInt32Named("SwerkFl")                /// maintPlant
             <*> getInt32Named("Bukrsfloc")              /// companyCode
             <*> getInt32Named("KokrFloc")               /// coArea
-            <*> getContentNamed("Gewrkfloc")            /// mainWorkCenter
-            <*> getInt32Named("Wergwfloc")              /// plantWorkCenter
+            <*> getInt32Named("PlntFloc")            /// planningPlant
             <*> optional(getInt32Named("Posnr"))        /// Position
             <*> getContentNamed("Tplma")                /// supFunctLoc
             <*> getS4BoolNamed("Iequi")                 /// equipInstall
-            <*> getContentNamed("Sttxu")                /// userStatus
+            <*> getContentNamed("Sttxu")                /// statusOfObject
    
     
 
