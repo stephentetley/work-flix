@@ -40,11 +40,11 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
             , startupDate           = x.installedFrom
             , position              = x.position
             , superiorFloc          = super
-            , equipmentInstall      = equipmentInstall(x.structureIndicator, level)
+            , equipmentInstall      = getEquipmentInstall(x.structureIndicator, level)
             , status                = "UCON"
             })
 
-    def equipmentInstall(structure: String, level: Int32): Bool = match structure {
+    def getEquipmentInstall(structure: String, level: Int32): Bool = match structure {
         case "YW-GS" if level >= 5 => true
         case "YW-ES" if level >= 3 => true
         case _ => false

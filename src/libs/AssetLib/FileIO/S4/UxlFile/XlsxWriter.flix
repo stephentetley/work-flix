@@ -72,7 +72,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putInt32At!(13, x.maintPlant);
         let* _      = putInt32At!(14, x.companyCode);
         let* _      = putInt32At!(15, x.coArea);
-        let* _      = putInt32At!(15, x.planningPlant);
+        let* _      = putInt32At!(16, x.planningPlant);
         let* _      = putStringAt!(17, position4(x.position));
         let* _      = putStringAt!(18, x.supFunctLoc);
         let* _      = putS4BoolAt!(19, x.equipInstall);     /// Do we need to write this?
