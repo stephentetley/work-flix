@@ -85,7 +85,7 @@ namespace AssetLib/GenS4/WorkLists {
                 })
 
     def stringList(s: String): List[String] = 
-        String.splitOn(s, ";")
+        String.splitOn({substr = ";"}, s)
             |> List.map(String.trim)
             |> List.filter(s1 -> not String.isEmpty(s1))
 

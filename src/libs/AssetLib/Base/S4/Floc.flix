@@ -57,7 +57,7 @@ namespace AssetLib/Base/S4/Floc {
         if (String.isEmpty(s))
             Err("Err: Empty Floc")
         else
-            Ok(Floc(String.splitOn(s, "-")))
+            Ok(Floc(String.splitOn({substr = "-"}, s)))
                 
 
     pub def equals(x: Floc, y: Floc): Bool = 
@@ -69,7 +69,7 @@ namespace AssetLib/Base/S4/Floc {
 
     pub def snoc(x: Floc, s: String): Floc = 
         let Floc(x1) = x;
-        let ys = String.splitOn(s, "-");
+        let ys = String.splitOn({substr = "-"}, s);
         Floc(x1 ::: ys)
     
 

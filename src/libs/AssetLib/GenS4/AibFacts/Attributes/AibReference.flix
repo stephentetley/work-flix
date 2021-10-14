@@ -86,7 +86,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
 
     def getParent(commonName: String, xs: Nel[AibRow]): (AibRow, Nel[AibRow]) = match xs {
         case Nel(x1, Nil) => (x1, xs)
-        case Nel(x1, r1 :: rs) => if (String.startsWith(commonName, x1.commonName)) (x1, xs) else getParent(commonName, Nel(r1, rs))
+        case Nel(x1, r1 :: rs) => if (String.startsWith({prefix = x1.commonName}, commonName)) (x1, xs) else getParent(commonName, Nel(r1, rs))
     }
 
 }
