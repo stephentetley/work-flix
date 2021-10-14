@@ -58,7 +58,7 @@ namespace AssetLib/GenS4/GenUxl {
         , aibValveExport = None
         }
 
-    /// Must work with batching...
+    /// Floc should be its own batch...
 
     pub def generateUxl(src: GenUxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
@@ -75,21 +75,29 @@ namespace AssetLib/GenS4/GenUxl {
         };
         let equiGroups      = List.groupBy((x1,y1) -> x1.batchNumber == y1.batchNumber, equiItems);
         let* equiBatches    = Result.traverse(xs -> execGenMonad(genEquiUxl(src.facts, xs) *> genOptional(src.optionalFacts, xs, #{})), equiGroups);
-        let batches         = addtoFirst(flocUxl, equiBatches);
-        let _               = Console.printLine("Batch count: ${List.length(batches)}");
-        let* _              = writeBatches(batches, outputArgs);
+        let* _              = writeFlocs(flocUxl, outputArgs);
+        let _               = Console.printLine("Batch count: ${List.length(equiBatches)}");
+        let* _              = writeEquiBatches(equiBatches, outputArgs);
         Ok()
 
-    def addtoFirst(flocUxl: UxlSource, equiUxlList: List[UxlSource]): List[UxlSource] = match equiUxlList {
-        case Nil => flocUxl :: Nil
-        case x :: rs => AssetLib/S4Lite/Datatypes.combineUxlSource(flocUxl, x) :: rs
-    }
+    def writeFlocs(src1: UxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        if (not Chain.isEmpty(src1.funclocs)) {
+            let path    = System/FilePath.mapBaseName(s -> s + "_Flocs", outputArgs.outpath);
+            let crname  = outputArgs.changeRequestName + " Flocs";
+            let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
+            let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, src1);
+            let _       = Console.printLine("Wrote: ${path}");
+            Ok()
+        } else Ok()
 
-    def writeBatches(xs: List[UxlSource], outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+
+
+    def writeEquiBatches(xs: List[UxlSource], outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let step = (ix, uxl) -> { 
-            let path    = suffixFilename(ix, outputArgs.outpath);
-            let crname  = outputArgs.changeRequestName + " p${ix}";
+            let path    = System/FilePath.mapBaseName(s -> s + "_Equi${ix}", outputArgs.outpath);
+            let crname  = outputArgs.changeRequestName + " Equi${ix}";
             let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
             let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, uxl);
             let _       = Console.printLine("Wrote: ${path}");
@@ -97,10 +105,6 @@ namespace AssetLib/GenS4/GenUxl {
         };
         let* _  = Result.foldLeftM(step, 1, xs);
         Ok()
-
-    def suffixFilename(ix: Int, path: System.FilePath): System.FilePath = 
-        let suffix = String.padLeft(3, '0', "${ix}");
-        System/FilePath.mapBaseName(s -> s + "." + suffix, path)
 
 
     /// Generate all characteristics 
