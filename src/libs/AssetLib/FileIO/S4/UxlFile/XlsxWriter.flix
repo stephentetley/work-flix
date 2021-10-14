@@ -28,15 +28,15 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
     /// Change Request Details
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeChangeRequestDetails(xs: List[ChangeRequestDetails]): SheetWriter[Unit] = 
+    pub def writeChangeRequestDetailsMocr(xs: List[ChangeRequestDetails]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};
         let* s1     = getSheetNamed("Change Request Details");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setChangeRequestDetails!(x)), xs)
+        mapX(x -> appendRow(s1, setChangeRequestDetailsMocr!(x)), xs)
 
 
     /// Just write fields of interest...
-    def setChangeRequestDetails!(x: ChangeRequestDetails): RowSetter[Unit] = 
+    def setChangeRequestDetailsMocr!(x: ChangeRequestDetails): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
         let* _      = putStringAt!(0, x.description);
         let* _      = putStringAt!(4, x.changeRequestType);
@@ -45,19 +45,36 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(12, x.processRequester);
         return()
 
+    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
+    pub def writeChangeRequestDetailsMem(xs: List[ChangeRequestDetails]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};
+        let* s1     = getSheetNamed("Change Request Details");
+        let* _      = setCursor!(s1, 6);
+        mapX(x -> appendRow(s1, setChangeRequestDetailsMem!(x)), xs)
+
+
+    /// Just write fields of interest...
+    def setChangeRequestDetailsMem!(x: ChangeRequestDetails): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
+        let* _      = putStringAt!(0, x.eqEquipment);
+        let* _      = putStringAt!(1, x.description);
+        let* _      = putStringAt!(5, x.changeRequestType);
+        let* _      = putStringAt!(7, x.processRequester);
+        return()
+
 
     /// Functional Location Data
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeFunctionalLocationData(xs: List[FunctionalLocationData]): SheetWriter[Unit] = 
+    pub def writeFunctionalLocationDataMocr(xs: List[FunctionalLocationData]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Functional Location Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setFunctionalLocationData!(x)), xs)
+        mapX(x -> appendRow(s1, setFunctionalLocationDataMocr!(x)), xs)
 
 
     /// Just write fields of interest... (1909)
-    def setFunctionalLocationData!(x: FunctionalLocationData): RowSetter[Unit] = 
+    def setFunctionalLocationDataMocr!(x: FunctionalLocationData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!, putS4DateAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
@@ -88,14 +105,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
     /// FL-Multilingual Text
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeFlMultilingualText(xs: List[FlMultilingualText]): SheetWriter[Unit] = 
+    pub def writeFlMultilingualTextMocr(xs: List[FlMultilingualText]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("FL-Multilingual Text");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setFlMultilingualText!(x)), xs)
+        mapX(x -> appendRow(s1, setFlMultilingualTextMocr!(x)), xs)
 
     /// (1909)
-    def setFlMultilingualText!(x: FlMultilingualText): RowSetter[Unit] = 
+    def setFlMultilingualTextMocr!(x: FlMultilingualText): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
@@ -109,14 +126,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
     /// FL-Classification
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeFlClassification(xs: List[FlClassification]): SheetWriter[Unit] = 
+    pub def writeFlClassificationMocr(xs: List[FlClassification]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("FL-Classification");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setFlClassification!(x)), xs)
+        mapX(x -> appendRow(s1, setFlClassificationMocr!(x)), xs)
 
     /// (1909)
-    def setFlClassification!(x: FlClassification): RowSetter[Unit] = 
+    def setFlClassificationMocr!(x: FlClassification): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
@@ -131,16 +148,16 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// Equipment Data
 
-    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeEquipmentData(xs: List[EquipmentData]): SheetWriter[Unit] = 
+    /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
+    pub def writeEquipmentDataMocr(xs: List[EquipmentData]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Equipment Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEquipmentData!(x)), xs)
+        mapX(x -> appendRow(s1, setEquipmentDataMocr!(x)), xs)
 
 
     /// Not all fields are written... (1909)
-    def setEquipmentData!(x: EquipmentData): RowSetter[Unit] = 
+    def setEquipmentDataMocr!(x: EquipmentData): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!};
         let* _      = putInt32At!(0, x.plantWorkCenter);
@@ -172,17 +189,61 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(51, x.statusOfAnObject);
         return()
 
+
+    /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
+    /// Equipemnt only
+    pub def writeEquipmentDataMem(xs: List[EquipmentData]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("Equipment Data");
+        let* _      = setCursor!(s1, 6);
+        mapX(x -> appendRow(s1, setEquipmentDataMem!(x)), xs)
+
+    /// Not all fields are written... (1909)
+    /// Equipment only (Mem)
+    def setEquipmentDataMem!(x: EquipmentData): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
+        use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!};
+        let* _      = putStringAt!(0, x.equiId);
+        let* _      = putStringAt!(2, x.equipCategory);
+        let* _      = putStringAt!(3, x.description);
+        let* _      = putS4DateAt!(4, x.validFrom); 
+        let* _      = putStringAt!(5, x.objectType);
+        let* _      = putOptionFloat64At!(7, x.grossWeight);
+        let* _      = putStringAt!(8, x.unitOfWeight);
+        let* _      = putS4DateAt!(11, x.startupDate);
+        let* _      = putStringAt!(15, x.manufacturer);
+        let* _      = putStringAt!(16, x.modelNumber);
+        let* _      = putStringAt!(17, x.manufPartNo);
+        let* _      = putStringAt!(18, x.manufSerialNo);
+        let* _      = putInt32At!(20, x.constructYear);
+        let* _      = putStringAt!(21, String.padLeft(2, '0', "${x.constructMth}"));
+        let* _      = putInt32At!(22, x.maintPlant);
+        let* _      = putStringAt!(27, x.workCenter);
+        let* _      = putInt32At!(29, x.companyCode);           /// AD BukrEilo
+        let* _      = putInt32At!(34, x.coArea);                /// AI 
+        let* _      = putInt32At!(38, x.planningPlant);
+        let* _      = putStringAt!(40, x.mainWorkCenter);
+        let* _      = putInt32At!(41, x.plantWorkCenter);
+        let* _      = putStringAt!(43, x.functionalLoc);
+        let* _      = putStringAt!(44, x.superordEquip);
+        let* _      = putStringAt!(45, position4(x.position));
+        let* _      = putStringAt!(46, x.techIdentNo);
+        let* _      = putStringAt!(51, x.statusProfile);
+        let* _      = putStringAt!(52, x.statusOfAnObject);
+        return()
+
+
     /// EQ-Multilingual Text
 
-    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeEqMultilingualText(xs: List[EqMultilingualText]): SheetWriter[Unit] = 
+    /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
+    pub def writeEqMultilingualTextMocr(xs: List[EqMultilingualText]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("EQ-Multilingual Text");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEqMultilingualText!(x)), xs)
+        mapX(x -> appendRow(s1, setEqMultilingualTextMocr!(x)), xs)
 
     /// (1909)
-    def setEqMultilingualText!(x: EqMultilingualText): RowSetter[Unit] = 
+    def setEqMultilingualTextMocr!(x: EqMultilingualText): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.equiId);
@@ -195,15 +256,16 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// EQ-Classification
 
-    /// Assumes an empty UXL workbook with sheets, headers etc. set up.
-    pub def writeEqClassification(xs: List[EqClassification]): SheetWriter[Unit] = 
+    /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
+    pub def writeEqClassificationMocr(xs: List[EqClassification]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("EQ-Classification");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEqClassification!(x)), xs)
+        mapX(x -> appendRow(s1, setEqClassificationMocr!(x)), xs)
 
     /// (1909)
-    def setEqClassification!(x: EqClassification): RowSetter[Unit] = 
+    /// Multiple Object (floc and equi)
+    def setEqClassificationMocr!(x: EqClassification): RowSetter[Unit] = 
         use SheetIO/RowSetter.{flatMap, return, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.equiId);
@@ -213,6 +275,27 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(4, x.characteristicName);
         let* _      = putStringAt!(5, x.charValue);
         let* _      = putS4BoolAt!(6, x.charDeleteInd);
+        return()
+
+/// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
+    pub def writeEqClassificationMem(xs: List[EqClassification]): SheetWriter[Unit] = 
+        use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
+        let* s1     = getSheetNamed("Classification");
+        let* _      = setCursor!(s1, 6);
+        mapX(x -> appendRow(s1, setEqClassificationMem!(x)), xs)
+
+
+    /// Multiple equipment (equi only)
+    def setEqClassificationMem!(x: EqClassification): RowSetter[Unit] = 
+        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
+        let* _      = putStringAt!(0, x.equiId);
+        let* _      = putS4BoolAt!(1, x.deleteInd);
+        let* _      = putStringAt!(2, x.classType);
+        let* _      = putStringAt!(3, x.className);
+        let* _      = putS4BoolAt!(4, x.charDeleteInd);
+        let* _      = putStringAt!(5, x.characteristicName);
+        let* _      = putStringAt!(6, x.charValue);        
         return()
 
 

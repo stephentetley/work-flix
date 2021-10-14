@@ -32,12 +32,12 @@ namespace AssetLib/S4Lite/EmitUxl {
         , outpath :: System.FilePath
         }
 
-    pub def outputUxl(args: UxlOutputArgs,
+    pub def outputMocrUxl(args: UxlOutputArgs,
                         src: UxlSource): Result[Unit, String] & Impure = 
-        SheetIO/SheetWriter.runTemplateXssf(writeUxl(args.changeRequestName, src), args.uxlTemplate, args.outpath)
+        SheetIO/SheetWriter.runTemplateXssf(writeMocrUxl(args.changeRequestName, src), args.uxlTemplate, args.outpath)
 
 
-    def writeUxl(changeRequestName: String, input: UxlSource): SheetWriter[Unit] = 
+    def writeMocrUxl(changeRequestName: String, input: UxlSource): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, return, liftAction};
         let* src        = liftAction(_ -> AssetLib/S4Lite/Internal/FreshRenumber.equiRenumber(input));
         let flocs       = toFunctionalLocationData(src.funclocs);
@@ -50,13 +50,13 @@ namespace AssetLib/S4Lite/EmitUxl {
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
         let equiNames   = List.map(x -> x.equiId, equis);
         let crInfo      = makeChangeRequestDetails(changeRequestName, flocNames, equiNames);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeChangeRequestDetails(crInfo);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFunctionalLocationData(flocs);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlMultilingualText(flmltxts);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlClassification(flchars);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEquipmentData(equis);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqMultilingualText(eqmltxts);
-        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqClassification(eqchars);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeChangeRequestDetailsMocr(crInfo);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFunctionalLocationDataMocr(flocs);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlMultilingualTextMocr(flmltxts);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeFlClassificationMocr(flchars);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEquipmentDataMocr(equis);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqMultilingualTextMocr(eqmltxts);
+        let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqClassificationMocr(eqchars);
         return()
 
 

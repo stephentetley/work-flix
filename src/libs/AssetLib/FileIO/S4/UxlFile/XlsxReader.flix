@@ -27,13 +27,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
 
     /// Change Request Details
 
-    pub def readChangeRequestDetails(): SheetReader[List[ChangeRequestDetails]] = 
+    pub def readChangeRequestDetailsMocr(): SheetReader[List[ChangeRequestDetails]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
-        let* s1     = getSheetNamed("EQ-Classification");
-        let* xs     = namedRowsFrom(s1, 4, 6, getChangeRequestDetails());
+        let* s1     = getSheetNamed("Change Request Details");
+        let* xs     = namedRowsFrom(s1, 4, 6, getChangeRequestDetailsMocr());
         return(xs)
 
-    def getChangeRequestDetails(): NamedRowEvaluator[ChangeRequestDetails] = 
+    def getChangeRequestDetailsMocr(): NamedRowEvaluator[ChangeRequestDetails] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
@@ -162,16 +162,16 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getS4BoolNamed("DeleteCh")
 
     /// Equipment Data
-    pub def loadEquipmentData(path: System.FilePath): Result[List[EquipmentData], String] & Impure =   
-        SheetIO/SheetReader.runXlsx(readEquipmentData(), path)
+    pub def loadEquipmentDataMocr(path: System.FilePath): Result[List[EquipmentData], String] & Impure =   
+        SheetIO/SheetReader.runXlsx(readEquipmentDataMocr(), path)
 
-    pub def readEquipmentData(): SheetReader[List[EquipmentData]] = 
+    pub def readEquipmentDataMocr(): SheetReader[List[EquipmentData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Equipment Data");
-        let* xs     = namedRowsFrom(s1, 4, 6, getEquipmentData());
+        let* xs     = namedRowsFrom(s1, 4, 6, getEquipmentDataMocr());
         return(xs)
 
-    def getEquipmentData(): NamedRowEvaluator[EquipmentData] = 
+    def getEquipmentDataMocr(): NamedRowEvaluator[EquipmentData] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, 
             getOptionInt32Named, getInt32Named, getFloat64Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
@@ -237,13 +237,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
 
     /// EQ-Multilingual Text
 
-    pub def readEqMultilingualText(): SheetReader[List[EqMultilingualText]] = 
+    pub def readEqMultilingualTextMocr(): SheetReader[List[EqMultilingualText]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Multilingual Text");
-        let* xs     = namedRowsFrom(s1, 4, 6, getEqMultilingualText());
+        let* xs     = namedRowsFrom(s1, 4, 6, getEqMultilingualTextMocr());
         return(xs)
 
-    def getEqMultilingualText(): NamedRowEvaluator[EqMultilingualText] = 
+    def getEqMultilingualTextMocr(): NamedRowEvaluator[EqMultilingualText] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};
@@ -262,16 +262,16 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
 
     /// EQ-Classification
     
-    pub def loadEqClassification(path: System.FilePath): Result[List[EqClassification], String] & Impure =   
-        SheetIO/SheetReader.runXlsx(readEqClassification(), path)
+    pub def loadEqClassificationMocr(path: System.FilePath): Result[List[EqClassification], String] & Impure =   
+        SheetIO/SheetReader.runXlsx(readEqClassificationMocr(), path)
 
-    pub def readEqClassification(): SheetReader[List[EqClassification]] = 
+    pub def readEqClassificationMocr(): SheetReader[List[EqClassification]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Classification");
-        let* xs     = namedRowsFrom(s1, 4, 6, getEqClassification());
+        let* xs     = namedRowsFrom(s1, 4, 6, getEqClassificationMocr());
         return(xs)
 
-    def getEqClassification(): NamedRowEvaluator[EqClassification] = 
+    def getEqClassificationMocr(): NamedRowEvaluator[EqClassification] = 
         use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};

@@ -91,7 +91,7 @@ namespace AssetLib/GenS4/GenUxl {
             let path    = suffixFilename(ix, outputArgs.outpath);
             let crname  = outputArgs.changeRequestName + " p${ix}";
             let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
-            let* _      = AssetLib/S4Lite/EmitUxl.outputUxl(args, uxl);
+            let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, uxl);
             let _       = Console.printLine("Wrote: ${path}");
             Ok(ix + 1)
         };
