@@ -17,9 +17,9 @@
 namespace AssetLib/ProductData/Base/Classification {
 
     type alias ObjectClassification = 
-        { category: String
-        , objectName: String
-        , className: String
+        { category :: String
+        , objectName :: String
+        , className :: String
         }
 
 }

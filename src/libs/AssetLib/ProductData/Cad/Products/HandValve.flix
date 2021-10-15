@@ -31,8 +31,8 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
 
     
     type alias HandValveRow = 
-        { equipmentBody: EquipmentCommon
-        , sizeMM: Option[Int32]
+        { equipmentBody :: EquipmentCommon
+        , sizeMM :: Option[Int32]
         }
 
     pub def loadRows(src: XlsxSource): Result[List[HandValveRow], String] & Impure = 

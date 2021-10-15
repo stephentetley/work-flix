@@ -1,8 +1,8 @@
 use SheetIO/Reader.XlsxSource;
 
 type alias ProgramArgs = 
-    { inputSource: XlsxSource
-    , outputFile: System.FilePath
+    { inputSource :: XlsxSource
+    , outputFile :: System.FilePath
     }
 
 
@@ -30,7 +30,7 @@ def test01(args: ProgramArgs): Result[Unit, String] & Impure =
     /// let* _      =  AssetLib/S4Lite/EmitUxl.outputUxl(true, emitParams, uxlsrc);
 
     let* uxl        = AssetLib/GenS4/GenMonad.execGenMonad(AssetLib/ProductData/Cad/Products/Pump.generatePumps(worklist));
-    let* _          = AssetLib/S4Lite/EmitUxl.outputUxl(false, emitParams, uxl);
+    let* _          = AssetLib/S4Lite/EmitUxl.outputMocrUxl(emitParams, uxl);
     Ok()
 
 

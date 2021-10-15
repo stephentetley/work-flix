@@ -31,21 +31,21 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
 
     
     type alias EquipmentCommon = 
-        { description: String
-        , category: String
-        , objectName: String
-        , className: String
-        , pandiTag: String
-        , comment: String
-        , manufacturer: String
-        , modelNumber: String
-        , specificModel: String
-        , manufSerialNumber: String
-        , weight: Option[Float64]
-        , dateOfInstallation: Option[Time.LocalDate]
-        , locationOnSite: String
-        , locationInHierarchy: String
-        , memoLine: String
+        { description :: String
+        , category :: String
+        , objectName :: String
+        , className :: String
+        , pandiTag :: String
+        , comment :: String
+        , manufacturer :: String
+        , modelNumber :: String
+        , specificModel :: String
+        , manufSerialNumber :: String
+        , weight :: Option[Float64]
+        , dateOfInstallation :: Option[Time.LocalDate]
+        , locationOnSite :: String
+        , locationInHierarchy :: String
+        , memoLine :: String
         }
 
 
@@ -91,7 +91,7 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
         AssetLib/GenS4/GenMonad.genEqui((x1, x2) -> equipmentCommonToSLEquipment({equiId = x1, today = x2}, x))
 
     /// Translation
-    pub def equipmentCommonToSLEquipment(params: {equiId: String, today: Time.LocalDate}, x: EquipmentCommon): SLEquipment = 
+    pub def equipmentCommonToSLEquipment(params: {equiId :: String, today :: Time.LocalDate}, x: EquipmentCommon): SLEquipment = 
         let i32None: Option[Int32] = None;
         let defaultDate = Time/LocalDate.new({dayOfMonth = 1, month = 1, year = 1970});
         { equiId                = params.equiId

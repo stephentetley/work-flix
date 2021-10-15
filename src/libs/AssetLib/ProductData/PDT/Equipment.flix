@@ -22,8 +22,8 @@ namespace AssetLib/ProductData/PDT/Equipment {
     use AssetLib/ProductData/PDT/Utils.{rowKeyValue, rowKeyLocalDate};
 
     type alias EquipmentInfo = 
-        { assetType: String
-        , body: SLEquipment
+        { assetType :: String
+        , body :: SLEquipment
         }
 
     pub def parseEquipmentInfo(equiId: String, category: String, objType: String): SheetParser[ka1, EquipmentInfo] = 
@@ -58,7 +58,7 @@ namespace AssetLib/ProductData/PDT/Equipment {
 
 
 
-    def assetIntro(): SheetParser[ka1, {assetName: String, assetType: String, assetStatus: String}] =
+    def assetIntro(): SheetParser[ka1, {assetName :: String, assetType :: String, assetStatus :: String}] =
         use SheetIO/SheetParser.{flatMap, return, gotoRow, island};
         let* _  = gotoRow(0);
         let* s1 = island(rowKeyValue("Asset Name"));
@@ -66,7 +66,7 @@ namespace AssetLib/ProductData/PDT/Equipment {
         let* s3 = island(rowKeyValue("Asset Status"));
         return({assetName = s1, assetType = s2, assetStatus = s3})
 
-    def manufacturerData(): SheetParser[ka1, {manufacturer: String}] =
+    def manufacturerData(): SheetParser[ka1, {manufacturer :: String}] =
         use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Manufacturer Data")));
@@ -74,14 +74,14 @@ namespace AssetLib/ProductData/PDT/Equipment {
         return({manufacturer = s1})
 
     type alias AssetData1 = 
-        { serialNumber: String
-        , dateOfInstallation: Time.LocalDate
-        , tagReference: String
-        , locationInAssetHierarchy: String
-        , specificModel: String
-        , locationOnSite: String
-        , memoLine: String
-        , assetStatus: String
+        { serialNumber :: String
+        , dateOfInstallation :: Time.LocalDate
+        , tagReference :: String
+        , locationInAssetHierarchy :: String
+        , specificModel :: String
+        , locationOnSite :: String
+        , memoLine :: String
+        , assetStatus :: String
         }
 
     def assetData(): SheetParser[ka1, AssetData1] =

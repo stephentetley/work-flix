@@ -35,15 +35,15 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
 
     
     type alias PumpRow = 
-        { equipmentBody: EquipmentCommon
-        , impellerType: String
-        , insulationClass: String
-        , ipRating: String
-        , installedDesignHeadM: Option[Float64]
-        , inletSizeMM: Option[Int32]
-        , outletSizeMM: Option[Int32]
-        , ratedSpeedRPM: Option[Int32]
-        , flowLS: Option[Float64]
+        { equipmentBody :: EquipmentCommon
+        , impellerType :: String
+        , insulationClass :: String
+        , ipRating :: String
+        , installedDesignHeadM :: Option[Float64]
+        , inletSizeMM :: Option[Int32]
+        , outletSizeMM :: Option[Int32]
+        , ratedSpeedRPM :: Option[Int32]
+        , flowLS :: Option[Float64]
         }
 
     pub def loadRows(src: XlsxSource): Result[List[PumpRow], String] & Impure = 
@@ -79,9 +79,9 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
 
 
     def pumpClassification(x: String): ObjectClassification = match String.toUpperCase(x) { 
-        case "CENTRIFUGAL"                      => { category = "M", objectName = "PUMP", className = "PUMPCE"}
-        case s if s `String.startsWith` "RAM"   => { category = "M", objectName = "PUMP", className = "PUMPRA"}
-        case _                                  => { category = "M", objectName = "PUMP", className = "PUMPMISC"}
+        case "CENTRIFUGAL"                              => { category = "M", objectName = "PUMP", className = "PUMPCE"}
+        case s if String.startsWith(prefix = "RAM", s)  => { category = "M", objectName = "PUMP", className = "PUMPRA"}
+        case _                                          => { category = "M", objectName = "PUMP", className = "PUMPMISC"}
     }
 
 

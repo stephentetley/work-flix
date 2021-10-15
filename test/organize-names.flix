@@ -22,7 +22,7 @@ def main1(): Result[Unit, String] & Impure =
 def printRow(parents: Map[String, String], x1: ExportRow): String = 
     match Map.get(x1.reference, parents) {
         case Some(name) => 
-            if (String.contains(x1.commonName, "EQUIPMENT: "))
+            if (String.contains(substr = "EQUIPMENT: ", x1.commonName))
                 "${x1.commonName},${AssetLib/Base/Utils.properCaseName(name)}"
             else "${x1.commonName},"
         case None => "${x1.commonName},"

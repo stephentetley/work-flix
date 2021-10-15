@@ -40,7 +40,7 @@ def main1(): Result[Unit, String] & Impure =
 
 pub def readUxlRows(src: System.FilePath): Result[List[WorkItem[r]], String] & Impure = 
     let conv = x1 -> x1 as WorkItem[r];
-    Result.map(List.map(conv), AssetLib/FileIO/S4/UxlFile/XlsxReader.loadEquipmentData(src)) 
+    Result.map(List.map(conv), AssetLib/FileIO/S4/UxlFile/XlsxReader.loadEquipmentDataMocr(src)) 
 
 
 pub def readEquiWorkListRows(src: XlsxSource): Result[List[WorkItem[r]], String] & Impure = 

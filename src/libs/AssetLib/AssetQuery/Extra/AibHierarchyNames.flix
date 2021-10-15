@@ -50,13 +50,13 @@ namespace AssetLib/AssetQuery/Extra/AibHierarchyNames {
         let strip = start -> Option.flatMap(String.stripPrefix(start));
         let parentFull = getLongestPrefix(s, name);
         let pref = getLongestPrefix(s, parentFull);
-        String.stripPrefix(pref, parentFull) 
-            |> strip("/")
+        String.stripPrefix(substr = pref, parentFull) 
+            |> strip(substr = "/")
             
 
     def getLongestPrefix(s: Set[String], name: String): String = 
         let step = (ac, x) -> {
-            if (String.startsWith(name, x) and String.length(x) < String.length(name)) {
+            if (String.startsWith(prefix = x, name) and String.length(x) < String.length(name)) {
                 if (String.length(x) > String.length(ac)) x else ac
             } else ac
         };

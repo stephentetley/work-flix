@@ -35,7 +35,7 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
     /// > speedRPM: Option[Int32]
     /// > ratedPowerKW: Option[Float32]
     type alias MixerFlocculatorRow = 
-        { equipmentBody: EquipmentCommon
+        { equipmentBody :: EquipmentCommon
         }
 
     pub def loadRows(src: XlsxSource): Result[List[MixerFlocculatorRow], String] & Impure = 

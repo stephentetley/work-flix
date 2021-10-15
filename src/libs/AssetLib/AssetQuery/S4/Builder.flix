@@ -121,7 +121,7 @@ namespace AssetLib/AssetQuery/S4/Builder {
     def isElectricalFunction(x: IH06Tree): Bool = 
         let RoseTree(n, _) = x;
         match n { 
-            case FlocNode(n1) if n1.level == 2 and String.endsWith(n1.floc, "-E") => true
+            case FlocNode(n1) if n1.level == 2 and String.endsWith(suffix = "-E", n1.floc) => true
             case _ => false
         }
 
