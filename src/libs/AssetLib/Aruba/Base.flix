@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-namespace AssetLib/AssetQuery/Hierarchy {
+namespace AssetLib/Aruba/Base {
 
 
-    pub rel System(floc: String, description: String)
+    pub rel Floc(floc: String, name: String)
 
-    /// Level 6 - e.g "Heating Unit", "Pump Assembly"
-    pub rel Unit(floc: String, description: String)
+    pub rel Equi(equiId: String, name: String)
 
-    pub rel Equipment(equiId: String, description: String, floc: String)
+    pub rel SubFloc(parentFloc: String, childFloc: String)
 
-    pub rel SubEquipment(parentId: String, childId: String)
+    pub rel EquiLocation(equiId: String, floc: String)
 
+    pub rel SubEqui(parentId: String, childId: String)
+
+    pub rel FlocLevel(floc: String, level: Int32)
 
 }

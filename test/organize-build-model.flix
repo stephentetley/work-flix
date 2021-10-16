@@ -13,8 +13,8 @@ def test01(): Result[Unit, String] & Impure =
         , ih06Table = System/FilePath.new("G:/work/assets/asset_models/grain-ih06-export.xlsx")
         , ih08Table = System/FilePath.new("G:/work/assets/asset_models/grain-ih08-export.xlsx")
         };
-    let* ast        = AssetLib/AssetQuery/S4/Builder.buildGSSite(src);
+    let* ast        = AssetLib/Aruba/S4/Builder.buildGSSite(src);
     let _           = Console.printLine("funcount: ${List.length(ast.functions)}");
     let jsonDest    = System/FilePath.new("G:/work/assets/asset_models/grain-output.json");
-    let* _          = AssetLib/AssetQuery/S4/ExportJson.exportJson(jsonDest, ast);
+    let* _          = AssetLib/Aruba/S4/ExportJson.exportJson(jsonDest, ast);
     Ok()

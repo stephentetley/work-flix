@@ -18,7 +18,7 @@
 /// This is arguably the safest way to account for forward-slashes in names where
 /// the slash is not a separator.
 
-namespace AssetLib/AssetQuery/Extra/AibHierarchyNames {
+namespace AssetLib/Aruba/Extra/AibHierarchyNames {
 
     pub rel AibParentName(reference: String, parentName: String)
 

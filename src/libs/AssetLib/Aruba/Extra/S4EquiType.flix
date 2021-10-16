@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/AssetQuery/Extra/S4EquiType {
+namespace AssetLib/Aruba/Extra/S4EquiType {
 
 
     pub rel S4EquiType(itemId: String, category: String, objType: String, objClass: String)

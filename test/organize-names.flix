@@ -12,7 +12,7 @@ def main1(): Result[Unit, String] & Impure =
                 sheet="Sheet1"};
     let* rows  = AssetQuery/Aib/Loader.loadExportRows(src);
 
-    let parents = AssetLib/AssetQuery/Extra/AibHierarchyNames.getParentNamesMap(rows);
+    let parents = AssetLib/Aruba/Extra/AibHierarchyNames.getParentNamesMap(rows);
 
     rows |> List.foreach(printRow(parents) >> println);
 

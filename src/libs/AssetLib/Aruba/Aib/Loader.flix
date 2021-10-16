@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetQuery/Aib/Loader {
+namespace AssetLib/Aruba/Loader {
 
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;

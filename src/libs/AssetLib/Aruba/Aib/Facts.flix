@@ -16,10 +16,10 @@
 
 
 
-namespace AssetQuery/Aib/Facts {
+namespace AssetLib/Aruba/Aib/Facts {
 
     use Text/Regex.MatchEvaluator;
-    use AssetQuery/Aib/Loader.{ExportRow};
+    use AssetLib/Aruba/Loader.{ExportRow};
 
     pub rel Equipment(plinum: String, equiType: String, flocName: String)
 

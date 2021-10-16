@@ -1,6 +1,6 @@
 use SheetIO.NamedRowEvaluator;
 use SheetIO/Reader.{XlsxSource};
-use AssetLib/AssetQuery/Extra/S4EquiType.{S4EquiType, AibEquiType, ValveType};
+use AssetLib/Aruba/Extra/S4EquiType.{S4EquiType, AibEquiType, ValveType};
 
 
 pub def main(_args: Array[String]): Int32 & Impure = 
@@ -26,7 +26,7 @@ def main1(src: XlsxSource): Result[Unit, String] & Impure =
     use RelLib/Tuple.{decons4};
     let* rows   = SheetIO/Reader.readAllNamedRows(src, evalRow());
     let* rowdb  = makeDb(rows);
-    let db      = rowdb <+> AssetLib/AssetQuery/Extra/S4EquiType.s4EquiTypeRules();
+    let db      = rowdb <+> AssetLib/Aruba/Extra/S4EquiType.s4EquiTypeRules();
     println("AibEquiType...");
     query db select (x1, x2) from AibEquiType(x1, x2) |> Array.foreach(println);
     println("ValveType...");
@@ -48,7 +48,7 @@ pub def printWithPatches(p: Map[String, (String, String, String)], row: WorkItem
 
 def makeDb(xs: List[WorkItem]): Result[#{AibEquiType, ValveType | r}, String] = 
     use Result.flatMap;
-    use AssetLib/AssetQuery/Extra/S4EquiType.{getTypeFromCommonName};
+    use AssetLib/Aruba/Extra/S4EquiType.{getTypeFromCommonName};
     let aibEquiType1 = (itemId, o1) -> match o1 {
         case None => #{}
         case Some(tyname) => #{ AibEquiType(itemId, tyname). }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-namespace AssetLib/AssetQuery/S4/ExportJson {
+namespace AssetLib/Aruba/S4/ExportJson {
 
     use BasicJson.JsonValue;
     use BasicJson/JsonBuilder.JsObject;
 
-    use AssetLib/AssetQuery/S4/Datatypes.{GSSite, GSFunction, 
+    use AssetLib/Aruba/S4/Datatypes.{GSSite, GSFunction, 
         GSProcessGroup, GSProcess, GSSystem, GSSubsystem, GSEquipment, GSSubequipment};
 
 
