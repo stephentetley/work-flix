@@ -40,19 +40,6 @@ namespace AssetLib/Aruba/S4/IH06 {
         };
         RelLib/Relation.foldMap(build1, src.rows)
         
-    /// pub def buildHierarchy(src: #{IH06Floc, IH06Equi | r}): #{Equipment, SubEquipment | r1} = 
-    ///     let rules = #{
-    ///         Equipment(equiId, description, floc) :- 
-    ///             IH06Equi(equiId, description, floc, _).
-
-    ///         SubEquipment(parent, child) :- 
-    ///             IH06Equi(child, _, _, parent), 
-    ///             if not String.isEmpty(parent).
-
-    ///     };
-    ///     /// Cast stops "output" relation schema types leaking into input relation schema types
-    ///     let src1 = src as #{IH06Floc, IH06Equi, Equipment, SubEquipment | r};
-    ///     solve (rules <+> src1) project Equipment, SubEquipment
 
 
     /// To Base representation

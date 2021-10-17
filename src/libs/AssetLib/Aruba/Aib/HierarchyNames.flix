@@ -18,12 +18,24 @@
 /// This is arguably the safest way to account for forward-slashes in names where
 /// the slash is not a separator.
 
-namespace AssetLib/Aruba/Extra/AibHierarchyNames {
+namespace AssetLib/Aruba/Aib/HierarchyNames {
 
+
+    /// This is `reference` to `parentName`
+    /// e.g "PLI00070001", "SITE/zzz/PROCESS_GROUP/PROCESS/PUMP-1/EQUIPMENT: CENTRIFUGAL PUMP"
+    /// is "PLI00070001", "PUMP-1"
+    /// Expected to be most useful for equipment which are "PLI<number>", ".../<name>/<type>"
+    /// and <name> can include forward slash (though rarely does).
+    /// 
     pub rel AibParentName(reference: String, parentName: String)
 
+    type alias NameSource = 
+        { reference :: String
+        , commonName :: String
+        }
 
-    pub def getParentNames(xs: List[{reference :: String, commonName :: String | r}]): #{AibParentName | reln} = 
+
+    pub def getParentNames(xs: List[NameSource]): #{AibParentName | reln} = 
         let allNames = allCommonNames(xs);
         let step = row -> match getParent(allNames, row.commonName) {
             case Some(parent) => #{ AibParentName(row.reference, parent). }
@@ -32,7 +44,7 @@ namespace AssetLib/Aruba/Extra/AibHierarchyNames {
         RelLib/Relation.foldMap(step, xs)
 
 
-    pub def getParentNamesMap(xs: List[{reference :: String, commonName :: String | r}]): Map[String, String] = 
+    pub def getParentNamesMap(xs: List[NameSource]): Map[String, String] = 
         let allNames = allCommonNames(xs);
         let step = (ac, row) -> match getParent(allNames, row.commonName) {
             case Some(parent) => Map.insert(row.reference, parent, ac)
@@ -41,7 +53,7 @@ namespace AssetLib/Aruba/Extra/AibHierarchyNames {
         List.foldLeft(step, Map.empty(), xs)
 
 
-    def allCommonNames(xs: List[{commonName :: String | r}]): Set[String] = 
+    def allCommonNames(xs: List[NameSource]): Set[String] = 
         List.foldLeft((s, x1) -> Set.insert(x1.commonName, s), Set.empty(), xs)
 
 
