@@ -16,17 +16,18 @@
 
 namespace AssetLib/Aruba/Base {
 
+    /// Distinguish flocId and flocPath so we can handle internalFlocIds
 
-    pub rel Floc(floc: String, name: String)
+    pub rel Floc(flocId: String, flocPath: String, name: String)
 
     pub rel Equi(equiId: String, name: String)
 
-    pub rel SubFloc(parentFloc: String, childFloc: String)
+    pub rel SubFloc(parentFlocId: String, childFlocId: String)
 
     pub rel EquiLocation(equiId: String, floc: String)
 
     pub rel SubEqui(parentId: String, childId: String)
 
-    pub rel FlocLevel(floc: String, level: Int32)
+    pub rel FlocLevel(flocId: String, level: Int32)
 
 }

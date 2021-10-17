@@ -47,7 +47,7 @@ namespace AssetLib/Aruba/S4/IH06 {
     pub def toBase(input: #{IH06Floc, IH06Equi | r}): #{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel | r1} =
         let rules = #{
 
-            Floc(floc, description) :- 
+            Floc(floc, floc, description) :- 
                 IH06Floc(floc, description, _).
 
             Equi(equiId, description) :- 
