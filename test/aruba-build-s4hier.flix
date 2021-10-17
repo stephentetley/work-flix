@@ -23,6 +23,6 @@ def main2(): Result[Unit, String] & Impure =
             sheet="Sheet1"};
     let* srcRel     = AssetLib/Aruba/Aib/ExportFile.readExportRelations(src);
     let baseRep     = AssetLib/Aruba/Aib/ExportFile.toBase(srcRel);
-    /// query baseRep select (x1, x2) from Floc(x1, x2) |> Array.foreach(println);
+    query baseRep select (x1, x2) from Floc(x1, x2) |> Array.foreach(println);
     query baseRep select (x1, x2) from Equi(x1, x2) |> Array.foreach(println);
     Ok()  
