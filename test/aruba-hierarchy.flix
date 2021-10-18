@@ -1,4 +1,4 @@
-use Hierarchy/Organize1.{BoosterPump, FinalEffPump, Organization};
+use AssetLib/Aruba/Base.{FlocLevel, SubFloc};
    
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -7,17 +7,30 @@ def main(_args: Array[String]): Int32 & Impure =
 
 def main1(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    use RelLib/RegexExtractor.{extract};
-    let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-combined-worklist.xlsx"), 
-                sheet="Equi_Worklist"};
-    let* rows  = AssetLib/Aruba/Aib/Loader.loadExportRows(src);
-    let relns = RelLib/Relation.foldMap(x1 -> extract(Hierarchy/Organize1.getBoosterPump(), x1.commonName) 
-                                                <+> extract(Hierarchy/Organize1.getFinalEffPump(), x1.commonName) , rows);
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
+    let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-equi-ih08.xlsx"),
+                        sheet = "Sheet1"};
+    let* srcRel     = AssetLib/Aruba/S4/IH06Tree.readIH06Relations(src);
+    let baseRep     = AssetLib/Aruba/S4/IH06Tree.toBase(srcRel);
+    let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
+    let db          = baseRep <+> extra;
+    let rules       = #{
+        /// These generate balnks in the tree and suggests we also need a "tree list" view...
+        /// Organization(floc, "", "") :- 
+        ///     FlocLevel(floc, 1).
 
-    Hierarchy/Organize1.organize(relns) 
-        |> (ans1 -> query ans1 select (x1, x2, x3) from Organization(x1, x2, x3))
-        |> RelLib/Tree.printAsTree3;
+        /// Organization(root, floc, "") :- 
+        ///     FlocLevel(floc, 2), 
+        ///     SubFloc(root, floc).
 
-    Ok()  
+        Organization(root, parent1, floc) :- 
+            FlocLevel(floc, 3), 
+            SubFloc(parent1, floc),
+            SubFloc(root, parent1).
+
+    };
+    query db <+> rules select (x1, x2, x3) from Organization(x1, x2, x3) |> Array.foreach(println);
+    query db <+> rules select (x1, x2, x3) from Organization(x1, x2, x3) |> RelLib/Tree.printAsTree3;
+    Ok()
 
 

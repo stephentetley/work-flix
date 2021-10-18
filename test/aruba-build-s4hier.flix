@@ -27,8 +27,9 @@ def main1(): Result[Unit, String] & Impure =
 def main2(): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let src         = 
-        {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wetherby-aib-export.xlsx"),
-            sheet="Sheet1"};
+        { path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wetherby-aib-export.xlsx")
+        , sheet = "Sheet1" 
+        };
     let* srcRel     = AssetLib/Aruba/Aib/ExportFile.readExportRelations(src);
     let baseRep     = AssetLib/Aruba/Aib/ExportFile.toBase(srcRel);
     query baseRep select (x1, x2, x3) from Floc(x1, x2, x3) |> Array.foreach(println);
