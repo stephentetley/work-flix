@@ -15,7 +15,7 @@ def main1(): Result[Unit, String] & Impure =
     let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
     let db          = baseRep <+> extra;
     let rules       = #{
-        /// These generate balnks in the tree and suggests we also need a "tree list" view...
+        /// These generate blanks in the tree and suggests we also need a "tree list" view...
         /// Organization(floc, "", "") :- 
         ///     FlocLevel(floc, 1).
 
