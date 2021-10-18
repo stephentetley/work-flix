@@ -28,6 +28,10 @@ namespace AssetLib/Aruba/Base {
 
     pub rel SubEqui(parentId: String, childId: String)
 
+    /// FlocLevel is relative to the hirearchy being represented - 
+    /// e.g. a System in one representation may have a different level to a System in another.
     pub rel FlocLevel(flocId: String, level: Int32)
+
+    pub rel EquiType(equiId: String, equitype: String)
 
 }

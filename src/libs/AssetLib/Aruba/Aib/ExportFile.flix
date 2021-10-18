@@ -23,7 +23,7 @@ namespace AssetLib/Aruba/Aib/ExportFile {
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
-    use AssetLib/Aruba/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel};
+    use AssetLib/Aruba/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel, EquiType};
     use AssetLib/Aruba/Aib/HierarchyNames.{AibParentName};
 
     type alias ExportRow = 
@@ -59,7 +59,7 @@ namespace AssetLib/Aruba/Aib/ExportFile {
 
 
 
-    def buildExportFileRelations(rows: List[ExportRow]): Result[#{AibEquipment, AibCommonName, AibParentName, AibHKey}, String] & Impure = 
+    def buildExportFileRelations(rows: List[ExportRow]): Result[#{AibEquipment, AibCommonName, AibParentName, AibHKey | r}, String] & Impure = 
         use Result.{flatMap};
         let* equi           = getEquipment(rows);
         let commonNames     = getCommonNames(rows);
@@ -69,7 +69,7 @@ namespace AssetLib/Aruba/Aib/ExportFile {
         Ok(equi <+> commonNames <+> parents <+> hkeys)
 
     /// No SubEqui - this is not a represented it Aib.
-    pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{Floc, Equi, EquiLocation, SubFloc, FlocLevel | r1} = 
+    pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{Floc, Equi, EquiLocation, SubFloc, FlocLevel, EquiType | r1} = 
         let rules = #{ 
             Equi(aibref, equiname) :- 
                 AibEquipment(aibref, _, _), 
@@ -91,9 +91,12 @@ namespace AssetLib/Aruba/Aib/ExportFile {
                 AibHKey(aibref, hkey, _), 
                 if flocLevel(hkey) > 0.
 
+            EquiType(aibref, equitype) :- 
+                AibEquipment(aibref, equitype, _).
+
         };
-        let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, Floc, Equi, EquiLocation, SubFloc, FlocLevel | r};
-        solve (input1 <+> rules) project Floc, Equi, EquiLocation, SubFloc, FlocLevel
+        let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, Floc, Equi, EquiLocation, SubFloc, FlocLevel, EquiType | r};
+        solve (input1 <+> rules) project Floc, Equi, EquiLocation, SubFloc, FlocLevel, EquiType
 
     def nameAfterNeedle(substr: {substr :: String}, commonName: String): String = 
         match String.breakOnRight(substr = substr.substr + "/", commonName) {

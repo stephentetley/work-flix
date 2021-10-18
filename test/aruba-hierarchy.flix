@@ -10,7 +10,7 @@ def main1(): Result[Unit, String] & Impure =
     use RelLib/RegexExtractor.{extract};
     let src = {path = System/FilePath.new("G:/work/assets/capital_schemes/hudub/hudub-wwp-combined-worklist.xlsx"), 
                 sheet="Equi_Worklist"};
-    let* rows  = AssetQuery/Aib/Loader.loadExportRows(src);
+    let* rows  = AssetLib/Aruba/Aib/Loader.loadExportRows(src);
     let relns = RelLib/Relation.foldMap(x1 -> extract(Hierarchy/Organize1.getBoosterPump(), x1.commonName) 
                                                 <+> extract(Hierarchy/Organize1.getFinalEffPump(), x1.commonName) , rows);
 

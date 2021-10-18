@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Aruba/S4/IH06 {
+namespace AssetLib/Aruba/S4/IH06Tree {
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
