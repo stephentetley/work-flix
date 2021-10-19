@@ -70,7 +70,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Functional Location Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setFunctionalLocationDataMocr!(x)), xs)
+        let rows    = List.sortBy(x1 -> x1.functionalLocation, xs);
+        mapX(x -> appendRow(s1, setFunctionalLocationDataMocr!(x)), rows)
 
 
     /// Just write fields of interest... (1909)
@@ -109,7 +110,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("FL-Multilingual Text");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setFlMultilingualTextMocr!(x)), xs)
+        let rows    = List.sortBy(x1 -> x1.functionalLocation, xs);
+        mapX(x -> appendRow(s1, setFlMultilingualTextMocr!(x)), rows)
 
     /// (1909)
     def setFlMultilingualTextMocr!(x: FlMultilingualText): RowSetter[Unit] = 
@@ -130,7 +132,15 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("FL-Classification");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setFlClassificationMocr!(x)), xs)
+        let rows    = List.sortWith(compareFlClassification, xs);
+        mapX(x -> appendRow(s1, setFlClassificationMocr!(x)), rows)
+
+    def compareFlClassification(x: FlClassification, y: FlClassification): Comparison = 
+        use Order.thenCompare;
+        (x.functionalLocation <=> y.functionalLocation) `thenCompare`
+            lazy (x.className <=> y.className) `thenCompare`
+            lazy (x.characteristicName <=> y.characteristicName)
+
 
     /// (1909)
     def setFlClassificationMocr!(x: FlClassification): RowSetter[Unit] = 
@@ -153,7 +163,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Equipment Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEquipmentDataMocr!(x)), xs)
+        let rows    = List.sortBy(x1 -> x1.equiId, xs);
+        mapX(x -> appendRow(s1, setEquipmentDataMocr!(x)), rows)
 
 
     /// Not all fields are written... (1909)
@@ -196,7 +207,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Equipment Data");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEquipmentDataMem!(x)), xs)
+        let rows    = List.sortBy(x1 -> x1.equiId, xs);
+        mapX(x -> appendRow(s1, setEquipmentDataMem!(x)), rows)
 
     /// Not all fields are written... (1909)
     /// Equipment only (Mem)
@@ -240,7 +252,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("EQ-Multilingual Text");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEqMultilingualTextMocr!(x)), xs)
+        let rows    = List.sortBy(x1 -> x1.equiId, xs);
+        mapX(x -> appendRow(s1, setEqMultilingualTextMocr!(x)), rows)
 
     /// (1909)
     def setEqMultilingualTextMocr!(x: EqMultilingualText): RowSetter[Unit] = 
@@ -261,7 +274,15 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("EQ-Classification");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEqClassificationMocr!(x)), xs)
+        let rows    = List.sortWith(compareEqClassification, xs);
+        mapX(x -> appendRow(s1, setEqClassificationMocr!(x)), rows)
+
+
+    def compareEqClassification(x: EqClassification, y: EqClassification): Comparison = 
+        use Order.thenCompare;
+        (x.equiId <=> y.equiId) `thenCompare`
+            lazy (x.className <=> y.className) `thenCompare`
+            lazy (x.characteristicName <=> y.characteristicName)
 
     /// (1909)
     /// Multiple Object (floc and equi)
@@ -277,12 +298,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putS4BoolAt!(6, x.charDeleteInd);
         return()
 
-/// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
+    /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
     pub def writeEqClassificationMem(xs: List[EqClassification]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, getSheetNamed, setCursor!, appendRow, mapX};      
         let* s1     = getSheetNamed("Classification");
         let* _      = setCursor!(s1, 6);
-        mapX(x -> appendRow(s1, setEqClassificationMem!(x)), xs)
+        let rows    = List.sortWith(compareEqClassification, xs);
+        mapX(x -> appendRow(s1, setEqClassificationMem!(x)), rows)
+
 
 
     /// Multiple equipment (equi only)

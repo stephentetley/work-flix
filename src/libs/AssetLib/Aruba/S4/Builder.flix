@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/// DEFUNCT
+/// Needs to be reimplemented to use relations.
+
 namespace AssetLib/Aruba/S4/Builder {
 
     use Data.RoseTree.{RoseTree};

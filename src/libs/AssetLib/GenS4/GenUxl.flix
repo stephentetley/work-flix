@@ -73,12 +73,14 @@ namespace AssetLib/GenS4/GenUxl {
             case Some(x1) => AssetLib/GenS4/WorkLists.readEquiWorkList(x1)
             case None => Ok(Nil)
         };
-        let equiGroups      = List.groupBy((x1,y1) -> x1.batchNumber == y1.batchNumber, equiItems);
+        let equiGroups      = List.groupBy((x1, y1) -> x1.batchNumber == y1.batchNumber, equiItems);
         let* equiBatches    = Result.traverse(xs -> execGenMonad(genEquiUxl(src.facts, xs) *> genOptional(src.optionalFacts, xs, #{})), equiGroups);
         let* _              = writeFlocs(flocUxl, outputArgs);
         let _               = Console.printLine("Batch count: ${List.length(equiBatches)}");
         let* _              = writeEquiBatches(equiBatches, outputArgs);
         Ok()
+
+
 
     def writeFlocs(src1: UxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
