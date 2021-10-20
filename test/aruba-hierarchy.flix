@@ -1,5 +1,5 @@
 use AssetLib/Aruba/Base.{FlocLevel, SubFloc};
-use AssetLib/Aruba/S4Hierarchy.{Site, Function, ChildFloc};
+use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, ChildFloc};
    
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -48,27 +48,34 @@ def main2(): Result[Unit, String] & Impure =
     let rules       = #{
 
         /// These generate blanks in the tree and suggests we also need a "tree list" view...
-        Organization(flocId, "", "", "") :- 
-            Site(flocId, _, _).
+        Organization(siteFid, "", "", "", "") :- 
+            Site(siteFid, _, _).
 
-        Organization(siteFid, flocId, "", "") :- 
-            Function(flocId, _, _),
-            ChildFloc(siteFid, flocId).
-
-        Organization(siteFid, funFid, flocId, "") :- 
-            ProcessGroup(flocId, _, _), 
-            ChildFloc(funFid, flocId),
+        Organization(siteFid, funFid, "", "", "") :- 
+            Function(funFid, _, _),
             ChildFloc(siteFid, funFid).
 
-        Organization(siteFid, funFid, pgFid, flocId) :- 
-            Process(flocId, _, _), 
-            ChildFloc(pgFid, flocId),
+        Organization(siteFid, funFid, pgFid, "", "") :- 
+            ProcessGroup(pgFid, _, _), 
+            ChildFloc(funFid, pgFid),
+            ChildFloc(siteFid, funFid).
+
+        Organization(siteFid, funFid, pgFid, pFid, "") :- 
+            Process(pFid, _, _), 
+            ChildFloc(pgFid, pFid),
+            ChildFloc(funFid, pgFid),
+            ChildFloc(siteFid, funFid).
+
+        Organization(siteFid, funFid, pgFid, pFid, sysFid) :- 
+            System(sysFid, _, _), 
+            ChildFloc(pFid, sysFid),
+            ChildFloc(pgFid, pFid),
             ChildFloc(funFid, pgFid),
             ChildFloc(siteFid, funFid).
 
     };
-    query db <+> rules select (x1, x2, x3, x4) from Organization(x1, x2, x3, x4) |> Array.foreach(println);
-    /// query db <+> rules select (x1, x2, x3) from Organization(x1, x2, x3) |> RelLib/Tree.printAsTree3;
+    /// query db <+> rules select (x1, x2, x3, x4) from Organization(x1, x2, x3, x4) |> Array.foreach(println);
+    query db <+> rules select (x1, x2, x3, x4, x5) from Organization(x1, x2, x3, x4, x5) |> RelLib/Tree2.printAsTree5;
     Ok()
 
 

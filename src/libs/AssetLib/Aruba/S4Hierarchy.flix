@@ -29,14 +29,14 @@ namespace AssetLib/Aruba/S4Hierarchy {
 
     pub rel Function(flocId: String, flocPath: String, name: String)
     
-    pub rel ProcessGroup(floc: String, flocPath: String, name: String)
+    pub rel ProcessGroup(flocId: String, flocPath: String, name: String)
 
-    pub rel Process(floc: String, flocPath: String, name: String)
+    pub rel Process(flocId: String, flocPath: String, name: String)
 
-    pub rel System(floc: String, flocPath: String, name: String)
+    pub rel System(flocId: String, flocPath: String, name: String)
 
     /// Level 6 - e.g "Heating Unit", "Pump Assembly"
-    pub rel Subsystem(floc: String, flocPath: String, name: String)
+    pub rel Subsystem(flocId: String, flocPath: String, name: String)
 
     /// Floc childOf relation
     pub rel ChildFloc(parentFlocId: String, childFlocId: String)
