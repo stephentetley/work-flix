@@ -96,11 +96,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
         case _ => ""
     }
 
+    /// Note - spacing inconsistencies in source...
     def s4PerformanceGrade(s: String): String = match String.trim(s) { 
         case "1 - Availability  95%"        => "1 - AVAILABILITY 95%"
-        case "2 - Availability  90% - 94%"  => "2 - AVAILABILITY 90% - 94%"
-        case "3 - Availability  80% - 89%"  => "3 - AVAILABILITY 80% - 89%"
-        case "4 - Availability  50% - 79%"  => "4 - AVAILABILITY 50% - 79%"
+        case "2 - Availability 90% - 94%"   => "2 - AVAILABILITY 90% - 94%"
+        case "3 - Availability 80% - 89%"   => "3 - AVAILABILITY 80% - 89%"
+        case "4 - Availability 50% - 79%"   => "4 - AVAILABILITY 50% - 79%"
         case "5 - Availability  49%"        => "5 - AVAILABILITY 49%"
         case _ => ""
     }

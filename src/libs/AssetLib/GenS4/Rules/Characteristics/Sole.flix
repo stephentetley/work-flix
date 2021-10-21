@@ -28,14 +28,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         S4InsulationClass, s4InsulationClassRules};
 
-    type alias SoleFacts[r1: SchemaRow] = 
+    type alias SoleSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, S4InsulationClass, EquiCharacteristic | r1}
 
-    pub def genSole(workitems: #{EquiWorkItem3 | r1}, facts: SoleFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as SoleFacts[r1];
+    pub def genSole(workitems: #{EquiWorkItem3 | r1}, facts: SoleSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as SoleSchema[r1];
         sole(workitems1 <+> facts)
 
-    pub def sole(input: SoleFacts[r1]): GenMonad[Unit] =
+    pub def sole(input: SoleSchema[r1]): GenMonad[Unit] =
         let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "SOLE", s4Class),

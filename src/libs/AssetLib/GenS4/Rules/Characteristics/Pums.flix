@@ -31,16 +31,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
     
 
 
-    type alias PumsFacts[r1: SchemaRow] = 
+    type alias PumsSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, DiaphragmMaterial, DutyHead,  Flow, ImpellerType, PumpLiftingType, RatingPower, 
             EquiCharacteristic  | r1}
 
-    pub def genPums(workitems: #{EquiWorkItem3 | r1}, facts: PumsFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as PumsFacts[r1];
+    pub def genPums(workitems: #{EquiWorkItem3 | r1}, facts: PumsSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as PumsSchema[r1];
         pums(workitems1 <+> facts)
 
 
-    pub def pums(input: PumsFacts[r1]): GenMonad[Unit] = 
+    pub def pums(input: PumsSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMS_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMS", s4Class),

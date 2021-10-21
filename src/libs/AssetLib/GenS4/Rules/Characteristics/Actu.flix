@@ -31,16 +31,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
     
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
-    type alias ActuFacts[r1: SchemaRow] = 
+    type alias ActuSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, Power, VoltageIn, S4InsulationClass, 
             EquiCharacteristic | r1}
 
-    pub def genActu(workitems: #{EquiWorkItem3 | r1}, facts: ActuFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as ActuFacts[r1];
+    pub def genActu(workitems: #{EquiWorkItem3 | r1}, facts: ActuSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as ActuSchema[r1];
         actu(workitems1 <+> facts)
 
 
-    pub def actu(input: ActuFacts[r1]): GenMonad[Unit] = 
+    pub def actu(input: ActuSchema[r1]): GenMonad[Unit] = 
         let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "ACTU", s4Class),

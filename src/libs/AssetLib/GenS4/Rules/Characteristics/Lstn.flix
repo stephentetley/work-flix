@@ -29,16 +29,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
     
 
 
-    type alias LstnFacts[r1: SchemaRow] = 
+    type alias LstnSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RangeMinMax, SignalMinMax, Transducer, EquiCharacteristic | r1}
 
 
-    pub def genLstn(workitems: #{EquiWorkItem3 | r1}, facts: LstnFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as LstnFacts[r1];
+    pub def genLstn(workitems: #{EquiWorkItem3 | r1}, facts: LstnSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as LstnSchema[r1];
         lstn(workitems1 <+> facts)
 
 
-    pub def lstn(input: LstnFacts[r1]): GenMonad[Unit] = 
+    pub def lstn(input: LstnSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "LSTN", s4Class),

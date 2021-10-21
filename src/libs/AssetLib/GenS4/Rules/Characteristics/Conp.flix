@@ -31,16 +31,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
     
 
 
-    type alias ConpFacts[r1: SchemaRow] = 
+    type alias ConpSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, CurrentInA, VoltageIn, EquiCharacteristic | r1}
 
 
-    pub def genConp(workitems: #{EquiWorkItem3 | r1}, facts: ConpFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as ConpFacts[r1];
+    pub def genConp(workitems: #{EquiWorkItem3 | r1}, facts: ConpSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as ConpSchema[r1];
         conp(workitems1 <+> facts)
 
 
-    pub def conp(input: ConpFacts[r1]): GenMonad[Unit] = 
+    pub def conp(input: ConpSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "CONP", s4Class),

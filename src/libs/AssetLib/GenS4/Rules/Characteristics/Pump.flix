@@ -28,15 +28,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
 
-    type alias PumpFacts[r1: SchemaRow] = 
+    type alias PumpSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, DiaphragmMaterial, DutyHead,  Flow, ImpellerType, PumpLiftingType, RatingPower, 
             EquiCharacteristic | r1}
 
-    pub def genPump(workitems: #{EquiWorkItem3 | r1}, facts: PumpFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as PumpFacts[r1];
+    pub def genPump(workitems: #{EquiWorkItem3 | r1}, facts: PumpSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as PumpSchema[r1];
         pump(workitems1 <+> facts)
 
-    pub def pump(input: PumpFacts[r1]): GenMonad[Unit] = 
+    pub def pump(input: PumpSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
                 EquiWorkItem3(equiId, "PUMP", s4Class),

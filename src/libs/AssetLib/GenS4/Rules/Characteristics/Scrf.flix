@@ -30,16 +30,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Scrf {
     
 
 
-    type alias ScrfFacts[r1: SchemaRow] = 
+    type alias ScrfSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, Flow, EquiCharacteristic | r1}
 
-    pub def genScrf(workitems: #{EquiWorkItem3 | r1}, facts: ScrfFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as ScrfFacts[r1];
+    pub def genScrf(workitems: #{EquiWorkItem3 | r1}, facts: ScrfSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as ScrfSchema[r1];
         scrf(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def scrf(input: ScrfFacts[r1]): GenMonad[Unit] = 
+    pub def scrf(input: ScrfSchema[r1]): GenMonad[Unit] = 
         use AssetLib/GenS4/Rules/Characteristics/Utils.{flowLitresPerSecond, recognizedFlowUnits};
                             
         let rules = #{

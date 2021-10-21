@@ -29,16 +29,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sfer {
     
 
 
-    type alias SferFacts[r1: SchemaRow] = 
+    type alias SferSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
 
-    pub def genSfer(workitems: #{EquiWorkItem3 | r1}, facts: SferFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as SferFacts[r1];
+    pub def genSfer(workitems: #{EquiWorkItem3 | r1}, facts: SferSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as SferSchema[r1];
         sfer(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def sfer(input: SferFacts[r1]): GenMonad[Unit] = 
+    pub def sfer(input: SferSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "SFER", s4Class),

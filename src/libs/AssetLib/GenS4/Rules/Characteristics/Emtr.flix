@@ -29,18 +29,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         S4InsulationClass, s4InsulationClassRules};
     
-    type alias EmtrFacts[r1: SchemaRow] = 
+    type alias EmtrSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, SpeedRPM, Power, VoltageIn, S4InsulationClass,
             EquiCharacteristic | r1}
 
 
-    pub def genEmtr(workitems: #{EquiWorkItem3 | r1}, facts: EmtrFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as EmtrFacts[r1];
+    pub def genEmtr(workitems: #{EquiWorkItem3 | r1}, facts: EmtrSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as EmtrSchema[r1];
         emtr(workitems1 <+> facts)
 
 
     /// IP_RATING should be generated on per type (per class?)
-    pub def emtr(input: EmtrFacts[r1]): GenMonad[Unit] = 
+    pub def emtr(input: EmtrSchema[r1]): GenMonad[Unit] = 
         let rules = s4InsulationClassRules() <+> #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
                 EquiWorkItem3(equiId, "EMTR", s4Class),

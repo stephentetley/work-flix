@@ -28,15 +28,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pstn {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
-    type alias PstnFacts[r1: SchemaRow] = 
+    type alias PstnSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
 
-    pub def genPstn(workitems: #{EquiWorkItem3 | r1}, facts: PstnFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as PstnFacts[r1];
+    pub def genPstn(workitems: #{EquiWorkItem3 | r1}, facts: PstnSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as PstnSchema[r1];
         pstn(workitems1 <+> facts)
 
-    pub def pstn(input: PstnFacts[r1]): GenMonad[Unit] = 
+    pub def pstn(input: PstnSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "PSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "PSTN", s4Class),

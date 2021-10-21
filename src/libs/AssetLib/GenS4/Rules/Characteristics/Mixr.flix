@@ -30,16 +30,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mixr {
     
 
 
-    type alias MixrFacts[r1: SchemaRow] = 
+    type alias MixrSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RatingPower, SpeedRPM, EquiCharacteristic | r1}
 
-    pub def genMixr(workitems: #{EquiWorkItem3 | r1}, facts: MixrFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as MixrFacts[r1];
+    pub def genMixr(workitems: #{EquiWorkItem3 | r1}, facts: MixrSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as MixrSchema[r1];
         mixr(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def mixr(input: MixrFacts[r1]): GenMonad[Unit] = 
+    pub def mixr(input: MixrSchema[r1]): GenMonad[Unit] = 
         let rules = #{
 
             /// Not generated for static mixer

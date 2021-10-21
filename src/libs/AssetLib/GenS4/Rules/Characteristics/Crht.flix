@@ -28,16 +28,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
     
 
 
-    type alias CrhtFacts[r1: SchemaRow] = 
+    type alias CrhtSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
 
 
-    pub def genCrht(workitems: #{EquiWorkItem3 | r1}, facts: CrhtFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as CrhtFacts[r1];
+    pub def genCrht(workitems: #{EquiWorkItem3 | r1}, facts: CrhtSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as CrhtSchema[r1];
         crht(workitems1 <+> facts)
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def crht(input: CrhtFacts[r1]): GenMonad[Unit] = 
+    pub def crht(input: CrhtSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "CRHT", s4Class),

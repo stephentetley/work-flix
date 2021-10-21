@@ -28,17 +28,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Liac {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
-    type alias LiacFacts[r1: SchemaRow] = 
+    type alias LiacSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic  | r1}
 
 
-    pub def genLiac(workitems: #{EquiWorkItem3 | r1}, facts: LiacFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as LiacFacts[r1];
+    pub def genLiac(workitems: #{EquiWorkItem3 | r1}, facts: LiacSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as LiacSchema[r1];
         liac(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def liac(input: LiacFacts[r1]): GenMonad[Unit] =
+    pub def liac(input: LiacSchema[r1]): GenMonad[Unit] =
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "LIAC", s4Class),

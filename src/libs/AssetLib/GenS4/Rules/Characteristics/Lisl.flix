@@ -30,17 +30,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
 
 
 
-    type alias LislFacts[r1: SchemaRow] = 
+    type alias LislSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
 
 
-    pub def genLisl(workitems: #{EquiWorkItem3 | r1}, facts: LislFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as LislFacts[r1];
+    pub def genLisl(workitems: #{EquiWorkItem3 | r1}, facts: LislSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as LislSchema[r1];
         lisl(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def lisl(input: LislFacts[r1]): GenMonad[Unit] = 
+    pub def lisl(input: LislSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
                 EquiWorkItem3(equiId, "LISL", s4Class),

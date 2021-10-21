@@ -32,17 +32,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
     
 
 
-    type alias StarFacts[r1: SchemaRow] = 
+    type alias StarSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, CurrentInA, IPRating, SpeedRPM, Power, VoltageIn, EquiCharacteristic | r1}
 
-    pub def genStar(workitems: #{EquiWorkItem3 | r1}, facts: StarFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as StarFacts[r1];
+    pub def genStar(workitems: #{EquiWorkItem3 | r1}, facts: StarSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as StarSchema[r1];
         star(workitems1 <+> facts)
 
 
     /// TODO "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
 
-    pub def star(input: StarFacts[r1]): GenMonad[Unit] = 
+    pub def star(input: StarSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),

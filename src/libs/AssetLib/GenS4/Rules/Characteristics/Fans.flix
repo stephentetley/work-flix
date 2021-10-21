@@ -27,17 +27,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fans {
 
 
 
-    type alias FansFacts[r1: SchemaRow] = 
+    type alias FansSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, SpeedRPM, RatingPower, TypeOfFan, S4FanType, EquiCharacteristic | r1}
 
 
-    pub def genFans(workitems: #{EquiWorkItem3 | r1}, facts: FansFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as FansFacts[r1];
+    pub def genFans(workitems: #{EquiWorkItem3 | r1}, facts: FansSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as FansSchema[r1];
         fans(workitems1 <+> facts)
 
     rel S4FanType(aibType: String, s4Type: String)
 
-    pub def fans(input: FansFacts[r1]): GenMonad[Unit] = 
+    pub def fans(input: FansSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "FANS_RATED_SPEED_RPM", 1, S4Int(speed)) :- 
                 EquiWorkItem3(equiId, "FANS", s4Class),

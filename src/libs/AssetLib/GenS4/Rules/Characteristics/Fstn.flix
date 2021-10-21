@@ -29,17 +29,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
 
 
 
-    type alias FstnFacts[r1: SchemaRow] = 
+    type alias FstnSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
 
-    pub def genFstn(workitems: #{EquiWorkItem3 | r1}, facts: FstnFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as FstnFacts[r1];
+    pub def genFstn(workitems: #{EquiWorkItem3 | r1}, facts: FstnSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as FstnSchema[r1];
         fstn(workitems1 <+> facts)
 
 
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
-    pub def fstn(input: FstnFacts[r1]): GenMonad[Unit] = 
+    pub def fstn(input: FstnSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
                 EquiWorkItem3(equiId, "FSTN", s4Class),

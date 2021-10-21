@@ -28,15 +28,15 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     
 
 
-    type alias ValvFacts[r1: SchemaRow] = 
+    type alias ValvSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, ValveSize, EquiCharacteristic | r1}
 
-    pub def genValv(workitems: #{EquiWorkItem3 | r1}, facts: ValvFacts[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as ValvFacts[r1];
+    pub def genValv(workitems: #{EquiWorkItem3 | r1}, facts: ValvSchema[r1]): GenMonad[Unit] =
+        let workitems1 = workitems as ValvSchema[r1];
         valv(workitems1 <+> facts)
 
 
-    pub def valv(input: ValvFacts[r1]): GenMonad[Unit] = 
+    pub def valv(input: ValvSchema[r1]): GenMonad[Unit] = 
         let rules = #{
             EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
                 EquiWorkItem3(equiId, "VALV", s4Class),
