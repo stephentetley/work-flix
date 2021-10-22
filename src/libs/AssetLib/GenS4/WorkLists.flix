@@ -55,19 +55,19 @@ namespace AssetLib/GenS4/WorkLists {
         SheetIO/SheetReader.runXlsx(readStep(), src.path)
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getContentNamed, getInt32Named, optional, liftResult}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getTrimmedContentNamed, getInt32Named, optional, liftResult}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
-        let* sainums        = map(stringList, getContentNamed("Aib References (semi sep list)"));
+        let* sainums        = map(stringList, getTrimmedContentNamed("Aib References (semi sep list)"));
         let* installedFrom  = getS4LocalDateNamed("Installed From");
         let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
-        let* sysClass       = map(String.trim, getContentNamed("Class Name (System)"));
-        let* sysType        = map(String.trim, getContentNamed("System Type (Text)"));
-        let* position       = optional(getInt32Named("Position"));
+        let* sysClass       = map(String.trim, getTrimmedContentNamed("Class Name (System)"));
+        let* sysType        = map(String.trim, getTrimmedContentNamed("System Type (Text)"));
+        let* position       = map(FromString.fromString, getTrimmedContentNamed("Position"));
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
-        let* solutionId     = map(String.trim, getContentNamed("Solution ID"));
+        let* solutionId     = map(String.trim, getTrimmedContentNamed("Solution ID"));
         let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
         let level           = AssetLib/Base/S4/Floc.level(objfloc);
         return({ funcloc                = floc
@@ -127,7 +127,7 @@ namespace AssetLib/GenS4/WorkLists {
         let* model          = getTrimmedContentNamed("Model");
         let* superId        = getTrimmedContentNamed("Super Equi");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
-        let* position       = optional(getInt32Named("Position"));
+        let* position       = map(FromString.fromString, getTrimmedContentNamed("Position"));
         let* category       = map(String.trim, getNonEmptyContentNamed("S4 Category"));
         let* s4Type         = map(String.trim, getNonEmptyContentNamed("Object Type"));
         let* s4Class        = map(String.trim, getNonEmptyContentNamed("Object Class"));
