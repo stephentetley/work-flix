@@ -29,7 +29,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Emtr {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         S4InsulationClass, s4InsulationClassRules};
     
-    type alias EmtrSchema[r1: SchemaRow] = 
+    
+    pub type alias EmtrSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, SpeedRPM, Power, VoltageIn, S4InsulationClass,
             EquiCharacteristic | r1}
 

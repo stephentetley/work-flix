@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Fan {
     /// Read from Aib file...
 
 
-    type alias FanFacts[r: SchemaRow] = 
+    pub type alias FanFacts[r: SchemaRow] = 
         #{SpeedRPM, TypeOfFan, RatingPower | r}
 
     pub def readFanFacts(src: XlsxSource): GenMonad[FanFacts[r]] =

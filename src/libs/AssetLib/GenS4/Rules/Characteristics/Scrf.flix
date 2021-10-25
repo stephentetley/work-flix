@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Scrf {
     
 
 
-    type alias ScrfSchema[r1: SchemaRow] = 
+    pub type alias ScrfSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, Flow, EquiCharacteristic | r1}
 
     pub def genScrf(workitems: #{EquiWorkItem3 | r1}, facts: ScrfSchema[r1]): GenMonad[Unit] =

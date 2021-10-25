@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Crht {
     
 
 
-    type alias CrhtSchema[r1: SchemaRow] = 
+    pub type alias CrhtSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
 
 

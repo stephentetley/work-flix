@@ -28,8 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fstn {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
 
 
-
-    type alias FstnSchema[r1: SchemaRow] = 
+    pub type alias FstnSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
 

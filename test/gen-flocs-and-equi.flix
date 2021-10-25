@@ -8,7 +8,7 @@ def outputArgs(): UxlOutputArgs =
     }
 
 def sourceFiles(): GenUxlSource = 
-    let workBook = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ferric-worklist.xlsx");
+    let workBook = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-stw-ferric-worklist.xlsx");
     let opts = AssetLib/GenS4/GenUxl.emptyOptionalExports();
     { flocWorkList = Some({path = workBook, sheet = "Floc"})
     , equiWorkList = Some({path = workBook, sheet = "Equi"})

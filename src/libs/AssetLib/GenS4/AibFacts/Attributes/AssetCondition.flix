@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     /// Read from Aib file...
 
 
-    type alias AgaspFacts[r: SchemaRow] = 
+    pub type alias AgaspFacts[r: SchemaRow] = 
         #{ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear  | r}
 
 

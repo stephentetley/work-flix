@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pstn {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
-    type alias PstnSchema[r1: SchemaRow] = 
+    pub type alias PstnSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
 

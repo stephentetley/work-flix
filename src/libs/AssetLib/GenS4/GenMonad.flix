@@ -31,9 +31,9 @@ namespace AssetLib/GenS4/GenMonad {
 
 
     /// Potentially Env should be open to the user: `Env[e] = (Time.LocalDate, e)`
-    type alias Env = Time.LocalDate
+    pub type alias Env = Time.LocalDate
 
-    type alias Output = UxlSource
+    pub type alias Output = UxlSource
 
     pub opaque type EquiRef = String
 

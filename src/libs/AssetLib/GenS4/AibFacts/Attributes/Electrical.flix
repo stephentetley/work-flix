@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
 
     /// Read from Aib file...
 
-    type alias ElectricalFacts[r: SchemaRow] = 
+    pub type alias ElectricalFacts[r: SchemaRow] = 
         #{CurrentInA, InsulationClass, IPRating, Power, SpeedRPM, VoltageIn | r}
 
 

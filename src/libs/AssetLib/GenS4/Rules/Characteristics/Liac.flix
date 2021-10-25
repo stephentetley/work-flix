@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Liac {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
 
-    type alias LiacSchema[r1: SchemaRow] = 
+    pub type alias LiacSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic  | r1}
 
 

@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tstn {
 
 
 
-    type alias TstnSchema[r1: SchemaRow] = 
+    pub type alias TstnSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
     pub def genTstn(workitems: #{EquiWorkItem3 | r1}, facts: TstnSchema[r1]): GenMonad[Unit] =

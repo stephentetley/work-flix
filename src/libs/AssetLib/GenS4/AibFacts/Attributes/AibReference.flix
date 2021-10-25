@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
 
     /// Read from Aib file...
 
-    type alias AibRow = 
+    pub type alias AibRow = 
         { reference :: String
         , commonName :: String
         }

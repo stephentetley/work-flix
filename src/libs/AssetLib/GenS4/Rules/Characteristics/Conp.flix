@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Conp {
     
 
 
-    type alias ConpSchema[r1: SchemaRow] = 
+    pub type alias ConpSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, CurrentInA, VoltageIn, EquiCharacteristic | r1}
 
 

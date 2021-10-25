@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Valv {
     
 
 
-    type alias ValvSchema[r1: SchemaRow] = 
+    pub type alias ValvSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, ValveSize, EquiCharacteristic | r1}
 
     pub def genValv(workitems: #{EquiWorkItem3 | r1}, facts: ValvSchema[r1]): GenMonad[Unit] =

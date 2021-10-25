@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
 
 
     /// Read from Aib file...
-    type alias TankFacts[r: SchemaRow] =
+    pub type alias TankFacts[r: SchemaRow] =
         #{TankConstruction, TankLevel, TankShape, UnitCapacityCum, UnitCentreDepthM, UnitDiameterM, 
             UnitLengthM, UnitSideDepthM, UnitSideDepthMinM, UnitSideDepthMaxM | r}
 

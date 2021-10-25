@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sole {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         S4InsulationClass, s4InsulationClassRules};
 
-    type alias SoleSchema[r1: SchemaRow] = 
+    pub type alias SoleSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, S4InsulationClass, EquiCharacteristic | r1}
 
     pub def genSole(workitems: #{EquiWorkItem3 | r1}, facts: SoleSchema[r1]): GenMonad[Unit] =

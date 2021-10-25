@@ -65,8 +65,8 @@ namespace AssetLib/Base/Osgb36 {
         use Option.flatMap;
         let* major = findMajor(x.easting, x.northing);
         let* minor = findMinor(x.easting, x.northing) as & Pure;
-        let smallE = Int32.toString(x.easting % 100000);
-        let smallN = Int32.toString(x.northing % 100000);
+        let smallE = Int32.toString(x.easting `Mod.mod` 100000);
+        let smallN = Int32.toString(x.northing `Mod.mod` 100000);
         let s = Char.toString(major) + Char.toString(minor) + String.padLeft(5, '0', smallE) + String.padLeft(5, '0', smallN);
         Some(NGR(s))
 
@@ -84,8 +84,8 @@ namespace AssetLib/Base/Osgb36 {
 
     def findMinor (easting: Int32, northing: Int32): Option[Char] & Impure =
         let arr2D = minorGrid();
-        let modE = easting % 500000;
-        let modN = northing % 500000;
+        let modE = easting `Mod.mod` 500000;
+        let modN = northing `Mod.mod` 500000;
         let divE = modE / 100000;
         let divN = modN / 100000;
         if (divE >= 0 and divE < 5 and divN >= 0 and divN < 5) {

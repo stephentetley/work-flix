@@ -37,7 +37,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
     /// attribute so we treat it differently.
 
 
-    type alias EquipmentAttributes = 
+    pub type alias EquipmentAttributes = 
         { aibref :: String
         , installedFrom :: Time.LocalDate
         , status :: String

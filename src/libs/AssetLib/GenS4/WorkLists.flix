@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/WorkLists {
 
     /// Functional Location 
 
-    type alias FlocWorkItem = 
+    pub type alias FlocWorkItem = 
         { funcloc :: String
         , description :: String
         , level :: Int32
@@ -91,7 +91,7 @@ namespace AssetLib/GenS4/WorkLists {
 
     /// Equipment
 
-    type alias EquiWorkItem = 
+    pub type alias EquiWorkItem = 
         { equipmentId :: String
         , s4Name :: String
         , s4Floc :: String
@@ -145,11 +145,6 @@ namespace AssetLib/GenS4/WorkLists {
                 , s4EquiClass = s4Class
                 , batchNumber = Option.getWithDefault(batchNo, 1)
                 })
-
-
- 
-
-
 
 
 }

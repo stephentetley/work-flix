@@ -26,7 +26,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
     /// Read from Aib file...
 
-    type alias LiftingFacts[r: SchemaRow] = #{WorkLoad, TestCertNo, YWRef | r}
+    pub type alias LiftingFacts[r: SchemaRow] = #{WorkLoad, TestCertNo, YWRef | r}
 
 
     pub def readLiftingFacts(src: XlsxSource): GenMonad[#{WorkLoad, TestCertNo, YWRef | r}]  =

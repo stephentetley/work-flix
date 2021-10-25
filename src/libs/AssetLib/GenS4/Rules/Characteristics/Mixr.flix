@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mixr {
     
 
 
-    type alias MixrSchema[r1: SchemaRow] = 
+    pub type alias MixrSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RatingPower, SpeedRPM, EquiCharacteristic | r1}
 
     pub def genMixr(workitems: #{EquiWorkItem3 | r1}, facts: MixrSchema[r1]): GenMonad[Unit] =

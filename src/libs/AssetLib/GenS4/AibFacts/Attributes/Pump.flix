@@ -26,7 +26,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
         DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower};
 
     /// Read from Aib file...
-    type alias PumpFacts[r: SchemaRow] = 
+    pub type alias PumpFacts[r: SchemaRow] = 
         #{DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower | r}
 
     pub def readPumpFacts(src: XlsxSource): GenMonad[PumpFacts[r]]  =

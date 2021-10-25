@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lstn {
     
 
 
-    type alias LstnSchema[r1: SchemaRow] = 
+    pub type alias LstnSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, RangeMinMax, SignalMinMax, Transducer, EquiCharacteristic | r1}
 
 

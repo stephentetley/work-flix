@@ -26,7 +26,7 @@ namespace AssetLib/S4Lite/EmitUxl {
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
         SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
-    type alias UxlOutputArgs = 
+    pub type alias UxlOutputArgs = 
         { uxlTemplate :: System.FilePath
         , changeRequestName :: String
         , outpath :: System.FilePath

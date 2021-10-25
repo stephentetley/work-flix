@@ -29,7 +29,7 @@ namespace AssetLib/S4Lite/Datatypes {
     /// The (assumed) speed loss of List concat is probably not enough to merit 
     /// a non-standard type (Chain)
     
-    type alias UxlSource = 
+    pub type alias UxlSource = 
         { funclocs :: Chain[SLFunctionalLocation]
         , funclocLongTexts :: Chain[SLFlocLongText]
         , funclocCharacteristics :: Chain[SLFlocCharacteristic]
@@ -56,7 +56,7 @@ namespace AssetLib/S4Lite/Datatypes {
         , equiCharacteristics = Monoid.combine(s1.equiCharacteristics, s2.equiCharacteristics)
         }
 
-    type alias SLFunctionalLocation = 
+    pub type alias SLFunctionalLocation = 
         { funcloc :: String
         , description :: String
         , category :: Int32
@@ -70,14 +70,14 @@ namespace AssetLib/S4Lite/Datatypes {
         }
 
 
-    type alias SLFlocLongText = 
+    pub type alias SLFlocLongText = 
         { funcloc :: String
         , description :: String
         , longText :: String
         }
 
 
-    type alias SLFlocCharacteristic = 
+    pub type alias SLFlocCharacteristic = 
         { funcloc :: String
         , className :: String
         , charName :: String
@@ -87,7 +87,7 @@ namespace AssetLib/S4Lite/Datatypes {
         }
 
 
-    type alias SLEquipment =
+    pub type alias SLEquipment =
         { equiId :: String
         , category :: String              /// e.g "M", "I", "E"
         , description :: String
@@ -106,13 +106,13 @@ namespace AssetLib/S4Lite/Datatypes {
         , status :: String
         }
 
-    type alias SLEquiLongText = 
+    pub type alias SLEquiLongText = 
         { equiId :: String
         , description :: String
         , longText :: String
         }
 
-    type alias SLEquiCharacteristic = 
+    pub type alias SLEquiCharacteristic = 
         { equiId :: String
         , className :: String
         , charName :: String

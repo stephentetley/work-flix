@@ -26,7 +26,8 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
 
     /// Read from Aib file...
 
-    type alias InstrumentFacts[r: SchemaRow] = #{RangeMinMax, SignalMinMax, Transducer | r}
+    pub type alias InstrumentFacts[r: SchemaRow] = 
+        #{RangeMinMax, SignalMinMax, Transducer | r}
 
     pub def readInstrumentFacts(src: XlsxSource): GenMonad[InstrumentFacts[r]] =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalInstrument()))

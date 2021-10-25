@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
     
 
 
-    type alias PumsSchema[r1: SchemaRow] = 
+    pub type alias PumsSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, DiaphragmMaterial, DutyHead,  Flow, ImpellerType, PumpLiftingType, RatingPower, 
             EquiCharacteristic  | r1}
 

@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Actu {
     
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
 
-    type alias ActuSchema[r1: SchemaRow] = 
+    pub type alias ActuSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, Power, VoltageIn, S4InsulationClass, 
             EquiCharacteristic | r1}
 

@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Sfer {
     
 
 
-    type alias SferSchema[r1: SchemaRow] = 
+    pub type alias SferSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
 
     pub def genSfer(workitems: #{EquiWorkItem3 | r1}, facts: SferSchema[r1]): GenMonad[Unit] =

@@ -27,7 +27,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Fans {
 
 
 
-    type alias FansSchema[r1: SchemaRow] = 
+    pub type alias FansSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, SpeedRPM, RatingPower, TypeOfFan, S4FanType, EquiCharacteristic | r1}
 
 

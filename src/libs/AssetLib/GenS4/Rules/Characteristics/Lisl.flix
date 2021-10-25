@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Lisl {
 
 
 
-    type alias LislSchema[r1: SchemaRow] = 
+    pub type alias LislSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
 
 

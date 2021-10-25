@@ -24,16 +24,16 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
     /// Potentially we now favour "File Upload" for modifications.
 
 
-    type alias TransferFile = 
+    pub type alias TransferFile = 
         { fileHeader :: FileHeader
         , selection :: List[String]       /// uninterpreted
         , headers :: Headers
         , dataRows :: List[DataRow]
         }
 
-    type alias DataRow = Array[String]
+    pub type alias DataRow = Array[String]
 
-    type alias FileHeader = 
+    pub type alias FileHeader = 
         { fileType :: FileType
         , dataModel :: DataModel
         , entityType :: EntityType
@@ -44,7 +44,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
 
 
     /// We want direct indexing...
-    type alias Headers = Array[String]
+    pub type alias Headers = Array[String]
     
     /// Possibly change to String?
     /// Generally we are now only concerned with Download files
@@ -115,7 +115,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
     
 
 
-    type alias ClassFlocRow = 
+    pub type alias ClassFlocRow = 
         { funcloc :: String
         , className :: String
         , classType :: String
@@ -124,7 +124,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
         }
 
 
-   type alias ValuaFlocRow = 
+    pub type alias ValuaFlocRow = 
         { funcloc :: String
         , classType :: String
         , charId :: String
@@ -139,7 +139,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
 
         
     /// Note status appears to be optional.
-    type alias ClassEquiRow = 
+    pub type alias ClassEquiRow = 
         { equi :: String
         , className :: String
         , classType :: String
@@ -148,7 +148,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
         }
 
 
-    type alias ValuaEquiRow = 
+    pub type alias ValuaEquiRow = 
         { equi :: String
         , classType :: String
         , charId :: String

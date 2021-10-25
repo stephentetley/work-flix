@@ -25,20 +25,20 @@ namespace AssetLib/GenS4/GenUxl {
     use AssetLib/GenS4/WorkLists.{FlocWorkItem, EquiWorkItem};
     
 
-    type alias GenUxlSource = 
+    pub type alias GenUxlSource = 
         { flocWorkList :: Option[XlsxSource]
         , equiWorkList :: Option[XlsxSource]
         , facts :: FactExports
         , optionalFacts :: OptionalExports
         }
 
-    type alias FactExports =         
+    pub type alias FactExports =         
         { aibEquipmentExport :: XlsxSource
         , aibMemosExport :: XlsxSource
         , aibAgaspExport :: XlsxSource
         }
 
-    type alias OptionalExports =
+    pub type alias OptionalExports =
         { aibElectricalExport :: Option[XlsxSource]
         , aibFanExport :: Option[XlsxSource]
         , aibInstrumentExport :: Option[XlsxSource]

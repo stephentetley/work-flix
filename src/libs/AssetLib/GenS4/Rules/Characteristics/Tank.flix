@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Tank {
     
 
 
-    type alias TankSchema[r1: SchemaRow] = 
+    pub type alias TankSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, TankLevel, TankConstruction, EquiCharacteristic | r1}
 
     pub def genTank(workitems: #{EquiWorkItem3 | r1}, facts: TankSchema[r1]): GenMonad[Unit] =

@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pump {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
 
 
-    type alias PumpSchema[r1: SchemaRow] = 
+    pub type alias PumpSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, DiaphragmMaterial, DutyHead,  Flow, ImpellerType, PumpLiftingType, RatingPower, 
             EquiCharacteristic | r1}
 
