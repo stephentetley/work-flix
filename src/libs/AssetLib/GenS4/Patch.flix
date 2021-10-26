@@ -24,7 +24,7 @@ namespace AssetLib/GenS4/Patch {
     /// TODO can we use RelLib/Relation.Organization instead?
     /// Also can patches be first-order, rather than update functions?
 
-    type alias EquipmentPatches = MutMap[String, SLEquipment -> SLEquipment]
+    pub type alias EquipmentPatches = MutMap[String, SLEquipment -> SLEquipment]
 
     pub def softPatchEquipment(patches: EquipmentPatches, xs: List[SLEquipment]): List[SLEquipment] & Impure = 
         let fn = x1 -> match patchEquipment1(patches, x1) {

@@ -17,11 +17,11 @@
 
 namespace ChangeDoc/Datatypes {
 
-    type alias ItemId = String
+    pub type alias ItemId = String
 
 
 
-    type alias FlocTabItem = 
+    pub type alias FlocTabItem = 
         { internalFuncloc :: String
         , funcloc :: String
         , description :: String
@@ -29,7 +29,7 @@ namespace ChangeDoc/Datatypes {
         , objectType :: String
         }
     
-    type alias EquiTabItem = 
+    pub type alias EquiTabItem = 
         { equiId :: String
         , description :: String
         , funcloc :: String
@@ -38,7 +38,7 @@ namespace ChangeDoc/Datatypes {
         , objectClass :: String
         }
 
-    type alias ChangeDoc = List[ChangeRow]
+    pub type alias ChangeDoc = List[ChangeRow]
 
     /// Address not processed at the moment
     /// Use RowNumber rather than Date and Time for an orderable.
@@ -54,7 +54,7 @@ namespace ChangeDoc/Datatypes {
     }
 
     /// Funclocs and Equipment are considered "Level1"
-    type alias Level1Attrs = 
+    pub type alias Level1Attrs = 
         { change :: String
         , attribute :: String 
         , oldValue :: String
@@ -62,7 +62,7 @@ namespace ChangeDoc/Datatypes {
         , tableDest :: String
         }
 
-    type alias LongTextAttrs = 
+    pub type alias LongTextAttrs = 
         { language :: String
         , change :: String
         , attribute :: String 
@@ -72,7 +72,7 @@ namespace ChangeDoc/Datatypes {
         }
 
 
-    type alias ClassAttrs = 
+    pub type alias ClassAttrs = 
         { className :: String
         , classType :: String
         , change :: String
@@ -82,7 +82,7 @@ namespace ChangeDoc/Datatypes {
         , tableDest :: String
         }
 
-    type alias CharAttrs = 
+    pub type alias CharAttrs = 
         { charId :: String
         , classType :: String
         , intCounter :: Int32

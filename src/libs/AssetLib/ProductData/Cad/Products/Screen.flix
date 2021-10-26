@@ -35,7 +35,7 @@ namespace AssetLib/ProductData/Cad/Products/Screen {
     /// > flowLS: Option[Float64]
     /// > screenLengthM: Option[Int32]
     /// > screenWidthM: Option[Int32]
-    type alias ScreenRow = 
+    pub type alias ScreenRow = 
         { equipmentBody :: EquipmentCommon
         }
 

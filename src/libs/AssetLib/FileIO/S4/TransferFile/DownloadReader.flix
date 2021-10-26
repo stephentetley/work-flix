@@ -25,7 +25,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
     /// EntityData
     /// Used by old / Datalog Upload Check - should we remove this?
-    type alias EntityData[row] = 
+    pub type alias EntityData[row] = 
         { entityType :: EntityType
         , headers :: Headers
         , dataRows :: List[row]

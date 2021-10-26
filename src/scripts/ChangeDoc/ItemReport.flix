@@ -30,7 +30,7 @@ namespace ChangeDoc/ItemReport {
     /// 
     /// We are building multiple tables of relations to match the output report.
     
-    type alias ItemReportConfig = 
+    pub type alias ItemReportConfig = 
         { flocClassList :: System.FilePath
         , equiClassList :: System.FilePath
         , changeAttributesExport :: System.FilePath

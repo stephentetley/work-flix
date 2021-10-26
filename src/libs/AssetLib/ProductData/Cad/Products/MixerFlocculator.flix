@@ -34,7 +34,7 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
     /// Cad export currently missing: 
     /// > speedRPM: Option[Int32]
     /// > ratedPowerKW: Option[Float32]
-    type alias MixerFlocculatorRow = 
+    pub type alias MixerFlocculatorRow = 
         { equipmentBody :: EquipmentCommon
         }
 

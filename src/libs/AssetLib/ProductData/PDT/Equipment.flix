@@ -21,7 +21,7 @@ namespace AssetLib/ProductData/PDT/Equipment {
     use AssetLib/S4Lite/Datatypes.{SLEquipment};
     use AssetLib/ProductData/PDT/Utils.{rowKeyValue, rowKeyLocalDate};
 
-    type alias EquipmentInfo = 
+    pub type alias EquipmentInfo = 
         { assetType :: String
         , body :: SLEquipment
         }
@@ -73,7 +73,7 @@ namespace AssetLib/ProductData/PDT/Equipment {
         let* s1 = island(rowKeyValue("Manufacturer"));
         return({manufacturer = s1})
 
-    type alias AssetData1 = 
+    pub type alias AssetData1 = 
         { serialNumber :: String
         , dateOfInstallation :: Time.LocalDate
         , tagReference :: String

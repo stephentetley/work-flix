@@ -29,7 +29,7 @@ namespace AssetLib/Aruba/Aib/HierarchyNames {
     /// 
     pub rel AibParentName(reference: String, parentName: String)
 
-    type alias NameSource = 
+    pub type alias NameSource = 
         { reference :: String
         , commonName :: String
         }

@@ -17,29 +17,29 @@
 
 namespace AssetLib/FileIO/S4/ZTable/Datatypes {
 
-    type alias EquipObject = 
+    pub type alias EquipObject = 
         { superObject :: String
         , subObject :: String
         , category :: String
         }
 
-    type alias FlocObject = 
+    pub type alias FlocObject = 
         { superObject :: String
         , subObject :: String
         , structure :: String
         }
 
-    type alias FlocDescription = 
+    pub type alias FlocDescription = 
         { objectType :: String
         , description :: String
         }
 
-    type alias ObjTypeManufacturer = 
+    pub type alias ObjTypeManufacturer = 
         { objectType :: String
         , manufacturer :: String
         }
 
-    type alias ManufacturerModel = 
+    pub type alias ManufacturerModel = 
         { manufacturer :: String
         , model :: String
         }

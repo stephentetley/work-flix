@@ -53,7 +53,7 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/Builder {
     
     /// Print Html via a rose tree
 
-    type alias Label = {name: String, description: String}
+    pub type alias Label = {name: String, description: String}
 
     pub def allTrees(src: List[AibTree]): RoseForest[Label] = 
         List.map(Data/RoseTree.map(makeRTLabel), src)

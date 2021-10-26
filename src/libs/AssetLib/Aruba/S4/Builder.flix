@@ -30,7 +30,7 @@ namespace AssetLib/Aruba/S4/Builder {
     /// How do we know the starting level of the input? 
     /// Assume user knows what they are reading.
 
-    type alias SourceFiles =
+    pub type alias SourceFiles =
         { ih06Text :: System.FilePath
         , ih06Table :: System.FilePath            /// SheetName always Sheet1 ?
         , ih08Table :: System.FilePath            /// SheetName always Sheet1 ?
@@ -46,7 +46,7 @@ namespace AssetLib/Aruba/S4/Builder {
         let* x1 = AssetLib/FileIO/S4/IH06Tree/Builder.readTree(src.ih06Text);
         translateSite(flocProps, equiProps, x1)
 
-    type alias FlocProp = 
+    pub type alias FlocProp = 
         { status :: String
         , objectType :: String
         }
@@ -61,7 +61,7 @@ namespace AssetLib/Aruba/S4/Builder {
         Map.getWithDefault(floc, {status = "", objectType = ""}, dict)
 
 
-    type alias EquiProp = 
+    pub type alias EquiProp = 
         { status :: String
         , objectType :: String
         , position :: Option[Int32]

@@ -16,7 +16,7 @@
 
 namespace AssetLib/Aruba/S4/Datatypes {
 
-    type alias GSSite = 
+    pub type alias GSSite = 
         { funcloc :: String
         , name :: String
         , status :: String
@@ -24,7 +24,7 @@ namespace AssetLib/Aruba/S4/Datatypes {
         }
 
 
-    type alias GSFunction = 
+    pub type alias GSFunction = 
         { funcloc :: String
         , name :: String
         , objectType :: String
@@ -33,7 +33,7 @@ namespace AssetLib/Aruba/S4/Datatypes {
         }
 
 
-    type alias GSProcessGroup = 
+    pub type alias GSProcessGroup = 
         { funcloc :: String
         , name :: String
         , objectType :: String
@@ -41,7 +41,7 @@ namespace AssetLib/Aruba/S4/Datatypes {
         , processes :: List[GSProcess]
         }
 
-    type alias GSProcess = 
+    pub type alias GSProcess = 
         { funcloc :: String
         , name :: String
         , objectType :: String
@@ -49,7 +49,7 @@ namespace AssetLib/Aruba/S4/Datatypes {
         , systems :: List[GSSystem]
         }
 
-    type alias GSSystem = 
+    pub type alias GSSystem = 
         { funcloc :: String
         , name :: String
         , objectType :: String
@@ -59,7 +59,7 @@ namespace AssetLib/Aruba/S4/Datatypes {
         }
 
 
-    type alias GSSubsystem = 
+    pub type alias GSSubsystem = 
         { funcloc :: String
         , name :: String
         , objectType :: String
@@ -68,7 +68,7 @@ namespace AssetLib/Aruba/S4/Datatypes {
         }
 
 
-    type alias GSEquipment = 
+    pub type alias GSEquipment = 
         { equiId :: String
         , name :: String
         , objectType :: String
@@ -77,7 +77,7 @@ namespace AssetLib/Aruba/S4/Datatypes {
         , subequipment :: List[GSSubequipment]
         }
 
-    type alias GSSubequipment = 
+    pub type alias GSSubequipment = 
         { equiId :: String
         , name :: String
         , objectType :: String

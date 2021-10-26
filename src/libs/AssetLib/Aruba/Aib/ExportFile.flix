@@ -26,7 +26,7 @@ namespace AssetLib/Aruba/Aib/ExportFile {
     use AssetLib/Aruba/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel, EquiType};
     use AssetLib/Aruba/Aib/HierarchyNames.{AibParentName};
 
-    type alias ExportRow = 
+    pub type alias ExportRow = 
         { reference :: String
         , commonName :: String
         , hkey :: String

@@ -34,7 +34,7 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
     /// PUMPDI | ...
 
     
-    type alias PumpRow = 
+    pub type alias PumpRow = 
         { equipmentBody :: EquipmentCommon
         , impellerType :: String
         , insulationClass :: String

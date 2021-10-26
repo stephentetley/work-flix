@@ -30,7 +30,7 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
 
 
     
-    type alias HandValveRow = 
+    pub type alias HandValveRow = 
         { equipmentBody :: EquipmentCommon
         , sizeMM :: Option[Int32]
         }

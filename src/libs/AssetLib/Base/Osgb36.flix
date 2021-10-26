@@ -57,7 +57,7 @@ namespace AssetLib/Base/Osgb36 {
 
     
 
-    type alias EastingNorthing = {easting :: Int32, northing :: Int32}
+    pub type alias EastingNorthing = {easting :: Int32, northing :: Int32}
 
 
 

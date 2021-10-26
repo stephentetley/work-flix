@@ -30,7 +30,7 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
 
 
     
-    type alias EquipmentCommon = 
+    pub type alias EquipmentCommon = 
         { description :: String
         , category :: String
         , objectName :: String

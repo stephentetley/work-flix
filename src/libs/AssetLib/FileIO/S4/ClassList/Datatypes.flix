@@ -27,7 +27,7 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
 
 
     /// Flat representation - not a tree.
-    type alias ClassListFile = 
+    pub type alias ClassListFile = 
         { dateStamp :: LocalDate
         , rows :: List[ClassListRow]
         }
@@ -39,34 +39,34 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
         case ValueRow(String)
     }
 
-    type alias ClassRow = 
+    pub type alias ClassRow = 
         { classtype :: String
         , name :: String
         , description :: String 
         }
 
-    type alias CharacteristicRow = 
+    pub type alias CharacteristicRow = 
         { name :: String
         , description :: String
         , chartype :: Datatype 
         }
 
     /// Nested representation.
-    type alias ClassList = 
+    pub type alias ClassList = 
         { dateStamp :: LocalDate
         , classes :: List[Class]
         }
 
 
     // classType eg "002", "003"
-    type alias Class = 
+    pub type alias Class = 
         { name :: String
         , description :: String
         , classtype :: String
         , characteristics :: List[Characteristic] 
         }
 
-    type alias Characteristic = 
+    pub type alias Characteristic = 
         { name :: String
         , description :: String
         , chartype :: Datatype

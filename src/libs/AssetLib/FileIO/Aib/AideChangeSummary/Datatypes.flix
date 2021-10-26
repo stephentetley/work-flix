@@ -16,7 +16,7 @@
 
 namespace AssetLib/FileIO/Aib/AideChangeSummary/Datatypes {
 
-    type alias AibExportRow = 
+    pub type alias AibExportRow = 
         { change :: String
         , reference :: String
         , assetName :: String

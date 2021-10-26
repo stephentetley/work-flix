@@ -19,9 +19,9 @@ use Data.RoseTree;
 namespace AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes {
 
     /// Flat representation - not a tree.
-    type alias AibTreeFile = List[AibRow]
+    pub type alias AibTreeFile = List[AibRow]
 
-    type alias AibRow = 
+    pub type alias AibRow = 
         { reference :: String
         , commonName :: String
         , status :: String 
@@ -30,9 +30,9 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes {
 
     /// Nested representation.
     /// We only have a single node type so a RoseTree is adequate.
-    type alias AibTree = RoseTree[AibNode]
+    pub type alias AibTree = RoseTree[AibNode]
 
-    type alias AibNode =
+    pub type alias AibNode =
         { reference :: String
         , level :: Int32
         , shortName :: String

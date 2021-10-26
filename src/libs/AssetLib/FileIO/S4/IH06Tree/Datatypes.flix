@@ -20,12 +20,12 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
     use Time.LocalDate;
 
     /// Flat representation - not a tree.
-    type alias IH06File = 
+    pub type alias IH06File = 
         { header :: Header
         , rows :: List[IH06Row]
         }
 
-    type alias Header = 
+    pub type alias Header = 
         { floc :: String
         , description :: String
         , validForm :: LocalDate
@@ -37,14 +37,14 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
     }
 
     /// Empty string for no parent
-    type alias FlocRow = 
+    pub type alias FlocRow = 
         { floc :: String
         , description :: String
         , parent :: String 
         }
 
     /// Empty string for no super
-    type alias EquiRow = 
+    pub type alias EquiRow = 
         { equiId :: String
         , description :: String
         , floc :: String
@@ -55,21 +55,21 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
     /// Nested representation.
     /// With IH06 imports we don't have any more structure than a RoseTree, 
     /// so we use a RoseTree.
-    type alias IH06Tree = RoseTree[IH06Node]
+    pub type alias IH06Tree = RoseTree[IH06Node]
 
     pub enum IH06Node {
         case FlocNode(FlocNode)
         case EquiNode(EquiNode)
     }
 
-    type alias FlocNode = 
+    pub type alias FlocNode = 
         { level :: Int32
         , floc :: String
         , description :: String
         , parent :: String 
         }
 
-    type alias EquiNode = 
+    pub type alias EquiNode = 
         { level :: Int32
         , equiId :: String
         , description :: String
