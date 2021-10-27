@@ -229,4 +229,23 @@ namespace AssetLib/S4Lite/EmitUpload {
         , valueTo           = "0"
         }
 
+    /// Extras
+
+    pub def renumberSLEquiCharacteristics(keymap: Map[String, String], 
+                                            xs: Chain[SLEquiCharacteristic]): Result[Chain[SLEquiCharacteristic], String] = 
+        xs 
+            |> Chain.toList
+            |> renumberSLEquiCharacteristicsList(keymap)
+            |> Result.map(Chain.fromList)
+
+
+    def renumberSLEquiCharacteristicsList(keymap: Map[String, String], 
+                        xs: List[SLEquiCharacteristic]): Result[List[SLEquiCharacteristic], String] = 
+        use Result.{flatMap};
+        let renumber1 = x1 -> { 
+            let* newid   = Option.toOk(Map.get(x1.equiId, keymap), "Cannot find id  for '${x1.equiId}'");
+            Ok({equiId = newid | x1})
+        };
+        Result.traverse(renumber1, xs)
+
 }

@@ -5,26 +5,26 @@ use AssetLib/GenS4.{GenMonad};
 
 def main(_args: Array[String]): Int32 & Impure =  
     Console.printLine("Running... ${Time/LocalTime.now()}");
-    match AssetLib/GenS4/GenMonad.execGenMonad(genAssetCondition(#{})) {
-        case Ok(s4lite) => writeUploads(s4lite) |> println
-        case Err(msg) => Console.printLine("Error: ${msg}")
-    };
+    main1() |> println;
     Console.printLine("Done... ${Time/LocalTime.now()}");
     0
 
-def writeUploads(s4Lite: UxlSource): Result[Unit, String] & Impure = 
+def main1(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let output = 
+    let outpaths = 
         { classequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/ew_upload_classequi.txt")
         , valuaequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/ew_upload_valuaequi.txt")
         };
-    let* _ = AssetLib/S4Lite/EmitUpload.outputClassEquis("tetleys", s4Lite.equiCharacteristics, output.classequi);
-    let* _ = AssetLib/S4Lite/EmitUpload.outputValuaEquis("tetleys", s4Lite.equiCharacteristics, output.valuaequi);
+    let* (s4Lite, keymap)   = AssetLib/GenS4/GenMonad.runGenMonad(genAssetCondition(#{}));
+    let* s4LiteChars        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(keymap, s4Lite.equiCharacteristics);
+    let* _                  = AssetLib/S4Lite/EmitUpload.outputClassEquis("tetleys", s4LiteChars, outpaths.classequi);
+    let* _                  = AssetLib/S4Lite/EmitUpload.outputValuaEquis("tetleys", s4LiteChars, outpaths.valuaequi);
     Console.printLine("Success");
     Ok()
 
 
-def genAssetCondition(_dummy: #{|r1}): GenMonad[Unit] = 
+
+def genAssetCondition(_dummy: #{|r1}): GenMonad[Map[String, String]] = 
     use AssetLib/GenS4/GenMonad.{flatMap, return, map, liftActionResult, liftAction};
     let src = 
         { aibAgasp = {sheet= "Sheet1", 
@@ -39,18 +39,15 @@ def genAssetCondition(_dummy: #{|r1}): GenMonad[Unit] =
    
     let rules = #{
 
-        /// Need to remake facts with S4 ids...
-        ConditionGrade(s4Id, grade, reason) :- 
-            Ai2AibReference(s4Id, aibref),
-            ConditionGrade(aibref, grade, reason).
+        HasAgasp(aibref) :- ConditionGrade(aibref, _, _).
 
-        HasAgasp(aibRef) :- ConditionGrade(aibRef, _, _).
+        HasAgasp(aibref) :- LoadingFactor(aibref, _, _).
 
-        HasAgasp(aibRef) :- LoadingFactor(aibRef, _, _).
+        HasAgasp(aibref) :- PerformanceGrade(aibref, _, _).
 
-        HasAgasp(aibRef) :- PerformanceGrade(aibRef, _, _).
+        HasAgasp(aibref) :- SurveyYear(aibref, _).
 
-        EquiWorkItem3(s4Id, "XYZ1", "XYZ123") :- 
+        EquiWorkItem3(aibref, "XYZ1", "XYZ123") :- 
             Ai2AibReference(s4Id, aibref),
             HasAgasp(aibref), 
             not AssetConditionClass(s4Id).
@@ -59,7 +56,8 @@ def genAssetCondition(_dummy: #{|r1}): GenMonad[Unit] =
     let* _          = liftAction(_ -> query allRelns select (x1, x2, x3) from EquiWorkItem3(x1, x2, x3) |> Array.foreach(println));    
     let* _          = liftAction(_ -> query allRelns select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println));
     let* _          = AssetLib/GenS4/GenMonad.tellEquiCharacteristics(allRelns);
-    return()
+    let* newkeys    = liftAction(_ -> query allRelns select (x2, x1) from Ai2AibReference(x1, x2) |> Array.toMap);
+    return(newkeys)
 
 pub rel AssetConditionClass(s4Id: String)
 
