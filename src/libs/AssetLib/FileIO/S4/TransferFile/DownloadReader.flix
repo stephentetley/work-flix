@@ -23,29 +23,6 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
 
 
-    /// EntityData
-    /// Used by old / Datalog Upload Check - should we remove this?
-    pub type alias EntityData[row] = 
-        { entityType :: EntityType
-        , headers :: Headers
-        , dataRows :: List[row]
-        }
-
-
-    pub def toEntityData( outputHeaders: Array[String]
-                        , eval: DownloadRowEvaluator[row]
-                        , x: TransferFile): Result[EntityData[row], String] & Impure = 
-        use Result.flatMap;
-        let oheaders = makeHeaders(x.headers);
-        let* xs = Result.traverse(evalRow(eval, oheaders), x.dataRows);
-        Ok({entityType = x.fileHeader.entityType, headers = outputHeaders, dataRows = xs})
-
-    ///
-    /// Specialized version of `toEntityData` all rows selected.
-    ///
-    pub def toEntityData1(x: TransferFile): Result[EntityData[DataRow], String] = 
-        Ok({entityType = x.fileHeader.entityType, headers = x.headers, dataRows = x.dataRows})
-
 
     /// Import rows of a FileDownload
     /// Builds relations from the List.

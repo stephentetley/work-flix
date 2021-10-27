@@ -19,6 +19,8 @@ namespace AssetLib/GenS4 {
     use AssetLib/GenS4/GenMonad.{Env, Output};
 
     /// State (for id gen and Output) + Env
+    /// TODO make monad Pure and operations impure...
+    
     pub opaque type GenMonad[a] = (Int32, Output, Env) ~> Result[(Int32, Output, a), String]
 }
 
@@ -53,6 +55,9 @@ namespace AssetLib/GenS4/GenMonad {
 
     pub def execGenMonad(mx: GenMonad[a]): Result[UxlSource, String] & Impure = 
         runGenMonad(mx) |> Result.map(fst)
+
+    pub def evalGenMonad(mx: GenMonad[a]): Result[a, String] & Impure = 
+        runGenMonad(mx) |> Result.map(snd)
 
     pub def return(x: a): GenMonad[a] = 
         GenMonad((st, w, _) -> Ok((st, w, x)) as & Impure)

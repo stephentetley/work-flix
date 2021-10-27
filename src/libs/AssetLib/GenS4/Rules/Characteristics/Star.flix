@@ -40,7 +40,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
         star(workitems1 <+> facts)
 
 
-    /// TODO "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
+    /// TODO - check "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
 
     pub def star(input: StarSchema[r1]): GenMonad[Unit] = 
         let rules = #{
@@ -48,24 +48,45 @@ namespace AssetLib/GenS4/Rules/Characteristics/Star {
                 EquiWorkItem3(equiId, "STAR", s4Class),
                 IPRating(equiId, rating).
 
-            EquiCharacteristic(equiId, s4Class, "STAR_RATED_CURRENT_A", 1, S4Float(current)) :-
+            EquiCharacteristic(equiId, s4Class, starCurrentA(s4Class), 1, S4Float(current)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
                 CurrentInA(equiId, current).
+            
 
             EquiCharacteristic(equiId, s4Class, "STAR_RATED_POWER_KW", 1, S4Float(power)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
                 Power(equiId, power, "KILOWATTS").
 
-            EquiCharacteristic(equiId, s4Class, "STAR_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+            EquiCharacteristic(equiId, s4Class, starVoltage(s4Class), 1, S4Int(voltage)) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
                 VoltageIn(equiId, voltage, units),
                 if recognizedVoltageUnits(units).
 
-            EquiCharacteristic(equiId, s4Class, "STAR_RATED_VOLTAGE_UNITS", 1 , S4String(voltageUnits(units))) :-
+
+            EquiCharacteristic(equiId, s4Class, starVoltageUnits(s4Class), 1 , S4String(voltageUnits(units))) :-
                 EquiWorkItem3(equiId, "STAR", s4Class),
                 VoltageIn(equiId, _, units),
                 if recognizedVoltageUnits(units).
+
         }; 
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
+
+    def starCurrentA(x: String): String = match x { 
+        case "STARVF"   => "STAR_INPUT_CURRENT_A"
+        case _          => "STAR_RATED_CURRENT_A"
+    }
+
+    /// We might like this as Datalog but having a "default case" is too much effort
+    def starVoltage(x: String): String = match x { 
+        case "STARVF"   => "STAR_INPUT_VOLTAGE"
+        case _          => "STAR_RATED_VOLTAGE"
+    }
+
+    /// We might like this as Datalog but having a "default case" is too much effort
+    def starVoltageUnits(x: String): String = match x { 
+        case "STARVF"   => "STAR_INPUT_VOLTAGE_UNITS"
+        case _          => "STAR_RATED_VOLTAGE_UNITS"
+    }
+
 
 }

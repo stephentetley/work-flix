@@ -33,13 +33,14 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
         let* facts = AssetLib/GenS4/AibFacts/Attributes/AssetCondition.readAgaspFacts(src);
-        assetCondition(workitems <+> facts)
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems <+> facts <+> assetCondition())
 
+    pub type alias AssetConditionSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear, EquiCharacteristic | r1}
 
-    pub def assetCondition(input: #{EquiWorkItem3, ConditionGrade, 
-                                    LoadingFactor, PerformanceGrade, 
-                                    SurveyYear, EquiCharacteristic | r1}): GenMonad[Unit] = 
-        let rules = #{
+    
+
+    pub def assetCondition(): AssetConditionSchema[r1] =  #{
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(s4ConditionGrade(grade))) :- 
                 EquiWorkItem3(equiId, _, _),
@@ -73,8 +74,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
                 EquiWorkItem3(equiId, _, _),
                 SurveyYear(equiId, year).           
 
-        }; 
-        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
+        }
+        
 
     /// TODO should be an enum...
     
