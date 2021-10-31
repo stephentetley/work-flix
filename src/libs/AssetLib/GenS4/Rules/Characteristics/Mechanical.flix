@@ -138,6 +138,4 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         import java.lang.Math:rint(Float64);
         rint(x) as & Pure
 
-
-
 }
