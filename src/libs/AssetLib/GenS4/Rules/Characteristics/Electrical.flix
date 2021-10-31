@@ -31,8 +31,55 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
     
     pub def genElectricalCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return};
+        let* _ = genActu(workitems, facts as ActuSchema[r2]);
         let* _ = genEmtr(workitems, facts as EmtrSchema[r2]);
+        let* _ = genSole(workitems, facts as SoleSchema[r2]);
+        let* _ = genStar(workitems, facts as StarSchema[r2]);
         return()
+
+    /// # ACTU
+
+
+    pub type alias ActuSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, CurrentInA, InsulationClass, IPRating, Power, VoltageIn, S4InsulationClass, 
+            EquiCharacteristic | r1}
+
+    pub def genActu(workitems: #{EquiWorkItem3 | r1}, facts: ActuSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as ActuSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> actuCharacteristics())
+        
+
+
+    pub def actuCharacteristics(): ActuSchema[r1] = #{
+            EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+                EquiWorkItem3(equiId, "ACTU", s4Class),
+                IPRating(equiId, rating).
+
+            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
+                EquiWorkItem3(equiId, "ACTU", s4Class),
+                InsulationClass(equiId, insClass),
+                S4InsulationClass(insClass, s4InsClass).
+
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
+                EquiWorkItem3(equiId, "ACTU", s4Class),
+                CurrentInA(equiId, current).
+
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
+                EquiWorkItem3(equiId, "ACTU", s4Class),
+                Power(equiId, power, "KILOWATTS").
+
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+                EquiWorkItem3(equiId, "ACTU", s4Class),
+                VoltageIn(equiId, voltage, units),
+                if recognizedVoltageUnits(units).
+
+            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+                EquiWorkItem3(equiId, "ACTU", s4Class),
+                VoltageIn(equiId, _, units),
+                if recognizedVoltageUnits(units).
+
+        } <+> s4InsulationClassRules() 
+
 
     ///  # EMTR
 
@@ -83,5 +130,95 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
             if recognizedVoltageUnits(units).
 
         }
+
+
+    /// # SOLE
+
+    pub type alias SoleSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, IPRating, InsulationClass, CurrentInA, Power, S4InsulationClass, EquiCharacteristic | r1}
+
+    pub def genSole(workitems: #{EquiWorkItem3 | r1}, facts: SoleSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as SoleSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> soleCharacteristics())
+
+    pub def soleCharacteristics(): SoleSchema[r1] = #{
+    
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+            EquiWorkItem3(equiId, "SOLE", s4Class),
+            IPRating(equiId, rating).
+
+        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
+            EquiWorkItem3(equiId, "SOLE", s4Class),
+            InsulationClass(equiId, insClass),
+            S4InsulationClass(insClass, s4InsClass).
+
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
+            EquiWorkItem3(equiId, "SOLE", s4Class),
+            CurrentInA(equiId, current).
+
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "SOLE", s4Class),
+            Power(equiId, power, "KILOWATTS").
+    
+    } <+> s4InsulationClassRules()
+
+
+
+    /// # STAR
+
+    pub type alias StarSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, CurrentInA, IPRating, SpeedRPM, Power, VoltageIn, EquiCharacteristic | r1}
+
+    pub def genStar(workitems: #{EquiWorkItem3 | r1}, facts: StarSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as StarSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> starCharacteristics())
+
+
+    /// TODO - check "STAR_INPUT_CURRENT_A" / "STAR_INPUT_VOLTAGE" ... (STARVF ...)
+
+    pub def starCharacteristics(): StarSchema[r1] = #{
+    
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :-
+            EquiWorkItem3(equiId, "STAR", s4Class),
+            IPRating(equiId, rating).
+
+        EquiCharacteristic(equiId, s4Class, starCurrentA(s4Class), 1, S4Float(current)) :-
+            EquiWorkItem3(equiId, "STAR", s4Class),
+            CurrentInA(equiId, current).
         
+
+        EquiCharacteristic(equiId, s4Class, "STAR_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "STAR", s4Class),
+            Power(equiId, power, "KILOWATTS").
+
+        EquiCharacteristic(equiId, s4Class, starVoltage(s4Class), 1, S4Int(voltage)) :-
+            EquiWorkItem3(equiId, "STAR", s4Class),
+            VoltageIn(equiId, voltage, units),
+            if recognizedVoltageUnits(units).
+
+
+        EquiCharacteristic(equiId, s4Class, starVoltageUnits(s4Class), 1 , S4String(voltageUnits(units))) :-
+            EquiWorkItem3(equiId, "STAR", s4Class),
+            VoltageIn(equiId, _, units),
+            if recognizedVoltageUnits(units).
+
+    }
+
+    def starCurrentA(x: String): String = match x { 
+        case "STARVF"   => "STAR_INPUT_CURRENT_A"
+        case _          => "STAR_RATED_CURRENT_A"
+    }
+
+    /// We might like this as Datalog but having a "default case" is too much effort
+    def starVoltage(x: String): String = match x { 
+        case "STARVF"   => "STAR_INPUT_VOLTAGE"
+        case _          => "STAR_RATED_VOLTAGE"
+    }
+
+    /// We might like this as Datalog but having a "default case" is too much effort
+    def starVoltageUnits(x: String): String = match x { 
+        case "STARVF"   => "STAR_INPUT_VOLTAGE_UNITS"
+        case _          => "STAR_RATED_VOLTAGE_UNITS"
+    }
+
 }
