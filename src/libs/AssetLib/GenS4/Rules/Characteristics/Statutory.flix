@@ -35,6 +35,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
         let* _ = genLiac(workitems, facts as LiacSchema[r2]);
         let* _ = genLisl(workitems, facts as LislSchema[r2]);
         let* _ = genSfer(workitems, facts as SferSchema[r2]);
+        let* _ = genVepr(workitems, facts as VeprSchema[r2]);
         return()
 
     /// # CRHT
@@ -155,7 +156,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
 
     }
 
-   
+    /// # SFER
 
     pub type alias SferSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, S4LoadUnit, WorkLoad, TestCertNo, YWRef, EquiCharacteristic | r1}
@@ -191,7 +192,28 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
         S4LoadUnit("KILOGRAM", "KG").
         S4LoadUnit("MAN", "MAN").
 
-    }   
+    } 
+
+    /// # VEPR
+
+    pub type alias VeprSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, TestCertNo, YWRef, EquiCharacteristic | r1}
+
+    pub def genVepr(workitems: #{EquiWorkItem3 | r1}, facts: VeprSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as VeprSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> veprCharacteristics())
 
 
+    /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
+    pub def veprCharacteristics(): VeprSchema[r1] = #{
+    
+        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            YWRef(equiId, ywref).
+
+        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            TestCertNo(equiId, number).
+
+    }
 }

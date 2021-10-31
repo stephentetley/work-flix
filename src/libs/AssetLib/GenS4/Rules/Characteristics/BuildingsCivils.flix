@@ -30,8 +30,28 @@ namespace AssetLib/GenS4/Rules/Characteristics/BuildingsCivils {
     
     pub def genBuildingsCivilsCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return};
+        let* _ = genKisk(workitems, facts as KiskSchema[r2]);
         let* _ = genTank(workitems, facts as TankSchema[r2]);
         return()
+
+    /// # KISK
+
+    pub type alias KiskSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, EquiCharacteristic | r1}
+
+    pub def genKisk(workitems: #{EquiWorkItem3 | r1}, facts: KiskSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as KiskSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> kiskCharacteristics())
+
+
+    pub def kiskCharacteristics(): KiskSchema[r1] = #{
+
+        /// EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(s4Level)) :-
+        ///     EquiWorkItem3(equiId, "TANK", _),
+        ///     TankLevel(equiId, level),
+        ///     S4TankLevel(level, s4Level).
+
+    }
 
 
     /// # TANK
@@ -47,7 +67,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/BuildingsCivils {
     pub rel S4TankConstruction(aibConstr: String, s4Constr: String)
 
     pub def tankCharacteristics(): TankSchema[r1] = #{
-        
+
         EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(s4Level)) :-
             EquiWorkItem3(equiId, "TANK", _),
             TankLevel(equiId, level),

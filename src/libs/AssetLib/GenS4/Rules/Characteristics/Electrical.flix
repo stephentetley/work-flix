@@ -19,12 +19,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, 
         CurrentInA, InsulationClass, IPRating, SpeedRPM, Power, VoltageIn};
     use AssetLib/GenS4.{GenMonad};
-    use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits, 
         S4InsulationClass, s4InsulationClassRules};
@@ -33,8 +33,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
         use AssetLib/GenS4/GenMonad.{flatMap, return};
         let* _ = genActu(workitems, facts as ActuSchema[r2]);
         let* _ = genConp(workitems, facts as ConpSchema[r2]);
+        let* _ = genDist(workitems, facts as DistSchema[r2]);
         let* _ = genEmtr(workitems, facts as EmtrSchema[r2]);
+        let* _ = genHeat(workitems, facts as HeatSchema[r2]);
         let* _ = genPode(workitems, facts as PodeSchema[r2]);
+        let* _ = genSlip(workitems, facts as SlipSchema[r2]);
         let* _ = genSole(workitems, facts as SoleSchema[r2]);
         let* _ = genStar(workitems, facts as StarSchema[r2]);
         return()
@@ -54,34 +57,34 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
 
     pub def actuCharacteristics(): ActuSchema[r1] = #{
-            EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
-                EquiWorkItem3(equiId, "ACTU", s4Class),
-                IPRating(equiId, rating).
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+            EquiWorkItem3(equiId, "ACTU", s4Class),
+            IPRating(equiId, rating).
 
-            EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
-                EquiWorkItem3(equiId, "ACTU", s4Class),
-                InsulationClass(equiId, insClass),
-                S4InsulationClass(insClass, s4InsClass).
+        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
+            EquiWorkItem3(equiId, "ACTU", s4Class),
+            InsulationClass(equiId, insClass),
+            S4InsulationClass(insClass, s4InsClass).
 
-            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
-                EquiWorkItem3(equiId, "ACTU", s4Class),
-                CurrentInA(equiId, current).
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
+            EquiWorkItem3(equiId, "ACTU", s4Class),
+            CurrentInA(equiId, current).
 
-            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
-                EquiWorkItem3(equiId, "ACTU", s4Class),
-                Power(equiId, power, "KILOWATTS").
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "ACTU", s4Class),
+            Power(equiId, power, "KILOWATTS").
 
-            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
-                EquiWorkItem3(equiId, "ACTU", s4Class),
-                VoltageIn(equiId, voltage, units),
-                if recognizedVoltageUnits(units).
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+            EquiWorkItem3(equiId, "ACTU", s4Class),
+            VoltageIn(equiId, voltage, units),
+            if recognizedVoltageUnits(units).
 
-            EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
-                EquiWorkItem3(equiId, "ACTU", s4Class),
-                VoltageIn(equiId, _, units),
-                if recognizedVoltageUnits(units).
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+            EquiWorkItem3(equiId, "ACTU", s4Class),
+            VoltageIn(equiId, _, units),
+            if recognizedVoltageUnits(units).
 
-        } <+> s4InsulationClassRules() 
+    } <+> s4InsulationClassRules() 
 
     /// # CONP
 
@@ -108,6 +111,24 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
             EquiWorkItem3(equiId, "CONP", s4Class),
             VoltageIn(equiId, _, units),
             if recognizedVoltageUnits(units).
+    }
+
+    /// # DIST
+
+    pub type alias DistSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, IPRating, EquiCharacteristic | r1}
+
+
+    pub def genDist(workitems: #{EquiWorkItem3 | r1}, facts: DistSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as DistSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> distCharacteristics())
+
+    pub def distCharacteristics(): DistSchema[r1] =  #{
+        
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+            EquiWorkItem3(equiId, "DIST", s4Class),
+            IPRating(equiId, rating).
+
     }
 
     ///  # EMTR
@@ -160,6 +181,24 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
         }
 
+    /// # HEAT
+
+    pub type alias HeatSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, Power, EquiCharacteristic | r1}
+
+
+    pub def genHeat(workitems: #{EquiWorkItem3 | r1}, facts: HeatSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as HeatSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> heatCharacteristics())
+
+    pub def heatCharacteristics(): HeatSchema[r1] =  #{
+        
+        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "EMTR", s4Class),
+            Power(equiId, power, "KILOWATTS").
+
+    }
+
     /// # PODE
 
     pub type alias PodeSchema[r1: SchemaRow] = 
@@ -176,6 +215,39 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
             IPRating(equiId, rating).
 
     }
+
+    ///  # EMTR
+
+    pub type alias SlipSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, Power, VoltageIn, EquiCharacteristic | r1}
+
+
+    pub def genSlip(workitems: #{EquiWorkItem3 | r1}, facts: SlipSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as SlipSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> slipCharacteristics())
+        
+
+
+    /// IP_RATING should be generated on per type (per class?)
+    pub def slipCharacteristics(): SlipSchema[r1] = #{
+            
+
+        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "SLIP", s4Class),
+            Power(equiId, power, "KILOWATTS").
+
+        /// Units are just VAC or VDC - no conversion
+        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+            EquiWorkItem3(equiId, "SLIP", s4Class),
+            VoltageIn(equiId, voltage, units),
+            if recognizedVoltageUnits(units).
+
+        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+            EquiWorkItem3(equiId, "SLIP", s4Class),
+            VoltageIn(equiId, _, units),
+            if recognizedVoltageUnits(units).
+
+        }
 
     /// # SOLE
 

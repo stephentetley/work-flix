@@ -26,14 +26,18 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower, SpeedRPM, TypeOfFan, ValveSize};
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
+    use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
 
     pub def genMechanicalCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return};
         let* _ = genFans(workitems, facts as FansSchema[r2]);
+        let* _ = genHsys(workitems, facts as HsysSchema[r2]);
         let* _ = genMixr(workitems, facts as MixrSchema[r2]);
         let* _ = genPump(workitems, facts as PumpSchema[r2]);
         let* _ = genPums(workitems, facts as PumsSchema[r2]);
+        let* _ = genScpr(workitems, facts as ScprSchema[r2]);
         let* _ = genScrf(workitems, facts as ScrfSchema[r2]);
+        let* _ = genTrut(workitems, facts as TrutSchema[r2]);
         let* _ = genValv(workitems, facts as ValvSchema[r2]);
         return()
 
@@ -70,6 +74,30 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     }
 
+    /// # HSYS (Haudraulic Power Pack)
+
+    pub type alias HsysSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, RatingPower, SpeedRPM, EquiCharacteristic | r1}
+
+    pub def genHsys(workitems: #{EquiWorkItem3 | r1}, facts: HsysSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as HsysSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> hsysCharacteristics())
+
+
+    /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
+    pub def hsysCharacteristics(): HsysSchema[r1] = #{
+
+        EquiCharacteristic(equiId, s4Class, "HSYS_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+            EquiWorkItem3(equiId, "HSYS", s4Class),
+            VoltageIn(equiId, voltage, units),
+            if recognizedVoltageUnits(units).
+
+        EquiCharacteristic(equiId, s4Class, "HSYS_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+            EquiWorkItem3(equiId, "HSYS", s4Class),
+            VoltageIn(equiId, _, units),
+            if recognizedVoltageUnits(units).
+
+    }
 
     /// # MIXR
 
@@ -93,7 +121,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         /// Not generated for static mixer
         EquiCharacteristic(equiId, s4Class, "MIXR_RATED_SPEED_RPM", 1, S4Int(ans)) :-
             EquiWorkItem3(equiId, "MIXR", s4Class),
-            SpeedRPM(equiId, ans).
+            SpeedRPM(equiId, ans), 
+            if s4Class != "MIXRST".
 
     }
 
@@ -196,6 +225,24 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     }
 
+    /// # TRUT
+
+    pub type alias ScprSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, RatingPower, EquiCharacteristic | r1}
+
+
+    pub def genScpr(workitems: #{EquiWorkItem3 | r1}, facts: ScprSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as ScprSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> scprCharacteristics())
+
+    pub def scprCharacteristics(): ScprSchema[r1] =  #{
+        
+        EquiCharacteristic(equiId, s4Class, "SCPR_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "SCPR", s4Class),
+            RatingPower(equiId, power, "KILOWATTS").
+
+    }
+
     /// # SCRF (fine screen)
 
     pub type alias ScrfSchema[r1: SchemaRow] = 
@@ -217,6 +264,23 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     }
 
+    /// # TRUT
+
+    pub type alias TrutSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, RatingPower, EquiCharacteristic | r1}
+
+
+    pub def genTrut(workitems: #{EquiWorkItem3 | r1}, facts: TrutSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as TrutSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> trutCharacteristics())
+
+    pub def trutCharacteristics(): TrutSchema[r1] =  #{
+        
+        EquiCharacteristic(equiId, s4Class, "TRUT_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "TRUT", s4Class),
+            RatingPower(equiId, power, "KILOWATTS").
+
+    }
 
     /// # VALV
     
