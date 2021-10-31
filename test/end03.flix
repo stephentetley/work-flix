@@ -22,6 +22,9 @@ def main1(): Result[Unit, String] & Impure =
     Console.printLine("Success");
     Ok()
 
+/// There is a "fault" in the input data: 
+/// `PLI00701862` determines both `101033990` (END03-E-LV-MC01-CU20 :: No2 Storm Pump Starter) 
+/// and `101247909` (END03-EDC-LDQ-OUT-SYS01-PMP02 :: Starter)
 
 
 def genAssetCondition(_dummy: #{|r1}): GenMonad[Map[String, String]] = 
@@ -50,11 +53,13 @@ def genAssetCondition(_dummy: #{|r1}): GenMonad[Map[String, String]] =
         EquiWorkItem3(aibref, "XYZ1", "XYZ123") :- 
             Ai2AibReference(s4Id, aibref),
             HasAgasp(aibref), 
-            not AssetConditionClass(s4Id).
+            not AssetConditionClass(s4Id), 
+            if String.startsWith(prefix = "PLI", aibref).
+
     };
     let allRelns    = db <+> rules <+> AssetLib/GenS4/Rules/Characteristics/AssetCondition.assetCondition();
     let* _          = liftAction(_ -> query allRelns select (x1, x2, x3) from EquiWorkItem3(x1, x2, x3) |> Array.foreach(println));    
-    let* _          = liftAction(_ -> query allRelns select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println));
+    let* _          = liftAction(_ -> query allRelns select x1 from AssetConditionClass(x1) |> Array.foreach(println));
     let* _          = AssetLib/GenS4/GenMonad.tellEquiCharacteristics(allRelns);
     let* newkeys    = liftAction(_ -> query allRelns select (x2, x1) from Ai2AibReference(x1, x2) |> Array.toMap);
     return(newkeys)
@@ -71,8 +76,8 @@ def getAssetConditionClass(xs: List[ClassEquiRow]): #{AssetConditionClass | r} =
 pub rel Ai2AibReference(s4Id: String, aibRefefence: String)
 
 def getAi2AibReference(xs: List[ValuaEquiRow]): #{Ai2AibReference | r} =
-    let step = x1 -> match x1.charId { 
-        case "AI2_AIB_REFERENCE" => #{ Ai2AibReference(x1.equi, x1.charValue). }
+    let step = x1 -> match (x1.charId, x1.charValue) { 
+        case ("AI2_AIB_REFERENCE", code) if String.startsWith(prefix ="PLI", code) => #{ Ai2AibReference(x1.equi, x1.charValue). }
         case _ => #{}
     };
     RelLib/Relation.foldMap(step, xs)

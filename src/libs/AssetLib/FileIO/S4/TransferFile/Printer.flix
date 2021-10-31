@@ -31,11 +31,11 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
 
     pub def writeTransferFile(x: TransferFile, path: System.FilePath): Result[Unit, String] & Impure = 
         use System/IO.WriteMode.{Create};
-        let str = ppTransferFile(x).toString();
+        let str = ppTransferFile(x) |> toString;
         System/IO.writeFileWith({path = path, charset = Text/Charset.utf_8(), mode = Create}, str) |> Result.mapErr(e -> "${e}")
 
     pub def printTransferFile(x: TransferFile): String & Impure =         
-        ppTransferFile(x).toString()
+        ppTransferFile(x) |> toString
 
     
     def ppTransferFile(x: TransferFile): Doc & Impure = 

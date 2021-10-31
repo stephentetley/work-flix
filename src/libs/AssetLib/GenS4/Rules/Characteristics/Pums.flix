@@ -21,10 +21,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
 
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/GenS4/Base/CommonRelations.{DiaphragmMaterial, 
-        DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower};
+        DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower, SpeedRPM};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Int};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3};
@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
 
 
     pub type alias PumsSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, DiaphragmMaterial, DutyHead,  Flow, ImpellerType, PumpLiftingType, RatingPower, 
+        #{EquiWorkItem3, DiaphragmMaterial, DutyHead,  Flow, ImpellerType, PumpLiftingType, RatingPower, SpeedRPM, 
             EquiCharacteristic  | r1}
 
     pub def genPums(workitems: #{EquiWorkItem3 | r1}, facts: PumsSchema[r1]): GenMonad[Unit] =
@@ -63,6 +63,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Pums {
             EquiCharacteristic(equiId, s4Class, "PUMS_RATED_POWER_KW", 1, S4Float(ans)) :-
                 EquiWorkItem3(equiId, "PUMS", s4Class),
                 RatingPower(equiId, ans, "KILOWATTS").
+
+
+            EquiCharacteristic(equiId, s4Class, "PUMS_RATED_SPEED_RPM", 1, S4Int(ans)) :-
+                EquiWorkItem3(equiId, "PUMS", s4Class),
+                SpeedRPM(equiId, ans).
+
         };
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)
 

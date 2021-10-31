@@ -150,8 +150,8 @@ namespace AssetLib/Base/Osgb36 {
         let NGR(s) = x;
         let major = String.charAt(0, s);
         let minor = String.charAt(1, s);
-        let* e1 = String.slice(s, 2, 7) |> fromString;
-        let* n1 = String.slice(s, 7, 12) |> fromString;
+        let* e1 = String.slice(2, 7, s) |> fromString;
+        let* n1 = String.slice(7, 12, s) |> fromString;
         let* (eM, nM) = decodeAlpha(major, minor);
         Some({ easting = eM + e1, northing = nM + n1 })
 
