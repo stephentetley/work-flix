@@ -151,13 +151,6 @@ namespace AssetLib/GenS4/GenUxl {
         let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genInstrumentCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Mechanical.genMechanicalCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Statutory.genStatutoryCharacteristics(workitems, facts);
-        
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Conp.genConp(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Conp.ConpSchema[r]);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Crht.genCrht(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Crht.CrhtSchema[r]);
-
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Scrf.genScrf(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Scrf.ScrfSchema[r]);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Sfer.genSfer(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Sfer.SferSchema[r]);
-        
         return()
 
     def loadOptional(x: Option[XlsxSource], load: XlsxSource -> GenMonad[#{|r1}]): GenMonad[#{|r1}] = 

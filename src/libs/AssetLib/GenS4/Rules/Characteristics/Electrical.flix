@@ -32,10 +32,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
     pub def genElectricalCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return};
         let* _ = genActu(workitems, facts as ActuSchema[r2]);
+        let* _ = genConp(workitems, facts as ConpSchema[r2]);
         let* _ = genEmtr(workitems, facts as EmtrSchema[r2]);
+        let* _ = genPode(workitems, facts as PodeSchema[r2]);
         let* _ = genSole(workitems, facts as SoleSchema[r2]);
         let* _ = genStar(workitems, facts as StarSchema[r2]);
         return()
+
 
     /// # ACTU
 
@@ -80,6 +83,32 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
         } <+> s4InsulationClassRules() 
 
+    /// # CONP
+
+    pub type alias ConpSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, CurrentInA, VoltageIn, EquiCharacteristic | r1}
+
+
+    pub def genConp(workitems: #{EquiWorkItem3 | r1}, facts: ConpSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as ConpSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> conpCharacteristics())
+
+    pub def conpCharacteristics(): ConpSchema[r1] =  #{
+        
+        EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
+            EquiWorkItem3(equiId, "CONP", s4Class),
+            CurrentInA(equiId, current).
+
+        EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+            EquiWorkItem3(equiId, "CONP", s4Class),
+            VoltageIn(equiId, voltage, units),
+            if recognizedVoltageUnits(units).
+
+        EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+            EquiWorkItem3(equiId, "CONP", s4Class),
+            VoltageIn(equiId, _, units),
+            if recognizedVoltageUnits(units).
+    }
 
     ///  # EMTR
 
@@ -131,6 +160,22 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
         }
 
+    /// # PODE
+
+    pub type alias PodeSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, IPRating, EquiCharacteristic | r1}
+
+    pub def genPode(workitems: #{EquiWorkItem3 | r1}, facts: PodeSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as PodeSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> podeCharacteristics())
+
+    pub def podeCharacteristics(): PodeSchema[r1] = #{
+    
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+            EquiWorkItem3(equiId, "PODE", s4Class),
+            IPRating(equiId, rating).
+
+    }
 
     /// # SOLE
 

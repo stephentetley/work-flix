@@ -33,6 +33,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         let* _ = genMixr(workitems, facts as MixrSchema[r2]);
         let* _ = genPump(workitems, facts as PumpSchema[r2]);
         let* _ = genPums(workitems, facts as PumsSchema[r2]);
+        let* _ = genScrf(workitems, facts as ScrfSchema[r2]);
         let* _ = genValv(workitems, facts as ValvSchema[r2]);
         return()
 
@@ -195,6 +196,26 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     }
 
+    /// # SCRF (fine screen)
+
+    pub type alias ScrfSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, Flow, EquiCharacteristic | r1}
+
+    pub def genScrf(workitems: #{EquiWorkItem3 | r1}, facts: ScrfSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as ScrfSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> scrfCharacteristics())
+
+
+    /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
+    pub def scrfCharacteristics(): ScrfSchema[r1] = #{
+
+        /// All fine screens
+        EquiCharacteristic(equiId, s4Class, "SCRF_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
+            EquiWorkItem3(equiId, "SCRF", s4Class),
+            Flow(equiId, flow, units),
+            if recognizedFlowUnits(units).
+
+    }
 
 
     /// # VALV
