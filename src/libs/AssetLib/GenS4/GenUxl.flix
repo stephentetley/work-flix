@@ -151,21 +151,18 @@ namespace AssetLib/GenS4/GenUxl {
         let* _      = AssetLib/GenS4/Rules/Characteristics/Crht.genCrht(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Crht.CrhtSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Emtr.genEmtr(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Emtr.EmtrSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Fans.genFans(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Fans.FansSchema[r]);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genFstn(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Instrument.FstnSchema[r]);
+        let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genInstrumentCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Liac.genLiac(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Liac.LiacSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Lisl.genLisl(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Lisl.LislSchema[r]);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genLstn(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Instrument.LstnSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Mixr.genMixr(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Mixr.MixrSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genPstn(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Instrument.PstnSchema[r]);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Pump.genPump(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Pump.PumpSchema[r]);
+        let* _      = AssetLib/GenS4/Rules/Characteristics/Mechanical.genMechanicalCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Pums.genPums(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Pums.PumsSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Scrf.genScrf(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Scrf.ScrfSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Sfer.genSfer(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Sfer.SferSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Sole.genSole(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Sole.SoleSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Star.genStar(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Star.StarSchema[r]);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Tank.genTank(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Tank.TankSchema[r]);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genTstn(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Instrument.TstnSchema[r]);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Valv.genValv(workitems, facts as AssetLib/GenS4/Rules/Characteristics/Valv.ValvSchema[r]);
         return()
 
     def loadOptional(x: Option[XlsxSource], load: XlsxSource -> GenMonad[#{|r1}]): GenMonad[#{|r1}] = 

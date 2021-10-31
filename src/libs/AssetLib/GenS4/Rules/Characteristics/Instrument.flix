@@ -23,21 +23,31 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4.{GenMonad};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, RangeUnit, RangeMinMax, SignalMinMax, Transducer};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, S4RangeUnit, RangeMinMax, SignalMinMax, Transducer};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
     /// Note - we shouldn't concatenate rulesets (fstn, lstn, ...) together as they will 
-    /// produce invalid combinations of RangeUnit.
+    /// produce invalid combinations of S4RangeUnit.
+
+    pub def genInstrumentCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
+        use AssetLib/GenS4/GenMonad.{flatMap, return};
+        let* _ = genFstn(workitems, facts as FstnSchema[r2]);
+        let* _ = genLstn(workitems, facts as LstnSchema[r2]);
+        let* _ = genPstn(workitems, facts as PstnSchema[r2]);
+        let* _ = genTstn(workitems, facts as TstnSchema[r2]);
+        return()
+
+
 
     /// # FSTN
 
     pub type alias FstnSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, RangeUnit, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
+        #{EquiWorkItem3, S4RangeUnit, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
 
-    pub def genFstn(workitems: #{EquiWorkItem3 | r1}, facts: FstnSchema[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as FstnSchema[r1];
+    pub def genFstn(workitems: #{EquiWorkItem3 | r1}, facts: FstnSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as FstnSchema[r2];
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> fstnCharacteristics())
 
 
@@ -57,21 +67,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
         EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MIN", 1, S4Float(rmin)) :-
             EquiWorkItem3(equiId, "FSTN", s4Class),
             RangeMinMax(equiId, rmin, _, unit),
-            RangeUnit(unit, _).
+            S4RangeUnit(unit, _).
 
         EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MAX", 1, S4Float(rmax)) :-
             EquiWorkItem3(equiId, "FSTN", s4Class),
             RangeMinMax(equiId, _, rmax,  units),
-            RangeUnit(units, _).
+            S4RangeUnit(units, _).
 
         EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_UNITS", 1, S4String(s4Units)) :-
             EquiWorkItem3(equiId, "FSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
-            RangeUnit(units, s4Units).
+            S4RangeUnit(units, s4Units).
         
-        RangeUnit("cm/s", "CM/S").
-        RangeUnit("l/h", "L/H").
-        RangeUnit("l/s",  "L/S").
+        S4RangeUnit("cm/s", "CM/S").
+        S4RangeUnit("l/h", "L/H").
+        S4RangeUnit("l/s",  "L/S").
 
     }
 
@@ -80,11 +90,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
     /// # LSTN
 
     pub type alias LstnSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, RangeUnit, RangeMinMax, SignalMinMax, Transducer, EquiCharacteristic | r1}
+        #{EquiWorkItem3, S4RangeUnit, RangeMinMax, SignalMinMax, Transducer, EquiCharacteristic | r1}
 
 
-    pub def genLstn(workitems: #{EquiWorkItem3 | r1}, facts: LstnSchema[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as LstnSchema[r1];
+    pub def genLstn(workitems: #{EquiWorkItem3 | r1}, facts: LstnSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as LstnSchema[r2];
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> lstnCharacteristics())
 
 
@@ -103,17 +113,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
         EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             RangeMinMax(equiId, rmin, _, units),
-            RangeUnit(units, _).
+            S4RangeUnit(units, _).
 
         EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             RangeMinMax(equiId, _, rmax, units),
-            RangeUnit(units, _).
+            S4RangeUnit(units, _).
 
         EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_UNITS", 1, S4String(s4Units)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
-            RangeUnit(units, s4Units).
+            S4RangeUnit(units, s4Units).
 
         EquiCharacteristic(equiId, s4Class, "LSTN_TRANSDUCER_MODEL", 1, S4String(model)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
@@ -125,21 +135,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
             if not String.isEmpty(snum).
 
 
-        RangeUnit("m", "M").
-        RangeUnit("cm/s", "CM/S"). 
-        RangeUnit("l/h",  "L/H"). 
-        RangeUnit("l/s", "L/S").
+        S4RangeUnit("m", "M").
+        S4RangeUnit("cm/s", "CM/S"). 
+        S4RangeUnit("l/h",  "L/H"). 
+        S4RangeUnit("l/s", "L/S").
 
     }
 
     /// # PSTN
 
     pub type alias PstnSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, RangeUnit, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
+        #{EquiWorkItem3, S4RangeUnit, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
 
-    pub def genPstn(workitems: #{EquiWorkItem3 | r1}, facts: PstnSchema[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as PstnSchema[r1];
+    pub def genPstn(workitems: #{EquiWorkItem3 | r1}, facts: PstnSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as PstnSchema[r2];
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> pstnCharacteristics())
 
     pub def pstnCharacteristics(): PstnSchema[r1] = #{
@@ -157,19 +167,19 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
         EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             RangeMinMax(equiId, rmin, _, units),
-            RangeUnit(units, _).
+            S4RangeUnit(units, _).
 
         EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             RangeMinMax(equiId, _, rmax, units),
-            RangeUnit(units, _).
+            S4RangeUnit(units, _).
 
         EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_UNITS", 1, S4String(s4Units)) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
-            RangeUnit(units, s4Units).
+            S4RangeUnit(units, s4Units).
 
-        RangeUnit("Bar", "BAR").
+        S4RangeUnit("Bar", "BAR").
 
     }
    
@@ -180,10 +190,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
 
 
     pub type alias TstnSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, RangeUnit, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
+        #{EquiWorkItem3, S4RangeUnit, RangeMinMax, SignalMinMax, EquiCharacteristic | r1}
 
-    pub def genTstn(workitems: #{EquiWorkItem3 | r1}, facts: TstnSchema[r1]): GenMonad[Unit] =
-        let workitems1 = workitems as TstnSchema[r1];
+    pub def genTstn(workitems: #{EquiWorkItem3 | r1}, facts: TstnSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as TstnSchema[r2];
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> tstnCharacteristics())
 
     pub def tstnCharacteristics(): TstnSchema[r1] = #{
@@ -200,21 +210,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
         EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             RangeMinMax(equiId, rmin, _, units),
-            RangeUnit(units, _).
+            S4RangeUnit(units, _).
 
         EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             RangeMinMax(equiId, _, rmax, units),
-            RangeUnit(units, _).
+            S4RangeUnit(units, _).
 
         EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_UNITS", 1, S4String(s4units)) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
-            RangeUnit(units, s4units).
+            S4RangeUnit(units, s4units).
 
     
-        RangeUnit("Deg C", "DEG C").
-        RangeUnit("Deg F", "DEG F").
+        S4RangeUnit("Deg C", "DEG C").
+        S4RangeUnit("Deg F", "DEG F").
 
     }
 

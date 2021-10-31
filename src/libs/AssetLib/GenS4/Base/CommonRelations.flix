@@ -26,8 +26,8 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     /// Floc equivalent to `EquiWorkItem3` is local to the `FunctionalLocation` module
 
     /// Use for translation tables
-    pub rel RangeUnit(aibName: String, s4Name: String)
-
+    pub rel S4RangeUnit(aibName: String, s4Name: String)
+    pub rel S4DiaphragmMaterial(aibName: String, s4Name: String)
 
 
     pub rel AibMemoLine(aibref: String, text: String)
