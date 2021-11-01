@@ -60,7 +60,7 @@ def genCharacteristics(): GenMonad[Map[String, String]] =
     let workItemRules = #{
 
         EquiWorkItem3(aibref, objtype, className) :-         
-            WorkItem(s4ref, objtype),
+            WorkItem(s4ref, objtype, false),
             Ai2AibReference(s4ref, aibref),
             EquiClassItem(s4ref, className),
             S4ClassMember(className, "UNICLASS_CODE").
@@ -72,7 +72,7 @@ def genCharacteristics(): GenMonad[Map[String, String]] =
     let* newkeys    = liftAction(_ -> query workItems select (x2, x1) from Ai2AibReference(x1, x2) |> Array.toMap);
     return(newkeys)
 
-pub rel WorkItem(s4ref: String, objtype: String)
+pub rel WorkItem(s4ref: String, objtype: String, isChild: Bool)
 
 def readWorkItems(src: XlsxSource): Result[#{WorkItem | r}, String] & Impure = 
     SheetIO/Reader.someNamedRelations(src, evalWorkItem())
@@ -80,9 +80,11 @@ def readWorkItems(src: XlsxSource): Result[#{WorkItem | r}, String] & Impure =
 def evalWorkItem(): NamedRowEvaluator[#{WorkItem | r}] =
     use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
     use SheetIO/NamedRowEvaluator.{<&>, <*>};
-    ((x1, x2) -> #{ WorkItem(x1, x2). })
+    ((x1, x2, x3) -> #{ WorkItem(x1, x2, not String.isEmpty(x3)). })
         <&> getTrimmedContentNamed("Equipment")
         <*> getTrimmedContentNamed("Object Type")
+        <*> getTrimmedContentNamed("Superord.Equip.")
+
 
 pub rel EquiClassItem(equiref: String, className: String)
 

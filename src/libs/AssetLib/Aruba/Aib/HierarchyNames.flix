@@ -39,7 +39,7 @@ namespace AssetLib/Aruba/Aib/HierarchyNames {
         let allNames = allCommonNames(xs);
         let step = row -> match getParent(allNames, row.commonName) {
             case Some(parent) => #{ AibParentName(row.reference, parent). }
-            case None => #{}
+            case None => #{ }
         };
         RelLib/Relation.foldMap(step, xs)
 
@@ -58,20 +58,32 @@ namespace AssetLib/Aruba/Aib/HierarchyNames {
 
 
 
-    def getParent(s: Set[String], name: String): Option[String] = 
-        let strip = start -> Option.flatMap(String.stripPrefix(start));
-        let parentFull = getLongestPrefix(s, name);
-        let pref = getLongestPrefix(s, parentFull);
-        String.stripPrefix(substr = pref, parentFull) 
-            |> strip(substr = "/")
-            
+    def getParent(allNames: Set[String], commonName: String): Option[String] = 
+        let parentFull  = getLongestPrefixPath(allNames, commonName);
+        if (String.isEmpty(parentFull))
+            None
+        else {
+            let root = getLongestPrefixPath(allNames, parentFull);
+            if (String.isEmpty(root))
+                Some(parentFull)
+            else {             
+                String.stripPrefix(substr = root + "/", parentFull)
+            }
+        }
+        
 
-    def getLongestPrefix(s: Set[String], name: String): String = 
+
+
+    def getLongestPrefixPath(allNames: Set[String], name: String): String = 
         let step = (ac, x) -> {
-            if (String.startsWith(prefix = x, name) and String.length(x) < String.length(name)) {
+            /// Must suffix a path separator, otherwise longest prefix may return unpredictable results...
+            let pathPrefix = x + "/";
+            if (String.startsWith(prefix = pathPrefix, name) and String.length(x) < String.length(name)) {
                 if (String.length(x) > String.length(ac)) x else ac
             } else ac
         };
-        Set.foldLeft(step, "", s)
+        Set.foldLeft(step, "", allNames)
+
+
 
 }
