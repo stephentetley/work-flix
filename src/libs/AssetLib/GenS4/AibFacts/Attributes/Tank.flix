@@ -76,7 +76,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
     
     
     def evalUnitCentreDepthM(): NamedRowEvaluator[#{UnitCentreDepthM | r}] =
-        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Centre Depth m", (x1, x2) -> #{ UnitCentreDepthM(x1, x2). })
+        AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Unit Centre Depth m", (pli, ans) -> #{ UnitCentreDepthM(pli, ans). })
 
 
     

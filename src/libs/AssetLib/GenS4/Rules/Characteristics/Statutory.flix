@@ -23,7 +23,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
     use AssetLib/GenS4.{GenMonad};
-    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, S4LoadUnit, WorkLoad, TestCertNo, YWRef};
+    use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, S4LoadUnit, WorkLoad, TestCertNo, YWRef, 
+        BarLitres, PVCapacityLitres, PVVerificationStatus, SwpOrSol};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
@@ -197,7 +198,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// # VEPR
 
     pub type alias VeprSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, TestCertNo, YWRef, EquiCharacteristic | r1}
+        #{EquiWorkItem3, BarLitres, TestCertNo, YWRef, EquiCharacteristic | r1}
 
     pub def genVepr(workitems: #{EquiWorkItem3 | r1}, facts: VeprSchema[r2]): GenMonad[Unit] =
         let workitems1 = workitems as VeprSchema[r2];
@@ -207,13 +208,39 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def veprCharacteristics(): VeprSchema[r1] = #{
     
-        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_BAR_LITRES", 1, S4Float(litres)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
-            YWRef(equiId, ywref).
+            BarLitres(equiId, litres).
+    
+
+        EquiCharacteristic(equiId, s4Class, "VEPR_PV_CAPACITY_LTRS_L", 1, S4Float(litres)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            PVCapacityLitres(equiId, litres).
+
+
+        EquiCharacteristic(equiId, s4Class, "VEPR_SAFE_WORKING_PRESSURE_BAR", 1, S4Float(pressure)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            SwpOrSol(equiId, pressure, "BAR").
+
+
+        /// Does status need remapping?
+        EquiCharacteristic(equiId, s4Class, "VEPR_PV_VERIFICATION_STATUS", 1, S4String(status)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            PVVerificationStatus(equiId, status).
+
+
+        EquiCharacteristic(equiId, s4Class, "VEPR_TEST_PRESSURE_BAR", 1, S4Float(pressure)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            TestPressureBars(equiId, pressure).
+
 
         EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             TestCertNo(equiId, number).
+
+        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            YWRef(equiId, ywref).
 
     }
 }

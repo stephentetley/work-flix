@@ -19,55 +19,37 @@ namespace AssetLib/FileIO/S4/ClassList/Relations {
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{Class => ClassRecord};
 
-    pub rel S4FlocClass(name: String, description: String)
+    pub rel S4Class(name: String, description: String)
 
-    pub rel S4FlocCharacteristic(name: String, description: String, chartype: String)
+    pub rel S4Characteristic(name: String, description: String, chartype: String)
 
-    pub rel S4FlocClassMember(classname: String, charname: String)
+    pub rel S4ClassMember(classname: String, charname: String)
 
-    pub rel S4EquiClass(name: String, description: String)
 
-    pub rel S4EquiCharacteristic(name: String, description: String, chartype: String)
-
-    pub rel S4EquiClassMember(classname: String, charname: String)
-
-    pub def loadFlocClassRelations(path: System.FilePath): Result[#{S4FlocClass, S4FlocCharacteristic, S4FlocClassMember | r}, String] & Impure = 
+    pub def loadFlocClassRelations(path: System.FilePath): Result[#{S4Class, S4Characteristic, S4ClassMember | r}, String] & Impure = 
         use Result.{flatMap};
         let* x1     = AssetLib/FileIO/S4/ClassList/Builder.loadFlocClassList(path);
-        let relns   = makeFlocRelations(x1.classes);
+        let relns   = makeRelations(x1.classes);
         Ok(relns)
 
-    pub def loadEquiClassRelations(path: System.FilePath): Result[#{S4EquiClass, S4EquiCharacteristic, S4EquiClassMember | r}, String] & Impure = 
+    pub def loadEquiClassRelations(path: System.FilePath): Result[#{S4Class, S4Characteristic, S4ClassMember | r}, String] & Impure = 
         use Result.{flatMap};
         let* x1     = AssetLib/FileIO/S4/ClassList/Builder.loadEquiClassList(path);
-        let relns   = makeEquiRelations(x1.classes);
+        let relns   = makeRelations(x1.classes);
         Ok(relns)
 
 
-    pub def makeFlocRelations(xs: List[ClassRecord]): #{S4FlocClass, S4FlocCharacteristic, S4FlocClassMember | r} = 
-        RelLib/Relation.foldMap(x1 -> makeFlocClass(x1) <+> makeFlocChars(x1) <+> makeFlocClassMembers(x1), xs)
+    pub def makeRelations(xs: List[ClassRecord]): #{S4Class, S4Characteristic, S4ClassMember | r} = 
+        RelLib/Relation.foldMap(x1 -> makeClass(x1) <+> makeCharacteristics(x1) <+> makeClassMembers(x1), xs)
 
-    def makeFlocClass(x: ClassRecord): #{S4FlocClass | r} = #{ S4FlocClass(x.name, x.description). }
+    def makeClass(x: ClassRecord): #{S4Class | r} = #{ S4Class(x.name, x.description). }
 
-    def makeFlocChars(x: ClassRecord): #{S4FlocCharacteristic | r} = 
+    def makeCharacteristics(x: ClassRecord): #{S4Characteristic | r} = 
         use AssetLib/FileIO/S4/ClassList/Datatypes.{s4TypeName};
-        RelLib/Relation.foldMap(x1 -> #{ S4FlocCharacteristic(x1.name, x1.description, s4TypeName(x1.chartype)). }, x.characteristics)
+        RelLib/Relation.foldMap(x1 -> #{ S4Characteristic(x1.name, x1.description, s4TypeName(x1.chartype)). }, x.characteristics)
 
-    def makeFlocClassMembers(x: ClassRecord): #{S4FlocClassMember | r} = 
-        RelLib/Relation.foldMap(x1 -> #{ S4FlocClassMember(x.name, x1.name). }, x.characteristics)
+    def makeClassMembers(x: ClassRecord): #{S4ClassMember | r} = 
+        RelLib/Relation.foldMap(x1 -> #{ S4ClassMember(x.name, x1.name). }, x.characteristics)
 
-
-
-    pub def makeEquiRelations(xs: List[ClassRecord]): #{S4EquiClass, S4EquiCharacteristic, S4EquiClassMember | r} = 
-        RelLib/Relation.foldMap(x1 -> makeEquiClass(x1) <+> makeEquiChars(x1) <+> makeEquiClassMembers(x1), xs)
-
-    def makeEquiClass(x: ClassRecord): #{S4EquiClass | r} = #{ S4EquiClass(x.name, x.description). }
-
-    def makeEquiChars(x: ClassRecord): #{S4EquiCharacteristic | r} = 
-        use AssetLib/FileIO/S4/ClassList/Datatypes.{s4TypeName};
-        RelLib/Relation.foldMap(x1 -> #{ S4EquiCharacteristic(x1.name, x1.description, s4TypeName(x1.chartype)). }, x.characteristics)
-
-    def makeEquiClassMembers(x: ClassRecord): #{S4EquiClassMember | r} = 
-        RelLib/Relation.foldMap(x1 -> #{ S4EquiClassMember(x.name, x1.name). }, x.characteristics)
 
 }

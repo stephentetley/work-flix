@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
     pub type alias LiftingFacts[r: SchemaRow] = #{WorkLoad, TestCertNo, YWRef | r}
 
 
-    pub def readLiftingFacts(src: XlsxSource): GenMonad[#{WorkLoad, TestCertNo, YWRef | r}]  =
+    pub def readLiftingFacts(src: XlsxSource): GenMonad[LiftingFacts[r1]]  =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalLifting()))
 
 

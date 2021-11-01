@@ -30,6 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     pub def genMechanicalCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, return};
+        let* _ = genComp(workitems, facts as CompSchema[r2]);
         let* _ = genFans(workitems, facts as FansSchema[r2]);
         let* _ = genHsys(workitems, facts as HsysSchema[r2]);
         let* _ = genMixr(workitems, facts as MixrSchema[r2]);
@@ -40,6 +41,26 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         let* _ = genTrut(workitems, facts as TrutSchema[r2]);
         let* _ = genValv(workitems, facts as ValvSchema[r2]);
         return()
+
+    /// # COMP
+
+    pub type alias CompSchema[r1: SchemaRow] = 
+        #{EquiWorkItem3, RatingPower, EquiCharacteristic | r1}
+
+    pub def genComp(workitems: #{EquiWorkItem3 | r1}, facts: CompSchema[r2]): GenMonad[Unit] =
+        let workitems1 = workitems as CompSchema[r2];
+        AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> compCharacteristics())
+
+
+    /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
+    pub def compCharacteristics(): CompSchema[r1] = #{
+
+        EquiCharacteristic(equiId, s4Class, "COMP_RATED_POWER_KW", 1, S4Float(ans)) :-
+            EquiWorkItem3(equiId, "COMP", s4Class),
+            RatingPower(equiId, ans, "KILOWATTS").
+
+    }
+
 
     /// # FANS
 

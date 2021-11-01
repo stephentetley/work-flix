@@ -135,5 +135,18 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     /// Valve
 
     pub rel ValveSize(aibref: String, size: Float64, units: String)
-    
+
+
+    /// Vessel
+
+    pub rel BarLitres(aibref: String, litres: Float64)
+
+    pub rel PVCapacityLitres(aibref: String, litres: Float64)
+
+    pub rel PVVerificationStatus(aibref: String, status: String)
+
+    pub rel SwpOrSol(aibref: String, floatVal: Float64, units: String)
+
+    pub rel TestPressureBars(aibref: String, pressure: Float64)
+
 }

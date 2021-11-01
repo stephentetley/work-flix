@@ -1,5 +1,9 @@
+use SheetIO/Reader.{XlsxSource};
+use SheetIO.NamedRowEvaluator;
+
 use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassEquiRow, ValuaEquiRow};
-use AssetLib/S4Lite/Datatypes.{UxlSource};
+use AssetLib/FileIO/S4/ClassList/Relations.{S4ClassMember};
+
 use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear};
 use AssetLib/GenS4.{GenMonad};
 
@@ -12,65 +16,78 @@ def main(_args: Array[String]): Int32 & Impure =
 def main1(): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let outpaths = 
-        { classequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/ew_upload_classequi.txt")
-        , valuaequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/ew_upload_valuaequi.txt")
+        { valuaequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/ew_upload_valuaequi_objchars.txt")
         };
-    let* (s4Lite, keymap)   = AssetLib/GenS4/GenMonad.runGenMonad(genAssetCondition(#{}));
-    let* s4LiteChars        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(keymap, s4Lite.equiCharacteristics);
-    let* _                  = AssetLib/S4Lite/EmitUpload.outputClassEquis("tetleys", s4LiteChars, outpaths.classequi);
+    let* (s4Lite, keymap)   = AssetLib/GenS4/GenMonad.runGenMonad(genCharacteristics());
+    let* s4LiteChars        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(keymap, s4Lite.equiCharacteristics);    
     let* _                  = AssetLib/S4Lite/EmitUpload.outputValuaEquis("tetleys", s4LiteChars, outpaths.valuaequi);
     Console.printLine("Success");
     Ok()
 
-/// There is a "fault" in the input data: 
-/// `PLI00701862` determines both `101033990` (END03-E-LV-MC01-CU20 :: No2 Storm Pump Starter) 
-/// and `101247909` (END03-EDC-LDQ-OUT-SYS01-PMP02 :: Starter)
+def aibExports(): AssetLib/GenS4/GenUxl.OptionalExports  = 
+    { aibElectricalExport   = Some({sheet = "Sheet1", 
+        path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-electrical-export.xlsx")})
+    , aibFanExport          = None
+    , aibInstrumentExport   = Some({sheet = "Sheet1", 
+        path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-instrument-export.xlsx")})
+    , aibLiftingExport          = None
+    , aibPumpExport             = Some({sheet = "Sheet1", 
+        path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-pump-export.xlsx")})
+    , aibTankExport             = None
+    , aibValveExport            = Some({sheet = "Sheet1", 
+        path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-valve-export.xlsx")})        
+    , aibVesselExport1          = Some({sheet = "Sheet1", 
+        path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-vepr1-export.xlsx")})        
+    , aibVesselExport2          = Some({sheet = "Sheet1", 
+        path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-vepr2-export.xlsx")})
+    }
 
-
-def genAssetCondition(_dummy: #{|r1}): GenMonad[Map[String, String]] = 
+def genCharacteristics(): GenMonad[Map[String, String]] = 
     use AssetLib/GenS4/GenMonad.{flatMap, return, map, liftActionResult, liftAction};
     let src = 
-        { aibAgasp = {sheet= "Sheet1", 
-            path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-agasp-export.xlsx")}
-        , s4classequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03_classequi.txt")
-        , s4valuaequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03_valuaequi.txt")
+        { worklist = {sheet= "Sheet1", 
+            path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-worklist.xlsx")}
+        , s4classequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03_classequi_newitems.txt")
+        , s4valuaequi = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03_valuaequi_newitems.txt")
+        , s4classdict = System/FilePath.new("G://work/assets/facts/002-equi-class-list.txt")
     };
-    let* aibAgasp   = AssetLib/GenS4/AibFacts/Attributes/AssetCondition.readAgaspFacts(src.aibAgasp);
-    let* s4Class    = liftActionResult(_ -> AssetLib/FileIO/S4/TransferFile/Builtins.readClassEquiFile(src.s4classequi)) |> map(getAssetConditionClass);
-    let* s4Equi     = liftActionResult(_ -> AssetLib/FileIO/S4/TransferFile/Builtins.readValuaEquiFile(src.s4valuaequi)) |> map(getAi2AibReference);
-    let db          = aibAgasp <+> s4Class <+> s4Equi;
+    let* worklist       = liftActionResult(_ -> readWorkItems(src.worklist));
+    let* classExport    = liftActionResult(_ -> AssetLib/FileIO/S4/TransferFile/Builtins.readClassEquiFile(src.s4classequi) |> Result.map(getClassRelns));
+    let* s4Equi         = liftActionResult(_ -> AssetLib/FileIO/S4/TransferFile/Builtins.readValuaEquiFile(src.s4valuaequi)) |> map(getAi2AibReference);
+    let* classDict      = liftActionResult(_ -> AssetLib/FileIO/S4/ClassList/Relations.loadEquiClassRelations(src.s4classdict));
+    let db              = worklist <+> classExport <+> classDict <+> s4Equi;
    
-    let rules = #{
+    let workItemRules = #{
 
-        HasAgasp(aibref) :- ConditionGrade(aibref, _, _).
-
-        HasAgasp(aibref) :- LoadingFactor(aibref, _, _).
-
-        HasAgasp(aibref) :- PerformanceGrade(aibref, _, _).
-
-        HasAgasp(aibref) :- SurveyYear(aibref, _).
-
-        EquiWorkItem3(aibref, "XYZ1", "XYZ123") :- 
-            Ai2AibReference(s4Id, aibref),
-            HasAgasp(aibref), 
-            not AssetConditionClass(s4Id), 
-            if String.startsWith(prefix = "PLI", aibref).
+        EquiWorkItem3(aibref, objtype, className) :-         
+            WorkItem(s4ref, objtype),
+            Ai2AibReference(s4ref, aibref),
+            EquiClassItem(s4ref, className),
+            S4ClassMember(className, "UNICLASS_CODE").
 
     };
-    let allRelns    = db <+> rules <+> AssetLib/GenS4/Rules/Characteristics/AssetCondition.assetCondition();
-    let* _          = liftAction(_ -> query allRelns select (x1, x2, x3) from EquiWorkItem3(x1, x2, x3) |> Array.foreach(println));    
-    let* _          = liftAction(_ -> query allRelns select x1 from AssetConditionClass(x1) |> Array.foreach(println));
-    let* _          = AssetLib/GenS4/GenMonad.tellEquiCharacteristics(allRelns);
-    let* newkeys    = liftAction(_ -> query allRelns select (x2, x1) from Ai2AibReference(x1, x2) |> Array.toMap);
+    let workItems   = db <+> workItemRules;
+    let* _          = liftAction(_ -> query workItems select (x1, x2, x3) from EquiWorkItem3(x1, x2, x3) |> Array.foreach(println));
+    let* _          = AssetLib/GenS4/GenUxl.tempGenEquiCharacteristics(aibExports(), workItems);
+    let* newkeys    = liftAction(_ -> query workItems select (x2, x1) from Ai2AibReference(x1, x2) |> Array.toMap);
     return(newkeys)
 
-pub rel AssetConditionClass(s4Id: String)
+pub rel WorkItem(s4ref: String, objtype: String)
 
-def getAssetConditionClass(xs: List[ClassEquiRow]): #{AssetConditionClass | r} =
-    let step = x1 -> match x1.className { 
-        case "ASSET_CONDITION" => #{ AssetConditionClass(x1.equi). }
-        case _ => #{}
-    };
+def readWorkItems(src: XlsxSource): Result[#{WorkItem | r}, String] & Impure = 
+    SheetIO/Reader.someNamedRelations(src, evalWorkItem())
+
+def evalWorkItem(): NamedRowEvaluator[#{WorkItem | r}] =
+    use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
+    use SheetIO/NamedRowEvaluator.{<&>, <*>};
+    ((x1, x2) -> #{ WorkItem(x1, x2). })
+        <&> getTrimmedContentNamed("Equipment")
+        <*> getTrimmedContentNamed("Object Type")
+
+pub rel EquiClassItem(equiref: String, className: String)
+
+def getClassRelns(xs: List[ClassEquiRow]): #{EquiClassItem | r} = 
+    let step = row -> #{ EquiClassItem(row.equi, row.className). };
     RelLib/Relation.foldMap(step, xs)
 
 pub rel Ai2AibReference(s4Id: String, aibRefefence: String)
@@ -81,7 +98,3 @@ def getAi2AibReference(xs: List[ValuaEquiRow]): #{Ai2AibReference | r} =
         case _ => #{}
     };
     RelLib/Relation.foldMap(step, xs)
-
-
-
-
