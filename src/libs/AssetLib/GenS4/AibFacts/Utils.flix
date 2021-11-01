@@ -44,6 +44,20 @@ namespace AssetLib/GenS4/AibFacts/Utils {
         let* x2     = getFloat64Named(columnName);
         return(f(x1, x2))
 
+    pub def getDateFact2(columnName: String, f: (String, Time.LocalDate) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getLocalDateNamed};  
+        let* x1     = getNonEmptyContentNamed("Reference");
+        let* x2     = getLocalDateNamed(columnName);
+        return(f(x1, x2))
+
+    // e.g. "Feb 01 2010"
+    pub def getMdyDateFact2(columnName: String, f: (String, Time.LocalDate) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
+        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, liftOption, getLocalDateNamedWithFormat};  
+        let* x1     = getNonEmptyContentNamed("Reference");
+        let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("MMM dd yyyy"), "getMdyDateFact2 - bad pattern");
+        let* x2     = getLocalDateNamedWithFormat(columnName, fmt);
+        return(f(x1, x2))
+
 
     pub def getIntFactWithUnits(columnName: String,                                     
                                     unitsColumn: String, 

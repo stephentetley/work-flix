@@ -21,10 +21,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     
     use AssetLib/S4Lite/Datatypes.{SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Float, S4Date};
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, S4LoadUnit, WorkLoad, TestCertNo, YWRef, 
-        BarLitres, PVCapacityLitres, PVVerificationStatus, SwpOrSol};
+        BarLitres, PVCapacityLitres, PVVerificationStatus, PVVerificationStatusDate, SwpOrSol, 
+        TestPressureBars, WrittenSchemeNumber};
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     use AssetLib/GenS4/Rules/Characteristics/Utils.{iEqual};
     
@@ -198,7 +199,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// # VEPR
 
     pub type alias VeprSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, BarLitres, TestCertNo, YWRef, EquiCharacteristic | r1}
+        #{EquiWorkItem3, BarLitres, PVCapacityLitres, PVVerificationStatusDate, SwpOrSol, TestCertNo, 
+            TestPressureBars, WrittenSchemeNumber, YWRef, EquiCharacteristic | r1}
 
     pub def genVepr(workitems: #{EquiWorkItem3 | r1}, facts: VeprSchema[r2]): GenMonad[Unit] =
         let workitems1 = workitems as VeprSchema[r2];
@@ -228,6 +230,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
             EquiWorkItem3(equiId, "VEPR", s4Class),
             PVVerificationStatus(equiId, status).
 
+        EquiCharacteristic(equiId, s4Class, "VEPR_PV_VERIFICATION_DATE", 1, S4Date(date)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            PVVerificationStatusDate(equiId, date).
+
 
         EquiCharacteristic(equiId, s4Class, "VEPR_TEST_PRESSURE_BAR", 1, S4Float(pressure)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
@@ -237,6 +243,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
         EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             TestCertNo(equiId, number).
+
+        EquiCharacteristic(equiId, s4Class, "VEPR_WRITTEN_SCHEME_NUMBER", 1, S4String(snum)) :- 
+            EquiWorkItem3(equiId, "VEPR", s4Class),
+            WrittenSchemeNumber(equiId, snum).
 
         EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),

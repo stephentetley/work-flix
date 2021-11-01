@@ -145,8 +145,12 @@ namespace AssetLib/GenS4/Base/CommonRelations {
 
     pub rel PVVerificationStatus(aibref: String, status: String)
 
+    pub rel PVVerificationStatusDate(aibref: String, date: Time.LocalDate)
+
     pub rel SwpOrSol(aibref: String, floatVal: Float64, units: String)
 
     pub rel TestPressureBars(aibref: String, pressure: Float64)
+
+    pub rel WrittenSchemeNumber(aibref: String, schemeNumber: String)
 
 }

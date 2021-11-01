@@ -23,14 +23,14 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Vessel {
 
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{BarLitres, PVCapacityLitres, PVVerificationStatus, 
-        SwpOrSol, 
-         TestCertNo, TestPressureBars, YWRef};
+        PVVerificationStatusDate, SwpOrSol, 
+        TestCertNo, TestPressureBars, WrittenSchemeNumber, YWRef};
 
     /// Read from Aib file...
 
     pub type alias VesselFacts[r: SchemaRow] = 
         #{BarLitres, PVCapacityLitres, PVVerificationStatus, SwpOrSol,
-            TestCertNo, TestPressureBars, YWRef | r}
+            TestCertNo, TestPressureBars, WrittenSchemeNumber, YWRef | r}
 
     pub def readVesselFacts(src: XlsxSource): GenMonad[VesselFacts[r1]] =
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalVessel()))
@@ -41,11 +41,13 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Vessel {
         let* c1 = withDefault(evalBarLitres(), #{});
         let* c2 = withDefault(evalPVCapacityLitres(), #{});
         let* c3 = withDefault(evalPVVerificationStatus(), #{});
-        let* c4 = withDefault(evalSwpOrSol(), #{});
+        let* c4 = withDefault(evalPVVerificationStatusDate(), #{});
+        let* c5 = withDefault(evalSwpOrSol(), #{});
         let* c20 = withDefault(evalTestCertNo(), #{});
         let* c21 = withDefault(evalTestPressureBars(), #{});
-        let* c22 = withDefault(evalYWRef(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c20 <+> c21 <+> c22)
+        let* c22 = withDefault(evalWrittenSchemeNumber(), #{});
+        let* c23 = withDefault(evalYWRef(), #{});
+        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c20 <+> c21 <+> c22 <+> c23)
     
     /// Bar Litres	P.V.Capacity Ltrs	PV Verification Status	PV Verification Status Date	S.W.P or S.O.L.	S.W.P or S.O.L. Units	
     /// Safe Working Procedure Date	Safe Working Procedure Name	Safe Working Procedure Type - Location
@@ -61,6 +63,9 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Vessel {
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("PV Verification Status", (aibref, ans) -> #{ PVVerificationStatus(aibref, ans). })
 
     // PV Verification Status Date  
+    def evalPVVerificationStatusDate(): NamedRowEvaluator[#{PVVerificationStatusDate | r}] =
+        AssetLib/GenS4/AibFacts/Utils.getMdyDateFact2("PV Verification Status Date", (aibref, ans) -> #{ PVVerificationStatusDate(aibref, ans). })
+
 
     def evalSwpOrSol(): NamedRowEvaluator[#{SwpOrSol | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFactWithUnits("S.W.P or S.O.L.", 
@@ -72,10 +77,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Vessel {
     def evalTestCertNo(): NamedRowEvaluator[#{TestCertNo | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("Test Cert No", (aibref, ans) -> #{ TestCertNo(aibref, ans). })
 
-
     def evalTestPressureBars(): NamedRowEvaluator[#{TestPressureBars | r}] =
         AssetLib/GenS4/AibFacts/Utils.getFloatFact2("Test Pressure bars", (aibref, ans) -> #{ TestPressureBars(aibref, ans). })
     
+    def evalWrittenSchemeNumber(): NamedRowEvaluator[#{WrittenSchemeNumber | r}] =
+        AssetLib/GenS4/AibFacts/Utils.getStringFact2("Written Scheme No", (aibref, ans) -> #{ WrittenSchemeNumber(aibref, ans). })
+
     def evalYWRef(): NamedRowEvaluator[#{YWRef | r}] =
         AssetLib/GenS4/AibFacts/Utils.getStringFact2("YWRef", (aibref, ans) -> #{ YWRef(aibref, ans). })
 
