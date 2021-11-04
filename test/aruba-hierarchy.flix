@@ -1,5 +1,5 @@
 use AssetLib/Aruba/Base.{FlocLevel, SubFloc};
-use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, ChildFloc};
+use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, ChildFloc, FunctionalLocation, PreorderRow};
    
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -97,42 +97,15 @@ def main3(): Result[Unit, String] & Impure =
     let rules       = #{
 
         /// Unbounded tree - including equipment at various levels and subequipment.
-        Row3(siteFloc, (siteFloc, name), "") :- 
-            Site(_, siteFloc, name).
+        Row3(item, (flocId, name), parent) :- 
+            PreorderRow(item, flocId, parent),
+            FunctionalLocation(flocId, name).
 
-        Row3(funFloc, (funFloc, name), siteFloc) :- 
-            Function(_, funFloc, name),
-            ChildFloc(siteFloc, funFloc).
+        Row3(item, (equiId, name), parent) :-
+            PreorderRow(item, equiId, parent),
+            Equipment(equiId, name, _).
 
-        Row3(pgFloc, (pgFloc, name), funFloc) :- 
-            ProcessGroup(_, pgFloc, name), 
-            ChildFloc(funFloc, pgFloc).
-
-        Row3(pFloc, (pFloc, name), pgFloc) :- 
-            Process(_, pFloc, name), 
-            ChildFloc(pgFloc, pFloc).
-
-        Row3(sysFloc, (sysFloc, name), pFloc) :- 
-            System(_, sysFloc, name), 
-            ChildFloc(pFloc, sysFloc).
-
-        Row3(ssFloc, (ssFloc, name), sysFloc) :- 
-            Subsystem(_, ssFloc, name), 
-            ChildFloc(sysFloc, ssFloc).
-        
-        Row3("${floc}::${equiId}", (equiId, name), floc) :-
-            Equipment(equiId, name, floc), 
-            not IsSubEquipment(equiId).
-
-        Row3("${floc}::${superId}::${equiId}", (equiId, name), "${floc}::${superId}") :-
-            Equipment(equiId, name, floc), 
-            ChildEquipment(superId, equiId).
-
-        IsSubEquipment(equiId) :- 
-            Equipment(equiId, _, _), 
-            ChildEquipment(_, equiId).
-
-    };
+    } <+> AssetLib/Aruba/S4Hierarchy.functionalLocations() <+> AssetLib/Aruba/S4Hierarchy.preorderRows();
     Console.printLine("Unbounded...");
     query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) 
         |> RelLib/UnboundedTree.printAsTree("");

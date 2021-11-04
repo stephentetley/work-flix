@@ -102,6 +102,72 @@ namespace AssetLib/Aruba/S4Hierarchy {
         solve input1 <+> rules project Site, Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEquipment
 
 
-/// toPlantUml / RoseTree
+    pub rel FunctionalLocation(floc: String, description: String)
+
+    pub def functionalLocations(): #{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                FunctionalLocation | r1} = #{
+
+
+        FunctionalLocation(flocId, name) :- Site(flocId, _, name).
+
+        FunctionalLocation(flocId, name) :- Function(flocId, _, name).
+
+        FunctionalLocation(flocId, name) :- ProcessGroup(flocId, _, name).
+
+        FunctionalLocation(flocId, name) :- Process(flocId, _, name).
+
+        FunctionalLocation(flocId, name) :- System(flocId, _, name).
+
+        FunctionalLocation(flocId, name) :- Subsystem(flocId, _, name).
+
+    }
+
+
+    /// toPlantUml / RoseTree
+
+    pub rel PreorderRow(treeKey: String, uid: String, parentKey: String)
+
+    pub def preorderRows(): #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
+                                ChildFloc, ChildEquipment, PreorderRow | r1} = #{
+
+
+        /// Unbounded tree - including equipment at various levels and subequipment.
+        PreorderRow(siteFloc, flocId, "") :- 
+            Site(flocId, siteFloc, _).
+
+        PreorderRow(funFloc, flocId, siteFloc) :- 
+            Function(flocId, funFloc, _),
+            ChildFloc(siteFloc, funFloc).
+
+        PreorderRow(pgFloc, flocId, funFloc) :- 
+            ProcessGroup(flocId, pgFloc, _), 
+            ChildFloc(funFloc, pgFloc).
+
+        PreorderRow(pFloc, flocId, pgFloc) :- 
+            Process(flocId, pFloc, _), 
+            ChildFloc(pgFloc, pFloc).
+
+        PreorderRow(sysFloc, flocId, pFloc) :- 
+            System(flocId, sysFloc, _), 
+            ChildFloc(pFloc, sysFloc).
+
+        PreorderRow(ssFloc, flocId, sysFloc) :- 
+            Subsystem(flocId, ssFloc, _), 
+            ChildFloc(sysFloc, ssFloc).
+        
+        PreorderRow("${floc}::${equiId}", equiId, floc) :-
+            Equipment(equiId, _, floc), 
+            not IsSubEquipment(equiId).
+
+        PreorderRow("${floc}::${superId}::${equiId}", equiId, "${floc}::${superId}") :-
+            Equipment(equiId, _, floc), 
+            ChildEquipment(superId, equiId).
+
+        IsSubEquipment(equiId) :- 
+            Equipment(equiId, _, _), 
+            ChildEquipment(_, equiId).
+
+    }
+
 
 }
