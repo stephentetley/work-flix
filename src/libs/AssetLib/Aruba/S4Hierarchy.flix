@@ -17,13 +17,16 @@
 namespace AssetLib/Aruba/S4Hierarchy {
 
 
-    use AssetLib/Aruba/Base.{Floc, SubFloc, FlocLevel, Equi, EquiLocation};
+    use AssetLib/Aruba/Base.{Floc, SubFloc, FlocLevel, Equi, SubEqui, EquiLocation};
 
 
     /// Note - we want to represent partial hierarchies (i.e. not starting from Site), 
     /// so we still have separate relations for Parent/Child.
     /// Similarly we may not have full type information so types are separate relations.
 
+
+    pub type alias S4HierarchySchema[r1: SchemaRow] = 
+        #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment | r1}
 
     pub rel Site(flocId: String, flocPath: String, name: String)
 
@@ -38,10 +41,11 @@ namespace AssetLib/Aruba/S4Hierarchy {
     /// Level 6 - e.g "Heating Unit", "Pump Assembly"
     pub rel Subsystem(flocId: String, flocPath: String, name: String)
 
+    pub rel Equipment(equiId: String, name: String, floc: String)
+
+
     /// Floc childOf relation
     pub rel ChildFloc(parentFlocId: String, childFlocId: String)
-
-    pub rel Equipment(equiId: String, name: String, floc: String)
 
     pub rel ChildEquipment(parentId: String, childId: String)
 
@@ -56,7 +60,7 @@ namespace AssetLib/Aruba/S4Hierarchy {
     /// Translation is input source specific, we rely on S4 specific site levels, etc.
     pub def fromS4BaseRelations(input: #{Floc, SubFloc, FlocLevel, Equi, EquiLocation | r}): 
                             #{Site, Function, ProcessGroup, Process, System, Subsystem, 
-                                Equipment, ChildFloc | r1} = 
+                                Equipment, ChildFloc, ChildEquipment | r1} = 
         let rules = #{
             Site(flocId, flocPath, name):- 
                 Floc(flocId, flocPath, name),
@@ -88,10 +92,16 @@ namespace AssetLib/Aruba/S4Hierarchy {
 
             ChildFloc(parentId, childId) :- 
                 SubFloc(parentId, childId).
-        };
-        let input1 = input as #{Floc, SubFloc, FlocLevel, Equi, EquiLocation,  
-                                    Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc | r};
-        solve input1 <+> rules project Site, Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc
 
+            ChildEquipment(parentId, childId) :-
+                SubEqui(parentId, childId).
+
+        };
+        let input1 = input as #{Floc, SubFloc, FlocLevel, Equi, SubEqui, EquiLocation,  
+                                    Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEquipment | r};
+        solve input1 <+> rules project Site, Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEquipment
+
+
+/// toPlantUml / RoseTree
 
 }

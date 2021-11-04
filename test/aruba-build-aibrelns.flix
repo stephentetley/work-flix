@@ -23,6 +23,6 @@ def main1(): Result[Unit, String] & Impure =
     let tyrules = #{
         Type(name) :- EquiType(_, name).
     };
-    Console.printLine("Types...");
+    Console.printLine("Types used...");
     query baseRep <+> tyrules select x1 from Type(x1) |> Array.foreach(println);
     Ok()  

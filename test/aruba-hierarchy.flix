@@ -5,6 +5,7 @@ def main(_args: Array[String]): Int32 & Impure =
     Console.printLine("Running... ${Time/LocalTime.now()}");
     main1() |> println;
     main2() |> println;
+    main3() |> println;
     0
 
 def main1(): Result[Unit, String] & Impure = 
@@ -48,30 +49,30 @@ def main2(): Result[Unit, String] & Impure =
     let rules       = #{
 
         /// These generate blanks in the tree and suggests we also need a "tree list" view...
-        Organization(siteFid, "", "", "", "") :- 
-            Site(siteFid, _, _).
+        Organization(siteFloc, "", "", "", "") :- 
+            Site(siteFloc, _, _).
 
-        Organization(siteFid, funFid, "", "", "") :- 
-            Function(funFid, _, _),
-            ChildFloc(siteFid, funFid).
+        Organization(siteFloc, funFloc, "", "", "") :- 
+            Function(funFloc, _, _),
+            ChildFloc(siteFloc, funFloc).
 
-        Organization(siteFid, funFid, pgFid, "", "") :- 
-            ProcessGroup(pgFid, _, _), 
-            ChildFloc(funFid, pgFid),
-            ChildFloc(siteFid, funFid).
+        Organization(siteFloc, funFloc, pgFloc, "", "") :- 
+            ProcessGroup(pgFloc, _, _), 
+            ChildFloc(funFloc, pgFloc),
+            ChildFloc(siteFloc, funFloc).
 
-        Organization(siteFid, funFid, pgFid, pFid, "") :- 
-            Process(pFid, _, _), 
-            ChildFloc(pgFid, pFid),
-            ChildFloc(funFid, pgFid),
-            ChildFloc(siteFid, funFid).
+        Organization(siteFloc, funFloc, pgFloc, pFloc, "") :- 
+            Process(pFloc, _, _), 
+            ChildFloc(pgFloc, pFloc),
+            ChildFloc(funFloc, pgFloc),
+            ChildFloc(siteFloc, funFloc).
 
-        Organization(siteFid, funFid, pgFid, pFid, sysFid) :- 
-            System(sysFid, _, _), 
-            ChildFloc(pFid, sysFid),
-            ChildFloc(pgFid, pFid),
-            ChildFloc(funFid, pgFid),
-            ChildFloc(siteFid, funFid).
+        Organization(siteFloc, funFloc, pgFloc, pFloc, sysFloc) :- 
+            System(sysFloc, _, _), 
+            ChildFloc(pFloc, sysFloc),
+            ChildFloc(pgFloc, pFloc),
+            ChildFloc(funFloc, pgFloc),
+            ChildFloc(siteFloc, funFloc).
 
     };
     /// query db <+> rules select (x1, x2, x3, x4) from Organization(x1, x2, x3, x4) |> Array.foreach(println);
@@ -82,6 +83,63 @@ def main2(): Result[Unit, String] & Impure =
         |> Result.map(PlantUml/Puml.render)
         |> println;
     Ok()
+
+def main3(): Result[Unit, String] & Impure = 
+    use Result.flatMap;
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
+    let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-equi-ih08.xlsx"),
+                        sheet = "Sheet1"};
+    let* srcRel     = AssetLib/Aruba/S4/IH06Tree.readIH06Relations(src);
+    let baseRep     = AssetLib/Aruba/S4/IH06Tree.toBase(srcRel);
+    let hrep        = AssetLib/Aruba/S4Hierarchy.fromS4BaseRelations(baseRep);
+    let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
+    let db          = hrep <+> extra;
+    let rules       = #{
+
+        /// Unbounded tree - including equipment at various levels and subequipment.
+        Row3(siteFloc, (siteFloc, name), "") :- 
+            Site(_, siteFloc, name).
+
+        Row3(funFloc, (funFloc, name), siteFloc) :- 
+            Function(_, funFloc, name),
+            ChildFloc(siteFloc, funFloc).
+
+        Row3(pgFloc, (pgFloc, name), funFloc) :- 
+            ProcessGroup(_, pgFloc, name), 
+            ChildFloc(funFloc, pgFloc).
+
+        Row3(pFloc, (pFloc, name), pgFloc) :- 
+            Process(_, pFloc, name), 
+            ChildFloc(pgFloc, pFloc).
+
+        Row3(sysFloc, (sysFloc, name), pFloc) :- 
+            System(_, sysFloc, name), 
+            ChildFloc(pFloc, sysFloc).
+
+        Row3(ssFloc, (ssFloc, name), sysFloc) :- 
+            Subsystem(_, ssFloc, name), 
+            ChildFloc(sysFloc, ssFloc).
+        
+        Row3("${floc}::${equiId}", (equiId, name), floc) :-
+            Equipment(equiId, name, floc), 
+            not IsSubEquipment(equiId).
+
+        Row3("${floc}::${superId}::${equiId}", (equiId, name), "${floc}::${superId}") :-
+            Equipment(equiId, name, floc), 
+            ChildEquipment(superId, equiId).
+
+        IsSubEquipment(equiId) :- 
+            Equipment(equiId, _, _), 
+            ChildEquipment(_, equiId).
+
+    };
+    Console.printLine("Unbounded...");
+    query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) 
+        |> RelLib/UnboundedTree.printAsTree("");
+    Ok()
+
+
+
 
 
 

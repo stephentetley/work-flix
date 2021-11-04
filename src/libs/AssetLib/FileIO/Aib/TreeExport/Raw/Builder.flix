@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-use Data.{RoseTree, RoseForest};
-use Data.RoseTree.{RoseTree};
-
-use AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow, AibTree, AibNode};
 
 namespace AssetLib/FileIO/Aib/TreeExport/Raw/Builder {
     
+
+    use Data.{RoseTree, RoseForest};
+    use Data.RoseTree.{RoseTree};
+
+    use AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow, AibTree, AibNode};
 
     /// Caller supplies level as it might not be site (level 1).
     pub def buildAibTrees(src: AibTreeFile, level: Int32): List[AibTree] = 

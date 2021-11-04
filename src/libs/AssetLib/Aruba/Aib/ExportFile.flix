@@ -68,7 +68,7 @@ namespace AssetLib/Aruba/Aib/ExportFile {
         let hkeys           = getAibHKeys(rows);                                
         Ok(equi <+> commonNames <+> parents <+> hkeys)
 
-    /// No SubEqui - this is not a represented it Aib.
+    /// No SubEqui - this is not represented in Aib.
     pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{Floc, Equi, EquiLocation, SubFloc, FlocLevel, EquiType | r1} = 
         let rules = #{ 
             Equi(aibref, equiname) :- 
