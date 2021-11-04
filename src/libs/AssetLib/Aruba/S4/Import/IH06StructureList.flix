@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Aruba/S4/IH06Tree {
+namespace AssetLib/Aruba/S4/Import/IH06StructureList {
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
@@ -40,6 +40,11 @@ namespace AssetLib/Aruba/S4/IH06Tree {
         };
         RelLib/Relation.foldMap(build1, src.rows)
         
+
+    pub def readBaseRelations(src: System.FilePath): Result[#{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel | r}, String] & Impure = 
+        use Result.{flatMap};
+        let* ast = AssetLib/FileIO/S4/IH06Tree/Parser.parseFileWithBOM(src);
+        buildIH06Relations(ast) |> toBase |> Ok
 
 
     /// To Base representation
@@ -72,9 +77,10 @@ namespace AssetLib/Aruba/S4/IH06Tree {
         let input1 = input as #{IH06Floc, IH06Equi, Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel};
         solve (rules <+> input1) project Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel
 
-    pub def flocLevel(floc: String): Option[Int32] = 
+    def flocLevel(floc: String): Option[Int32] = 
         use AssetLib/Base/S4/Floc.{level, new};
         new(floc)
             |> Result.map(level)
             |> Result.toOption
+            
 }

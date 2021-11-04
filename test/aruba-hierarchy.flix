@@ -13,8 +13,7 @@ def main1(): Result[Unit, String] & Impure =
     let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
     let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-equi-ih08.xlsx"),
                         sheet = "Sheet1"};
-    let* srcRel     = AssetLib/Aruba/S4/IH06Tree.readIH06Relations(src);
-    let baseRep     = AssetLib/Aruba/S4/IH06Tree.toBase(srcRel);
+    let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
     let db          = baseRep <+> extra;
     let rules       = #{
@@ -41,8 +40,7 @@ def main2(): Result[Unit, String] & Impure =
     let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
     let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-equi-ih08.xlsx"),
                         sheet = "Sheet1"};
-    let* srcRel     = AssetLib/Aruba/S4/IH06Tree.readIH06Relations(src);
-    let baseRep     = AssetLib/Aruba/S4/IH06Tree.toBase(srcRel);
+    let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let hrep        = AssetLib/Aruba/S4Hierarchy.fromS4BaseRelations(baseRep);
     let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
     let db          = hrep <+> extra;
@@ -89,8 +87,7 @@ def main3(): Result[Unit, String] & Impure =
     let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
     let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-equi-ih08.xlsx"),
                         sheet = "Sheet1"};
-    let* srcRel     = AssetLib/Aruba/S4/IH06Tree.readIH06Relations(src);
-    let baseRep     = AssetLib/Aruba/S4/IH06Tree.toBase(srcRel);
+    let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let hrep        = AssetLib/Aruba/S4Hierarchy.fromS4BaseRelations(baseRep);
     let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
     let db          = hrep <+> extra;

@@ -21,6 +21,9 @@ namespace AssetLib/Aruba/S4/IH08Table {
 
     use AssetLib/Aruba/Base.{EquiType};
 
+    /// TODO - read Base relations (alternative input source to Structure List)
+
+
     type alias IH08Row = 
         { equiId :: String
         , objectType :: String
