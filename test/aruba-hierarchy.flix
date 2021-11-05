@@ -108,10 +108,7 @@ def main3(): Result[Unit, String] & Impure =
     } <+> AssetLib/Aruba/S4/Hierarchy.preorderRows();
     Console.printLine("Unbounded...");
     query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) 
-        /// |> RelLib/UnboundedTree.printAsTree("");
-        |> Array.foreach(println);
-    query db <+> rules select (x1, x2) from ChildEqui(x1, x2) 
-            |> Array.foreach(println);
+        |> RelLib/UnboundedTree.printAsTree("");
 
     AssetLib/Aruba/S4/ExportJson2.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;        
     Ok()

@@ -81,12 +81,12 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
             GetFlocType(ssFloc, flocType),
             ChildFloc(sysFloc, ssFloc).
         
-        JsonRow("${floc}::${equiId}", "EQUI", equiType, name, equiId, "", floc) :-
+        JsonRow(equiKey(floc, equiId), "EQUI", equiType, name, equiId, "", floc) :-
             Equipment(equiId, name, floc), 
             GetEquiType(equiId, equiType),
             not IsSubEquipment(equiId).
 
-        JsonRow("${floc}::${superEquiId}::${equiId}", "EQUI", equiType, name, equiId, "", "${floc}::${superEquiId}") :-
+        JsonRow(subEquiKey(floc, superEquiId, equiId), "EQUI", equiType, name, equiId, "", subEquiParentKey(floc, superEquiId)) :-
             Equipment(equiId, name, floc), 
             GetEquiType(equiId, equiType),
             ChildEqui(superEquiId, equiId).
@@ -123,7 +123,11 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
 
     }
 
+    def equiKey(floc: String, equiId: String): String = "${floc}::${equiId}"
 
+    def subEquiKey(floc: String, superEquiId: String, equiId: String): String = "${floc}::${superEquiId}::${equiId}"
+
+    def subEquiParentKey(floc: String, superEquiId: String): String = "${floc}::${superEquiId}"
 
 
     /// `rootKey` is the parent key of the topmost element(s), it should not be present as an item key.

@@ -152,12 +152,12 @@ namespace AssetLib/Aruba/S4/Hierarchy {
             Subsystem(funcloc, _), 
             ChildFloc(sysFloc, funcloc).
         
-        PreorderRow("${floc}::${equiId}", equiId, floc) :-
+        PreorderRow(equiKey(floc, equiId), equiId, floc) :-
             Equipment(equiId, _, floc), 
             not IsSubEquipment(equiId).
 
         /// Subequipment
-        PreorderRow("${floc}::${superEquiId}::${equiId}", equiId, "${floc}::${superEquiId}") :-
+        PreorderRow(subEquiKey(floc, superEquiId, equiId), equiId, subEquiParentKey(floc, superEquiId)) :-
             Equipment(equiId, _, floc), 
             ChildEqui(superEquiId, equiId).
 
@@ -166,6 +166,12 @@ namespace AssetLib/Aruba/S4/Hierarchy {
             ChildEqui(_, equiId).
 
     }
+
+    def equiKey(floc: String, equiId: String): String = "${floc}::${equiId}"
+
+    def subEquiKey(floc: String, superEquiId: String, equiId: String): String = "${floc}::${superEquiId}::${equiId}"
+
+    def subEquiParentKey(floc: String, superEquiId: String): String = "${floc}::${superEquiId}"
 
 
 }
