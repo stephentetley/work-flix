@@ -27,8 +27,6 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
     use AssetLib/Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, 
         System, Subsystem, Equipment, S4FlocType, S4EquiType, ChildFloc, ChildEqui, FunctionalLocation};
 
-
-
     
     pub type alias JsonSchema[r1: SchemaRow] =
         #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 

@@ -1,5 +1,5 @@
 use AssetLib/Aruba/Base.{S4FlocLevel, S4SubFloc};
-use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, ChildFloc, ChildEqui, FunctionalLocation, PreorderRow};
+use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, ChildFloc, ChildEqui, S4FlocType, FunctionalLocation, PreorderRow};
    
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");

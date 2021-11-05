@@ -31,7 +31,7 @@ namespace AssetLib/Aruba/S4/Import/IH06Table {
     def evalS4FlocType(): NamedRowEvaluator[#{S4FlocType | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> #{ S4EquiType(x1, x2). })
+        ((x1, x2) -> #{ S4FlocType(x1, x2). })
             <&> getTrimmedContentNamed("Functional Loc.")
             <*> getTrimmedContentNamed("Object Type")
             
