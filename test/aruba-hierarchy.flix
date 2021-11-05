@@ -14,7 +14,7 @@ def main1(): Result[Unit, String] & Impure =
     let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-equi-ih08.xlsx"),
                         sheet = "Sheet1"};
     let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
-    let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
+    let* extra      = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(src2);
     let db          = baseRep <+> extra;
     let rules       = #{
         /// These generate blanks in the tree and suggests we also need a "tree list" view...
@@ -42,7 +42,7 @@ def main2(): Result[Unit, String] & Impure =
                         sheet = "Sheet1"};
     let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let hrep        = AssetLib/Aruba/S4Hierarchy.fromS4BaseRelations(baseRep);
-    let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
+    let* extra      = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(src2);
     let db          = hrep <+> extra;
     let rules       = #{
 
@@ -84,13 +84,16 @@ def main2(): Result[Unit, String] & Impure =
 
 def main3(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
-    let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-equi-ih08.xlsx"),
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/embsay/emb03-ih06-structure-list.txt");
+    let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ih08.xlsx"),
+                        sheet = "Sheet1"};
+    let src3        = {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ih06.xlsx"),
                         sheet = "Sheet1"};
     let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let hrep        = AssetLib/Aruba/S4Hierarchy.fromS4BaseRelations(baseRep);
-    let* extra      = AssetLib/Aruba/S4/IH08Table.readIH08Relations(src2);
-    let db          = hrep <+> extra;
+    let* equitypes  = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(src2);
+    let* floctypes  = AssetLib/Aruba/S4/Import/IH06Table.readS4FlocTypes(src3);
+    let db          = hrep <+> floctypes <+> equitypes;
     let rules       = #{
 
         /// Unbounded tree - including equipment at various levels and subequipment.

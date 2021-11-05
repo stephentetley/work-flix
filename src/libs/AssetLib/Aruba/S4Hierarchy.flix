@@ -55,7 +55,7 @@ namespace AssetLib/Aruba/S4Hierarchy {
 
     pub rel ChildEquipment(parentId: String, childId: String)
 
-    pub rel S4FlocType(flocIdId: String, floctype: String)
+    pub rel S4FlocType(flocPath: String, floctype: String)
 
     
     pub rel FunctionalLocation(floc: String, description: String)

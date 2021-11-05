@@ -14,44 +14,27 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Aruba/S4/IH08Table {
+namespace AssetLib/Aruba/S4/Import/IH06Table {
     
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
-    use AssetLib/Aruba/Base.{EquiType};
+    use AssetLib/Aruba/S4Hierarchy.{S4FlocType};
 
     /// TODO - read Base relations (alternative input source to Structure List)
 
 
-    type alias IH08Row = 
-        { equiId :: String
-        , objectType :: String
-        }
 
-    pub def readIH08Relations(src: XlsxSource): Result[#{EquiType | r}, String] & Impure =         
-        use Result.{flatMap};
-        let* rows = SheetIO/Reader.readAllNamedRows(src, evalIH08Row());
-        buildIH08Relations(rows)
+    pub def readS4FlocTypes(src: XlsxSource): Result[#{S4FlocType | r}, String] & Impure =         
+        SheetIO/Reader.someNamedRelations(src, evalS4FlocType())
 
-    def evalIH08Row(): NamedRowEvaluator[IH08Row] = 
+    def evalS4FlocType(): NamedRowEvaluator[#{S4FlocType | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> 
-            { equiId            = x1
-            , objectType        = x2
-            })
-            <&> getTrimmedContentNamed("Equipment")
+        ((x1, x2) -> #{ S4EquiType(x1, x2). })
+            <&> getTrimmedContentNamed("Functional Loc.")
             <*> getTrimmedContentNamed("Object Type")
             
 
-    def buildIH08Relations(rows: List[IH08Row]): Result[#{EquiType | r}, String] = 
-        use Result.{flatMap};
-        let equitypes        = getEquiTypes(rows);
-        Ok(equitypes)
-
-
-    def getEquiTypes(rows: List[IH08Row]): #{EquiType |r}  = 
-        RelLib/Relation.foldMap(x1 -> #{ EquiType(x1.equiId, x1.objectType). }, rows)
 
 }
