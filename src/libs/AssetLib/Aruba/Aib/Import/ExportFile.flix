@@ -16,15 +16,15 @@
 
 
 
-namespace AssetLib/Aruba/Aib/ExportFile {
+namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
     use Text/Regex.MatchEvaluator;
 
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
-    use AssetLib/Aruba/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel, EquiType};
-    use AssetLib/Aruba/Aib/HierarchyNames.{AibParentName};
+    use AssetLib/Aruba/Aib/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel, EquiType};
+    use AssetLib/Aruba/Aib/Import/Internal/HierarchyNames.{AibParentName};
 
     pub type alias ExportRow = 
         { reference :: String
@@ -64,7 +64,7 @@ namespace AssetLib/Aruba/Aib/ExportFile {
         let* equi           = getEquipment(rows);
         let commonNames     = getCommonNames(rows);
         let parents         = List.map(x1 -> {reference = x1.reference, commonName = x1.commonName}, rows) 
-                                |> AssetLib/Aruba/Aib/HierarchyNames.getParentNames;
+                                |> AssetLib/Aruba/Aib/Import/Internal/HierarchyNames.getParentNames;
         let hkeys           = getAibHKeys(rows);                                
         Ok(equi <+> commonNames <+> parents <+> hkeys)
 

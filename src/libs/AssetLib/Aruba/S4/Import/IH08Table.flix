@@ -19,7 +19,7 @@ namespace AssetLib/Aruba/S4/Import/IH08Table {
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
-    use AssetLib/Aruba/S4Hierarchy.{S4EquiType};
+    use AssetLib/Aruba/S4/Hierarchy.{S4EquiType};
 
     /// TODO - read Base relations (alternative input source to Structure List)
 

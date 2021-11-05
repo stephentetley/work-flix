@@ -18,7 +18,7 @@
 /// This is arguably the safest way to account for forward-slashes in names where
 /// the slash is not a separator.
 
-namespace AssetLib/Aruba/Aib/HierarchyNames {
+namespace AssetLib/Aruba/Aib/Import/Internal/HierarchyNames {
 
 
     /// This is `reference` to `parentName`

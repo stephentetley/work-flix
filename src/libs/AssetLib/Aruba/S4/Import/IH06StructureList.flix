@@ -19,7 +19,7 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
     
-    use AssetLib/Aruba/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel};
+    use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
     
 
     pub rel IH06Floc(floc: String, description: String, parentFloc: String)
@@ -41,7 +41,7 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
         RelLib/Relation.foldMap(build1, src.rows)
         
 
-    pub def readBaseRelations(src: System.FilePath): Result[#{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel | r}, String] & Impure = 
+    pub def readBaseRelations(src: System.FilePath): Result[#{S4Floc, S4Equi, S4SubFloc, S4SubEqui, S4EquiLocation, S4FlocLevel | r}, String] & Impure = 
         use Result.{flatMap};
         let* ast = AssetLib/FileIO/S4/IH06Tree/Parser.parseFileWithBOM(src);
         buildIH06Relations(ast) |> toBase |> Ok
@@ -49,33 +49,33 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
 
     /// To Base representation
 
-    pub def toBase(input: #{IH06Floc, IH06Equi | r}): #{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel | r1} =
+    pub def toBase(input: #{IH06Floc, IH06Equi | r}): #{S4Floc, S4Equi, S4SubFloc, S4SubEqui, S4EquiLocation, S4FlocLevel | r1} =
         let rules = #{
 
-            Floc(floc, floc, description) :- 
+            S4Floc(floc, description) :- 
                 IH06Floc(floc, description, _).
 
-            Equi(equiId, description) :- 
+            S4Equi(equiId, description) :- 
                 IH06Equi(equiId, description, _, _).
 
-            SubFloc(parent, child) :- 
+            S4SubFloc(parent, child) :- 
                 IH06Floc(child, _, parent), 
                 if not String.isEmpty(parent).
-            
-            EquiLocation(equiId, floc) :- 
-                IH06Equi(equiId, _, floc, _).
 
-            SubEqui(parent, child) :- 
+            S4SubEqui(parent, child) :- 
                 IH06Equi(child, _, _, parent), 
                 if not String.isEmpty(parent).
             
-            FlocLevel(floc, Option.getWithDefault(flocLevel(floc), -1)) :- 
+            S4EquiLocation(equiId, floc) :- 
+                IH06Equi(equiId, _, floc, _).
+            
+            S4FlocLevel(floc, Option.getWithDefault(flocLevel(floc), -1)) :- 
                 IH06Floc(floc, _, _), 
                 if not Option.isEmpty(flocLevel(floc)).
             
         };
-        let input1 = input as #{IH06Floc, IH06Equi, Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel};
-        solve (rules <+> input1) project Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel
+        let input1 = input as #{IH06Floc, IH06Equi, S4Floc, S4Equi, S4SubFloc, S4SubEqui, S4EquiLocation, S4FlocLevel};
+        solve (rules <+> input1) project S4Floc, S4Equi, S4SubFloc, S4SubEqui, S4EquiLocation,  S4FlocLevel
 
     def flocLevel(floc: String): Option[Int32] = 
         use AssetLib/Base/S4/Floc.{level, new};

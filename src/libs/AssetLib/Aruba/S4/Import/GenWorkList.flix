@@ -19,7 +19,7 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/Aruba/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel};
+    use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
     
 
     pub rel WorkListFloc(floc: String, description: String, parentFloc: String)
@@ -39,7 +39,7 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
             <&> getNonEmptyContentNamed("Functional Location")
             <*> getNonEmptyContentNamed("Description")
             
-    pub def readFlocBaseRelations(src: XlsxSource): Result[#{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel | r}, String] & Impure = 
+    pub def readFlocBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
         readFlocWorkList(src) |> Result.map(toBase)
 
 
@@ -58,40 +58,40 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
             <*> getTrimmedContentNamed("Super Equi")
 
 
-    pub def readEquiBaseRelations(src: XlsxSource): Result[#{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel | r}, String] & Impure = 
+    pub def readEquiBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
         readEquiWorkList(src) |> Result.map(toBase)
 
 
 
     /// To Base representation
 
-    pub def toBase(input: #{WorkListFloc, WorkListEqui | r}): #{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel | r1} =
+    pub def toBase(input: #{WorkListFloc, WorkListEqui | r}): #{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r1} =
         let rules = #{
 
-            Floc(floc, floc, description) :- 
+            S4Floc(floc, description) :- 
                 WorkListFloc(floc, description, _).
 
-            Equi(equiId, description) :- 
+            S4Equi(equiId, description) :- 
                 WorkListEqui(equiId, description, _, _).
 
-            SubFloc(parent, child) :- 
+            S4SubFloc(parent, child) :- 
                 WorkListFloc(child, _, parent), 
                 if not String.isEmpty(parent).
             
-            EquiLocation(equiId, floc) :- 
+            S4EquiLocation(equiId, floc) :- 
                 WorkListEqui(equiId, _, floc, _).
 
-            SubEqui(parent, child) :- 
+            S4SubEqui(parent, child) :- 
                 WorkListEqui(child, _, _, parent), 
                 if not String.isEmpty(parent).
             
-            FlocLevel(floc, Option.getWithDefault(flocLevel(floc), -1)) :- 
+            S4FlocLevel(floc, Option.getWithDefault(flocLevel(floc), -1)) :- 
                 WorkListFloc(floc, _, _), 
                 if not Option.isEmpty(flocLevel(floc)).
             
         };
-        let input1 = input as #{WorkListFloc, WorkListEqui, Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel};
-        solve (rules <+> input1) project Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel
+        let input1 = input as #{WorkListFloc, WorkListEqui, S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
+        solve (rules <+> input1) project S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel
 
     def flocLevel(floc: String): Option[Int32] = 
         use AssetLib/Base/S4/Floc.{new, level};

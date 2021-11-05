@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Aruba/Base {
+namespace AssetLib/Aruba/Aib/Base {
 
 
 

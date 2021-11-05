@@ -24,20 +24,21 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
     use BasicJson.JsonValue.{JsonArray, JsonObject};
     use BasicJson/JsonBuilder.JsObject;
 
-    use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, 
-        System, Subsystem, Equipment, S4FlocType, S4EquiType, ChildFloc, ChildEquipment, FunctionalLocation};
+    use AssetLib/Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, 
+        System, Subsystem, Equipment, S4FlocType, S4EquiType, ChildFloc, ChildEqui, FunctionalLocation};
 
 
 
     
     pub type alias JsonSchema[r1: SchemaRow] =
         #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                S4FlocType, S4EquiType, ChildFloc, ChildEquipment, FunctionalLocation | r1}
+                S4FlocType, S4EquiType, ChildFloc, ChildEqui, FunctionalLocation | r1}
 
     pub def siteToJson(facts: JsonSchema[r]): JsonValue = 
         let facts1 = facts as  #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                                    S4FlocType, S4EquiType, ChildFloc, ChildEquipment, FunctionalLocation, JsonRow | r};
-        (query facts1 <+> jsonRowRules() select (x1, x2, x3, x4, x5, x6, x7) from JsonRow(x1, x2, x3, x4, x5, x6, x7)
+                                    S4FlocType, S4EquiType, ChildFloc, ChildEqui, FunctionalLocation, JsonRow | r};
+        let db = facts1 <+> jsonRowRules();                                    
+        (query db select (x1, x2, x3, x4, x5, x6, x7) from JsonRow(x1, x2, x3, x4, x5, x6, x7)
             |> makeJsonFromRows("")) as & Pure
 
 
@@ -48,58 +49,58 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
 
     ///
     def jsonRowRules(): #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                                S4FlocType, S4EquiType, ChildFloc, ChildEquipment, FunctionalLocation, JsonRow | r1} = #{
+                                S4FlocType, S4EquiType, ChildFloc, ChildEqui, FunctionalLocation, JsonRow | r1} = #{
 
 
         /// Unbounded tree - including equipment at various levels and subequipment.
-        JsonRow(siteFloc, "FLOC", "SITE", name, flocId, "functions", "") :- 
-            Site(flocId, siteFloc, name).
+        JsonRow(siteFloc, "FLOC", "SITE", name, siteFloc, "functions", "") :- 
+            Site(siteFloc, name).
 
-        JsonRow(funFloc, "FLOC", flocType, name, flocId, "process_groups", siteFloc) :- 
-            Function(flocId, funFloc, name),
-            FlocType(flocId, flocType),
+        JsonRow(funFloc, "FLOC", flocType, name, funFloc, "process_groups", siteFloc) :- 
+            Function(funFloc, name),
+            GetFlocType(funFloc, flocType),
             ChildFloc(siteFloc, funFloc).
 
-        JsonRow(pgFloc, "FLOC", flocType, name, flocId, "processes", funFloc) :- 
-            ProcessGroup(flocId, pgFloc, name), 
-            FlocType(flocId, flocType),
+        JsonRow(pgFloc, "FLOC", flocType, name, pgFloc, "processes", funFloc) :- 
+            ProcessGroup(pgFloc, name), 
+            GetFlocType(pgFloc, flocType),
             ChildFloc(funFloc, pgFloc).
 
-        JsonRow(pFloc, "FLOC", flocType, name, flocId, "systems", pgFloc) :- 
-            Process(flocId, pFloc, name),
-            FlocType(flocId, flocType), 
-            ChildFloc(pgFloc, pFloc).
+        JsonRow(procFloc, "FLOC", flocType, name, procFloc, "systems", pgFloc) :- 
+            Process(procFloc, name),
+            GetFlocType(procFloc, flocType), 
+            ChildFloc(pgFloc, procFloc).
 
-        JsonRow(sysFloc, "FLOC", flocType, name, flocId, "subsystems", pFloc) :- 
-            System(flocId, sysFloc, name), 
-            FlocType(flocId, flocType),
-            ChildFloc(pFloc, sysFloc).
+        JsonRow(sysFloc, "FLOC", flocType, name, sysFloc, "subsystems", procFloc) :- 
+            System(sysFloc, name), 
+            GetFlocType(sysFloc, flocType),
+            ChildFloc(procFloc, sysFloc).
 
-        JsonRow(ssFloc, "FLOC", flocType, name, flocId, "", sysFloc) :- 
-            Subsystem(flocId, ssFloc, name), 
-            FlocType(flocId, flocType),
+        JsonRow(ssFloc, "FLOC", flocType, name, ssFloc, "", sysFloc) :- 
+            Subsystem(ssFloc, name), 
+            GetFlocType(ssFloc, flocType),
             ChildFloc(sysFloc, ssFloc).
         
         JsonRow("${floc}::${equiId}", "EQUI", equiType, name, equiId, "", floc) :-
             Equipment(equiId, name, floc), 
-            EquiType(equiId, equiType),
+            GetEquiType(equiId, equiType),
             not IsSubEquipment(equiId).
 
-        JsonRow("${floc}::${superId}::${equiId}", "EQUI", equiType, name, equiId, "", "${floc}::${superId}") :-
+        JsonRow("${floc}::${superEquiId}::${equiId}", "EQUI", equiType, name, equiId, "", "${floc}::${superEquiId}") :-
             Equipment(equiId, name, floc), 
-            EquiType(equiId, equiType),
-            ChildEquipment(superId, equiId).
+            GetEquiType(equiId, equiType),
+            ChildEqui(superEquiId, equiId).
 
         IsSubEquipment(equiId) :- 
             Equipment(equiId, _, _), 
-            ChildEquipment(_, equiId).
+            ChildEqui(_, equiId).
 
 
-        FlocType(flocId, flocType) :- 
+        GetFlocType(flocId, flocType) :- 
             FunctionalLocation(flocId, _), 
             S4FlocType(flocId, flocType).
 
-        FlocType(flocId, "<UNKNOWN>") :- 
+        GetFlocType(flocId, "<UNKNOWN>") :- 
             FunctionalLocation(flocId, _), 
             not HasS4FlocType(flocId).
 
@@ -108,11 +109,11 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
             S4FlocType(flocId, _).
 
 
-        EquiType(equiId, "<UNKNOWN>") :- 
+        GetEquiType(equiId, "<UNKNOWN>") :- 
             Equipment(equiId, _, _), 
             not HasS4EquiType(equiId).
 
-        EquiType(equiId, equiType) :- 
+        GetEquiType(equiId, equiType) :- 
             Equipment(equiId, _, _), 
             S4EquiType(equiId, equiType).
 
