@@ -36,9 +36,6 @@ namespace AssetLib/Aruba/S4/Builder {
         , ih08Table :: System.FilePath            /// SheetName always Sheet1 ?
         }
 
-    /// TODO - add XlsSource to SheetIO?
-
-
     pub def buildGSSite(src: SourceFiles): Result[GSSite, String] & Impure = 
         use Result.{flatMap};
         let* flocProps = readFlocPropertiesMap(src.ih06Table);

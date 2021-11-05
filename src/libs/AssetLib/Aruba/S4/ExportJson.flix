@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+
+/// DEFUNCT
+/// We must export JSON from relations instead...
+
+
 namespace AssetLib/Aruba/S4/ExportJson {
 
     use BasicJson.JsonValue;

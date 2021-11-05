@@ -102,10 +102,11 @@ def main3(): Result[Unit, String] & Impure =
             PreorderRow(item, equiId, parent),
             Equipment(equiId, name, _).
 
-    } <+> AssetLib/Aruba/S4Hierarchy.functionalLocations() <+> AssetLib/Aruba/S4Hierarchy.preorderRows();
+    } <+> AssetLib/Aruba/S4Hierarchy.preorderRows();
     Console.printLine("Unbounded...");
     query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) 
         |> RelLib/UnboundedTree.printAsTree("");
+    AssetLib/Aruba/S4/ExportJson2.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;        
     Ok()
 
 

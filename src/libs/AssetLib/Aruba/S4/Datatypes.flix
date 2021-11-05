@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/// DEFUNCT
+/// Only remains in code base until we can export JSON from relations
+
 namespace AssetLib/Aruba/S4/Datatypes {
 
     pub type alias GSSite = 

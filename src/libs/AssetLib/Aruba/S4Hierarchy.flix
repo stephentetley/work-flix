@@ -24,6 +24,12 @@ namespace AssetLib/Aruba/S4Hierarchy {
     /// so we still have separate relations for Parent/Child.
     /// Similarly we may not have full type information so types are separate relations.
 
+    /// TODO 
+    /// Having flocId (potentially an internal fufloc id) within the main relations
+    /// is confusing - might be better to have a join relation:
+    /// 
+    /// > FlocId(flocPath: String, internalFlocId: String)
+    /// 
 
     pub type alias S4HierarchySchema[r1: SchemaRow] = 
         #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment | r1}
@@ -49,7 +55,10 @@ namespace AssetLib/Aruba/S4Hierarchy {
 
     pub rel ChildEquipment(parentId: String, childId: String)
 
-    pub rel S4FlocType(equiId: String, floctype: String)
+    pub rel S4FlocType(flocIdId: String, floctype: String)
+
+    
+    pub rel FunctionalLocation(floc: String, description: String)
 
     /// S4 Specific
     pub rel FlocCategory(equiId: String, category: String)
@@ -60,7 +69,7 @@ namespace AssetLib/Aruba/S4Hierarchy {
     /// Translation is input source specific, we rely on S4 specific site levels, etc.
     pub def fromS4BaseRelations(input: #{Floc, SubFloc, FlocLevel, Equi, EquiLocation | r}): 
                             #{Site, Function, ProcessGroup, Process, System, Subsystem, 
-                                Equipment, ChildFloc, ChildEquipment | r1} = 
+                                Equipment, ChildFloc, ChildEquipment, FunctionalLocation | r1} = 
         let rules = #{
             Site(flocId, flocPath, name):- 
                 Floc(flocId, flocPath, name),
@@ -96,37 +105,30 @@ namespace AssetLib/Aruba/S4Hierarchy {
             ChildEquipment(parentId, childId) :-
                 SubEqui(parentId, childId).
 
+            FunctionalLocation(flocId, name) :- Site(flocId, _, name).
+
+            FunctionalLocation(flocId, name) :- Function(flocId, _, name).
+
+            FunctionalLocation(flocId, name) :- ProcessGroup(flocId, _, name).
+
+            FunctionalLocation(flocId, name) :- Process(flocId, _, name).
+
+            FunctionalLocation(flocId, name) :- System(flocId, _, name).
+
+            FunctionalLocation(flocId, name) :- Subsystem(flocId, _, name).
+            
         };
         let input1 = input as #{Floc, SubFloc, FlocLevel, Equi, SubEqui, EquiLocation,  
-                                    Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEquipment | r};
-        solve input1 <+> rules project Site, Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEquipment
+                                    Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEquipment, FunctionalLocation | r};
+        solve input1 <+> rules project Site, Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEquipment, FunctionalLocation
 
-
-    pub rel FunctionalLocation(floc: String, description: String)
-
-    pub def functionalLocations(): #{Site, Function, ProcessGroup, Process, System, Subsystem, 
-                                FunctionalLocation | r1} = #{
-
-
-        FunctionalLocation(flocId, name) :- Site(flocId, _, name).
-
-        FunctionalLocation(flocId, name) :- Function(flocId, _, name).
-
-        FunctionalLocation(flocId, name) :- ProcessGroup(flocId, _, name).
-
-        FunctionalLocation(flocId, name) :- Process(flocId, _, name).
-
-        FunctionalLocation(flocId, name) :- System(flocId, _, name).
-
-        FunctionalLocation(flocId, name) :- Subsystem(flocId, _, name).
-
-    }
 
 
     /// toPlantUml / RoseTree
 
     pub rel PreorderRow(treeKey: String, uid: String, parentKey: String)
 
+    /// Note - can "map" the array of PreorderRows, elaborating the uid to a more descriptive type.
     pub def preorderRows(): #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
                                 ChildFloc, ChildEquipment, PreorderRow | r1} = #{
 
