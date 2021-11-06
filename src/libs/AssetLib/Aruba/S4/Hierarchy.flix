@@ -17,6 +17,8 @@
 namespace AssetLib/Aruba/S4/Hierarchy {
 
 
+    use Data.RoseForest;
+    use Data.RoseTree.RoseTree;
     use AssetLib/Aruba/S4/Base.{S4Floc, S4SubFloc, S4FlocLevel, S4Equi, S4SubEqui, S4EquiLocation};
 
 
@@ -173,5 +175,18 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
     def subEquiParentKey(floc: String, superEquiId: String): String = "${floc}::${superEquiId}"
 
+
+    pub def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
+                                ChildFloc, ChildEqui, PreorderRow | r}): RoseForest[String] =                                
+        (query src <+> preorderRows() select (x1, x2, x3) from PreorderRow(x1, x2, x3) 
+            |> RelLib/UnboundedTree.unboundForest("")) as & Pure 
+
+    pub def toSaltTree(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
+                                ChildFloc, ChildEqui, PreorderRow | r}): String =
+        let tree1 = match toRoseForest(src) { 
+            case t1 :: Nil => t1
+            case xs => RoseTree("Root", xs)
+        };
+        PlantUml/SaltTree.tree(printLabel = PlantUml/Creole.text, tree1) |> PlantUml/Puml.render
 
 }

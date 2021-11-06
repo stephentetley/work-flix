@@ -110,7 +110,8 @@ def main3(): Result[Unit, String] & Impure =
     query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) 
         |> RelLib/UnboundedTree.printAsTree("");
 
-    AssetLib/Aruba/S4/ExportJson2.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;        
+    AssetLib/Aruba/S4/ExportJson2.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;     
+    AssetLib/Aruba/S4/Hierarchy.toSaltTree(db) |> println;
     Ok()
 
 
