@@ -236,7 +236,7 @@ namespace AssetLib/S4Lite/EmitUpload {
         xs 
             |> Chain.toList
             |> renumberSLEquiCharacteristicsList(keymap)
-            |> Result.map(Chain.fromList)
+            |> Result.map(List.toChain)
 
 
     def renumberSLEquiCharacteristicsList(keymap: Map[String, String], 

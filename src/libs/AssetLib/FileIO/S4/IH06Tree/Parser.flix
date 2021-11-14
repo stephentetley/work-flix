@@ -31,10 +31,10 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
 
     /// Always UTF-8? No need to handle utf8+BOM...
     pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
-        FlixParsec/Prim.parsesFile(ih06FileParser(), 4, path, cs) 
+        FlixParsec/Extras.parsesFile(ih06FileParser(), 4, path, cs) 
 
     pub def parseFileWithBOM(path: System.FilePath) : Result[IH06File, String] & Impure = 
-        FlixParsec/Prim.parsesFileWithBOM(ih06FileParser(), 4, path) 
+        FlixParsec/Extras.parsesFileWithBOM(ih06FileParser(), 4, path) 
 
 
     pub def ih06FileParser(): Parser[t1, IH06File] = 

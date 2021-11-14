@@ -78,7 +78,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
             Floc(aibref, commonName, nameAfterNeedle({substr = parentName}, commonName)) :- 
                 AibCommonName(aibref, commonName),
                 AibParentName(aibref, parentName),
-                if not String.contains(substr = "EQUIPMENT: ", commonName).
+                if not (String.contains(substr = "EQUIPMENT: ", commonName) or String.contains(substr = "EQPT: ", commonName)).
 
             EquiLocation(equiId, floc) :- 
                 AibEquipment(equiId, _, floc).
@@ -118,7 +118,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
     def getEquipment(rows: List[ExportRow]): Result[#{AibEquipment |r}, String] & Impure = 
         use Result.flatMap;
         use RelLib/Relation.{optional};
-        let* patt = Text/Regex/Pattern.compile("^(?<flocPath>.+)/EQUIPMENT: (?<equiType>.+)$");
+        let* patt = Text/Regex/Pattern.compile("^(?<flocPath>.+)/EQ(UI)?P(MEN)?T: (?<equiType>.+)$");
         RelLib/Relation.foldMapResult(x1 -> Text/Regex.evalMatchesOption(patt, evalEquipment(x1.reference), x1.commonName) |> Result.map(optional), rows)
 
 

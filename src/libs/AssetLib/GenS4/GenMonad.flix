@@ -189,7 +189,7 @@ namespace AssetLib/GenS4/GenMonad {
 
     pub def tellFlocCharacteristics(rels: #{FlocCharacteristic | r}): GenMonad[Unit] = 
         tell(r1 ->  
-            let cs = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics(rels) |> Chain.fromArray;
+            let cs = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics(rels) |> Array.toChain;
             {funclocCharacteristics = Chain.append(r1.funclocCharacteristics, cs) | r1}
         )
 
@@ -200,7 +200,7 @@ namespace AssetLib/GenS4/GenMonad {
     /// 
     pub def tellEquiCharacteristics(rels: #{EquiCharacteristic | r}): GenMonad[Unit] = 
         tell(r1 -> 
-            let cs = AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics(rels) |> Chain.fromArray;
+            let cs = AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics(rels) |> Array.toChain;
             {equiCharacteristics = Chain.append(r1.equiCharacteristics, cs) | r1}
         )
 
@@ -210,7 +210,7 @@ namespace AssetLib/GenS4/GenMonad {
                                     genChars: #{| reln} ~> Array[SLEquiCharacteristic], 
                                     xs: List[(EquiRef, row)]): GenMonad[Unit] =
         let facts   = RelLib/Relation.foldMap(uncurry(makeFacts), xs);
-        let* chars  = liftAction(_ -> genChars(facts) |> Chain.fromArray);
+        let* chars  = liftAction(_ -> genChars(facts) |> Array.toChain);
         tell(r1 -> {equiCharacteristics = Chain.append(r1.equiCharacteristics, chars) | r1})
 
 

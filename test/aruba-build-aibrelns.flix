@@ -10,11 +10,11 @@ def main1(): Result[Unit, String] & Impure =
     use Result.flatMap;
     let rename2 = xy -> (fst(xy), AssetLib/Base/Utils.properCaseName(snd(xy)));
     let src         = 
-        { path = System/FilePath.new("G:/work/assets/other/knostrop_colton/knostrop-colton-worklist.xlsx")
+        { path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx")
         , sheet = "Equi" 
         };
-    let* srcRel     = AssetLib/Aruba/Aib/ExportFile.readExportRelations(src);
-    let baseRep     = AssetLib/Aruba/Aib/ExportFile.toBase(srcRel);
+    let* srcRel     = AssetLib/Aruba/Aib/Import/ExportFile.readExportRelations(src);
+    let baseRep     = AssetLib/Aruba/Aib/Import/ExportFile.toBase(srcRel);
     Console.printLine("Flocs...");
     query baseRep select (x1, x2, x3) from Floc(x1, x2, x3) |> Array.foreach( println);
     Console.printLine("Equi...");

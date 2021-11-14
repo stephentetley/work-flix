@@ -35,7 +35,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
 
     /// Always UTF-8?
     pub def parseFile(path: System.FilePath) : Result[TransferFile, String] & Impure = 
-        FlixParsec/Prim.parsesFile(transferFileParser(), 4, path, Text/Charset.utf_8())
+        FlixParsec/Extras.parsesFile(transferFileParser(), 4, path, Text/Charset.utf_8())
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
