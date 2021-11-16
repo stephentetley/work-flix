@@ -20,6 +20,8 @@ namespace AssetLib/Aruba/Aib/Base {
 
     /// Distinguish flocId and flocPath so we can handle internalFlocIds
 
+
+    /// TODO add Aib prefixes...
     pub rel Floc(flocId: String, flocPath: String, name: String)
 
     pub rel Equi(equiId: String, name: String)

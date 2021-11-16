@@ -123,7 +123,7 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
     /// toPlantUml / RoseTree
 
-    pub rel PreorderRow(treeKey: String, uid: String, parentKey: String)
+    pub rel PreorderRow(treeKey: String, uid: String, descr: String, parentKey: String)
 
     /// Note - can "map" the array of PreorderRows, elaborating the uid to a more descriptive type.
     pub def preorderRows(): #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
@@ -131,36 +131,36 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
 
         /// Unbounded tree - including equipment at various levels and subequipment.
-        PreorderRow(funcloc, funcloc, "") :- 
-            Site(funcloc, _).
+        PreorderRow(funcloc, funcloc, name, "") :- 
+            Site(funcloc, name).
 
-        PreorderRow(funcloc, funcloc, siteFloc) :- 
-            Function(funcloc, _),
+        PreorderRow(funcloc, funcloc, name, siteFloc) :- 
+            Function(funcloc, name),
             ChildFloc(siteFloc, funcloc).
 
-        PreorderRow(funcloc, funcloc, functionFloc) :- 
-            ProcessGroup(funcloc, _), 
+        PreorderRow(funcloc, funcloc, name, functionFloc) :- 
+            ProcessGroup(funcloc, name), 
             ChildFloc(functionFloc, funcloc).
 
-        PreorderRow(funcloc, funcloc, pgFloc) :- 
-            Process(funcloc, _), 
+        PreorderRow(funcloc, funcloc, name, pgFloc) :- 
+            Process(funcloc, name), 
             ChildFloc(pgFloc, funcloc).
 
-        PreorderRow(funcloc, funcloc, pFloc) :- 
-            System(funcloc, _), 
+        PreorderRow(funcloc, funcloc, name, pFloc) :- 
+            System(funcloc, name), 
             ChildFloc(pFloc, funcloc).
 
-        PreorderRow(funcloc, funcloc, sysFloc) :- 
-            Subsystem(funcloc, _), 
+        PreorderRow(funcloc, funcloc, name, sysFloc) :- 
+            Subsystem(funcloc, name), 
             ChildFloc(sysFloc, funcloc).
         
-        PreorderRow(equiKey(floc, equiId), equiId, floc) :-
-            Equipment(equiId, _, floc), 
+        PreorderRow(equiKey(floc, equiId), equiId, name, floc) :-
+            Equipment(equiId, name, floc), 
             not IsSubEquipment(equiId).
 
         /// Subequipment
-        PreorderRow(subEquiKey(floc, superEquiId, equiId), equiId, subEquiParentKey(floc, superEquiId)) :-
-            Equipment(equiId, _, floc), 
+        PreorderRow(subEquiKey(floc, superEquiId, equiId), equiId, name, subEquiParentKey(floc, superEquiId)) :-
+            Equipment(equiId, name, floc), 
             ChildEqui(superEquiId, equiId).
 
         IsSubEquipment(equiId) :- 
@@ -177,16 +177,27 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
 
     pub def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                                ChildFloc, ChildEqui, PreorderRow | r}): RoseForest[String] =                                
-        (query src <+> preorderRows() select (x1, x2, x3) from PreorderRow(x1, x2, x3) 
+                                ChildFloc, ChildEqui, PreorderRow | r}): RoseForest[(String, String)] =                                
+        (query src <+> preorderRows() select (x1, x2, x3, x4) from PreorderRow(x1, x2, x3, x4) 
+            |> Array.map(row -> let (y1, y2, y3, y4) = row; (y1, (y2, y3), y4))
             |> RelLib/UnboundedTree.unboundForest("")) as & Pure 
 
     pub def toSaltTree(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
                                 ChildFloc, ChildEqui, PreorderRow | r}): String =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
-            case xs => RoseTree("Root", xs)
+            case xs => RoseTree(("Root", ""), xs)
         };
-        PlantUml/SaltTree.tree(printLabel = PlantUml/Creole.text, tree1) |> PlantUml/Puml.render
+        PlantUml/SaltTree.tree(printLabel = xy -> {let (x1, _) = xy; PlantUml/Creole.text(x1)}, tree1) |> PlantUml/Puml.render
+
+    pub def toSaltTreeTable(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
+                                ChildFloc, ChildEqui, PreorderRow | r}): String =
+        let tree1 = match toRoseForest(src) { 
+            case t1 :: Nil => t1
+            case xs => RoseTree(("Root", ""), xs)
+        };
+        let headers = List.map(PlantUml/Creole.text, "Key" :: "Name" :: Nil);
+        PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1) = xy; PlantUml/Creole.text(x1) :: PlantUml/Creole.text(y1) :: Nil}, headers, tree1) |> PlantUml/Puml.render
+
 
 }

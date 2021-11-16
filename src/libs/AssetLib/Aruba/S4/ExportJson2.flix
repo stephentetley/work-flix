@@ -42,7 +42,7 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
 
     rel JsonRow(key: String, rowType: String, nodeType: String, name: String, uid: String, kidsName: String, parent: String)
 
-    type alias PreorderRow = (String, String, String, String, String, String, String)
+    type alias JsonPreorderRow = (String, String, String, String, String, String, String)
     
 
     ///
@@ -129,13 +129,13 @@ namespace AssetLib/Aruba/S4/ExportJson2 {
 
 
     /// `rootKey` is the parent key of the topmost element(s), it should not be present as an item key.
-    def makeJsonFromRows(rootKey: String, rows: Array[PreorderRow]): JsonValue & Impure =  
+    def makeJsonFromRows(rootKey: String, rows: Array[JsonPreorderRow]): JsonValue & Impure =  
         treesList(rootKey, Array.toList(rows), (flocs, _, _) -> flocs) 
             |> BasicJson/JsonBuilder.arrayOfObject
 
 
     /// This is preorder builder with unlimited depth - input *must* be correctly ordered.
-    def treesList(parentId: String, xs: List[PreorderRow], k: (List[JsObject], List[JsObject], List[PreorderRow]) -> List[JsObject]): List[JsObject] =
+    def treesList(parentId: String, xs: List[JsonPreorderRow], k: (List[JsObject], List[JsObject], List[JsonPreorderRow]) -> List[JsObject]): List[JsObject] =
         match xs { 
             case r1 :: rest => {
                 let (key, rowType, nodeType, name, uid, kidsName, parentKey) = r1;

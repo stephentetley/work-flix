@@ -84,10 +84,10 @@ def main2(): Result[Unit, String] & Impure =
 
 def main3(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let src         = System/FilePath.new("G:/work/assets/capital_schemes/embsay/emb03-ih06-structure-list.txt");
-    let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ih08.xlsx"),
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06-structure-list.txt");
+    let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih08.xlsx"),
                         sheet = "Sheet1"};
-    let src3        = {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ih06.xlsx"),
+    let src3        = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.xlsx"),
                         sheet = "Sheet1"};
     let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let hrep        = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(baseRep);
@@ -98,20 +98,20 @@ def main3(): Result[Unit, String] & Impure =
 
         /// Unbounded tree - including equipment at various levels and subequipment.
         Row3(item, (funcloc, name), parent) :- 
-            PreorderRow(item, funcloc, parent),
+            PreorderRow(item, funcloc, _, parent),
             FunctionalLocation(funcloc, name).
 
         Row3(item, (equiId, name), parent) :-
-            PreorderRow(item, equiId, parent),
+            PreorderRow(item, equiId, _, parent),
             Equipment(equiId, name, _).
 
     } <+> AssetLib/Aruba/S4/Hierarchy.preorderRows();
     Console.printLine("Unbounded...");
-    query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) 
+    query db <+> rules select (x1, x2, x3) from PreorderRow(x1, x2, _, x3) 
         |> RelLib/UnboundedTree.printAsTree("");
 
     AssetLib/Aruba/S4/ExportJson2.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;     
-    AssetLib/Aruba/S4/Hierarchy.toSaltTree(db) |> println;
+    AssetLib/Aruba/S4/Hierarchy.toSaltTreeTable(db) |> println;
     Ok()
 
 
