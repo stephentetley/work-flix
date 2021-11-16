@@ -178,9 +178,14 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
     pub def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
                                 ChildFloc, ChildEqui, PreorderRow | r}): RoseForest[(String, String)] =                                
+        
+        let extractor = 
+            { getKey = RelLib/Tuple.decons4((x, _, _, _) -> x)
+            , getValue = RelLib/Tuple.decons4((_, x, y, _) -> (x, y))
+            , getParent = RelLib/Tuple.decons4((_, _, _, x) -> x)
+            };
         (query src <+> preorderRows() select (x1, x2, x3, x4) from PreorderRow(x1, x2, x3, x4) 
-            |> Array.map(row -> let (y1, y2, y3, y4) = row; (y1, (y2, y3), y4))
-            |> RelLib/UnboundedTree.unboundForest("")) as & Pure 
+            |> RelLib/UnboundedTree.unboundForest("", extractor)) as & Pure 
 
     pub def toSaltTree(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
                                 ChildFloc, ChildEqui, PreorderRow | r}): String =

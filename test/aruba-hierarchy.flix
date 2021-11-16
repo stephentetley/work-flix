@@ -107,8 +107,13 @@ def main3(): Result[Unit, String] & Impure =
 
     } <+> AssetLib/Aruba/S4/Hierarchy.preorderRows();
     Console.printLine("Unbounded...");
-    query db <+> rules select (x1, x2, x3) from PreorderRow(x1, x2, _, x3) 
-        |> RelLib/UnboundedTree.printAsTree("");
+    let extractor = { 
+        getKey = RelLib/Tuple.decons4((x, _, _, _) -> x),
+        getValue = RelLib/Tuple.decons4((_, x, y, _) -> (x, y)),
+        getParent = RelLib/Tuple.decons4((_, _, _, x) -> x)
+    };
+    query db <+> rules select (x1, x2, x3, x4) from PreorderRow(x1, x2, x3, x4) 
+        |> RelLib/UnboundedTree.printAsTree("", extractor);
 
     AssetLib/Aruba/S4/ExportJson2.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;     
     AssetLib/Aruba/S4/Hierarchy.toSaltTreeTable(db) |> println;
