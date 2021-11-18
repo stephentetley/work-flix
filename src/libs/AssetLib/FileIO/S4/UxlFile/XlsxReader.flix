@@ -30,7 +30,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     pub def readChangeRequestDetailsMocr(): SheetReader[List[ChangeRequestDetails]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Change Request Details");
-        let* xs     = namedRowsFrom(s1, 4, 6, getChangeRequestDetailsMocr());
+        let* xs     = namedRowsFrom(4, 6, getChangeRequestDetailsMocr(), s1);
         return(xs)
 
     def getChangeRequestDetailsMocr(): NamedRowEvaluator[ChangeRequestDetails] = 
@@ -56,7 +56,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     pub def readFunctionalLocationData(): SheetReader[List[FunctionalLocationData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Functional Location Data");
-        let* xs     = namedRowsFrom(s1, 4, 6, getFunctionalLocationData());
+        let* xs     = namedRowsFrom(4, 6, getFunctionalLocationData(), s1);
         return(xs)
 
     def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
@@ -108,7 +108,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     pub def readFlMultilingualText(): SheetReader[List[FlMultilingualText]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("FL-Multilingual Text");
-        let* xs     = namedRowsFrom(s1, 4, 6, getFlMultilingualText());
+        let* xs     = namedRowsFrom(4, 6, getFlMultilingualText(), s1);
         return(xs)
 
     def getFlMultilingualText(): NamedRowEvaluator[FlMultilingualText] = 
@@ -136,7 +136,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     pub def readFlClassification(): SheetReader[List[FlClassification]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("FL-Classification");
-        let* xs     = namedRowsFrom(s1, 4, 6, getFlClassification());
+        let* xs     = namedRowsFrom(4, 6, getFlClassification(), s1);
         return(xs)
 
 
@@ -168,7 +168,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     pub def readEquipmentDataMocr(): SheetReader[List[EquipmentData]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Equipment Data");
-        let* xs     = namedRowsFrom(s1, 4, 6, getEquipmentDataMocr());
+        let* xs     = namedRowsFrom(4, 6, getEquipmentDataMocr(), s1);
         return(xs)
 
     def getEquipmentDataMocr(): NamedRowEvaluator[EquipmentData] = 
@@ -240,7 +240,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     pub def readEqMultilingualTextMocr(): SheetReader[List[EqMultilingualText]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Multilingual Text");
-        let* xs     = namedRowsFrom(s1, 4, 6, getEqMultilingualTextMocr());
+        let* xs     = namedRowsFrom(4, 6, getEqMultilingualTextMocr(), s1);
         return(xs)
 
     def getEqMultilingualTextMocr(): NamedRowEvaluator[EqMultilingualText] = 
@@ -268,7 +268,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     pub def readEqClassificationMocr(): SheetReader[List[EqClassification]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Classification");
-        let* xs     = namedRowsFrom(s1, 4, 6, getEqClassificationMocr());
+        let* xs     = namedRowsFrom(4, 6, getEqClassificationMocr(), s1);
         return(xs)
 
     def getEqClassificationMocr(): NamedRowEvaluator[EqClassification] = 
@@ -298,8 +298,5 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         use SheetIO/NamedRowEvaluator.{flatMap, getStringNamed, liftActionResult};
         let* s = getStringNamed(label);
         liftActionResult(_ -> Int32.fromString(s) as & Impure)
-
-        
-
 
 }

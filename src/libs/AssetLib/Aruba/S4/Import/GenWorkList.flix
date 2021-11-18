@@ -20,7 +20,8 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
-    
+    use AssetLib/Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 
+        Equipment, ChildFloc, ChildEqui, FunctionalLocation};
 
     pub rel WorkListFloc(floc: String, description: String, parentFloc: String)
 
@@ -29,7 +30,7 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     /// Read from file...
 
     pub def readFlocWorkList(src: XlsxSource): Result[#{WorkListFloc | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalFlocWorkItem())
+        SheetIO/Reader.someNamedRelations(evalFlocWorkItem(), src)
 
 
     def evalFlocWorkItem(): NamedRowEvaluator[#{WorkListFloc | r}] = 
@@ -42,10 +43,14 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     pub def readFlocBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
         readFlocWorkList(src) |> Result.map(toBase)
 
+    pub def readFlocHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                                                    Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
+        readFlocBaseRelations(src) |> 
+            Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
 
 
     pub def readEquiWorkList(src: XlsxSource): Result[#{WorkListEqui | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalEquiWorkItem())
+        SheetIO/Reader.someNamedRelations(evalEquiWorkItem(), src)
 
     /// Note - equiId will be an AIB pliref.
     def evalEquiWorkItem(): NamedRowEvaluator[#{WorkListEqui | r}] = 
@@ -61,6 +66,10 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     pub def readEquiBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
         readEquiWorkList(src) |> Result.map(toBase)
 
+    pub def readEquiHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                                                    Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
+        readEquiBaseRelations(src) |> 
+            Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
 
 
     /// To Base representation

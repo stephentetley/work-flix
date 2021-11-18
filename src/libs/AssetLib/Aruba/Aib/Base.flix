@@ -21,23 +21,21 @@ namespace AssetLib/Aruba/Aib/Base {
     /// Distinguish flocId and flocPath so we can handle internalFlocIds
 
 
-    /// TODO add Aib prefixes...
-    pub rel Floc(flocId: String, flocPath: String, name: String)
+    pub rel AibFloc(sainum: String, commonName: String, levelName: String)
 
-    pub rel Equi(equiId: String, name: String)
+    pub rel AibEqui(equiId: String, name: String)
 
-    pub rel SubFloc(parentFlocId: String, childFlocId: String)
+    pub rel AibSubFloc(parentFlocId: String, childFlocId: String)
 
-    pub rel EquiLocation(equiId: String, floc: String)
+    pub rel AibEquiLocation(equiId: String, floc: String)
 
-    pub rel SubEqui(parentId: String, childId: String)
+    pub rel AibSubEqui(parentId: String, childId: String)
 
     /// FlocLevel is relative to the hirearchy being represented - 
     /// e.g. a System in one representation may have a different level to a System in another.
-    pub rel FlocLevel(flocId: String, level: Int32)
+    pub rel AibFlocLevel(flocId: String, level: String)
 
-    pub rel EquiType(equiId: String, equitype: String)
-
+    pub rel AibEquiType(equiId: String, equitype: String)
 
 
 }

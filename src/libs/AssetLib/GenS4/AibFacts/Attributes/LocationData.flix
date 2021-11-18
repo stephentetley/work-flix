@@ -29,11 +29,11 @@ namespace AssetLib/GenS4/AibFacts/Attributes/LocationData {
         
     /// Just reads `Location On Site`...
     pub def readLocationOnSiteData(src: XlsxSource): GenMonad[#{LocationOnSite | r}] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalLocationOnSite()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalLocationOnSite(), src))
         
     /// Just reads `NationalGridRef`...
     pub def readNationalGridRefData(src: XlsxSource): GenMonad[#{NationalGridRef | r}] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalNationalGridRef()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalNationalGridRef(), src))
         
 
     /// Custom attribute `Location on Site`.

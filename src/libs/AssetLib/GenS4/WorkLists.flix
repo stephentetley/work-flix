@@ -46,7 +46,7 @@ namespace AssetLib/GenS4/WorkLists {
 
     /// Read from Aib xlsx export file...
     pub def readFlocWorkList(src: XlsxSource): Result[List[FlocWorkItem], String] & Impure =
-        SheetIO/Reader.readAllNamedRows(src, evalFlocWorkItem())
+        SheetIO/Reader.allNamedRows(evalFlocWorkItem(), src)
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getTrimmedContentNamed, getInt32Named, optional, liftResult}; 
@@ -108,7 +108,7 @@ namespace AssetLib/GenS4/WorkLists {
     /// Read from Aib xlsx export file...
     pub def readEquiWorkList(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =
         use SheetIO/NamedRowEvaluator.{optional};
-        SheetIO/Reader.readSomeNamedRows(src, optional(evalEquiWorkItem()))
+        SheetIO/Reader.someNamedRows(optional(evalEquiWorkItem()), src)
         
     /// TODO SheetIO should trim by default, provide _Raw functions for non-trimming...
     /// Note "Equi Class" is now mandatory

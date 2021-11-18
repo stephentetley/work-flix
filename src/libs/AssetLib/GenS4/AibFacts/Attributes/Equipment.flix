@@ -52,7 +52,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
 
     /// Reads `Location On Site` at same time...
     pub def readEquipmentData(src: XlsxSource): GenMonad[List[EquipmentAttributes]] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.readAllNamedRows(src, getEquipmentAttibutes()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.allNamedRows(getEquipmentAttibutes(), src))
             
 
 

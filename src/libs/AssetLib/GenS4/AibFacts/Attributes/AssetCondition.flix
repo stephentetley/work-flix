@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
 
 
     pub def readAgaspFacts(src: XlsxSource): GenMonad[AgaspFacts[r]] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalAssetConditionFacts()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalAssetConditionFacts(), src))
 
 
     def evalAssetConditionFacts(): NamedRowEvaluator[AgaspFacts[r]] =
@@ -48,7 +48,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     def getConditionGrade(): NamedRowEvaluator[#{ConditionGrade | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> RelLib/Relation.whenNot(String.isEmpty(x2), #{ ConditionGrade(x1, x2, x3). }))
+        ((x1, x2, x3) -> RelLib/Relation.whenFalse(String.isEmpty(x2), #{ ConditionGrade(x1, x2, x3). }))
             <&> getNonEmptyContentNamed("Reference")
             <*> getContentNamed("Condition Grade")
             <*> getContentNamed("Condition Grade Reason")
@@ -56,7 +56,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     def getLoadingFactor(): NamedRowEvaluator[#{LoadingFactor | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> RelLib/Relation.whenNot(String.isEmpty(x2), #{ LoadingFactor(x1, x2, x3). }))
+        ((x1, x2, x3) -> RelLib/Relation.whenFalse(String.isEmpty(x2), #{ LoadingFactor(x1, x2, x3). }))
             <&> getNonEmptyContentNamed("Reference")
             <*> getContentNamed("Loading Factor")
             <*> getContentNamed("Loading Factor Reason")
@@ -64,7 +64,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
     def getPerformanceGrade(): NamedRowEvaluator[#{PerformanceGrade | r}] =
         use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2, x3) -> RelLib/Relation.whenNot(String.isEmpty(x2), #{ PerformanceGrade(x1, x2, x3). }))
+        ((x1, x2, x3) -> RelLib/Relation.whenFalse(String.isEmpty(x2), #{ PerformanceGrade(x1, x2, x3). }))
             <&> getNonEmptyContentNamed("Reference")
             <*> getContentNamed("Performance Grade")
             <*> getContentNamed("Performance Grade Reason")

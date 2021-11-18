@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
         #{DutyHead, Flow, ImpellerType, PumpLiftingType, RatingPower | r}
 
     pub def readPumpFacts(src: XlsxSource): GenMonad[PumpFacts[r]]  =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalPump()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalPump(), src))
         
     
 

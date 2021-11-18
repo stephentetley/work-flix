@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
 
     pub def readLiftingFacts(src: XlsxSource): GenMonad[LiftingFacts[r1]]  =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalLifting()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalLifting(), src))
 
 
     def evalLifting(): NamedRowEvaluator[LiftingFacts[r]] =

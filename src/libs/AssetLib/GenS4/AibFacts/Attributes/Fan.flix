@@ -32,7 +32,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Fan {
         #{SpeedRPM, TypeOfFan, RatingPower | r}
 
     pub def readFanFacts(src: XlsxSource): GenMonad[FanFacts[r]] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalFan()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalFan(), src))
         
 
 

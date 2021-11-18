@@ -20,6 +20,8 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
     
     use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
+    use AssetLib/Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 
+        Equipment, ChildFloc, ChildEqui, FunctionalLocation};
     
 
     pub rel IH06Floc(floc: String, description: String, parentFloc: String)
@@ -42,9 +44,12 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
         
 
     pub def readBaseRelations(src: System.FilePath): Result[#{S4Floc, S4Equi, S4SubFloc, S4SubEqui, S4EquiLocation, S4FlocLevel | r}, String] & Impure = 
-        use Result.{flatMap};
-        let* ast = AssetLib/FileIO/S4/IH06Tree/Parser.parseFileWithBOM(src);
-        buildIH06Relations(ast) |> toBase |> Ok
+        readIH06Relations(src) |> Result.map(toBase)
+
+    pub def readHierarchyRelations(src: System.FilePath): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
+        readBaseRelations(src) |> 
+            Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
 
 
     /// To Base representation

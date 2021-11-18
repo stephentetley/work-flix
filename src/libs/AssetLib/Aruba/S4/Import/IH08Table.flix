@@ -26,7 +26,7 @@ namespace AssetLib/Aruba/S4/Import/IH08Table {
 
 
     pub def readS4EquiTypes(src: XlsxSource): Result[#{S4EquiType | r}, String] & Impure =         
-        SheetIO/Reader.someNamedRelations(src, evalS4EquiType())
+        SheetIO/Reader.someNamedRelations(evalS4EquiType(), src)
 
     def evalS4EquiType(): NamedRowEvaluator[#{S4EquiType | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};

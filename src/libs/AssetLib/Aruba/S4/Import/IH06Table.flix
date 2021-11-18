@@ -26,7 +26,7 @@ namespace AssetLib/Aruba/S4/Import/IH06Table {
 
 
     pub def readS4FlocTypes(src: XlsxSource): Result[#{S4FlocType | r}, String] & Impure =         
-        SheetIO/Reader.someNamedRelations(src, evalS4FlocType())
+        SheetIO/Reader.someNamedRelations(evalS4FlocType(), src)
 
     def evalS4FlocType(): NamedRowEvaluator[#{S4FlocType | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};

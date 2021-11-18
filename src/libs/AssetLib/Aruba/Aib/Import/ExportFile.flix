@@ -23,7 +23,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
-    use AssetLib/Aruba/Aib/Base.{Floc, Equi, SubFloc, EquiLocation, SubEqui, FlocLevel, EquiType};
+    use AssetLib/Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibEquiLocation, AibSubEqui, AibFlocLevel, AibEquiType};
     use AssetLib/Aruba/Aib/Import/Internal/HierarchyNames.{AibParentName};
 
     pub type alias ExportRow = 
@@ -69,34 +69,37 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
         Ok(equi <+> commonNames <+> parents <+> hkeys)
 
     /// No SubEqui - this is not represented in Aib.
-    pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{Floc, Equi, EquiLocation, SubFloc, FlocLevel, EquiType | r1} = 
+    pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType | r1} = 
         let rules = #{ 
-            Equi(aibref, equiname) :- 
+            AibEqui(aibref, equiname) :- 
                 AibEquipment(aibref, _, _), 
                 AibParentName(aibref, equiname).
 
-            Floc(aibref, commonName, nameAfterNeedle({substr = parentName}, commonName)) :- 
+            AibFloc(aibref, commonName, nameAfterNeedle({substr = parentName}, commonName)) :- 
                 AibCommonName(aibref, commonName),
                 AibParentName(aibref, parentName),
                 if not (String.contains(substr = "EQUIPMENT: ", commonName) or String.contains(substr = "EQPT: ", commonName)).
 
-            EquiLocation(equiId, floc) :- 
+            AibEquiLocation(equiId, floc) :- 
                 AibEquipment(equiId, _, floc).
             
-            SubFloc(parent, child) :- 
+            /// This is more complicated due to Installation / Sub Installation...
+            /// Probably needs to be a longest prefix lattice.
+            /// Or just don't generate...
+            AibSubFloc(parent, child) :- 
                 AibHKey(child, _, parentHKey), 
                 AibHKey(parent, parentHKey, _).
             
-            FlocLevel(aibref, flocLevel(hkey)) :- 
+            AibFlocLevel(aibref, flocLevel(hkey)) :- 
                 AibHKey(aibref, hkey, _), 
-                if flocLevel(hkey) > 0.
+                if String.length(hkey) > 0.
 
-            EquiType(aibref, equitype) :- 
+            AibEquiType(aibref, equitype) :- 
                 AibEquipment(aibref, equitype, _).
 
         };
-        let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, Floc, Equi, EquiLocation, SubFloc, FlocLevel, EquiType | r};
-        solve (input1 <+> rules) project Floc, Equi, EquiLocation, SubFloc, FlocLevel, EquiType
+        let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType | r};
+        solve (input1 <+> rules) project AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType
 
     def nameAfterNeedle(substr: {substr :: String}, commonName: String): String = 
         match String.breakOnRight(substr = substr.substr + "/", commonName) {
@@ -137,7 +140,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
                                     #{ AibHKey(x1.reference, x1.hkey, decreaseHKey(x1.hkey)). });
         RelLib/Relation.foldMap(step, rows)
 
-
+    /// This is more complicated, currently doesn't account for "Installation" versus "Sub_Installation"...
     def decreaseHKey(hkey: String): String = 
         if (hkey == "TODO" or String.isEmpty(hkey)) 
             "TODO"
@@ -154,35 +157,16 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
                 case _ => ""
             }
 
-    def flocLevel(hkey: String): Int32 =     
-        if (hkey == "TODO" or String.isEmpty(hkey)) 
-            -1
-        else
-            match String.length(hkey) {
-                case 1 => 1
-                case 4 => 2
-                case 8 => 3
-                case 13 => 4
-                case 20 => 5
-                case 24 => 5
-                case 31 => 6
-                case 36 => 7
-                case _ => -1
-            }
 
-    pub rel AibFlocType(sainum: String, floctype: String)
-
-    pub def getFlocType(rows: List[ExportRow]): #{AibFlocType |r}  = 
-        RelLib/Relation.foldMap(x1 -> #{ AibFlocType(x1.reference, flocType(x1.hkey)). }, rows)
-
-    def flocType(hkey: String): String = match String.length(hkey) {
+    def flocLevel(hkey: String): String = match String.length(hkey) {
         case 1 => "Business_Unit"
         case 4 => "System"
         case 8 => "Function"
         case 13 => "Installation"
+        case 18 => "Sub_Installation"
         case 20 => "Process_Group"
         case 24 => "Process"
-        case 31 => "Assembly"
+        case 31 => "Plant"
         case 36 => "Plant_Item"
         case _ => "Unknown"
     }

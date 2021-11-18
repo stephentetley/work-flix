@@ -1,5 +1,5 @@
 use AssetLib/Aruba/S4/IH06.{IH06Floc, IH06Equi};
-use AssetLib/Aruba/Base.{Floc, Equi, SubFloc, EquiType};
+use AssetLib/Aruba/Base.{AibFloc, AibEqui, AibSubFloc, AibEquiType};
 
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -16,12 +16,12 @@ def main1(): Result[Unit, String] & Impure =
     let* srcRel     = AssetLib/Aruba/Aib/Import/ExportFile.readExportRelations(src);
     let baseRep     = AssetLib/Aruba/Aib/Import/ExportFile.toBase(srcRel);
     Console.printLine("Flocs...");
-    query baseRep select (x1, x2, x3) from Floc(x1, x2, x3) |> Array.foreach( println);
+    query baseRep select (x1, x2, x3) from AibFloc(x1, x2, x3) |> Array.foreach(println);
     Console.printLine("Equi...");
-    query baseRep select (x1, x2) from Equi(x1, x2) |> Array.foreach(rename2 >> println);
+    query baseRep select (x1, x2) from AibEqui(x1, x2) |> Array.foreach(rename2 >> println);
     /// query baseRep select (x1, x2) from SubFloc(x1, x2) |> Array.foreach(println);
     let tyrules = #{
-        Type(name) :- EquiType(_, name).
+        Type(name) :- AibEquiType(_, name).
     };
     Console.printLine("Types used...");
     query baseRep <+> tyrules select x1 from Type(x1) |> Array.foreach(println);

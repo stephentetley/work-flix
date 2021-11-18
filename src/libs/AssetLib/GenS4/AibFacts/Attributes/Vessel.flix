@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Vessel {
             TestCertNo, TestPressureBars, WrittenSchemeNumber, YWRef | r}
 
     pub def readVesselFacts(src: XlsxSource): GenMonad[VesselFacts[r1]] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalVessel()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalVessel(), src))
         
     
     def evalVessel(): NamedRowEvaluator[VesselFacts[r1]] =

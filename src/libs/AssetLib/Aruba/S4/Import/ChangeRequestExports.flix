@@ -29,7 +29,7 @@ namespace AssetLib/Aruba/S4/Import/ChangeRequestExports {
     /// Read from file...
 
     pub def readExportFlocRows(src: XlsxSource): Result[#{ExportFlocRow | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalExportFlocRow())
+        SheetIO/Reader.someNamedRelations(evalExportFlocRow(), src)
 
 
     def evalExportFlocRow(): NamedRowEvaluator[#{ExportFlocRow | r}] = 
@@ -46,7 +46,7 @@ namespace AssetLib/Aruba/S4/Import/ChangeRequestExports {
 
 
     pub def readExportEquiRows(src: XlsxSource): Result[#{ExportEquiRow | r}, String] & Impure =
-        SheetIO/Reader.someNamedRelations(src, evalExportEquiRow())
+        SheetIO/Reader.someNamedRelations(evalExportEquiRow(), src)
 
     def evalExportEquiRow(): NamedRowEvaluator[#{ExportEquiRow | r}] = 
         use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getTrimmedContentNamed};

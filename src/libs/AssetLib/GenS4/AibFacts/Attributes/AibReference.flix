@@ -44,7 +44,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
     def readAibSheet(sheetName: String): SheetReader[List[AibRow]] = 
         use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
-        let* xs     = allNamedRows(s1, evalAibRow());
+        let* xs     = allNamedRows(evalAibRow(), s1);
         return(xs)
 
 

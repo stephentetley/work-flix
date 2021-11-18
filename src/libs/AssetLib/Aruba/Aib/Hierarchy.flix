@@ -17,7 +17,7 @@
 namespace AssetLib/Aruba/Aib/Hierarchy {
 
 
-    use AssetLib/Aruba/Aib/Base.{Floc, SubFloc, FlocLevel, Equi, EquiLocation};
+    use AssetLib/Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibEquiLocation, AibSubEqui, AibFlocLevel, AibEquiType};
 
 
     /// Note - we want to represent partial hierarchies (i.e. not starting from Installation), 
@@ -25,27 +25,67 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
     /// Similarly we may not have full type information so types are separate relations.
 
 
-    pub rel Installation(flocId: String, flocPath: String, name: String)
+    pub rel Installation(sainum: String, commonName: String, name: String)
     
-    pub rel SubInstallation(flocId: String, flocPath: String, name: String)
+    pub rel SubInstallation(sainum: String, commonName: String, name: String)
 
-    pub rel ProcessGroup(flocId: String, flocPath: String, name: String)
+    pub rel ProcessGroup(sainum: String, commonName: String, name: String)
 
-    pub rel Process(flocId: String, flocPath: String, name: String)
+    pub rel Process(sainum: String, commonName: String, name: String)
 
-    pub rel Plant(flocId: String, flocPath: String, name: String)
+    pub rel Plant(sainum: String, commonName: String, name: String)
 
     /// Level 6 - e.g "Heating Unit", "Pump Assembly"
-    pub rel PlantItem(flocId: String, flocPath: String, name: String)
-
-    /// Floc childOf relation
-    pub rel ChildFuncloc(parentFlocId: String, childFlocId: String)
+    pub rel PlantItem(sainum: String, commonName: String, name: String)
 
     pub rel Equipment(equiId: String, name: String, floc: String)
 
-    pub rel ChildEquipment(parentId: String, childId: String)
+    /// Floc childOf relation
+    pub rel ChildFloc(parentFlocId: String, childFlocId: String)
 
+    
+    pub rel EquiType(equiId: String, equitype: String)
 
+    /// Translation is input source specific, we rely on S4 specific site levels, etc.
+    pub def fromAibBaseRelations(input: #{AibFloc, AibEqui, AibSubFloc, AibEquiLocation, AibSubEqui, AibFlocLevel, AibEquiType | r}): 
+                            #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
+                                Equipment, ChildFloc, EquiType | r1} = 
+        let rules = #{
+            Installation(sainum, commonName, name):- 
+                AibFloc(sainum, commonName, name),
+                AibFlocLevel(sainum, "Installation").
+
+            SubInstallation(sainum, commonName, name):- 
+                AibFloc(sainum, commonName, name),
+                AibFlocLevel(sainum, "Sub_Installation").
+
+            ProcessGroup(sainum, commonName, name):- 
+                AibFloc(sainum, commonName, name),
+                AibFlocLevel(sainum, "Process_Group").
+
+            Process(sainum, commonName, name):- 
+                AibFloc(sainum, commonName, name),
+                AibFlocLevel(sainum, "Process").
+
+            Plant(sainum, commonName, name):- 
+                AibFloc(sainum, commonName, name),
+                AibFlocLevel(sainum, "Plant").
+
+            PlantItem(sainum, commonName, name):- 
+                AibFloc(sainum, commonName, name),
+                AibFlocLevel(sainum, "Plant_Item").
+
+            Equipment(equiId, name, floc) :- 
+                AibEqui(equiId, name), 
+                AibEquiLocation(equiId, floc).
+
+            EquiType(equiId, tyname) :- 
+                AibEquiType(equiId, tyname).
+
+        };
+        let input1 = input as #{AibFloc, AibEqui, AibSubFloc, AibEquiLocation, AibSubEqui, AibFlocLevel, AibEquiType,  
+                                    Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, Equipment, ChildFloc, EquiType | r};
+        solve input1 <+> rules project Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, Equipment, ChildFloc, EquiType
 
 
 }

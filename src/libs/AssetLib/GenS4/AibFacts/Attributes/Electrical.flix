@@ -33,8 +33,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
 
 
     pub def readElectricalFacts(src: XlsxSource): GenMonad[ElectricalFacts[r]] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalElectrical()))
-        
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalElectrical(), src))        
 
 
     def evalElectrical(): NamedRowEvaluator[#{CurrentInA, InsulationClass, 

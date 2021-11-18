@@ -98,21 +98,21 @@ def main3(): Result[Unit, String] & Impure =
 
         /// Unbounded tree - including equipment at various levels and subequipment.
         Row3(item, (funcloc, name), parent) :- 
-            PreorderRow(item, funcloc, _, parent),
+            PreorderRow(item, "FLOC", funcloc, _, parent),
             FunctionalLocation(funcloc, name).
 
         Row3(item, (equiId, name), parent) :-
-            PreorderRow(item, equiId, _, parent),
+            PreorderRow(item, "EQUI", equiId, _, parent),
             Equipment(equiId, name, _).
 
     } <+> AssetLib/Aruba/S4/Hierarchy.preorderRows();
     Console.printLine("Unbounded...");
-    let extractor = { 
-        getKey = RelLib/Tuple.decons4((x, _, _, _) -> x),
-        getValue = RelLib/Tuple.decons4((_, x, y, _) -> (x, y)),
-        getParent = RelLib/Tuple.decons4((_, _, _, x) -> x)
-    };
-    query db <+> rules select (x1, x2, x3, x4) from PreorderRow(x1, x2, x3, x4) 
+    let extractor = 
+        { getKey    = RelLib/Tuple.decons3((x, _, _) -> x)
+        , getValue  = RelLib/Tuple.decons3((_, y, _) -> y)
+        , getParent = RelLib/Tuple.decons3((_, _, z) -> z)
+        };
+    query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) 
         |> RelLib/UnboundedTree.printAsTree("", extractor);
 
     AssetLib/Aruba/S4/ExportJson2.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;     

@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
     /// Read from Aib file...
 
     pub def readMemoLinesData(src: XlsxSource): GenMonad[#{AibMemoLine | r}] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalAibMemoLine()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalAibMemoLine(), src))
         
     
     def evalAibMemoLine(): NamedRowEvaluator[#{AibMemoLine | r}] =

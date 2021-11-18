@@ -34,7 +34,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
 
 
     pub def readTankFacts(src: XlsxSource): GenMonad[TankFacts[r]] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalTank()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalTank(), src))
         
     
 

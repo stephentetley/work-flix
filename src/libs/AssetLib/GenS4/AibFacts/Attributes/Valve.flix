@@ -28,7 +28,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
 
 
     pub def readValveFacts(src: XlsxSource): GenMonad[#{ValveSize | r}] =
-        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(src, evalValve()))
+        AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalValve(), src))
         
     
     def evalValve(): NamedRowEvaluator[#{ValveSize | r}] =
