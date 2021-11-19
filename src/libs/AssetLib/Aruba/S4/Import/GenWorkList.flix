@@ -43,10 +43,10 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     pub def readFlocBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
         readFlocWorkList(src) |> Result.map(toBase)
 
-    pub def readFlocHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
-                                                                    Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
-        readFlocBaseRelations(src) |> 
-            Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
+    /// pub def readFlocHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
+    ///                                                                 Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
+    ///     readFlocBaseRelations(src) |> 
+    ///         Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
 
 
     pub def readEquiWorkList(src: XlsxSource): Result[#{WorkListEqui | r}, String] & Impure =
@@ -66,10 +66,15 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     pub def readEquiBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
         readEquiWorkList(src) |> Result.map(toBase)
 
-    pub def readEquiHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
-                                                                    Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
-        readEquiBaseRelations(src) |> 
-            Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
+
+    /// TODO
+    /// Should this be removed?
+    /// It is unlikely that we have a full hierarchy. We should be generating the hierarchy 
+    /// from a "base" structure list and WorkList "patches".
+    /// pub def readEquiHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
+    ///                                                                 Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
+    ///     readEquiBaseRelations(src) |> 
+    ///         Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
 
 
     /// To Base representation
@@ -86,6 +91,7 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
             S4SubFloc(parent, child) :- 
                 WorkListFloc(child, _, parent), 
                 if not String.isEmpty(parent).
+            
             
             S4EquiLocation(equiId, floc) :- 
                 WorkListEqui(equiId, _, floc, _).

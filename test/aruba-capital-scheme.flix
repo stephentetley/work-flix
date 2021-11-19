@@ -1,0 +1,53 @@
+use SheetIO.NamedRowEvaluator;
+use SheetIO/Reader.{XlsxSource};
+
+
+use AssetLib/Aruba/Base.{S4FlocLevel, S4SubFloc};
+use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 
+        Equipment, ChildFloc, ChildEqui, S4FlocType, FunctionalLocation, PreorderRow};
+
+use AssetLib/Aruba/S4/Check.{OrphanEquipment, OrphanFuncloc}; 
+
+
+def main(_args: Array[String]): Int32 & Impure = 
+    Console.printLine("Running... ${Time/LocalTime.now()}");
+    main1() |> println;
+    0
+
+type alias CapSchemeSources = 
+    { existingStructureList :: System.FilePath
+    , existingIH06Table :: XlsxSource
+    , existingIH08Table :: XlsxSource
+    , flocWorkList :: XlsxSource
+    , equiWorkList :: XlsxSource
+    }
+
+def sources(): CapSchemeSources = 
+    { existingStructureList = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06-structure-list.txt")
+    , existingIH06Table = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih08.xlsx"),
+                            sheet = "Sheet1"}
+    , existingIH08Table = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.xlsx"),
+                            sheet = "Sheet1"}
+    , flocWorkList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
+                        sheet = "Floc"}
+    , equiWorkList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
+                        sheet = "Equi"}
+    }
+
+def main1(): Result[Unit, String] & Impure = 
+    use Result.flatMap;
+    let src         = sources();
+    let* base       = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src.existingStructureList);
+    let* floctypes  = AssetLib/Aruba/S4/Import/IH06Table.readS4FlocTypes(src.existingIH06Table);
+    let* equitypes  = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(src.existingIH08Table);
+    let db1         = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(base) <+> floctypes <+> equitypes; 
+    AssetLib/Aruba/S4/Hierarchy.toSaltTreeTable(db1) |> println;
+    let* newFlocs   = AssetLib/Aruba/S4/Import/GenWorkList.readFlocBaseRelations(src.flocWorkList);
+    let* newEquis   = AssetLib/Aruba/S4/Import/GenWorkList.readEquiBaseRelations(src.equiWorkList);
+    let db2         = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(base <+> newFlocs <+> newEquis) <+> floctypes <+> equitypes;
+    Console.printLine("Orphan Equi...");
+    query db2 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2, x3) from OrphanEquipment(x1, x2, x3) |> Array.foreach(println);
+    Console.printLine("Orphan Flocs...");
+    query db2 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2) from OrphanFuncloc(x1, x2) |> Array.foreach(println);
+    Ok()
+

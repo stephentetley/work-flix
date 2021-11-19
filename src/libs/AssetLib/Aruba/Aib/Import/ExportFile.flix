@@ -38,7 +38,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
     pub def readExportRelations(src: XlsxSource): Result[#{AibEquipment, AibCommonName, AibParentName, AibHKey}, String] & Impure =         
         use Result.{flatMap};
-        let* rows = SheetIO/Reader.readAllNamedRows(src, evalExportRow());
+        let* rows = SheetIO/Reader.allNamedRows(evalExportRow(), src);
         buildExportFileRelations(rows)
 
     def evalExportRow(): NamedRowEvaluator[ExportRow] = 
@@ -136,7 +136,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
     def getAibHKeys(rows: List[ExportRow]): #{AibHKey |r}  = 
         let step = x1 -> 
-            RelLib/Relation.when(String.startsWith(prefix = "1", x1.hkey) or String.startsWith(prefix = "2", x1.hkey),
+            RelLib/Relation.whenTrue(String.startsWith(prefix = "1", x1.hkey) or String.startsWith(prefix = "2", x1.hkey),
                                     #{ AibHKey(x1.reference, x1.hkey, decreaseHKey(x1.hkey)). });
         RelLib/Relation.foldMap(step, rows)
 

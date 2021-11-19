@@ -18,7 +18,7 @@
 /// Export JSON from relations...
 
 
-namespace AssetLib/Aruba/S4/ExportJson2 {
+namespace AssetLib/Aruba/S4/ExportJson {
 
     use BasicJson.JsonValue;
     use BasicJson.JsonValue.{JsonArray, JsonObject};

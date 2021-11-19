@@ -55,7 +55,7 @@ namespace AssetLib/Aruba/S4/Hierarchy {
     pub rel S4FlocType(funcloc: String, floctype: String)
 
     
-    pub rel FunctionalLocation(funcloc: String, description: String)
+    pub rel FunctionalLocation(funcloc: String, name: String)
 
     /// S4 Specific
     pub rel FlocCategory(equiId: String, category: String)
