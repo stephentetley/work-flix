@@ -27,8 +27,7 @@ namespace AssetLib/Aruba/S4/Check {
     pub rel ParentFlocExists(floc: String)
 
     pub def orphans(): #{Equipment, FunctionalLocation, OrphanEquipment, OrphanFuncloc | r} = #{
-
-        /// Not working - must check what facts we are generating...
+        
         OrphanFuncloc(funcloc, name) :- 
             FunctionalLocation(funcloc, name), 
             not ParentFlocExists(funcloc).
@@ -40,7 +39,10 @@ namespace AssetLib/Aruba/S4/Check {
 
         FlocExists(floc) :- FunctionalLocation(floc, _).
 
-        ParentFlocExists(floc) :- ChildFloc(_, floc).
+        /// We generate `ChildFloc` links without asserting the parent exists, now we check the parent exists...
+        ParentFlocExists(floc) :- 
+            ChildFloc(parent, floc),
+            FunctionalLocation(parent, _).
 
     }
 

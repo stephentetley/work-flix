@@ -36,17 +36,13 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     def evalFlocWorkItem(): NamedRowEvaluator[#{WorkListFloc | r}] = 
         use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getTrimmedContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
-        ((x1, x2) -> #{ WorkListFloc(x1, x2, flocParent(x2)). })
+        ((x1, x2) -> #{ WorkListFloc(x1, x2, flocParent(x1)). })
             <&> getNonEmptyContentNamed("Functional Location")
             <*> getNonEmptyContentNamed("Description")
             
     pub def readFlocBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
         readFlocWorkList(src) |> Result.map(toBase)
 
-    /// pub def readFlocHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
-    ///                                                                 Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
-    ///     readFlocBaseRelations(src) |> 
-    ///         Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
 
 
     pub def readEquiWorkList(src: XlsxSource): Result[#{WorkListEqui | r}, String] & Impure =
@@ -67,16 +63,6 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
         readEquiWorkList(src) |> Result.map(toBase)
 
 
-    /// TODO
-    /// Should this be removed?
-    /// It is unlikely that we have a full hierarchy. We should be generating the hierarchy 
-    /// from a "base" structure list and WorkList "patches".
-    /// pub def readEquiHierarchyRelations(src: XlsxSource): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
-    ///                                                                 Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
-    ///     readEquiBaseRelations(src) |> 
-    ///         Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
-
-
     /// To Base representation
 
     pub def toBase(input: #{WorkListFloc, WorkListEqui | r}): #{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r1} =
@@ -88,8 +74,8 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
             S4Equi(equiId, description) :- 
                 WorkListEqui(equiId, description, _, _).
 
-            S4SubFloc(parent, child) :- 
-                WorkListFloc(child, _, parent), 
+            S4SubFloc(parent, floc) :- 
+                WorkListFloc(floc, _, parent), 
                 if not String.isEmpty(parent).
             
             
