@@ -62,6 +62,7 @@ def main1(): Result[Unit, String] & Impure =
     let outpath = System/FilePath.new("E:/coding/work/plantuml/bever_tree1.puml");
     PlantUml/Puml.writePuml(outpath, Text/Charset.utf_8(), puml);
     Console.printLine("Wrote: ${outpath}");
+    let* _ = execPlantUml("svg", outpath);
     Ok()
 
 def printKey(key: String, provenance: String): PlantUml/Creole.Creole = 
@@ -79,3 +80,16 @@ def printLabel(label: String, provenance: String): PlantUml/Creole.Creole =
         case "Existing" => text(label)
         case _ => oldColor("SlateGray") <> PlantUml/Creole.text(label)
     }
+
+
+
+def execPlantUml(format: String, srcFile: System.FilePath): Result[Int32, String] & Impure = 
+    use Result.flatMap;
+    let args = 
+        { java = "java.exe"
+        , plantUmlJar = System/FilePath.new("C:/ProgramData/Chocolatey/lib/plantuml/tools/plantuml.jar")
+        , format = Some(format)
+        , sourceFile = srcFile
+    };
+    PlantUml/Extra.execPlantUml(args)
+    
