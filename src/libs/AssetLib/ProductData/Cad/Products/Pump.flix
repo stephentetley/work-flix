@@ -47,7 +47,7 @@ namespace AssetLib/ProductData/Cad/Products/Pump {
         }
 
     pub def loadRows(src: XlsxSource): Result[List[PumpRow], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows(src, evalPumpRow())
+        SheetIO/Reader.allNamedRows(evalPumpRow(), src)
 
 
     def evalPumpRow(): NamedRowEvaluator[PumpRow] = 

@@ -39,7 +39,7 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
         }
 
     pub def loadRows(src: XlsxSource): Result[List[MixerFlocculatorRow], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows(src, evalMixerFlocculatorRow())
+        SheetIO/Reader.allNamedRows(evalMixerFlocculatorRow(), src)
 
 
     pub def evalMixerFlocculatorRow(): NamedRowEvaluator[MixerFlocculatorRow] = 

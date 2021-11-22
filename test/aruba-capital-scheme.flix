@@ -62,6 +62,7 @@ def main1(): Result[Unit, String] & Impure =
     let outpath = System/FilePath.new("E:/coding/work/plantuml/bever_tree1.puml");
     PlantUml/Puml.writePuml(outpath, Text/Charset.utf_8(), puml);
     Console.printLine("Wrote: ${outpath}");
+    Console.printLine("execPlantUml...");
     let* _ = execPlantUml("svg", outpath);
     Ok()
 
@@ -82,7 +83,6 @@ def printLabel(label: String, provenance: String): PlantUml/Creole.Creole =
     }
 
 
-
 def execPlantUml(format: String, srcFile: System.FilePath): Result[Int32, String] & Impure = 
     use Result.flatMap;
     let args = 
@@ -91,5 +91,5 @@ def execPlantUml(format: String, srcFile: System.FilePath): Result[Int32, String
         , format = Some(format)
         , sourceFile = srcFile
     };
-    PlantUml/Extra.execPlantUml(args)
+    PlantUml/Extras.execPlantUml(args)
     

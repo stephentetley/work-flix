@@ -40,7 +40,7 @@ namespace AssetLib/ProductData/Cad/Products/Screen {
         }
 
     pub def loadRows(src: XlsxSource): Result[List[ScreenRow], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows(src, evalScreenRow())
+        SheetIO/Reader.allNamedRows(evalScreenRow(), src)
 
 
     pub def evalScreenRow(): NamedRowEvaluator[ScreenRow] = 

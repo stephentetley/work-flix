@@ -24,7 +24,7 @@ type alias WorkItem =
 def main1(src: XlsxSource): Result[Unit, String] & Impure = 
     use Result.flatMap;
     use RelLib/Tuple.{decons4};
-    let* rows   = SheetIO/Reader.readAllNamedRows(src, evalRow());
+    let* rows   = SheetIO/Reader.allNamedRows(evalRow(), src);
     let* rowdb  = makeDb(rows);
     let db      = rowdb <+> AssetLib/Aruba/Extra/S4EquiType.s4EquiTypeRules();
     println("AibEquiType...");

@@ -75,7 +75,7 @@ def genCharacteristics(): GenMonad[Map[String, String]] =
 pub rel WorkItem(s4ref: String, objtype: String, isChild: Bool)
 
 def readWorkItems(src: XlsxSource): Result[#{WorkItem | r}, String] & Impure = 
-    SheetIO/Reader.someNamedRelations(src, evalWorkItem())
+    SheetIO/Reader.someNamedRelations(evalWorkItem(), src)
 
 def evalWorkItem(): NamedRowEvaluator[#{WorkItem | r}] =
     use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};

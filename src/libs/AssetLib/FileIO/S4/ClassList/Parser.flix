@@ -39,7 +39,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
 
     /// Always UTF-8 with BOM? 
     pub def parseFile(path: System.FilePath, srctype: SourceType) : Result[ClassListFile, String] & Impure = 
-        FlixParsec/Prim.parsesFileWithBOM(classListParser(srctype), 4, path) 
+        FlixParsec/Extras.parsesFileWithBOM(classListParser(srctype), 4, path) 
 
 
     def classListParser(srctype: SourceType): Parser[t1, ClassListFile] = 

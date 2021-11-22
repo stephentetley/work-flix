@@ -29,7 +29,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
     pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
         use Data/DList.{toList};
-        let* rows = FlixParsec/Prim.parsesFile(importRowsParser(eval), 4, path, Text/Charset.utf_8());
+        let* rows = FlixParsec/Extras.parsesFile(importRowsParser(eval), 4, path, Text/Charset.utf_8());
         Ok(toList(rows))
 
 

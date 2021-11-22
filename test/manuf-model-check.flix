@@ -45,7 +45,7 @@ pub def readUxlRows(src: System.FilePath): Result[List[WorkItem[r]], String] & I
 
 pub def readEquiWorkListRows(src: XlsxSource): Result[List[WorkItem[r]], String] & Impure = 
     use SheetIO/NamedRowEvaluator.{optional};
-    SheetIO/Reader.readSomeNamedRows(src, evalEquiWorkItem())
+    SheetIO/Reader.rsomeNamedRows(src, evalEquiWorkItem())
 
 
 def evalEquiWorkItem(): NamedRowEvaluator[Option[WorkItem[r]]] =

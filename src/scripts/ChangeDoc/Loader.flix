@@ -33,7 +33,7 @@ namespace ChangeDoc/Loader {
     /// Sheet always called "Data"
     ///
     pub def readFlocTabItems(src: System.FilePath): Result[List[FlocTabItem], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalFlocTabItem())
+        SheetIO/Reader.allNamedRows(evalFlocTabItem(), {path = src, sheet = "Data"})
 
 
     def evalFlocTabItem(): NamedRowEvaluator[FlocTabItem] = 
@@ -56,7 +56,7 @@ namespace ChangeDoc/Loader {
     /// Sheet always called "Data"
     ///
     pub def readEquiTabItems(src: System.FilePath): Result[List[EquiTabItem], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows({path = src, sheet = "Data"}, evalEquiTabItem())
+        SheetIO/Reader.allNamedRows(evalEquiTabItem(), {path = src, sheet = "Data"})
 
 
     def evalEquiTabItem(): NamedRowEvaluator[EquiTabItem] = 
@@ -83,7 +83,7 @@ namespace ChangeDoc/Loader {
     /// Sheet always called "Data"
     pub def readChangeDoc(src: System.FilePath): Result[ChangeDoc, String] & Impure = 
         use SheetIO/SheetReader.{flatMap, getSheetNamed, namedRowsFrom};
-        let action = {let* sheet1 = getSheetNamed("Data"); namedRowsFrom(sheet1, 2, 3, evalChangeRow())};
+        let action = {let* sheet1 = getSheetNamed("Data"); namedRowsFrom(2, 3, evalChangeRow(), sheet1)};
         SheetIO/SheetReader.runXlsx(action, src)
             |> Result.map(List.filterMap(identity))
 

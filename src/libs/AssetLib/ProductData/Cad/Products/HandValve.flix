@@ -36,7 +36,7 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
         }
 
     pub def loadRows(src: XlsxSource): Result[List[HandValveRow], String] & Impure = 
-        SheetIO/Reader.readAllNamedRows(src, evalHandValveRow())
+        SheetIO/Reader.allNamedRows(evalHandValveRow(), src)
 
 
     def evalHandValveRow(): NamedRowEvaluator[HandValveRow] = 
