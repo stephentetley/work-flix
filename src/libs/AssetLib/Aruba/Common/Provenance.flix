@@ -24,7 +24,7 @@ namespace AssetLib/Aruba/Common/Provenance {
     use AssetLib/Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 
         Equipment, ChildFloc, ChildEqui, PreorderRow};
 
-    pub rel Provenance(key: String, label: String, provenance: String)
+    pub rel Provenance(uid: String, label: String, provenance: String)
 
     /// Generate provenance on base relations
     pub def s4Provenance(source: String): #{S4Floc, S4Equi, Provenance | r1} = #{
@@ -76,11 +76,11 @@ namespace AssetLib/Aruba/Common/Provenance {
 
         PreorderRow5(key: String, uid: String, descr: String, provenance: String, parentKey: String) :- 
             PreorderRow(key, _, uid, descr, parentKey),
-            Provenance(key, _, provenance).
+            Provenance(uid, _, provenance).
         
         PreorderRow5(key, uid, descr, "Unknown", parentKey) :- 
             PreorderRow(key, _, uid, descr, parentKey),
-            not HasProvenance(key).
+            not HasProvenance(uid).
     
     }
 
