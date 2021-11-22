@@ -2,13 +2,14 @@ use SheetIO.NamedRowEvaluator;
 use SheetIO/Reader.{XlsxSource};
 
 
-use AssetLib/Aruba/Base.{S4FlocLevel, S4SubFloc};
+use AssetLib/Aruba/Base.{S4Floc, S4Equi, S4FlocLevel, S4SubFloc};
 use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 
         Equipment, ChildFloc, ChildEqui, S4FlocType, FunctionalLocation, PreorderRow};
 
-use AssetLib/Aruba/S4/Check.{OrphanEquipment, OrphanFuncloc}; 
-use AssetLib/Aruba/S4/Common/Prevenance.{Prevenance}; 
+use AssetLib/Aruba/Common/Provenance.{Provenance, S4Provenance}; 
+use AssetLib/Aruba/Common/Provenance.Provenance.{Bottom, Existing, New, Delete};
 
+use AssetLib/Aruba/S4/Check.{OrphanEquipment, OrphanFuncloc}; 
 
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -21,6 +22,7 @@ type alias CapSchemeSources =
     , existingIH08Table :: XlsxSource
     , flocWorkList :: XlsxSource
     , equiWorkList :: XlsxSource
+    , deleteList :: XlsxSource
     }
 
 def sources(): CapSchemeSources = 
@@ -33,6 +35,8 @@ def sources(): CapSchemeSources =
                         sheet = "Floc"}
     , equiWorkList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
                         sheet = "Equi"}
+    , deleteList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
+                        sheet = "Equi_delete"}
     }
 
 def main1(): Result[Unit, String] & Impure = 
@@ -41,24 +45,35 @@ def main1(): Result[Unit, String] & Impure =
     let* base       = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src.existingStructureList);
     let* floctypes  = AssetLib/Aruba/S4/Import/IH06Table.readS4FlocTypes(src.existingIH06Table);
     let* equitypes  = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(src.existingIH08Table);
-    let provBase    = AssetLib/Aruba/Common/Provenance.genS4Provenance("Existing", base);
-    let db1         = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(base) <+> provBase; 
-    AssetLib/Aruba/S4/Hierarchy.toSaltTreeTable(db1) |> println;
+    let provBase    = AssetLib/Aruba/Common/Provenance.genS4Provenance(Existing, base);
+    let* deleteList = AssetLib/Aruba/S4/Import/DeleteList.readDeleteList(src.deleteList);
+    let provDelete  = AssetLib/Aruba/Common/Provenance.genS4Provenance(Delete, deleteList);
+
+    Console.printLine("deleteList...");
+    query deleteList select (x1, x2) from S4Equi(x1, x2) 
+        |> Array.foreach(println);  
+
+
+    Console.printLine("provDelete...");
+    query provDelete select (x1; x2) from S4Provenance(x1; x2) 
+        |> Array.foreach(println);  
+
     let* newFlocs   = AssetLib/Aruba/S4/Import/GenWorkList.readFlocBaseRelations(src.flocWorkList);
     let* newEquis   = AssetLib/Aruba/S4/Import/GenWorkList.readEquiBaseRelations(src.equiWorkList);
-    let provNew     = AssetLib/Aruba/Common/Provenance.genS4Provenance("New", newFlocs <+> newEquis);
-    let db2         = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(base <+> newFlocs <+> newEquis) <+> floctypes <+> equitypes <+> provBase <+> provNew;
+    let provNew     = AssetLib/Aruba/Common/Provenance.genS4Provenance(New, newFlocs <+> newEquis);
+    let db1         = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(base <+> newFlocs <+> newEquis) 
+                            <+> floctypes <+> equitypes <+> provBase <+> provNew <+> provDelete;
     
     /// Temp
     Console.printLine("Orphan Equi...");
-    query db2 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2, x3) from OrphanEquipment(x1, x2, x3) |> Array.foreach(println);
+    query db1 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2, x3) from OrphanEquipment(x1, x2, x3) |> Array.foreach(println);
     Console.printLine("Orphan Flocs...");
-    query db2 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2) from OrphanFuncloc(x1, x2) |> Array.foreach(println);
-    Console.printLine("Provenance...");
-    query db2 select (x1, x2, x3) from Provenance(x1, x2, x3) 
-        |> Array.foreach(println);
+    query db1 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2) from OrphanFuncloc(x1, x2) |> Array.foreach(println);
+    /// Console.printLine("Provenance...");
+    /// query db2 select (x1; x2) from S4Provenance(x1; x2) 
+    ///     |> Array.foreach(println);
 
-    let puml = AssetLib/Aruba/Common/Provenance.toSaltTreeTable(printKey, printLabel, db2);
+    let puml = AssetLib/Aruba/Common/Provenance.toSaltTreeTable(printKey, printLabel, db1);
     let outpath = System/FilePath.new("E:/coding/work/plantuml/bever_tree1.puml");
     PlantUml/Puml.writePuml(outpath, Text/Charset.utf_8(), puml);
     Console.printLine("Wrote: ${outpath}");
@@ -66,20 +81,22 @@ def main1(): Result[Unit, String] & Impure =
     let* _ = execPlantUml("svg", outpath);
     Ok()
 
-def printKey(key: String, provenance: String): PlantUml/Creole.Creole = 
+def printKey(key: String, provenance: Provenance): PlantUml/Creole.Creole = 
     use PlantUml/Creole.{<>, text, oldColor};
     match provenance {
-        case "New" => oldColor("Green") <> text(key)
-        case "Existing" => text(key)
-        case _ => oldColor("SlateGray") <> PlantUml/Creole.text(key)
+        case New      => oldColor("Green") <> text(key)
+        case Delete   => oldColor("Red") <> text(key)
+        case Existing => text(key)
+        case Bottom   => text(key)
     }
 
-def printLabel(label: String, provenance: String): PlantUml/Creole.Creole = 
-    use PlantUml/Creole.{<>, text, oldColor};
+def printLabel(label: String, provenance: Provenance): PlantUml/Creole.Creole = 
+    use PlantUml/Creole.{<>, text, oldColor, stroked};
     match provenance {
-        case "New" => oldColor("Green") <> text(label)
-        case "Existing" => text(label)
-        case _ => oldColor("SlateGray") <> PlantUml/Creole.text(label)
+        case New      => oldColor("Green") <> text(label)
+        case Delete   => oldColor("Red") <> stroked(text(label))
+        case Existing => text(label)
+        case Bottom   => text(label)
     }
 
 
