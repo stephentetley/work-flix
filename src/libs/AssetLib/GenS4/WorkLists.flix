@@ -54,7 +54,7 @@ namespace AssetLib/GenS4/WorkLists {
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
         let* sainums        = map(stringList, getTrimmedContentNamed("Aib References (semi sep list)"));
-        let* installedFrom  = getS4LocalDateNamed("Installed From");
+        let* installedFrom  = getS4LocalDateNamed("Installed From (dd.MM.yyyy)");
         let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
         let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
         let* sysClass       = map(String.trim, getTrimmedContentNamed("Class Name (System)"));
