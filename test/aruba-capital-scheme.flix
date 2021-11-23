@@ -22,7 +22,8 @@ type alias CapSchemeSources =
     , existingIH08Table :: XlsxSource
     , flocWorkList :: XlsxSource
     , equiWorkList :: XlsxSource
-    , deleteList :: XlsxSource
+    , flocDeleteList :: XlsxSource
+    , equiDeleteList :: XlsxSource
     }
 
 def sources(): CapSchemeSources = 
@@ -35,7 +36,9 @@ def sources(): CapSchemeSources =
                         sheet = "Floc"}
     , equiWorkList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
                         sheet = "Equi"}
-    , deleteList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
+    , flocDeleteList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
+                        sheet = "Floc_delete"}
+    , equiDeleteList = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"),
                         sheet = "Equi_delete"}
     }
 
@@ -46,11 +49,12 @@ def main1(): Result[Unit, String] & Impure =
     let* floctypes  = AssetLib/Aruba/S4/Import/IH06Table.readS4FlocTypes(src.existingIH06Table);
     let* equitypes  = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(src.existingIH08Table);
     let provBase    = AssetLib/Aruba/Common/Provenance.genS4Provenance(Existing, base);
-    let* deleteList = AssetLib/Aruba/S4/Import/DeleteList.readDeleteList(src.deleteList);
-    let provDelete  = AssetLib/Aruba/Common/Provenance.genS4Provenance(Delete, deleteList);
+    let* flocDelete = AssetLib/Aruba/S4/Import/DeleteList.readFlocDeleteList(src.flocDeleteList);
+    let* equiDelete = AssetLib/Aruba/S4/Import/DeleteList.readEquiDeleteList(src.equiDeleteList);
+    let provDelete  = AssetLib/Aruba/Common/Provenance.genS4Provenance(Delete, flocDelete <+> equiDelete);
 
     Console.printLine("deleteList...");
-    query deleteList select (x1, x2) from S4Equi(x1, x2) 
+    query equiDelete select (x1, x2) from S4Equi(x1, x2) 
         |> Array.foreach(println);  
 
 

@@ -19,14 +19,23 @@ namespace AssetLib/Aruba/S4/Import/DeleteList {
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
-    use AssetLib/Aruba/S4/Base.{S4Equi};
+    use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi};
 
-    /// TODO what about flocs?
 
-    pub def readDeleteList(src: XlsxSource): Result[#{S4Equi | r}, String] & Impure =         
-        SheetIO/Reader.someNamedRelations(evalS4DeleteItem(), src)
+    pub def readFlocDeleteList(src: XlsxSource): Result[#{S4Floc | r}, String] & Impure =
+        SheetIO/Reader.someNamedRelations(evalFlocDelete(), src)
 
-    def evalS4DeleteItem(): NamedRowEvaluator[#{S4Equi | r}] = 
+    def evalFlocDelete(): NamedRowEvaluator[#{S4Floc | r}] = 
+        use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
+        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        ((x1, x2) -> RelLib/Relation.whenTrue(not String.isEmpty(x1) and not String.isEmpty(x2),  #{ S4Floc(x1, x2). }))
+            <&> getTrimmedContentNamed("Functional Location")
+            <*> getTrimmedContentNamed("S4 Name")
+
+    pub def readEquiDeleteList(src: XlsxSource): Result[#{S4Equi | r}, String] & Impure =         
+        SheetIO/Reader.someNamedRelations(evalEquiDelete(), src)
+
+    def evalEquiDelete(): NamedRowEvaluator[#{S4Equi | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> RelLib/Relation.whenTrue(not String.isEmpty(x1) and not String.isEmpty(x2),  #{ S4Equi(x1, x2). }))
