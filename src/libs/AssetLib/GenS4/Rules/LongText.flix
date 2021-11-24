@@ -34,9 +34,12 @@ namespace AssetLib/GenS4/Rules/LongText {
                             locsSrc: XlsxSource): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = makeLongTextWorkItems(worklist);
-        let* memos      = AssetLib/GenS4/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
+        let* memos1     = AssetLib/GenS4/AibFacts/Attributes/MemoLines.readMemoLinesData(memosSrc);
+        /// Always make as LongText1 rather than AibMemoLine so it will always go in S4 Long Text...
+        let memos2      = RelLib/Relation.foldMap(x1 -> 
+                            if (not String.isEmpty(x1.extraMemo)) #{ LongText1(x1.equipmentId; Set.singleton(x1.extraMemo)). } else #{}, worklist);
         let* locs       = AssetLib/GenS4/AibFacts/Attributes/LocationData.readLocationOnSiteData(locsSrc);
-        equiLongText(workitems <+> memos <+> locs)
+        equiLongText(workitems <+> memos1 <+> memos2 <+> locs)
 
 
     /// Case specific WorkItem so this might be usable to different "EquiWorkList"
@@ -52,32 +55,41 @@ namespace AssetLib/GenS4/Rules/LongText {
     /// IN PROGRESS - we could have easier (and more flexible rules) if we groupBy `equiId`
     /// as a post-processing step then concatenate the answers to make a `SLEquiLongText` ...
 
+    /// Use the `Set[String]` lattice to store strings before concatenating them...
+
+    lat LongText1(equiId: String, body: Set[String])
+
     pub def equiLongText(input: #{EquiLongTextWorkItem, AibMemoLine, LocationOnSite,
-                                    EquiLongText | r}): GenMonad[Unit] = 
+                                    LongText1, EquiLongText | r}): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, liftAction};
         let rules = #{
 
-            EquiLongText(equiId, description, locationOnSite(location) ) :- 
-                EquiLongTextWorkItem(equiId, description),
+            LongText1(equiId; locationOnSite(location)) :- 
                 LocationOnSite(equiId, location), 
-                if (String.length(location) > 30).
+                if String.length(location) > 30.
 
-            EquiLongText(equiId, description, memoLine(memoText)) :- 
+            LongText1(equiId; memoText) :- 
+                AibMemoLine(equiId; memoText), 
+                if Set.size(memoText) > 1 or Set.exists(isMultiline, memoText).
+
+            EquiLongText(equiId, description, getLongText(longText)) :- 
                 EquiLongTextWorkItem(equiId, description),
-                AibMemoLine(equiId, memoText), 
-                if (String.length(memoText) > 30).
+                LongText1(equiId; longText).
+
         };
-        let getKey = RelLib/Tuple.decons3((x1, y1, _) -> (x1, y1));
-        let getLongText = RelLib/Tuple.decons3((_, _, z1) -> z1);
-        let* answers = liftAction(_ -> query (rules <+> input) select (x1, x2, x3) from EquiLongText(x1, x2, x3)
-                        |> RelLib/Organization.viaMapList((getKey, getLongText), (k, xs) -> {equiId = fst(k), description = snd(k), longText = String.unlines(xs)}));
+        let* answers = 
+            liftAction(_ -> 
+                query (rules <+> input) select (x1, x2, x3) from EquiLongText(x1, x2, x3) 
+                    |> Array.toList
+                    |> List.map(RelLib/Tuple.decons3((x, y, z) -> {equiId = x, description = y, longText = z})));
         AssetLib/GenS4/GenMonad.mapX(AssetLib/GenS4/GenMonad.tellSLEquiLongText, answers)
 
 
 
-    def locationOnSite(location: String): String = "Location on Site: ${String.trim(location)}"
+    def locationOnSite(location: String): Set[String] = Set.singleton("Location on Site: ${String.trim(location)}")
 
-    def memoLine(body: String): String = "Memo Line: ${String.trim(body)}"
+    def getLongText(body: Set[String]): String = body |> Set.toList |> List.filter(s1 -> no String.isEmpty(s1) |> String.unlines
 
+    def isMultiline(s: String): Bool = List.length(String.lines(s)) > 1
 
 }

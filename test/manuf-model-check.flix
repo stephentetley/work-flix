@@ -28,10 +28,7 @@ def main1(): Result[Unit, String] & Impure =
     let ztable2         = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
     let* allowedModel   = AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(ztable2) |> Result.map(buildManufModel);
 
-    /// let uxl1            = System/FilePath.new("G:/work/assets/capital_schemes/embsay/output/embsay_stw_ferric_uxl.001.xlsx");
-    /// let* equis          = readUxlRows(uxl1);
-
-    let worklist        = {path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/embsay-ferric-worklist.xlsx"), 
+    let worklist        = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"), 
                             sheet = "Equi"};
     let* equis          = readEquiWorkListRows(worklist);
 
@@ -45,7 +42,7 @@ pub def readUxlRows(src: System.FilePath): Result[List[WorkItem[r]], String] & I
 
 pub def readEquiWorkListRows(src: XlsxSource): Result[List[WorkItem[r]], String] & Impure = 
     use SheetIO/NamedRowEvaluator.{optional};
-    SheetIO/Reader.rsomeNamedRows(src, evalEquiWorkItem())
+    SheetIO/Reader.someNamedRows(evalEquiWorkItem(), src)
 
 
 def evalEquiWorkItem(): NamedRowEvaluator[Option[WorkItem[r]]] =

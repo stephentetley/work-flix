@@ -31,7 +31,7 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     pub rel S4DiaphragmMaterial(aibName: String, s4Name: String)
 
 
-    pub rel AibMemoLine(aibref: String, text: String)
+    pub lat AibMemoLine(aibref: String, body: Set[String])
 
     
     pub rel AibParentRef(equiId: String, parentSaiNum: String)

@@ -39,7 +39,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
                 let xs = x2 :: x3 :: x4 :: x5 :: x6 :: Nil;
                 match List.filter(s1 -> not String.isEmpty(s1) , List.map(String.trim, xs)) { 
                     case Nil => #{}
-                    case ys => {let str = String.unlines(ys); #{ AibMemoLine(x1, str). } }
+                    case ys => {let str = String.unlines(ys); #{ AibMemoLine(x1; Set.singleton(str)). } }
                 }
             })
             <&> getNonEmptyContentNamed("Reference")

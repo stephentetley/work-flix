@@ -25,6 +25,7 @@ namespace AssetLib/Aruba/Common/Provenance {
         Equipment, ChildFloc, ChildEqui, PreorderRow};
 
     /// Provenance needs an explicit Bottom
+    /// TODO `Change` looks like it should be `Change(Set[String])` so it can record changes
     pub enum Provenance with Eq, Order, ToString, Hash, Boxable { 
         case Delete
         case New

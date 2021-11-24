@@ -63,10 +63,9 @@ namespace AssetLib/GenS4/WorkLists {
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
         let* solutionId     = map(String.trim, getTrimmedContentNamed("Solution ID"));
         let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
-        let level           = AssetLib/Base/S4/Floc.level(objfloc);
         return({ funcloc                = floc
                 , description           = name
-                , level                 = level
+                , level                 = AssetLib/Base/S4/Floc.level(objfloc)
                 , sainums               = sainums
                 , installedFrom         = installedFrom
                 , structureIndicator    = structureInd
@@ -98,6 +97,7 @@ namespace AssetLib/GenS4/WorkLists {
         , s4EquiType :: String
         , s4EquiClass :: String
         , batchNumber :: Int32
+        , extraMemo :: String
         }
 
 
@@ -127,6 +127,7 @@ namespace AssetLib/GenS4/WorkLists {
         let* s4Type         = getNonEmptyContentNamed("Object Type");
         let* s4Class        = getNonEmptyContentNamed("Object Class");
         let* batchNo        = optional(getInt32Named("Batch"));
+        let* extraMemo      = getTrimmedContentNamed("Extra Memo");
         return({ equipmentId = aibref
                 , s4Name = s4Name
                 , s4Floc = s4Floc
@@ -139,6 +140,7 @@ namespace AssetLib/GenS4/WorkLists {
                 , s4EquiType = s4Type
                 , s4EquiClass = s4Class
                 , batchNumber = Option.getWithDefault(batchNo, 1)
+                , extraMemo = extraMemo
                 })
 
 
