@@ -37,16 +37,16 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 
                 let xs = x2 :: x3 :: x4 :: x5 :: x6 :: Nil;
-                match List.filter(s1 -> not String.isEmpty(s1) , List.map(String.trim, xs)) { 
+                match List.filter(s1 -> not String.isEmpty(s1), List.map(String.trim, xs)) { 
                     case Nil => #{}
                     case ys => {let str = String.unlines(ys); #{ AibMemoLine(x1; Set.singleton(str)). } }
                 }
             })
             <&> getNonEmptyContentNamed("Reference")
-            <*> withDefault(getContentNamed("Memo Line 1"), "")
-            <*> withDefault(getContentNamed("Memo Line 2"), "")
-            <*> withDefault(getContentNamed("Memo Line 3"), "")
-            <*> withDefault(getContentNamed("Memo Line 4"), "")
-            <*> withDefault(getContentNamed("Memo Line 5"), "")
+            <*> withDefault(getNonEmptyContentNamed("Memo Line 1"), "")
+            <*> withDefault(getNonEmptyContentNamed("Memo Line 2"), "")
+            <*> withDefault(getNonEmptyContentNamed("Memo Line 3"), "")
+            <*> withDefault(getNonEmptyContentNamed("Memo Line 4"), "")
+            <*> withDefault(getNonEmptyContentNamed("Memo Line 5"), "")
 
 }

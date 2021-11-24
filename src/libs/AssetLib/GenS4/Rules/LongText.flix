@@ -88,7 +88,8 @@ namespace AssetLib/GenS4/Rules/LongText {
 
     def locationOnSite(location: String): Set[String] = Set.singleton("Location on Site: ${String.trim(location)}")
 
-    def getLongText(body: Set[String]): String = body |> Set.toList |> List.filter(s1 -> no String.isEmpty(s1) |> String.unlines
+    def getLongText(body: Set[String]): String = 
+        body |> Set.toList |> List.flatMap(String.lines) |> List.filter(s1 -> not String.isEmpty(s1)) |> String.unlines
 
     def isMultiline(s: String): Bool = List.length(String.lines(s)) > 1
 
