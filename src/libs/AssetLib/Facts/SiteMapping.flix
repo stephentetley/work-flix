@@ -31,21 +31,21 @@ namespace AssetLib/Facts/SiteMapping {
         
     
     pub def storeSiteMapping(tableName: String, src: System.FilePath) : DbMonad[Unit] = 
-        use BasicDb/DbMonad.{return, flatMap, liftActionResult, map};
+        use BasicDb/DbMonad.{point, flatMap, liftActionResult, map};
         let* xs     = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readXlsSiteMappingTable(), src));
         let* _      = exportSiteMappingRows(tableName, xs);
-        return()
+        point()
 
 
     def readXlsSiteMappingTable(): SheetReader[List[SiteMappingRow]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, allNamedRows};      
         let* s1     = getSheetNamed("inst to SAP migration");
         let* xs     = allNamedRows(s1, evalXlsSiteMappingRow());
-        return(xs)
+        point(xs)
 
     
     def evalXlsSiteMappingRow(): NamedRowEvaluator[SiteMappingRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, optional};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getStringNamed, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use String.{trim};
         ((x1, x2) ->
@@ -57,21 +57,21 @@ namespace AssetLib/Facts/SiteMapping {
 
     /// Always drop table (fresh new data)
     def exportSiteMappingRows(tableName: String, rows: List[SiteMappingRow]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, return, execute, foldLeftM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
+        use BasicDb/DbMonad.{flatMap, point, execute, foldLeftM, prepareStatement, psExecuteUpdate, setAutoCommit, commit};
         let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
         let* _          = execute(createTableSql(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName} (installation_common_name, s4_level1_code) VALUES(?,?);");
-        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, siteMappingRowSetter(x)); return(ac+n)}, 0, rows);
+        let* nrows      = foldLeftM((ac, x) -> { let* n = psExecuteUpdate(stmt, siteMappingRowSetter(x)); point(ac+n)}, 0, rows);
         let* _          = commit();
-        return(nrows)
+        point(nrows)
 
     /// A setter for SiteMappingRow
     def siteMappingRowSetter(x: SiteMappingRow): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putOptionStringAt!};
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putOptionStringAt!};
         let* _ = putStringAt!(0, x.installationCommonName);
         let* _ = putOptionStringAt!(1, x.s4Level1Code);
-        return()
+        point()
 
 
     def createTableSql(tableName: String): String =
@@ -98,11 +98,11 @@ namespace AssetLib/Facts/SiteMapping {
 
 
     pub def getS4SiteCode(aibSiteName: String): DbMonad[Option[String]] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, optional, rsClose, map};
+        use BasicDb/DbMonad.{flatMap, point, psExecuteCachedQuery, firstRow, optional, rsClose, map};
         let* rs     = psExecuteCachedQuery("getS4SiteCode", BasicDb/PreparedStatementSetter.putStringAt!(0,  aibSiteName));
         let* x1     = map(optionNotNull, optional(firstRow(rs, BasicDb/RowEvaluator.getStringNamed("s4_level1_code"))));
         let* _      = rsClose(rs);
-        return(x1)
+        point(x1)
 
     def optionNotNull(x: Option[String]): Option[String] = match x { 
         case Some(s1) => if (Object.isNull(s1)) None else Some(s1)

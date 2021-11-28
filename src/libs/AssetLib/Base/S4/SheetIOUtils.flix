@@ -23,11 +23,11 @@ namespace AssetLib/Base/S4/SheetIOUtils {
 
 
     pub def putS4DateAt!(ix: Int32, dt: Time.LocalDate): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, liftOption};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!, liftOption};
         let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "putS4DateAt! date format error");
         let ans     = Time/LocalDate.format(fmt, dt);
         let* _      = putStringAt!(ix, ans);
-        return()
+        point()
 
 
     pub def putS4BoolAt!(ix: Int32, x: Bool): RowSetter[Unit] = 
@@ -42,15 +42,15 @@ namespace AssetLib/Base/S4/SheetIOUtils {
         putStringAt!(ix, s)
         
     pub def getS4LocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, liftOption, getStringNamed};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, liftOption, getStringNamed};
         let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4LocalDateNamed date format error");
         let* s1     = getStringNamed(label); 
         liftOption(Time/LocalDate.parse(fmt, s1), "getS4LocalDateNamed('${label}') - seen '${s1}'")
 
     /// Must allows blank (false)
     pub def getS4BoolNamed(label: String): NamedRowEvaluator[Bool] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamedWithDefault};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getStringNamedWithDefault};
         let* x = getStringNamedWithDefault(label, "");
-        if (x == "X") return(true) else return(false)
+        if (x == "X") point(true) else point(false)
 
 }

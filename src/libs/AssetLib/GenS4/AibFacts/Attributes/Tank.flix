@@ -40,7 +40,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
 
 
     def evalTank(): NamedRowEvaluator[TankFacts[r]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, withDefault};  
         let* c1 = withDefault(evalTankConstruction(), #{});
         let* c2 = withDefault(evalTankLevel(), #{});
         let* c3 = withDefault(evalTankShape(), #{});
@@ -51,7 +51,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Tank {
         let* c8 = withDefault(evalUnitSideDepthM(), #{});
         let* c9 = withDefault(evalUnitSideDepthMaxM(), #{});
         let* c10 = withDefault(evalUnitSideDepthMinM(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6 <+> c7 <+> c8 <+> c9 <+> c10)
+        point(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6 <+> c7 <+> c8 <+> c9 <+> c10)
 
 
 

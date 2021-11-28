@@ -27,14 +27,14 @@ namespace AssetLib/ProductData/PDT/Equipment {
         }
 
     pub def parseEquipmentInfo(equiId: String, category: String, objType: String): SheetParser[ka1, EquipmentInfo] = 
-        use SheetIO/SheetParser.{flatMap, return};
+        use SheetIO/SheetParser.{flatMap, point};
         let* r1 = assetIntro();
         let* r2 = manufacturerData();
         let* r3 = assetData();
         let* today = AssetLib/ProductData/PDT/Utils.validFromToday();
         let noPosn: Option[Int32] = None;
         let noWeight: Option[Float64] = None;
-        return(
+        point(
             { assetType = r1.assetType
             , body = 
                 { equiId = equiId
@@ -59,19 +59,19 @@ namespace AssetLib/ProductData/PDT/Equipment {
 
 
     def assetIntro(): SheetParser[ka1, {assetName :: String, assetType :: String, assetStatus :: String}] =
-        use SheetIO/SheetParser.{flatMap, return, gotoRow, island};
+        use SheetIO/SheetParser.{flatMap, point, gotoRow, island};
         let* _  = gotoRow(0);
         let* s1 = island(rowKeyValue("Asset Name"));
         let* s2 = island(rowKeyValue("Asset Type"));
         let* s3 = island(rowKeyValue("Asset Status"));
-        return({assetName = s1, assetType = s2, assetStatus = s3})
+        point({assetName = s1, assetType = s2, assetStatus = s3})
 
     def manufacturerData(): SheetParser[ka1, {manufacturer :: String}] =
-        use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
+        use SheetIO/SheetParser.{flatMap, point, gotoRow, find, row, literal, island};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Manufacturer Data")));
         let* s1 = island(rowKeyValue("Manufacturer"));
-        return({manufacturer = s1})
+        point({manufacturer = s1})
 
     pub type alias AssetData1 = 
         { serialNumber :: String
@@ -85,7 +85,7 @@ namespace AssetLib/ProductData/PDT/Equipment {
         }
 
     def assetData(): SheetParser[ka1, AssetData1] =
-        use SheetIO/SheetParser.{flatMap, return, gotoRow, row, find, literal, island};
+        use SheetIO/SheetParser.{flatMap, point, gotoRow, row, find, literal, island};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Asset Data")));
         let* s1 = island(rowKeyValue("Manufacturer's serial number"));
@@ -96,7 +96,7 @@ namespace AssetLib/ProductData/PDT/Equipment {
         let* s6 = island(rowKeyValue("Location on Site"));
         let* s7 = island(rowKeyValue("Memo Line"));
         let* s8 = island(rowKeyValue("Asset Status"));
-        return({serialNumber = s1
+        point({serialNumber = s1
                 , dateOfInstallation = s2
                 , tagReference = s3
                 , locationInAssetHierarchy = s4 

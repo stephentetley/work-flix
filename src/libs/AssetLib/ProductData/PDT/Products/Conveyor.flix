@@ -30,10 +30,10 @@ namespace AssetLib/ProductData/PDT/Products/Conveyor {
     /// objectType = "CVYR"
     
     pub def parseConveyor(equiId: String): SheetParser[ka1, UxlSource] = 
-        use SheetIO/SheetParser.{flatMap, return};
+        use SheetIO/SheetParser.{flatMap, point};
         let* info = AssetLib/ProductData/PDT/Equipment.parseEquipmentInfo(equiId, "M", "CVYR");
         let* chars = parseConveyorCharacteristics(equiId, info.assetType);
-        return(
+        point(
             { funclocs = Chain.empty()
             , funclocLongTexts = Chain.empty()
             , funclocCharacteristics = Chain.empty()
@@ -44,10 +44,10 @@ namespace AssetLib/ProductData/PDT/Products/Conveyor {
 
 
     def parseConveyorCharacteristics(equiId: String, assetType: String): SheetParser[ka1, List[SLEquiCharacteristic]] = 
-        use SheetIO/SheetParser.{flatMap, return};
+        use SheetIO/SheetParser.{flatMap, point};
         match conveyorClass(assetType) { 
             case "CVYRSC" => parseCVYRSC(equiId)
-            case _ => return(Nil)
+            case _ => point(Nil)
         }
 
     def conveyorClass(assetType: String): String = 
@@ -68,12 +68,12 @@ namespace AssetLib/ProductData/PDT/Products/Conveyor {
 
 
     def getCVYR_DIAMETER_MM(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
-        use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
+        use SheetIO/SheetParser.{flatMap, point, gotoRow, find, row, literal, island};
         use AssetLib/ProductData/PDT/Utils.{rowKeyValue};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Dimension & Weight Data")));
         let* s1 = island(rowKeyValue("Overall width"));
-        return(
+        point(
             { equiId = equiId
             , className = className
             , charName = "CVYR_DIAMETER_MM"
@@ -83,12 +83,12 @@ namespace AssetLib/ProductData/PDT/Products/Conveyor {
             })
 
     def getCVYR_LENGTH_MM(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
-        use SheetIO/SheetParser.{flatMap, return, gotoRow, find, row, literal, island};
+        use SheetIO/SheetParser.{flatMap, point, gotoRow, find, row, literal, island};
         use AssetLib/ProductData/PDT/Utils.{rowKeyValue};
         let* _  = gotoRow(0);
         let* _  = find(row(literal("Dimension & Weight Data")));
         let* s1 = island(rowKeyValue("Overall length"));
-        return(
+        point(
             { equiId = equiId
             , className = className
             , charName = "CVYR_LENGTH_MM"

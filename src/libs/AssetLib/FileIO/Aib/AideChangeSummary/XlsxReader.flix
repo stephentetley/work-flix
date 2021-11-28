@@ -25,21 +25,21 @@ namespace AssetLib/FileIO/Aib/AideChangeSummary/XlsxReader {
         SheetIO/SheetReader.runXlsx(readAideChanges(), path)
 
     def readAideChanges(): SheetReader[List[AibExportRow]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, allNamedRows};      
         let* s1     = getSheetNamed("Sheet1");
         let* xs     = allNamedRows(s1, evalAibExportRow());
-        return(xs)
+        point(xs)
 
 
     // Change,Reference,Asset Name,OldParentName,NewParentName
     def evalAibExportRow(): NamedRowEvaluator[AibExportRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getStringNamed, getStringNamedWithDefault};
         let* s0     = getStringNamed("Change");
         let* s1     = getStringNamed("Reference");
         let* s2     = getStringNamedWithDefault("Asset Name", "");
         let* s3     = getStringNamedWithDefault("OldParentName", "");
         let* s4     = getStringNamedWithDefault("NewParentName", "");
-        return( { change = s0
+        point( { change = s0
                 , reference = s1
                 , assetName = s2
                 , oldParentName = s3
@@ -47,10 +47,10 @@ namespace AssetLib/FileIO/Aib/AideChangeSummary/XlsxReader {
                 } )
 
     /// def logged(name: String, ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
-    ///     use SheetIO/NamedRowEvaluator.{flatMap, return, liftAction};
+    ///     use SheetIO/NamedRowEvaluator.{flatMap, point, liftAction};
     ///     let* ans = ma;
     ///     let* _ = liftAction(_ -> Console.printLine("${name}: ${ans}"));
-    ///     return(ans)
+    ///     point(ans)
 
 }
 

@@ -91,7 +91,7 @@ namespace ChangeDoc/Loader {
 
 
     def evalChangeRow(): NamedRowEvaluator[Option[ChangeRow]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getTrimmedContentNamed, throwError, optional};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, map, getRowNum, getTrimmedContentNamed, throwError, optional};
         use SheetIO/NamedRowEvaluator.{<&>};
         let* rowNum         = (x1 -> x1 + 1) <&> getRowNum();
         let* entityType     = optional(getEntityType());
@@ -192,33 +192,33 @@ namespace ChangeDoc/Loader {
     /// Helpers
 
     def getIntCounter(): NamedRowEvaluator[Int32] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getTrimmedContentNamed, throwError};
         let* counter        = getTrimmedContentNamed("Int counter");
         match Int32.fromString(counter) {
-            case Ok(i) => return(i)
+            case Ok(i) => point(i)
             case Err(msg) => throwError("getIntCounter [${msg}] - `${counter}`")
         }
 
     /// Note - may or may not have two "Address Number" columns- it will not have content in both...
     def _getAddressNumber(): NamedRowEvaluator[String] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getTrimmedContentNamed, throwError};
         let* number        = getTrimmedContentNamed("Address Number");
         if (String.isEmpty(number)) {
             getTrimmedContentNamed("Address Number.1")
         } 
-        else return(number)
+        else point(number)
 
 
 
 
 
     def getEntityType(): NamedRowEvaluator[EntityType] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, throwError};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getTrimmedContentNamed, throwError};
         use SheetIO/NamedRowEvaluator.{>>=};
         let* entityType     = getTrimmedContentNamed("Entity Type");
         match entityType {
-            case "Equipment" => return(Equi)
-            case "Functional Location" => return(Floc)
+            case "Equipment" => point(Equi)
+            case "Functional Location" => point(Floc)
             case _ => throwError("getEntityType")
         }
 

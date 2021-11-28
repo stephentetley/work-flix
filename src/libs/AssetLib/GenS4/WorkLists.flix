@@ -49,7 +49,7 @@ namespace AssetLib/GenS4/WorkLists {
         SheetIO/Reader.allNamedRows(evalFlocWorkItem(), src)
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getNonEmptyContentNamed, getTrimmedContentNamed, getInt32Named, optional, liftResult}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, point, map, getNonEmptyContentNamed, getTrimmedContentNamed, getInt32Named, optional, liftResult}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
         let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
         let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
@@ -63,7 +63,7 @@ namespace AssetLib/GenS4/WorkLists {
         let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
         let* solutionId     = map(String.trim, getTrimmedContentNamed("Solution ID"));
         let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
-        return({ funcloc                = floc
+        point({ funcloc                = floc
                 , description           = name
                 , level                 = AssetLib/Base/S4/Floc.level(objfloc)
                 , sainums               = sainums
@@ -114,7 +114,7 @@ namespace AssetLib/GenS4/WorkLists {
     /// Note "Equi Class" is now mandatory
     /// `getNonEmptyContentNamed` trims input.
     def evalEquiWorkItem(): NamedRowEvaluator[EquiWorkItem] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, map, getRowNum, getTrimmedContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, point, map, getRowNum, getTrimmedContentNamed, getNonEmptyContentNamed, optional, getInt32Named}; 
         let* aibref         = getNonEmptyContentNamed("Reference");
         let* s4Name         = getNonEmptyContentNamed("S4 Equi Name");
         let* s4Floc         = getNonEmptyContentNamed("S4 Floc");
@@ -128,7 +128,7 @@ namespace AssetLib/GenS4/WorkLists {
         let* s4Class        = getNonEmptyContentNamed("Object Class");
         let* batchNo        = optional(getInt32Named("Batch"));
         let* extraMemo      = getTrimmedContentNamed("Extra Memo");
-        return({ equipmentId = aibref
+        point({ equipmentId = aibref
                 , s4Name = s4Name
                 , s4Floc = s4Floc
                 , manufacturer = manufacturer

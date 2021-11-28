@@ -37,13 +37,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// Just write fields of interest...
     def setChangeRequestDetailsMocr!(x: ChangeRequestDetails): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!, putInt32At!};
         let* _      = putStringAt!(0, x.description);
         let* _      = putStringAt!(4, x.changeRequestType);
         let* _      = putStringAt!(10, x.flFunctionalLocation);
         let* _      = putStringAt!(11, x.eqEquipment);
         let* _      = putStringAt!(12, x.processRequester);
-        return()
+        point()
 
     /// Assumes an empty UXL workbook with sheets, headers etc. set up.
     pub def writeChangeRequestDetailsMem(xs: List[ChangeRequestDetails]): SheetWriter[Unit] = 
@@ -55,12 +55,12 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// Just write fields of interest...
     def setChangeRequestDetailsMem!(x: ChangeRequestDetails): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!, putInt32At!};
         let* _      = putStringAt!(0, x.eqEquipment);
         let* _      = putStringAt!(1, x.description);
         let* _      = putStringAt!(5, x.changeRequestType);
         let* _      = putStringAt!(7, x.processRequester);
-        return()
+        point()
 
 
     /// Functional Location Data
@@ -76,7 +76,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// Just write fields of interest... (1909)
     def setFunctionalLocationDataMocr!(x: FunctionalLocationData): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!, putInt32At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!, putS4DateAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
         let* _      = putStringAt!(1, x.maskedFuncLoc);
@@ -95,7 +95,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(18, x.supFunctLoc);
         let* _      = putS4BoolAt!(19, x.equipInstall);     /// Do we need to write this?
         let* _      = putStringAt!(20, x.statusOfObject);
-        return()
+        point()
 
 
     def position4(x: Option[Int32]): String = match x { 
@@ -115,14 +115,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// (1909)
     def setFlMultilingualTextMocr!(x: FlMultilingualText): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
         let* _      = putS4BoolAt!(1, x.deleteIndicator);
         let* _      = putStringAt!(2, x.language);
         let* _      = putStringAt!(3, x.description);
         let* _      = putStringAt!(4, x.longText);
-        return()
+        point()
 
 
     /// FL-Classification
@@ -144,7 +144,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// (1909)
     def setFlClassificationMocr!(x: FlClassification): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.functionalLocation);
         let* _      = putS4BoolAt!(1, x.deletionInd);
@@ -153,7 +153,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(4, x.characteristicName);
         let* _      = putStringAt!(5, x.charValue);
         let* _      = putS4BoolAt!(6, x.charDeletionInd);
-        return()
+        point()
 
 
     /// Equipment Data
@@ -169,7 +169,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// Not all fields are written... (1909)
     def setEquipmentDataMocr!(x: EquipmentData): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!};
         let* _      = putInt32At!(0, x.plantWorkCenter);
         let* _      = putStringAt!(1, x.equiId);
@@ -198,7 +198,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(45, x.techIdentNo);
         let* _      = putStringAt!(50, x.statusProfile);
         let* _      = putStringAt!(51, x.statusOfAnObject);
-        return()
+        point()
 
 
     /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
@@ -213,7 +213,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
     /// Not all fields are written... (1909)
     /// Equipment only (Mem)
     def setEquipmentDataMem!(x: EquipmentData): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!, putInt32At!, putOptionInt32At!, putOptionFloat64At!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4DateAt!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putStringAt!(2, x.equipCategory);
@@ -242,7 +242,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(46, x.techIdentNo);
         let* _      = putStringAt!(51, x.statusProfile);
         let* _      = putStringAt!(52, x.statusOfAnObject);
-        return()
+        point()
 
 
     /// EQ-Multilingual Text
@@ -257,14 +257,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// (1909)
     def setEqMultilingualTextMocr!(x: EqMultilingualText): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putS4BoolAt!(1, x.deleteIndicator);
         let* _      = putStringAt!(2, x.language);
         let* _      = putStringAt!(3, x.description);
         let* _      = putStringAt!(4, x.longText);
-        return()
+        point()
 
 
     /// EQ-Classification
@@ -287,7 +287,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
     /// (1909)
     /// Multiple Object (floc and equi)
     def setEqClassificationMocr!(x: EqClassification): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putS4BoolAt!(1, x.deleteInd);
@@ -296,7 +296,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(4, x.characteristicName);
         let* _      = putStringAt!(5, x.charValue);
         let* _      = putS4BoolAt!(6, x.charDeleteInd);
-        return()
+        point()
 
     /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).
     pub def writeEqClassificationMem(xs: List[EqClassification]): SheetWriter[Unit] = 
@@ -310,7 +310,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
 
     /// Multiple equipment (equi only)
     def setEqClassificationMem!(x: EqClassification): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, putStringAt!};
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!};
         use AssetLib/Base/S4/SheetIOUtils.{putS4BoolAt!};
         let* _      = putStringAt!(0, x.equiId);
         let* _      = putS4BoolAt!(1, x.deleteInd);
@@ -319,7 +319,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putS4BoolAt!(4, x.charDeleteInd);
         let* _      = putStringAt!(5, x.characteristicName);
         let* _      = putStringAt!(6, x.charValue);        
-        return()
+        point()
 
 
 }

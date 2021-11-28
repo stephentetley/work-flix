@@ -30,7 +30,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
         S4InsulationClass, s4InsulationClassRules};
     
     pub def genElectricalCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return};
+        use AssetLib/GenS4/GenMonad.{flatMap, point};
         let* _ = genActu(workitems, facts as ActuSchema[r2]);
         let* _ = genConp(workitems, facts as ConpSchema[r2]);
         let* _ = genDist(workitems, facts as DistSchema[r2]);
@@ -40,7 +40,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
         let* _ = genSlip(workitems, facts as SlipSchema[r2]);
         let* _ = genSole(workitems, facts as SoleSchema[r2]);
         let* _ = genStar(workitems, facts as StarSchema[r2]);
-        return()
+        point()
 
 
     /// # ACTU

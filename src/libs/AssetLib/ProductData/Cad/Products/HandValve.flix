@@ -40,12 +40,12 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
 
 
     def evalHandValveRow(): NamedRowEvaluator[HandValveRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getTrimmedContentNamed, getInt32Named, optional};
         let* className      = getTrimmedContentNamed("Class Name");
         let classification  = valveClassification(className);
         let* x1             = optional(getInt32Named("Size"));
         let* body           = AssetLib/ProductData/Cad/EquipmentCommon.evalEquipmentCommon(classification);
-        return({ equipmentBody  = body
+        point({ equipmentBody  = body
             , sizeMM            = x1
             })
         
@@ -57,15 +57,15 @@ namespace AssetLib/ProductData/Cad/Products/HandValve {
 
 
     pub def generateHandValves(xs: List[HandValveRow]): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return, mapM};
+        use AssetLib/GenS4/GenMonad.{flatMap, point, mapM};
         use AssetLib/GenS4/GenMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
-        let* valvPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
+        let* valvPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> point((a1, x1)), xs);
         let eqbPairs    = List.map(xy -> {let (x,y) = xy; (x, y.equipmentBody)}, valvPairs);
         let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAibReference(eqbPairs);
         let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAssetCondition(eqbPairs);
         let* _          = genValveValv(valvPairs);
-        return()
+        point()
 
 
     /// # Valv

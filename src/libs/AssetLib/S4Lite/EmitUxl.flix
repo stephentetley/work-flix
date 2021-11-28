@@ -38,7 +38,7 @@ namespace AssetLib/S4Lite/EmitUxl {
 
 
     def writeMocrUxl(changeRequestName: String, input: UxlSource): SheetWriter[Unit] = 
-        use SheetIO/SheetWriter.{flatMap, return, liftAction};
+        use SheetIO/SheetWriter.{flatMap, point, liftAction};
         let* src        = liftAction(_ -> AssetLib/S4Lite/Internal/FreshRenumber.equiRenumber(input));
         let flocs       = toFunctionalLocationData(src.funclocs);
         let flmltxts    = toFlMultilingualText(src.funclocLongTexts);
@@ -57,7 +57,7 @@ namespace AssetLib/S4Lite/EmitUxl {
         let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEquipmentDataMocr(equis);
         let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqMultilingualTextMocr(eqmltxts);
         let* _          = AssetLib/FileIO/S4/UxlFile/XlsxWriter.writeEqClassificationMocr(eqchars);
-        return()
+        point()
 
 
     def toFunctionalLocationData(xs: Chain[SLFunctionalLocation]): List[FunctionalLocationData] = 

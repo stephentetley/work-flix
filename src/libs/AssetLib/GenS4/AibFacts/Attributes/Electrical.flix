@@ -39,14 +39,14 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Electrical {
     def evalElectrical(): NamedRowEvaluator[#{CurrentInA, InsulationClass, 
                                                 IPRating, Power, SpeedRPM,
                                                 VoltageIn | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, withDefault};  
         let* c1 = withDefault(evalCurrentInA(), #{});
         let* c2 = withDefault(evalInsulationClass(), #{});
         let* c3 = withDefault(evalIPRating(), #{});
         let* c4 = withDefault(evalPower(), #{});
         let* c5 = withDefault(evalSpeedRPM(), #{});
         let* c6 = withDefault(evalVoltageIn(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6)
+        point(c1 <+> c2 <+> c3 <+> c4 <+> c5 <+> c6)
 
 
     def evalCurrentInA(): NamedRowEvaluator[#{CurrentInA | r}] =

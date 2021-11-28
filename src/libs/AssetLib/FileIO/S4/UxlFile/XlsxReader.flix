@@ -28,13 +28,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     /// Change Request Details
 
     pub def readChangeRequestDetailsMocr(): SheetReader[List[ChangeRequestDetails]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Change Request Details");
         let* xs     = namedRowsFrom(4, 6, getChangeRequestDetailsMocr(), s1);
-        return(xs)
+        point(xs)
 
     def getChangeRequestDetailsMocr(): NamedRowEvaluator[ChangeRequestDetails] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, optional, getContentNamed};
+        use SheetIO/NamedRowEvaluator.{optional, getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
                 { description           = x1
@@ -54,13 +54,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     /// Functional Location Data
 
     pub def readFunctionalLocationData(): SheetReader[List[FunctionalLocationData]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Functional Location Data");
         let* xs     = namedRowsFrom(4, 6, getFunctionalLocationData(), s1);
-        return(xs)
+        point(xs)
 
     def getFunctionalLocationData(): NamedRowEvaluator[FunctionalLocationData] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{getContentNamed, getInt32Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed, getS4LocalDateNamed};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17) ->
@@ -106,13 +106,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     /// FL-Multilingual Text
 
     pub def readFlMultilingualText(): SheetReader[List[FlMultilingualText]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("FL-Multilingual Text");
         let* xs     = namedRowsFrom(4, 6, getFlMultilingualText(), s1);
-        return(xs)
+        point(xs)
 
     def getFlMultilingualText(): NamedRowEvaluator[FlMultilingualText] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
+        use SheetIO/NamedRowEvaluator.{getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5) -> 
@@ -134,14 +134,14 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         SheetIO/SheetReader.runXlsx(readFlClassification(), path)
 
     pub def readFlClassification(): SheetReader[List[FlClassification]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("FL-Classification");
         let* xs     = namedRowsFrom(4, 6, getFlClassification(), s1);
-        return(xs)
+        point(xs)
 
 
     def getFlClassification(): NamedRowEvaluator[FlClassification] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
+        use SheetIO/NamedRowEvaluator.{getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5, x6, x7) -> 
@@ -166,13 +166,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         SheetIO/SheetReader.runXlsx(readEquipmentDataMocr(), path)
 
     pub def readEquipmentDataMocr(): SheetReader[List[EquipmentData]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("Equipment Data");
         let* xs     = namedRowsFrom(4, 6, getEquipmentDataMocr(), s1);
-        return(xs)
+        point(xs)
 
     def getEquipmentDataMocr(): NamedRowEvaluator[EquipmentData] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, 
+        use SheetIO/NamedRowEvaluator.{getContentNamed, 
             getOptionInt32Named, getInt32Named, getFloat64Named, optional};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed};
@@ -238,13 +238,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     /// EQ-Multilingual Text
 
     pub def readEqMultilingualTextMocr(): SheetReader[List[EqMultilingualText]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Multilingual Text");
         let* xs     = namedRowsFrom(4, 6, getEqMultilingualTextMocr(), s1);
-        return(xs)
+        point(xs)
 
     def getEqMultilingualTextMocr(): NamedRowEvaluator[EqMultilingualText] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
+        use SheetIO/NamedRowEvaluator.{getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5) -> 
@@ -266,13 +266,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
         SheetIO/SheetReader.runXlsx(readEqClassificationMocr(), path)
 
     pub def readEqClassificationMocr(): SheetReader[List[EqClassification]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
         let* s1     = getSheetNamed("EQ-Classification");
         let* xs     = namedRowsFrom(4, 6, getEqClassificationMocr(), s1);
-        return(xs)
+        point(xs)
 
     def getEqClassificationMocr(): NamedRowEvaluator[EqClassification] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed};
+        use SheetIO/NamedRowEvaluator.{getContentNamed};
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use AssetLib/Base/S4/SheetIOUtils.{getS4BoolNamed};
         ((x1, x2, x3, x4, x5, x6, x7) -> 

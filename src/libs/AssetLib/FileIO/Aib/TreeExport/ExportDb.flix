@@ -29,24 +29,24 @@ namespace AssetLib/FileIO/Aib/TreeExport/ExportDb {
     use AssetLib/FileIO/Aib/TreeExport/Raw/Builder.{buildAibTrees};
 
     pub def storeTreeExport( tableName: String, sourceFile: System.FilePath): DbMonad[Unit] =
-        use BasicDb/DbMonad.{flatMap, return, setAutoCommit, liftActionResult};
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, liftActionResult};
         let* rows   = liftActionResult(_ -> readAibTreeFile(sourceFile));
         let xs      = buildAibTrees(rows, 1);
         let* _      = exportAibTrees(tableName, xs);
-        return()
+        point()
 
 
 
     // AibTrees
     def exportAibTrees(tableName: String, xs: List[AibTree]): DbMonad[Unit] =
-        use BasicDb/DbMonad.{flatMap, return, execute, traverseX, prepareStatement, setAutoCommit, commit};
+        use BasicDb/DbMonad.{flatMap, point, execute, traverseX, prepareStatement, setAutoCommit, commit};
         let* _          = setAutoCommit(false);
         let* _          = execute("DROP TABLE IF EXISTS ${tableName}");
         let* _          = execute(sqlCreateEquiNode(tableName));
         let* stmt       = prepareStatement("INSERT INTO ${tableName}(reference, level, short_name, common_name, parent_ref, status) VALUES(?,?,?, ?,?,?)");
         let* _          = traverseX(emitAibTree(stmt), xs);
         let* _          = commit();
-        return()
+        point()
 
 
     def emitAibTree(stmt: PreparedStatement, src: AibTree): DbMonad[Unit] = 
@@ -58,14 +58,14 @@ namespace AssetLib/FileIO/Aib/TreeExport/ExportDb {
 
     /// A RowWriter for EquiNode
     def aibNodeWriter(x: AibNode): PreparedStatementSetter[Unit] = 
-        use BasicDb/PreparedStatementSetter.{flatMap, return, putStringAt!, putInt32At!};
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putInt32At!};
         let* _ = putStringAt!(0,  x.reference);
         let* _ = putInt32At!(1,   x.level);
         let* _ = putStringAt!(2,  x.shortName);
         let* _ = putStringAt!(3,  x.commonName);
         let* _ = putStringAt!(4,  x.parent);
         let* _ = putStringAt!(5,  x.status);
-        return()
+        point()
 
 
     def sqlCreateEquiNode(tableName: String): String =

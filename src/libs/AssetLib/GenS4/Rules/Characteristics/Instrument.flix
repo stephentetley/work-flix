@@ -31,12 +31,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
     /// produce invalid combinations of S4RangeUnit.
 
     pub def genInstrumentCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return};
+        use AssetLib/GenS4/GenMonad.{flatMap, point};
         let* _ = genFstn(workitems, facts as FstnSchema[r2]);
         let* _ = genLstn(workitems, facts as LstnSchema[r2]);
         let* _ = genPstn(workitems, facts as PstnSchema[r2]);
         let* _ = genTstn(workitems, facts as TstnSchema[r2]);
-        return()
+        point()
 
 
 

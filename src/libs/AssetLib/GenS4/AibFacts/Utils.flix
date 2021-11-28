@@ -26,37 +26,37 @@ namespace AssetLib/GenS4/AibFacts/Utils {
     /// Also NameRowEvaluator etc need a relation version of withDefault that defaults to `#{}`
 
     pub def getStringFact2(columnName: String, f: (String, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getNonEmptyContentNamed};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getNonEmptyContentNamed(columnName);
-        return(f(x1, x2))
+        point(f(x1, x2))
 
     pub def getIntFact2(columnName: String, f: (String, Int32) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getInt32Named};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getNonEmptyContentNamed, getInt32Named};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getInt32Named(columnName);
-        return(f(x1, x2))
+        point(f(x1, x2))
 
 
     pub def getFloatFact2(columnName: String, f: (String, Float64) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getFloat64Named};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getNonEmptyContentNamed, getFloat64Named};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getFloat64Named(columnName);
-        return(f(x1, x2))
+        point(f(x1, x2))
 
     pub def getDateFact2(columnName: String, f: (String, Time.LocalDate) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, getLocalDateNamed};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getNonEmptyContentNamed, getLocalDateNamed};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* x2     = getLocalDateNamed(columnName);
-        return(f(x1, x2))
+        point(f(x1, x2))
 
     // e.g. "Feb 01 2010"
     pub def getMdyDateFact2(columnName: String, f: (String, Time.LocalDate) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getNonEmptyContentNamed, liftOption, getLocalDateNamedWithFormat};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getNonEmptyContentNamed, liftOption, getLocalDateNamedWithFormat};  
         let* x1     = getNonEmptyContentNamed("Reference");
         let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("MMM dd yyyy"), "getMdyDateFact2 - bad pattern");
         let* x2     = getLocalDateNamedWithFormat(columnName, fmt);
-        return(f(x1, x2))
+        point(f(x1, x2))
 
 
     pub def getIntFactWithUnits(columnName: String,                                     

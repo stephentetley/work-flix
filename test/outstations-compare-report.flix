@@ -24,9 +24,9 @@ def main1(dbpath: System.FilePath, outpath: System.FilePath): Result[Unit, Strin
 
 
 def getRecords[r](): DbMonad[#{AibEquipment, S4Equipment, SiteMap | r}] = 
-    use BasicDb/DbMonad.{flatMap, return};
+    use BasicDb/DbMonad.{flatMap, point};
     let* x  = EquiCompare/Report/Loader.getAibEquipment("aib_equipment");
     let* y  = EquiCompare/Report/Loader.getS4Equipment("s4_equipment");    
     let* z  = EquiCompare/Report/Loader.getSiteMap("lookup_site");
-    return(x <+> y <+> z)
+    point(x <+> y <+> z)
 

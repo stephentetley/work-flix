@@ -43,11 +43,11 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
 
 
     pub def evalMixerFlocculatorRow(): NamedRowEvaluator[MixerFlocculatorRow] = 
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getTrimmedContentNamed, getInt32Named, optional};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getTrimmedContentNamed, getInt32Named, optional};
         let* className      = getTrimmedContentNamed("Class Name");
         let classification  = mixerFlocculatorClassification(className);
         let* body           = AssetLib/ProductData/Cad/EquipmentCommon.evalEquipmentCommon(classification);
-        return({ equipmentBody = body
+        point({ equipmentBody = body
             })
         
 
@@ -58,15 +58,15 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
 
 
     pub def generateMixerFlocculators(xs: List[MixerFlocculatorRow]): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return, mapM};
+        use AssetLib/GenS4/GenMonad.{flatMap, point, mapM};
         use AssetLib/GenS4/GenMonad.{>>=};
         use AssetLib/ProductData/Cad/EquipmentCommon.{genEquipment};
-        let* scrnPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> return((a1, x1)), xs);
+        let* scrnPairs  = mapM(x1 -> genEquipment(x1.equipmentBody) >>= a1 -> point((a1, x1)), xs);
         let eqbPairs    = List.map(xy -> {let (x,y) = xy; (x, y.equipmentBody)}, scrnPairs);
         let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAibReference(eqbPairs);
         let* _          = AssetLib/ProductData/Cad/EquipmentCommon.genCommonAssetCondition(eqbPairs);
         /// let* _          = genMixerMixr(scrnPairs);
-        return()
+        point()
 
 
     /// # Mixr

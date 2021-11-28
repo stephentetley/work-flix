@@ -37,11 +37,11 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Fan {
 
 
     def evalFan(): NamedRowEvaluator[FanFacts[r]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, withDefault};  
         let* c1 = withDefault(evalSpeedRPM(), #{});
         let* c2 = withDefault(evalTypeOfFan(), #{});
         let* c3 = withDefault(evalRatingPower(), #{});
-        return(c1 <+> c2 <+> c3)
+        point(c1 <+> c2 <+> c3)
 
     
     def evalSpeedRPM(): NamedRowEvaluator[#{SpeedRPM | r}] =

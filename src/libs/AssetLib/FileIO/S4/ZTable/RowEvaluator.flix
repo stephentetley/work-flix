@@ -18,6 +18,24 @@
 namespace AssetLib/FileIO/S4/ZTable {
 
     pub opaque type RowEvaluator[a] = Array[String] -> Result[a, String] & Impure
+
+    instance Functor[RowEvaluator] { 
+        pub def map(f: a -> b & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef = 
+            AssetLib/FileIO/S4/ZTable/RowEvaluator.map(f, x)
+    }
+
+    instance Applicative[RowEvaluator] { 
+        pub def point(x: a): RowEvaluator[a] = 
+            AssetLib/FileIO/S4/ZTable/RowEvaluator.point(x)
+
+        pub def ap(f: RowEvaluator[a -> b & ef], x: RowEvaluator[a]): RowEvaluator[b] & ef = 
+            AssetLib/FileIO/S4/ZTable/RowEvaluator.ap(f, x)
+    }
+
+    instance Monad[RowEvaluator] { 
+        pub def flatMap(k: a -> RowEvaluator[b] & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef = 
+            AssetLib/FileIO/S4/ZTable/RowEvaluator.flatMap(k, x)
+    }
 }
 
 namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
@@ -35,7 +53,7 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
         let arr     = splitter(input);
         apply1(eval, arr)
 
-    pub def return(x: a): RowEvaluator[a] =
+    pub def point(x: a): RowEvaluator[a] =
         RowEvaluator(_ -> Ok(x) as & Impure)
 
     pub def throwError(msg: String): RowEvaluator[a] =
@@ -88,7 +106,7 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
         )
 
     pub def liftOption(x: Option[a], errMsg: String): RowEvaluator[a] = match x {
-        case Some(x1) => return(x1)
+        case Some(x1) => point(x1)
         case None => throwError(errMsg)
     }
 
@@ -118,12 +136,12 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def getInt8At(ix: Int32): RowEvaluator[Int8] =
         let* s = getStringAt(ix);

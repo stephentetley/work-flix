@@ -33,23 +33,23 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
         }
 
     pub def readHierarchyRelations(src: XlsxSource): GenMonad[#{AibPliNum, AibParentRef | r}] =
-        use AssetLib/GenS4/GenMonad.{flatMap, return, liftActionResult};
+        use AssetLib/GenS4/GenMonad.{flatMap, point, liftActionResult};
         let cmp         = (x,y) -> Order.compare(x.commonName, y.commonName);
         let* xs         = liftActionResult(_ -> SheetIO/SheetReader.runXlsx(readAibSheet(src.sheet), src.path) |> Result.map(List.sortWith(cmp)));
         let parents     = extractHierarchyFacts(xs);
         let plinums     = RelLib/Relation.foldMap(x1 -> #{ AibPliNum(x1.reference, x1.reference). }, xs);
-        return(parents <+> plinums)
+        point(parents <+> plinums)
 
 
     def readAibSheet(sheetName: String): SheetReader[List[AibRow]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};         
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, allNamedRows};         
         let* s1     = getSheetNamed(sheetName);
         let* xs     = allNamedRows(evalAibRow(), s1);
-        return(xs)
+        point(xs)
 
 
     def evalAibRow(): NamedRowEvaluator[AibRow] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed, getLocalDateNamed, withDefault, swapErrorWithRowNum}; 
+        use SheetIO/NamedRowEvaluator.{getContentNamed, getLocalDateNamed, withDefault, swapErrorWithRowNum}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> {reference = x1, commonName = x2})
             <&> getContentNamed("Reference")

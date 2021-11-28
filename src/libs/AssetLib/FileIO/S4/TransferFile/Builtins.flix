@@ -96,12 +96,12 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         outputUploadFile(ClassFloc, None, user, headers, rows2, outpath)
 
     def classFlocSetRow!(x: ClassFlocRow): UploadRowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!};
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, point, putStringNamed!};
         let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
         let* _  = putStringNamed!("CLASS",      x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
         let* _  = putStringNamed!("CLSTATUS1",  Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
-        return()
+        point()
 
 
     /// VALUAFLOC
@@ -151,7 +151,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         outputUploadFile(ValuaFloc, None, user, headers, rows2, outpath)
 
     def valuaFlocSetRow!(x: ValuaFlocRow): UploadRowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, point, putStringNamed!, 
             putInt32Named!, putPaddedInt32Named!};
         let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
@@ -163,7 +163,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
         let* _  = putStringNamed!("ATFLV",      x.valueFrom);
         let* _  = putStringNamed!("ATFLB",      x.valueTo);
-        return()   
+        point()   
 
 
 
@@ -236,12 +236,12 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         outputUploadFile(ClassEqui, None, user, headers, rows2, outpath)
 
     def classEquiSetRow!(x: ClassEquiRow): UploadRowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!};
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, point, putStringNamed!};
         let* _  = putStringNamed!("EQUI",       x.equi);
         let* _  = putStringNamed!("CLASS",  x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
         let* _  = putStringNamed!("CLSTATUS1",      Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
-        return()
+        point()
 
     /// VALUAEQUI
 
@@ -289,7 +289,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         outputUploadFile(ValuaEqui, None, user, headers, rows2, outpath)
 
     def valuaEquiSetRow!(x: ValuaEquiRow): UploadRowSetter[Unit] = 
-        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
+        use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, point, putStringNamed!, 
             putInt32Named!, putPaddedInt32Named!};
         let* _  = putStringNamed!("EQUI",       x.equi);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
@@ -301,6 +301,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
         let* _  = putStringNamed!("ATFLV",      x.valueFrom);
         let* _  = putStringNamed!("ATFLB",      x.valueTo);
-        return()    
+        point()    
 
 }

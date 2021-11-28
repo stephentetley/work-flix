@@ -34,11 +34,11 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
     
 
     def evalInstrument(): NamedRowEvaluator[InstrumentFacts[r]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, withDefault};  
         let* c1 = withDefault(evalRangeMinMax(), #{});
         let* c2 = withDefault(evalSignalMinMax(), #{});
         let* c3 = withDefault(evalTransducer(), #{});
-        return(c1 <+> c2 <+> c3)
+        point(c1 <+> c2 <+> c3)
 
 
     /// Range max	Range min	Range unit	Signal max	Signal min	Signal unit

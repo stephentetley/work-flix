@@ -32,13 +32,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
 
 
     pub def genStatutoryCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return};
+        use AssetLib/GenS4/GenMonad.{flatMap, point};
         let* _ = genCrht(workitems, facts as CrhtSchema[r2]);
         let* _ = genLiac(workitems, facts as LiacSchema[r2]);
         let* _ = genLisl(workitems, facts as LislSchema[r2]);
         let* _ = genSfer(workitems, facts as SferSchema[r2]);
         let* _ = genVepr(workitems, facts as VeprSchema[r2]);
-        return()
+        point()
 
     /// # CRHT
 

@@ -33,7 +33,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
         
     
     def evalAibMemoLine(): NamedRowEvaluator[#{AibMemoLine | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault, getNonEmptyContentNamed, getContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{withDefault, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 
                 let xs = x2 :: x3 :: x4 :: x5 :: x6 :: Nil;

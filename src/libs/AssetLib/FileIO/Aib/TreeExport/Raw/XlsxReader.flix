@@ -25,14 +25,14 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/XlsxReader {
         SheetIO/SheetReader.runXlsx(readAibSheet(), path)
 
     pub def readAibSheet(): SheetReader[List[AibRow]] = 
-        use SheetIO/SheetReader.{flatMap, return, getSheetNamed, allNamedRows};      
+        use SheetIO/SheetReader.{flatMap, point, getSheetNamed, allNamedRows};      
         let* s1     = getSheetNamed("Sheet1");
         let* xs     = allNamedRows(s1, evalAibRow());
-        return(xs)
+        point(xs)
 
 
     def evalAibRow(): NamedRowEvaluator[AibRow] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, getContentNamed}; 
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) -> 
                 { reference     = x1

@@ -178,7 +178,7 @@ namespace ChangeDoc/ItemReport {
         SheetIO/Writer.writeWorkSheet(writer, path)
 
     def setFlocRow(x: FlocRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{flatMap, point, startingAt, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
@@ -221,7 +221,7 @@ namespace ChangeDoc/ItemReport {
         ++> flip(putString!, getAttr("WBS element origin", x.attributes))
         ++> flip(putString!, getAttr("Work Center", x.attributes))
         ++> flip(putString!, getAttr("Work center origin", x.attributes))
-        *> return()
+        *> point()
 
 
     /// ## Equi
@@ -276,7 +276,7 @@ namespace ChangeDoc/ItemReport {
 
 
     def setEquiRow(x: EquiRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{flatMap, point, startingAt, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
@@ -330,7 +330,7 @@ namespace ChangeDoc/ItemReport {
         ++> flip(putString!, getAttr("Valid To", x.attributes))
         ++> flip(putString!, getAttr("WBS element origin", x.attributes))
         ++> flip(putString!, getAttr("Work Center", x.attributes))
-        *> return()
+        *> point()
 
     /// ## Eqmltxt
 
@@ -344,14 +344,14 @@ namespace ChangeDoc/ItemReport {
 
 
     def setEquiLongTextRow(x: EquiLongTextRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{flatMap, point, startingAt, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.language)
         ++> flip(putString!, x.description)
         ++> flip(putString!, x.longText)
-        *> return()
+        *> point()
 
 
     /// ## Classfloc
@@ -382,7 +382,7 @@ namespace ChangeDoc/ItemReport {
 
 
     def setClassFlocRow(x: ClassFlocRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{flatMap, point, startingAt, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
@@ -390,7 +390,7 @@ namespace ChangeDoc/ItemReport {
         ++> flip(putString!, x.flocName)
         ++> flip(putString!, x.status)
         ++> flip(putString!, x.className)
-        *> return()
+        *> point()
 
 
     /// ## Classequi
@@ -419,14 +419,14 @@ namespace ChangeDoc/ItemReport {
 
 
     def setClassEquiRow(x: ClassEquiRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!};
+        use SheetIO/RowSetter.{flatMap, point, startingAt, putStringAt! => putString!};
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
         ++> flip(putString!, x.equiName)
         ++> flip(putString!, x.status)
         ++> flip(putString!, x.className)
-        *> return()
+        *> point()
 
 
 
@@ -459,7 +459,7 @@ namespace ChangeDoc/ItemReport {
         SheetIO/Writer.addWorkSheet(writer, path)
 
     def setValuaFlocRow(x: ValuaFlocRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!, putInt32At! => putInt32!};
+        use SheetIO/RowSetter.{flatMap, point, startingAt, putStringAt! => putString!, putInt32At! => putInt32!};
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.internalFloc)
@@ -470,7 +470,7 @@ namespace ChangeDoc/ItemReport {
         ++> flip(putString!, x.charName)
         ++> flip(putInt32!, x.intCounter)
         ++> flip(putString!, x.value)
-        *> return()
+        *> point()
 
     /// ## Valuaequi
 
@@ -501,7 +501,7 @@ namespace ChangeDoc/ItemReport {
 
 
     def setValuaEquiRow(x: ValuaEquiRow): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, return, startingAt, putStringAt! => putString!, putInt32At! => putInt32!};
+        use SheetIO/RowSetter.{flatMap, point, startingAt, putStringAt! => putString!, putInt32At! => putInt32!};
         use SheetIO/RowSetter.{*>, ++>};
             startingAt(0)
         ++> flip(putString!, x.equiId)
@@ -511,7 +511,7 @@ namespace ChangeDoc/ItemReport {
         ++> flip(putString!, x.charName)
         ++> flip(putInt32!, x.intCounter)
         ++> flip(putString!, x.value)
-        *> return()
+        *> point()
 
     /// Helpers
 

@@ -34,11 +34,11 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Lifting {
 
 
     def evalLifting(): NamedRowEvaluator[LiftingFacts[r]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, withDefault};  
         let* c1 = withDefault(evalWorkLoad(), #{});
         let* c2 = withDefault(evalTestCertNo(), #{});
         let* c3 = withDefault(evalYWRef(), #{});
-        return(c1 <+> c2 <+> c3)
+        point(c1 <+> c2 <+> c3)
 
 
     def evalWorkLoad(): NamedRowEvaluator[LiftingFacts[r]] =

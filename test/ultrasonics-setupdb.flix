@@ -25,10 +25,10 @@ def main(_args: Array[String]): Int32 & Impure =
     
 
 def setupDb(paths: SetupPaths): DbMonad[Unit] = 
-    use BasicDb/DbMonad.{flatMap, return};
+    use BasicDb/DbMonad.{flatMap, point};
     let* _  = AssetLib/Facts/SiteMapping.storeSiteMapping("lookup_site", paths.siteMappingTable);
     let* _  = Ultrasonics/SetupDb/AibList.storeAibList("aib_ultrasonics", paths.aibExport);
     let* _  = Ultrasonics/SetupDb/IH08List.storeIH08List("s4_ultrasonics", paths.ih08Export);
     let* _  = AssetLib/FileIO/S4/TransferFile/Builtins.storeClassEquiFile("s4_classequi", true, paths.classequiDownload);
-    return()
+    point()
 

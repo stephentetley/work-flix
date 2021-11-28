@@ -43,7 +43,7 @@ def aibExports(): AssetLib/GenS4/GenUxl.OptionalExports  =
     }
 
 def genCharacteristics(): GenMonad[Map[String, String]] = 
-    use AssetLib/GenS4/GenMonad.{flatMap, return, map, liftActionResult, liftAction};
+    use AssetLib/GenS4/GenMonad.{flatMap, point, map, liftActionResult, liftAction};
     let src = 
         { worklist = {sheet= "Sheet1", 
             path = System/FilePath.new("G://work/assets/other/endeavour_wharf/end03-worklist.xlsx")}
@@ -70,7 +70,7 @@ def genCharacteristics(): GenMonad[Map[String, String]] =
     let* _          = liftAction(_ -> query workItems select (x1, x2, x3) from EquiWorkItem3(x1, x2, x3) |> Array.foreach(println));
     let* _          = AssetLib/GenS4/GenUxl.tempGenEquiCharacteristics(aibExports(), workItems);
     let* newkeys    = liftAction(_ -> query workItems select (x2, x1) from Ai2AibReference(x1, x2) |> Array.toMap);
-    return(newkeys)
+    point(newkeys)
 
 pub rel WorkItem(s4ref: String, objtype: String, isChild: Bool)
 

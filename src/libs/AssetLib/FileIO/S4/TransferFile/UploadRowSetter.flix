@@ -19,6 +19,24 @@
 namespace AssetLib/FileIO/S4/TransferFile {
 
     pub opaque type UploadRowSetter[a] = (Map[String, Int32], Array[String]) -> Result[a, String] & Impure
+
+    instance Functor[UploadRowSetter] { 
+        pub def map(f: a -> b & ef, x: UploadRowSetter[a]): UploadRowSetter[b] & ef = 
+            AssetLib/FileIO/S4/TransferFile/UploadRowSetter.map(f, x)
+    }
+
+    instance Applicative[UploadRowSetter] { 
+        pub def point(x: a): UploadRowSetter[a] = 
+            AssetLib/FileIO/S4/TransferFile/UploadRowSetter.point(x)
+
+        pub def ap(f: UploadRowSetter[a -> b & ef], x: UploadRowSetter[a]): UploadRowSetter[b] & ef = 
+            AssetLib/FileIO/S4/TransferFile/UploadRowSetter.ap(f, x)
+    }
+
+    instance Monad[UploadRowSetter] { 
+        pub def flatMap(k: a -> UploadRowSetter[b] & ef, x: UploadRowSetter[a]): UploadRowSetter[b] & ef = 
+            AssetLib/FileIO/S4/TransferFile/UploadRowSetter.flatMap(k, x)
+    }
 }
 
 namespace AssetLib/FileIO/S4/TransferFile/UploadRowSetter {
@@ -53,7 +71,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadRowSetter {
         Array.foldLeft(step, (0, Map.empty()), headers) |> snd
 
 
-    pub def return(x: a): UploadRowSetter[a] =
+    pub def point(x: a): UploadRowSetter[a] =
         UploadRowSetter((_,_) -> Ok(x) as & Impure)
 
     def apply1(x: UploadRowSetter[a], indices: Map[String, Int32], row: Array[String]): Result[a, String] & Impure =
@@ -149,7 +167,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadRowSetter {
         UploadRowSetter((_, _) -> let x = fn(); Ok(x))
 
     pub def liftOption(x: Option[a],  errMsg: String): UploadRowSetter[a] = match x { 
-        case Some(x1) => return(x1)
+        case Some(x1) => point(x1)
         case None => throwError(errMsg)
     }
         
@@ -418,7 +436,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadRowSetter {
     ///     map(f, p2)
 
     /// pub def <&(x: b, p2: UploadRowSetter[a]): UploadRowSetter[b] =
-    ///     p2 *> return(x)
+    ///     p2 *> point(x)
 
     /// /// Alias for `bind`
     /// pub def >>=(ma: UploadRowSetter[a], k: a -> UploadRowSetter[b]): UploadRowSetter[b] = 

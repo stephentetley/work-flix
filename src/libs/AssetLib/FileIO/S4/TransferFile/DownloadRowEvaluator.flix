@@ -19,6 +19,25 @@
 namespace AssetLib/FileIO/S4/TransferFile {
 
     pub opaque type DownloadRowEvaluator[a] = (Map[String,Int32], Array[String]) -> Result[a, String] & Impure
+
+    instance Functor[DownloadRowEvaluator] { 
+        pub def map(f: a -> b & ef, x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = 
+            AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.map(f, x)
+    }
+
+    instance Applicative[DownloadRowEvaluator] { 
+        pub def point(x: a): DownloadRowEvaluator[a] = 
+            AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.point(x)
+
+        pub def ap(f: DownloadRowEvaluator[a -> b & ef], x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = 
+            AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.ap(f, x)
+    }
+
+    instance Monad[DownloadRowEvaluator] { 
+        pub def flatMap(k: a -> DownloadRowEvaluator[b] & ef, x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = 
+            AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.flatMap(k, x)
+    }
+
 }
 
 namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
@@ -42,7 +61,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
         Array.foldLeft(step, (0, Map.empty()), names) |> snd
 
 
-    pub def return(x: a): DownloadRowEvaluator[a] =
+    pub def point(x: a): DownloadRowEvaluator[a] =
         DownloadRowEvaluator((_,_) -> Ok(x) as & Impure)
 
     def apply1(x: DownloadRowEvaluator[a], indices: Map[String, Int32], row: Array[String]): Result[a, String] & Impure =
@@ -138,7 +157,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
         DownloadRowEvaluator((_, _) -> let x = fn(); Ok(x))
 
     pub def liftOption(x: Option[a],  errMsg: String): DownloadRowEvaluator[a] = match x { 
-        case Some(x1) => return(x1)
+        case Some(x1) => point(x1)
         case None => throwError(errMsg)
     }
         
@@ -171,12 +190,12 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): DownloadRowEvaluator[a] =
         let* input = getStringNamed(label);
         let* ans = liftActionResult(_ -> Text/Regex.evalMatches(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): DownloadRowEvaluator[a] =
         let* input = getStringNamed(label);
         let* ans = liftActionResult(_ -> Text/Regex.evalContains(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def getInt8Named(label: String): DownloadRowEvaluator[Int8] =
         let* s = getStringNamed(label);
@@ -221,8 +240,8 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     pub def getS4BoolNamed(label: String): DownloadRowEvaluator[Bool] =
         bind( getStringNamed(label)
             , x -> match x { 
-                case ""     => return(false)
-                case "X"    => return(true)
+                case ""     => point(false)
+                case "X"    => point(true)
                 case _      => throwError("getS4BoolNamed('${x}')")
             })
 
@@ -437,7 +456,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
         map(f, p2)
 
     pub def <&(x: b, p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] =
-        p2 *> return(x)
+        p2 *> point(x)
 
     /// Alias for `bind`
     pub def >>=(ma: DownloadRowEvaluator[a], k: a -> DownloadRowEvaluator[b] & ef): DownloadRowEvaluator[b] & ef = 

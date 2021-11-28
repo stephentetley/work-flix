@@ -61,14 +61,14 @@ def makeOutputRow(x: WorklistRow, lookups: Map[String, EquipmentRow]): Option[Eq
         })
 
 def readWorklist(): SheetReader[List[WorklistRow]] = 
-    use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+    use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
     let* s1     = getSheetNamed("IH06_20201109");
     let* xs     = namedRowsFrom(s1, 0, 1, evalWorklistRow());
-    return(xs)
+    point(xs)
 
 
 def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] = 
-    use SheetIO/NamedRowEvaluator.{flatMap, return, getStringNamed, getStringNamedWithDefault};
+    use SheetIO/NamedRowEvaluator.{flatMap, point, getStringNamed, getStringNamedWithDefault};
     use SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5) -> 
             { equiId                = String.trim(x1)
@@ -91,7 +91,7 @@ def readEquiDownloadFile(path: System.FilePath): Result[Map[String, EquipmentRow
     Ok(ans)
 
 def evalEquiDownloadRow(): DownloadRowEvaluator[EquipmentRow] = 
-    use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{flatMap, return, getStringNamed, getInt32Named};
+    use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getInt32Named};
     use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
             { equiId                = x1
@@ -118,7 +118,7 @@ def evalEquiDownloadRow(): DownloadRowEvaluator[EquipmentRow] =
 def outputHeaders(): Array[String] & Impure = ["EQUI", "TPLN_EILO", "EQART_EQU", "BAUJJ", "BAUMM_EQI", "HERST", "TYPBZ", "MAPA_EEQZ", "SERGE"]
 
 def setOutputRow!(x: EquipmentRow): UploadRowSetter[Unit] = 
-    use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, return, putStringNamed!, 
+    use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{flatMap, point, putStringNamed!, 
         putInt32Named!, putPaddedInt32Named!};
     let* _  = putStringNamed!("EQUI", x.equiId);
     let* _  = putStringNamed!("TPLN_EILO", x.functionalLocation);
@@ -129,4 +129,4 @@ def setOutputRow!(x: EquipmentRow): UploadRowSetter[Unit] =
     let* _  = putStringNamed!("TYPBZ", x.model);
     let* _  = putStringNamed!("MAPA_EEQZ", x.partNumber);
     let* _  = putStringNamed!("SERGE", x.serialNumber);
-    return()
+    point()

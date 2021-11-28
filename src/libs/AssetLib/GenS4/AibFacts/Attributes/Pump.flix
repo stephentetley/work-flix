@@ -36,13 +36,13 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Pump {
 
 
     pub def evalPump(): NamedRowEvaluator[PumpFacts[r]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};
+        use SheetIO/NamedRowEvaluator.{flatMap, point, withDefault};
         let* c1 = withDefault(evalDutyHead(), #{});
         let* c2 = withDefault(evalFlow(), #{});
         let* c3 = withDefault(evalImpellerType(), #{});
         let* c4 = withDefault(evalPumpLiftingType(), #{});
         let* c5 = withDefault(evalRatingPower(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4 <+> c5)
+        point(c1 <+> c2 <+> c3 <+> c4 <+> c5)
 
     
     /// def evalDiaphragmMaterial(): NamedRowEvaluator[#{DiaphragmMaterial | r}] =

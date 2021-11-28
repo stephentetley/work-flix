@@ -21,6 +21,24 @@ namespace AssetLib/GenS4 {
     /// State (for id gen and Output) + Env
     /// Monad is impure so we can lift array handling into it
     pub opaque type GenMonad[a] = (Int32, Output, Env) -> Result[(Int32, Output, a), String] & Impure
+
+    instance Functor[GenMonad] { 
+        pub def map(f: a -> b & ef, x: GenMonad[a]): GenMonad[b] & ef = 
+            AssetLib/GenS4/GenMonad.map(f, x)
+    }
+
+    instance Applicative[GenMonad] { 
+        pub def point(x: a): GenMonad[a] = 
+            AssetLib/GenS4/GenMonad.point(x)
+
+        pub def ap(f: GenMonad[a -> b & ef], x: GenMonad[a]): GenMonad[b] & ef = 
+            AssetLib/GenS4/GenMonad.ap(f, x)
+    }
+
+    instance Monad[GenMonad] { 
+        pub def flatMap(k: a -> GenMonad[b] & ef, x: GenMonad[a]): GenMonad[b] & ef = 
+            AssetLib/GenS4/GenMonad.flatMap(k, x)
+    }
 }
 
 namespace AssetLib/GenS4/GenMonad {
@@ -58,7 +76,7 @@ namespace AssetLib/GenS4/GenMonad {
     pub def evalGenMonad(mx: GenMonad[a]): Result[a, String] & Impure = 
         runGenMonad(mx) |> Result.map(snd)
 
-    pub def return(x: a): GenMonad[a] = 
+    pub def point(x: a): GenMonad[a] = 
         GenMonad((st, w, _) -> Ok((st, w, x)) as & Impure)
 
     def apply1(x: GenMonad[a], st: Int32, w: Output, r: Env): Result[(Int32, Output, a), String] & Impure =
@@ -139,7 +157,7 @@ namespace AssetLib/GenS4/GenMonad {
 
     pub def whenSome(x: Option[a], k: a -> GenMonad[Unit]): GenMonad[Unit] = match x { 
         case Some(a) => k(a)
-        case None => return()
+        case None => point()
     }
 
     pub def liftAction(f: Unit -> a & Impure): GenMonad[a] = 
@@ -230,7 +248,7 @@ namespace AssetLib/GenS4/GenMonad {
         map(f, p2)
 
     pub def <&(x: b, p2: GenMonad[a]): GenMonad[b] =
-        p2 *> return(x)
+        p2 *> point(x)
 
     /// Alias for `bind`
     pub def >>=(ma: GenMonad[a], k: a -> GenMonad[b] & ef): GenMonad[b] & ef = bind(ma, k)

@@ -38,11 +38,11 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
         importRows(evalEquipObject(), path)  
 
     def evalEquipObject(): RowEvaluator[EquipObject] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* supero     = getStringAt(0);
         let* subo       = getStringAt(1);
         let* cat        = getStringAt(2);
-        return({superObject = supero, subObject = subo, category = cat})
+        point({superObject = supero, subObject = subo, category = cat})
 
     // FlocObject
 
@@ -55,11 +55,11 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
         importRows(evalFlocObject(), path)  
 
     def evalFlocObject(): RowEvaluator[FlocObject] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* struct     = getStringAt(0);
         let* supero     = getStringAt(1);
         let* subo       = getStringAt(2);
-        return({superObject = supero, subObject = subo, structure = struct})
+        point({superObject = supero, subObject = subo, structure = struct})
 
     // FlocDescription
     
@@ -72,10 +72,10 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
         importRows(evalFlocDescription(), path)           
 
     def evalFlocDescription(): RowEvaluator[FlocDescription] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* objtype    = getStringAt(0);
         let* desc       = getStringAt(1);
-        return({objectType = objtype, description = desc})
+        point({objectType = objtype, description = desc})
 
     // ObjTypeManufacturer
     
@@ -88,10 +88,10 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
         importRows(evalObjTypeManufacturer(), path)  
 
     def evalObjTypeManufacturer(): RowEvaluator[ObjTypeManufacturer] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* objectty   = getStringAt(0);
         let* manuf      = getStringAt(1);
-        return({objectType = objectty, manufacturer = manuf})
+        point({objectType = objectty, manufacturer = manuf})
 
     // ManufacturerModel
     
@@ -104,9 +104,9 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
         importRows(evalManufacturerModel(), path)   
 
     def evalManufacturerModel(): RowEvaluator[ManufacturerModel] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, return, getStringAt};
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* manuf      = getStringAt(0);
         let* modl       = getStringAt(1);
-        return({manufacturer = manuf, model = modl})
+        point({manufacturer = manuf, model = modl})
 
 }

@@ -37,11 +37,11 @@ namespace AssetLib/Facts/ZTableQueries {
 
 
     pub def getFlocDescription(floc: Floc): DbMonad[Option[String]] = 
-        use BasicDb/DbMonad.{flatMap, return, psExecuteCachedQuery, firstRow, optional, liftOption, rsClose};
+        use BasicDb/DbMonad.{flatMap, point, psExecuteCachedQuery, firstRow, optional, liftOption, rsClose};
         let* suffix = liftOption(AssetLib/Base/S4/Floc.getSuffix(floc), "getFlocDescription - invalid floc - ${floc}");
         let* rs     = psExecuteCachedQuery("getFlocDescription", BasicDb/PreparedStatementSetter.putStringAt!(0,  suffix));
         let* x1     = optional(firstRow(rs, BasicDb/RowEvaluator.getStringNamed("description")));        
         let* _      = rsClose(rs);
-        return(x1)
+        point(x1)
 
 }

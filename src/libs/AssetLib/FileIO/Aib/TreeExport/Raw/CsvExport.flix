@@ -44,13 +44,13 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/CsvExport {
         traverseX(writeAibTree, kids)
 
     def emitAibNode(src: AibNode): CsvRowSetter[Unit] = 
-        use FactIO/CsvRowSetter.{flatMap, return, putString!, putInt32!};
+        use FactIO/CsvRowSetter.{flatMap, point, putString!, putInt32!};
         let* _ = putInt32!(0, src.level); 
         let* _ = putString!(1, src.reference); 
         let* _ = putString!(2, src.shortName);
         let* _ = putString!(3, src.parent); 
         let* _ = putString!(4, src.commonName);
-        return()
+        point()
 
 
 

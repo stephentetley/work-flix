@@ -38,14 +38,14 @@ type alias WorklistRow =
     }
 
 def readWorklist(): SheetReader[List[WorklistRow]] = 
-    use SheetIO/SheetReader.{flatMap, return, getSheetNamed, namedRowsFrom};      
+    use SheetIO/SheetReader.{flatMap, point, getSheetNamed, namedRowsFrom};      
     let* s1     = getSheetNamed("results2");
     let* xs     = namedRowsFrom(s1, 0, 1, evalWorklistRow());    
-    return(xs)
+    point(xs)
 
 
 def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] = 
-    use SheetIO/NamedRowEvaluator.{flatMap, return, map, getContentNamed, 
+    use SheetIO/NamedRowEvaluator.{map, getContentNamed, 
         getStringNamedWithDefault, getInt64Named};
     use SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6) -> 

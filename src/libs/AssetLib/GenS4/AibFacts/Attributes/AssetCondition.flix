@@ -37,12 +37,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AssetCondition {
 
 
     def evalAssetConditionFacts(): NamedRowEvaluator[AgaspFacts[r]] =
-        use SheetIO/NamedRowEvaluator.{flatMap, return, withDefault};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, withDefault};  
         let* c1 = withDefault(getConditionGrade(), #{});
         let* c2 = withDefault(getLoadingFactor(), #{});
         let* c3 = withDefault(getPerformanceGrade(), #{});
         let* c4 = withDefault(getSurveyYear(), #{});
-        return(c1 <+> c2 <+> c3 <+> c4)
+        point(c1 <+> c2 <+> c3 <+> c4)
 
 
     def getConditionGrade(): NamedRowEvaluator[#{ConditionGrade | r}] =

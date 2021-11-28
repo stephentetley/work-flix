@@ -29,10 +29,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/BuildingsCivils {
     use AssetLib/GenS4/WorkLists.{EquiWorkItem};
     
     pub def genBuildingsCivilsCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return};
+        use AssetLib/GenS4/GenMonad.{flatMap, point};
         let* _ = genKisk(workitems, facts as KiskSchema[r2]);
         let* _ = genTank(workitems, facts as TankSchema[r2]);
-        return()
+        point()
 
     /// # KISK
 

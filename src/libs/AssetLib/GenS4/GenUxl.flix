@@ -115,18 +115,18 @@ namespace AssetLib/GenS4/GenUxl {
 
     /// Generate all characteristics 
     def genFlocUxl(workitems: List[FlocWorkItem]): GenMonad[Unit] = 
-        use  AssetLib/GenS4/GenMonad.{flatMap, return};
+        use  AssetLib/GenS4/GenMonad.{flatMap, point};
         let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocs(workitems);
         let* _  = AssetLib/Gens4/Rules/FunctionalLocation.genFlocCharacteristics(workitems);
         let* _  = AssetLib/GenS4/Rules/Characteristics/AibReference.genFlocAibReference(workitems);
         let* _  = AssetLib/GenS4/Rules/Characteristics/EastNorth.genFlocEastNorth(workitems);
         let* _  = AssetLib/GenS4/Rules/Characteristics/SolutionId.genFlocSolutionId(workitems);
-        return()
+        point()
 
 
     /// Empty string for no solution id.
     def genEquiUxl(args: FactExports, workitems: List[EquiWorkItem]): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return, liftAction};
+        use AssetLib/GenS4/GenMonad.{flatMap, point, liftAction};
         let* _          = liftAction(_ -> Console.printLine("Equi workitems count: ${List.length(workitems)}"));
         let* equiAttrs  = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
@@ -136,11 +136,11 @@ namespace AssetLib/GenS4/GenUxl {
         let* _          = AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(workitems);
         let* _          = AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(workitems, args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(workitems, args.aibAgaspExport);
-        return()
+        point()
 
     /// Temporarily function for the `end03` script...
     pub def tempGenEquiCharacteristics(args: OptionalExports, workitems: #{AssetLib/GenS4/Base/CommonRelations.EquiWorkItem3 | r}): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return, map};
+        use AssetLib/GenS4/GenMonad.{flatMap, point, map};
         let* f1     = loadOptional(args.aibElectricalExport, AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts);
         let* f2     = loadOptional(args.aibFanExport, AssetLib/GenS4/AibFacts/Attributes/Fan.readFanFacts);
         let* f3     = loadOptional(args.aibInstrumentExport, AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentFacts);
@@ -156,10 +156,10 @@ namespace AssetLib/GenS4/GenUxl {
         let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genInstrumentCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Mechanical.genMechanicalCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Statutory.genStatutoryCharacteristics(workitems, facts);
-        return()
+        point()
 
     def genEquiCharacteristics(args: OptionalExports, xs: List[EquiWorkItem]): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return, map};
+        use AssetLib/GenS4/GenMonad.{flatMap, point, map};
         let workitems = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(xs);
         let* f1     = loadOptional(args.aibElectricalExport, AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts);
         let* f2     = loadOptional(args.aibFanExport, AssetLib/GenS4/AibFacts/Attributes/Fan.readFanFacts);
@@ -176,14 +176,14 @@ namespace AssetLib/GenS4/GenUxl {
         let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genInstrumentCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Mechanical.genMechanicalCharacteristics(workitems, facts);
         let* _      = AssetLib/GenS4/Rules/Characteristics/Statutory.genStatutoryCharacteristics(workitems, facts);
-        return()
+        point()
 
 
     def loadOptional(x: Option[XlsxSource], load: XlsxSource -> GenMonad[#{|r1}]): GenMonad[#{|r1}] = 
-        use AssetLib/GenS4/GenMonad.{return};
+        use AssetLib/GenS4/GenMonad.{point};
         match x {
             case Some(src) => load(src)
-            case None => return(#{})
+            case None => point(#{})
         }
 
 

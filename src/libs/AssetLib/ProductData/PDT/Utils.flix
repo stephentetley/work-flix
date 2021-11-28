@@ -35,8 +35,8 @@ namespace AssetLib/ProductData/PDT/Utils {
         row(literal(key) *> localDate()) `swapError` "rowKeyLocalDate - key=${key}"
 
     pub def getUNICLASS_CODE(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
-        use SheetIO/SheetParser.{return};
-        return(
+        use SheetIO/SheetParser.{point};
+        point(
             { equiId = equiId
             , className = className
             , charName = "UNICLASS_CODE"
@@ -46,8 +46,8 @@ namespace AssetLib/ProductData/PDT/Utils {
             })
 
     pub def getUNICLASS_DESC(equiId: String, className: String): SheetParser[ka1, SLEquiCharacteristic] = 
-        use SheetIO/SheetParser.{return};
-        return(
+        use SheetIO/SheetParser.{point};
+        point(
             { equiId = equiId
             , className = className
             , charName = "UNICLASS_DESC"

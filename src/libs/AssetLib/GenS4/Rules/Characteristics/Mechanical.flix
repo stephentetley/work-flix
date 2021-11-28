@@ -29,7 +29,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
     use AssetLib/GenS4/Rules/Characteristics/Utils.{recognizedVoltageUnits, voltageUnits};
 
     pub def genMechanicalCharacteristics(workitems: #{EquiWorkItem3 | r1}, facts: #{|r2}): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, return};
+        use AssetLib/GenS4/GenMonad.{flatMap, point};
         let* _ = genComp(workitems, facts as CompSchema[r2]);
         let* _ = genFans(workitems, facts as FansSchema[r2]);
         let* _ = genHsys(workitems, facts as HsysSchema[r2]);
@@ -40,7 +40,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         let* _ = genScrf(workitems, facts as ScrfSchema[r2]);
         let* _ = genTrut(workitems, facts as TrutSchema[r2]);
         let* _ = genValv(workitems, facts as ValvSchema[r2]);
-        return()
+        point()
 
     /// # COMP
 
