@@ -21,7 +21,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use Time.LocalDateTime;
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{return, map, fail, endOfInput, liftAction, liftResult};
+    use FlixParsec/Prim.{point, map, fail, endOfInput, liftAction, liftResult};
     use FlixParsec/Regex.{lookingAts};
     use FlixParsec/Combinators.{alt, choice, ignore, many, manyTill, seqRight};
     use FlixParsec/Char.{string};
@@ -46,7 +46,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let* sel = alt(pSelection(), pEmptySelection());        
         let* cols = pColumnHeaders();
         let* rows = manyTill(pDataRow(), endOfInput());
-        return({fileHeader = hdr, selection = sel, headers = cols, dataRows = rows})
+        point({fileHeader = hdr, selection = sel, headers = cols, dataRows = rows})
 
 
 
@@ -58,7 +58,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let* v      = pVariant();
         let* u      = pUser();
         let* dt     = pDateTime();
-        return({ fileType = ft, dataModel = dm, entityType = et
+        point({ fileType = ft, dataModel = dm, entityType = et
                , variant = v, user = u, dateTime = dt})
 
                     
@@ -71,8 +71,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         use FlixParsec/Prim.{flatMap};
         let body = () -> {
             choice( 
-                   (symbol("Download")  `seqRight` return(Download))
-                :: (symbol("Upload")    `seqRight` return(Upload))
+                   (symbol("Download")  `seqRight` point(Download))
+                :: (symbol("Upload")    `seqRight` point(Upload))
                 :: Nil
             )
         };
@@ -82,7 +82,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
 
     def pDataModel(): Parser[t1, DataModel] = 
         use FlixParsec/Prim.{flatMap};
-        let body = () -> symbol("U1") `seqRight` return(U1);
+        let body = () -> symbol("U1") `seqRight` point(U1);
         let* _ = symbol("* Data Model:"); 
         body()
         
@@ -92,14 +92,14 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let body = () -> {
             let* s = lexeme(lookingAts("\\p{Upper}+"));
             match s {
-                case "FUNCLOC"      => return(FuncLoc)
-                case "CLASSFLOC"    => return(ClassFloc)
-                case "VALUAFLOC"    => return(ValuaFloc)
-                case "IFLOTX"       => return(Iflotx)
-                case "EQUI"         => return(Equi)
-                case "CLASSEQUI"    => return(ClassEqui)
-                case "VALUAEQUI"    => return(ValuaEqui)
-                case "EQMLTXT"      => return(Eqmltxt)
+                case "FUNCLOC"      => point(FuncLoc)
+                case "CLASSFLOC"    => point(ClassFloc)
+                case "VALUAFLOC"    => point(ValuaFloc)
+                case "IFLOTX"       => point(Iflotx)
+                case "EQUI"         => point(Equi)
+                case "CLASSEQUI"    => point(ClassEqui)
+                case "VALUAEQUI"    => point(ValuaEqui)
+                case "EQMLTXT"      => point(Eqmltxt)
                 case _              => fail("EntityType")
             }
         };
@@ -110,13 +110,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         use FlixParsec/Prim.{flatMap};
         let* _ = string("* Variant:");      // use `string` so we don't consume newline
         let* ans = restOfLine(true);
-        return(String.trim(ans))
+        point(String.trim(ans))
     
     def pUser(): Parser[t1, String] =
         use FlixParsec/Prim.{flatMap};
         let* _ = symbol("* User:");
         let* ans = restOfLine(true);
-        return(String.trim(ans))
+        point(String.trim(ans))
 
     def pDateTime(): Parser[t1, LocalDateTime] = 
         use FlixParsec/Prim.{flatMap, liftOption};
@@ -124,16 +124,16 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let* t = symbol("/ Time:")  `seqRight` lexeme(lookingAts("\\d{6}"));
         let* fmt = liftOption(Time/Format/DateTimeFormatter.ofPattern("yyyyMMdd HHmmss"), "pDateTime");
         let* ans = liftOption(Time/LocalDateTime.parse(fmt, d + " " + t), "pDateTime");
-        return(ans)
+        point(ans)
 
     def pEmptySelection(): Parser[t1, List[String]] = 
-        return(Nil)
+        point(Nil)
 
     def pSelection(): Parser[t1, List[String]] = 
         use FlixParsec/Prim.{flatMap};
         let* _ = pSelectionHeader();
         let* xs = pSelectionLines();
-        return(xs)
+        point(xs)
 
     def pSelectionHeader(): Parser[t1, Unit] = 
         symbol("* Selection:") |> ignore         // blank header, consumes newline
@@ -145,7 +145,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let selection1  = () -> {
             let* _ = symbol("* ");
             let* s = restOfLine(true);
-            return(String.trim(s))
+            point(String.trim(s))
         };
         many(selection1())
 
@@ -161,7 +161,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let* nl = makePattern("\\R");
         let* str = restOfLine(true) |> map(s -> Text/Regex.replace(nl, "", s));
         let* arr = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> List.toArray);
-        return(arr)
+        point(arr)
 
     
     /// Note - datarows are `sepEndBy` tab, hence dropRight(1)
@@ -172,6 +172,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let* tabnl  = makePatternWithFlags(".+?\\u0009\\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
         let* str    = lookingAt(tabnl);
         let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> List.toArray |> Array.dropRight(1));
-        return(arr)
+        point(arr)
 
 }

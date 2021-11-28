@@ -35,27 +35,27 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
 
     def importRowsParser(eval: RowEvaluator[row]): Parser[t1, DList[row]] = 
         use Data/DList.{empty, snoc};
-        use FlixParsec/Prim.{flatMap, return};
+        use FlixParsec/Prim.{flatMap, point};
         use FlixParsec/Combinators.{manyTill, manyTillWith, count};
         use FlixParsec/Text.{skipLine};
         let* _      = manyTill(skipLine(), separatingLine());
         let* _      = count(2, skipLine());
         let row1    = makeLineParser(eval);
         let* rows   = manyTillWith((ac, x) -> snoc(ac, x), empty(), row1, separatingLine()); 
-        return(rows)
+        point(rows)
 
     /// Line of many '-' chars.
     def separatingLine(): Parser[t1, Unit] = 
-        use FlixParsec/Prim.{flatMap, return};
+        use FlixParsec/Prim.{flatMap, point};
         use FlixParsec/Regex.{skippingAts};
         use FlixParsec/Text.{newline};
         let* _  = skippingAts("^\\-+");
         let* _  = newline();
-        return()
+        point()
 
 
     def makeLineParser(eval: RowEvaluator[row]): Parser[t1, row] = 
-        use FlixParsec/Prim.{flatMap, return, liftActionResult};
+        use FlixParsec/Prim.{flatMap, liftActionResult};
         use FlixParsec/Text.{restOfLine};
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{evaluateString};
         let split = s -> leadingSepBy(s, "|");

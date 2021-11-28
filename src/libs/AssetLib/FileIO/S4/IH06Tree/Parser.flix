@@ -20,7 +20,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     use Time.LocalDate;
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{return, map, swapError, bounded, parseError,  tryparse, endOfInput, liftResult, liftOption};
+    use FlixParsec/Prim.{point, map, swapError, bounded, parseError,  tryparse, endOfInput, liftResult, liftOption};
     use FlixParsec/Regex.{lookingAts};
     use FlixParsec/Combinators.{tuple2, many1Till, seqRight, ignore, choice};
     use FlixParsec/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
@@ -41,14 +41,14 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
         use FlixParsec/Prim.{flatMap};
         let* h1 = header();
         let* rows = many1Till(ih06Row(), endOfInput());
-        return({ header = h1, rows = rows })
+        point({ header = h1, rows = rows })
 
     def header(): Parser[t1, Header] = 
         use FlixParsec/Prim.{flatMap};
         let* (floc, date) = funcLocHeaderLine();
         let* desc = descriptionHeaderLine();
         let* _ = restOfLine(true);      // one blank line
-        return({ floc = floc, description = desc, validForm = date })
+        point({ floc = floc, description = desc, validForm = date })
 
     def ih06Row(): Parser[t1, IH06Row] = 
         use FlixParsec/Prim.{flatMap};
@@ -72,14 +72,14 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     def flocLine2(floc: String): Parser[t1, FlocRow] = 
         use FlixParsec/Prim.{flatMap};
         let* desc = restOfLine(true) |> map(String.trim);
-        return({ floc = floc, description = desc, parent = "" })
+        point({ floc = floc, description = desc, parent = "" })
         
 
     def flocLine3(floc: String): Parser[t1, FlocRow] = 
         use FlixParsec/Prim.{flatMap};
         let* desc = content(41);
         let* parent = restOfLine(true) |> map(String.trim);
-        return({ floc = floc, description = desc, parent = parent })
+        point({ floc = floc, description = desc, parent = parent })
     
     def equiLine(): Parser[t1, EquiRow] = 
         use FlixParsec/Prim.{flatMap};
@@ -95,14 +95,14 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     def equiLine3(equiId: String, desc: String): Parser[t1, EquiRow] = 
         use FlixParsec/Prim.{flatMap};
         let* floc = restOfLine(true) |> map(String.trim);
-        return({ equiId = equiId, description = desc, floc = floc, superordinate = "" })
+        point({ equiId = equiId, description = desc, floc = floc, superordinate = "" })
 
 
     def equiLine4(equiId: String, desc: String): Parser[t1, EquiRow] = 
         use FlixParsec/Prim.{flatMap};
         let* floc = content(41);
         let* supero = restOfLine(true) |> map(String.trim);
-        return({ equiId = equiId, description = desc, floc = floc, superordinate = supero })
+        point({ equiId = equiId, description = desc, floc = floc, superordinate = supero })
 
 
     def validFrom(): Parser[t1, LocalDate] = 
@@ -119,7 +119,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
         let* _ = symbol("Functional Location");
         let* floc = funcloc();
         let* dt = validFrom();
-        return((floc, dt))
+        point((floc, dt))
 
     def descriptionHeaderLine(): Parser[t1, String] = 
         symbol("Description") `seqRight` map(String.trim, restOfLine(true))
@@ -132,7 +132,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
         let* s = lookingAts("\\d{2}\\.\\d{2}\\.\\d{2}");
         let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yy"),  "DateFormatter.fromPattern failed");
         let* ans = liftOption(Time/LocalDate.parse(fmt, s), "LocalDate.parse failed");
-        return(ans)
+        point(ans)
 
 
  }

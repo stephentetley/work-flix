@@ -26,7 +26,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
 
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{parseFile, return, map, alt, throwError, liftResult, liftOption, swapError};
+    use FlixParsec/Prim.{parseFile, point, map, alt, throwError, liftResult, liftOption, swapError};
     use FlixParsec/Regex.{lookingAts};
     use FlixParsec/Combinators.{optional, manyWith};
     use FlixParsec/Text.{parseLine, restOfLine, restOfLineLength, content, anchorLine, upperLetters};
@@ -50,14 +50,14 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
         let* _  = anchorLine("\\-{40,}");
         let* rows = manyWith(append, empty(), parseLine(classListRow(srctype), true));
-        return({ dateStamp = d, rows = toList(rows)})
+        point({ dateStamp = d, rows = toList(rows)})
 
     def pDateStamp(): Parser[t1, LocalDate] = 
         use FlixParsec/Prim.{flatMap};
         let* d = lexeme(lookingAts("\\d{2}\\.\\d{2}\\.\\d{4}"));
         let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "pDateStamp");
         let* ans = liftOption(Time/LocalDate.parse(fmt, d), "pDateStamp");
-        return(ans)
+        point(ans)
         
 
     def classListRow(srctype: SourceType): Parser[t1, Option[ClassListRow]] = 
@@ -67,7 +67,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
             case 11 => optional(map(ClassRow, classLine(srctype)))
             case 15 => optional(map(CharacteristicRow, characteristicLine(srctype)))
             case 19 => optional(map(ValueRow, valueLine()))
-            case _  => return(None)
+            case _  => point(None)
         }
 
     def classLine(srctype: SourceType): Parser[t1, ClassRow] =
@@ -78,7 +78,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         let* name   = content(namelen);
         let* len    = restOfLineLength();
         let* desc   = if (len > desclen) content(desclen) else restOfLine(false);
-        return({name = name, description = desc, classtype = ctype})
+        point({name = name, description = desc, classtype = ctype})
 
     def characteristicLine(srctype: SourceType): Parser[t1, CharacteristicRow] =
         use FlixParsec/Prim.{flatMap};
@@ -87,7 +87,7 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         let* name   = content(namelen);
         let* desc   = content(desclen);
         let* dtype  = datatype();
-        return({name = name, description = desc, chartype = dtype})
+        point({name = name, description = desc, chartype = dtype})
 
     def datatype(): Parser[t1, Datatype] = 
         use FlixParsec/Prim.{flatMap};
@@ -95,10 +95,10 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
         let* length = int32();
         let* dprec  = optional(int32());
         match (tyname, dprec) {
-            case ("CHAR", _)        => return(Text(length))
-            case ("DATE", _)        => return(Date(length))
-            case ("NUM", None)      => return(NumInt(length))
-            case ("NUM", Some(p))   => return(NumDecimal(length, p))
+            case ("CHAR", _)        => point(Text(length))
+            case ("DATE", _)        => point(Date(length))
+            case ("NUM", None)      => point(NumInt(length))
+            case ("NUM", Some(p))   => point(NumDecimal(length, p))
             case _                  => throwError("Unknown datatype: ${tyname}")
         }
 
