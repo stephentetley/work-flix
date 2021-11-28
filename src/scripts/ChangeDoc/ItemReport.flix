@@ -579,10 +579,10 @@ namespace ChangeDoc/ItemReport {
         x
 
 
-    def useStringBuilder(f: StringBuilder ~> Unit): String = 
+    def useStringBuilder(f: StringBuilder -> Unit & Impure): String = 
         useStringBuilderHelper(f) as & Pure
 
-    def useStringBuilderHelper(f: StringBuilder ~> Unit): String & Impure = 
+    def useStringBuilderHelper(f: StringBuilder -> Unit & Impure): String & Impure = 
         let sb = StringBuilder.new();
         f(sb);
         StringBuilder.toString(sb)

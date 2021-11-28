@@ -17,7 +17,7 @@
 
 namespace AssetLib/FileIO/S4/ZTable {
 
-    pub opaque type RowEvaluator[a] = Array[String] ~> Result[a, String]
+    pub opaque type RowEvaluator[a] = Array[String] -> Result[a, String] & Impure
 }
 
 namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
@@ -28,7 +28,7 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     use AssetLib/FileIO/S4/ZTable.RowEvaluator.{RowEvaluator};
 
 
-    pub def evaluateString(splitter: String ~> Array[String],
+    pub def evaluateString(splitter: String -> Array[String] & Impure,
                            input: String,
                            eval: RowEvaluator[a]): Result[a, String] & Impure =
         use Result.{flatMap};
@@ -45,7 +45,7 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
         let RowEvaluator(f) = x;
         f(row)
 
-    pub def map(f: a -> b & ef, x: RowEvaluator[a]): RowEvaluator[b] =
+    pub def map(f: a -> b & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef =
         RowEvaluator(row ->
             match apply1(x, row) {
                 case Ok(a) => {
@@ -54,9 +54,9 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
                 }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def ap(mf: RowEvaluator[a -> b & ef], ma: RowEvaluator[a]): RowEvaluator[b] =
+    pub def ap(mf: RowEvaluator[a -> b & ef], ma: RowEvaluator[a]): RowEvaluator[b] & ef =
         RowEvaluator(row ->
             match apply1(mf, row) {
                 case Ok(f) => {
@@ -67,17 +67,17 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
-    pub def bind(x: RowEvaluator[a], k: a -> RowEvaluator[b]): RowEvaluator[b] =
+    pub def bind(x: RowEvaluator[a], k: a -> RowEvaluator[b] & ef): RowEvaluator[b] & ef =
         RowEvaluator(row ->
             match apply1(x, row) {
                 case Ok(a) => apply1(k(a), row)
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> RowEvaluator[b], x: RowEvaluator[a]): RowEvaluator[b] = bind(x, k)
+    pub def flatMap(k: a -> RowEvaluator[b] & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef = bind(x, k)
 
     pub def optional(x: RowEvaluator[a]): RowEvaluator[Option[a]] =
         RowEvaluator(r ->
@@ -95,7 +95,7 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     pub def liftResult(x: Result[a, String]): RowEvaluator[a] =
         RowEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(fn: Unit ~> Result[a, String]): RowEvaluator[a] =
+    pub def liftOperation(fn: Unit -> Result[a, String] & Impure): RowEvaluator[a] =
         RowEvaluator(_ -> fn())
 
     // Cell readers, by index only
@@ -168,7 +168,9 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if either `o1` or `o2` are errors.
     ///
-    pub def lift2(f: (t1, t2) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2]): RowEvaluator[u] =
+    pub def lift2(f: (t1, t2) -> u & ef, 
+                    o1: RowEvaluator[t1],
+                    o2: RowEvaluator[t2]): RowEvaluator[u] & ef =
         ap(map(f, o1), o2)
 
     ///
@@ -176,7 +178,10 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2` and `o3` are errors.
     ///
-    pub def lift3(f: (t1, t2, t3) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3]): RowEvaluator[u] =
+    pub def lift3(f: (t1, t2, t3) -> u & ef, 
+                    o1: RowEvaluator[t1], 
+                    o2: RowEvaluator[t2], 
+                    o3: RowEvaluator[t3]): RowEvaluator[u] & ef =
         ap(lift2(f, o1, o2), o3)
 
     ///
@@ -184,7 +189,11 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, `o3` and `o4` are errors.
     ///
-    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3], o4: RowEvaluator[t4]): RowEvaluator[u] =
+    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, 
+                    o1: RowEvaluator[t1], 
+                    o2: RowEvaluator[t2],
+                    o3: RowEvaluator[t3],
+                    o4: RowEvaluator[t4]): RowEvaluator[u] & ef =
         ap(lift3(f, o1, o2, o3), o4)
 
     ///
@@ -192,7 +201,12 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o5` are errors.
     ///
-    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3], o4: RowEvaluator[t4], o5: RowEvaluator[t5]): RowEvaluator[u] =
+    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef,
+                    o1: RowEvaluator[t1],
+                    o2: RowEvaluator[t2],
+                    o3: RowEvaluator[t3],
+                    o4: RowEvaluator[t4],
+                    o5: RowEvaluator[t5]): RowEvaluator[u] & ef =
         ap(lift4(f, o1, o2, o3, o4), o5)
 
     ///
@@ -200,7 +214,13 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o6` are errors.
     ///
-    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3], o4: RowEvaluator[t4], o5: RowEvaluator[t5], o6: RowEvaluator[t6]): RowEvaluator[u] =
+    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef,
+                    o1: RowEvaluator[t1],
+                    o2: RowEvaluator[t2],
+                    o3: RowEvaluator[t3],
+                    o4: RowEvaluator[t4],
+                    o5: RowEvaluator[t5],
+                    o6: RowEvaluator[t6]): RowEvaluator[u] & ef =
         ap(lift5(f, o1, o2, o3, o4, o5), o6)
 
     ///
@@ -208,7 +228,14 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o7` are errors.
     ///
-    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3], o4: RowEvaluator[t4], o5: RowEvaluator[t5], o6: RowEvaluator[t6], o7: RowEvaluator[t7]): RowEvaluator[u] =
+    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef,
+                    o1: RowEvaluator[t1],
+                    o2: RowEvaluator[t2],
+                    o3: RowEvaluator[t3],
+                    o4: RowEvaluator[t4],
+                    o5: RowEvaluator[t5],
+                    o6: RowEvaluator[t6],
+                    o7: RowEvaluator[t7]): RowEvaluator[u] & ef =
         ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
 
     ///
@@ -216,7 +243,15 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o8` are errors.
     ///
-    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3], o4: RowEvaluator[t4], o5: RowEvaluator[t5], o6: RowEvaluator[t6], o7: RowEvaluator[t7], o8: RowEvaluator[t8]): RowEvaluator[u] =
+    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef,
+                    o1: RowEvaluator[t1],
+                    o2: RowEvaluator[t2],
+                    o3: RowEvaluator[t3],
+                    o4: RowEvaluator[t4],
+                    o5: RowEvaluator[t5],
+                    o6: RowEvaluator[t6],
+                    o7: RowEvaluator[t7],
+                    o8: RowEvaluator[t8]): RowEvaluator[u] & ef =
         ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
 
     ///
@@ -224,7 +259,16 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o9` are errors.
     ///
-    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3], o4: RowEvaluator[t4], o5: RowEvaluator[t5], o6: RowEvaluator[t6], o7: RowEvaluator[t7], o8: RowEvaluator[t8], o9: RowEvaluator[t9]): RowEvaluator[u] =
+    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef,
+                    o1: RowEvaluator[t1],
+                    o2: RowEvaluator[t2],
+                    o3: RowEvaluator[t3],
+                    o4: RowEvaluator[t4],
+                    o5: RowEvaluator[t5],
+                    o6: RowEvaluator[t6],
+                    o7: RowEvaluator[t7],
+                    o8: RowEvaluator[t8],
+                    o9: RowEvaluator[t9]): RowEvaluator[u] & ef =
         ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
 
     ///
@@ -232,7 +276,17 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o10` are errors.
     ///
-    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef, o1: RowEvaluator[t1], o2: RowEvaluator[t2], o3: RowEvaluator[t3], o4: RowEvaluator[t4], o5: RowEvaluator[t5], o6: RowEvaluator[t6], o7: RowEvaluator[t7], o8: RowEvaluator[t8], o9: RowEvaluator[t9], o10: RowEvaluator[t10]): RowEvaluator[u] =
+    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef,
+                    o1: RowEvaluator[t1],
+                    o2: RowEvaluator[t2],
+                    o3: RowEvaluator[t3],
+                    o4: RowEvaluator[t4],
+                    o5: RowEvaluator[t5],
+                    o6: RowEvaluator[t6],
+                    o7: RowEvaluator[t7],
+                    o8: RowEvaluator[t8],
+                    o9: RowEvaluator[t9],
+                    o10: RowEvaluator[t10]): RowEvaluator[u] & ef =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
 
     ///

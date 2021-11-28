@@ -18,7 +18,7 @@
 
 namespace AssetLib/FileIO/S4/TransferFile {
 
-    pub opaque type DownloadRowEvaluator[a] = (Map[String,Int32], Array[String]) ~> Result[a, String]
+    pub opaque type DownloadRowEvaluator[a] = (Map[String,Int32], Array[String]) -> Result[a, String] & Impure
 }
 
 namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
@@ -29,7 +29,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator.{DownloadRowEvaluator};
 
 
-    pub def evaluateString(splitter: String ~> Array[String],
+    pub def evaluateString(splitter: String -> Array[String] & Impure,
                            headers: Map[String, Int32],
                            input: String,
                            eval: DownloadRowEvaluator[a]): Result[a, String] & Impure =
@@ -60,7 +60,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
             }
         )
 
-    pub def map(f: a -> b & ef, x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] =
+    pub def map(f: a -> b & ef, x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef =
         DownloadRowEvaluator((ixs, row) ->
             match apply1(x, ixs, row) {
                 case Ok(a) => {
@@ -69,9 +69,9 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
                 }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def ap(mf: DownloadRowEvaluator[a -> b & ef], ma: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] =
+    pub def ap(mf: DownloadRowEvaluator[a -> b & ef], ma: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef =
         DownloadRowEvaluator((ixs, row) ->
             match apply1(mf, ixs, row) {
                 case Ok(f) => {
@@ -82,7 +82,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
     
     pub def seqLeft(ma: DownloadRowEvaluator[a], mb: DownloadRowEvaluator[b]): DownloadRowEvaluator[a] = 
@@ -104,15 +104,15 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
             }
         )
 
-    pub def bind(x: DownloadRowEvaluator[a], k: a -> DownloadRowEvaluator[b]): DownloadRowEvaluator[b] =
+    pub def bind(x: DownloadRowEvaluator[a], k: a -> DownloadRowEvaluator[b] & ef): DownloadRowEvaluator[b] & ef =
         DownloadRowEvaluator((ixs, row) ->
             match apply1(x, ixs, row) {
-                case Ok(a) => apply1(k(a), ixs, row)
+                case Ok(a) => apply1(k(a) as & Impure, ixs, row)
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> DownloadRowEvaluator[b], x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] = bind(x, k)
+    pub def flatMap(k: a -> DownloadRowEvaluator[b] & ef, x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = bind(x, k)
 
 
     pub def kleisliLeft(f1: a -> DownloadRowEvaluator[b], f2: b -> DownloadRowEvaluator[c], x: a): DownloadRowEvaluator[c] =
@@ -134,7 +134,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
             }
         )
 
-    pub def liftAction(fn: Unit ~> a): DownloadRowEvaluator[a] =
+    pub def liftAction(fn: Unit -> a & Impure): DownloadRowEvaluator[a] =
         DownloadRowEvaluator((_, _) -> let x = fn(); Ok(x))
 
     pub def liftOption(x: Option[a],  errMsg: String): DownloadRowEvaluator[a] = match x { 
@@ -146,7 +146,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     pub def liftResult(x: Result[a, String]): DownloadRowEvaluator[a] =
         DownloadRowEvaluator((_,_) -> x as & Impure)
 
-    pub def liftActionResult(fn: Unit ~> Result[a, String] ): DownloadRowEvaluator[a] =
+    pub def liftActionResult(fn: Unit -> Result[a, String] & Impure): DownloadRowEvaluator[a] =
         DownloadRowEvaluator((_,_) -> fn())
 
     // Cell readers, by label only
@@ -232,7 +232,9 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if either `o1` or `o2` are errors.
     ///
-    pub def lift2(f: (t1, t2) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2]): DownloadRowEvaluator[u] =
+    pub def lift2(f: (t1, t2) -> u & ef, 
+                    o1: DownloadRowEvaluator[t1], 
+                    o2: DownloadRowEvaluator[t2]): DownloadRowEvaluator[u] & ef =
         ap(map(f, o1), o2)
 
     ///
@@ -240,7 +242,10 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2` and `o3` are errors.
     ///
-    pub def lift3(f: (t1, t2, t3) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3]): DownloadRowEvaluator[u] =
+    pub def lift3(f: (t1, t2, t3) -> u & ef, 
+                    o1: DownloadRowEvaluator[t1], 
+                    o2: DownloadRowEvaluator[t2], 
+                    o3: DownloadRowEvaluator[t3]): DownloadRowEvaluator[u] & ef =
         ap(lift2(f, o1, o2), o3)
 
     ///
@@ -248,7 +253,11 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, `o3` and `o4` are errors.
     ///
-    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4]): DownloadRowEvaluator[u] =
+    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, 
+                    o1: DownloadRowEvaluator[t1], 
+                    o2: DownloadRowEvaluator[t2], 
+                    o3: DownloadRowEvaluator[t3], 
+                    o4: DownloadRowEvaluator[t4]): DownloadRowEvaluator[u] & ef =
         ap(lift3(f, o1, o2, o3), o4)
 
     ///
@@ -256,7 +265,12 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o5` are errors.
     ///
-    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4], o5: DownloadRowEvaluator[t5]): DownloadRowEvaluator[u] =
+    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef, 
+                    o1: DownloadRowEvaluator[t1], 
+                    o2: DownloadRowEvaluator[t2], 
+                    o3: DownloadRowEvaluator[t3], 
+                    o4: DownloadRowEvaluator[t4], 
+                    o5: DownloadRowEvaluator[t5]): DownloadRowEvaluator[u] & ef =
         ap(lift4(f, o1, o2, o3, o4), o5)
 
     ///
@@ -264,7 +278,13 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o6` are errors.
     ///
-    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4], o5: DownloadRowEvaluator[t5], o6: DownloadRowEvaluator[t6]): DownloadRowEvaluator[u] =
+    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef, 
+                    o1: DownloadRowEvaluator[t1], 
+                    o2: DownloadRowEvaluator[t2], 
+                    o3: DownloadRowEvaluator[t3], 
+                    o4: DownloadRowEvaluator[t4],
+                    o5: DownloadRowEvaluator[t5],
+                    o6: DownloadRowEvaluator[t6]): DownloadRowEvaluator[u] & ef =
         ap(lift5(f, o1, o2, o3, o4, o5), o6)
 
     ///
@@ -272,7 +292,14 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o7` are errors.
     ///
-    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4], o5: DownloadRowEvaluator[t5], o6: DownloadRowEvaluator[t6], o7: DownloadRowEvaluator[t7]): DownloadRowEvaluator[u] =
+    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef,
+                    o1: DownloadRowEvaluator[t1],
+                    o2: DownloadRowEvaluator[t2],
+                    o3: DownloadRowEvaluator[t3],
+                    o4: DownloadRowEvaluator[t4],
+                    o5: DownloadRowEvaluator[t5],
+                    o6: DownloadRowEvaluator[t6], 
+                    o7: DownloadRowEvaluator[t7]): DownloadRowEvaluator[u] & ef =
         ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
 
     ///
@@ -280,7 +307,15 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o8` are errors.
     ///
-    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4], o5: DownloadRowEvaluator[t5], o6: DownloadRowEvaluator[t6], o7: DownloadRowEvaluator[t7], o8: DownloadRowEvaluator[t8]): DownloadRowEvaluator[u] =
+    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef,
+                    o1: DownloadRowEvaluator[t1],
+                    o2: DownloadRowEvaluator[t2],
+                    o3: DownloadRowEvaluator[t3],
+                    o4: DownloadRowEvaluator[t4],
+                    o5: DownloadRowEvaluator[t5],
+                    o6: DownloadRowEvaluator[t6],
+                    o7: DownloadRowEvaluator[t7],
+                    o8: DownloadRowEvaluator[t8]): DownloadRowEvaluator[u] & ef =
         ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
 
     ///
@@ -288,7 +323,16 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o9` are errors.
     ///
-    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4], o5: DownloadRowEvaluator[t5], o6: DownloadRowEvaluator[t6], o7: DownloadRowEvaluator[t7], o8: DownloadRowEvaluator[t8], o9: DownloadRowEvaluator[t9]): DownloadRowEvaluator[u] =
+    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef,
+                    o1: DownloadRowEvaluator[t1],
+                    o2: DownloadRowEvaluator[t2],
+                    o3: DownloadRowEvaluator[t3],
+                    o4: DownloadRowEvaluator[t4],
+                    o5: DownloadRowEvaluator[t5],
+                    o6: DownloadRowEvaluator[t6],
+                    o7: DownloadRowEvaluator[t7], 
+                    o8: DownloadRowEvaluator[t8],
+                    o9: DownloadRowEvaluator[t9]): DownloadRowEvaluator[u] & ef =
         ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
 
     ///
@@ -296,7 +340,17 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o10` are errors.
     ///
-    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef, o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4], o5: DownloadRowEvaluator[t5], o6: DownloadRowEvaluator[t6], o7: DownloadRowEvaluator[t7], o8: DownloadRowEvaluator[t8], o9: DownloadRowEvaluator[t9], o10: DownloadRowEvaluator[t10]): DownloadRowEvaluator[u] =
+    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef, 
+                    o1: DownloadRowEvaluator[t1],
+                    o2: DownloadRowEvaluator[t2],
+                    o3: DownloadRowEvaluator[t3],
+                    o4: DownloadRowEvaluator[t4],
+                    o5: DownloadRowEvaluator[t5],
+                    o6: DownloadRowEvaluator[t6],
+                    o7: DownloadRowEvaluator[t7],
+                    o8: DownloadRowEvaluator[t8],
+                    o9: DownloadRowEvaluator[t9],
+                    o10: DownloadRowEvaluator[t10]): DownloadRowEvaluator[u] & ef =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
 
     ///
@@ -379,23 +433,23 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     pub def <*(p1: DownloadRowEvaluator[a], p2: DownloadRowEvaluator[b]): DownloadRowEvaluator[a] = seqLeft(p1, p2)
 
     // Haskell's <$>
-    pub def <&>(f: a -> b, p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] =
+    pub def <&>(f: a -> b & ef, p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef =
         map(f, p2)
 
     pub def <&(x: b, p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] =
         p2 *> return(x)
 
     /// Alias for `bind`
-    pub def >>=(ma: DownloadRowEvaluator[a], k: a -> DownloadRowEvaluator[b]): DownloadRowEvaluator[b] = 
+    pub def >>=(ma: DownloadRowEvaluator[a], k: a -> DownloadRowEvaluator[b] & ef): DownloadRowEvaluator[b] & ef = 
         bind(ma, k)
 
     /// Alias for `flatMap` (flipped `bind`)
-    pub def =<<(k: a -> DownloadRowEvaluator[b], ma: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] = 
+    pub def =<<(k: a -> DownloadRowEvaluator[b] & ef , ma: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = 
         flatMap(k, ma)
 
 
     // Haskell's ap <*>
-    pub def <*>(mf: DownloadRowEvaluator[a -> b], p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] =
+    pub def <*>(mf: DownloadRowEvaluator[a -> b & ef], p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef=
         ap(mf, p2)
 
     /// Alias for `kleisliLeft`

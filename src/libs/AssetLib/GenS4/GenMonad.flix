@@ -19,9 +19,8 @@ namespace AssetLib/GenS4 {
     use AssetLib/GenS4/GenMonad.{Env, Output};
 
     /// State (for id gen and Output) + Env
-    /// TODO make monad Pure and operations impure...
-    
-    pub opaque type GenMonad[a] = (Int32, Output, Env) ~> Result[(Int32, Output, a), String]
+    /// Monad is impure so we can lift array handling into it
+    pub opaque type GenMonad[a] = (Int32, Output, Env) -> Result[(Int32, Output, a), String] & Impure
 }
 
 namespace AssetLib/GenS4/GenMonad {
@@ -66,7 +65,7 @@ namespace AssetLib/GenS4/GenMonad {
         let GenMonad(f) = x;
         f(st, w, r)
 
-    pub def map(f: a -> b & ef, x: GenMonad[a]): GenMonad[b] =
+    pub def map(f: a -> b & ef, x: GenMonad[a]): GenMonad[b] & ef =
         GenMonad((st, w, r) -> 
             match apply1(x, st, w, r) {
                 case Ok((st1, w1, a)) => {
@@ -75,10 +74,10 @@ namespace AssetLib/GenS4/GenMonad {
                 }
                 case Err(e) => Err(e)
             }
-        )  
+        ) as & ef
 
 
-    pub def ap(mf: GenMonad[a -> b & ef], ma: GenMonad[a]): GenMonad[b] = 
+    pub def ap(mf: GenMonad[a -> b & ef], ma: GenMonad[a]): GenMonad[b] & ef = 
         GenMonad((st, w, r) -> 
             match apply1(mf, st, w, r) {
                 case Ok((st1, w1, f)) => 
@@ -87,7 +86,7 @@ namespace AssetLib/GenS4/GenMonad {
                         case Err(e) => Err(e)
                     }
                 case Err(e) => Err(e)
-            })
+            }) as & ef
 
 
     pub def seqLeft(ma: GenMonad[a], mb: GenMonad[b]): GenMonad[a] = 
@@ -109,15 +108,15 @@ namespace AssetLib/GenS4/GenMonad {
             })
 
 
-    pub def bind(x: GenMonad[a], k: a -> GenMonad[b]): GenMonad[b] = 
+    pub def bind(x: GenMonad[a], k: a -> GenMonad[b] & ef): GenMonad[b] & ef = 
         GenMonad((st, w, r) -> 
             match apply1(x, st, w, r) {
-                case Ok((st1, w1, a)) => { let ans = k(a); apply1(ans, st1, w1, r) }
+                case Ok((st1, w1, a)) => { let ans = k(a) as & Impure; apply1(ans, st1, w1, r) }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> GenMonad[b], x: GenMonad[a]): GenMonad[b] = bind(x, k)
+    pub def flatMap(k: a -> GenMonad[b] & ef, x: GenMonad[a]): GenMonad[b] & ef = bind(x, k)
 
 
     pub def kleisliLeft(f1: a -> GenMonad[b], f2: b -> GenMonad[c], x: a): GenMonad[c] =
@@ -143,19 +142,18 @@ namespace AssetLib/GenS4/GenMonad {
         case None => return()
     }
 
-    pub def liftAction(f: Unit ~> a): GenMonad[a] = 
+    pub def liftAction(f: Unit -> a & Impure): GenMonad[a] = 
         GenMonad((st, w, _) -> 
-            let ans = f() as & Impure;
+            let ans = f();
             Ok((st, w, ans))
         )
 
-    pub def liftActionResult(f: Unit ~> Result[a, String]): GenMonad[a] = 
+    pub def liftActionResult(f: Unit -> Result[a, String] & Impure): GenMonad[a] = 
         GenMonad((st, w, _) -> 
-            match f() as & Impure {
+            match f() {
                 case Ok(ans) => Ok((st, w, ans))
                 case Err(msg) => Err(msg)
-            }
-            
+            }            
         )
 
 
@@ -207,7 +205,7 @@ namespace AssetLib/GenS4/GenMonad {
     /// Maybe this is too specific to be defined here. 
     /// Might just be needed for ProductData/Cad...
     pub def equiCharacteristicsSkeleton(makeFacts: EquiRef -> row -> #{| reln}, 
-                                    genChars: #{| reln} ~> Array[SLEquiCharacteristic], 
+                                    genChars: #{| reln} -> Array[SLEquiCharacteristic] & Impure, 
                                     xs: List[(EquiRef, row)]): GenMonad[Unit] =
         let facts   = RelLib/Relation.foldMap(uncurry(makeFacts), xs);
         let* chars  = liftAction(_ -> genChars(facts) |> Array.toChain);
@@ -215,7 +213,7 @@ namespace AssetLib/GenS4/GenMonad {
 
 
     /// Alias for `ap`
-    pub def <*>(p1: GenMonad[a -> b], p2: GenMonad[a]): GenMonad[b] = ap(p1, p2)
+    pub def <*>(p1: GenMonad[a -> b & ef], p2: GenMonad[a]): GenMonad[b] & ef = ap(p1, p2)
 
     /// Alias for `seqRight`
     pub def *>(p1: GenMonad[a], p2: GenMonad[b]): GenMonad[b] = seqRight(p1, p2)
@@ -228,25 +226,24 @@ namespace AssetLib/GenS4/GenMonad {
         alt(p1, p2)
 
     // Haskell's <$>
-    pub def <&>(f: a -> b, p2: GenMonad[a]): GenMonad[b] =
+    pub def <&>(f: a -> b & ef, p2: GenMonad[a]): GenMonad[b] & ef =
         map(f, p2)
 
     pub def <&(x: b, p2: GenMonad[a]): GenMonad[b] =
         p2 *> return(x)
 
     /// Alias for `bind`
-    pub def >>=(ma: GenMonad[a], k: a -> GenMonad[b]): GenMonad[b] = bind(ma, k)
+    pub def >>=(ma: GenMonad[a], k: a -> GenMonad[b] & ef): GenMonad[b] & ef = bind(ma, k)
 
     /// Alias for `flatMap` (flipped `bind`)
-    pub def =<<(k: a -> GenMonad[b], ma: GenMonad[a]): GenMonad[b] = flatMap(k, ma)
+    pub def =<<(k: a -> GenMonad[b] & ef, ma: GenMonad[a]): GenMonad[b] & ef = flatMap(k, ma)
 
 
-    pub def mapM(mf: a -> GenMonad[b], xs: List[a]): GenMonad[List[b]] =
+    pub def mapM(mf: a -> GenMonad[b] & ef, xs: List[a]): GenMonad[List[b]] & ef =
         GenMonad((st, w, r) -> 
             mapMHelper(st, w, r, mf, xs, e -> Err(e), (kst, kw, ks) -> Ok((kst, kw, ks)))
-        )
+        ) as & ef
 
-    /// (Int32, Output, AssetLib/GenS4/GenMonad.Env) ~> Result[(Int32, Output, a), String]
 
     ///
     /// Helper function for `mapM`.
@@ -254,14 +251,14 @@ namespace AssetLib/GenS4/GenMonad {
     def mapMHelper(st: Int32, 
                     w: Output,
                     r: Env,
-                    mf: a -> GenMonad[b], 
+                    mf: a -> GenMonad[b] & ef, 
                     xs: List[a], 
                     fk: String -> Result[(Int32, Output, List[b]), String], 
                     sk: (Int32, Output, List[b]) -> Result[(Int32, Output, List[b]), String]): Result[(Int32, Output, List[b]), String] & Impure =
         match xs {
             case Nil => sk(st, w, Nil)
             case x :: rs => {
-                let ma = mf(x);
+                let ma = mf(x) as & Impure;
                 match apply1(ma, st, w, r) {
                     case Err(e) => fk(e)
                     case Ok((st1, w1, x1)) => mapMHelper(st1, w1, r, mf, rs, fk, (st3, w3, ks) -> sk(st3, w3, x1 :: ks))
@@ -269,10 +266,10 @@ namespace AssetLib/GenS4/GenMonad {
             }
         }
 
-    pub def mapX(mf: a -> GenMonad[b], xs: List[a]): GenMonad[Unit] =
+    pub def mapX(mf: a -> GenMonad[b] & ef, xs: List[a]): GenMonad[Unit] & ef =
         GenMonad((st, w, r) -> 
             mapXHelper(st, w, r, mf, xs, e -> Err(e), (kst, kw) -> Ok((kst, kw, ())))
-        )
+        ) as & ef
 
     ///
     /// Helper function for `mapM`.
@@ -280,14 +277,14 @@ namespace AssetLib/GenS4/GenMonad {
     def mapXHelper(st: Int32, 
                     w: Output,
                     r: Env,
-                    mf: a -> GenMonad[b], 
+                    mf: a -> GenMonad[b] & ef, 
                     xs: List[a], 
                     fk: String -> Result[(Int32, Output, Unit), String], 
                     sk: (Int32, Output) -> Result[(Int32, Output, Unit), String]): Result[(Int32, Output, Unit), String] & Impure =
         match xs {
             case Nil => sk(st, w)
             case x :: rs => {
-                let ma = mf(x);
+                let ma = mf(x) as & Impure;
                 match apply1(ma, st, w, r) {
                     case Err(e) => fk(e)
                     case Ok((st1, w1, _)) => mapXHelper(st1, w1, r, mf, rs, fk, sk)
