@@ -1,5 +1,5 @@
-use AssetLib/Aruba/Base.{S4FlocLevel, S4SubFloc};
-use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, ChildFloc, ChildEqui, S4FlocType, FunctionalLocation, PreorderRow};
+use AssetLib/Aruba/Base.{S4FlocLevel, S4SubFloc, S4Equi};
+use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, MaintainableItem, Component, ChildFloc, ChildEqui, S4FlocType, FunctionalLocation, PreorderRow};
    
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -84,10 +84,10 @@ def main2(): Result[Unit, String] & Impure =
 
 def main3(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let src         = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06-structure-list.txt");
-    let src2        = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih08.xlsx"),
+    let src         = System/FilePath.new("G:/work/assets/other/blackmoorfoot/bla14-ih06-structure-list.txt");
+    let src2        = {path = System/FilePath.new("G:/work/assets/other/blackmoorfoot/bla14-ih08.xlsx"),
                         sheet = "Sheet1"};
-    let src3        = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.xlsx"),
+    let src3        = {path = System/FilePath.new("G:/work/assets/other/blackmoorfoot/bla14-ih06.xlsx"),
                         sheet = "Sheet1"};
     let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let hrep        = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(baseRep);
@@ -117,6 +117,12 @@ def main3(): Result[Unit, String] & Impure =
 
     AssetLib/Aruba/S4/ExportJson.siteToJson(db) |> BasicJson/Pretty.renderJson |> println;     
     AssetLib/Aruba/S4/Hierarchy.toSaltTreeTable(db) |> println;
+
+    /// query baseRep select (x1, x2) from S4Equi(x1, x2) |> Array.foreach(println);
+    Console.printLine("Row3...");
+    query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) |> Array.foreach(println);
+    Console.printLine("Components...");
+    query hrep select (x1, x2) from MaintainableItem(x1, x2) |> Array.foreach(println);
     Ok()
 
 

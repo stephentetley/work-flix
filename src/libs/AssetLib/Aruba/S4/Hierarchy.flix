@@ -28,8 +28,6 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
 
 
-    /// pub type alias S4HierarchySchema[r1: SchemaRow] = 
-    ///     #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment | r1}
 
     pub rel Site(funcloc: String, name: String)
 
@@ -43,6 +41,12 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
     /// Level 6 - e.g "Heating Unit", "Pump Assembly"
     pub rel Subsystem(funcloc: String, name: String)
+
+    /// Level 7 - e.g "Cubicle"
+    pub rel MaintainableItem(funcloc: String, name: String)
+
+    /// Level 8 - e.g ???
+    pub rel Component(funcloc: String, name: String)
 
     pub rel Equipment(equiId: String, name: String, funcloc: String)
 
@@ -65,7 +69,7 @@ namespace AssetLib/Aruba/S4/Hierarchy {
 
     /// Translation relies on S4 site levels, etc.
     pub def fromS4BaseRelations(input: #{S4Floc, S4SubFloc, S4SubEqui, S4FlocLevel, S4Equi, S4EquiLocation | r}): 
-                            #{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                            #{Site, Function, ProcessGroup, Process, System, Subsystem, MaintainableItem, Component, 
                                 Equipment, ChildFloc, ChildEqui, FunctionalLocation | r1} = 
         let rules = #{
             Site(funcloc, name):- 
@@ -92,6 +96,15 @@ namespace AssetLib/Aruba/S4/Hierarchy {
                 S4Floc(funcloc, name),
                 S4FlocLevel(funcloc, 6).
 
+            MaintainableItem(funcloc, name):- 
+                S4Floc(funcloc, name),
+                S4FlocLevel(funcloc, 7).
+
+            Component(funcloc, name):- 
+                S4Floc(funcloc, name),
+                S4FlocLevel(funcloc, 8).
+
+
             Equipment(equiId, name, floc) :- 
                 S4Equi(equiId, name),
                 S4EquiLocation(equiId, floc).
@@ -116,8 +129,8 @@ namespace AssetLib/Aruba/S4/Hierarchy {
             
         };
         let input1 = input as #{S4Floc, S4SubFloc, S4FlocLevel, S4Equi, S4SubEqui, S4EquiLocation,  
-                                    Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEqui, FunctionalLocation | r};
-        solve input1 <+> rules project Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEqui, FunctionalLocation
+                                    Site, Function, ProcessGroup, Process, System, Subsystem, MaintainableItem, Component, Equipment, ChildFloc, ChildEqui, FunctionalLocation | r};
+        solve input1 <+> rules project Site, Function, ProcessGroup, Process, System, Subsystem, MaintainableItem, Component, Equipment, ChildFloc, ChildEqui, FunctionalLocation
 
 
 
@@ -126,8 +139,8 @@ namespace AssetLib/Aruba/S4/Hierarchy {
     pub rel PreorderRow(treeKey: String, flocOrEqui: String, uid: String, descr: String, parentKey: String)
 
     /// Note - can "map" the array of PreorderRows, elaborating the uid to a more descriptive type.
-    pub def preorderRows(): #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                                ChildFloc, ChildEqui, PreorderRow | r1} = #{
+    pub def preorderRows(): #{Site, Function, ProcessGroup, Process, System, Subsystem, MaintainableItem, Component, 
+                                Equipment, ChildFloc, ChildEqui, PreorderRow | r1} = #{
 
 
         /// Unbounded tree - including equipment at various levels and subequipment.
@@ -154,6 +167,14 @@ namespace AssetLib/Aruba/S4/Hierarchy {
             Subsystem(funcloc, name), 
             ChildFloc(sysFloc, funcloc).
         
+        PreorderRow(funcloc, "FLOC", funcloc, name, sysFloc) :- 
+            MaintainableItem(funcloc, name), 
+            ChildFloc(sysFloc, funcloc).
+
+        PreorderRow(funcloc, "FLOC", funcloc, name, sysFloc) :- 
+            Component(funcloc, name), 
+            ChildFloc(sysFloc, funcloc).
+
         PreorderRow(equiKey(floc, equiId), "EQUI", equiId, name, floc) :-
             Equipment(equiId, name, floc), 
             not IsSubEquipment(equiId).
@@ -176,20 +197,21 @@ namespace AssetLib/Aruba/S4/Hierarchy {
     def subEquiParentKey(floc: String, superEquiId: String): String = "${floc}::${superEquiId}"
 
 
-    pub def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                                ChildFloc, ChildEqui | r}): RoseForest[(String, String)] =                                
+    pub def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, MaintainableItem, Component,
+                                Equipment, ChildFloc, ChildEqui | r}): RoseForest[(String, String)] =                                
         
         let extractor = 
             { getKey    = RelLib/Tuple.decons5((x, _, _, _, _) -> x)
             , getValue  = RelLib/Tuple.decons5((_, _, x, y, _) -> (x, y))
             , getParent = RelLib/Tuple.decons5((_, _, _, _, x) -> x)
             };
-        let src1 = src as #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, ChildEqui, PreorderRow | r};
+        let src1 = src as #{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                MaintainableItem, Component, Equipment, ChildFloc, ChildEqui, PreorderRow | r};
         (query src1 <+> preorderRows() select (x1, x2, x3, x4, x5) from PreorderRow(x1, x2, x3, x4, x5) 
             |> RelLib/UnboundedTree.unboundForest("", extractor)) as & Pure 
 
-    pub def toSaltTree(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                                ChildFloc, ChildEqui | r}): String =
+    pub def toSaltTree(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                MaintainableItem, Component, Equipment, ChildFloc, ChildEqui | r}): String =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
             case xs => RoseTree(("Root", ""), xs)
@@ -197,8 +219,8 @@ namespace AssetLib/Aruba/S4/Hierarchy {
         PlantUml/SaltTree.tree(printLabel = xy -> {let (x1, _) = xy; PlantUml/Creole.text(x1)}, tree1) |> PlantUml/Puml.render
 
 
-    pub def toSaltTreeTable(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
-                                    ChildFloc, ChildEqui | r}): String =
+    pub def toSaltTreeTable(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                    MaintainableItem, Component, Equipment, ChildFloc, ChildEqui | r}): String =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
             case xs => RoseTree(("Root", ""), xs)

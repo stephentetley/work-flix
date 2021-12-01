@@ -21,7 +21,7 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
     
     use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
     use AssetLib/Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 
-        Equipment, ChildFloc, ChildEqui, FunctionalLocation};
+        MaintainableItem, Equipment, ChildFloc, ChildEqui, FunctionalLocation};
     
 
     pub rel IH06Floc(floc: String, description: String, parentFloc: String)
@@ -47,7 +47,7 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
         readIH06Relations(src) |> Result.map(toBase)
 
     pub def readHierarchyRelations(src: System.FilePath): Result[#{Site, Function, ProcessGroup, Process, System, Subsystem, 
-                                Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
+                                MaintainableItem, Equipment, ChildFloc, ChildEqui, FunctionalLocation | r}, String] & Impure = 
         readBaseRelations(src) |> 
             Result.map(AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations)
 

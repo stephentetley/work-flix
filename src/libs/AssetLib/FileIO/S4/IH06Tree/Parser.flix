@@ -108,8 +108,11 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     def validFrom(): Parser[t1, LocalDate] = 
         symbol("Valid From") `seqRight` lexeme(dateStamp())
 
+
+    /// If the row was highlighted it will have an X for the first char.
+    /// WARNING - this is not currently finding "X"...
     def indenting(): Parser[t1, Unit] = 
-        ignore(lookingAts("(\\||\\-|\\s)+")) `swapError` "indenting"
+        ignore(lookingAts("([X]\\s+)?(\\||\\-|\\s)+")) `swapError` "indenting"
     
     def equipmentId(): Parser[t1, String] = 
         lookingAts("\\$?\\d+") `swapError` "equipmentId"
