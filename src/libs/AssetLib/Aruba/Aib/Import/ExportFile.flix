@@ -68,12 +68,23 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
         let hkeys           = getAibHKeys(rows);                                
         Ok(equi <+> commonNames <+> parents <+> hkeys)
 
+    pub rel HasParent(aibref: String)
+
     /// No SubEqui - this is not represented in Aib.
     pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType | r1} = 
         let rules = #{ 
+
+            HasParent(aibref) :- AibParentName(aibref, _).
+
             AibEqui(aibref, equiname) :- 
                 AibEquipment(aibref, _, _), 
                 AibParentName(aibref, equiname).
+
+            /// Root floc
+            AibFloc(aibref, commonName, commonName) :- 
+                AibCommonName(aibref, commonName),
+                not HasParent(aibref),
+                if not (String.contains(substr = "EQUIPMENT: ", commonName) or String.contains(substr = "EQPT: ", commonName)).
 
             AibFloc(aibref, commonName, nameAfterNeedle({substr = parentName}, commonName)) :- 
                 AibCommonName(aibref, commonName),
@@ -98,7 +109,8 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
                 AibEquipment(aibref, equitype, _).
 
         };
-        let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType | r};
+        let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, AibFloc, 
+                                AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType, HasParent | r};
         solve (input1 <+> rules) project AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType
 
     def nameAfterNeedle(substr: {substr :: String}, commonName: String): String = 
@@ -126,7 +138,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
 
     /// This should be pure?
-    def evalEquipment(sainum: String): MatchEvaluator[#{AibEquipment |r}] & Impure = 
+    def evalEquipment(sainum: String): MatchEvaluator[#{AibEquipment |r}] = 
         use Text/Regex/MatchEvaluator.{getCaptureNamed, lift2};
         let eval1 = lift2((s1, s2) -> #{AibEquipment(sainum, String.trim(s1), s2). }, getCaptureNamed("equiType"), getCaptureNamed("flocPath"));
         eval1

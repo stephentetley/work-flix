@@ -79,8 +79,10 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
                 AibEqui(equiId, name), 
                 AibEquiLocation(equiId, floc).
 
-            EquiType(equiId, tyname) :- 
-                AibEquiType(equiId, tyname).
+            EquiType(equiId, tyname) :- AibEquiType(equiId, tyname).
+
+            ChildFloc(parent: String, child) :- AibSubFloc(parent, child).
+
 
         };
         let input1 = input as #{AibFloc, AibEqui, AibSubFloc, AibEquiLocation, AibSubEqui, AibFlocLevel, AibEquiType,  
@@ -88,4 +90,105 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
         solve input1 <+> rules project Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, Equipment, ChildFloc, EquiType
 
 
+
+    /// toPlantUml / RoseTree
+
+    pub rel PreorderRow(treeKey: String, flocOrEqui: String, uid: String, descr: String, parentKey: String)
+
+    pub rel HasParent(commonName: String)
+
+    /// Note - can "map" the array of PreorderRows, elaborating the uid to a more descriptive type.
+    pub def preorderRows(): #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
+                                Equipment, ChildFloc, EquiType , PreorderRow | r1} = #{
+
+
+        HasParent(commonName) :- ChildFloc(_, commonName).
+
+        /// Unbounded tree - including equipment at various levels and subequipment.
+        
+        /// Installation is root
+        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
+            Installation(_, commonName, name).
+
+        
+        /// SubInstallation is root
+        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
+            SubInstallation(_, commonName, name),
+            not HasParent(commonName).
+        
+        /// SubInstallation is not root
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
+            SubInstallation(refnum, commonName, name),
+            ChildFloc(siteFloc, commonName).
+
+
+        /// ProcessGroup is root
+        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
+            ProcessGroup(_, commonName, name), 
+            not HasParent(commonName).
+
+        /// ProcessGroup is not root
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
+            ProcessGroup(refnum, commonName, name),
+            ChildFloc(siteFloc, commonName).
+        
+        /// Process is root
+        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
+            Process(_, commonName, name), 
+            not HasParent(commonName).
+
+        /// Process is not root
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
+            Process(refnum, commonName, name),
+            ChildFloc(siteFloc, commonName).
+
+        
+        /// Plant is root
+        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
+            Plant(_, commonName, name), 
+            not HasParent(commonName).
+
+        /// Plant is not root
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
+            Plant(refnum, commonName, name),
+            ChildFloc(siteFloc, commonName). 
+        
+        /// PlantItem is root
+        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
+            PlantItem(_, commonName, name), 
+            not HasParent(commonName).
+
+        /// PlantItem is not root
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
+            PlantItem(refnum, commonName, name),
+            ChildFloc(siteFloc, commonName). 
+
+/*
+
+        PreorderRow(equiKey(floc, equiId), "EQUI", equiId, name, floc) :-
+            Equipment(equiId, name, floc), 
+            not IsSubEquipment(equiId).
+
+        /// Subequipment
+        PreorderRow(subEquiKey(floc, superEquiId, equiId), "EQUI", equiId, name, subEquiParentKey(floc, superEquiId)) :-
+            Equipment(equiId, name, floc), 
+            ChildEqui(superEquiId, equiId).
+
+        IsSubEquipment(equiId) :- 
+            Equipment(equiId, _, _), 
+            ChildEqui(_, equiId).
+    */
+    }
+
+    def flocKey(floc: String): String = "${floc}/"
+
+    /*
+    def equiKey(floc: String, equiId: String): String = "${floc}::${equiId}"
+
+    def subEquiKey(floc: String, superEquiId: String, equiId: String): String = "${floc}::${superEquiId}::${equiId}"
+
+    def subEquiParentKey(floc: String, superEquiId: String): String = "${floc}::${superEquiId}"
+
+    */
+    
 }

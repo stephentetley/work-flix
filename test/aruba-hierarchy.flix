@@ -84,15 +84,15 @@ def main2(): Result[Unit, String] & Impure =
 
 def main3(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let src         = System/FilePath.new("G:/work/assets/other/blackmoorfoot/bla14-ih06-structure-list.txt");
-    let src2        = {path = System/FilePath.new("G:/work/assets/other/blackmoorfoot/bla14-ih08.xlsx"),
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/lofts/lofts-ih06-structure-list.txt");
+    let equiSrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/lofts/lofts-ih08.xlsx"),
                         sheet = "Sheet1"};
-    let src3        = {path = System/FilePath.new("G:/work/assets/other/blackmoorfoot/bla14-ih06.xlsx"),
+    let flocSrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/lofts/lofts-ih06.xlsx"),
                         sheet = "Sheet1"};
     let* baseRep    = AssetLib/Aruba/S4/Import/IH06StructureList.readBaseRelations(src);
     let hrep        = AssetLib/Aruba/S4/Hierarchy.fromS4BaseRelations(baseRep);
-    let* equitypes  = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(src2);
-    let* floctypes  = AssetLib/Aruba/S4/Import/IH06Table.readS4FlocTypes(src3);
+    let* equitypes  = AssetLib/Aruba/S4/Import/IH08Table.readS4EquiTypes(equiSrc);
+    let* floctypes  = AssetLib/Aruba/S4/Import/IH06Table.readS4FlocTypes(flocSrc);
     let db          = hrep <+> floctypes <+> equitypes;
     let rules       = #{
 
