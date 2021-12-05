@@ -16,7 +16,6 @@
 
 namespace AssetLib/Aruba/S4/Hierarchy {
 
-
     use Data.RoseForest;
     use Data.RoseTree.RoseTree;
     use AssetLib/Aruba/S4/Base.{S4Floc, S4SubFloc, S4FlocLevel, S4Equi, S4SubEqui, S4EquiLocation};

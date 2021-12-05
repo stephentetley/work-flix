@@ -16,7 +16,8 @@
 
 namespace AssetLib/Aruba/Aib/Hierarchy {
 
-
+    use Data.RoseForest;
+    use Data.RoseTree.RoseTree;
     use AssetLib/Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibEquiLocation, AibSubEqui, AibFlocLevel, AibEquiType};
 
 
@@ -38,7 +39,7 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
     /// Level 6 - e.g "Heating Unit", "Pump Assembly"
     pub rel PlantItem(sainum: String, commonName: String, name: String)
 
-    pub rel Equipment(equiId: String, name: String, floc: String)
+    pub rel Equipment(equiId: String, commonName: String, name: String)
 
     /// Floc childOf relation
     pub rel ChildFloc(parentFlocId: String, childFlocId: String)
@@ -75,9 +76,9 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
                 AibFloc(sainum, commonName, name),
                 AibFlocLevel(sainum, "Plant_Item").
 
-            Equipment(equiId, name, floc) :- 
+            Equipment(equiId, commonName, name) :- 
                 AibEqui(equiId, name), 
-                AibEquiLocation(equiId, floc).
+                AibEquiLocation(equiId, commonName).
 
             EquiType(equiId, tyname) :- AibEquiType(equiId, tyname).
 
@@ -99,22 +100,22 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
     /// Note - can "map" the array of PreorderRows, elaborating the uid to a more descriptive type.
     pub def preorderRows(): #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, EquiType , PreorderRow | r1} = #{
+                                Equipment, ChildFloc, PreorderRow | r1} = #{
 
 
-        HasParent(commonName) :- ChildFloc(_, commonName).
+        HasParent(refnum) :- ChildFloc(_, refnum).
 
         /// Unbounded tree - including equipment at various levels and subequipment.
         
         /// Installation is root
-        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
-            Installation(_, commonName, name).
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
+            Installation(refnum, commonName, name).
 
         
         /// SubInstallation is root
-        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
-            SubInstallation(_, commonName, name),
-            not HasParent(commonName).
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
+            SubInstallation(refnum, commonName, name),
+            not HasParent(refnum).
         
         /// SubInstallation is not root
         PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
@@ -123,9 +124,9 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
 
         /// ProcessGroup is root
-        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
-            ProcessGroup(_, commonName, name), 
-            not HasParent(commonName).
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
+            ProcessGroup(refnum, commonName, name), 
+            not HasParent(refnum).
 
         /// ProcessGroup is not root
         PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
@@ -133,9 +134,9 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             ChildFloc(siteFloc, commonName).
         
         /// Process is root
-        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
-            Process(_, commonName, name), 
-            not HasParent(commonName).
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
+            Process(refnum, commonName, name), 
+            not HasParent(refnum).
 
         /// Process is not root
         PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
@@ -144,9 +145,9 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
         
         /// Plant is root
-        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
-            Plant(_, commonName, name), 
-            not HasParent(commonName).
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
+            Plant(refnum, commonName, name), 
+            not HasParent(refnum).
 
         /// Plant is not root
         PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
@@ -154,41 +155,64 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             ChildFloc(siteFloc, commonName). 
         
         /// PlantItem is root
-        PreorderRow(flocKey(commonName), "FLOC", commonName, name, "") :- 
-            PlantItem(_, commonName, name), 
-            not HasParent(commonName).
+        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
+            PlantItem(refnum, commonName, name), 
+            not HasParent(refnum).
 
         /// PlantItem is not root
         PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(siteFloc)) :- 
             PlantItem(refnum, commonName, name),
             ChildFloc(siteFloc, commonName). 
 
-/*
+        /// PlantItem is root
+        PreorderRow(flocKey(commonName), "EQUI", refnum, name, "") :- 
+            Equipment(refnum, commonName, name), 
+            not HasParent(refnum).
 
-        PreorderRow(equiKey(floc, equiId), "EQUI", equiId, name, floc) :-
-            Equipment(equiId, name, floc), 
-            not IsSubEquipment(equiId).
+        /// PlantItem is not root
+        PreorderRow(commonName, "EQUI", refnum, name, equiParentKey(commonName)) :- 
+            Equipment(refnum, commonName, name). 
 
-        /// Subequipment
-        PreorderRow(subEquiKey(floc, superEquiId, equiId), "EQUI", equiId, name, subEquiParentKey(floc, superEquiId)) :-
-            Equipment(equiId, name, floc), 
-            ChildEqui(superEquiId, equiId).
-
-        IsSubEquipment(equiId) :- 
-            Equipment(equiId, _, _), 
-            ChildEqui(_, equiId).
-    */
     }
 
-    def flocKey(floc: String): String = "${floc}/"
+    def flocKey(commonName: String): String = "${commonName}/"
 
-    /*
-    def equiKey(floc: String, equiId: String): String = "${floc}::${equiId}"
+    def equiParentKey(commonName: String): String = 
+        let s1 = String.breakOnRight(substr = "EQUIPMENT:", commonName) |> fst;
+        "${s1}/"
 
-    def subEquiKey(floc: String, superEquiId: String, equiId: String): String = "${floc}::${superEquiId}::${equiId}"
+    pub def toRoseForest(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
+                                Equipment, ChildFloc | r}): RoseForest[(String, String)] =                                
+        
+        let extractor = 
+            { getKey    = RelLib/Tuple.decons5((x, _, _, _, _) -> x)
+            , getValue  = RelLib/Tuple.decons5((_, _, x, y, _) -> (x, y))
+            , getParent = RelLib/Tuple.decons5((_, _, _, _, x) -> x)
+            };
+        let src1 = src as #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
+                                Equipment, ChildFloc, PreorderRow  | r};
+        (query src1 <+> preorderRows() select (x1, x2, x3, x4, x5) from PreorderRow(x1, x2, x3, x4, x5) 
+            |> RelLib/UnboundedTree.unboundForest("", extractor)) as & Pure 
 
-    def subEquiParentKey(floc: String, superEquiId: String): String = "${floc}::${superEquiId}"
+    pub def toSaltTree(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
+                                Equipment, ChildFloc | r}): String =
+        let tree1 = match toRoseForest(src) { 
+            case t1 :: Nil => t1
+            case xs => RoseTree(("Root", ""), xs)
+        };
+        PlantUml/SaltTree.tree(printLabel = xy -> {let (x1, _) = xy; PlantUml/Creole.text(x1)}, tree1) |> PlantUml/Puml.render
 
-    */
-    
+
+    pub def toSaltTreeTable(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
+                                    Equipment, ChildFloc | r}): String =
+        let tree1 = match toRoseForest(src) { 
+            case t1 :: Nil => t1
+            case xs => RoseTree(("Root", ""), xs)
+        };
+        let headers = List.map(PlantUml/Creole.text, "Key" :: "Name" :: Nil);
+        PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1) = xy; PlantUml/Creole.text(x1) :: PlantUml/Creole.text(y1) :: Nil}, headers, tree1) |> PlantUml/Puml.render
+
+
+
+
 }

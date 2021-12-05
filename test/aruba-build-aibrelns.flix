@@ -17,6 +17,9 @@ def main1(): Result[Unit, String] & Impure =
     let baseRep     = AssetLib/Aruba/Aib/Import/ExportFile.toBase(srcRel);
     Console.printLine("Flocs...");
     query baseRep select (x1, x2, x3) from AibFloc(x1, x2, x3) |> Array.foreach(println);
+
+    Console.printLine("AibSubFloc...");
+    query baseRep select (x1, x2) from AibSubFloc(x1, x2) |> Array.foreach(println);
     /*
     Console.printLine("Equi...");
     /// let rename2 = xy -> (fst(xy), AssetLib/Base/Utils.properCaseName(snd(xy)));
@@ -33,7 +36,10 @@ def main1(): Result[Unit, String] & Impure =
     let hrep = AssetLib/Aruba/Aib/Hierarchy.fromAibBaseRelations(baseRep);
     
     Console.printLine("PreorderRow...");
-    query hrep <+> AssetLib/Aruba/Aib/Hierarchy.preorderRows() select (x1, x4) from PreorderRow(x1, _, _, x4, _) 
+    query hrep <+> AssetLib/Aruba/Aib/Hierarchy.preorderRows() select (x1, x2, x3, x4, x5) from PreorderRow(x1, x2, x3, x4, x5) 
         |> Array.foreach(println);
 
+    (hrep <+> AssetLib/Aruba/Aib/Hierarchy.preorderRows()) 
+        |> AssetLib/Aruba/Aib/Hierarchy.toSaltTreeTable 
+        |> Console.printLine;
     Ok()  

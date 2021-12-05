@@ -137,11 +137,10 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
         RelLib/Relation.foldMapResult(x1 -> Text/Regex.evalMatchesOption(patt, evalEquipment(x1.reference), x1.commonName) |> Result.map(optional), rows)
 
 
-    /// This should be pure?
+
     def evalEquipment(sainum: String): MatchEvaluator[#{AibEquipment |r}] = 
         use Text/Regex/MatchEvaluator.{getCaptureNamed, lift2};
-        let eval1 = lift2((s1, s2) -> #{AibEquipment(sainum, String.trim(s1), s2). }, getCaptureNamed("equiType"), getCaptureNamed("flocPath"));
-        eval1
+        lift2((s1, s2) -> #{AibEquipment(sainum, String.trim(s1), s2). }, getCaptureNamed("equiType"), getCaptureNamed("flocPath"))
 
     def getCommonNames(rows: List[ExportRow]): #{AibCommonName |r}  = 
         RelLib/Relation.foldMap(x1 -> #{ AibCommonName(x1.reference, x1.commonName). }, rows)
