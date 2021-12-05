@@ -23,11 +23,9 @@ namespace AssetLib/Aruba/Aib/Base {
 
     pub rel AibFloc(sainum: String, commonName: String, levelName: String)
 
-    pub rel AibEqui(equiId: String, name: String)
+    pub rel AibEqui(equiId: String, commonName: String, equiType: String)
 
     pub rel AibSubFloc(parentFlocId: String, childFlocId: String)
-
-    pub rel AibEquiLocation(equiId: String, floc: String)
 
     pub rel AibSubEqui(parentId: String, childId: String)
 

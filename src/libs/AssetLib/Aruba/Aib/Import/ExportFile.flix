@@ -71,14 +71,13 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
     pub rel HasParent(aibref: String)
 
     /// No SubEqui - this is not represented in Aib.
-    pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType | r1} = 
+    pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{AibFloc, AibEqui, AibSubFloc, AibFlocLevel, AibEquiType | r1} = 
         let rules = #{ 
 
             HasParent(aibref) :- AibParentName(aibref, _).
 
-            AibEqui(aibref, equiname) :- 
-                AibEquipment(aibref, _, _), 
-                AibParentName(aibref, equiname).
+            AibEqui(aibref, commonName, equiType) :- 
+                AibEquipment(aibref, commonName, equiType).
 
             /// Root floc
             AibFloc(aibref, commonName, commonName) :- 
@@ -91,8 +90,6 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
                 AibParentName(aibref, parentName),
                 if not (String.contains(substr = "EQUIPMENT: ", commonName) or String.contains(substr = "EQPT: ", commonName)).
 
-            AibEquiLocation(equiId, floc) :- 
-                AibEquipment(equiId, _, floc).
             
             /// This is more complicated due to Installation / Sub Installation...
             /// Probably needs to be a longest prefix lattice.
@@ -110,8 +107,8 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
         };
         let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, AibFloc, 
-                                AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType, HasParent | r};
-        solve (input1 <+> rules) project AibFloc, AibEqui, AibEquiLocation, AibSubFloc, AibFlocLevel, AibEquiType
+                                AibEqui, AibSubFloc, AibFlocLevel, AibEquiType, HasParent | r};
+        solve (input1 <+> rules) project AibFloc, AibEqui, AibSubFloc, AibFlocLevel, AibEquiType
 
     def nameAfterNeedle(substr: {substr :: String}, commonName: String): String = 
         match String.breakOnRight(substr = substr.substr + "/", commonName) {
@@ -121,7 +118,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
 
     /// Temporary relations to generate Base relations...
-    pub rel AibEquipment(plinum: String, equiType: String, flocPath: String)
+    pub rel AibEquipment(plinum: String, commonName: String, equiType: String)
 
     pub rel AibCommonName(refnum: String, commonName: String)
 
@@ -132,15 +129,21 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
     /// Note this can produce "PIPEWORK AND FITTINGS" and "MEDIA" which are not "true" equipment.
     def getEquipment(rows: List[ExportRow]): Result[#{AibEquipment |r}, String] & Impure = 
         use Result.flatMap;
-        use RelLib/Relation.{optional};
         let* patt = Text/Regex/Pattern.compile("^(?<flocPath>.+)/EQ(UI)?P(MEN)?T: (?<equiType>.+)$");
-        RelLib/Relation.foldMapResult(x1 -> Text/Regex.evalMatchesOption(patt, evalEquipment(x1.reference), x1.commonName) |> Result.map(optional), rows)
+        RelLib/Relation.foldMapResult(getEquipment1(patt), rows)
 
+    def getEquipment1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibEquipment |r}, String] & Impure =
+        use Result.flatMap;
+        use Text/Regex/MatchEvaluator.{getCaptureNamed};        
+        let* equiType = Text/Regex.evalMatchesOption(patt, getCaptureNamed("equiType"), row.commonName);
+        match equiType { 
+            case None     => Ok(#{})
+            case Some(ty) => Ok(#{ AibEquipment(row.reference, row.commonName, ty). })
+        }
 
-
-    def evalEquipment(sainum: String): MatchEvaluator[#{AibEquipment |r}] = 
-        use Text/Regex/MatchEvaluator.{getCaptureNamed, lift2};
-        lift2((s1, s2) -> #{AibEquipment(sainum, String.trim(s1), s2). }, getCaptureNamed("equiType"), getCaptureNamed("flocPath"))
+    /// def evalEquipment(sainum: String): MatchEvaluator[#{AibEquipment |r}] = 
+    ///     use Text/Regex/MatchEvaluator.{getCaptureNamed, lift2};
+    ///     lift2((s1, s2) -> #{AibEquipment(sainum, String.trim(s1), s2). }, getCaptureNamed("equiType"), getCaptureNamed("flocPath"))
 
     def getCommonNames(rows: List[ExportRow]): #{AibCommonName |r}  = 
         RelLib/Relation.foldMap(x1 -> #{ AibCommonName(x1.reference, x1.commonName). }, rows)
