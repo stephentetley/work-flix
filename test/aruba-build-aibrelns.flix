@@ -1,6 +1,6 @@
 
 use AssetLib/Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibEquiType};
-use AssetLib/Aruba/Aib/Hierarchy.{Equipment, PlantItem, HKeyPrefix, ChildFloc, MakeKey};
+use AssetLib/Aruba/Aib/Hierarchy.{Equipment, PlantItem, CommonNamePrefix, ChildFloc, MakeKey};
 
 def main(_args: Array[String]): Int32 & Impure = 
     Console.printLine("Running... ${Time/LocalTime.now()}");
@@ -43,8 +43,8 @@ def main1(): Result[Unit, String] & Impure =
     Console.printLine("PlantItem...");
     query hrep select (x1, x2, x3) from PlantItem(x1, x2, x3) |> Array.foreach(println);
 
-    Console.printLine("HKeyPrefix...");
-    query hrep select (x1; x2) from HKeyPrefix(x1; x2) |> Array.foreach(println);
+    Console.printLine("CommonNamePrefix...");
+    query hrep select (x1; x2) from CommonNamePrefix(x1; x2) |> Array.foreach(println);
 
     Console.printLine("ChildFloc...");
     query hrep select (x1, x2) from ChildFloc(x1, x2) |> Array.foreach(println);
@@ -53,14 +53,7 @@ def main1(): Result[Unit, String] & Impure =
     query hrep <+> AssetLib/Aruba/Aib/Hierarchy.preorderRows() select (x1, x2, x3, x4, x5) from PreorderRow(x1, x2, x3, x4, x5) 
         |> Array.foreach(println);
 
-    Console.printLine("MakeKey...");
-    query hrep <+> AssetLib/Aruba/Aib/Hierarchy.preorderRows() select (x1, x2) from MakeKey(x1, x2) 
-        |> Array.foreach(println);        
-
-    (hrep <+> AssetLib/Aruba/Aib/Hierarchy.preorderRows()) 
-        |> AssetLib/Aruba/Aib/Hierarchy.toSaltTreeTable 
-        |> Console.printLine;
-
+    AssetLib/Aruba/Aib/Hierarchy.toSaltTreeTable(hrep) |> Console.printLine;
 
     Ok()  
 
