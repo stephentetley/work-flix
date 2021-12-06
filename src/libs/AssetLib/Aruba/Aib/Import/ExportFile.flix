@@ -90,7 +90,10 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
         if (Text/Regex.contains(row.commonName, patt))
             Ok(#{})
         else 
-            Ok(#{ AibFloc(row.reference, row.commonName, row.hkey). })
+            if (row.hkey != "TODO")
+                Ok(#{ AibFloc(row.reference, row.commonName, row.hkey). })
+            else
+                Ok(#{})
 
 
 }

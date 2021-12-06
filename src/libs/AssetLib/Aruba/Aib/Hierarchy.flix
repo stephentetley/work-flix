@@ -160,15 +160,15 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
     pub rel PreorderRow(treeKey: String, flocOrEqui: String, uid: String, descr: String, parentKey: String)
 
     pub rel HasParent(commonName: String)
+    
+    pub rel EquiParentKey(plinum: String, parentKey: String)
 
-    /// pub rel MakeKey(sainum: String, treeKey: String)
-
-    /// def makeRootKey(level: Int32, name: String): String = "${level}:${name}"
 
     /// WARNING - have to rely commonNames to make a hierarchy even though they are not reliable.
+    /// (Potentially we drop equipment...)
     /// No other like between Equi and Floc.
     pub def preorderRows(): #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, CommonName, HasParent, PreorderRow | r1} = #{
+                                Equipment, ChildFloc, CommonName, HasParent, EquiParentKey, PreorderRow | r1} = #{
 
 
         HasParent(refnum) :- ChildFloc(_, refnum).
@@ -239,13 +239,24 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             ChildFloc(parentRef, refnum),
             CommonName(parentRef, parentKey).
 
-/*
-        /// Equipment
-        PreorderRow(commonName, "EQUI", refnum, typeName, equiParentKey(commonName)) :- 
-            Equipment(refnum, commonName, typeName). 
-*/
+        /// Equipment (only generate if parentKey exists...)
+        PreorderRow(commonName, "EQUI", refnum, typeName, parentKey) :- 
+            Equipment(refnum, commonName, typeName),            
+            EquiParentKey(refnum, parentKey),
+            CommonName(_, parentKey).
+
+        EquiParentKey(refnum, equiParentKey(commonName)) :- 
+            Equipment(refnum, commonName, _).
+            
     }
 
+    def equiParentKey(name: String): String = 
+        let (s1, s2) = String.breakOnLeft(substr = "/EQUIPMENT:", name);
+        if (not String.isEmpty(s2))
+            s1
+        else
+            String.breakOnLeft(substr = "/EQPT:", name) |> fst
+            
 
     pub def toRoseForest(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
                                 Equipment, ChildFloc, CommonName | r}): RoseForest[(String, String)] =                                
@@ -256,7 +267,7 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             , getParent = RelLib/Tuple.decons5((_, _, _, _, x) -> x)
             };
         let src1 = src as #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, CommonName, HasParent, PreorderRow | r};
+                                Equipment, ChildFloc, CommonName, HasParent, EquiParentKey, PreorderRow | r};
         (query src1 <+> preorderRows() select (x1, x2, x3, x4, x5) from PreorderRow(x1, x2, x3, x4, x5) 
             |> RelLib/UnboundedTree.unboundForest("", extractor)) as & Pure 
 
