@@ -18,7 +18,8 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
     use Data.RoseForest;
     use Data.RoseTree.RoseTree;
-    use AssetLib/Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibSubEqui, AibFlocLevel, AibEquiType};
+    use RelLib/Lattice/LongestPrefix.{LongestPrefix};
+    use AssetLib/Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibFlocLevel, AibEquiType};
 
 
     /// Note - we want to represent partial hierarchies (i.e. not starting from Installation), 
@@ -44,54 +45,97 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
     /// Floc childOf relation
     pub rel ChildFloc(parentFlocId: String, childFlocId: String)
 
-    pub rel EquiType(equiId: String, equitype: String)
+    /// Equi childOf relation
+    pub rel ChildEqui(parentFlocId: String, childEquiId: String)
 
-    pub rel CommonName(sainum: String, commonName: String)
+    /// `pub` for testing?
+    pub lat HKeyPrefix(sainum: String, longestHKey: LongestPrefix)
+    
+    rel HKeyPrefixValue(sainum: String, longestHKey: String)
+
+    rel SingleName(sainum: String, longestHKey: String)
+
+    def hkeyPrefix(hkey1: String, hkey2: String): LongestPrefix = 
+        use RelLib/Lattice/LongestPrefix.{longestPrefix};
+        if (String.length(hkey1) <= String.length(hkey2)) 
+            LowerBound.minValue() 
+        else {
+            let prefix = String.commonPrefix(hkey1, hkey2);
+            longestPrefix(prefix)
+        } 
+
+    def getSingleName(parent: {parent :: String}, child: String): String = 
+        match String.stripPrefix(substr = parent.parent, child) {
+            case None => child
+            case Some(s) => if (String.startsWith(prefix = "/", s)) String.dropLeft(1, s) else s
+        }
+
+
 
     /// Translation is input source specific, we rely on S4 specific site levels, etc.
-    pub def fromAibBaseRelations(input: #{AibFloc, AibEqui, AibSubFloc, AibSubEqui, AibFlocLevel, AibEquiType | r}): 
+    pub def fromAibBaseRelations(input: #{AibFloc, AibEqui | r}): 
                             #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, EquiType, CommonName | r1} = 
+                                Equipment, ChildFloc, ChildEqui, HKeyPrefix | r1} = 
         let rules = #{
-            Installation(sainum, commonName, name):- 
-                AibFloc(sainum, commonName, name),
-                AibFlocLevel(sainum, "Installation").
+            Installation(sainum, commonName, commonName):- 
+                AibFloc(sainum, commonName, hkey),
+                if AssetLib/Aruba/Aib/Base.flocLevel(hkey) == "Installation".
 
-            SubInstallation(sainum, commonName, name):- 
-                AibFloc(sainum, commonName, name),
-                AibFlocLevel(sainum, "Sub_Installation").
+            SubInstallation(sainum, commonName, commonName):- 
+                AibFloc(sainum, commonName, hkey),
+                if AssetLib/Aruba/Aib/Base.flocLevel(hkey) == "Sub_Installation".
 
-            ProcessGroup(sainum, commonName, name):- 
-                AibFloc(sainum, commonName, name),
-                AibFlocLevel(sainum, "Process_Group").
+            ProcessGroup(sainum, commonName, itemName):- 
+                AibFloc(sainum, commonName, hkey),
+                SingleName(sainum, itemName),
+                if AssetLib/Aruba/Aib/Base.flocLevel(hkey) == "Process_Group".
 
-            Process(sainum, commonName, name):- 
-                AibFloc(sainum, commonName, name),
-                AibFlocLevel(sainum, "Process").
+            Process(sainum, commonName, itemName):- 
+                AibFloc(sainum, commonName, hkey),
+                SingleName(sainum, itemName),
+                if AssetLib/Aruba/Aib/Base.flocLevel(hkey) == "Process".
 
-            Plant(sainum, commonName, name):- 
-                AibFloc(sainum, commonName, name),
-                AibFlocLevel(sainum, "Plant").
+            Plant(sainum, commonName, itemName):- 
+                AibFloc(sainum, commonName, hkey),
+                SingleName(sainum, itemName),
+                if AssetLib/Aruba/Aib/Base.flocLevel(hkey) == "Plant".
 
-            PlantItem(sainum, commonName, name):- 
-                AibFloc(sainum, commonName, name),
-                AibFlocLevel(sainum, "Plant_Item").
+            PlantItem(sainum, commonName, itemName):- 
+                AibFloc(sainum, commonName, hkey),
+                SingleName(sainum, itemName),
+                if AssetLib/Aruba/Aib/Base.flocLevel(hkey) == "Plant_Item".
 
             Equipment(equiId, commonName, equiType) :- 
                 AibEqui(equiId, commonName, equiType).
 
-            EquiType(equiId, tyname) :- AibEquiType(equiId, tyname).
+            /// This finds the "parent"...
+            HKeyPrefix(sainum; hkeyPrefix(hkey1, hkey2)) :- 
+                AibFloc(sainum, _, hkey1),
+                AibFloc(_, _, hkey2).
 
-            ChildFloc(parent: String, child) :- 
-                AibSubFloc(parent, child).
+            /// This exposes the value as a String...
+            HKeyPrefixValue(sainum, Option.getWithDefault(RelLib/Lattice/LongestPrefix.getValue(hkey), "")) :- 
+                HKeyPrefix(sainum; hkey).
 
-            CommonName(sainum, commonName) :- AibFloc(sainum, commonName, _).
 
+            ChildFloc(parent, child) :- 
+                AibFloc(child, _, _),
+                HKeyPrefixValue(child, hkey),
+                AibFloc(parent, _, hkey).
+
+            SingleName(sainum, getSingleName(parent = parentName, childName)) :- 
+                AibFloc(sainum, childName, _),
+                ChildFloc(parentRef, sainum), 
+                AibFloc(parentRef, parentName, _).
+        
 
         };
-        let input1 = input as #{AibFloc, AibEqui, AibSubFloc, AibSubEqui, AibFlocLevel, AibEquiType,  
-                                    Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, Equipment, ChildFloc, EquiType, CommonName | r};
-        solve input1 <+> rules project Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, Equipment, ChildFloc, EquiType, CommonName
+        let input1 = input as #{AibFloc, AibEqui,
+                                Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, Equipment, 
+                                ChildFloc, ChildEqui, HKeyPrefix, HKeyPrefixValue, SingleName | r};
+        solve input1 <+> rules project Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
+                                        Equipment, ChildFloc, ChildEqui, HKeyPrefix
+
 
 
 
@@ -101,97 +145,165 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
     pub rel HasParent(commonName: String)
 
-    /// Note - can "map" the array of PreorderRows, elaborating the uid to a more descriptive type.
+    pub rel MakeKey(sainum: String, treeKey: String)
+
+    def makeRootKey(level: Int32, name: String): String = "${level}:${name}"
+
+    /// WARNING - commonNames are not reliable to make a hierarchy - must use HKey instead...
     pub def preorderRows(): #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, CommonName, PreorderRow | r1} = #{
+                                Equipment, ChildFloc, HasParent, MakeKey, PreorderRow | r1} = #{
 
 
         HasParent(refnum) :- ChildFloc(_, refnum).
 
-        /// Unbounded tree - including equipment at various levels and subequipment.
-        
-        /// Installation is root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
-            Installation(refnum, commonName, name).
 
-        
+        MakeKey(refnum, makeRootKey(1, name)) :- 
+            Installation(refnum, _, name).
+
+
         /// SubInstallation is root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
-            SubInstallation(refnum, commonName, name),
+        MakeKey(refnum, makeRootKey(2, name)) :- 
+            SubInstallation(refnum, _, name),
             not HasParent(refnum).
-        
-        /// SubInstallation is not root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(parentName)) :- 
-            SubInstallation(refnum, commonName, name),
-            ChildFloc(parentRef, refnum),
-            CommonName(parentRef, parentName).
 
+        /// SubInstallation is not root
+        MakeKey(refnum, "${root}#2:${name}") :- 
+            SubInstallation(refnum, _, name),
+            ChildFloc(parentRef, refnum),
+            MakeKey(parentRef, root).
 
         /// ProcessGroup is root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
-            ProcessGroup(refnum, commonName, name), 
+        MakeKey(refnum, makeRootKey(3, name)) :- 
+            ProcessGroup(refnum, _, name),
             not HasParent(refnum).
 
         /// ProcessGroup is not root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(parentName)) :- 
-            ProcessGroup(refnum, commonName, name),
+        MakeKey(refnum, "${root}#3:${name}") :- 
+            ProcessGroup(refnum, _, name),
             ChildFloc(parentRef, refnum),
-            CommonName(parentRef, parentName).
+            MakeKey(parentRef, root).
 
-        
         /// Process is root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
-            Process(refnum, commonName, name), 
+        MakeKey(refnum, makeRootKey(4, name)) :- 
+            Process(refnum, _, name),
             not HasParent(refnum).
 
-        /// Process is not root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(parentName)) :- 
-            Process(refnum, commonName, name),
+        /// ProcessGroup is not root
+        MakeKey(refnum, "${root}#4:${name}") :- 
+            Process(refnum, _, name),
             ChildFloc(parentRef, refnum),
-            CommonName(parentRef, parentName).
+            MakeKey(parentRef, root).
 
-        
         /// Plant is root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
-            Plant(refnum, commonName, name), 
+        MakeKey(refnum, makeRootKey(5, name)) :- 
+            Plant(refnum, _, name),
             not HasParent(refnum).
 
         /// Plant is not root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(parentName)) :- 
-            Plant(refnum, commonName, name),
+        MakeKey(refnum, "${root}#5:${name}") :- 
+            Plant(refnum, _, name),
             ChildFloc(parentRef, refnum),
-            CommonName(parentRef, parentName).
-        
+            MakeKey(parentRef, root).
+
         /// PlantItem is root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, "") :- 
-            PlantItem(refnum, commonName, name), 
+        MakeKey(refnum, makeRootKey(6, name)) :- 
+            PlantItem(refnum, _, name),
             not HasParent(refnum).
 
         /// PlantItem is not root
-        PreorderRow(flocKey(commonName), "FLOC", refnum, name, flocKey(parentName)) :- 
-            PlantItem(refnum, commonName, name),
+        MakeKey(refnum, "${root}#6:${name}") :- 
+            PlantItem(refnum, _, name),
             ChildFloc(parentRef, refnum),
-            CommonName(parentRef, parentName).
+            MakeKey(parentRef, root).
 
-        /// EQuipment
+
+        /// Unbounded tree - including equipment at various levels and subequipment.
+        
+        /// Installation is root
+        PreorderRow(key, "FLOC", refnum, name, "") :- 
+            Installation(refnum, _, name),
+            MakeKey(refnum, key).
+
+        
+        /// SubInstallation is root
+        PreorderRow(key, "FLOC", refnum, name, "") :- 
+            SubInstallation(refnum, _, name),
+            MakeKey(refnum, key),
+            not HasParent(refnum).
+
+
+        /// SubInstallation is not root
+        PreorderRow(key, "FLOC", refnum, name, parentKey) :- 
+            SubInstallation(refnum, _, name),
+            MakeKey(refnum, key),
+            ChildFloc(parentRef, refnum),
+            MakeKey(parentRef, parentKey).
+
+  
+        /// ProcessGroup is root
+        PreorderRow(key, "FLOC", refnum, name, "") :- 
+            ProcessGroup(refnum, _, name),
+            MakeKey(refnum, key),
+            not HasParent(refnum).
+
+        /// ProcessGroup is not root
+        PreorderRow(key, "FLOC", refnum, name, parentKey) :- 
+            ProcessGroup(refnum, _, name),
+            MakeKey(refnum, key),
+            ChildFloc(parentRef, refnum),
+            MakeKey(parentRef, parentKey).
+
+      
+        /// Process is root
+        PreorderRow(key, "FLOC", refnum, name, "") :- 
+            Process(refnum, _, name),
+            MakeKey(refnum, key),
+            not HasParent(refnum).
+
+        /// Process is not root
+        PreorderRow(key, "FLOC", refnum, name, parentKey) :- 
+            Process(refnum, _, name),
+            MakeKey(refnum, key),
+            ChildFloc(parentRef, refnum),
+            MakeKey(parentRef, parentKey).
+
+        
+        /// Plant is root
+        PreorderRow(key, "FLOC", refnum, name, "") :- 
+            Plant(refnum, _, name),
+            MakeKey(refnum, key),
+            not HasParent(refnum).
+
+        /// Plant is not root
+        PreorderRow(key, "FLOC", refnum, name, parentKey) :- 
+            Plant(refnum, _, name),
+            MakeKey(refnum, key),
+            ChildFloc(parentRef, refnum),
+            MakeKey(parentRef, parentKey).
+        
+        /// PlantItem is root
+        PreorderRow(key, "FLOC", refnum, name, "") :- 
+            PlantItem(refnum, _, name),
+            MakeKey(refnum, key),
+            not HasParent(refnum).
+
+        /// PlantItem is not root
+        PreorderRow(key, "FLOC", refnum, name, parentKey) :- 
+            PlantItem(refnum, _, name),
+            MakeKey(refnum, key),
+            ChildFloc(parentRef, refnum),
+            MakeKey(parentRef, parentKey).
+
+/*
+        /// Equipment
         PreorderRow(commonName, "EQUI", refnum, typeName, equiParentKey(commonName)) :- 
             Equipment(refnum, commonName, typeName). 
-
+*/
     }
 
-    def flocKey(commonName: String): String = "${commonName}/"
-
-    def equiParentKey(commonName: String): String = 
-        let (s1, s2) = String.breakOnLeft(substr = "/EQUIPMENT:", commonName);
-        if (not String.isEmpty(s2)) 
-            "${s1}/"
-        else {
-            let (t1, _) = String.breakOnLeft(substr = "EQPT:", commonName);
-            "${t1}/"
-        }
 
     pub def toRoseForest(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, CommonName | r}): RoseForest[(String, String)] =                                
+                                Equipment, ChildFloc | r}): RoseForest[(String, String)] =                                
         
         let extractor = 
             { getKey    = RelLib/Tuple.decons5((x, _, _, _, _) -> x)
@@ -199,12 +311,12 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             , getParent = RelLib/Tuple.decons5((_, _, _, _, x) -> x)
             };
         let src1 = src as #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, PreorderRow, CommonName | r};
+                                Equipment, ChildFloc, HasParent, MakeKey, PreorderRow | r};
         (query src1 <+> preorderRows() select (x1, x2, x3, x4, x5) from PreorderRow(x1, x2, x3, x4, x5) 
             |> RelLib/UnboundedTree.unboundForest("", extractor)) as & Pure 
 
     pub def toSaltTree(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                Equipment, ChildFloc, CommonName | r}): String =
+                                Equipment, ChildFloc | r}): String =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
             case xs => RoseTree(("Root", ""), xs)
@@ -213,15 +325,13 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
 
     pub def toSaltTreeTable(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
-                                    Equipment, ChildFloc, CommonName | r}): String =
+                                    Equipment, ChildFloc | r}): String =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
             case xs => RoseTree(("Root", ""), xs)
         };
         let headers = List.map(PlantUml/Creole.text, "Key" :: "Name" :: Nil);
         PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1) = xy; PlantUml/Creole.text(x1) :: PlantUml/Creole.text(y1) :: Nil}, headers, tree1) |> PlantUml/Puml.render
-
-
 
 
 }

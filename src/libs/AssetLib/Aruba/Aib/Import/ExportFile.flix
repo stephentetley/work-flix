@@ -36,7 +36,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
 
 
-    pub def readExportRelations(src: XlsxSource): Result[#{AibEquipment, AibCommonName, AibParentName, AibHKey}, String] & Impure =         
+    pub def readExportRelations(src: XlsxSource): Result[#{AibEqui, AibFloc | r}, String] & Impure =         
         use Result.{flatMap};
         let* rows = SheetIO/Reader.allNamedRows(evalExportRow(), src);
         buildExportFileRelations(rows)
@@ -59,131 +59,38 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
 
 
-    def buildExportFileRelations(rows: List[ExportRow]): Result[#{AibEquipment, AibCommonName, AibParentName, AibHKey | r}, String] & Impure = 
+    def buildExportFileRelations(rows: List[ExportRow]): Result[#{AibEqui, AibFloc | r}, String] & Impure = 
         use Result.{flatMap};
         let* equi           = getEquipment(rows);
-        let commonNames     = getCommonNames(rows);
-        let parents         = List.map(x1 -> {reference = x1.reference, commonName = x1.commonName}, rows) 
-                                |> AssetLib/Aruba/Aib/Import/Internal/HierarchyNames.getParentNames;
-        let hkeys           = getAibHKeys(rows);                                
-        Ok(equi <+> commonNames <+> parents <+> hkeys)
-
-    pub rel HasParent(aibref: String)
-
-    /// No SubEqui - this is not represented in Aib.
-    pub def toBase(input: #{AibEquipment, AibCommonName, AibParentName, AibHKey | r}): #{AibFloc, AibEqui, AibSubFloc, AibFlocLevel, AibEquiType | r1} = 
-        let rules = #{ 
-
-            HasParent(aibref) :- AibParentName(aibref, _).
-
-            AibEqui(aibref, commonName, equiType) :- 
-                AibEquipment(aibref, commonName, equiType).
-
-            /// Root floc
-            AibFloc(aibref, commonName, commonName) :- 
-                AibCommonName(aibref, commonName),
-                not HasParent(aibref),
-                if not (String.contains(substr = "EQUIPMENT: ", commonName) or String.contains(substr = "EQPT: ", commonName)).
-
-            AibFloc(aibref, commonName, nameAfterNeedle({substr = parentName}, commonName)) :- 
-                AibCommonName(aibref, commonName),
-                AibParentName(aibref, parentName),
-                if not (String.contains(substr = "EQUIPMENT: ", commonName) or String.contains(substr = "EQPT: ", commonName)).
-
-            
-            /// This is more complicated due to Installation / Sub Installation...
-            /// Probably needs to be a longest prefix lattice.
-            /// Or just don't generate...
-            AibSubFloc(parent, child) :- 
-                AibHKey(child, _, parentHKey), 
-                AibHKey(parent, parentHKey, _).
-            
-            AibFlocLevel(aibref, flocLevel(hkey)) :- 
-                AibHKey(aibref, hkey, _), 
-                if String.length(hkey) > 0.
-
-            AibEquiType(aibref, equitype) :- 
-                AibEquipment(aibref, equitype, _).
-
-        };
-        let input1 = input as #{AibEquipment, AibParentName, AibCommonName, AibHKey, AibFloc, 
-                                AibEqui, AibSubFloc, AibFlocLevel, AibEquiType, HasParent | r};
-        solve (input1 <+> rules) project AibFloc, AibEqui, AibSubFloc, AibFlocLevel, AibEquiType
-
-    def nameAfterNeedle(substr: {substr :: String}, commonName: String): String = 
-        match String.breakOnRight(substr = substr.substr + "/", commonName) {
-            case (all, "") => all
-            case (_, rs) => rs
-        }
-
-
-    /// Temporary relations to generate Base relations...
-    pub rel AibEquipment(plinum: String, commonName: String, equiType: String)
-
-    pub rel AibCommonName(refnum: String, commonName: String)
-
-    pub rel AibHKey(sainum: String, hkey: String, parentHKey: String)
-
+        let* flocs          = getFuncloc(rows);
+        Ok(equi <+> flocs)
 
 
     /// Note this can produce "PIPEWORK AND FITTINGS" and "MEDIA" which are not "true" equipment.
-    def getEquipment(rows: List[ExportRow]): Result[#{AibEquipment |r}, String] & Impure = 
+    def getEquipment(rows: List[ExportRow]): Result[#{AibEqui |r}, String] & Impure = 
         use Result.flatMap;
-        let* patt = Text/Regex/Pattern.compile("^(?<flocPath>.+)/EQ(UI)?P(MEN)?T: (?<equiType>.+)$");
+        let* patt = Text/Regex/Pattern.compile("^.+/EQ(UI)?P(MEN)?T: (?<equiType>.+)$");
         RelLib/Relation.foldMapResult(getEquipment1(patt), rows)
 
-    def getEquipment1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibEquipment |r}, String] & Impure =
+    def getEquipment1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibEqui |r}, String] & Impure =
         use Result.flatMap;
         use Text/Regex/MatchEvaluator.{getCaptureNamed};        
         let* equiType = Text/Regex.evalMatchesOption(patt, getCaptureNamed("equiType"), row.commonName);
         match equiType { 
-            case None     => Ok(#{})
-            case Some(ty) => Ok(#{ AibEquipment(row.reference, row.commonName, ty). })
+            case None      => Ok(#{})
+            case Some(ty1) => Ok(#{ AibEqui(row.reference, row.commonName, ty1). })
         }
 
-    /// def evalEquipment(sainum: String): MatchEvaluator[#{AibEquipment |r}] = 
-    ///     use Text/Regex/MatchEvaluator.{getCaptureNamed, lift2};
-    ///     lift2((s1, s2) -> #{AibEquipment(sainum, String.trim(s1), s2). }, getCaptureNamed("equiType"), getCaptureNamed("flocPath"))
+    def getFuncloc(rows: List[ExportRow]): Result[#{AibFloc |r}, String] = 
+        use Result.flatMap;
+        let* patt = Text/Regex/Pattern.compile("^.+/EQ(UI)?P(MEN)?T: .+$");
+        RelLib/Relation.foldMapResult(getFuncloc1(patt), rows)
 
-    def getCommonNames(rows: List[ExportRow]): #{AibCommonName |r}  = 
-        RelLib/Relation.foldMap(x1 -> #{ AibCommonName(x1.reference, x1.commonName). }, rows)
-
-    def getAibHKeys(rows: List[ExportRow]): #{AibHKey |r}  = 
-        let step = x1 -> 
-            RelLib/Relation.whenTrue(String.startsWith(prefix = "1", x1.hkey) or String.startsWith(prefix = "2", x1.hkey),
-                                    #{ AibHKey(x1.reference, x1.hkey, decreaseHKey(x1.hkey)). });
-        RelLib/Relation.foldMap(step, rows)
-
-    /// This is more complicated, currently doesn't account for "Installation" versus "Sub_Installation"...
-    def decreaseHKey(hkey: String): String = 
-        if (hkey == "TODO" or String.isEmpty(hkey)) 
-            "TODO"
-        else
-            match String.length(hkey) {
-                case 1 => ""
-                case 4 => String.takeLeft(1, hkey)
-                case 8 => String.takeLeft(4, hkey)
-                case 13 => String.takeLeft(8, hkey)
-                case 20 => String.takeLeft(13, hkey)
-                case 24 => String.takeLeft(20, hkey)
-                case 31 => String.takeLeft(24, hkey)
-                case 36 => String.takeLeft(31, hkey)
-                case _ => ""
-            }
-
-
-    def flocLevel(hkey: String): String = match String.length(hkey) {
-        case 1 => "Business_Unit"
-        case 4 => "System"
-        case 8 => "Function"
-        case 13 => "Installation"
-        case 18 => "Sub_Installation"
-        case 20 => "Process_Group"
-        case 24 => "Process"
-        case 31 => "Plant"
-        case 36 => "Plant_Item"
-        case _ => "Unknown"
-    }
+    def getFuncloc1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibFloc |r}, String] =     
+        if (Text/Regex.contains(row.commonName, patt))
+            Ok(#{})
+        else 
+            Ok(#{ AibFloc(row.reference, row.commonName, row.hkey). })
 
 
 }
