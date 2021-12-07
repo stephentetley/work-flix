@@ -46,7 +46,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Utils {
 
 
     def abs(x: Float64): Float64 = 
-        import java.lang.Math:abs(Float64);
+        import static java.lang.Math.abs(Float64);
         abs(x) as & Pure
 
     pub def recognizedVoltageUnits(s: String): Bool = match s { 

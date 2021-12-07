@@ -346,7 +346,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     /// TODO make PR for Flix... with ceil and floor
     def round(x: Float64): Float64 =
-        import java.lang.Math:rint(Float64);
+        import static java.lang.Math.rint(Float64);
         rint(x) as & Pure
 
 }
