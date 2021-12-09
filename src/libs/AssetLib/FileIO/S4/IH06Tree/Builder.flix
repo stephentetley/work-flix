@@ -18,7 +18,7 @@
 namespace AssetLib/FileIO/S4/IH06Tree/Builder {
         
     use Data.{RoseTree, RoseForest};
-    use Data.RoseTree.{RoseTree};
+    use Data.RoseTree.{Node};
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File, IH06Row, IH06Tree, IH06Node, FlocRow, EquiRow};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
@@ -79,7 +79,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
                 if (isChildNodeFloc(parentId, r1.parent))
                     treesList(r1.floc, rest, (kids, rest1) -> {
                         let label = makeFlocNode(r1);
-                        let node = RoseTree(label, kids);
+                        let node = Node(label, kids);
                         treesList(parentId, rest1, (siblings, rest2) -> k(node :: siblings, rest2))
                     })
                 else
@@ -89,7 +89,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
                 if (isChildNodeEqui(parentId, r1.floc, r1.superordinate))
                     treesList(r1.equiId, rest, (kids, rest1) -> {
                         let label = makeEquiNode(r1);
-                        let node = RoseTree(label, kids);
+                        let node = Node(label, kids);
                         treesList(parentId, rest1, (siblings, rest2) -> k(node :: siblings, rest2))
                     })
                 else

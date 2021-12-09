@@ -19,7 +19,7 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/Builder {
     
 
     use Data.{RoseTree, RoseForest};
-    use Data.RoseTree.{RoseTree};
+    use Data.RoseTree.{Node};
 
     use AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes.{AibTreeFile, AibRow, AibTree, AibNode};
 
@@ -37,7 +37,7 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/Builder {
                 if (String.startsWith(prefix = parentCommonName, r1.commonName))
                     treesList(level + 1, r1.reference, r1.commonName, rest, (kids, rest1) -> {
                         let label = makeAibNode(level, parent, parentCommonName, r1);
-                        let node = RoseTree(label, kids);
+                        let node = Node(label, kids);
                         treesList(level, parent, parentCommonName, rest1, (siblings, rest2) -> k(node :: siblings, rest2))
                     })
                 else

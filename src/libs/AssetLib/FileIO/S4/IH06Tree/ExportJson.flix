@@ -18,7 +18,7 @@
 namespace AssetLib/FileIO/S4/IH06Tree/ExportJson {
 
     use Data.RoseTree;
-    use Data.RoseTree.{RoseTree};
+    use Data.RoseTree.{Node};
 
     use BasicJson.JsonValue;
     use BasicJson/JsonBuilder.JsObject;
@@ -40,7 +40,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportJson {
     pub def jsonTree(node: RoseTree[IH06Node]): JsonValue = 
         use BasicJson/JsonBuilder.{putField, arrayOf, objectOf};
         match node {
-            case RoseTree(label, kids) => { 
+            case Node(label, kids) => { 
                 let obj = makeNode(label);
                 jsonKids(kids, vs -> obj |> putField("kids", arrayOf(List.map(objectOf, vs))))
             }
@@ -48,7 +48,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportJson {
 
     def jsonNode(node: RoseTree[IH06Node], k: JsObject -> JsObject): JsObject = 
         use BasicJson/JsonBuilder.{putField, arrayOf, objectOf};
-        let RoseTree(label, kids) = node;
+        let Node(label, kids) = node;
         let obj = makeNode(label);
         jsonKids(kids, vs -> k(obj |> putField("kids", arrayOf(List.map(objectOf, vs)))))
 

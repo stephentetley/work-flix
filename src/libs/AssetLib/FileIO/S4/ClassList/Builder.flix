@@ -17,7 +17,7 @@
 namespace AssetLib/FileIO/S4/ClassList/Builder {
 
     use Data.{RoseTree, RoseForest};
-    use Data.RoseTree.{RoseTree};
+    use Data.RoseTree.{Node};
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Class, Characteristic, Refinement};
@@ -104,7 +104,7 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
 
     def buildRoseTree(src: Class): RoseTree[Label] = 
         let label = { name = src.name, description = src.description};
-        roseTreeChars(src.characteristics,  xs -> RoseTree(label, xs))
+        roseTreeChars(src.characteristics,  xs -> Node(label, xs))
 
     def roseTreeChars(xs: List[Characteristic], k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
         match xs { 
@@ -117,17 +117,17 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
     def roseTreeChar1(src: Characteristic, k: RoseTree[Label] -> RoseTree[Label]): RoseTree[Label] = 
         let label = { name = src.name, description = src.description};
         match src.refinement { 
-            case Some(r) => roseTreeRefines1(r, kids -> k(RoseTree(label, kids)))
-            case None => k(RoseTree(label, Nil))
+            case Some(r) => roseTreeRefines1(r, kids -> k(Node(label, kids)))
+            case None => k(Node(label, Nil))
         }
 
     def roseTreeRefines1(src: Refinement, k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
         let intRangeLabel = (x,y) -> {name = "Int Range", description = Int32.toString(x) + " - " + Int32.toString(y) };
         let decimalRangeLabel = (x,y) -> {name = "Decimal Range", description = Float64.toString(x) + " - " + Float64.toString(y) };
         match src { 
-            case ListOfValues(xs)   => k(List.map(x -> RoseTree({name = "Value", description = x}, Nil), xs))
-            case IntRange(x, y)     => k(RoseTree(intRangeLabel(x,y), Nil) :: Nil)
-            case DecimalRange(x, y) => k(RoseTree(decimalRangeLabel(x,y), Nil) :: Nil)
+            case ListOfValues(xs)   => k(List.map(x -> Node({name = "Value", description = x}, Nil), xs))
+            case IntRange(x, y)     => k(Node(intRangeLabel(x,y), Nil) :: Nil)
+            case DecimalRange(x, y) => k(Node(decimalRangeLabel(x,y), Nil) :: Nil)
         }
         
 }

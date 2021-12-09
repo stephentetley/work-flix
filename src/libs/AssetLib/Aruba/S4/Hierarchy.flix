@@ -17,7 +17,7 @@
 namespace AssetLib/Aruba/S4/Hierarchy {
 
     use Data.RoseForest;
-    use Data.RoseTree.RoseTree;
+    use Data.RoseTree.{Node};
     use AssetLib/Aruba/S4/Base.{S4Floc, S4SubFloc, S4FlocLevel, S4Equi, S4SubEqui, S4EquiLocation};
 
 
@@ -213,7 +213,7 @@ namespace AssetLib/Aruba/S4/Hierarchy {
                                 MaintainableItem, Component, Equipment, ChildFloc, ChildEqui | r}): String =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
-            case xs => RoseTree(("Root", ""), xs)
+            case xs => Node(("Root", ""), xs)
         };
         PlantUml/SaltTree.tree(printLabel = xy -> {let (x1, _) = xy; PlantUml/Creole.text(x1)}, tree1) |> PlantUml/Puml.render
 
@@ -222,7 +222,7 @@ namespace AssetLib/Aruba/S4/Hierarchy {
                                     MaintainableItem, Component, Equipment, ChildFloc, ChildEqui | r}): String =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
-            case xs => RoseTree(("Root", ""), xs)
+            case xs => Node(("Root", ""), xs)
         };
         let headers = List.map(PlantUml/Creole.text, "Key" :: "Name" :: Nil);
         PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1) = xy; PlantUml/Creole.text(x1) :: PlantUml/Creole.text(y1) :: Nil}, headers, tree1) |> PlantUml/Puml.render

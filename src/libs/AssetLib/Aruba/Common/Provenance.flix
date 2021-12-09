@@ -17,7 +17,7 @@
 namespace AssetLib/Aruba/Common/Provenance {
 
     use Data.RoseForest;
-    use Data.RoseTree.RoseTree;    
+    use Data.RoseTree.{Node};    
     use PlantUml/Creole.Creole;
 
     use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi};
@@ -101,7 +101,7 @@ namespace AssetLib/Aruba/Common/Provenance {
                                     ChildFloc, ChildEqui, S4Provenance | r}): PlantUml/Puml.Puml =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
-            case xs => RoseTree(("Root", "", Existing), xs)
+            case xs => Node(("Root", "", Existing), xs)
         };
         let headers = List.map(PlantUml/Creole.text, "Key" :: "Name" :: Nil);
         PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1, z1) = xy; printKey(x1, z1) :: printLabel(y1, z1) :: Nil}, headers, tree1)

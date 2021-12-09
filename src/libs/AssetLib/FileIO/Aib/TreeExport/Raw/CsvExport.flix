@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-use Data.RoseTree.{RoseTree};
-
-use FactIO.CsvExport;
-use FactIO.CsvRowSetter;
-
-use AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes.{AibTree, AibNode};
 
 namespace AssetLib/FileIO/Aib/TreeExport/Raw/CsvExport {
 
+
+    use Data.RoseTree.{Node};
+
+    use FactIO.CsvExport;
+    use FactIO.CsvRowSetter;
+
+    use AssetLib/FileIO/Aib/TreeExport/Raw/Datatypes.{AibTree, AibNode};
 
     pub def exportAibTreesCsv(src: List[AibTree], path: System.FilePath): Result[Unit, String] & Impure =
         use Result.{flatMap};
@@ -39,7 +40,7 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/CsvExport {
 
     def writeAibTree(src: AibTree): CsvExport[Unit] = 
         use FactIO/CsvExport.{flatMap, writeRow, traverseX};
-        let RoseTree(label, kids) = src;
+        let Node(label, kids) = src;
         let* _ = writeRow(emitAibNode(label));
         traverseX(writeAibTree, kids)
 

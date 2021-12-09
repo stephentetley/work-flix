@@ -18,7 +18,7 @@
 namespace AssetLib/FileIO/Aib/TreeExport/ExportDb {
 
 
-    use Data.RoseTree.{RoseTree};
+    use Data.RoseTree.{Node};
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatement;
@@ -51,7 +51,7 @@ namespace AssetLib/FileIO/Aib/TreeExport/ExportDb {
 
     def emitAibTree(stmt: PreparedStatement, src: AibTree): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, psExecuteUpdate, traverseX};
-        let RoseTree(node, kids) = src;
+        let Node(node, kids) = src;
         let* _ = psExecuteUpdate(stmt, aibNodeWriter(node));
         traverseX(emitAibTree(stmt), kids)
 
