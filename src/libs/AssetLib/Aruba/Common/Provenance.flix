@@ -22,7 +22,7 @@ namespace AssetLib/Aruba/Common/Provenance {
 
     use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi};
     use AssetLib/Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 
-        Equipment, ChildFloc, ChildEqui, PreorderRow};
+        MaintainableItem, Component, Equipment, ChildFloc, ChildEqui, PreorderRow};
 
     /// Provenance needs an explicit Bottom
     /// TODO `Change` looks like it should be `Change(Set[String])` so it can record changes
@@ -97,7 +97,8 @@ namespace AssetLib/Aruba/Common/Provenance {
 
     pub def toSaltTreeTable(printKey: (String, Provenance) -> Creole,
                             printLabel: (String, Provenance) -> Creole,
-                            src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
+                            src: #{Site, Function, ProcessGroup, Process, System, Subsystem, 
+                                    MaintainableItem, Component, Equipment, 
                                     ChildFloc, ChildEqui, S4Provenance | r}): PlantUml/Puml.Puml =
         let tree1 = match toRoseForest(src) { 
             case t1 :: Nil => t1
@@ -107,7 +108,8 @@ namespace AssetLib/Aruba/Common/Provenance {
         PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1, z1) = xy; printKey(x1, z1) :: printLabel(y1, z1) :: Nil}, headers, tree1)
 
 
-    def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, 
+    def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem,
+                                MaintainableItem, Component, Equipment,
                                 ChildFloc, ChildEqui, S4Provenance | r}): RoseForest[(String, String, Provenance)] =                                
         
         let extractor = 
@@ -115,8 +117,9 @@ namespace AssetLib/Aruba/Common/Provenance {
             , getValue  = RelLib/Tuple.decons5((_, x, y, _, z) -> (x, y, z))
             , getParent = RelLib/Tuple.decons5((_, _, _, x, _) -> x)
             };
-        let src1 = src as #{Site, Function, ProcessGroup, Process, System, Subsystem, Equipment, ChildFloc, 
-                                ChildEqui, PreorderRow, PreorderRow5, S4Provenance, HasS4Provenance | r};
+        let src1 = src as #{Site, Function, ProcessGroup, Process, System, Subsystem,
+                                MaintainableItem, Component, Equipment,
+                                ChildFloc, ChildEqui, PreorderRow, PreorderRow5, S4Provenance, HasS4Provenance | r};
         let db1 = src1 <+> AssetLib/Aruba/S4/Hierarchy.preorderRows() <+> elaborateRows();
         (query db1 select (x1, x2, x3, x4; x5) from PreorderRow5(x1, x2, x3, x4; x5) 
             |> RelLib/UnboundedTree.unboundForest("", extractor)) as & Pure 
