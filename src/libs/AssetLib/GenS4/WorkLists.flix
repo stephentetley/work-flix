@@ -40,6 +40,7 @@ namespace AssetLib/GenS4/WorkLists {
         , position :: Option[Int32]
         , gridRef :: String
         , solutionId :: String
+        , batchNumber :: Int32
         }
 
     /// Flocs
@@ -51,22 +52,23 @@ namespace AssetLib/GenS4/WorkLists {
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, point, map, getNonEmptyContentNamed, getTrimmedContentNamed, getInt32Named, optional, liftResult}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
-        let* floc           = map(String.trim, getNonEmptyContentNamed("Functional Location"));
-        let* name           = map(String.trim, getNonEmptyContentNamed("Description"));
-        let* sainums        = map(stringList, getTrimmedContentNamed("Aib References (semi sep list)"));
+        let* floc           = getNonEmptyContentNamed("Functional Location");
+        let* name           = getNonEmptyContentNamed("Description");
+        let* sainums        = getTrimmedContentNamed("Aib References (semi sep list)");
         let* installedFrom  = getS4LocalDateNamed("Installed From (dd.MM.yyyy)");
-        let* structureInd   = map(String.trim, getNonEmptyContentNamed("Structure Indicator"));
-        let* objType        = map(String.trim, getNonEmptyContentNamed("Object Type"));
-        let* sysClass       = map(String.trim, getTrimmedContentNamed("Class Name (System)"));
-        let* sysType        = map(String.trim, getTrimmedContentNamed("System Type (Text)"));
-        let* position       = map(FromString.fromString, getTrimmedContentNamed("Position"));
-        let* ngr            = map(String.trim, getNonEmptyContentNamed("NGR"));
-        let* solutionId     = map(String.trim, getTrimmedContentNamed("Solution ID"));
+        let* structureInd   = getNonEmptyContentNamed("Structure Indicator");
+        let* objType        = getNonEmptyContentNamed("Object Type");
+        let* sysClass       = getTrimmedContentNamed("Class Name (System)");
+        let* sysType        = getTrimmedContentNamed("System Type (Text)");
+        let* position       = optional(getInt32Named("Position"));
+        let* ngr            = getNonEmptyContentNamed("NGR");
+        let* solutionId     = getTrimmedContentNamed("Solution ID");
         let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
+        let* batch          = optional(getInt32Named("Batch"));
         point({ funcloc                = floc
                 , description           = name
                 , level                 = AssetLib/Base/S4/Floc.level(objfloc)
-                , sainums               = sainums
+                , sainums               = stringList(sainums)
                 , installedFrom         = installedFrom
                 , structureIndicator    = structureInd
                 , objectType            = objType
@@ -75,6 +77,7 @@ namespace AssetLib/GenS4/WorkLists {
                 , position              = position
                 , gridRef               = ngr
                 , solutionId            = solutionId
+                , batchNumber           = Option.getWithDefault(batch, 1)
                 })
 
     def stringList(s: String): List[String] = 

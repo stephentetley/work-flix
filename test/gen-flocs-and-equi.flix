@@ -19,17 +19,17 @@ def sourceFiles(): GenUxlSource =
             {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-memos-export.xlsx"), sheet = "Sheet1"}
         , aibAgaspExport = 
             {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-agasp-export.xlsx"), sheet = "Sheet1"}
+        , optExports = 
+            { aibElectricalExport =
+                Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-electrical-export.xlsx"), sheet = "Sheet1"})
+            , aibInstrumentExport =
+                Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-instrument-export.xlsx"), sheet = "Sheet1"})
+            , aibPumpExport = 
+                Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-pump-export.xlsx"), sheet = "Sheet1"})
+            , aibValveExport = 
+                Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-valve-export.xlsx"), sheet = "Sheet1"})
+            | opts}
         }
-    , optionalFacts = 
-        { aibElectricalExport =
-            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-electrical-export.xlsx"), sheet = "Sheet1"})
-        , aibInstrumentExport =
-            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-instrument-export.xlsx"), sheet = "Sheet1"})
-        , aibPumpExport = 
-            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-pump-export.xlsx"), sheet = "Sheet1"})
-        , aibValveExport = 
-            Some({path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-valve-export.xlsx"), sheet = "Sheet1"})
-        | opts}
     }
 
 

@@ -29,13 +29,13 @@ namespace AssetLib/GenS4/GenUxl {
         { flocWorkList :: Option[XlsxSource]
         , equiWorkList :: Option[XlsxSource]
         , facts :: FactExports
-        , optionalFacts :: OptionalExports
         }
 
     pub type alias FactExports =         
         { aibEquipmentExport :: XlsxSource
         , aibMemosExport :: XlsxSource
         , aibAgaspExport :: XlsxSource
+        , optExports :: OptionalExports
         }
 
     pub type alias OptionalExports =
@@ -62,7 +62,7 @@ namespace AssetLib/GenS4/GenUxl {
         , aibVesselExport2 = None
         }
 
-    /// Floc should be its own batch...
+    /// Flocs and equi now in batches...
 
     pub def generateUxl(src: GenUxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
@@ -78,32 +78,21 @@ namespace AssetLib/GenS4/GenUxl {
             case None => Ok(Nil)
         };
         let equiGroups      = List.groupBy((x1, y1) -> x1.batchNumber == y1.batchNumber, equiItems);
-        let* equiBatches    = Result.traverse(xs -> execGenMonad(genEquiUxl(src.facts, xs) *> genEquiCharacteristics(src.optionalFacts, xs)), equiGroups);
-        let* _              = writeFlocs(flocUxl, outputArgs);
+        let* equiBatches    = Result.traverse(xs -> execGenMonad(genEquiUxl(src.facts, xs) *> genEquiCharacteristics(src.facts.optExports, xs)), equiGroups);
+        /// let* _              = writeBatches(flocUxl, outputArgs);
         let _               = Console.printLine("Batch count: ${List.length(equiBatches)}");
-        let* _              = writeEquiBatches(equiBatches, outputArgs);
+        let* _              = writeBatches(flocUxl :: equiBatches, outputArgs);
         Ok()
 
 
 
-    def writeFlocs(src1: UxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+
+    def writeBatches(xs: List[UxlSource], outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
-        if (not Chain.isEmpty(src1.funclocs)) {
-            let path    = System/FilePath.mapBaseName(s -> s + "_Flocs", outputArgs.outpath);
-            let crname  = outputArgs.changeRequestName + " Flocs";
-            let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
-            let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, src1);
-            let _       = Console.printLine("Wrote: ${path}");
-            Ok()
-        } else Ok()
-
-
-
-    def writeEquiBatches(xs: List[UxlSource], outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
-        use Result.{flatMap};
+        let strIndex = i -> String.padLeft(2, '0', "${i}");
         let step = (ix, uxl) -> { 
-            let path    = System/FilePath.mapBaseName(s -> s + "_Equi${ix}", outputArgs.outpath);
-            let crname  = outputArgs.changeRequestName + " Equi${ix}";
+            let path    = System/FilePath.mapBaseName(s -> s + "_${strIndex(ix)}", outputArgs.outpath);
+            let crname  = outputArgs.changeRequestName + " ${strIndex(ix)}";
             let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
             let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, uxl);
             let _       = Console.printLine("Wrote: ${path}");
@@ -112,6 +101,12 @@ namespace AssetLib/GenS4/GenUxl {
         let* _  = Result.foldLeftM(step, 1, xs);
         Ok()
 
+
+    /// def genUxl(args: FactExports, workitems: List[EquiWorkItem]): GenMonad[Unit] = 
+    ///     use  AssetLib/GenS4/GenMonad.{flatMap, point};
+    ///     let* _ = genFlocUxl(workitems);
+    ///     let* _ = genEquiUxl(args, workitems);
+    ///     point()
 
     /// Generate all characteristics 
     def genFlocUxl(workitems: List[FlocWorkItem]): GenMonad[Unit] = 
@@ -124,7 +119,6 @@ namespace AssetLib/GenS4/GenUxl {
         point()
 
 
-    /// Empty string for no solution id.
     def genEquiUxl(args: FactExports, workitems: List[EquiWorkItem]): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, point, liftAction};
         let* _          = liftAction(_ -> Console.printLine("Equi workitems count: ${List.length(workitems)}"));
@@ -138,25 +132,6 @@ namespace AssetLib/GenS4/GenUxl {
         let* _          = AssetLib/GenS4/Rules/Characteristics/AssetCondition.genAssetCondition(workitems, args.aibAgaspExport);
         point()
 
-    /// Temporarily function for the `end03` script...
-    pub def tempGenEquiCharacteristics(args: OptionalExports, workitems: #{AssetLib/GenS4/Base/CommonRelations.EquiWorkItem3 | r}): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, point, map};
-        let* f1     = loadOptional(args.aibElectricalExport, AssetLib/GenS4/AibFacts/Attributes/Electrical.readElectricalFacts);
-        let* f2     = loadOptional(args.aibFanExport, AssetLib/GenS4/AibFacts/Attributes/Fan.readFanFacts);
-        let* f3     = loadOptional(args.aibInstrumentExport, AssetLib/GenS4/AibFacts/Attributes/Instrument.readInstrumentFacts);
-        let* f4     = loadOptional(args.aibLiftingExport, AssetLib/GenS4/AibFacts/Attributes/Lifting.readLiftingFacts);
-        let* f5     = loadOptional(args.aibPumpExport, AssetLib/GenS4/AibFacts/Attributes/Pump.readPumpFacts);
-        let* f6     = loadOptional(args.aibTankExport, AssetLib/GenS4/AibFacts/Attributes/Tank.readTankFacts);
-        let* f7     = loadOptional(args.aibValveExport, AssetLib/GenS4/AibFacts/Attributes/Valve.readValveFacts);
-        let* f8     = loadOptional(args.aibVesselExport1, AssetLib/GenS4/AibFacts/Attributes/Vessel.readVesselFacts);
-        let* f9     = loadOptional(args.aibVesselExport2, AssetLib/GenS4/AibFacts/Attributes/Vessel.readVesselFacts);
-        let facts   = f1 <+> f2 <+> f3 <+> f4 <+> f5 <+> f6 <+> f7 <+> f8 <+> f9;
-        let* _      = AssetLib/GenS4/Rules/Characteristics/BuildingsCivils.genBuildingsCivilsCharacteristics(workitems, facts);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Electrical.genElectricalCharacteristics(workitems, facts);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Instrument.genInstrumentCharacteristics(workitems, facts);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Mechanical.genMechanicalCharacteristics(workitems, facts);
-        let* _      = AssetLib/GenS4/Rules/Characteristics/Statutory.genStatutoryCharacteristics(workitems, facts);
-        point()
 
     def genEquiCharacteristics(args: OptionalExports, xs: List[EquiWorkItem]): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, point, map};
