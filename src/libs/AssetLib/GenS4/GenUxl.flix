@@ -72,27 +72,50 @@ namespace AssetLib/GenS4/GenUxl {
             case Some(x1) => AssetLib/GenS4/WorkLists.readFlocWorkList(x1)
             case None => Ok(Nil)
         };
-        let* flocUxl        = execGenMonad(genFlocUxl(flocItems));
+        let flocGroups      = List.groupBy((x1, y1) -> x1.batchNumber == y1.batchNumber, flocItems);
         let* equiItems      = match src.equiWorkList { 
             case Some(x1) => AssetLib/GenS4/WorkLists.readEquiWorkList(x1)
             case None => Ok(Nil)
         };
         let equiGroups      = List.groupBy((x1, y1) -> x1.batchNumber == y1.batchNumber, equiItems);
-        let* equiBatches    = Result.traverse(xs -> execGenMonad(genEquiUxl(src.facts, xs) *> genEquiCharacteristics(src.facts.optExports, xs)), equiGroups);
-        /// let* _              = writeBatches(flocUxl, outputArgs);
-        let _               = Console.printLine("Batch count: ${List.length(equiBatches)}");
-        let* _              = writeBatches(flocUxl :: equiBatches, outputArgs);
+        let sourceGroups    = joinGroups(flocGroups, equiGroups);
+
+        let* batches        = Result.traverse(x1 -> execGenMonad(genUxl(src.facts, x1)), sourceGroups);
+        let _               = Console.printLine("Batch count: ${List.length(batches)}");
+        let* _              = writeBatches(outputArgs, batches);
         Ok()
 
+    def joinGroups(flocGroups: List[List[FlocWorkItem]], 
+                    equiGroups: List[List[EquiWorkItem]]): List[{floc :: List[FlocWorkItem], equi :: List[EquiWorkItem]}] = 
+        let getFlocIndex = x1 -> match x1 {
+            case Nil     => 0
+            case r1 :: _ => r1.batchNumber
+        };
+        let getEquiIndex = x1 -> match x1 {
+            case Nil     => 0
+            case r1 :: _ => r1.batchNumber
+        };
+        let flocStep = (acc, xs) -> match getFlocIndex(xs) {
+            case ix if (ix > 0) => Map.insert(ix, {floc = xs, equi = Nil}, acc)
+            case _              => acc
+        };
+        let equiStep = (acc, xs) -> match getEquiIndex(xs) {
+            case ix if ix > 0 => Map.insertWith((new1, old1) -> {floc = old1.floc, equi = new1.equi}, ix, {floc = Nil, equi = xs}, acc) 
+            case _            => acc
+        };
+        let m1 = List.foldLeft(flocStep, Map.empty(), flocGroups);
+        let m2 = List.foldLeft(equiStep, m1, equiGroups);
+        Map.valuesOf(m2)
 
 
 
-    def writeBatches(xs: List[UxlSource], outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
+
+    def writeBatches(outputArgs: UxlOutputArgs, xs: List[UxlSource]): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let strIndex = i -> String.padLeft(2, '0', "${i}");
         let step = (ix, uxl) -> { 
             let path    = System/FilePath.mapBaseName(s -> s + "_${strIndex(ix)}", outputArgs.outpath);
-            let crname  = outputArgs.changeRequestName + " ${strIndex(ix)}";
+            let crname  = String.replace(from = "##", to = strIndex(ix),  outputArgs.changeRequestName);
             let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
             let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, uxl);
             let _       = Console.printLine("Wrote: ${path}");
@@ -102,11 +125,12 @@ namespace AssetLib/GenS4/GenUxl {
         Ok()
 
 
-    /// def genUxl(args: FactExports, workitems: List[EquiWorkItem]): GenMonad[Unit] = 
-    ///     use  AssetLib/GenS4/GenMonad.{flatMap, point};
-    ///     let* _ = genFlocUxl(workitems);
-    ///     let* _ = genEquiUxl(args, workitems);
-    ///     point()
+    def genUxl(args: FactExports, workitems: {floc :: List[FlocWorkItem], equi :: List[EquiWorkItem]}): GenMonad[Unit] = 
+        use  AssetLib/GenS4/GenMonad.{flatMap, point};
+        let* _  = genFlocUxl(workitems.floc);
+        let* _  = genEquiUxl(args, workitems.equi);
+        let* _  = genEquiCharacteristics(args.optExports,workitems.equi);
+        point()
 
     /// Generate all characteristics 
     def genFlocUxl(workitems: List[FlocWorkItem]): GenMonad[Unit] = 
