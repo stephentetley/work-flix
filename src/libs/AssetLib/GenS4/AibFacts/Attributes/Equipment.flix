@@ -77,8 +77,19 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
             <*> getContentNamed("Specific Model/Frame")
             <*> optional(getFloat64Named("Weight kg"))
 
-    /// Excel may convert serial numbers to exponential format e.g "9.60121E+12"
+    /// Excel may convert serial numbers to exponential format e.g "9.60121E+12" when read as a String.
+    /// Try to read as a number first...
     def getSerialNumberNamed(label: String): NamedRowEvaluator[String] =
+        use SheetIO/NamedRowEvaluator.{flatMap, map, optional, alt, getCellTypeNamed, getContentNamed, getInt64Named};
+        let* celltype = optional(getCellTypeNamed(label));
+        match celltype {
+            case Some(SheetIO/CellType.TyNumeric) => alt(map(Int64.toString, getInt64Named(label)), serialNumberFallBack(label))
+            case _                                => getContentNamed(label)
+        }
+
+
+    /// If we need this we will have lost precision...
+    def serialNumberFallBack(label: String): NamedRowEvaluator[String] =
         use SheetIO/NamedRowEvaluator.{flatMap, point, getContentNamed};
         let* s  = getContentNamed(label);
         match AssetLib/Base/Utils.readExponentInt64(s) {
