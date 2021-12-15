@@ -92,4 +92,15 @@ namespace AssetLib/Base/Utils {
         use Text/Regex.{split};
         split(sep, input) |> Array.dropLeft(1)
 
+
+    pub def readExponentInt64(s: String): Result[Int64, String] = 
+        import java.lang.String.strip();
+        import new java.math.BigDecimal(String) as newBD;
+        import java.math.BigDecimal.longValue();
+        try {
+            Ok(s |> strip |> newBD |> longValue) as & Pure
+        } catch {
+            case _: ##java.lang.NumberFormatException => Err("readExponentInt64")
+        }
+
 }

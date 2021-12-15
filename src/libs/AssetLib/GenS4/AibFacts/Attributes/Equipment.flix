@@ -73,8 +73,18 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
             <*> getLocalDateNamed("Installed From")
             <*> getContentNamed("AssetStatus")
             <*> getContentNamed("P AND I Tag No")
-            <*> getContentNamed("Serial No")
+            <*> getSerialNumberNamed("Serial No")
             <*> getContentNamed("Specific Model/Frame")
             <*> optional(getFloat64Named("Weight kg"))
+
+    /// Excel may convert serial numbers to exponential format e.g "9.60121E+12"
+    def getSerialNumberNamed(label: String): NamedRowEvaluator[String] =
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getContentNamed};
+        let* s  = getContentNamed(label);
+        match AssetLib/Base/Utils.readExponentInt64(s) {
+            case Ok(d) if d >= 99999i64 => point("${d}")        /// TODO don't want to rely on ToString
+            case _                      => point(s)
+        }
+
 
 }

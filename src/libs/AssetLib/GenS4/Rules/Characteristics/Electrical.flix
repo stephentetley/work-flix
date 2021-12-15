@@ -193,8 +193,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     pub def heatCharacteristics(): HeatSchema[r1] =  #{
         
-        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_POWER_KW", 1, S4Float(power)) :-
-            EquiWorkItem3(equiId, "EMTR", s4Class),
+        EquiCharacteristic(equiId, s4Class, "HEAT_RATED_POWER_KW", 1, S4Float(power)) :-
+            EquiWorkItem3(equiId, "HEAT", s4Class),
             Power(equiId, power, "KILOWATTS").
 
     }

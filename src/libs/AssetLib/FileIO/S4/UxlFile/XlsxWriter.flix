@@ -183,7 +183,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(15, x.manufacturer);
         let* _      = putStringAt!(16, x.modelNumber);
         let* _      = putStringAt!(17, x.manufPartNo);
-        let* _      = putStringAt!(18, x.manufSerialNo);
+        let* _      = putSerialNumberAt!(18, x.manufSerialNo);        /// Need to escape large numbers (avoid scientific notation)
         let* _      = putInt32At!(20, x.constructYear);
         let* _      = putStringAt!(21, String.padLeft(2, '0', "${x.constructMth}"));
         let* _      = putInt32At!(22, x.maintPlant);
@@ -199,6 +199,13 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxWriter {
         let* _      = putStringAt!(50, x.statusProfile);
         let* _      = putStringAt!(51, x.statusOfAnObject);
         point()
+
+    /// Avoid Excel rewriting the number to exponential format...  e.g "9.60121E+12"
+    def putSerialNumberAt!(ix: Int32, content: String): RowSetter[Unit] =
+        match AssetLib/Base/Utils.readExponentInt64(content) {
+            case Ok(d) if d >= 99999i64 => SheetIO/RowSetter.putStringAt!(ix, "'${d}")      /// TODO don't want to rely on ToString
+            case _                      => SheetIO/RowSetter.putStringAt!(ix, content)
+        }
 
 
     /// Writes to a template (i.e an empty UXL workbook with sheets, headers etc. set up).

@@ -3,7 +3,7 @@ use AssetLib/GenS4/GenUxl.{GenUxlSource};
 
 def outputArgs(): UxlOutputArgs = 
     { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/1909_AIW_MOCR_Template.xlsx")
-    , changeRequestName = "R/1135/001 Beverley STW ___ (WS) 27/10/21"
+    , changeRequestName = "R/1135/001 Beverley STW ## (WS) 27/10/21"
     , outpath = System/FilePath.new("G:/work/assets/capital_schemes/bever/output/bever_stw_uxl.xlsx")
     }
 
