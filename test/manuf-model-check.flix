@@ -6,10 +6,10 @@ use AssetLib/FileIO/S4/ZTable/Datatypes.{ObjTypeManufacturer, ManufacturerModel}
     
 
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     match main1() {
-        case Ok() => Console.printLine("Ok")
-        case Err(msg) => Console.printLine("Error: ${msg}")
+        case Ok() => println("Ok")
+        case Err(msg) => println("Error: ${msg}")
     };
     0
 
@@ -65,7 +65,7 @@ def evalEquiWorkItem(): NamedRowEvaluator[Option[WorkItem[r]]] =
 def reportErrors(xs: List[WorkItem[r]], objMan: Allowed, manMod: Allowed): Unit & Impure = 
     let step = x1 -> match check(x1, objMan, manMod) {
         case Ok() => () as & Impure
-        case Err(msg) => Console.printLine("${x1.equiId} ${x1.objectType} ${x1.manufacturer} ==> ${msg}")
+        case Err(msg) => println("${x1.equiId} ${x1.objectType} ${x1.manufacturer} ==> ${msg}")
     };
     List.foreach(step, xs)
 

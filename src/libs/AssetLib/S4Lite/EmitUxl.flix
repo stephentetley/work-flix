@@ -44,7 +44,7 @@ namespace AssetLib/S4Lite/EmitUxl {
         let flmltxts    = toFlMultilingualText(src.funclocLongTexts);
         let flchars     = toFlClassifications(src.funclocCharacteristics);
         let equis       = toEquipmentData(src.equipment);
-        let* _          = liftAction(_ -> Console.printLine("**** flocs count: ${List.length(flocs)}, equi count: ${List.length(equis)}"));
+        let* _          = liftAction(_ -> println("**** flocs count: ${List.length(flocs)}, equi count: ${List.length(equis)}"));
         let eqmltxts    = toEqMultilingualText(src.equiLongTexts);
         let eqchars     = toEqClassifications(src.equiCharacteristics);
         let flocNames   = List.map(x -> x.functionalLocation, flocs);
@@ -71,8 +71,8 @@ namespace AssetLib/S4Lite/EmitUxl {
     def functionalLocationToUxl(x: SLFunctionalLocation): FunctionalLocationData = 
         let floc1 = x.funcloc;
         let floc = AssetLib/Base/S4/Floc.new(floc1) |> Result.toOption;
-        let flocCategory = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.level, floc), 0);
-        let superiorFloc = Option.getWithDefault(Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, floc), "");
+        let flocCategory = Option.getWithDefault(0, Option.map(AssetLib/Base/S4/Floc.level, floc));
+        let superiorFloc = Option.getWithDefault("", Option.map(AssetLib/Base/S4/Floc.pop >> ToString.toString, floc));
         { functionalLocation    = floc1
         , maskedFuncLoc         = floc1
         , description           = x.description

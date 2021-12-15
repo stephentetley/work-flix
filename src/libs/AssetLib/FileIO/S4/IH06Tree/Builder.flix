@@ -27,7 +27,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
     
     pub def buildIH06Tree(src: IH06File): Result[IH06Tree, String] = match src.rows { 
         case r1 :: _ => { 
-            let parent = Option.getWithDefault(getParentId(r1), "");
+            let parent = Option.getWithDefault("", getParentId(r1));
             match treesList(parent, src.rows, (xs, _) -> xs) {
                 case x1 :: Nil => Ok(x1)
                 case _ :: _ => Err("buildIH06Trees - more than one tree")

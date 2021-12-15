@@ -34,11 +34,11 @@ def sourceFiles(): GenUxlSource =
 
 
 def main(_args: Array[String]): Int32 & Impure =  
-    Console.printLine("Running... ${Time/LocalTime.now()}");                  
+    println("Running... ${Time/LocalTime.now()}");                  
     let ans = AssetLib/GenS4/GenUxl.generateUxl(sourceFiles(), outputArgs());
     match ans {
-        case Ok() => Console.printLine("Success")
-        case Err(msg) => Console.printLine("Error: ${msg}")
+        case Ok() => println("Success")
+        case Err(msg) => println("Error: ${msg}")
     };
-    Console.printLine("Done... ${Time/LocalTime.now()}");
+    println("Done... ${Time/LocalTime.now()}");
     0

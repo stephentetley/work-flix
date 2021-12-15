@@ -4,13 +4,13 @@ use SheetIO.NamedRowEvaluator;
 use AssetLib/FileIO/S4/TransferFile.{UploadRowSetter, DownloadRowEvaluator};
 
 def main(_argsv: Array[String]): Int32 & Impure = 
-    Console.printLine("Running...");
+    println("Running...");
     let worklist    = System/FilePath.new("G:/work/assets/batch_change/IH08_Orbinox Valves 20201106 editted.xlsx");
     let download    = System/FilePath.new("G:/work/assets/batch_change/orbinox_prod_file_download.txt");
     let outpath     = System/FilePath.new("G:/work/assets/batch_change/orbinox_PROD_file_upload.txt");
     match main1(worklist, download, outpath) { 
-        case Err(e) => Console.printLine("Error: ${e}")
-        case Ok() => Console.printLine("Wrote: ${outpath}")
+        case Err(e) => println("Error: ${e}")
+        case Ok() => println("Wrote: ${outpath}")
     };
     0
 

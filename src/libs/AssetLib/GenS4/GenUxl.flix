@@ -81,7 +81,7 @@ namespace AssetLib/GenS4/GenUxl {
         let sourceGroups    = joinGroups(flocGroups, equiGroups);
 
         let* batches        = Result.traverse(x1 -> execGenMonad(genUxl(src.facts, x1)), sourceGroups);
-        let _               = Console.printLine("Batch count: ${List.length(batches)}");
+        let _               = println("Batch count: ${List.length(batches)}");
         let* _              = writeBatches(outputArgs, batches);
         Ok()
 
@@ -118,7 +118,7 @@ namespace AssetLib/GenS4/GenUxl {
             let crname  = String.replace(from = "##", to = strIndex(ix),  outputArgs.changeRequestName);
             let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
             let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, uxl);
-            let _       = Console.printLine("Wrote: ${path}");
+            let _       = println("Wrote: ${path}");
             Ok(ix + 1)
         };
         let* _  = Result.foldLeftM(step, 1, xs);
@@ -145,7 +145,7 @@ namespace AssetLib/GenS4/GenUxl {
 
     def genEquiUxl(args: FactExports, workitems: List[EquiWorkItem]): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, point, liftAction};
-        let* _          = liftAction(_ -> Console.printLine("Equi workitems count: ${List.length(workitems)}"));
+        let* _          = liftAction(_ -> println("Equi workitems count: ${List.length(workitems)}"));
         let* equiAttrs  = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
         let* _          = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport, args.aibEquipmentExport);

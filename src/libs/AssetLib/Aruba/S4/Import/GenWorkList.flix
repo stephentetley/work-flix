@@ -86,7 +86,7 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
                 WorkListEqui(child, _, _, parent), 
                 if not String.isEmpty(parent).
             
-            S4FlocLevel(floc, Option.getWithDefault(flocLevel(floc), -1)) :- 
+            S4FlocLevel(floc, Option.getWithDefault(-1, flocLevel(floc))) :- 
                 WorkListFloc(floc, _, _), 
                 if not Option.isEmpty(flocLevel(floc)).
             
@@ -103,7 +103,7 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     def flocParent(floc: String): String = 
         use AssetLib/Base/S4/Floc.{new, parent};
         match new(floc) {
-            case Ok(x1) => parent(x1) |> Option.map(ToString.toString) |> flip(Option.getWithDefault, "")
+            case Ok(x1) => parent(x1) |> Option.map(ToString.toString) |> Option.getWithDefault("")
             case Err(_) => ""
         }
 

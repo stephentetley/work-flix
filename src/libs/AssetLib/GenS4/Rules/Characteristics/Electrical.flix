@@ -151,6 +151,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
             EquiWorkItem3(equiId, "EMTR", s4Class),
             IPRating(equiId, rating).
 
+        /// TODO - check working...
         EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
             EquiWorkItem3(equiId, "EMTR", s4Class),
             InsulationClass(equiId, insClass),

@@ -130,7 +130,7 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
                 AibFloc(_, name2, _).
 
             /// This exposes the value as a String...
-            CommonNamePrefixValue(sainum, Option.getWithDefault(RelLib/Lattice/LongestPrefix.getValue(hkey), "")) :- 
+            CommonNamePrefixValue(sainum, Option.getWithDefault("", RelLib/Lattice/LongestPrefix.getValue(hkey))) :- 
                 CommonNamePrefix(sainum; hkey).
 
 

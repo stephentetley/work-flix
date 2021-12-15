@@ -77,7 +77,7 @@ namespace AssetLib/GenS4/WorkLists {
                 , position              = position
                 , gridRef               = ngr
                 , solutionId            = solutionId
-                , batchNumber           = Option.getWithDefault(batch, 1)
+                , batchNumber           = Option.getWithDefault(1, batch)
                 })
 
     def stringList(s: String): List[String] = 
@@ -142,7 +142,7 @@ namespace AssetLib/GenS4/WorkLists {
                 , s4Category = category
                 , s4EquiType = s4Type
                 , s4EquiClass = s4Class
-                , batchNumber = Option.getWithDefault(batchNo, 1)
+                , batchNumber = Option.getWithDefault(1, batchNo)
                 , extraMemo = extraMemo
                 })
 

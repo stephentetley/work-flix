@@ -168,10 +168,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
             EquiWorkItem3(equiId, "PUMP", s4Class),
             DutyHead(equiId, ans, "METRES").
 
-        /// TODO may have to limit pump-classes here...
+        /// Limit pump-classes here...
+        /// Not PUMPPG...
         EquiCharacteristic(equiId, s4Class, "PUMP_IMPELLER_TYPE", 1, S4String(ans)) :-
             EquiWorkItem3(equiId, "PUMP", s4Class),
-            ImpellerType(equiId, ans).
+            ImpellerType(equiId, ans),
+            if s4Class != "PUMPPG".
 
         EquiCharacteristic(equiId, s4Class, "PUMP_DIAPHRAGM_MATERIAL", 1, S4String(s4Name)) :-
             EquiWorkItem3(equiId, "PUMP", s4Class),
@@ -342,7 +344,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         } 
             |> round
             |> Float64.tryToInt32
-            |> flip(Option.getWithDefault, 0)
+            |> Option.getWithDefault(0)
 
     /// TODO make PR for Flix... with ceil and floor
     def round(x: Float64): Float64 =

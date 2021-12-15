@@ -7,13 +7,13 @@ use AssetLib/FileIO/S4/TransferFile/Builtins.{ClassEquiRow, ValuaEquiRow};
 def solutionId(): String = "B3050170"
 
 def main(_argsv: Array[String]): Int32 & Impure = 
-    Console.printLine("Running...");
+    println("Running...");
     let worklist    = System/FilePath.new("G:/work/assets/fire_alarms/worklist.xlsx");
     let classout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_CLASS_file_upload.txt");
     let valuaout    = System/FilePath.new("G:/work/assets/fire_alarms/fire_alarms_VALUA_file_upload.txt");
     match main1(worklist, classout, valuaout) { 
-        case Err(e) => {Console.printLine("Error: ${e}") ; 1}
-        case Ok() => {Console.printLine("Wrote: ${classout}"); Console.printLine("Wrote: ${valuaout}"); 0}
+        case Err(e) => {println("Error: ${e}") ; 1}
+        case Ok() => {println("Wrote: ${classout}"); println("Wrote: ${valuaout}"); 0}
     }
 
 def main1(worklist: System.FilePath, classout: System.FilePath, valuaout: System.FilePath): Result[Unit, String] & Impure = 
@@ -21,7 +21,7 @@ def main1(worklist: System.FilePath, classout: System.FilePath, valuaout: System
     use SheetIO/SheetReader.{runXlsx};
     use AssetLib/FileIO/S4/TransferFile/Builtins.{outputClassEquiFile, outputValuaEquiFile};
     let* xs     = runXlsx(readWorklist(), worklist);
-    let _       = Console.printLine("${List.length(xs)}");
+    let _       = println("${List.length(xs)}");
     let cs      = List.filterMap(makeClassEqui, xs);
     let* _      = outputClassEquiFile("tetleys", cs, classout);
     let vs      = List.map(makeValuaEqui, xs);

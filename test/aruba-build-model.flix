@@ -1,6 +1,6 @@
 
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     main01() |> println;
     0
 
@@ -9,14 +9,14 @@ def main01(): Result[Unit, String] & Impure =
 
 /// def main01(): Result[Unit, String] & Impure = 
 ///     use Result.flatMap;
-///     let _ = Console.printLine("Build model...");
+///     let _ = println("Build model...");
 ///     let src = 
 ///         { ih06Text = System/FilePath.new("G:/work/assets/asset_models/grain-ih06.txt")
 ///         , ih06Table = System/FilePath.new("G:/work/assets/asset_models/grain-ih06-export.xlsx")
 ///         , ih08Table = System/FilePath.new("G:/work/assets/asset_models/grain-ih08-export.xlsx")
 ///         };
 ///     let* ast        = AssetLib/Aruba/S4/Builder.buildGSSite(src);
-///     let _           = Console.printLine("funcount: ${List.length(ast.functions)}");
+///     let _           = println("funcount: ${List.length(ast.functions)}");
 ///     let jsonDest    = System/FilePath.new("G:/work/assets/asset_models/grain-output.json");
 ///     let* _          = AssetLib/Aruba/S4/ExportJson.exportJson(jsonDest, ast);
 ///     Ok()

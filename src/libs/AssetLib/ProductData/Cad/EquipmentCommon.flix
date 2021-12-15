@@ -100,7 +100,7 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
         , validFrom             = params.today
         , objectType            = x.objectName
         , weightKg              = x.weight
-        , startupDate           = Option.getWithDefault(x.dateOfInstallation, defaultDate)
+        , startupDate           = Option.getWithDefault(defaultDate, x.dateOfInstallation)
         , manufacturer          = x.manufacturer
         , model                 = x.modelNumber
         , partNumber            = x.specificModel
@@ -138,7 +138,7 @@ namespace AssetLib/ProductData/Cad/EquipmentCommon {
     def assetConditionFacts(x: EquiRef, 
                                     body: EquipmentCommon): #{EquiWorkItem3, ConditionGrade, LoadingFactor, PerformanceGrade, SurveyYear | r} = 
         AssetLib/GenS4/GenMonad.withEquiRef(x, x1 -> 
-            let installYear         = Option.map(Time/LocalDate.getYear, body.dateOfInstallation) |> flip(Option.getWithDefault, 1970);
+            let installYear         = Option.map(Time/LocalDate.getYear, body.dateOfInstallation) |> Option.getWithDefault(1970);
             #{ 
                 EquiWorkItem3(x1, body.objectName, body.className). 
                 ConditionGrade(x1, "1 - Good", "New").

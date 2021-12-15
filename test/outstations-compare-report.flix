@@ -5,12 +5,12 @@ use EquiCompare/Report/Compare.{Synced, NotMigrated, Orphaned};
 
 def main(_args: Array[String]): Int32 & Impure = 
     use EquiCompare/Report/Compare.{synced, notMigrated, orphaned};
-    Console.printLine("Running...");
+    println("Running...");
     let dppath = System/FilePath.new("G:/work/assets/outstations/outstations.sqlite");
     let outpath = System/FilePath.new("G:/work/assets/outstations/outstations-report.xlsx");
     match main1(dppath, outpath) {
-        case Ok() => {Console.printLine("Wrote: ${outpath}"); 0}
-        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+        case Ok() => {println("Wrote: ${outpath}"); 0}
+        case Err(msg) => {println("Error: ${msg}"); 1}
         
     }
 

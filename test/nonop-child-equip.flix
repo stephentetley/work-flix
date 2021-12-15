@@ -8,10 +8,10 @@ use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 /// G:/work/assets/non-op-bins/superequi-ih08-report.xlsx"
 
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     match main1() {
-        case Ok() => Console.printLine("Ok")
-        case Err(msg) => Console.printLine("Error: ${msg}")
+        case Ok() => println("Ok")
+        case Err(msg) => println("Error: ${msg}")
     };
     0
 
@@ -53,7 +53,7 @@ def main1(): Result[Unit, String] & Impure =
                 , sheet = "Sheet1"})
         };
     let* _              = AssetScripts/NonOp/SuperEqui.genPlantItemChilds(srcs, outputArgs);
-    Console.printLine("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
+    println("Output dir: ${System/FilePath.getParent(outputArgs.outpath)}");
     Ok()
 
 

@@ -99,7 +99,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
             let time = Time/LocalDateTime.format(tfmt, dt);
             Some(commentDoc(text("Date:") <<>> text(date) <<>> char('/') <<>> text("Time:") <<>> text(time)))
         };
-        Option.getWithDefault(step(), comment("Date: ____ / Time: ____"))   
+        Option.getWithDefault(comment("Date: ____ / Time: ____"), step())   
 
 
     def ppSelection (xs: List[String]): Doc = match List.map(comment, xs) {

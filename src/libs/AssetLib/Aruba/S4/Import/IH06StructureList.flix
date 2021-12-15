@@ -74,7 +74,7 @@ namespace AssetLib/Aruba/S4/Import/IH06StructureList {
             S4EquiLocation(equiId, floc) :- 
                 IH06Equi(equiId, _, floc, _).
             
-            S4FlocLevel(floc, Option.getWithDefault(flocLevel(floc), -1)) :- 
+            S4FlocLevel(floc, Option.getWithDefault(-1, flocLevel(floc))) :- 
                 IH06Floc(floc, _, _), 
                 if not Option.isEmpty(flocLevel(floc)).
             

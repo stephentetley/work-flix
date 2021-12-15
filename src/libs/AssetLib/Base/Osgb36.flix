@@ -170,7 +170,7 @@ namespace AssetLib/Base/Osgb36 {
             let* en     = toEastingNorthing(ngr);
             Some(en.easting)
         };
-        Option.getWithDefault(step(), -1)
+        Option.getWithDefault(-1, step())
 
     /// This is for Datalog hence failure is signalled by `-1` rather than an Option type.
     pub def northingfromOsgb36(s: String): Int32 = 
@@ -180,7 +180,7 @@ namespace AssetLib/Base/Osgb36 {
             let* en     = toEastingNorthing(ngr);
             Some(en.northing)
         };
-        Option.getWithDefault(step(), -1)
+        Option.getWithDefault(-1, step())
 
 
 }

@@ -85,7 +85,7 @@ namespace AssetLib/Aruba/S4/Import/ChangeRequestExports {
                 ExportEquiRow(child, _, _, parent), 
                 if not String.isEmpty(parent).
             
-            S4FlocLevel(floc, Option.getWithDefault(flocLevel(floc), -1)) :- 
+            S4FlocLevel(floc, Option.getWithDefault(-1, flocLevel(floc))) :- 
                 ExportFlocRow(floc, _, _), 
                 if not Option.isEmpty(flocLevel(floc)).
             

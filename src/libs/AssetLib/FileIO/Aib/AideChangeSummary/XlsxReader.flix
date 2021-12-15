@@ -49,7 +49,7 @@ namespace AssetLib/FileIO/Aib/AideChangeSummary/XlsxReader {
     /// def logged(name: String, ma: NamedRowEvaluator[String]): NamedRowEvaluator[String] = 
     ///     use SheetIO/NamedRowEvaluator.{flatMap, point, liftAction};
     ///     let* ans = ma;
-    ///     let* _ = liftAction(_ -> Console.printLine("${name}: ${ans}"));
+    ///     let* _ = liftAction(_ -> println("${name}: ${ans}"));
     ///     point(ans)
 
 }

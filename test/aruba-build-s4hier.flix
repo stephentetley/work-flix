@@ -3,7 +3,7 @@ use AssetLib/Aruba/S4/Base.{S4Floc, S4Equi};
 use AssetLib/Aruba/S4/Hierarchy.{S4EquiType, PreorderRow};
 
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     main1() |> println;
     0
 

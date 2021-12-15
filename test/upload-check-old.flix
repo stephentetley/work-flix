@@ -26,8 +26,8 @@ def main(): Unit & Impure =
         let uxlSrc      = System/FilePath.new("G:/work/assets/uxl/eq_characteristics.csv");
         let* rows       = AssetLib/FileIO/S4/UxlFile/CsvReader.loadEqClassifications(uxlSrc);
         let db1         = project ClassMember db;
-        let _           = Console.printLine("Running...");
-        let _           = List.foreach(x -> if (runCharacteristicInClassCheck(db1, x)) Console.printLine("ok") else Console.printLine("check failed"), rows);
+        let _           = println("Running...");
+        let _           = List.foreach(x -> if (runCharacteristicInClassCheck(db1, x)) println("ok") else println("check failed"), rows);
         Ok()
     };
     step() |> _ -> ()

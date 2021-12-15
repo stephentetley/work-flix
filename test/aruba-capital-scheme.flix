@@ -12,7 +12,7 @@ use AssetLib/Aruba/Common/Provenance.Provenance.{Bottom, Existing, New, Delete};
 use AssetLib/Aruba/S4/Check.{OrphanEquipment, OrphanFuncloc}; 
 
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     main1() |> println;
     0
 
@@ -53,12 +53,12 @@ def main1(): Result[Unit, String] & Impure =
     let* equiDelete = AssetLib/Aruba/S4/Import/DeleteList.readEquiDeleteList(src.equiDeleteList);
     let provDelete  = AssetLib/Aruba/Common/Provenance.genS4Provenance(Delete, flocDelete <+> equiDelete);
 
-    Console.printLine("deleteList...");
+    println("deleteList...");
     query equiDelete select (x1, x2) from S4Equi(x1, x2) 
         |> Array.foreach(println);  
 
 
-    Console.printLine("provDelete...");
+    println("provDelete...");
     query provDelete select (x1; x2) from S4Provenance(x1; x2) 
         |> Array.foreach(println);  
 
@@ -69,19 +69,19 @@ def main1(): Result[Unit, String] & Impure =
                             <+> floctypes <+> equitypes <+> provBase <+> provNew <+> provDelete;
     
     /// Temp
-    Console.printLine("Orphan Equi...");
+    println("Orphan Equi...");
     query db1 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2, x3) from OrphanEquipment(x1, x2, x3) |> Array.foreach(println);
-    Console.printLine("Orphan Flocs...");
+    println("Orphan Flocs...");
     query db1 <+> AssetLib/Aruba/S4/Check.orphans() select (x1, x2) from OrphanFuncloc(x1, x2) |> Array.foreach(println);
-    /// Console.printLine("Provenance...");
+    /// println("Provenance...");
     /// query db2 select (x1; x2) from S4Provenance(x1; x2) 
     ///     |> Array.foreach(println);
 
     let puml = AssetLib/Aruba/Common/Provenance.toSaltTreeTable(printKey, printLabel, db1);
     let outpath = System/FilePath.new("E:/coding/work/plantuml/bever_tree1.puml");
     PlantUml/Puml.writePuml(outpath, Text/Charset.utf_8(), puml);
-    Console.printLine("Wrote: ${outpath}");
-    Console.printLine("execPlantUml...");
+    println("Wrote: ${outpath}");
+    println("execPlantUml...");
     let* _ = execPlantUml("svg", outpath);
     Ok()
 

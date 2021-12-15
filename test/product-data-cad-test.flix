@@ -10,10 +10,10 @@ pub def main(_args: Array[String]): Int32 & Impure =
     let args = {inputSource = { path = System/FilePath.new("G:/work/assets/product-data-templates/TEST-STA-WWT-ASP-PI-B-0002-Pumps.xlsx"),
                             sheet = "Pumps"},
                 outputFile = System/FilePath.new("G:/work/assets/product-data-templates/cadpi-pumps-output1.xlsx")};
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     match test01(args) {
-        case Ok() => {Console.printLine("Wrote: ${args.outputFile}"); 0}
-        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+        case Ok() => {println("Wrote: ${args.outputFile}"); 0}
+        case Err(msg) => {println("Error: ${msg}"); 1}
     }
 
 /// e.g "G:/work/assets/product-data-templates/M82132_conveyor.xlsx"
@@ -26,7 +26,7 @@ def test01(args: ProgramArgs): Result[Unit, String] & Impure =
         };
     let* worklist   = AssetLib/ProductData/Cad/Products/Pump.loadRows(args.inputSource);    
     
-    worklist |> List.foreach(x1 -> Console.printLine("${x1.equipmentBody.description} ${x1.equipmentBody.className} [${x1.equipmentBody.manufacturer}]"));
+    worklist |> List.foreach(x1 -> println("${x1.equipmentBody.description} ${x1.equipmentBody.className} [${x1.equipmentBody.manufacturer}]"));
     /// let* _      =  AssetLib/S4Lite/EmitUxl.outputUxl(true, emitParams, uxlsrc);
 
     let* uxl        = AssetLib/GenS4/GenMonad.execGenMonad(AssetLib/ProductData/Cad/Products/Pump.generatePumps(worklist));

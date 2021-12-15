@@ -34,7 +34,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
             { fileType      = Upload
             , dataModel     = U1
             , entityType    = entityType
-            , variant       = Option.getWithDefault(variant, "")
+            , variant       = Option.getWithDefault("", variant)
             , user          = user
             , dateTime      = Time/LocalDateTime.now()
             };

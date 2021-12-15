@@ -10,7 +10,7 @@ type alias SetupPaths =
 
 def main(_args: Array[String]): Int32 & Impure = 
     use BasicDb/DbMonad.{runSQLite};
-    Console.printLine("Running...");
+    println("Running...");
     let outpath = System/FilePath.new("G:/work/assets/ultrasonics/ultrasonics.sqlite");
     let paths = 
         { siteMappingTable = System/FilePath.new("G:/work/assets/facts/aib-installations-to-s4.xlsx")
@@ -19,8 +19,8 @@ def main(_args: Array[String]): Int32 & Impure =
         , classequiDownload = System/FilePath.new("G:/work/assets/ultrasonics/lstnut-file-download.txt")
         };
     match runSQLite(setupDb(paths), outpath) {
-        case Ok(_) => {Console.printLine("Wrote: ${outpath}"); 0}
-        case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+        case Ok(_) => {println("Wrote: ${outpath}"); 0}
+        case Err(msg) => {println("Error: ${msg}"); 1}
     }
     
 

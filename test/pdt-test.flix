@@ -8,17 +8,17 @@ use AssetLib/S4Lite/Datatypes.{UxlSource};
 pub def main(args: Array[String]): Int32 & Impure = 
     use GetOpt.ArgOrder.{Permute};
     use GetOpt.{getOpt, usageInfo};
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     let options1 = makeCmdLineOptions();
     let header = "Usage: <phase1> [OPTION...]";
     let args2 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = true}, args);
     match getOpt(Permute, options1, args2) {
-        case Failure(errs)  => {Console.printLine("Errors: ${errs}");  Console.printLine(usageInfo(header, options1)); 1}
+        case Failure(errs)  => {println("Errors: ${errs}");  println(usageInfo(header, options1)); 1}
         case Success(updates) => {
             let progArgs = List.foldLeft((ac, f) -> f(ac), defaultArguments(), updates.options);
             match test01(progArgs) {
-                case Ok() => {Console.printLine("Wrote: ${progArgs.outputFile}"); 0}
-                case Err(msg) => {Console.printLine("Error: ${msg}"); 1}
+                case Ok() => {println("Wrote: ${progArgs.outputFile}"); 0}
+                case Err(msg) => {println("Error: ${msg}"); 1}
             }
         }
     }

@@ -100,7 +100,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         let* _  = putStringNamed!("FUNCLOC",    x.funcloc);
         let* _  = putStringNamed!("CLASS",      x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
-        let* _  = putStringNamed!("CLSTATUS1",  Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
+        let* _  = putStringNamed!("CLSTATUS1",  Option.getWithDefault("", Option.map(ToString.toString, x.status)));
         point()
 
 
@@ -157,7 +157,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
         let* _  = putStringNamed!("CHARID",     x.charId);
         let* _  = putStringNamed!("ATWRT",      x.charValue);
-        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
+        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault("", Option.map(ToString.toString, x.code)));
         let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
         let* _  = putPaddedInt32Named!("ATZIS", 3, x.instanceCounter);
         let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);
@@ -240,7 +240,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         let* _  = putStringNamed!("EQUI",       x.equi);
         let* _  = putStringNamed!("CLASS",  x.className);
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
-        let* _  = putStringNamed!("CLSTATUS1",      Option.getWithDefault(Option.map(ToString.toString, x.status), ""));
+        let* _  = putStringNamed!("CLSTATUS1",      Option.getWithDefault("", Option.map(ToString.toString, x.status)));
         point()
 
     /// VALUAEQUI
@@ -295,7 +295,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         let* _  = putStringNamed!("CLASSTYPE",  x.classType);
         let* _  = putStringNamed!("CHARID",     x.charId);
         let* _  = putStringNamed!("ATWRT",      x.charValue);
-        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault(Option.map(ToString.toString, x.code), ""));
+        let* _  = putStringNamed!("ATCOD",      Option.getWithDefault("", Option.map(ToString.toString, x.code)));
         let* _  = putStringNamed!("TEXTBEZ",    x.valueDescription);
         let* _  = putPaddedInt32Named!("ATZIS", 3, x.instanceCounter);
         let* _  = putPaddedInt32Named!("VALCNT", 4, x.intCounterValue);

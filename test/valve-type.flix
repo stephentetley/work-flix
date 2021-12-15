@@ -4,12 +4,12 @@ use AssetLib/Aruba/Extra/S4EquiType.{S4EquiType, AibEquiType, ValveType};
 
 
 pub def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     let src = {sheet = "Sheet1", 
                 path = System/FilePath.new("G:/work/assets/capital_schemes/embsay/valve-type.xlsx") };
     match main1(src) { 
-        case Ok(_) => Console.printLine("Okay.")
-        case Err(msg) => Console.printLine("Error: ${msg}")
+        case Ok(_) => println("Okay.")
+        case Err(msg) => println("Error: ${msg}")
     };
     0
 
@@ -40,8 +40,8 @@ def main1(src: XlsxSource): Result[Unit, String] & Impure =
 
 pub def printWithPatches(p: Map[String, (String, String, String)], row: WorkItem): Unit & Impure = 
     match Map.get(row.reference, p) {
-        case Some((x1, x2, x3)) => Console.printLine("${row.reference},${row.commonName},${x1},${x2},${x3}")
-        case None => Console.printLine("${row.reference},${row.commonName},,,")
+        case Some((x1, x2, x3)) => println("${row.reference},${row.commonName},${x1},${x2},${x3}")
+        case None => println("${row.reference},${row.commonName},,,")
     }
 
 

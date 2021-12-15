@@ -31,7 +31,7 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
         use AssetLib/GenS4/GenMonad.{flatMap, liftActionResult, tellSLFunctionalLocation};
         let* floc   = liftActionResult(_ -> AssetLib/Base/S4/Floc.new(x.funcloc) as & Impure);
         let level   = AssetLib/Base/S4/Floc.level(floc);
-        let super   = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> flip(Option.getWithDefault, "");        
+        let super   = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> Option.getWithDefault("");
         tellSLFunctionalLocation( { funcloc               = x.funcloc
             , description           = x.description
             , category              = level

@@ -8,9 +8,9 @@ use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ConditionGrade, LoadingF
 use AssetLib/GenS4.{GenMonad};
 
 def main(_args: Array[String]): Int32 & Impure =  
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     main1() |> println;
-    Console.printLine("Done... ${Time/LocalTime.now()}");
+    println("Done... ${Time/LocalTime.now()}");
     0
 
 def main1(): Result[Unit, String] & Impure = 
@@ -21,7 +21,7 @@ def main1(): Result[Unit, String] & Impure =
     let* (s4Lite, keymap)   = AssetLib/GenS4/GenMonad.runGenMonad(genCharacteristics());
     let* s4LiteChars        = AssetLib/S4Lite/EmitUpload.renumberSLEquiCharacteristics(keymap, s4Lite.equiCharacteristics);    
     let* _                  = AssetLib/S4Lite/EmitUpload.outputValuaEquis("tetleys", s4LiteChars, outpaths.valuaequi);
-    Console.printLine("Success");
+    println("Success");
     Ok()
 
 def aibExports(): AssetLib/GenS4/GenUxl.OptionalExports  = 

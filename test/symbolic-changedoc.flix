@@ -19,9 +19,9 @@ def config(): ItemReportConfig =
     }
 
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     match ChangeDoc/ItemReport.generateReport(config()) { 
-        case Ok()     => Console.printLine("Wrote: ${config().outputPath}")
-        case Err(msg) => Console.printLine("Error: ${msg}")
+        case Ok()     => println("Wrote: ${config().outputPath}")
+        case Err(msg) => println("Error: ${msg}")
     };
     0

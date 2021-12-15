@@ -24,7 +24,7 @@ namespace AssetLib/Base/Utils {
         use Option.{flatMap};
         let toks = tokenize(s);
         let xs = Option.traverse(toProperCase1, toks) as & Pure;
-        Option.getWithDefault(xs, s :: Nil) |> String.flatten |> String.trim
+        Option.getWithDefault(s :: Nil, xs) |> String.flatten |> String.trim
 
 
     pub def tokenize(s: String): List[String] = 

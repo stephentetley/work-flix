@@ -1,6 +1,6 @@
 
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     patch1() |> interpret |> println;
     patch2() |> interpret |> println;
     patch3() |> interpret |> println;

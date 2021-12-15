@@ -2,7 +2,7 @@ use AssetLib/Aruba/Base.{S4FlocLevel, S4SubFloc, S4Equi};
 use AssetLib/Aruba/S4Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, MaintainableItem, Component, ChildFloc, ChildEqui, S4FlocType, FunctionalLocation, PreorderRow};
    
 def main(_args: Array[String]): Int32 & Impure = 
-    Console.printLine("Running... ${Time/LocalTime.now()}");
+    println("Running... ${Time/LocalTime.now()}");
     main1() |> println;
     main2() |> println;
     main3() |> println;
@@ -106,7 +106,7 @@ def main3(): Result[Unit, String] & Impure =
             Equipment(equiId, name, _).
 
     } <+> AssetLib/Aruba/S4/Hierarchy.preorderRows();
-    Console.printLine("Unbounded...");
+    println("Unbounded...");
     let extractor = 
         { getKey    = RelLib/Tuple.decons3((x, _, _) -> x)
         , getValue  = RelLib/Tuple.decons3((_, y, _) -> y)
@@ -119,9 +119,9 @@ def main3(): Result[Unit, String] & Impure =
     AssetLib/Aruba/S4/Hierarchy.toSaltTreeTable(db) |> println;
 
     /// query baseRep select (x1, x2) from S4Equi(x1, x2) |> Array.foreach(println);
-    Console.printLine("Row3...");
+    println("Row3...");
     query db <+> rules select (x1, x2, x3) from Row3(x1, x2, x3) |> Array.foreach(println);
-    Console.printLine("Components...");
+    println("Components...");
     query hrep select (x1, x2) from MaintainableItem(x1, x2) |> Array.foreach(println);
     Ok()
 
