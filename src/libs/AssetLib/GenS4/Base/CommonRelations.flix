@@ -31,7 +31,8 @@ namespace AssetLib/GenS4/Base/CommonRelations {
     pub rel S4DiaphragmMaterial(aibName: String, s4Name: String)
 
 
-    pub lat AibMemoLine(aibref: String, body: Set[String])
+    /// MemoLines need a special lattice to preserve order...
+    pub lat AibMemoLine(aibref: String, body: AssetLib/GenS4/Base/OrderedStrings.OrderedStrings)
 
     
     pub rel AibParentRef(equiId: String, parentSaiNum: String)

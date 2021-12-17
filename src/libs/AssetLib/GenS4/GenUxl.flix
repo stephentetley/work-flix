@@ -148,8 +148,8 @@ namespace AssetLib/GenS4/GenUxl {
         let* _          = liftAction(_ -> println("Equi workitems count: ${List.length(workitems)}"));
         let* equiAttrs  = AssetLib/GenS4/AibFacts/Attributes/Equipment.readEquipmentData(args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Equipment.genEquis(equiAttrs, workitems);
-        let* _          = AssetLib/GenS4/Rules/LongText.genEquiLongText(workitems, args.aibMemosExport, args.aibEquipmentExport);
-        let* _          = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport);
+        let* _          = AssetLib/GenS4/Rules/MultilingualText.genEquiLongText(workitems, {memosSrc = args.aibMemosExport,  locsSrc = args.aibEquipmentExport});
+        let* _          = AssetLib/GenS4/Rules/Equipment.genCommonCharacteristics(workitems, args.aibEquipmentExport, args.aibMemosExport);
         let* _          = AssetLib/GenS4/Rules/Characteristics/AibReference.genEquiAibReference(workitems, args.aibEquipmentExport);
         let* _          = AssetLib/GenS4/Rules/Characteristics/SolutionId.genEquiSolutionId(workitems);
         let* _          = AssetLib/GenS4/Rules/Characteristics/EastNorth.genEquiEastNorth(workitems, args.aibEquipmentExport);

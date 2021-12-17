@@ -21,6 +21,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
     use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{Equipment, EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String};
+    use AssetLib/GenS4/Base/OrderedStrings.{OrderedStrings};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, LocationOnSite, AibMemoLine};
     use AssetLib/GenS4/AibFacts/Attributes/Equipment.{EquipmentAttributes};
     use AssetLib/GenS4.{GenMonad};
@@ -62,12 +63,12 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
     
     /// # Characteristics
-    /// src should be valve facts
-    pub def genCommonCharacteristics(worklist: List[EquiWorkItem], locationSrc: XlsxSource): GenMonad[Unit] =
+    pub def genCommonCharacteristics(worklist: List[EquiWorkItem], locationSrc: XlsxSource, memoSrc: XlsxSource): GenMonad[Unit] =
         use AssetLib/GenS4/GenMonad.{flatMap};
         let workitems   = AssetLib/GenS4/WorkLists.makeEquiWorkItem3(worklist);
-        let* facts      = AssetLib/GenS4/AibFacts/Attributes/LocationData.readLocationOnSiteData(locationSrc);
-        equiCommonCharacteristics(workitems <+> facts)
+        let* locFacts   = AssetLib/GenS4/AibFacts/Attributes/LocationData.readLocationOnSiteData(locationSrc);
+        let* memoFacts  = AssetLib/GenS4/AibFacts/Attributes/MemoLines.readMemoLinesData(memoSrc);
+        equiCommonCharacteristics(workitems <+> locFacts <+> memoFacts)
 
 
 
@@ -95,16 +96,13 @@ namespace AssetLib/GenS4/Rules/Equipment {
     def s4Location(s: String): String =
         if (String.length(s) > 30) "SEE LONG TEXT" else s
 
-    /// Pre-condition: `s` should be nonempty due to the lattice having explicit Bottom 
-    /// rather than empty set. 
-    def s4MemoLine(s: Set[String]): String = 
-        let text = s |> Set.toList |> String.unlines;
-        if (Set.size(s) > 1 or Set.exists(x1 -> String.length(x1) >= 30, s) or Set.exists(isMultiline, s)) 
+    def s4MemoLine(s: OrderedStrings): String = 
+        let text = AssetLib/GenS4/Base/OrderedStrings.getValue(s);
+        if (AssetLib/GenS4/Base/OrderedStrings.count(s) > 1 or String.length(text) >= 30)
             "SEE LONG TEXT"
         else
             text
 
-    def isMultiline(s: String): Bool = List.length(String.lines(s)) > 1
 
 }
 

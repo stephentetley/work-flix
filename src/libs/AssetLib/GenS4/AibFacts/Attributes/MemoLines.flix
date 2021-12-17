@@ -32,15 +32,14 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
         AssetLib/GenS4/GenMonad.liftActionResult(_ -> SheetIO/Reader.someNamedRelations(evalAibMemoLine(), src))
         
     
+
+    /// TODO AibMemoLine - String[Set] wrong latticetype as loses order
     def evalAibMemoLine(): NamedRowEvaluator[#{AibMemoLine | r}] =
         use SheetIO/NamedRowEvaluator.{withDefault, getNonEmptyContentNamed, getContentNamed}; 
         use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 
-                let xs = x2 :: x3 :: x4 :: x5 :: x6 :: Nil;
-                match List.filter(s1 -> not String.isEmpty(s1), List.map(String.trim, xs)) { 
-                    case Nil => #{}
-                    case ys => {let str = String.unlines(ys); #{ AibMemoLine(x1; Set.singleton(str)). } }
-                }
+                makeMemo(x1, 1, x2) <+> makeMemo(x1, 2, x3) <+> makeMemo(x1, 3, x4)
+                    <+> makeMemo(x1, 4, x5) <+> makeMemo(x1, 5, x6)                 
             })
             <&> getNonEmptyContentNamed("Reference")
             <*> withDefault(getNonEmptyContentNamed("Memo Line 1"), "")
@@ -48,5 +47,12 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
             <*> withDefault(getNonEmptyContentNamed("Memo Line 3"), "")
             <*> withDefault(getNonEmptyContentNamed("Memo Line 4"), "")
             <*> withDefault(getNonEmptyContentNamed("Memo Line 5"), "")
+
+    def makeMemo(aibref: String, ix: Int32, s: String): #{AibMemoLine | r} = 
+        if (String.isEmpty(s)) 
+            #{}
+        else 
+            #{ AibMemoLine(aibref; AssetLib/GenS4/Base/OrderedStrings.singleton(ix, s)). }
+
 
 }
