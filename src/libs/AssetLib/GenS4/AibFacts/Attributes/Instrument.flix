@@ -17,6 +17,9 @@
 
 namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
@@ -46,30 +49,27 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Instrument {
 
 
     def evalRangeMinMax(): NamedRowEvaluator[#{RangeMinMax | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
         ((x1, x2, x3, x4) -> RelLib/Relation.whenFalse(String.isEmpty(x4), #{ RangeMinMax(x1, x2, x3, x4). }))
-            <&> getNonEmptyContentNamed("Reference")
+            <$> getNonEmptyContentNamed("Reference")
             <*> getFloat64Named("Range min")
             <*> getFloat64Named("Range max")
             <*> getContentNamed("Range unit")
 
 
     def evalSignalMinMax(): NamedRowEvaluator[#{SignalMinMax | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
         ((x1, x2, x3, x4) -> RelLib/Relation.whenFalse(String.isEmpty(x4),  #{ SignalMinMax(x1, x2, x3, x4). }))
-            <&> getNonEmptyContentNamed("Reference")
+            <$> getNonEmptyContentNamed("Reference")
             <*> getFloat64Named("Signal min")
             <*> getFloat64Named("Signal max")
             <*> getContentNamed("Signal unit")
 
 
     def evalTransducer(): NamedRowEvaluator[#{Transducer | r}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getContentNamed}; 
         ((x1, x2, x3) -> RelLib/Relation.whenTrue(not String.isEmpty(x2) or not String.isEmpty(x3), #{ Transducer(x1, x2, x3). }))
-            <&> getNonEmptyContentNamed("Reference")
+            <$> getNonEmptyContentNamed("Reference")
             <*> getContentNamed("Transducer Type")
             <*> getContentNamed("Transducer Serial No")
 

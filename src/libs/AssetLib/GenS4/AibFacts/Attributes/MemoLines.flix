@@ -17,6 +17,9 @@
 
 namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
@@ -36,12 +39,11 @@ namespace AssetLib/GenS4/AibFacts/Attributes/MemoLines {
     /// TODO AibMemoLine - String[Set] wrong latticetype as loses order
     def evalAibMemoLine(): NamedRowEvaluator[#{AibMemoLine | r}] =
         use SheetIO/NamedRowEvaluator.{withDefault, getNonEmptyContentNamed, getContentNamed}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> { 
                 makeMemo(x1, 1, x2) <+> makeMemo(x1, 2, x3) <+> makeMemo(x1, 3, x4)
                     <+> makeMemo(x1, 4, x5) <+> makeMemo(x1, 5, x6)                 
             })
-            <&> getNonEmptyContentNamed("Reference")
+            <$> getNonEmptyContentNamed("Reference")
             <*> withDefault(getNonEmptyContentNamed("Memo Line 1"), "")
             <*> withDefault(getNonEmptyContentNamed("Memo Line 2"), "")
             <*> withDefault(getNonEmptyContentNamed("Memo Line 3"), "")

@@ -17,6 +17,9 @@
 
 namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
@@ -50,9 +53,8 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
 
     def evalAibRow(): NamedRowEvaluator[AibRow] =
         use SheetIO/NamedRowEvaluator.{getContentNamed, getLocalDateNamed, withDefault, swapErrorWithRowNum}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> {reference = x1, commonName = x2})
-            <&> getContentNamed("Reference")
+            <$> getContentNamed("Reference")
             <*> getContentNamed("Common Name")
 
     def extractHierarchyFacts(xs: List[AibRow]): #{AibParentRef | r} = 

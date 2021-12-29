@@ -17,6 +17,9 @@
 
 namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
@@ -59,7 +62,6 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
     def getEquipmentAttibutes(): NamedRowEvaluator[EquipmentAttributes] =
         use SheetIO/NamedRowEvaluator.{optional, getNonEmptyContentNamed, getContentNamed, 
             getFloat64Named, getLocalDateNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7) -> 
             { aibref                = x1
             , installedFrom         = x2 
@@ -69,7 +71,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
             , specificModelFrame    = x6
             , weightKg              = x7
             })
-            <&> getNonEmptyContentNamed("Reference")            
+            <$> getNonEmptyContentNamed("Reference")
             <*> getLocalDateNamed("Installed From")
             <*> getContentNamed("AssetStatus")
             <*> getContentNamed("P AND I Tag No")

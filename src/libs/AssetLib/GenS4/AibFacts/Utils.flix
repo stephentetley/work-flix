@@ -16,6 +16,9 @@
 
 namespace AssetLib/GenS4/AibFacts/Utils {
     
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
@@ -62,20 +65,18 @@ namespace AssetLib/GenS4/AibFacts/Utils {
     pub def getIntFactWithUnits(columnName: String,                                     
                                     unitsColumn: String, 
                                     f: (String, Int32, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getInt32Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getInt32Named};         
         ((x1, x2, x3) -> RelLib/Relation.whenFalse(String.isEmpty(x3), f(x1, x2, x3)))
-            <&> getNonEmptyContentNamed("Reference")
+            <$> getNonEmptyContentNamed("Reference")
             <*> getInt32Named(columnName)
             <*> getContentNamed(unitsColumn)
 
     pub def getFloatFactWithUnits(columnName: String,                                     
                                     unitsColumn: String, 
                                     f: (String, Float64, String) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
+        use SheetIO/NamedRowEvaluator.{flatMap, getNonEmptyContentNamed, getContentNamed, getFloat64Named};
         ((x1, x2, x3) -> RelLib/Relation.whenFalse(String.isEmpty(x3), f(x1, x2, x3)))
-            <&> getNonEmptyContentNamed("Reference")
+            <$> getNonEmptyContentNamed("Reference")
             <*> getFloat64Named(columnName)
             <*> getContentNamed(unitsColumn)
 
