@@ -18,6 +18,9 @@
 
 namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{ClassFloc, ValuaFloc, ClassEqui, ValuaEqui};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
 
@@ -46,7 +49,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// Read
     def evalIflotxRow(): DownloadRowEvaluator[IflotxRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getS4BoolNamed};
-        use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { funcloc           = x1
                 , shortText         = x2
@@ -54,7 +56,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , longText          = x4
                 , moreTextExists    = x5
             })
-            <&> getStringNamed("EQUI")
+            <$> getStringNamed("EQUI")
             <*> getStringNamed("PLTXT")
             <*> getStringNamed("LANGUCODE")
             <*> getStringNamed("FL_LTXT")
@@ -70,7 +72,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
     def evalClassFlocRow(): DownloadRowEvaluator[ClassFlocRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
-        use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { funcloc               = x1
                 , className             = x2
@@ -78,7 +79,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , internalClassNumber   = x4
                 , status                = x5
                 })
-            <&> getStringNamed("FUNCLOC")               /// Functional Location
+            <$> getStringNamed("FUNCLOC")               /// Functional Location
             <*> getStringNamed("CLASS")                 /// Class 
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CLINT")                 /// Internal class no
@@ -114,7 +115,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
     def evalValuaFlocRow(): DownloadRowEvaluator[ValuaFlocRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getInt32Named, optional};
-        use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) ->
                 { funcloc           = x1
                 , classType         = x2
@@ -127,7 +127,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , valueFrom         = x9
                 , valueTo           = x10
                 })
-            <&> getStringNamed("FUNCLOC")               /// Functional Location
+            <$> getStringNamed("FUNCLOC")               /// Functional Location
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CHARID")                /// Characteristic ID
             <*> getStringNamed("ATWRT")                 /// Characteristic Value
@@ -185,7 +185,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// Read
     def evalEqmltxtRow(): DownloadRowEvaluator[EqmltxtRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getS4BoolNamed};
-        use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { equi              = x1
                 , shortText         = x2
@@ -193,7 +192,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , longText          = x4
                 , moreTextExists    = x5
             })
-            <&> getStringNamed("EQUI")
+            <$> getStringNamed("EQUI")
             <*> getStringNamed("SHORTXT")
             <*> getStringNamed("LANGUCODE")
             <*> getStringNamed("EQ_LTXT")
@@ -210,7 +209,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     
     def evalClassEquiRow(): DownloadRowEvaluator[ClassEquiRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
-        use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) ->
                 { equi                  = x1
                 , className             = x2
@@ -218,7 +216,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , internalClassNumber   = x4
                 , status                = x5
                 })
-            <&> getStringNamed("EQUI")                  /// Equipment
+            <$> getStringNamed("EQUI")                  /// Equipment
             <*> getStringNamed("CLASS")                 /// Class 
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CLINT")                 /// Internal class no
@@ -243,9 +241,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         let* _  = putStringNamed!("CLSTATUS1",      Option.getWithDefault("", Option.map(ToString.toString, x.status)));
         point()
 
+
     /// VALUAEQUI
-
-
 
     pub def readValuaEquiFile(path: System.FilePath) : Result[List[ValuaEquiRow], String] & Impure =         
         AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalValuaEquiRow(), path)
@@ -253,7 +250,6 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// Read
     def evalValuaEquiRow(): DownloadRowEvaluator[ValuaEquiRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
-        use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) ->
                 { equi              = x1
                 , classType         = x2
@@ -266,7 +262,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , valueFrom         = x9
                 , valueTo           = x10
                 })
-            <&> getStringNamed("EQUI")                  /// Equipment
+            <$> getStringNamed("EQUI")                  /// Equipment
             <*> getStringNamed("CLASSTYPE")             /// Class Type
             <*> getStringNamed("CHARID")                /// Characteristic ID
             <*> getStringNamed("ATWRT")                 /// Characteristic Value

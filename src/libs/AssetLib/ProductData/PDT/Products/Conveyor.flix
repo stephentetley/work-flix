@@ -16,6 +16,9 @@
 
 namespace AssetLib/ProductData/PDT/Products/Conveyor {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO/SheetParser.SheetParser;
 
     use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
@@ -59,9 +62,8 @@ namespace AssetLib/ProductData/PDT/Products/Conveyor {
 
 
     pub def parseCVYRSC(equiId: String): SheetParser[ka1, List[SLEquiCharacteristic]] = 
-        use SheetIO/SheetParser.{<&>, <*>};
         ((x1, x2, x3, x4) -> x1 :: x2 :: x3 :: x4 :: Nil)
-            <&> AssetLib/ProductData/PDT/Utils.getUNICLASS_CODE(equiId, "CVYRSC")
+            <$> AssetLib/ProductData/PDT/Utils.getUNICLASS_CODE(equiId, "CVYRSC")
             <*> AssetLib/ProductData/PDT/Utils.getUNICLASS_DESC(equiId, "CVYRSC")
             <*> getCVYR_DIAMETER_MM(equiId, "CVYRSC")
             <*> getCVYR_LENGTH_MM(equiId, "CVYRSC")

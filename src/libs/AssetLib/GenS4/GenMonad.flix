@@ -107,25 +107,6 @@ namespace AssetLib/GenS4/GenMonad {
             }) as & ef
 
 
-    pub def seqLeft(ma: GenMonad[a], mb: GenMonad[b]): GenMonad[a] = 
-        GenMonad((st, w, r) -> 
-            match apply1(ma, st, w, r) { 
-                case Ok((st1, w1, a)) => 
-                    match apply1(mb, st1, w1, r) {
-                        case Ok((st2, w2, _)) => Ok(st2, w2, a)
-                        case Err(e) => Err(e)
-                    }
-                case Err(e) => Err(e)
-            })
-
-    pub def seqRight(ma: GenMonad[a], mb: GenMonad[b]): GenMonad[b] = 
-        GenMonad((st, w, r) ->  
-            match apply1(ma, st, w, r) {  
-                case Ok((st1, w1, _)) => apply1(mb, st1, w1, r)
-                case Err(e) => Err(e)
-            })
-
-
     pub def bind(x: GenMonad[a], k: a -> GenMonad[b] & ef): GenMonad[b] & ef = 
         GenMonad((st, w, r) -> 
             match apply1(x, st, w, r) {
@@ -135,17 +116,6 @@ namespace AssetLib/GenS4/GenMonad {
         ) as & ef
 
     pub def flatMap(k: a -> GenMonad[b] & ef, x: GenMonad[a]): GenMonad[b] & ef = bind(x, k)
-
-
-    pub def kleisliLeft(f1: a -> GenMonad[b], f2: b -> GenMonad[c], x: a): GenMonad[c] =
-        GenMonad((st, w, r) -> 
-            match apply1(f1(x), st, w, r) { 
-                case Ok((st1, w1, a)) => apply1(f2(a), st1, w1, r)
-                case Err(e) => Err(e)
-            })
-
-    pub def kleisliRight(f1: b -> GenMonad[c], f2: a -> GenMonad[b], x: a): GenMonad[c] =
-        kleisliLeft(f2, f1, x)
 
 
     pub def alt(ma: GenMonad[a], mb: GenMonad[a]): GenMonad[a] =
@@ -230,31 +200,6 @@ namespace AssetLib/GenS4/GenMonad {
         tell(r1 -> {equiCharacteristics = Chain.append(r1.equiCharacteristics, chars) | r1})
 
 
-    /// Alias for `ap`
-    pub def <*>(p1: GenMonad[a -> b & ef], p2: GenMonad[a]): GenMonad[b] & ef = ap(p1, p2)
-
-    /// Alias for `seqRight`
-    pub def *>(p1: GenMonad[a], p2: GenMonad[b]): GenMonad[b] = seqRight(p1, p2)
-
-    /// Alias for `seqLeft`
-    pub def <*(p1: GenMonad[a], p2: GenMonad[b]): GenMonad[a] = seqLeft(p1, p2)
-
-    /// Haskell's <|>
-    pub def <!>(p1: GenMonad[a], p2: GenMonad[a]): GenMonad[a] =
-        alt(p1, p2)
-
-    // Haskell's <$>
-    pub def <&>(f: a -> b & ef, p2: GenMonad[a]): GenMonad[b] & ef =
-        map(f, p2)
-
-    pub def <&(x: b, p2: GenMonad[a]): GenMonad[b] =
-        p2 *> point(x)
-
-    /// Alias for `bind`
-    pub def >>=(ma: GenMonad[a], k: a -> GenMonad[b] & ef): GenMonad[b] & ef = bind(ma, k)
-
-    /// Alias for `flatMap` (flipped `bind`)
-    pub def =<<(k: a -> GenMonad[b] & ef, ma: GenMonad[a]): GenMonad[b] & ef = flatMap(k, ma)
 
 
     pub def mapM(mf: a -> GenMonad[b] & ef, xs: List[a]): GenMonad[List[b]] & ef =

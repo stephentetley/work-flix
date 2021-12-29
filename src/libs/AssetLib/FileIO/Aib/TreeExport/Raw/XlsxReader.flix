@@ -16,6 +16,10 @@
 
 namespace AssetLib/FileIO/Aib/TreeExport/Raw/XlsxReader {
 
+
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
@@ -33,13 +37,12 @@ namespace AssetLib/FileIO/Aib/TreeExport/Raw/XlsxReader {
 
     def evalAibRow(): NamedRowEvaluator[AibRow] =
         use SheetIO/NamedRowEvaluator.{flatMap, point, getContentNamed}; 
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) -> 
                 { reference     = x1
                 , commonName    = x2
                 , status        = x3
                 })
-            <&> getContentNamed("Reference")
+            <$> getContentNamed("Reference")
             <*> getContentNamed("Common Name")
             <*> getContentNamed("AssetStatus")
         

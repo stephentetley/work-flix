@@ -1,3 +1,6 @@
+use Functor.{<$>};
+use Applicative.{<*>};
+
 use SheetIO/Reader.{XlsxSource};
 use SheetIO.NamedRowEvaluator;
 
@@ -79,9 +82,8 @@ def readWorkItems(src: XlsxSource): Result[#{WorkItem | r}, String] & Impure =
 
 def evalWorkItem(): NamedRowEvaluator[#{WorkItem | r}] =
     use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
-    use SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3) -> #{ WorkItem(x1, x2, not String.isEmpty(x3)). })
-        <&> getTrimmedContentNamed("Equipment")
+        <$> getTrimmedContentNamed("Equipment")
         <*> getTrimmedContentNamed("Object Type")
         <*> getTrimmedContentNamed("Superord.Equip.")
 

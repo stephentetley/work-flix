@@ -103,25 +103,6 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
             }
         ) as & ef
 
-    
-    pub def seqLeft(ma: DownloadRowEvaluator[a], mb: DownloadRowEvaluator[b]): DownloadRowEvaluator[a] = 
-        DownloadRowEvaluator((ixs, row) ->
-            match apply1(ma, ixs, row) { 
-                case Ok(a) => match apply1(mb,ixs, row) {
-                    case Ok(_) => Ok(a)
-                    case Err(e) => Err(e)
-                }
-                case Err(e) => Err(e)
-            }
-        )
-
-    pub def seqRight(ma: DownloadRowEvaluator[a], mb: DownloadRowEvaluator[b]): DownloadRowEvaluator[b] = 
-        DownloadRowEvaluator((ixs, row) ->
-            match apply1(ma, ixs, row) { 
-                case Ok(_) => apply1(mb, ixs, row)
-                case Err(e) => Err(e)
-            }
-        )
 
     pub def bind(x: DownloadRowEvaluator[a], k: a -> DownloadRowEvaluator[b] & ef): DownloadRowEvaluator[b] & ef =
         DownloadRowEvaluator((ixs, row) ->
@@ -133,17 +114,6 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
 
     pub def flatMap(k: a -> DownloadRowEvaluator[b] & ef, x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = bind(x, k)
 
-
-    pub def kleisliLeft(f1: a -> DownloadRowEvaluator[b], f2: b -> DownloadRowEvaluator[c], x: a): DownloadRowEvaluator[c] =
-        DownloadRowEvaluator((ixs, row) -> 
-            match apply1(f1(x), ixs, row) { 
-                case Ok(b) => apply1(f2(b), ixs, row)
-                case Err(e) => Err(e)
-            }
-        )
-
-    pub def kleisliRight(f1: b -> DownloadRowEvaluator[c], f2: a -> DownloadRowEvaluator[b], x: a): DownloadRowEvaluator[c] =
-        kleisliLeft(f2, f1, x)
 
     pub def optional(x: DownloadRowEvaluator[a]): DownloadRowEvaluator[Option[a]] =
         DownloadRowEvaluator((ixs, row) ->
@@ -444,39 +414,5 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
     pub def tuple10(o1: DownloadRowEvaluator[t1], o2: DownloadRowEvaluator[t2], o3: DownloadRowEvaluator[t3], o4: DownloadRowEvaluator[t4], o5: DownloadRowEvaluator[t5], o6: DownloadRowEvaluator[t6], o7: DownloadRowEvaluator[t7], o8: DownloadRowEvaluator[t8], o9: DownloadRowEvaluator[t9], o10: DownloadRowEvaluator[t10]): DownloadRowEvaluator[(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10)]  =
         lift10((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10), o1, o2, o3, o4, o5, o6, o7, o8, o9, o10)
 
-
-    /// Alias for `seqRight`
-    pub def *>(p1: DownloadRowEvaluator[a], p2: DownloadRowEvaluator[b]): DownloadRowEvaluator[b] = seqRight(p1, p2)
-
-    /// Alias for `seqLeft`
-    pub def <*(p1: DownloadRowEvaluator[a], p2: DownloadRowEvaluator[b]): DownloadRowEvaluator[a] = seqLeft(p1, p2)
-
-    // Haskell's <$>
-    pub def <&>(f: a -> b & ef, p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef =
-        map(f, p2)
-
-    pub def <&(x: b, p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] =
-        p2 *> point(x)
-
-    /// Alias for `bind`
-    pub def >>=(ma: DownloadRowEvaluator[a], k: a -> DownloadRowEvaluator[b] & ef): DownloadRowEvaluator[b] & ef = 
-        bind(ma, k)
-
-    /// Alias for `flatMap` (flipped `bind`)
-    pub def =<<(k: a -> DownloadRowEvaluator[b] & ef , ma: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = 
-        flatMap(k, ma)
-
-
-    // Haskell's ap <*>
-    pub def <*>(mf: DownloadRowEvaluator[a -> b & ef], p2: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef=
-        ap(mf, p2)
-
-    /// Alias for `kleisliLeft`
-    pub def >=>(f1: a -> DownloadRowEvaluator[b], f2: b -> DownloadRowEvaluator[c]): a -> DownloadRowEvaluator[c] = 
-        x -> kleisliLeft(f1, f2, x)
-
-    /// Alias for `kleisliRight`
-    pub def <=<(f1: b -> DownloadRowEvaluator[c], f2: a -> DownloadRowEvaluator[b]): a -> DownloadRowEvaluator[c] = 
-        x -> kleisliRight(f1, f2, x)
 
 }

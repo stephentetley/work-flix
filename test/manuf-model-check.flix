@@ -1,3 +1,6 @@
+use Functor.{<$>};
+use Applicative.{<*>};
+
 use SheetIO/Reader.{XlsxSource};
 use SheetIO.NamedRowEvaluator;
 use AssetLib/FileIO/S4/UxlFile/Datatypes.{EquipmentData};
@@ -47,7 +50,6 @@ pub def readEquiWorkListRows(src: XlsxSource): Result[List[WorkItem[r]], String]
 
 def evalEquiWorkItem(): NamedRowEvaluator[Option[WorkItem[r]]] =
     use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-    use  SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4) -> 
         if (not String.isEmpty(x2))
             Some({ equiId        = x1
@@ -56,7 +58,7 @@ def evalEquiWorkItem(): NamedRowEvaluator[Option[WorkItem[r]]] =
                 , modelNumber   = x4
                 } as WorkItem[r])
         else None) 
-    <&> getTrimmedContentNamed("Reference")
+    <$> getTrimmedContentNamed("Reference")
     <*> getTrimmedContentNamed("Object Type")
     <*> getTrimmedContentNamed("Manufacturer")
     <*> getTrimmedContentNamed("Model")

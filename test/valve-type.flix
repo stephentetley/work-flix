@@ -1,3 +1,6 @@
+use Functor.{<$>};
+use Applicative.{<*>};
+
 use SheetIO.NamedRowEvaluator;
 use SheetIO/Reader.{XlsxSource};
 use AssetLib/Aruba/Extra/S4EquiType.{S4EquiType, AibEquiType, ValveType};
@@ -60,13 +63,12 @@ def makeDb(xs: List[WorkItem]): Result[#{AibEquiType, ValveType | r}, String] =
 
 def evalRow(): NamedRowEvaluator[WorkItem] =
     use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-    use SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3) -> 
             { reference = x1
             , commonName = x2
             , valveType = x3
             })
-        <&> getTrimmedContentNamed("Reference")
+        <$> getTrimmedContentNamed("Reference")
         <*> getTrimmedContentNamed("Common Name")
         <*> getTrimmedContentNamed("Valve Type")
 

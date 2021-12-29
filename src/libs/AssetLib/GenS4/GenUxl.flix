@@ -67,7 +67,6 @@ namespace AssetLib/GenS4/GenUxl {
     pub def generateUxl(src: GenUxlSource, outputArgs: UxlOutputArgs): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/GenS4/GenMonad.{execGenMonad};
-        use AssetLib/GenS4/GenMonad.{*>};
         let* flocItems      = match src.flocWorkList { 
             case Some(x1) => AssetLib/GenS4/WorkLists.readFlocWorkList(x1)
             case None => Ok(Nil)

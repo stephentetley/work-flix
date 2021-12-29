@@ -15,7 +15,10 @@
  */
 
 namespace AssetLib/Facts/SiteMapping {
-    
+
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
@@ -46,13 +49,12 @@ namespace AssetLib/Facts/SiteMapping {
     
     def evalXlsSiteMappingRow(): NamedRowEvaluator[SiteMappingRow] = 
         use SheetIO/NamedRowEvaluator.{flatMap, point, getStringNamed, optional};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         use String.{trim};
         ((x1, x2) ->
                 { installationCommonName    = x1
                 , s4Level1Code              = x2
                 })
-            <&> getStringNamed("AI2_InstallationCommonName")
+            <$> getStringNamed("AI2_InstallationCommonName")
             <*> optional(getStringNamed("L1 exists in S4 01/10/2019"))
 
     /// Always drop table (fresh new data)

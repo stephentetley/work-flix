@@ -1,3 +1,6 @@
+use Functor.{<$>};
+use Applicative.{<*>};
+
 use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
 
@@ -69,7 +72,6 @@ def readWorklist(): SheetReader[List[WorklistRow]] =
 
 def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] = 
     use SheetIO/NamedRowEvaluator.{flatMap, point, getStringNamed, getStringNamedWithDefault};
-    use SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5) -> 
             { equiId                = String.trim(x1)
             , manufacturer          = String.trim(x2)
@@ -77,7 +79,7 @@ def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] =
             , changePartNumber      = String.trim(x4)
             , changeSerialNumber    = String.trim(x5)
             })
-        <&> getStringNamed("Equipment")
+        <$> getStringNamed("Equipment")
         <*> getStringNamedWithDefault("Manufacturer", "")
         <*> getStringNamedWithDefault("Change model to", "")
         <*> getStringNamedWithDefault("Change Part No to", "")
@@ -92,7 +94,6 @@ def readEquiDownloadFile(path: System.FilePath): Result[Map[String, EquipmentRow
 
 def evalEquiDownloadRow(): DownloadRowEvaluator[EquipmentRow] = 
     use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getInt32Named};
-    use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> 
             { equiId                = x1
             , functionalLocation    = x2
@@ -104,7 +105,7 @@ def evalEquiDownloadRow(): DownloadRowEvaluator[EquipmentRow] =
             , partNumber            = x8
             , serialNumber          = x9
             })
-        <&> getStringNamed("EQUI")                  /// Equipment ID
+        <$> getStringNamed("EQUI")                  /// Equipment ID
         <*> getStringNamed("TPLN_EILO")             /// Functional Location
         <*> getStringNamed("EQART_EQU")             /// Object Type
         <*> getInt32Named("BAUJJ")                  /// Construction year

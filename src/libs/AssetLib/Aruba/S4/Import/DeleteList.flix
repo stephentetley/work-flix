@@ -15,7 +15,10 @@
  */
 
 namespace AssetLib/Aruba/S4/Import/DeleteList {
-    
+
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
@@ -27,9 +30,8 @@ namespace AssetLib/Aruba/S4/Import/DeleteList {
 
     def evalFlocDelete(): NamedRowEvaluator[#{S4Floc | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> RelLib/Relation.whenTrue(not String.isEmpty(x1) and not String.isEmpty(x2),  #{ S4Floc(x1, x2). }))
-            <&> getTrimmedContentNamed("Functional Location")
+            <$> getTrimmedContentNamed("Functional Location")
             <*> getTrimmedContentNamed("S4 Name")
 
     pub def readEquiDeleteList(src: XlsxSource): Result[#{S4Equi | r}, String] & Impure =         
@@ -37,9 +39,8 @@ namespace AssetLib/Aruba/S4/Import/DeleteList {
 
     def evalEquiDelete(): NamedRowEvaluator[#{S4Equi | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> RelLib/Relation.whenTrue(not String.isEmpty(x1) and not String.isEmpty(x2),  #{ S4Equi(x1, x2). }))
-            <&> getTrimmedContentNamed("Equi Id")
+            <$> getTrimmedContentNamed("Equi Id")
             <*> getTrimmedContentNamed("S4 Name")
 
 

@@ -1,3 +1,6 @@
+use Functor.{<$>};
+use Applicative.{<*>};
+
 use SheetIO.SheetReader;
 use SheetIO.NamedRowEvaluator;
 
@@ -47,7 +50,6 @@ def readWorklist(): SheetReader[List[WorklistRow]] =
 def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] = 
     use SheetIO/NamedRowEvaluator.{map, getContentNamed, 
         getStringNamedWithDefault, getInt64Named};
-    use SheetIO/NamedRowEvaluator.{<&>, <*>};
     ((x1, x2, x3, x4, x5, x6) -> 
             { equiId                = x1
             , site                  = x2
@@ -56,7 +58,7 @@ def evalWorklistRow(): SheetIO.NamedRowEvaluator[WorklistRow] =
             , classType             = x5
             , existingSolutionId    = x6
             })
-        <&> getContentNamed("equi_id")
+        <$> getContentNamed("equi_id")
         <*> getContentNamed("site")
         <*> getContentNamed("description")
         <*> getContentNamed("floc")

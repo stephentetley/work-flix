@@ -17,6 +17,9 @@
 
 namespace ChangeDoc/Loader {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+    
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
@@ -38,7 +41,6 @@ namespace ChangeDoc/Loader {
 
     def evalFlocTabItem(): NamedRowEvaluator[FlocTabItem] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
             { internalFuncloc   = x1
             , funcloc           = x2
@@ -46,7 +48,7 @@ namespace ChangeDoc/Loader {
             , structureInd      = x4
             , objectType        = x5
             })
-            <&> getTrimmedContentNamed("Int. Functional Location")
+            <$> getTrimmedContentNamed("Int. Functional Location")
             <*> getTrimmedContentNamed("Functional Location")
             <*> getTrimmedContentNamed("Description")
             <*> getTrimmedContentNamed("Structure indicator")
@@ -61,7 +63,6 @@ namespace ChangeDoc/Loader {
 
     def evalEquiTabItem(): NamedRowEvaluator[EquiTabItem] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> 
             { equiId        = x1
             , description   = x2
@@ -70,7 +71,7 @@ namespace ChangeDoc/Loader {
             , objectType    = x5
             , objectClass   = x6
             })
-            <&> getTrimmedContentNamed("Equipment")
+            <$> getTrimmedContentNamed("Equipment")
             <*> getTrimmedContentNamed("Description")
             <*> getTrimmedContentNamed("Functional Location")
             <*> getTrimmedContentNamed("Equipment category")
@@ -92,20 +93,19 @@ namespace ChangeDoc/Loader {
 
     def evalChangeRow(): NamedRowEvaluator[Option[ChangeRow]] =
         use SheetIO/NamedRowEvaluator.{flatMap, point, map, getRowNum, getTrimmedContentNamed, throwError, optional};
-        use SheetIO/NamedRowEvaluator.{<&>};
-        let* rowNum         = (x1 -> x1 + 1) <&> getRowNum();
+        let* rowNum         = (x1 -> x1 + 1) <$> getRowNum();
         let* entityType     = optional(getEntityType());
         let* ident          = getTrimmedContentNamed("Value");
         let* table          = getTrimmedContentNamed("Table");
         match (entityType, table) {
-            case (Some(Floc),   "Check Table") => (x1 -> Funcloc1(rowNum, ident, x1)) <&> evalLevel1Attrs()
-            case (Some(Floc),   "Table for Relationship IFLOTX") => (x1 -> FunclocLongText(rowNum, ident, x1)) <&> evalLongTextAttrs()
-            case (Some(Floc),   "Table for Relationship CLASSFLOC") => (x1 -> FunclocClass(rowNum, ident, x1)) <&> evalClassAttrs()
-            case (Some(Floc),   "Table for Relationship VALUAFLOC") => (x1 -> FunclocChar(rowNum, ident, x1)) <&> evalCharAttrs()
-            case (Some(Equi),   "Check Table") => (x1 -> Equipment1(rowNum, ident, x1)) <&> evalLevel1Attrs()
-            case (Some(Equi),   "Table for Relationship EQMLTXT") => (x1 -> EquipmentLongText(rowNum, ident, x1)) <&> evalLongTextAttrs()
-            case (Some(Equi),   "Table for Relationship CLASSEQUI") => (x1 -> EquipmentClass(rowNum, ident, x1)) <&> evalClassAttrs()
-            case (Some(Equi),   "Table for Relationship VALUAEQUI") => (x1 -> EquipmentChar(rowNum, ident, x1)) <&> evalCharAttrs()
+            case (Some(Floc),   "Check Table") => (x1 -> Funcloc1(rowNum, ident, x1)) <$> evalLevel1Attrs()
+            case (Some(Floc),   "Table for Relationship IFLOTX") => (x1 -> FunclocLongText(rowNum, ident, x1)) <$> evalLongTextAttrs()
+            case (Some(Floc),   "Table for Relationship CLASSFLOC") => (x1 -> FunclocClass(rowNum, ident, x1)) <$> evalClassAttrs()
+            case (Some(Floc),   "Table for Relationship VALUAFLOC") => (x1 -> FunclocChar(rowNum, ident, x1)) <$> evalCharAttrs()
+            case (Some(Equi),   "Check Table") => (x1 -> Equipment1(rowNum, ident, x1)) <$> evalLevel1Attrs()
+            case (Some(Equi),   "Table for Relationship EQMLTXT") => (x1 -> EquipmentLongText(rowNum, ident, x1)) <$> evalLongTextAttrs()
+            case (Some(Equi),   "Table for Relationship CLASSEQUI") => (x1 -> EquipmentClass(rowNum, ident, x1)) <$> evalClassAttrs()
+            case (Some(Equi),   "Table for Relationship VALUAEQUI") => (x1 -> EquipmentChar(rowNum, ident, x1)) <$> evalCharAttrs()
             /// case (Some(Equi),   "Table for Relationship ZEQUIADDR") =>  evalAddressChange(Equi)
             /// case (Some(Floc),   "Table for Relationship ZFUNCLOAD") =>  evalAddressChange(Floc)
             case (_, _) => throwError("none")
@@ -115,7 +115,6 @@ namespace ChangeDoc/Loader {
 
     def evalLevel1Attrs(): NamedRowEvaluator[Level1Attrs] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
             { change        = x1
             , attribute     = x2
@@ -123,7 +122,7 @@ namespace ChangeDoc/Loader {
             , newValue      = x4
             , tableDest     = x5
             })
-            <&> getTrimmedContentNamed("Change")
+            <$> getTrimmedContentNamed("Change")
             <*> getTrimmedContentNamed("Attribute")
             <*> getTrimmedContentNamed("Old Value")
             <*> getTrimmedContentNamed("New Value")
@@ -131,7 +130,6 @@ namespace ChangeDoc/Loader {
 
     def evalLongTextAttrs(): NamedRowEvaluator[LongTextAttrs] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6) -> 
             { language      = x1
             , change        = x2
@@ -140,7 +138,7 @@ namespace ChangeDoc/Loader {
             , newValue      = x5
             , tableDest     = x6
             })
-            <&> getTrimmedContentNamed("Language.1")
+            <$> getTrimmedContentNamed("Language.1")
             <*> getTrimmedContentNamed("Change")
             <*> getTrimmedContentNamed("Attribute")
             <*> getTrimmedContentNamed("Old Value")
@@ -149,7 +147,6 @@ namespace ChangeDoc/Loader {
 
     def evalClassAttrs(): NamedRowEvaluator[ClassAttrs] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7) -> 
             { className     = x1
             , classType     = x2
@@ -159,7 +156,7 @@ namespace ChangeDoc/Loader {
             , newValue      = x6
             , tableDest     = x7
             })
-            <&> getTrimmedContentNamed("Class")
+            <$> getTrimmedContentNamed("Class")
             <*> getTrimmedContentNamed("Class Type")
             <*> getTrimmedContentNamed("Change")
             <*> getTrimmedContentNamed("Attribute")
@@ -169,7 +166,6 @@ namespace ChangeDoc/Loader {
 
     def evalCharAttrs(): NamedRowEvaluator[CharAttrs] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5, x6, x7, x8) -> 
             { charId        = x1
             , classType     = x2
@@ -180,7 +176,7 @@ namespace ChangeDoc/Loader {
             , newValue      = x7
             , tableDest     = x8
             })
-            <&> getTrimmedContentNamed("Character ID")
+            <$> getTrimmedContentNamed("Character ID")
             <*> getTrimmedContentNamed("Class Type")
             <*> getIntCounter()
             <*> getTrimmedContentNamed("Change")
