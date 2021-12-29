@@ -200,6 +200,9 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     }
 
+    /// # MCCE
+    /// TODO
+
     /// # PODE
 
     pub type alias PodeSchema[r1: SchemaRow] = 
@@ -217,7 +220,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     }
 
-    ///  # EMTR
+    ///  # SLIP
 
     pub type alias SlipSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, Power, VoltageIn, EquiCharacteristic | r1}
@@ -270,11 +273,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
             InsulationClass(equiId, insClass),
             S4InsulationClass(insClass, s4InsClass).
 
-        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
+        EquiCharacteristic(equiId, s4Class, "SOLE_RATED_CURRENT_A", 1, S4Float(current)) :-
             EquiWorkItem3(equiId, "SOLE", s4Class),
             CurrentInA(equiId, current).
 
-        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "SOLE_RATED_POWER_KW", 1, S4Float(power)) :-
             EquiWorkItem3(equiId, "SOLE", s4Class),
             Power(equiId, power, "KILOWATTS").
     
