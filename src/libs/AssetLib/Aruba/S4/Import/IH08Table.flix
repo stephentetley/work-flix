@@ -15,7 +15,10 @@
  */
 
 namespace AssetLib/Aruba/S4/Import/IH08Table {
-    
+
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO/Reader.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
@@ -30,9 +33,8 @@ namespace AssetLib/Aruba/S4/Import/IH08Table {
 
     def evalS4EquiType(): NamedRowEvaluator[#{S4EquiType | r}] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> #{ S4EquiType(x1, x2). })
-            <&> getTrimmedContentNamed("Equipment")
+            <$> getTrimmedContentNamed("Equipment")
             <*> getTrimmedContentNamed("Object Type")
             
 

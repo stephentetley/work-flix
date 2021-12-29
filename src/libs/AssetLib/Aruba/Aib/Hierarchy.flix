@@ -18,7 +18,7 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
     use Data.RoseForest;
     use Data.RoseTree.{Node};
-    use RelLib/Lattice/LongestPrefix.{LongestPrefix};
+    use RelLib/Lattice/LongestString.{LongestString};
     use AssetLib/Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibFlocLevel, AibEquiType};
 
 
@@ -52,20 +52,20 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
     pub rel CommonName(refnum: String, commonName: String)
 
     /// `pub` for testing?
-    pub lat CommonNamePrefix(sainum: String, longestCommonName: LongestPrefix)
+    pub lat CommonNamePrefix(sainum: String, longestCommonName: LongestString)
     
     rel CommonNamePrefixValue(sainum: String, longestCommonName: String)
 
     rel SingleName(sainum: String, longestCommonName: String)
 
-    def commonNamePrefix(name1: String, name2: String): LongestPrefix = 
-        use RelLib/Lattice/LongestPrefix.{longestPrefix};
+    def commonNamePrefix(name1: String, name2: String): LongestString = 
+        use RelLib/Lattice/LongestString.{longestString};
         if (String.length(name1) <= String.length(name2)) 
             LowerBound.minValue() 
         else {
             /// Can't use String.commonPrefix - must respect "path boundaries"
             let prefix = commonNamePrefixHelper(name1, name2);
-            longestPrefix(prefix)
+            longestString(prefix)
         } 
 
     def commonNamePrefixHelper(name1: String, name2: String): String = 
@@ -130,7 +130,7 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
                 AibFloc(_, name2, _).
 
             /// This exposes the value as a String...
-            CommonNamePrefixValue(sainum, Option.getWithDefault("", RelLib/Lattice/LongestPrefix.getValue(hkey))) :- 
+            CommonNamePrefixValue(sainum, Option.getWithDefault("", RelLib/Lattice/LongestString.getValue(hkey))) :- 
                 CommonNamePrefix(sainum; hkey).
 
 

@@ -16,6 +16,9 @@
 
 namespace AssetLib/Aruba/S4/Import/GenWorkList {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
@@ -35,9 +38,8 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
 
     def evalFlocWorkItem(): NamedRowEvaluator[#{WorkListFloc | r}] = 
         use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2) -> #{ WorkListFloc(x1, x2, flocParent(x1)). })
-            <&> getNonEmptyContentNamed("Functional Location")
+            <$> getNonEmptyContentNamed("Functional Location")
             <*> getNonEmptyContentNamed("Description")
             
     pub def readFlocBaseRelations(src: XlsxSource): Result[#{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel | r}, String] & Impure = 
@@ -51,9 +53,8 @@ namespace AssetLib/Aruba/S4/Import/GenWorkList {
     /// Note - equiId will be an AIB pliref.
     def evalEquiWorkItem(): NamedRowEvaluator[#{WorkListEqui | r}] = 
         use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4) -> #{ WorkListEqui(x1, x2, x3, x4). })
-            <&> getNonEmptyContentNamed("Reference")
+            <$> getNonEmptyContentNamed("Reference")
             <*> getNonEmptyContentNamed("S4 Equi Name")
             <*> getNonEmptyContentNamed("S4 Floc")
             <*> getTrimmedContentNamed("Super Equi")

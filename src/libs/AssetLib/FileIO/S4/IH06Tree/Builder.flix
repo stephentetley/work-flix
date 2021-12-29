@@ -57,7 +57,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
 
     def getLevel(floc: String): Int32 = 
         use AssetLib/Base/S4/Floc.{new, level};
-        Result.getWithDefault(Result.map(level, new(floc)), 0)
+        Result.getWithDefault(0, Result.map(level, new(floc)))
 
 
     def isChildNodeFloc(parentId: String, parentPointer: String): Bool = 

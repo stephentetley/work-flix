@@ -18,6 +18,9 @@
 
 namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use Text/Regex.MatchEvaluator;
 
     use SheetIO/Reader.{XlsxSource};
@@ -43,7 +46,6 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
 
     def evalExportRow(): NamedRowEvaluator[ExportRow] = 
         use SheetIO/NamedRowEvaluator.{getTrimmedContentNamed, getLocalDateNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4, x5) -> 
             { reference         = x1
             , commonName        = x2
@@ -51,7 +53,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
             , assetStatus       = x4
             , gridref           = x5
             })
-            <&> getTrimmedContentNamed("Reference")
+            <$> getTrimmedContentNamed("Reference")
             <*> getTrimmedContentNamed("Common Name")
             <*> getTrimmedContentNamed("Hierarchy Key")
             <*> getTrimmedContentNamed("AssetStatus")

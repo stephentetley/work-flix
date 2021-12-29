@@ -17,13 +17,16 @@
 
 namespace AssetLib/FileIO/S4/IH06Tree/Parser {
 
+    use Functor.{map, ignore};
+    use Applicative.{point, *>};
+
     use Time.LocalDate;
 
     use FlixParsec.Parser;
-    use FlixParsec/Prim.{point, map, swapError, bounded, parseError,  tryparse, endOfInput, liftResult, liftOption};
+    use FlixParsec/Prim.{swapError, bounded, parseError, tryparse, endOfInput, liftResult, liftOption};
     use FlixParsec/Regex.{lookingAts};
-    use FlixParsec/Combinators.{tuple2, many1Till, seqRight, ignore, choice};
-    use FlixParsec/Text.{whiteSpace,  skip1OneOf, content, restOfLine, peekRestOfLine};
+    use FlixParsec/Combinators.{tuple2, many1Till, choice};
+    use FlixParsec/Text.{whiteSpace, skip1OneOf, content, restOfLine, peekRestOfLine};
     use FlixParsec/TokenSimple.{symbol, lexeme};
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
@@ -106,7 +109,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
 
 
     def validFrom(): Parser[t1, LocalDate] = 
-        symbol("Valid From") `seqRight` lexeme(dateStamp())
+        symbol("Valid From") *> lexeme(dateStamp())
 
 
     /// If the row was highlighted it will have an X for the first char.
@@ -125,7 +128,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
         point((floc, dt))
 
     def descriptionHeaderLine(): Parser[t1, String] = 
-        symbol("Description") `seqRight` map(String.trim, restOfLine(true))
+        symbol("Description") *> map(String.trim, restOfLine(true))
     
     pub def funcloc(): Parser[t1, String] = 
         (lookingAts("[A-Z]{1}([A-Z0-9]|\\-)*") |> lexeme) `swapError` "funcloc"

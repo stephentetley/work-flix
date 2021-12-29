@@ -16,6 +16,9 @@
 
 namespace AssetLib/Aruba/S4/Import/ChangeRequestExports {
 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.{XlsxSource};
 
@@ -34,9 +37,8 @@ namespace AssetLib/Aruba/S4/Import/ChangeRequestExports {
 
     def evalExportFlocRow(): NamedRowEvaluator[#{ExportFlocRow | r}] = 
         use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3) -> #{ WorkListFloc(x1, x2, x3). })
-            <&> getNonEmptyContentNamed("Functional Location")
+            <$> getNonEmptyContentNamed("Functional Location")
             <*> getNonEmptyContentNamed("Description")
             <*> getTrimmedContentNamed("Superior FunctLoc.")
             
@@ -50,9 +52,8 @@ namespace AssetLib/Aruba/S4/Import/ChangeRequestExports {
 
     def evalExportEquiRow(): NamedRowEvaluator[#{ExportEquiRow | r}] = 
         use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getTrimmedContentNamed};
-        use SheetIO/NamedRowEvaluator.{<&>, <*>};
         ((x1, x2, x3, x4) -> #{ ExportEquiRow(x1, x2, x3, x4). })
-            <&> getNonEmptyContentNamed("Equipment")
+            <$> getNonEmptyContentNamed("Equipment")
             <*> getNonEmptyContentNamed("Description")
             <*> getNonEmptyContentNamed("Functional Location")
             <*> getTrimmedContentNamed("Superord. Equipment")
