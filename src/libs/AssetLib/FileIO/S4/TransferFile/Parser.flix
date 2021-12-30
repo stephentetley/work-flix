@@ -152,7 +152,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     def pColumnHeaders(): Parser[t1, Headers] = 
         let* _      = asterisk();
         let* nl     = makePattern("\\R");
-        let* str    = restOfLine(true) |> map(s -> Text/Regex.replace(nl, "", s));
+        let* str    = restOfLine(true) |> map(s -> Text/Regex.replace(from = nl, to = "", s));
         let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> List.toArray);
         point(arr)
 

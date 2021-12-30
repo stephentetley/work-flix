@@ -94,14 +94,14 @@ namespace AssetLib/GenS4/AibFacts/Utils {
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
     /// 
     def toProperCase1(s: String): Option[String] & Impure =
-        use Text/Regex/MatchEvaluator.{lift2, getCaptureNamed};
+        use Text/Regex/MatchEvaluator.{getCaptureNamed};
         use Option.flatMap;
         let* patt = Text/Regex/Pattern.compile("^(?<first>\\p{IsAlphabetic})(?<rest>\\p{IsAlphabetic}*)$") |> Result.toOption;
-        let eval = lift2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
+        let eval = Applicative.liftA2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                             , getCaptureNamed("first")
                             , getCaptureNamed("rest")
                             );
-        match Text/Regex.rewriteWith(patt, eval, s) { 
+        match Text/Regex.rewriteWith(from = patt, to = eval, s) { 
             case Ok(s1) if s1 != "" => Some(s1)
             case _  => Some(s)
         }
