@@ -77,7 +77,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
     def getEquipment1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibEqui |r}, String] & Impure =
         use Result.flatMap;
         use Text/Regex/MatchEvaluator.{getCaptureNamed};        
-        let* equiType = Text/Regex.evalMatchesOption(patt, getCaptureNamed("equiType"), row.commonName);
+        let* equiType = Text/Regex.evalMatchesOptional(patt, getCaptureNamed("equiType"), row.commonName);
         match equiType { 
             case None      => Ok(#{})
             case Some(ty1) => Ok(#{ AibEqui(row.reference, row.commonName, ty1). })
@@ -89,7 +89,7 @@ namespace AssetLib/Aruba/Aib/Import/ExportFile {
         RelLib/Relation.foldMapResult(getFuncloc1(patt), rows)
 
     def getFuncloc1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibFloc |r}, String] =     
-        if (Text/Regex.contains(row.commonName, patt))
+        if (Text/Regex.isMatch(patt, row.commonName))
             Ok(#{})
         else 
             if (row.hkey != "TODO")

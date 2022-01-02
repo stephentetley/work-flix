@@ -50,7 +50,7 @@ namespace AssetLib/Base/Osgb36 {
         use Option.flatMap;
         let s1 = String.trim(s);
         let* patt = Text/Regex/Pattern.compile("\\p{Alpha}{2}[0-9]{10}") |> Result.toOption;
-        if (Text/Regex.matches(patt, s1))
+        if (Text/Regex.isMatch(patt, s1))
             Some(NGR(s1))
         else 
             None
