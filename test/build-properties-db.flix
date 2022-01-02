@@ -1,30 +1,26 @@
 use SheetIO/Reader.{XlsxSource};
+use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty};
 
 
 def main(_: Array[String]): Int32 & Impure = 
     println("Temp1...");
-    let src1 = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-equipment-export.xlsx"), 
-                sheet = "Sheet1"};
-    let src2 = System/FilePath.new("G:/work/assets/facts/aib_property_types.csv");
-    readExport(src1) |> println;
-    readAibTypes(src2) |> println;
+    main01() |> println;
     0
-
-
-def readExport(src: XlsxSource): Result[Unit, String] & Impure = 
-    use Result.flatMap;
-    use AssetLib/Properties/BuildDb.{UniProperty};
-    let* relns = AssetLib/Properties/BuildDb.readAibExport(src);
-    query relns select (x1, x2, x3) from UniProperty(x1, x2, x3) 
-        |> Array.foreach(println);
     
-    Ok()
 
-def readAibTypes(src: System.FilePath): Result[Unit, String] & Impure = 
+def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
-    use AssetLib/Properties/BuildDb.{AibType};
-    let* relns = AssetLib/Properties/BuildDb.readAibTypes(src);
-    query relns select (x1, x2) from AibType(x1, x2) 
-        |> Array.foreach(println);
+    let src1    = System/FilePath.new("G:/work/assets/facts/aib_property_types.csv");
+
+    let src2    = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-agasp-export.xlsx"), 
+                    sheet = "Sheet1"};
+    let src3    = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-equipment-export.xlsx"), 
+                    sheet = "Sheet1"};
+    let dest    = "jdbc:sqlite:g:/work/assets/capital_schemes/bever/properties.sqlite";
+    let* relns  = AssetLib/Properties/BuildDb.readProperties({typesCsv = src1, exports = src2 :: src3 :: Nil});
     
-    Ok()
+    /// query relns select (x1, x2, x3) from StringProperty(x1, x2, x3) |> Array.foreach(println);
+
+    let* _      = AssetLib/Properties/BuildDb.storeProperties(dest, relns);
+    Ok(0)
+

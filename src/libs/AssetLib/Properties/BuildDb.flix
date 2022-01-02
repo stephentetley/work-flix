@@ -16,15 +16,35 @@
 
 namespace AssetLib/Properties/BuildDb {
 
+    use BasicDb.DbMonad;
+    use BasicDb.PreparedStatementSetter;
+
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty};
+    use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
 
     /// A temporary untyped property
-    pub rel UniProperty(rowId: Int32, name: String, value: String)
+    rel UniProperty(rowId: Int32, name: String, value: String)
 
-    pub rel AibType(propName: String, aibType: String)
+    rel AibType(propName: String, aibType: String)
 
+
+
+    pub def readProperties(input: { typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
+        use Result.flatMap;        
+        let* r1 = AssetLib/Properties/BuildDb.readAibTypes(input.typesCsv);
+        let* rs = Result.traverse(AssetLib/Properties/BuildDb.readAibExport, input.exports);
+        let props = AssetLib/Properties/BuildDb.genProperties(r1 <+> RelLib/Relation.combineAll(rs));
+/*        
+
+        query props select (x1, x2, x3) from IntProperty(x1, x2, x3) 
+            |> Array.foreach(println);
+        query props select (x1, x2, x3) from FloatProperty(x1, x2, x3) 
+            |> Array.foreach(println);
+*/
+        Ok(props)
+
+    
     pub def readAibExport(src: XlsxSource): Result[#{UniProperty | r}, String] & Impure = 
         use Result.flatMap;
         let* allRows = SheetIO/Reader.allRows(SheetIO/RowEvaluator.getRowContents(), src);
@@ -51,6 +71,102 @@ namespace AssetLib/Properties/BuildDb {
     def makeUniProperties(headers: Array[String], row: Array[String], rowNum: Int32): #{UniProperty | r} & Impure = 
         let step = (ac, a, b) -> ac <+> #{ UniProperty(rowNum, a, b). };
         Array.foldLeft2(step, #{}, headers, row)
-    
+
+
+    pub def genProperties(input: #{UniProperty, AibType | r}): #{StringProperty, IntProperty, FloatProperty | r} = 
+        let rules = #{
+
+            StringProperty(plinum, propName, propValue) :- 
+                AibType(propName, "STRING"),
+                UniProperty(rowIx, propName, propValue),
+                UniProperty(rowIx, "REFERENCE", plinum), 
+                if not String.isEmpty(propValue).
+
+            IntProperty(plinum, propName, intValue(propValue)) :- 
+                AibType(propName, "INTEGER"),
+                UniProperty(rowIx, propName, propValue),
+                UniProperty(rowIx, "REFERENCE", plinum), 
+                if isIntValue(propValue).
+
+            FloatProperty(plinum, propName, floatValue(propValue)) :- 
+                AibType(propName, "DECIMAL"),
+                UniProperty(rowIx, propName, propValue),
+                UniProperty(rowIx, "REFERENCE", plinum), 
+                if isFloatValue(propValue).
+
+        };
+        let input1 = input as #{UniProperty, AibType, StringProperty, IntProperty, FloatProperty | r};
+        solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty
+
+    def isIntValue(s: String): Bool = 
+        Int64.fromString(s) |> Result.isOk
+
+    def intValue(s: String): Int64 = 
+        Int64.fromString(s) |> Result.getWithDefault(-1i64)
+
+    def isFloatValue(s: String): Bool = 
+        Float64.fromString(s) |> Result.isOk
+
+    def floatValue(s: String): Float64 = 
+        Float64.fromString(s) |> Result.getWithDefault(-1.0f64)
+
+    pub def storeProperties(url: String, relns: AibProperties[r1]): Result[Unit, String] & Impure = 
+        use BasicDb/DbMonad.{flatMap, point};
+        let steps = {
+            let* _ = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
+            let* _ = storeProperties1("int_properties", intPropertySetter, query relns select (x1, x2, x3) from IntProperty(x1, x2, x3));
+            let* _ = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
+            point()
+        };
+        BasicDb/DbMonad.runDbMonad(steps, url)
+            
+
+    def storeProperties1(table: String, setter: a -> PreparedStatementSetter[Unit], rows: Array[(a)]): DbMonad[Int32] & Impure =
+        use BasicDb/DbMonad.{flatMap, point, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        let rows1       = Array.toList(rows);
+        let* _          = setAutoCommit(false);
+        let* stmt       = prepareStatement(insertPropertyRowSql(table));
+        let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, setter(x)); point(ac+n)}, 0, rows1);
+        let* _          = commit();
+        point(nrows)
+
+
+    def stringPropertySetter(x: (String, String, String)): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!};
+        let (pli, name, value) = x;
+        let* _  = putStringAt!(0, pli);
+        let* _  = putStringAt!(1, name);
+        let* _  = putStringAt!(2, value);        
+        point()
+
+
+    def intPropertySetter(x: (String, String, Int64)): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putInt64At!};
+        let (pli, name, value) = x;
+        let* _  = putStringAt!(0, pli);
+        let* _  = putStringAt!(1, name);
+        let* _  = putInt64At!(2, value);
+        point()
+
+
+    def floatPropertySetter(x: (String, String, Float64)): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putFloat64At!};
+        let (pli, name, value) = x;
+        let* _  = putStringAt!(0, pli);
+        let* _  = putStringAt!(1, name);
+        let* _  = putFloat64At!(2, value);
+        point()
+
+
+    def insertPropertyRowSql(tableName: String): String =
+        String.unwords(
+            "INSERT OR IGNORE INTO ${tableName} "
+                :: "(pli_num, "
+                :: "prop_name, "
+                :: "prop_value)"
+                :: "VALUES(?,?,?);"
+                :: Nil
+        )
+
 
 }

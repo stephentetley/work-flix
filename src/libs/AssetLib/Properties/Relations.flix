@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Aruba/Properties/Relations {
+namespace AssetLib/Properties/Relations {
+
+
+    
+    pub type alias AibProperties[r1: SchemaRow] =
+        #{StringProperty, IntProperty, FloatProperty | r1}
+
 
     pub rel StringProperty(plinum: String, propName: String, propValue: String)
 
-    pub rel IntProperty(plinum: String, propName: String, propValue: Int32)
+    pub rel IntProperty(plinum: String, propName: String, propValue: Int64)
 
     pub rel FloatProperty(plinum: String, propName: String, propValue: Float64)
 
