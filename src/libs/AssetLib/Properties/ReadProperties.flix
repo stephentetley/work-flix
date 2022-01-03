@@ -48,11 +48,11 @@ namespace AssetLib/Properties/ReadProperties {
             <*> getStringAt(2)
 
     def evalIntProperty(): RowEvaluator[#{IntProperty | r}] = 
-        use BasicDb/RowEvaluator.{getStringAt, getInt64At};
+        use BasicDb/RowEvaluator.{getStringAt, getInt32At};
         ((x1, x2, x3) -> #{IntProperty(x1, x2, x3).})
             <$> getStringAt(0)
             <*> getStringAt(1)
-            <*> getInt64At(2)
+            <*> getInt32At(2)
 
     def evalFloatProperty(): RowEvaluator[#{FloatProperty | r}] = 
         use BasicDb/RowEvaluator.{getStringAt, getFloat64At};

@@ -92,10 +92,10 @@ namespace AssetLib/Properties/BuildDb {
         solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty
 
     def isIntValue(s: String): Bool = 
-        Int64.fromString(s) |> Result.isOk
+        Int32.fromString(s) |> Result.isOk
 
-    def intValue(s: String): Int64 = 
-        Int64.fromString(s) |> Result.getWithDefault(-1i64)
+    def intValue(s: String): Int32 = 
+        Int32.fromString(s) |> Result.getWithDefault(-1)
 
     def isFloatValue(s: String): Bool = 
         Float64.fromString(s) |> Result.isOk
@@ -133,12 +133,12 @@ namespace AssetLib/Properties/BuildDb {
         point()
 
 
-    def intPropertySetter(x: (String, String, Int64)): PreparedStatementSetter[Unit] =
-        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putInt64At!};
+    def intPropertySetter(x: (String, String, Int32)): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putInt32At!};
         let (pli, name, value) = x;
         let* _  = putStringAt!(0, pli);
         let* _  = putStringAt!(1, name);
-        let* _  = putInt64At!(2, value);
+        let* _  = putInt32At!(2, value);
         point()
 
 
