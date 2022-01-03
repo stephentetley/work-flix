@@ -28,4 +28,7 @@ namespace AssetLib/Properties/Relations {
 
     pub rel FloatProperty(plinum: String, propName: String, propValue: Float64)
 
+
+    pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
+
 }

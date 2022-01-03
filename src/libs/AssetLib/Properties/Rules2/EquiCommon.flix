@@ -89,7 +89,15 @@ namespace AssetLib/Properties/Rules2/EquiCommon {
             EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
                 EquiWorkItem3(equiId, _, s4EquiClass).
 
+            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(value)) :-
+                EquiWorkItem3(equiId, _, s4EquiClass),
+                StringProperty(equiId, "LOCATION ON SITE", value),
+                if String.length(value) < 30.
 
+            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String("SEE LONG TEXT")) :-
+                EquiWorkItem3(equiId, _, s4EquiClass),
+                StringProperty(equiId, "LOCATION ON SITE", value),
+                if String.length(value) >= 30.
 
             // # EAST_NORTH
 

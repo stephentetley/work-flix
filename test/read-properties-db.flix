@@ -1,5 +1,5 @@
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
-use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty};
+use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
 use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -13,14 +13,31 @@ def main01(): Result[Int32, String] & Impure =
     let dbpath  = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
     let* relns  = AssetLib/Properties/ReadProperties.readProperties(dbpath);
     
-    query relns select (x1, x2, x3) from StringProperty(x1, x2, x3) |> Array.foreach(println);
-
-    let db2 = relns <+> AssetLib/Properties/Rules2/EquiCommon.equiCommon() <+> dummyWorkList();
+    let db2 = relns <+> AssetLib/Properties/Rules2/EquiCommon.equiCommon() 
+                    <+> AssetLib/Properties/Rules2/EquiCharacteristics.equiCharacteristics()
+                    <+> dummyPropertyAlias()
+                    <+> dummyWorkList();
     query db2 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
 
     Ok(0)
 
+/// This needs to be a metdata table in the DB....
+def dummyPropertyAlias(): #{PropertyAlias | r1} = #{
+    PropertyAlias("CURRENT IN", "ACTUEM", "ACTU_RATED_CURRENT_A").
+    PropertyAlias("CURRENT IN", "EMTRIN", "EMTR_RATED_CURRENT_A").
+}
+
 def dummyWorkList(): #{EquiWorkItem3, StringProperty | r1} = #{
-    EquiWorkItem3("PLI00160144", "PUMS", "PUMSMO").
-    StringProperty("PLI00160144", "SOLUTION_ID", "SWE9500").
+    EquiWorkItem3("PLI00788787", "TRUT", "TRUTHG").
+    EquiWorkItem3("PLI00785314", "EMTR", "EMTRIN").
+    EquiWorkItem3("PLI00785304", "GASW", "GASWIP").
+    EquiWorkItem3("PLI00785303", "DECO", "DECOEB").
+    EquiWorkItem3("PLI00785302", "GASW", "GASWMG").
+
+    StringProperty("PLI00788787", "SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785314", "SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785304", "SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785303", "SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785302", "SOLUTION_ID", "SWE9500").
+
 }    
