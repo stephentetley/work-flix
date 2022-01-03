@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/Properties/Rules2/AssetCondition {
+namespace AssetLib/Properties/Rules2/EquiCommon {
 
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
@@ -24,11 +24,15 @@ namespace AssetLib/Properties/Rules2/AssetCondition {
 
 
 
-    pub type alias AssetConditionSchema[r1: SchemaRow] = 
+    pub type alias EquiCommonSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, StringProperty, IntProperty, EquiCharacteristic | r1}
 
 
-    pub def assetCondition(): AssetConditionSchema[r1] =  #{
+    pub def equiCommon(): EquiCommonSchema[r1] =  
+        use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
+        #{
+
+            // # ASSET CONDITION
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(String.toUpperCase(grade))) :- 
                 EquiWorkItem3(equiId, _, _),
@@ -54,10 +58,29 @@ namespace AssetLib/Properties/Rules2/AssetCondition {
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "PERFORMANCE GRADE REASON", reason).
 
-            /// NOTE in Aib this is called "SURVEY_YEAR"
+        
+
+            // "AGASP SURVEY YEAR" => "SURVEY DATE"
             EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", 1, S4Int(year)) :- 
                 EquiWorkItem3(equiId, _, _),
                 IntProperty(equiId, "AGASP SURVEY YEAR", year).
+
+
+            // # EAST_NORTH
+
+            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "LOC.REF.", ngr).
+
+            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "LOC.REF.", ngr).
+
+            // # SOLUTION_ID
+
+            EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "SOLUTION_ID", solutionId).
 
         }
         
