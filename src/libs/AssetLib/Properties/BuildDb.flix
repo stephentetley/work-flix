@@ -35,13 +35,6 @@ namespace AssetLib/Properties/BuildDb {
         let* r1 = AssetLib/Properties/BuildDb.readAibTypes(input.typesCsv);
         let* rs = Result.traverse(AssetLib/Properties/BuildDb.readAibExport, input.exports);
         let props = AssetLib/Properties/BuildDb.genProperties(r1 <+> RelLib/Relation.combineAll(rs));
-/*        
-
-        query props select (x1, x2, x3) from IntProperty(x1, x2, x3) 
-            |> Array.foreach(println);
-        query props select (x1, x2, x3) from FloatProperty(x1, x2, x3) 
-            |> Array.foreach(println);
-*/
         Ok(props)
 
     
@@ -110,7 +103,7 @@ namespace AssetLib/Properties/BuildDb {
     def floatValue(s: String): Float64 = 
         Float64.fromString(s) |> Result.getWithDefault(-1.0f64)
 
-    pub def storeProperties(url: String, relns: AibProperties[r1]): Result[Unit, String] & Impure = 
+    pub def storeProperties(dbpath: System.FilePath, relns: AibProperties[r1]): Result[Unit, String] & Impure = 
         use BasicDb/DbMonad.{flatMap, point};
         let steps = {
             let* _ = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
@@ -118,7 +111,7 @@ namespace AssetLib/Properties/BuildDb {
             let* _ = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
             point()
         };
-        BasicDb/DbMonad.runDbMonad(steps, url)
+        BasicDb/DbMonad.runSQLite(steps, dbpath)
             
 
     def storeProperties1(table: String, setter: a -> PreparedStatementSetter[Unit], rows: Array[(a)]): DbMonad[Int32] & Impure =
