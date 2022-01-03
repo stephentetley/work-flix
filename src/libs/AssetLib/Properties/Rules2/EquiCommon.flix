@@ -32,7 +32,23 @@ namespace AssetLib/Properties/Rules2/EquiCommon {
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
 
-            // # ASSET CONDITION
+            // # AIB_REFERENCE
+
+            /// S4_AIB_REFERENCE (blank)
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
+                EquiWorkItem3(equiId, _, _).
+
+            /// AIB_REFERENCE (item)
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(equiId)) :- 
+                EquiWorkItem3(equiId, _, _).
+
+            /// AI2_AIB_REFERENCE (parent)
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(sainum)) :- 
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "SAI_PARENT_REF", sainum).
+
+
+            // # ASSET_CONDITION
 
             EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(String.toUpperCase(grade))) :- 
                 EquiWorkItem3(equiId, _, _),
@@ -64,6 +80,15 @@ namespace AssetLib/Properties/Rules2/EquiCommon {
             EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", 1, S4Int(year)) :- 
                 EquiWorkItem3(equiId, _, _),
                 IntProperty(equiId, "AGASP SURVEY YEAR", year).
+
+            // # __CLASS__
+
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
+                EquiWorkItem3(equiId, _, s4EquiClass).
+
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
+                EquiWorkItem3(equiId, _, s4EquiClass).
+
 
 
             // # EAST_NORTH

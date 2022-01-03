@@ -90,9 +90,9 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
 
     def intRangeHelper(src: String): Result[Refinement, String] & Impure = 
         use Result.flatMap;
-        use Text/Regex/MatchEvaluator.{lift2, getInt32Named};
+        use Text/Regex/MatchEvaluator.{getInt32Named};
         let* patt   = Text/Regex/Pattern.compile("(?<start>\\d+) \\- (?<end>\\d+)");
-        let eval    = lift2((x: Int32, y: Int32) -> IntRange(x,y), getInt32Named("start"), getInt32Named("end"));
+        let eval    = Applicative.liftA2((x, y) -> IntRange(x,y), getInt32Named("start"), getInt32Named("end"));
         Text/Regex.evalContains(patt, eval, src)
 
     /// Print Html via a rose tree

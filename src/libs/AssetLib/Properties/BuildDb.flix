@@ -21,6 +21,7 @@ namespace AssetLib/Properties/BuildDb {
 
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Characteristic};
     use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
 
     /// A temporary untyped property
@@ -28,9 +29,10 @@ namespace AssetLib/Properties/BuildDb {
 
     rel AibType(propName: String, aibType: String)
 
+    pub def readClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
+        AssetLib/FileIO/S4/ClassList/Builder.loadEquiClassList(path)
 
-
-    pub def readProperties(input: { typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
+    pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
         use Result.flatMap;        
         let* r1 = AssetLib/Properties/BuildDb.readAibTypes(input.typesCsv);
         let* rs = Result.traverse(AssetLib/Properties/BuildDb.readAibExport, input.exports);
@@ -103,13 +105,13 @@ namespace AssetLib/Properties/BuildDb {
     def floatValue(s: String): Float64 = 
         Float64.fromString(s) |> Result.getWithDefault(-1.0f64)
 
-    pub def storeProperties(dbpath: System.FilePath, relns: AibProperties[r1]): Result[Unit, String] & Impure = 
+    pub def storeProperties(dbpath: System.FilePath, relns: AibProperties[r1]): Result[Int32, String] & Impure = 
         use BasicDb/DbMonad.{flatMap, point};
         let steps = {
-            let* _ = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
-            let* _ = storeProperties1("int_properties", intPropertySetter, query relns select (x1, x2, x3) from IntProperty(x1, x2, x3));
-            let* _ = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
-            point()
+            let* n1 = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
+            let* n2 = storeProperties1("int_properties", intPropertySetter, query relns select (x1, x2, x3) from IntProperty(x1, x2, x3));
+            let* n3 = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
+            point(n1 + n2 + n3)
         };
         BasicDb/DbMonad.runSQLite(steps, dbpath)
             
@@ -156,10 +158,42 @@ namespace AssetLib/Properties/BuildDb {
             "INSERT OR IGNORE INTO ${tableName} "
                 :: "(pli_num, "
                 :: "prop_name, "
-                :: "prop_value)"
+                :: "prop_value) "
                 :: "VALUES(?,?,?);"
                 :: Nil
         )
 
+
+    pub def storeS4ClassInfo(dbpath: System.FilePath, src: ClassList): Result[Int32, String] & Impure = 
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        let steps = {
+            let chars       = List.flatMap(x -> x.characteristics, src.classes);
+            let* _          = setAutoCommit(false);
+            let* stmt       = prepareStatement(insertDDS4PropertyRowSql());
+            let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, ddS4PropertySetter(x)); point(ac+n)}, 0, chars);
+            let* _          = commit();        
+            point(nrows)
+        };
+        BasicDb/DbMonad.runSQLite(steps, dbpath)
+
+
+    def ddS4PropertySetter(x: Characteristic): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putInt32At!, putOptionInt32At!};
+        let* _  = putStringAt!(0, x.name);
+        let* _  = putStringAt!(1, String.toUpperCase(AssetLib/FileIO/S4/ClassList/Datatypes.s4TypeName(x.chartype)));
+        let* _  = putInt32At!(2, AssetLib/FileIO/S4/ClassList/Datatypes.s4StorageSize(x.chartype));
+        let* _  = putOptionInt32At!(3, AssetLib/FileIO/S4/ClassList/Datatypes.s4DecimalPlaces(x.chartype));
+        point()
+
+    def insertDDS4PropertyRowSql(): String =
+        String.unwords(
+            "INSERT OR IGNORE INTO dd_s4_properties "
+                :: "(char_name, "
+                :: "char_type, "
+                :: "char_size, "
+                :: "decimal_places) "
+                :: "VALUES(?,?,?,?);"
+                :: Nil
+        )
 
 }

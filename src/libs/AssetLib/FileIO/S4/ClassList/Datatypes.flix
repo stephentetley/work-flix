@@ -73,11 +73,25 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
         , refinement :: Option[Refinement] 
         }
 
-    pub enum Datatype { 
+    pub enum Datatype with Eq, Order, ToString, Hash, Boxable { 
         case Text(Int32)
         case Date(Int32)
         case NumInt(Int32)
         case NumDecimal(Int32, Int32)
+    }
+
+    pub def s4StorageSize(x: Datatype): Int32 = match x {
+        case Text(i)            => i
+        case Date(i)            => i
+        case NumInt(i)          => i
+        case NumDecimal(i, _)   => i
+    }
+
+    pub def s4DecimalPlaces(x: Datatype): Option[Int32] = match x {
+        case Text(_)            => None
+        case Date(_)            => None
+        case NumInt(_)          => None
+        case NumDecimal(_, p)   => Some(p)
     }
 
     /// Instances ???
@@ -89,7 +103,7 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
         case NumDecimal(_, _)   => "Float"
     }
 
-    pub enum Refinement {
+    pub enum Refinement with Eq, Order, ToString, Hash, Boxable {
         case ListOfValues(List[String])
         case IntRange(Int32, Int32)
         case DecimalRange(Float64, Float64)

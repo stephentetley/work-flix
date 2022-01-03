@@ -11,6 +11,7 @@ def main(_: Array[String]): Int32 & Impure =
 def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
     let src1    = System/FilePath.new("G:/work/assets/facts/aib_property_types.csv");
+    let src2    = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
 
     let exports = 
         List.map(makeXlsxSource("G:/work/assets/capital_schemes/bever/"),
@@ -24,10 +25,10 @@ def main01(): Result[Int32, String] & Impure =
                     ::  Nil);
     let dest    = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
     let* relns  = AssetLib/Properties/BuildDb.readProperties({typesCsv = src1, exports = exports});
-    
-    /// query relns select (x1, x2, x3) from StringProperty(x1, x2, x3) |> Array.foreach(println);
-
     let* _      = AssetLib/Properties/BuildDb.storeProperties(dest, relns);
+
+    let* cs     = AssetLib/Properties/BuildDb.readClassList(src2);
+    let* _      = AssetLib/Properties/BuildDb.storeS4ClassInfo(dest, cs);
     Ok(0)
 
 def makeXlsxSource(name1: String, name2: String): XlsxSource = 
