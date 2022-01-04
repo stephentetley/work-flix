@@ -34,7 +34,7 @@ def sourceFiles(): GenUxlSource =
 
 
 def main(_args: Array[String]): Int32 & Impure =  
-    println("Running... ${Time/LocalTime.now()}");                  
+    println("Running... ${Time/LocalTime.now()}");
     let ans = AssetLib/GenS4/GenUxl.generateUxl(sourceFiles(), outputArgs());
     match ans {
         case Ok() => println("Success")

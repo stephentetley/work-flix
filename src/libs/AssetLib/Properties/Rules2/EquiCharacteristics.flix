@@ -23,9 +23,10 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
     use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
 
 
+    pub rel RangeUnit(aibName: String, s4Name: String)
 
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, StringProperty, IntProperty, PropertyAlias, EquiCharacteristic | r1}
+        #{EquiWorkItem3, StringProperty, IntProperty, PropertyAlias, RangeUnit, EquiCharacteristic | r1}
 
 
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
@@ -44,7 +45,42 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 StringProperty(equiId, "IP RATING", value).
 
-            
+            RangeUnit("%",          "PCT").
+            RangeUnit("Bar",        "BAR"). 
+            RangeUnit("cm/s",       "CM/S"). 
+            RangeUnit("Deg C",      "DEG C" ).
+            RangeUnit("l/h",        "L/H"). 
+            RangeUnit("l/s",        "L/S").
+            RangeUnit("m",          "M").
+            RangeUnit("m/s",        "M/S").
+            RangeUnit("m3/h",       "M3/H").
+            RangeUnit("mbar",       "MBAR").
+            RangeUnit("mg/l",       "MG/L").
+            RangeUnit("mm",         "MM").
+            RangeUnit("NTU",        "NTU").
+
+
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4Float(value)) :- 
+                EquiWorkItem3(equiId, _, s4EquiClass),
+                FloatProperty(equiId, "RANGE MIN", value),
+                StringProperty(equiId, "RANGE UNIT", units),
+                PropertyAlias("RANGE MIN", s4EquiClass, s4CharName),
+                RangeUnit(units, _).
+
+           EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4Float(value)) :- 
+                EquiWorkItem3(equiId, _, s4EquiClass),
+                FloatProperty(equiId, "RANGE MAX", value),
+                StringProperty(equiId, "RANGE UNIT", units),
+                PropertyAlias("RANGE MAX", s4EquiClass, s4CharName),
+                RangeUnit(units, _).
+
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4String(units)) :- 
+                EquiWorkItem3(equiId, _, s4EquiClass),
+                StringProperty(equiId, "RANGE UNIT", units),
+                PropertyAlias("RANGE UNIT", s4EquiClass, s4CharName),
+                RangeUnit(units, _).
+
+
         }
         
 

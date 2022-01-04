@@ -3,7 +3,7 @@ use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty};
 
 
 def main(_: Array[String]): Int32 & Impure = 
-    println("Temp1...");
+    println("Running... ${Time/LocalTime.now()}");
     main01() |> println;
     0
     

@@ -3,7 +3,7 @@ use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, P
 use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
 
 def main(_: Array[String]): Int32 & Impure = 
-    println("Temp1...");
+    println("Running... ${Time/LocalTime.now()}");
     main01() |> println;
     0
     
@@ -25,6 +25,9 @@ def main01(): Result[Int32, String] & Impure =
 def dummyPropertyAlias(): #{PropertyAlias | r1} = #{
     PropertyAlias("CURRENT IN", "ACTUEM", "ACTU_RATED_CURRENT_A").
     PropertyAlias("CURRENT IN", "EMTRIN", "EMTR_RATED_CURRENT_A").
+    PropertyAlias("RANGE MIN", "FSTNEM", "FSTN_RANGE_MIN").
+    PropertyAlias("RANGE MAX", "FSTNEM", "FSTN_RANGE_MAX").
+    PropertyAlias("RANGE UNIT", "FSTNEM", "FSTN_RANGE_UNITS").
 }
 
 def dummyWorkList(): #{EquiWorkItem3, StringProperty | r1} = #{
@@ -33,11 +36,14 @@ def dummyWorkList(): #{EquiWorkItem3, StringProperty | r1} = #{
     EquiWorkItem3("PLI00785304", "GASW", "GASWIP").
     EquiWorkItem3("PLI00785303", "DECO", "DECOEB").
     EquiWorkItem3("PLI00785302", "GASW", "GASWMG").
+    EquiWorkItem3("PLI00790119", "FSTN", "FSTNEM").
+
 
     StringProperty("PLI00788787", "SOLUTION_ID", "SWE9500").
     StringProperty("PLI00785314", "SOLUTION_ID", "SWE9500").
     StringProperty("PLI00785304", "SOLUTION_ID", "SWE9500").
     StringProperty("PLI00785303", "SOLUTION_ID", "SWE9500").
     StringProperty("PLI00785302", "SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00790119", "SOLUTION_ID", "SWE9500").
 
 }    
