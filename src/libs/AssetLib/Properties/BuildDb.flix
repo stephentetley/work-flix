@@ -163,6 +163,7 @@ namespace AssetLib/Properties/BuildDb {
                 :: Nil
         )
 
+    // # S4 Equi class export
 
     pub def storeS4ClassInfo(dbpath: System.FilePath, src: ClassList): Result[Int32, String] & Impure = 
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
@@ -193,6 +194,54 @@ namespace AssetLib/Properties/BuildDb {
                 :: "char_size, "
                 :: "decimal_places) "
                 :: "VALUES(?,?,?,?);"
+                :: Nil
+        )
+
+
+    // # `property_aliases.csv`
+
+    pub type alias PropertyAlias = 
+        { aiName :: String
+        , s4Class :: String
+        , s4Char :: String
+        }
+
+    pub def readPropertyAliases(src: System.FilePath): Result[List[PropertyAlias], String] & Impure = 
+        use Result.flatMap;
+        use CsvIO/RowEvaluator.{getStringAt};
+        let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
+        let eval = Applicative.liftA3((x, y, z) -> {aiName = x, s4Class = y, s4Char = z}, 
+                                            getStringAt(0), getStringAt(1), getStringAt(2));
+        CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src)
+        
+
+    pub def storePropertyAliases(dbpath: System.FilePath, src: List[PropertyAlias]): Result[Int32, String] & Impure = 
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        let steps = {
+            let* _          = setAutoCommit(false);
+            let* stmt       = prepareStatement(insertDDPropertyAliasRowSql());
+            let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, ddPropertyAliasSetter(x)); point(ac+n)}, 0, src);
+            let* _          = commit();        
+            point(nrows)
+        };
+        BasicDb/DbMonad.runSQLite(steps, dbpath)
+
+
+
+    def ddPropertyAliasSetter(x: PropertyAlias): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putInt32At!, putOptionInt32At!};
+        let* _  = putStringAt!(0, x.aiName);
+        let* _  = putStringAt!(1, x.s4Class);
+        let* _  = putStringAt!(2, x.s4Char);
+        point()
+
+    def insertDDPropertyAliasRowSql(): String =
+        String.unwords(
+            "INSERT OR IGNORE INTO dd_property_aliases "
+                :: "(ai_prop_name, "
+                :: "s4_class_name, "
+                :: "s4_char_name) "
+                :: "VALUES(?,?,?);"
                 :: Nil
         )
 

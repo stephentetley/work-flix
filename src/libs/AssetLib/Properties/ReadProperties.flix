@@ -23,8 +23,10 @@ namespace AssetLib/Properties/ReadProperties {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
+    use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, 
+        AibProperties, PropertyAlias};
 
+    /// # Properties
 
     pub def readProperties(dbpath: System.FilePath): Result[AibProperties[r1], String] & Impure =         
         let readRelns = () -> {
@@ -61,5 +63,19 @@ namespace AssetLib/Properties/ReadProperties {
             <*> getStringAt(1)
             <*> getFloat64At(2)
 
+    /// # Meta data - property aliases
+
+
+    pub def readPropertyAliases(dbpath: System.FilePath): Result[#{PropertyAlias |r1}, String] & Impure =         
+        let sql = "SELECT ai_prop_name, s4_class_name, s4_char_name FROM dd_property_aliases ORDER BY ai_prop_name;";
+        BasicDb/DbMonad.runSQLite(BasicDb/Reader.allRelations(evalPropertyAlias(), sql), dbpath)
+
+    
+    def evalPropertyAlias(): RowEvaluator[#{PropertyAlias | r}] = 
+        use BasicDb/RowEvaluator.{getStringAt};
+        ((x1, x2, x3) -> #{PropertyAlias(x1, x2, x3).})
+            <$> getStringAt(0)
+            <*> getStringAt(1)
+            <*> getStringAt(2)
 
 }
