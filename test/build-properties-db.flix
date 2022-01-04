@@ -10,9 +10,9 @@ def main(_: Array[String]): Int32 & Impure =
 
 def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
-    let src1    = System/FilePath.new("G:/work/assets/facts/aib_property_types.csv");
+    let src1    = System/FilePath.new("E:/coding/work/work-flix/data/aib_property_types.csv");
     let src2    = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
-    let src3    = System/FilePath.new("G:/work/assets/facts/property_aliases.csv");
+    let src3    = System/FilePath.new("E:/coding/work/work-flix/data/property_aliases.csv");
 
     let exports = 
         List.map(makeXlsxSource("G:/work/assets/capital_schemes/bever/"),

@@ -45,10 +45,13 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 StringProperty(equiId, "IP RATING", value).
 
+
+            // ** Range (instrument)
+
             RangeUnit("%",          "PCT").
             RangeUnit("Bar",        "BAR"). 
             RangeUnit("cm/s",       "CM/S"). 
-            RangeUnit("Deg C",      "DEG C" ).
+            RangeUnit("Deg C",      "DEG C").
             RangeUnit("l/h",        "L/H"). 
             RangeUnit("l/s",        "L/S").
             RangeUnit("m",          "M").
@@ -81,8 +84,37 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
                 RangeUnit(units, _).
 
 
+            // TODO - can be made significantly simpler...
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4String("4 - 20 MA")) :- 
+                EquiWorkItem3(equiId, _, s4EquiClass),
+                FloatProperty(equiId, "SIGNAL MIN", smin),
+                FloatProperty(equiId, "SIGNAL MAX", smax),
+                StringProperty(equiId, "SIGNAL UNIT", "mA"),
+                PropertyAlias("SIGNAL TYPE", s4EquiClass, s4CharName),
+                if (smin `iequals` 4) and (smax `iequals` 20).
+
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4String("0 - 1 DIGITAL")) :- 
+                EquiWorkItem3(equiId, _, s4EquiClass),
+                FloatProperty(equiId, "SIGNAL MIN", smin),
+                FloatProperty(equiId, "SIGNAL MAX", smax),
+                StringProperty(equiId, "SIGNAL UNIT", "Digital"),
+                PropertyAlias("SIGNAL TYPE", s4EquiClass, s4CharName),
+                if (smin `iequals` 0) and (smax `iequals` 1).
+
+
         }
         
 
+    pub def iequals(x: Float64, y: Int32): Bool = 
+        let y1 = Int32.toFloat64(y);
+        tEqual(0.01f64, x, y1)
+
+
+    pub def tEqual(threshold: Float64, x: Float64, y: Float64): Bool = 
+        abs(x - y) < threshold
+
+    def abs(x: Float64): Float64 = 
+        import static java.lang.Math.abs(Float64);
+        abs(x) as & Pure
 
 }
