@@ -32,7 +32,7 @@ namespace AssetLib/S4Lite/S4LiteRelations {
                         description: String, 
                         longText: String)
 
-    /// Arity 4
+    /// Arity 5
     pub rel FlocCharacteristic(floc: String, 
                                 className: String, 
                                 charName: String, 

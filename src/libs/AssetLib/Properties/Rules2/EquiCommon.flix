@@ -113,7 +113,7 @@ namespace AssetLib/Properties/Rules2/EquiCommon {
 
             EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "SOLUTION_ID", solutionId).
+                StringProperty(equiId, "@SOLUTION_ID", solutionId).
 
         }
         

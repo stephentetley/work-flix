@@ -17,9 +17,14 @@
 
 namespace AssetLib/Properties/Rules2/CommonRelations {
 
+
+    pub rel FlocWorkItem3(s4Floc: String, level: Int32, ngr: String)
+
     /// `itemId` will be pli-number for facts extracted from Aib Exports.
     /// But it can represent other item types depending where the facts come from.
 
     pub rel EquiWorkItem3(pliNum: String, s4ObjType: String, s4Class: String)
+
+    
 
 }

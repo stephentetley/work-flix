@@ -31,12 +31,21 @@ def dummyWorkList(): #{EquiWorkItem3, StringProperty | r1} = #{
     EquiWorkItem3("PLI00785302", "GASW", "GASWMG").
     EquiWorkItem3("PLI00790119", "FSTN", "FSTNEM").
 
+    // Synthetic properties - not derived from AIB
 
-    StringProperty("PLI00788787", "SOLUTION_ID", "SWE9500").
-    StringProperty("PLI00785314", "SOLUTION_ID", "SWE9500").
-    StringProperty("PLI00785304", "SOLUTION_ID", "SWE9500").
-    StringProperty("PLI00785303", "SOLUTION_ID", "SWE9500").
-    StringProperty("PLI00785302", "SOLUTION_ID", "SWE9500").
-    StringProperty("PLI00790119", "SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00788787", "@S4_NAME", "Gearbox").
+    StringProperty("PLI00785314", "@S4_NAME", "Motor").
+    StringProperty("PLI00785304", "@S4_NAME", "Switch").
+    StringProperty("PLI00785303", "@S4_NAME", "Eyebath").
+    StringProperty("PLI00785302", "@S4_NAME", "Switch2").
+    StringProperty("PLI00790119", "@S4_NAME", "Flow Meter").
+
+
+    StringProperty("PLI00788787", "@SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785314", "@SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785304", "@SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785303", "@SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00785302", "@SOLUTION_ID", "SWE9500").
+    StringProperty("PLI00790119", "@SOLUTION_ID", "SWE9500").
 
 }    
