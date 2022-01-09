@@ -1,6 +1,8 @@
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
 use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
 use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
+use AssetLib/Properties/Rules2/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
+use AssetLib/Properties/AttributesLattice.{Attributes, AttributeValue};
 
 def main(_: Array[String]): Int32 & Impure = 
     println("Running... ${Time/LocalTime.now()}");
@@ -17,9 +19,11 @@ def main01(): Result[Int32, String] & Impure =
                         <+> AssetLib/Properties/Rules2/EquiCommon.equiCommon() 
                         <+> AssetLib/Properties/Rules2/EquiCharacteristics.equiCharacteristics()
                         <+> AssetLib/Properties/Rules2/EquiLongText.equiLongText()
+                        <+> AssetLib/Properties/Rules2/EquiAttributes.equiAttributes()
                         <+> dummyWorkList();
     query db2 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
     query db2 select (x1, x2, x3) from EquiLongText(x1, x2, x3) |> Array.foreach(println);
+    query db2 select (x1; x2) from EquiAttributes(x1; x2) |> Array.foreach(println);
 
     Ok(0)
 
