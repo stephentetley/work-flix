@@ -20,15 +20,15 @@ namespace AssetLib/Properties/Rules2/EquiAttributes {
     use AssetLib/S4Lite/S4LiteRelations.CharValue;
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
     use AssetLib/Properties/AttributesLattice.{Attributes, AttributeValue};
-    use AssetLib/Properties/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat};
+    use AssetLib/Properties/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
     use AssetLib/Properties/Relations.{StringProperty, FloatProperty};
     use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
 
-    /// Collect with a lattice because we are expecting one-to-one relationships
+    /// Collect with a lattice because we are expecting one-to-one or zero-to-one relationships
 
 
     pub type alias EquiAttributesSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, FloatProperty, EquiAttributes | r1}
+        #{EquiWorkItem3, StringProperty, FloatProperty, EquiAttributes | r1}
 
 
     /// Strings of location-on-site and Memos
@@ -39,17 +39,32 @@ namespace AssetLib/Properties/Rules2/EquiAttributes {
         use AssetLib/Properties/AttributesLattice.{singleton};
         #{
 
+                // INSTALLED FROM
+            EquiAttributes(equiId; singleton("INSTALLED_FROM", AttrDate(Option.getWithDefault(fallbackDate(), sqliteDate(value))))) :-  
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "INSTALLED FROM", value).
+
+            EquiAttributes(equiId; singleton("SERIAL_NO", AttrString(value))) :-  
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "SERIAL NO", value).
+
+            EquiAttributes(equiId; singleton("SPECIFIC_MODEL_FRAME", AttrString(value))) :-  
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "SPECIFIC MODEL/FRAME", value).
+
             EquiAttributes(equiId; singleton("WEIGHT_KG", AttrFloat(value))) :- 
                 EquiWorkItem3(equiId, _, _),
                 FloatProperty(equiId, "WEIGHT KG", value).
-            
+                          
         } 
 
-    /// def toAttributeValue(x: CharValue): AttributeValue = match x { 
-    ///     case S4String(s) => AttrString(s)
-    ///     case S4Date(_)   => AttrString("Date - TODO")
-    ///     case S4Int(i)    => AttrInt(i)
-    ///     case S4Float(d)  => AttrFloat(d)
-    /// }
+    // Sores as string "4/29/21 17:47"
+    def sqliteDate(s: String): Option[Time.LocalDate] =
+        use Option.flatMap;
+        let* fmt    = Time/Format/DateTimeFormatter.ofPattern("M/d/yy H:m");
+        let* dt     = Time/LocalDateTime.parse(fmt, s);
+        Some(Time/LocalDateTime.toLocalDate(dt))
 
+    def fallbackDate(): Time.LocalDate = 
+        Time/LocalDate.new({year=1970, month=1, dayOfMonth=1})
 }

@@ -7,6 +7,8 @@ use AssetLib/Properties/AttributesLattice.{Attributes, AttributeValue};
 def main(_: Array[String]): Int32 & Impure = 
     println("Running... ${Time/LocalTime.now()}");
     main01() |> println;
+    sqliteDate("M/d/yy H:m") |> println;
+
     0
     
 
@@ -53,3 +55,9 @@ def dummyWorkList(): #{EquiWorkItem3, StringProperty | r1} = #{
     StringProperty("PLI00790119", "@SOLUTION_ID", "SWE9500").
 
 }    
+
+def sqliteDate(patt: String): Option[Time.LocalDate] =
+    use Option.flatMap;
+    let* fmt    = Time/Format/DateTimeFormatter.ofPattern(patt);
+    let* dt     = Time/LocalDateTime.parse(fmt, "4/29/21 17:47");
+    Some(Time/LocalDateTime.toLocalDate(dt))

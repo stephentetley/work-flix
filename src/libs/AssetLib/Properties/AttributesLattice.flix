@@ -22,6 +22,7 @@ namespace AssetLib/Properties/AttributesLattice {
         case AttrString(String)
         case AttrInt(Int32)
         case AttrFloat(Float64)
+        case AttrDate(Time.LocalDate)
     }
 
     pub enum Attributes with Eq, Order, ToString { 
