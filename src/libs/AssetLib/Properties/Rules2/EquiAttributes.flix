@@ -24,7 +24,8 @@ namespace AssetLib/Properties/Rules2/EquiAttributes {
     use AssetLib/Properties/Relations.{StringProperty, FloatProperty};
     use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
 
-    /// Collect with a lattice because we are expecting one-to-one or zero-to-one relationships
+    // Collect with a lattice because we are expecting relationships that are one-to-one 
+    // or one-to-zero rather than one-to-many.
 
 
     pub type alias EquiAttributesSchema[r1: SchemaRow] = 
@@ -38,6 +39,10 @@ namespace AssetLib/Properties/Rules2/EquiAttributes {
     pub def equiAttributes(): EquiAttributesSchema[r1] = 
         use AssetLib/Properties/AttributesLattice.{singleton};
         #{
+
+            EquiAttributes(equiId; singleton("ASSET_STATUS", AttrString(value))) :-  
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "ASSETSTATUS", value).
 
                 // INSTALLED FROM
             EquiAttributes(equiId; singleton("INSTALLED_FROM", AttrDate(Option.getWithDefault(fallbackDate(), sqliteDate(value))))) :-  
@@ -58,7 +63,7 @@ namespace AssetLib/Properties/Rules2/EquiAttributes {
                           
         } 
 
-    // Sores as string "4/29/21 17:47"
+    // Stored as string e.g. "4/29/21 17:47"
     def sqliteDate(s: String): Option[Time.LocalDate] =
         use Option.flatMap;
         let* fmt    = Time/Format/DateTimeFormatter.ofPattern("M/d/yy H:m");

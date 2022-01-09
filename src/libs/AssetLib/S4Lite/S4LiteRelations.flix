@@ -36,7 +36,7 @@ namespace AssetLib/S4Lite/S4LiteRelations {
     pub rel FlocCharacteristic(floc: String, 
                                 className: String, 
                                 charName: String, 
-                                intCounterValue: Int32,
+                                intCounterValue: Int32,     // TODO - to remove
                                 charValue: CharValue)
 
 
@@ -54,7 +54,7 @@ namespace AssetLib/S4Lite/S4LiteRelations {
     pub rel EquiCharacteristic(equiId: String, 
                                 className: String, 
                                 charName: String,
-                                intCounterValue: Int32,
+                                intCounterValue: Int32,     // TODO - to remove
                                 charValue: CharValue)
 
 

@@ -28,6 +28,12 @@ namespace AssetLib/Properties/Rules2/FlocCharacteristics {
         #{FlocWorkItem3, StringProperty, IntProperty, FlocCharacteristic | r1}
 
 
+    // NOTE - there is no real need to generate these with Datalog.
+    // No properties are read from the database, they are entirely derived from a row 
+    // in the worklist file.
+
+
+
     pub def flocCharacteristics(): FlocCharacteristicSchema[r1] =  
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         #{
@@ -35,38 +41,38 @@ namespace AssetLib/Properties/Rules2/FlocCharacteristics {
             // # AIB_REFERENCE
 
             /// S4_AIB_REFERENCE (blank)
-            FlocCharacteristic(floc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
-                FlocWorkItem3(floc, _, _).
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
+                FlocWorkItem3(funcloc, _, _).
 
             /// AIB_REFERENCE (from worklist semi sep list)
-            FlocCharacteristic(floc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
-                FlocWorkItem3(floc, _, _), 
-                StringProperty(floc, "@AIB_REFERENCE", sainum).
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
+                FlocWorkItem3(funcloc, _, _), 
+                StringProperty(funcloc, "@AIB_REFERENCE", sainum).
 
 
             // # __CLASS__
             
             FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", 1, S4String(systemName)) :- 
                 FlocWorkItem3(funcloc, level, _),
-                StringProperty(floc, "@CLASS_NAME", className),
-                StringProperty(floc, "@SYSTEM_TYPE", systemName),
+                StringProperty(funcloc, "@CLASS_NAME", className),
+                StringProperty(funcloc, "@SYSTEM_TYPE", systemName),
                 if level == 5.
             
 
 
             // # EAST_NORTH
             // (NGR is mandatory so could be added to FlocWorkItem)
-            FlocCharacteristic(floc, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
-                FlocWorkItem3(floc, _, ngr).
+            FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
+                FlocWorkItem3(funcloc, _, ngr).
 
-            FlocCharacteristic(floc, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
-                FlocWorkItem3(floc, _, ngr).
+            FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
+                FlocWorkItem3(funcloc, _, ngr).
 
             // # SOLUTION_ID
 
-            FlocCharacteristic(floc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
-                FlocWorkItem3(floc, _, _),
-                StringProperty(floc, "@SOLUTION_ID", solutionId).
+            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
+                FlocWorkItem3(funcloc, _, _),
+                StringProperty(funcloc, "@SOLUTION_ID", solutionId).
 
             // # UNICLASS_CODE
 
