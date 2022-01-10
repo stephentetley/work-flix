@@ -42,35 +42,35 @@ namespace AssetLib/GenS4/Rules/Characteristics/AssetCondition {
 
     pub def assetCondition(): AssetConditionSchema[r1] =  #{
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(s4ConditionGrade(grade))) :- 
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", S4String(s4ConditionGrade(grade))) :- 
                 EquiWorkItem3(equiId, _, _),
                 ConditionGrade(equiId, grade, _).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :- 
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE_REASON", S4String(String.toUpperCase(reason))) :- 
                 EquiWorkItem3(equiId, _, _),
                 ConditionGrade(equiId, _, reason), 
                 if not String.isEmpty(reason).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR", 1, S4String(s4LoadingFactor(factor))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR", S4String(s4LoadingFactor(factor))) :-
                 EquiWorkItem3(equiId, _, _),
                 LoadingFactor(equiId, factor, _).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR_REASON", 1, S4String(String.toUpperCase(reason))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR_REASON", S4String(String.toUpperCase(reason))) :-
                 EquiWorkItem3(equiId, _, _),
                 LoadingFactor(equiId, _, reason),
                 if not String.isEmpty(reason).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE", 1, S4String(s4PerformanceGrade(grade))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE", S4String(s4PerformanceGrade(grade))) :-
                 EquiWorkItem3(equiId, _, _),
                 PerformanceGrade(equiId, grade, _).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", S4String(String.toUpperCase(reason))) :-
                 EquiWorkItem3(equiId, _, _),
                 PerformanceGrade(equiId, _, reason),
                 if not String.isEmpty(reason).
 
             /// NOTE in Aib this is called "SURVEY_YEAR"
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", 1, S4Int(year)) :- 
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", S4Int(year)) :- 
                 EquiWorkItem3(equiId, _, _),
                 SurveyYear(equiId, year).           
 

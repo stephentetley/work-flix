@@ -76,17 +76,17 @@ namespace AssetLib/GenS4/Rules/Equipment {
                                             LocationOnSite, AibMemoLine, EquiCharacteristic| r1}): GenMonad[Unit] =
         let rules = #{
             
-            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", S4String("")) :- 
                 EquiWorkItem3(equiId, _, s4EquiClass).
 
-            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", S4String("")) :-
                 EquiWorkItem3(equiId, _, s4EquiClass).
 
-            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(s4Location(location))) :-
+            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", S4String(s4Location(location))) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 LocationOnSite(equiId, location).
 
-           EquiCharacteristic(equiId, s4EquiClass, "MEMO_LINE", 1, S4String(s4MemoLine(body))) :-
+           EquiCharacteristic(equiId, s4EquiClass, "MEMO_LINE", S4String(s4MemoLine(body))) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 AibMemoLine(equiId; body).
 

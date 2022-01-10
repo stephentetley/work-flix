@@ -46,7 +46,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/BuildingsCivils {
 
     pub def kiskCharacteristics(): KiskSchema[r1] = #{
 
-        /// EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(s4Level)) :-
+        /// EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", S4String(s4Level)) :-
         ///     EquiWorkItem3(equiId, "TANK", _),
         ///     TankLevel(equiId, level),
         ///     S4TankLevel(level, s4Level).
@@ -68,12 +68,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/BuildingsCivils {
 
     pub def tankCharacteristics(): TankSchema[r1] = #{
 
-        EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", 1, S4String(s4Level)) :-
+        EquiCharacteristic(equiId, "002", "TANK_TANK_LEVEL", S4String(s4Level)) :-
             EquiWorkItem3(equiId, "TANK", _),
             TankLevel(equiId, level),
             S4TankLevel(level, s4Level).
             
-        EquiCharacteristic(equiId, "002", "TANK_TANK_CONSTRUCTION", 1, S4String(s4Constr)) :-
+        EquiCharacteristic(equiId, "002", "TANK_TANK_CONSTRUCTION", S4String(s4Constr)) :-
             EquiWorkItem3(equiId, "TANK", _),
             TankConstruction(equiId, constr),
             S4TankConstruction(constr, s4Constr).

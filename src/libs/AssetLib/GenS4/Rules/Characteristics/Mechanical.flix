@@ -55,7 +55,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def compCharacteristics(): CompSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "COMP_RATED_POWER_KW", 1, S4Float(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "COMP_RATED_POWER_KW", S4Float(ans)) :-
             EquiWorkItem3(equiId, "COMP", s4Class),
             RatingPower(equiId, ans, "KILOWATTS").
 
@@ -76,16 +76,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     pub def fansCharacteristics(): FansSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "FANS_RATED_SPEED_RPM", 1, S4Int(speed)) :- 
+        EquiCharacteristic(equiId, s4Class, "FANS_RATED_SPEED_RPM", S4Int(speed)) :- 
             EquiWorkItem3(equiId, "FANS", s4Class),
             SpeedRPM(equiId, speed).
 
-        EquiCharacteristic(equiId, s4Class, "FANS_TYPE", 1, S4String(s4type)) :- 
+        EquiCharacteristic(equiId, s4Class, "FANS_TYPE", S4String(s4type)) :- 
             EquiWorkItem3(equiId, "FANS", s4Class),
             TypeOfFan(equiId, aibtype),
             S4FanType(aibtype, s4type).
     
-        EquiCharacteristic(equiId, s4Class, "FANS_RATED_POWER_KW", 1, S4Float(power)) :- 
+        EquiCharacteristic(equiId, s4Class, "FANS_RATED_POWER_KW", S4Float(power)) :- 
             EquiWorkItem3(equiId, "FANS", s4Class),
             RatingPower(equiId, power, "KILOWATTS").
         
@@ -108,12 +108,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def hsysCharacteristics(): HsysSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "HSYS_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+        EquiCharacteristic(equiId, s4Class, "HSYS_RATED_VOLTAGE", S4Int(voltage)) :-
             EquiWorkItem3(equiId, "HSYS", s4Class),
             VoltageIn(equiId, voltage, units),
             if recognizedVoltageUnits(units).
 
-        EquiCharacteristic(equiId, s4Class, "HSYS_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+        EquiCharacteristic(equiId, s4Class, "HSYS_RATED_VOLTAGE_UNITS", S4String(voltageUnits(units))) :-
             EquiWorkItem3(equiId, "HSYS", s4Class),
             VoltageIn(equiId, _, units),
             if recognizedVoltageUnits(units).
@@ -134,13 +134,13 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
     pub def mixrCharacteristics(): MixrSchema[r1] = #{
 
         /// Not generated for static mixer
-        EquiCharacteristic(equiId, s4Class, "MIXR_RATED_POWER_KW", 1, S4Float(power)) :- 
+        EquiCharacteristic(equiId, s4Class, "MIXR_RATED_POWER_KW", S4Float(power)) :- 
             EquiWorkItem3(equiId, "MIXR", s4Class),
             RatingPower(equiId, power, "KILOWATTS"), 
             if s4Class != "MIXRST".
 
         /// Not generated for static mixer
-        EquiCharacteristic(equiId, s4Class, "MIXR_RATED_SPEED_RPM", 1, S4Int(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "MIXR_RATED_SPEED_RPM", S4Int(ans)) :-
             EquiWorkItem3(equiId, "MIXR", s4Class),
             SpeedRPM(equiId, ans), 
             if s4Class != "MIXRST".
@@ -159,28 +159,28 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     pub def pumpCharacteristics(): PumpSchema[r1] = #{
         
-        EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
+        EquiCharacteristic(equiId, s4Class, "PUMP_FLOW_LITRES_PER_SEC", S4Float(flowLitresPerSecond(flow, units))) :- 
             EquiWorkItem3(equiId, "PUMP", s4Class),
             Flow(equiId, flow, units),
             if recognizedFlowUnits(units).
 
-        EquiCharacteristic(equiId, s4Class, "PUMP_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMP_INSTALLED_DESIGN_HEAD_M", S4Float(ans)) :-
             EquiWorkItem3(equiId, "PUMP", s4Class),
             DutyHead(equiId, ans, "METRES").
 
         /// Limit pump-classes here...
         /// Not PUMPPG...
-        EquiCharacteristic(equiId, s4Class, "PUMP_IMPELLER_TYPE", 1, S4String(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMP_IMPELLER_TYPE", S4String(ans)) :-
             EquiWorkItem3(equiId, "PUMP", s4Class),
             ImpellerType(equiId, ans),
             if s4Class != "PUMPPG".
 
-        EquiCharacteristic(equiId, s4Class, "PUMP_DIAPHRAGM_MATERIAL", 1, S4String(s4Name)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMP_DIAPHRAGM_MATERIAL", S4String(s4Name)) :-
             EquiWorkItem3(equiId, "PUMP", s4Class),
             DiaphragmMaterial(equiId, material),
             S4DiaphragmMaterial(material, s4Name).
 
-        EquiCharacteristic(equiId, s4Class, "PUMP_RATED_POWER_KW", 1, S4Float(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMP_RATED_POWER_KW", S4Float(ans)) :-
             EquiWorkItem3(equiId, "PUMP", s4Class),
             RatingPower(equiId, ans, "KILOWATTS").
     
@@ -219,30 +219,30 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     pub def pumsCharacteristics(): PumsSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "PUMS_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
+        EquiCharacteristic(equiId, s4Class, "PUMS_FLOW_LITRES_PER_SEC", S4Float(flowLitresPerSecond(flow, units))) :- 
             EquiWorkItem3(equiId, "PUMS", s4Class),
             Flow(equiId, flow, units),
             if recognizedFlowUnits(units).
 
-        EquiCharacteristic(equiId, s4Class, "PUMS_INSTALLED_DESIGN_HEAD_M", 1, S4Float(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMS_INSTALLED_DESIGN_HEAD_M", S4Float(ans)) :-
             EquiWorkItem3(equiId, "PUMS", s4Class),
             DutyHead(equiId, ans, "METRES").
 
         /// TODO may have to limit pump-classes here...
-        EquiCharacteristic(equiId, s4Class, "PUMS_IMPELLER_TYPE", 1, S4String(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMS_IMPELLER_TYPE", S4String(ans)) :-
             EquiWorkItem3(equiId, "PUMS", s4Class),
             ImpellerType(equiId, ans).
 
-        EquiCharacteristic(equiId, s4Class, "PUMS_LIFTING_TYPE", 1, S4String(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMS_LIFTING_TYPE", S4String(ans)) :-
             EquiWorkItem3(equiId, "PUMS", s4Class),
             PumpLiftingType(equiId, ans).
 
-        EquiCharacteristic(equiId, s4Class, "PUMS_RATED_POWER_KW", 1, S4Float(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMS_RATED_POWER_KW", S4Float(ans)) :-
             EquiWorkItem3(equiId, "PUMS", s4Class),
             RatingPower(equiId, ans, "KILOWATTS").
 
 
-        EquiCharacteristic(equiId, s4Class, "PUMS_RATED_SPEED_RPM", 1, S4Int(ans)) :-
+        EquiCharacteristic(equiId, s4Class, "PUMS_RATED_SPEED_RPM", S4Int(ans)) :-
             EquiWorkItem3(equiId, "PUMS", s4Class),
             SpeedRPM(equiId, ans).
 
@@ -260,7 +260,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     pub def scprCharacteristics(): ScprSchema[r1] =  #{
         
-        EquiCharacteristic(equiId, s4Class, "SCPR_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "SCPR_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "SCPR", s4Class),
             RatingPower(equiId, power, "KILOWATTS").
 
@@ -280,7 +280,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
     pub def scrfCharacteristics(): ScrfSchema[r1] = #{
 
         /// All fine screens
-        EquiCharacteristic(equiId, s4Class, "SCRF_FLOW_LITRES_PER_SEC", 1, S4Float(flowLitresPerSecond(flow, units))) :- 
+        EquiCharacteristic(equiId, s4Class, "SCRF_FLOW_LITRES_PER_SEC", S4Float(flowLitresPerSecond(flow, units))) :- 
             EquiWorkItem3(equiId, "SCRF", s4Class),
             Flow(equiId, flow, units),
             if recognizedFlowUnits(units).
@@ -299,7 +299,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     pub def trutCharacteristics(): TrutSchema[r1] =  #{
         
-        EquiCharacteristic(equiId, s4Class, "TRUT_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "TRUT_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "TRUT", s4Class),
             RatingPower(equiId, power, "KILOWATTS").
 
@@ -318,12 +318,12 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
 
     pub def valvCharacteristics(): ValvSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", 1, S4Int(sizeMM(size, units))) :- 
+        EquiCharacteristic(equiId, s4Class, "VALV_INLET_SIZE_MM", S4Int(sizeMM(size, units))) :- 
             EquiWorkItem3(equiId, "VALV", s4Class),
             ValveSize(equiId, size, units),
             if recognizedSizeUnits(units) and s4Class != "VALVRE".
 
-        EquiCharacteristic(equiId, "VALVRE", "VALV_BORE_DIAMETER_MM", 1, S4Int(sizeMM(size, units))) :- 
+        EquiCharacteristic(equiId, "VALVRE", "VALV_BORE_DIAMETER_MM", S4Int(sizeMM(size, units))) :- 
             EquiWorkItem3(equiId, "VALV", "VALVRE"),
             ValveSize(equiId, size, units),
             if recognizedSizeUnits(units).

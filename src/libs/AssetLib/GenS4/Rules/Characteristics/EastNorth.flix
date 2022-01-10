@@ -40,10 +40,10 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     pub def flocEastNorth(workitems: #{FlocEastNorthWorkItem, FlocCharacteristic | r}): GenMonad[Unit] =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{
-            FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
+            FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
                 FlocEastNorthWorkItem(funcloc, ngr).
 
-            FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
+            FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
                 FlocEastNorthWorkItem(funcloc, ngr).
         };
         AssetLib/GenS4/GenMonad.tellFlocCharacteristics(rules <+> workitems)
@@ -60,11 +60,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/EastNorth {
     pub def equiEastNorth(input: #{EquiWorkItem3, NationalGridRef, EquiCharacteristic | r}): GenMonad[Unit] =
         use AssetLib/Base/Osgb36.{eastingfromOsgb36, northingfromOsgb36};
         let rules = #{            
-            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
+            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
                 EquiWorkItem3(equiId, _, _),
                 NationalGridRef(equiId, ngr).
 
-            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
+            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
                 EquiWorkItem3(equiId, _, _),
                 NationalGridRef(equiId, ngr).
         };

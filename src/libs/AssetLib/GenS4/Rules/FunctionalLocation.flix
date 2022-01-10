@@ -62,15 +62,15 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
     pub def flocCharacteristics(input: #{FlocWorkItem4, FlocCharacteristic | r}): GenMonad[Unit] = 
         let rules = #{
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String("")) :- 
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", S4String("")) :- 
                 FlocWorkItem4(funcloc, level, _, _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", 1, S4String("")) :- 
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", S4String("")) :- 
                 FlocWorkItem4(funcloc, level, _, _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", 1, S4String(systemDescr)) :- 
+            FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", S4String(systemDescr)) :- 
                 FlocWorkItem4(funcloc, level, className, systemDescr),
                 if level == 5.
         };

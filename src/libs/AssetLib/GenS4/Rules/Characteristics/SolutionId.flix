@@ -38,7 +38,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
 
     pub def flocSolutionId(input: #{FlocSolnIdWorkItem, FlocCharacteristic | r}): GenMonad[Unit] =
         let rules = #{
-            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :- 
+            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :- 
                 FlocSolnIdWorkItem(funcloc, solutionId), 
                 if not String.isEmpty(solutionId).
         };
@@ -62,7 +62,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/SolutionId {
     ///
     pub def equiSolutionId(input: #{EquiSolnIdWorkItem, EquiCharacteristic | r}): GenMonad[Unit] =
        let rules =  #{
-            EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
+            EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :-  
                 EquiSolnIdWorkItem(equiId, solutionId),
                 if not String.isEmpty(solutionId).
         };

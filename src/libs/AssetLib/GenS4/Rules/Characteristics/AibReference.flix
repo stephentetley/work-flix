@@ -54,11 +54,11 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
         let rules = #{
             
             /// 1-to-1 - 1 work item to 1 blank "S4_AIB_REFERENCE"
-            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :- 
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :- 
                 FlocAibRefWorkItem(funcloc).
 
             /// 1-to-many - 1 funcloc to many "AI2_AIB_REFERENCE"
-            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(sainum)) :- 
                 FlocAibRef(funcloc, sainum).                
         };
         AssetLib/GenS4/GenMonad.tellFlocCharacteristics(rules <+> input)
@@ -78,16 +78,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/AibReference {
                                         EquiCharacteristic | r}): GenMonad[Unit] =
         let rules = #{
             /// S4_AIB_REFERENCE (blank)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :-
                 EquiWorkItem3(equiId, _, _).
 
             /// AIB_REFERENCE (item)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(pliNum)) :- 
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(pliNum)) :- 
                 EquiWorkItem3(equiId, _, _),
                 AibPliNum(equiId, pliNum).
 
             /// AI2_AIB_REFERENCE (parent)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(parentSaiNum)) :- 
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(parentSaiNum)) :- 
                 EquiWorkItem3(equiId, _, _),
                 AibParentRef(equiId, parentSaiNum), 
                 if not String.isEmpty(parentSaiNum).

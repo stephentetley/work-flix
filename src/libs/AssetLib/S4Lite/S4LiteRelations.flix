@@ -32,11 +32,10 @@ namespace AssetLib/S4Lite/S4LiteRelations {
                         description: String, 
                         longText: String)
 
-    /// Arity 5
+    /// Arity 4
     pub rel FlocCharacteristic(floc: String, 
                                 className: String, 
                                 charName: String, 
-                                intCounterValue: Int32,     // TODO - to remove
                                 charValue: CharValue)
 
 
@@ -50,11 +49,10 @@ namespace AssetLib/S4Lite/S4LiteRelations {
                         longText: String)
 
 
-    /// Arity 5
+    /// Arity 4
     pub rel EquiCharacteristic(equiId: String, 
                                 className: String, 
                                 charName: String,
-                                intCounterValue: Int32,     // TODO - to remove
                                 charValue: CharValue)
 
 
@@ -74,17 +72,16 @@ namespace AssetLib/S4Lite/S4LiteRelations {
 
 
     pub def toSLFlocCharacteristics(src: #{FlocCharacteristic | r}): Array[SLFlocCharacteristic] & Impure = 
-        query src select (x1, x2, x3, x4, x5) from FlocCharacteristic(x1, x2, x3, x4, x5)
+        query src select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4)
             |> Array.map(flocCharacteristicToS4Lite)
 
-    def flocCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): SLFlocCharacteristic = 
-        let (x1, x2, x3, x4, x5) = x;
+    def flocCharacteristicToS4Lite(x: (String, String, String, CharValue)): SLFlocCharacteristic = 
+        let (x1, x2, x3, x4) = x;
         { funcloc           = x1
         , className         = x2
         , charName          = x3
-        , valueType         = typeOfValue(x5)
-        , intCounterValue   = x4
-        , charValue         = stringOfValue(x5)
+        , valueType         = typeOfValue(x4)
+        , charValue         = stringOfValue(x4)
         }
 
 
@@ -102,17 +99,16 @@ namespace AssetLib/S4Lite/S4LiteRelations {
 
 
     pub def toSLEquiCharacteristics(src: #{ EquiCharacteristic | r }): Array[SLEquiCharacteristic] & Impure = 
-        query src select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5)
+        query src select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4)
             |> Array.map(equiCharacteristicToS4Lite)
 
-    def equiCharacteristicToS4Lite(x: (String, String, String, Int32, CharValue)): SLEquiCharacteristic = 
-        let (x1, x2, x3, x4, x5) = x;
+    def equiCharacteristicToS4Lite(x: (String, String, String, CharValue)): SLEquiCharacteristic = 
+        let (x1, x2, x3, x4) = x;
         { equiId            = x1 
         , className         = x2
         , charName          = x3
-        , valueType         = typeOfValue(x5)
-        , intCounterValue   = x4
-        , charValue         = stringOfValue(x5)
+        , valueType         = typeOfValue(x4)
+        , charValue         = stringOfValue(x4)
         }
 
 

@@ -54,27 +54,27 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def fstnCharacteristics(): FstnSchema[r1] =  #{
 
-        EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
+        EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", S4String("4 - 20 MA")) :- 
             EquiWorkItem3(equiId, "FSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "mA"),
             if iEqual(smin, 4) and iEqual(smax, 20).
 
-        EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
+        EquiCharacteristic(equiId, s4Class, "FSTN_SIGNAL_TYPE", S4String("0 - 1 DIGITAL")) :- 
             EquiWorkItem3(equiId, "FSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "Digital"),
             if iEqual(smin, 0) and iEqual(smax, 1).
 
-        EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MIN", 1, S4Float(rmin)) :-
+        EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MIN", S4Float(rmin)) :-
             EquiWorkItem3(equiId, "FSTN", s4Class),
             RangeMinMax(equiId, rmin, _, unit),
             S4RangeUnit(unit, _).
 
-        EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MAX", 1, S4Float(rmax)) :-
+        EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_MAX", S4Float(rmax)) :-
             EquiWorkItem3(equiId, "FSTN", s4Class),
             RangeMinMax(equiId, _, rmax,  units),
             S4RangeUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_UNITS", 1, S4String(s4Units)) :-
+        EquiCharacteristic(equiId, s4Class, "FSTN_RANGE_UNITS", S4String(s4Units)) :-
             EquiWorkItem3(equiId, "FSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
             S4RangeUnit(units, s4Units).
@@ -100,36 +100,36 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
 
     pub def lstnCharacteristics(): LstnSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
+        EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", S4String("4 - 20 MA")) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "mA"),
             if iEqual(smin, 4) and iEqual(smax, 20).
 
-        EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
+        EquiCharacteristic(equiId, s4Class, "LSTN_SIGNAL_TYPE", S4String("0 - 1 DIGITAL")) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "Digital"),
             if iEqual(smin, 0) and iEqual(smax, 1).
 
-        EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
+        EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MIN", S4Float(rmin)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             RangeMinMax(equiId, rmin, _, units),
             S4RangeUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
+        EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_MAX", S4Float(rmax)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             RangeMinMax(equiId, _, rmax, units),
             S4RangeUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_UNITS", 1, S4String(s4Units)) :- 
+        EquiCharacteristic(equiId, s4Class, "LSTN_RANGE_UNITS", S4String(s4Units)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
             S4RangeUnit(units, s4Units).
 
-        EquiCharacteristic(equiId, s4Class, "LSTN_TRANSDUCER_MODEL", 1, S4String(model)) :- 
+        EquiCharacteristic(equiId, s4Class, "LSTN_TRANSDUCER_MODEL", S4String(model)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             Transducer(equiId, model, _).
 
-        EquiCharacteristic(equiId, s4Class, "LSTN_TRANSDUCER_SERIAL_NO", 1, S4String(snum)) :- 
+        EquiCharacteristic(equiId, s4Class, "LSTN_TRANSDUCER_SERIAL_NO", S4String(snum)) :- 
             EquiWorkItem3(equiId, "LSTN", s4Class),
             Transducer(equiId, _, snum), 
             if not String.isEmpty(snum).
@@ -154,27 +154,27 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
 
     pub def pstnCharacteristics(): PstnSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "PSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
+        EquiCharacteristic(equiId, s4Class, "PSTN_SIGNAL_TYPE", S4String("4 - 20 MA")) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "mA"),
             if iEqual(smin, 4) and iEqual(smax, 20).
 
-        EquiCharacteristic(equiId, s4Class, "PSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
+        EquiCharacteristic(equiId, s4Class, "PSTN_SIGNAL_TYPE", S4String("0 - 1 DIGITAL")) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "Digital"),
             if iEqual(smin, 0) and iEqual(smax, 1).
 
-        EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
+        EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MIN", S4Float(rmin)) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             RangeMinMax(equiId, rmin, _, units),
             S4RangeUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
+        EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_MAX", S4Float(rmax)) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             RangeMinMax(equiId, _, rmax, units),
             S4RangeUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_UNITS", 1, S4String(s4Units)) :- 
+        EquiCharacteristic(equiId, s4Class, "PSTN_RANGE_UNITS", S4String(s4Units)) :- 
             EquiWorkItem3(equiId, "PSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
             S4RangeUnit(units, s4Units).
@@ -197,27 +197,27 @@ namespace AssetLib/GenS4/Rules/Characteristics/Instrument {
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(workitems1 <+> facts <+> tstnCharacteristics())
 
     pub def tstnCharacteristics(): TstnSchema[r1] = #{
-        EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("4 - 20 MA")) :- 
+        EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", S4String("4 - 20 MA")) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "mA"),
             if iEqual(smin, 4) and iEqual(smax, 20).
 
-        EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", 1, S4String("0 - 1 DIGITAL")) :- 
+        EquiCharacteristic(equiId, s4Class, "TSTN_SIGNAL_TYPE", S4String("0 - 1 DIGITAL")) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             SignalMinMax(equiId, smin, smax, "Digital"),
             if iEqual(smin, 0) and iEqual(smax, 1).
 
-        EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MIN", 1, S4Float(rmin)) :- 
+        EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MIN", S4Float(rmin)) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             RangeMinMax(equiId, rmin, _, units),
             S4RangeUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MAX", 1, S4Float(rmax)) :- 
+        EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_MAX", S4Float(rmax)) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             RangeMinMax(equiId, _, rmax, units),
             S4RangeUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_UNITS", 1, S4String(s4units)) :- 
+        EquiCharacteristic(equiId, s4Class, "TSTN_RANGE_UNITS", S4String(s4units)) :- 
             EquiWorkItem3(equiId, "TSTN", s4Class),
             RangeMinMax(equiId, _, _, units),
             S4RangeUnit(units, s4units).

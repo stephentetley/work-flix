@@ -35,83 +35,83 @@ namespace AssetLib/Properties/Rules2/EquiCommon {
             // # AIB_REFERENCE
 
             /// S4_AIB_REFERENCE (blank)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :-
                 EquiWorkItem3(equiId, _, _).
 
             /// AIB_REFERENCE (item)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(equiId)) :- 
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(equiId)) :- 
                 EquiWorkItem3(equiId, _, _).
 
             /// AI2_AIB_REFERENCE (parent)
-            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 2, S4String(sainum)) :- 
+            EquiCharacteristic(equiId, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(sainum)) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "SAI_PARENT_REF", sainum).
 
 
             // # ASSET_CONDITION
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", 1, S4String(String.toUpperCase(grade))) :- 
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE", S4String(String.toUpperCase(grade))) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "CONDITION GRADE", grade).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :- 
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "CONDITION_GRADE_REASON", S4String(String.toUpperCase(reason))) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "CONDITION GRADE REASON", reason).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR", 1, S4String(String.toUpperCase(factor))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR", S4String(String.toUpperCase(factor))) :-
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "LOADING FACTOR", factor).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR_REASON", 1, S4String(String.toUpperCase(reason))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "LOADING_FACTOR_REASON", S4String(String.toUpperCase(reason))) :-
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "LOADING FACTOR REASON", reason).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE", 1, S4String(String.toUpperCase(grade))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE", S4String(String.toUpperCase(grade))) :-
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "PERFORMANCE GRADE", grade).
 
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", 1, S4String(String.toUpperCase(reason))) :-
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", S4String(String.toUpperCase(reason))) :-
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "PERFORMANCE GRADE REASON", reason).
 
         
 
             // "AGASP SURVEY YEAR" => "SURVEY DATE"
-            EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", 1, S4Int(year)) :- 
+            EquiCharacteristic(equiId, "ASSET_CONDITION", "SURVEY_DATE", S4Int(year)) :- 
                 EquiWorkItem3(equiId, _, _),
                 IntProperty(equiId, "AGASP SURVEY YEAR", year).
 
             // # __CLASS__
 
-            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", 1, S4String("")) :- 
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_CODE", S4String("")) :- 
                 EquiWorkItem3(equiId, _, s4EquiClass).
 
-            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", 1, S4String("")) :-
+            EquiCharacteristic(equiId, s4EquiClass, "UNICLASS_DESC", S4String("")) :-
                 EquiWorkItem3(equiId, _, s4EquiClass).
 
-            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String(value)) :-
+            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", S4String(value)) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 StringProperty(equiId, "LOCATION ON SITE", value),
                 if String.length(value) < 30.
 
-            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", 1, S4String("SEE LONG TEXT")) :-
+            EquiCharacteristic(equiId, s4EquiClass, "LOCATION_ON_SITE", S4String("SEE LONG TEXT")) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 StringProperty(equiId, "LOCATION ON SITE", value),
                 if String.length(value) >= 30.
 
             // # EAST_NORTH
 
-            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
+            EquiCharacteristic(equiId, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "LOC.REF.", ngr).
 
-            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
+            EquiCharacteristic(equiId, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "LOC.REF.", ngr).
 
             // # SOLUTION_ID
 
-            EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
+            EquiCharacteristic(equiId, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :-  
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "@SOLUTION_ID", solutionId).
 

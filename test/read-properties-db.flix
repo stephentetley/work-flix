@@ -23,7 +23,7 @@ def main01(): Result[Int32, String] & Impure =
                         <+> AssetLib/Properties/Rules2/EquiLongText.equiLongText()
                         <+> AssetLib/Properties/Rules2/EquiAttributes.equiAttributes()
                         <+> dummyWorkList();
-    query db2 select (x1, x2, x3, x4, x5) from EquiCharacteristic(x1, x2, x3, x4, x5) |> Array.foreach(println);
+    query db2 select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
     query db2 select (x1, x2, x3) from EquiLongText(x1, x2, x3) |> Array.foreach(println);
     query db2 select (x1; x2) from EquiAttributes(x1; x2) |> Array.foreach(println);
 

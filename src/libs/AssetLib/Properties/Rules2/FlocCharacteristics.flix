@@ -41,18 +41,18 @@ namespace AssetLib/Properties/Rules2/FlocCharacteristics {
             // # AIB_REFERENCE
 
             /// S4_AIB_REFERENCE (blank)
-            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", 1, S4String("")) :-
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :-
                 FlocWorkItem3(funcloc, _, _).
 
             /// AIB_REFERENCE (from worklist semi sep list)
-            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", 1, S4String(sainum)) :- 
+            FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(sainum)) :- 
                 FlocWorkItem3(funcloc, _, _), 
                 StringProperty(funcloc, "@AIB_REFERENCE", sainum).
 
 
             // # __CLASS__
             
-            FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", 1, S4String(systemName)) :- 
+            FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", S4String(systemName)) :- 
                 FlocWorkItem3(funcloc, level, _),
                 StringProperty(funcloc, "@CLASS_NAME", className),
                 StringProperty(funcloc, "@SYSTEM_TYPE", systemName),
@@ -62,25 +62,25 @@ namespace AssetLib/Properties/Rules2/FlocCharacteristics {
 
             // # EAST_NORTH
             // (NGR is mandatory so could be added to FlocWorkItem)
-            FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", 1, S4Int(eastingfromOsgb36(ngr))) :- 
+            FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
                 FlocWorkItem3(funcloc, _, ngr).
 
-            FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", 1, S4Int(northingfromOsgb36(ngr))) :- 
+            FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
                 FlocWorkItem3(funcloc, _, ngr).
 
             // # SOLUTION_ID
 
-            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", 1, S4String(solutionId)) :-  
+            FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :-  
                 FlocWorkItem3(funcloc, _, _),
                 StringProperty(funcloc, "@SOLUTION_ID", solutionId).
 
             // # UNICLASS_CODE
 
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", 1, S4String("")) :- 
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", S4String("")) :- 
                 FlocWorkItem3(funcloc, level, _),
                 if level != 5.
 
-            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", 1, S4String("")) :- 
+            FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", S4String("")) :- 
                 FlocWorkItem3(funcloc, level, _),
                 if level != 5.
 

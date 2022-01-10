@@ -57,29 +57,29 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
 
     pub def actuCharacteristics(): ActuSchema[r1] = #{
-        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", S4String(rating)) :- 
             EquiWorkItem3(equiId, "ACTU", s4Class),
             IPRating(equiId, rating).
 
-        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
+        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", S4String(s4InsClass)) :-
             EquiWorkItem3(equiId, "ACTU", s4Class),
             InsulationClass(equiId, insClass),
             S4InsulationClass(insClass, s4InsClass).
 
-        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", 1, S4Float(current)) :-
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_CURRENT_A", S4Float(current)) :-
             EquiWorkItem3(equiId, "ACTU", s4Class),
             CurrentInA(equiId, current).
 
-        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "ACTU", s4Class),
             Power(equiId, power, "KILOWATTS").
 
-        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE", S4Int(voltage)) :-
             EquiWorkItem3(equiId, "ACTU", s4Class),
             VoltageIn(equiId, voltage, units),
             if recognizedVoltageUnits(units).
 
-        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+        EquiCharacteristic(equiId, s4Class, "ACTU_RATED_VOLTAGE_UNITS", S4String(voltageUnits(units))) :-
             EquiWorkItem3(equiId, "ACTU", s4Class),
             VoltageIn(equiId, _, units),
             if recognizedVoltageUnits(units).
@@ -98,16 +98,16 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     pub def conpCharacteristics(): ConpSchema[r1] =  #{
         
-        EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", 1, S4Float(current)) :-
+        EquiCharacteristic(equiId, s4Class, "CONP_RATED_CURRENT_A", S4Float(current)) :-
             EquiWorkItem3(equiId, "CONP", s4Class),
             CurrentInA(equiId, current).
 
-        EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+        EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE", S4Int(voltage)) :-
             EquiWorkItem3(equiId, "CONP", s4Class),
             VoltageIn(equiId, voltage, units),
             if recognizedVoltageUnits(units).
 
-        EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+        EquiCharacteristic(equiId, s4Class, "CONP_RATED_VOLTAGE_UNITS", S4String(voltageUnits(units))) :-
             EquiWorkItem3(equiId, "CONP", s4Class),
             VoltageIn(equiId, _, units),
             if recognizedVoltageUnits(units).
@@ -125,7 +125,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     pub def distCharacteristics(): DistSchema[r1] =  #{
         
-        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", S4String(rating)) :- 
             EquiWorkItem3(equiId, "DIST", s4Class),
             IPRating(equiId, rating).
 
@@ -147,35 +147,35 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
     /// IP_RATING should be generated on per type (per class?)
     pub def emtrCharacteristics(): EmtrSchema[r1] = #{
             
-        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", S4String(rating)) :- 
             EquiWorkItem3(equiId, "EMTR", s4Class),
             IPRating(equiId, rating).
 
         /// TODO - check working...
-        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
+        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", S4String(s4InsClass)) :-
             EquiWorkItem3(equiId, "EMTR", s4Class),
             InsulationClass(equiId, insClass),
             S4InsulationClass(insClass, s4InsClass).
 
-        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_CURRENT_A", 1, S4Float(current)) :-
+        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_CURRENT_A", S4Float(current)) :-
             EquiWorkItem3(equiId, "EMTR", s4Class),
             CurrentInA(equiId, current).
 
-        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "EMTR", s4Class),
             Power(equiId, power, "KILOWATTS").
 
-        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_SPEED_RPM", 1, S4Int(speed)) :- 
+        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_SPEED_RPM", S4Int(speed)) :- 
             EquiWorkItem3(equiId, "EMTR", s4Class),
             SpeedRPM(equiId, speed).
 
         /// Units are just VAC or VDC - no conversion
-        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_VOLTAGE", S4Int(voltage)) :-
             EquiWorkItem3(equiId, "EMTR", s4Class),
             VoltageIn(equiId, voltage, units),
             if recognizedVoltageUnits(units).
 
-        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+        EquiCharacteristic(equiId, s4Class, "EMTR_RATED_VOLTAGE_UNITS", S4String(voltageUnits(units))) :-
             EquiWorkItem3(equiId, "EMTR", s4Class),
             VoltageIn(equiId, _, units),
             if recognizedVoltageUnits(units).
@@ -194,7 +194,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     pub def heatCharacteristics(): HeatSchema[r1] =  #{
         
-        EquiCharacteristic(equiId, s4Class, "HEAT_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "HEAT_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "HEAT", s4Class),
             Power(equiId, power, "KILOWATTS").
 
@@ -214,7 +214,7 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     pub def podeCharacteristics(): PodeSchema[r1] = #{
     
-        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", S4String(rating)) :- 
             EquiWorkItem3(equiId, "PODE", s4Class),
             IPRating(equiId, rating).
 
@@ -236,17 +236,17 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
     pub def slipCharacteristics(): SlipSchema[r1] = #{
             
 
-        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "SLIP", s4Class),
             Power(equiId, power, "KILOWATTS").
 
         /// Units are just VAC or VDC - no conversion
-        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_VOLTAGE", 1, S4Int(voltage)) :-
+        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_VOLTAGE", S4Int(voltage)) :-
             EquiWorkItem3(equiId, "SLIP", s4Class),
             VoltageIn(equiId, voltage, units),
             if recognizedVoltageUnits(units).
 
-        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_VOLTAGE_UNITS", 1, S4String(voltageUnits(units))) :-
+        EquiCharacteristic(equiId, s4Class, "SLIP_RATED_VOLTAGE_UNITS", S4String(voltageUnits(units))) :-
             EquiWorkItem3(equiId, "SLIP", s4Class),
             VoltageIn(equiId, _, units),
             if recognizedVoltageUnits(units).
@@ -264,20 +264,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     pub def soleCharacteristics(): SoleSchema[r1] = #{
     
-        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :- 
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", S4String(rating)) :- 
             EquiWorkItem3(equiId, "SOLE", s4Class),
             IPRating(equiId, rating).
 
-        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", 1, S4String(s4InsClass)) :-
+        EquiCharacteristic(equiId, s4Class, "INSULATION_CLASS_DEG_C", S4String(s4InsClass)) :-
             EquiWorkItem3(equiId, "SOLE", s4Class),
             InsulationClass(equiId, insClass),
             S4InsulationClass(insClass, s4InsClass).
 
-        EquiCharacteristic(equiId, s4Class, "SOLE_RATED_CURRENT_A", 1, S4Float(current)) :-
+        EquiCharacteristic(equiId, s4Class, "SOLE_RATED_CURRENT_A", S4Float(current)) :-
             EquiWorkItem3(equiId, "SOLE", s4Class),
             CurrentInA(equiId, current).
 
-        EquiCharacteristic(equiId, s4Class, "SOLE_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "SOLE_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "SOLE", s4Class),
             Power(equiId, power, "KILOWATTS").
     
@@ -299,26 +299,26 @@ namespace AssetLib/GenS4/Rules/Characteristics/Electrical {
 
     pub def starCharacteristics(): StarSchema[r1] = #{
     
-        EquiCharacteristic(equiId, s4Class, "IP_RATING", 1, S4String(rating)) :-
+        EquiCharacteristic(equiId, s4Class, "IP_RATING", S4String(rating)) :-
             EquiWorkItem3(equiId, "STAR", s4Class),
             IPRating(equiId, rating).
 
-        EquiCharacteristic(equiId, s4Class, starCurrentA(s4Class), 1, S4Float(current)) :-
+        EquiCharacteristic(equiId, s4Class, starCurrentA(s4Class), S4Float(current)) :-
             EquiWorkItem3(equiId, "STAR", s4Class),
             CurrentInA(equiId, current).
         
 
-        EquiCharacteristic(equiId, s4Class, "STAR_RATED_POWER_KW", 1, S4Float(power)) :-
+        EquiCharacteristic(equiId, s4Class, "STAR_RATED_POWER_KW", S4Float(power)) :-
             EquiWorkItem3(equiId, "STAR", s4Class),
             Power(equiId, power, "KILOWATTS").
 
-        EquiCharacteristic(equiId, s4Class, starVoltage(s4Class), 1, S4Int(voltage)) :-
+        EquiCharacteristic(equiId, s4Class, starVoltage(s4Class), S4Int(voltage)) :-
             EquiWorkItem3(equiId, "STAR", s4Class),
             VoltageIn(equiId, voltage, units),
             if recognizedVoltageUnits(units).
 
 
-        EquiCharacteristic(equiId, s4Class, starVoltageUnits(s4Class), 1 , S4String(voltageUnits(units))) :-
+        EquiCharacteristic(equiId, s4Class, starVoltageUnits(s4Class), S4String(voltageUnits(units))) :-
             EquiWorkItem3(equiId, "STAR", s4Class),
             VoltageIn(equiId, _, units),
             if recognizedVoltageUnits(units).

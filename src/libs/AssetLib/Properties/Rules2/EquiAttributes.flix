@@ -24,7 +24,7 @@ namespace AssetLib/Properties/Rules2/EquiAttributes {
     use AssetLib/Properties/Relations.{StringProperty, FloatProperty};
     use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
 
-    // Collect with a lattice because we are expecting relationships that are one-to-one 
+    // Collect with a lattice because we are expecting relations that are one-to-one 
     // or one-to-zero rather than one-to-many.
 
 

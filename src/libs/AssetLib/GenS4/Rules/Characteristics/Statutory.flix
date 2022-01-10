@@ -53,20 +53,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def crhtCharacteristics(): CrhtSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", S4String(ywref)) :- 
             EquiWorkItem3(equiId, "CRHT", s4Class),
             YWRef(equiId, ywref).
 
-        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
+        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", S4String(number)) :- 
             EquiWorkItem3(equiId, "CRHT", s4Class),
             TestCertNo(equiId, number).
 
-        EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
+        EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD", S4Float(load)) :-
             EquiWorkItem3(equiId, "CRHT", s4Class),
             WorkLoad(equiId, load, units),
             S4LoadUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD_UNITS", 1, S4String(s4Units)) :-
+        EquiCharacteristic(equiId, s4Class, "CRHT_SAFE_WORKING_LOAD_UNITS", S4String(s4Units)) :-
             EquiWorkItem3(equiId, "CRHT", s4Class),
             WorkLoad(equiId, _, units),
             S4LoadUnit(units, s4Units).
@@ -94,20 +94,20 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def liacCharacteristics(): LiacSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", S4String(ywref)) :- 
             EquiWorkItem3(equiId, "LIAC", s4Class),
             YWRef(equiId, ywref).
 
-        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
+        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", S4String(number)) :- 
             EquiWorkItem3(equiId, "LIAC", s4Class),
             TestCertNo(equiId, number).
 
-        EquiCharacteristic(equiId, s4Class, "LIAC_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
+        EquiCharacteristic(equiId, s4Class, "LIAC_SAFE_WORKING_LOAD", S4Float(load)) :-
             EquiWorkItem3(equiId, "LIAC", s4Class),
             WorkLoad(equiId, load, units),
             S4LoadUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "LIAC_SAFE_WORKING_LOAD_UNITS", 1, S4String(s4Units)) :-
+        EquiCharacteristic(equiId, s4Class, "LIAC_SAFE_WORKING_LOAD_UNITS", S4String(s4Units)) :-
             EquiWorkItem3(equiId, "LIAC", s4Class),
             WorkLoad(equiId, _, units),
             S4LoadUnit(units, s4Units).
@@ -134,21 +134,21 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def lislCharacteristics(): LislSchema[r1] = #{
 
-        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", S4String(ywref)) :- 
             EquiWorkItem3(equiId, "LISL", s4Class),
             YWRef(equiId, ywref).
 
-        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
+        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", S4String(number)) :- 
             EquiWorkItem3(equiId, "LISL", s4Class),
             TestCertNo(equiId, number).
 
 
-        EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
+        EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD", S4Float(load)) :-
             EquiWorkItem3(equiId, "LISL", s4Class),
             WorkLoad(equiId, load, units),
             S4LoadUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD_UNITS", 1, S4String(s4Units)) :-
+        EquiCharacteristic(equiId, s4Class, "LISL_SAFE_WORKING_LOAD_UNITS", S4String(s4Units)) :-
             EquiWorkItem3(equiId, "LISL", s4Class),
             WorkLoad(equiId, _, units),
             S4LoadUnit(units, s4Units).
@@ -171,22 +171,22 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def sferCharacteristics(): SferSchema[r1] = #{
     
-        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", S4String(ywref)) :- 
             EquiWorkItem3(equiId, "SFER", s4Class),
             YWRef(equiId, ywref).
 
-        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
+        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", S4String(number)) :- 
             EquiWorkItem3(equiId, "SFER", s4Class),
             TestCertNo(equiId, number).
 
         /// Note every SFER__ class has "SFER_SAFE_WORKING_LOAD" but they should not
         /// have `WorkLoad` if they don't (need to check this assumption).
-        EquiCharacteristic(equiId, s4Class, "SFER_SAFE_WORKING_LOAD", 1, S4Float(load)) :-
+        EquiCharacteristic(equiId, s4Class, "SFER_SAFE_WORKING_LOAD", S4Float(load)) :-
             EquiWorkItem3(equiId, "SFER", s4Class),
             WorkLoad(equiId, load, units),
             S4LoadUnit(units, _).
 
-        EquiCharacteristic(equiId, s4Class, "SFER_SAFE_WORKING_LOAD_UNITS", 1, S4String(s4Units)) :-
+        EquiCharacteristic(equiId, s4Class, "SFER_SAFE_WORKING_LOAD_UNITS", S4String(s4Units)) :-
             EquiWorkItem3(equiId, "SFER", s4Class),
             WorkLoad(equiId, _, units),
             S4LoadUnit(units, s4Units).
@@ -210,45 +210,45 @@ namespace AssetLib/GenS4/Rules/Characteristics/Statutory {
     /// Note UNICLASS_CODE / UNICLASS_DESC / LOCATION_ON_SITE already created.
     pub def veprCharacteristics(): VeprSchema[r1] = #{
     
-        EquiCharacteristic(equiId, s4Class, "VEPR_BAR_LITRES", 1, S4Float(litres)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_BAR_LITRES", S4Float(litres)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             BarLitres(equiId, litres).
     
 
-        EquiCharacteristic(equiId, s4Class, "VEPR_PV_CAPACITY_LTRS_L", 1, S4Float(litres)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_PV_CAPACITY_LTRS_L", S4Float(litres)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             PVCapacityLitres(equiId, litres).
 
 
-        EquiCharacteristic(equiId, s4Class, "VEPR_SAFE_WORKING_PRESSURE_BAR", 1, S4Float(pressure)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_SAFE_WORKING_PRESSURE_BAR", S4Float(pressure)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             SwpOrSol(equiId, pressure, "BAR").
 
 
         /// Does status need remapping?
-        EquiCharacteristic(equiId, s4Class, "VEPR_PV_VERIFICATION_STATUS", 1, S4String(status)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_PV_VERIFICATION_STATUS", S4String(status)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             PVVerificationStatus(equiId, status).
 
-        EquiCharacteristic(equiId, s4Class, "VEPR_PV_VERIFICATION_DATE", 1, S4Date(date)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_PV_VERIFICATION_DATE", S4Date(date)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             PVVerificationStatusDate(equiId, date).
 
 
-        EquiCharacteristic(equiId, s4Class, "VEPR_TEST_PRESSURE_BAR", 1, S4Float(pressure)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_TEST_PRESSURE_BAR", S4Float(pressure)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             TestPressureBars(equiId, pressure).
 
 
-        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", 1, S4String(number)) :- 
+        EquiCharacteristic(equiId, s4Class, "TEST_CERT_NO", S4String(number)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             TestCertNo(equiId, number).
 
-        EquiCharacteristic(equiId, s4Class, "VEPR_WRITTEN_SCHEME_NUMBER", 1, S4String(snum)) :- 
+        EquiCharacteristic(equiId, s4Class, "VEPR_WRITTEN_SCHEME_NUMBER", S4String(snum)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             WrittenSchemeNumber(equiId, snum).
 
-        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", 1, S4String(ywref)) :- 
+        EquiCharacteristic(equiId, s4Class, "STATUTORY_REFERENCE_NUMBER", S4String(ywref)) :- 
             EquiWorkItem3(equiId, "VEPR", s4Class),
             YWRef(equiId, ywref).
 

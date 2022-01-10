@@ -53,16 +53,16 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
 
 
             // Current in
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4Float(value)) :-
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 FloatProperty(equiId, "CURRENT IN", value),
                 PropertyAlias("CURRENT IN", s4EquiClass, s4CharName).
 
-            EquiCharacteristic(equiId, s4EquiClass, "INSULATION_CLASS_DEG_C", 1, S4String(String.toUpperCase(value))) :-
+            EquiCharacteristic(equiId, s4EquiClass, "INSULATION_CLASS_DEG_C", S4String(String.toUpperCase(value))) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 StringProperty(equiId, "INSULATION CLASS", value).
         
-            EquiCharacteristic(equiId, s4EquiClass, "IP_RATING", 1, S4String(String.toUpperCase(value))) :-
+            EquiCharacteristic(equiId, s4EquiClass, "IP_RATING", S4String(String.toUpperCase(value))) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 StringProperty(equiId, "IP RATING", value).
 
@@ -70,7 +70,7 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
             
 
             // Range min
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4Float(value)) :- 
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :- 
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 FloatProperty(equiId, "RANGE MIN", value),
                 StringProperty(equiId, "RANGE UNIT", units),
@@ -78,7 +78,7 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
                 RangeUnit(units, _).
 
             // Range max
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4Float(value)) :- 
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :- 
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 FloatProperty(equiId, "RANGE MAX", value),
                 StringProperty(equiId, "RANGE UNIT", units),
@@ -86,7 +86,7 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
                 RangeUnit(units, _).
 
             // Range units
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4String(units)) :- 
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4String(units)) :- 
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 StringProperty(equiId, "RANGE UNIT", units),
                 PropertyAlias("RANGE UNIT", s4EquiClass, s4CharName),
@@ -110,7 +110,7 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
             // ## SIGNAL TYPE
 
             // Signal without min/max
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4String(signalName)) :- 
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4String(signalName)) :- 
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 not HasFloatProperty(equiId, "SIGNAL MIN"),
                 not HasFloatProperty(equiId, "SIGNAL MAX"),
@@ -121,7 +121,7 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
 
             // Signal with min/max
             // Use `IntOfFloat` to get matchable numbers...
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4String(signalName)) :- 
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4String(signalName)) :- 
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 IntOfFloatProperty(equiId, "SIGNAL MIN", smin),
                 IntOfFloatProperty(equiId, "SIGNAL MAX", smax),
@@ -146,7 +146,7 @@ namespace AssetLib/Properties/Rules2/EquiCharacteristics {
             // ## SPEED RPM
             // TODO - some speed (rpm)'s are decimal - where is the source coming from?
             // We may have to use the metadata tables to decide whether answer is S4Int / S4Float.
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, 1, S4Int(value)) :-
+            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Int(value)) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
                 IntOfFloatProperty(equiId, "SPEED (RPM)", value),
                 PropertyAlias("SPEED (RMP)", s4EquiClass, s4CharName).

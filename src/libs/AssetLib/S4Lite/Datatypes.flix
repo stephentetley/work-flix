@@ -82,7 +82,6 @@ namespace AssetLib/S4Lite/Datatypes {
         , className :: String
         , charName :: String
         , valueType :: SLDatatype
-        , intCounterValue :: Int32
         , charValue :: String
         }
 
@@ -117,7 +116,6 @@ namespace AssetLib/S4Lite/Datatypes {
         , className :: String
         , charName :: String
         , valueType :: SLDatatype
-        , intCounterValue :: Int32
         , charValue :: String
         }
 
