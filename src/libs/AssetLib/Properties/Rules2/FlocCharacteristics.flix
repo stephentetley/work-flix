@@ -17,12 +17,15 @@
 
 namespace AssetLib/Properties/Rules2/FlocCharacteristics {
 
+    use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     use AssetLib/Properties/Relations.{StringProperty, IntProperty};
+    
+    // TODO remove, don't use relations.
     use AssetLib/Properties/Rules2/CommonRelations.{FlocWorkItem3};
 
-
+    use AssetLib/Properties/WorkLists.{FlocWorkItem};
 
     pub type alias FlocCharacteristicSchema[r1: SchemaRow] = 
         #{FlocWorkItem3, StringProperty, IntProperty, FlocCharacteristic | r1}
@@ -87,5 +90,20 @@ namespace AssetLib/Properties/Rules2/FlocCharacteristics {
         }
         
 
+    // Note - generating S4Lite without Datalog is currently cumbersome. 
+    // Maybe we need a mini-DSL...
+
+    pub def uniclassCode(r: FlocWorkItem): Chain[SLFlocCharacteristic] = 
+        use AssetLib/S4Lite/Datatypes.SLDatatype.{Character};
+        if (r.level != 5) 
+            Chain.singleton(
+                { funcloc           = r.funcloc
+                , className         = "UNICLASS_CODE"
+                , charName          = "UNICLASS_DESC"
+                , valueType         = Character
+                , charValue         = ""
+                })
+        else
+            Chain.empty()
 
 }
