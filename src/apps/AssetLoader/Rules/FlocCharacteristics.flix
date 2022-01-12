@@ -15,17 +15,18 @@
  */
 
 
-namespace AssetLib/Properties/Rules2/FlocCharacteristics {
+namespace AssetLoader/Rules/FlocCharacteristics {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
-    use AssetLib/Properties/Relations.{StringProperty, IntProperty};
+    
+    use AssetLoader/Base/Relations.{StringProperty, IntProperty};
+    use AssetLoader/WorkLists.{FlocWorkItem};
     
     // TODO remove, don't use relations.
-    use AssetLib/Properties/Rules2/CommonRelations.{FlocWorkItem3};
-
-    use AssetLib/Properties/WorkLists.{FlocWorkItem};
+    use AssetLoader/Rules/CommonRelations.{FlocWorkItem3};
+    
 
     pub type alias FlocCharacteristicSchema[r1: SchemaRow] = 
         #{FlocWorkItem3, StringProperty, IntProperty, FlocCharacteristic | r1}

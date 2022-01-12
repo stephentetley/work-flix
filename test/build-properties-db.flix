@@ -1,5 +1,5 @@
 use SheetIO/Reader.{XlsxSource};
-use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty};
+use AssetLoader/Relations.{StringProperty, IntProperty, FloatProperty};
 
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -25,16 +25,17 @@ def main01(): Result[Int32, String] & Impure =
                     ::  "bever-valve-export.xlsx"
                     ::  Nil);
     let dest    = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
-    let* relns  = AssetLib/Properties/BuildDb.readProperties({typesCsv = src1, exports = exports});
-    let* _      = AssetLib/Properties/BuildDb.storeProperties(dest, relns);
+    let* relns  = AssetLoader/BuildDb.readProperties({typesCsv = src1, exports = exports});
+    let* _      = AssetLoader/BuildDb.storeProperties(dest, relns);
 
-    let* cs     = AssetLib/Properties/BuildDb.readClassList(src2);
-    let* _      = AssetLib/Properties/BuildDb.storeS4ClassInfo(dest, cs);
+    let* cs     = AssetLoader/BuildDb.readClassList(src2);
+    let* _      = AssetLoader/BuildDb.storeS4ClassInfo(dest, cs);
 
-    let* ps     = AssetLib/Properties/BuildDb.readPropertyAliases(src3);
-    let* _      = AssetLib/Properties/BuildDb.storePropertyAliases(dest, ps);
+    let* ps     = AssetLoader/BuildDb.readPropertyAliases(src3);
+    let* _      = AssetLoader/BuildDb.storePropertyAliases(dest, ps);
 
     Ok(0)
 
 def makeXlsxSource(name1: String, name2: String): XlsxSource = 
     {path = System/FilePath.new("${name1}${name2}"), sheet = "Sheet1"}
+    

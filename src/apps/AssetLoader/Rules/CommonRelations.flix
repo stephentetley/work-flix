@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/Properties/Rules2/CommonRelations {
+namespace AssetLoader/Rules/CommonRelations {
 
 
     pub rel FlocWorkItem3(s4Floc: String, level: Int32, ngr: String)

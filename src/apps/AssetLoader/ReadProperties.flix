@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Properties/ReadProperties {
+namespace AssetLoader/ReadProperties {
 
 
     use Functor.{<$>};
@@ -23,7 +23,7 @@ namespace AssetLib/Properties/ReadProperties {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, 
+    use AssetLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, 
         AibProperties, PropertyAlias};
 
     /// # Properties

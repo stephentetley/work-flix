@@ -15,14 +15,15 @@
  */
 
 
-namespace AssetLib/Properties/Rules2/EquiAttributes {
+namespace AssetLoader/Rules/EquiAttributes {
 
     use AssetLib/S4Lite/S4LiteRelations.CharValue;
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
-    use AssetLib/Properties/AttributesLattice.{Attributes, AttributeValue};
-    use AssetLib/Properties/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
-    use AssetLib/Properties/Relations.{StringProperty, FloatProperty};
-    use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
+
+    use AssetLoader/Base/AttributesLattice.{Attributes, AttributeValue};
+    use AssetLoader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
+    use AssetLoader/Base/Relations.{StringProperty, FloatProperty};
+    use AssetLoader/Rules/CommonRelations.{EquiWorkItem3};
 
     // Collect with a lattice because we are expecting relations that are one-to-one 
     // or one-to-zero rather than one-to-many.
@@ -37,7 +38,7 @@ namespace AssetLib/Properties/Rules2/EquiAttributes {
 
 
     pub def equiAttributes(): EquiAttributesSchema[r1] = 
-        use AssetLib/Properties/AttributesLattice.{singleton};
+        use AssetLoader/Base/AttributesLattice.{singleton};
         #{
 
             EquiAttributes(equiId; singleton("ASSET_STATUS", AttrString(value))) :-  

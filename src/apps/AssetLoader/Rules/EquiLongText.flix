@@ -15,13 +15,14 @@
  */
 
 
-namespace AssetLib/Properties/Rules2/EquiLongText {
+namespace AssetLoader/Rules/EquiLongText {
 
 
     use AssetLib/Base/OrderedStringsLattice.{OrderedStrings};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText};
-    use AssetLib/Properties/Relations.{StringProperty};
-    use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
+    
+    use AssetLoader/Base/Relations.{StringProperty};
+    use AssetLoader/Rules/CommonRelations.{EquiWorkItem3};
 
 
     pub type alias EquiLongTextSchema[r1: SchemaRow] = 

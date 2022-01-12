@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Properties/WorkLists {
+namespace AssetLoader/WorkLists {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
+    use AssetLoader/Rules/CommonRelations.{EquiWorkItem3};
 
     /// Functional Location 
 

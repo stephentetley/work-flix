@@ -15,12 +15,13 @@
  */
 
 
-namespace AssetLib/Properties/Rules2/EquiCharacteristics {
+namespace AssetLoader/Rules/EquiCharacteristics {
 
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
-    use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
-    use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
+
+    use AssetLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
+    use AssetLoader/Rules/CommonRelations.{EquiWorkItem3};
 
     /// Helper relations...
 

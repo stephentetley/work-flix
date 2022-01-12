@@ -1,8 +1,9 @@
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
-use AssetLib/Properties/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
-use AssetLib/Properties/Rules2/CommonRelations.{EquiWorkItem3};
-use AssetLib/Properties/Rules2/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
-use AssetLib/Properties/AttributesLattice.{Attributes, AttributeValue};
+use AssetLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
+use AssetLoader/Base/AttributesLattice.{Attributes, AttributeValue};
+use AssetLoader/Rules/CommonRelations.{EquiWorkItem3};
+use AssetLoader/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
+
 
 def main(_: Array[String]): Int32 & Impure = 
     println("Running... ${Time/LocalTime.now()}");
@@ -15,13 +16,13 @@ def main(_: Array[String]): Int32 & Impure =
 def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
     let dbpath      = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
-    let* relns      = AssetLib/Properties/ReadProperties.readProperties(dbpath);
-    let* metadata   = AssetLib/Properties/ReadProperties.readPropertyAliases(dbpath);
+    let* relns      = AssetLoader/ReadProperties.readProperties(dbpath);
+    let* metadata   = AssetLoader/ReadProperties.readPropertyAliases(dbpath);
     let db2         = relns <+> metadata
-                        <+> AssetLib/Properties/Rules2/EquiCommon.equiCommon() 
-                        <+> AssetLib/Properties/Rules2/EquiCharacteristics.equiCharacteristics()
-                        <+> AssetLib/Properties/Rules2/EquiLongText.equiLongText()
-                        <+> AssetLib/Properties/Rules2/EquiAttributes.equiAttributes()
+                        <+> AssetLoader/Rules/EquiCommon.equiCommon() 
+                        <+> AssetLoader/Rules/EquiCharacteristics.equiCharacteristics()
+                        <+> AssetLoader/Rules/EquiLongText.equiLongText()
+                        <+> AssetLoader/Rules/EquiAttributes.equiAttributes()
                         <+> dummyWorkList();
     query db2 select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
     query db2 select (x1, x2, x3) from EquiLongText(x1, x2, x3) |> Array.foreach(println);

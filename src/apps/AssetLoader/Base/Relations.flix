@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Properties/Relations {
+namespace AssetLoader/Base/Relations {
 
 
     
