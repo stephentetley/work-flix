@@ -128,6 +128,10 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             CommonNamePrefix(sainum; commonNamePrefix(name1, name2)) :-
                 AibFloc(sainum, name1, _),
                 AibFloc(_, name2, _).
+            
+            CommonNamePrefix(plinum; commonNamePrefix(name1, name2)) :-
+                AibEqui(plinum, name1, _),
+                AibFloc(_, name2, _).
 
             /// This exposes the value as a String...
             CommonNamePrefixValue(sainum, Option.getWithDefault("", RelLib/Lattice/LongestString.getValue(hkey))) :- 
@@ -136,6 +140,12 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
 
             ChildFloc(parent, child) :- 
                 AibFloc(child, _, _),
+                CommonNamePrefixValue(child, parentCommonName),
+                AibFloc(parent, parentCommonName, _).
+
+
+            ChildEqui(parent, child) :- 
+                AibEqui(child, _, _),
                 CommonNamePrefixValue(child, parentCommonName),
                 AibFloc(parent, parentCommonName, _).
 

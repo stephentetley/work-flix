@@ -15,15 +15,15 @@
  */
 
 
-namespace AssetLoader/Rules/EquiAttributes {
+namespace AibLoader/Rules/EquiAttributes {
 
     use AssetLib/S4Lite/S4LiteRelations.CharValue;
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
 
-    use AssetLoader/Base/AttributesLattice.{Attributes, AttributeValue};
-    use AssetLoader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
-    use AssetLoader/Base/Relations.{StringProperty, FloatProperty};
-    use AssetLoader/Rules/CommonRelations.{EquiWorkItem3};
+    use AibLoader/Base/AttributesLattice.{Attributes, AttributeValue};
+    use AibLoader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
+    use AibLoader/Base/Relations.{StringProperty, FloatProperty};
+    use AibLoader/Rules/CommonRelations.{EquiWorkItem3};
 
     // Collect with a lattice because we are expecting relations that are one-to-one 
     // or one-to-zero rather than one-to-many.
@@ -38,7 +38,7 @@ namespace AssetLoader/Rules/EquiAttributes {
 
 
     pub def equiAttributes(): EquiAttributesSchema[r1] = 
-        use AssetLoader/Base/AttributesLattice.{singleton};
+        use AibLoader/Base/AttributesLattice.{singleton};
         #{
 
             EquiAttributes(equiId; singleton("ASSET_STATUS", AttrString(value))) :-  

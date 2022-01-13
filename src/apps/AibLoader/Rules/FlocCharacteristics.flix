@@ -15,17 +15,17 @@
  */
 
 
-namespace AssetLoader/Rules/FlocCharacteristics {
+namespace AibLoader/Rules/FlocCharacteristics {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     
-    use AssetLoader/Base/Relations.{StringProperty, IntProperty};
-    use AssetLoader/WorkLists.{FlocWorkItem};
+    use AibLoader/Base/Relations.{StringProperty, IntProperty};
+    use AibLoader/WorkLists.{FlocWorkItem};
     
     // TODO remove, don't use relations.
-    use AssetLoader/Rules/CommonRelations.{FlocWorkItem3};
+    use AibLoader/Rules/CommonRelations.{FlocWorkItem3};
     
 
     pub type alias FlocCharacteristicSchema[r1: SchemaRow] = 

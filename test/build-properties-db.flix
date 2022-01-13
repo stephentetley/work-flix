@@ -1,5 +1,5 @@
 use SheetIO/Reader.{XlsxSource};
-use AssetLoader/Relations.{StringProperty, IntProperty, FloatProperty};
+use AibLoader/Relations.{StringProperty, IntProperty, FloatProperty};
 
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -25,14 +25,14 @@ def main01(): Result[Int32, String] & Impure =
                     ::  "bever-valve-export.xlsx"
                     ::  Nil);
     let dest    = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
-    let* relns  = AssetLoader/BuildDb.readProperties({typesCsv = src1, exports = exports});
-    let* _      = AssetLoader/BuildDb.storeProperties(dest, relns);
+    let* relns  = AibLoader/BuildDb.readProperties({typesCsv = src1, exports = exports});
+    let* _      = AibLoader/BuildDb.storeProperties(dest, relns);
 
-    let* cs     = AssetLoader/BuildDb.readClassList(src2);
-    let* _      = AssetLoader/BuildDb.storeS4ClassInfo(dest, cs);
+    let* cs     = AibLoader/BuildDb.readClassList(src2);
+    let* _      = AibLoader/BuildDb.storeS4ClassInfo(dest, cs);
 
-    let* ps     = AssetLoader/BuildDb.readPropertyAliases(src3);
-    let* _      = AssetLoader/BuildDb.storePropertyAliases(dest, ps);
+    let* ps     = AibLoader/BuildDb.readPropertyAliases(src3);
+    let* _      = AibLoader/BuildDb.storePropertyAliases(dest, ps);
 
     Ok(0)
 

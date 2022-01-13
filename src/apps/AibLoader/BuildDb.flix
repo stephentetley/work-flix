@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLoader/BuildDb {
+namespace AibLoader/BuildDb {
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
@@ -23,7 +23,7 @@ namespace AssetLoader/BuildDb {
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Characteristic};
 
-    use AssetLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
+    use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
 
     /// A temporary untyped property
     rel UniProperty(rowId: Int32, name: String, value: String)
@@ -35,9 +35,9 @@ namespace AssetLoader/BuildDb {
 
     pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
         use Result.flatMap;        
-        let* r1 = AssetLoader/BuildDb.readAibTypes(input.typesCsv);
-        let* rs = Result.traverse(AssetLoader/BuildDb.readAibExport, input.exports);
-        let props = AssetLoader/BuildDb.genProperties(r1 <+> RelLib/Relation.combineAll(rs));
+        let* r1 = AibLoader/BuildDb.readAibTypes(input.typesCsv);
+        let* rs = Result.traverse(AibLoader/BuildDb.readAibExport, input.exports);
+        let props = AibLoader/BuildDb.genProperties(r1 <+> RelLib/Relation.combineAll(rs));
         Ok(props)
 
     

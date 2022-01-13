@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Stephen Tetley
+ * Copyright 2022 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
+namespace AibLoader/Base/Relations {
 
-namespace AssetLoader/Rules/CommonRelations {
-
-
-    pub rel FlocWorkItem3(s4Floc: String, level: Int32, ngr: String)
-
-    /// `itemId` will be pli-number for facts extracted from Aib Exports.
-    /// But it can represent other item types depending where the facts come from.
-
-    pub rel EquiWorkItem3(pliNum: String, s4ObjType: String, s4Class: String)
 
     
+    pub type alias AibProperties[r1: SchemaRow] =
+        #{StringProperty, IntProperty, FloatProperty | r1}
+
+
+    pub rel StringProperty(plinum: String, propName: String, propValue: String)
+
+    pub rel IntProperty(plinum: String, propName: String, propValue: Int32)
+
+    pub rel FloatProperty(plinum: String, propName: String, propValue: Float64)
+
+
+    pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
 
 }
