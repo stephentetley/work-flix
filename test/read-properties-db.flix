@@ -1,3 +1,5 @@
+use SheetIO/Reader.{XlsxSource};
+
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
 use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
 use AibLoader/Base/AttributesLattice.{Attributes, AttributeValue};
@@ -16,20 +18,23 @@ def main(_: Array[String]): Int32 & Impure =
 def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
     let dbpath      = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
-    let* relns      = AibLoader/ReadProperties.readProperties(dbpath);
-    let* metadata   = AibLoader/ReadProperties.readPropertyAliases(dbpath);
-    let db2         = relns <+> metadata
+    let xlssrc      = {sheet = "Equi", 
+                        path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx")};
+    let* db         = AibLoader/ReadProperties.loadDbRelations(dbpath);
+    let* equiRelns  = AibLoader/WorkLists.readEquiWorkList(xlssrc) |> Result.map(AibLoader/WorkLists.makeEquiWorkRelations);
+    let db2         = db
                         <+> AibLoader/Rules/EquiCommon.equiCommon() 
                         <+> AibLoader/Rules/EquiCharacteristics.equiCharacteristics()
                         <+> AibLoader/Rules/EquiLongText.equiLongText()
                         <+> AibLoader/Rules/EquiAttributes.equiAttributes()
-                        <+> dummyWorkList();
+                        <+> equiRelns;
     query db2 select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
     query db2 select (x1, x2, x3) from EquiLongText(x1, x2, x3) |> Array.foreach(println);
     query db2 select (x1; x2) from EquiAttributes(x1; x2) |> Array.foreach(println);
 
     Ok(0)
 
+/*
 def dummyWorkList(): #{EquiWorkItem3, StringProperty | r1} = #{
     EquiWorkItem3("PLI00788787", "TRUT", "TRUTHG").
     EquiWorkItem3("PLI00785314", "EMTR", "EMTRIN").
@@ -56,6 +61,7 @@ def dummyWorkList(): #{EquiWorkItem3, StringProperty | r1} = #{
     StringProperty("PLI00790119", "@SOLUTION_ID", "SWE9500").
 
 }    
+*/
 
 def sqliteDate(patt: String): Option[Time.LocalDate] =
     use Option.flatMap;

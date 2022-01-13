@@ -20,6 +20,7 @@ namespace AibLoader/WorkLists {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use AibLoader/Base/Relations.{StringProperty};
     use AibLoader/Rules/CommonRelations.{EquiWorkItem3};
 
     /// Functional Location 
@@ -61,8 +62,18 @@ namespace AibLoader/WorkLists {
         , extraMemo :: String
         }
 
-    pub def makeEquiWorkItem3(xs: List[EquiWorkItem]): #{EquiWorkItem3 | r}  = 
-        RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem3(x1.equipmentId, x1.s4EquiType, x1.s4EquiClass). }, xs)
+
+    pub def makeEquiWorkRelations(xs: List[EquiWorkItem]): #{EquiWorkItem3, StringProperty | r}  = 
+        let makeEquiWorkItem3 = x1 -> #{ EquiWorkItem3(x1.equipmentId, x1.s4EquiType, x1.s4EquiClass). };
+        RelLib/Relation.foldMap(x1 -> makeEquiWorkItem3(x1) <+> makeExtraProperties(x1), xs)
+
+    // @S4_NAME needed for longText
+    def makeExtraProperties(x: EquiWorkItem): #{EquiWorkItem3, StringProperty | r} = 
+        use RelLib/Relation.{whenTrue};
+        whenTrue(not String.isEmpty(x.s4Name), #{ StringProperty(x.equipmentId, "@S4_NAME", x.s4Name). })
+            <+> whenTrue(not String.isEmpty(x.solutionId), #{ StringProperty(x.equipmentId, "@SOLUTION_ID", x.solutionId). })
+            <+> whenTrue(not String.isEmpty(x.extraMemo), #{ StringProperty(x.equipmentId, "@EXTRA_MEMO", x.extraMemo). })
+
 
 
     /// Read from Aib xlsx export file...

@@ -59,10 +59,14 @@ namespace AibLoader/Rules/EquiLongText {
             AibMemoLine(equiId; singleton(4, text)) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "MEMO LINE 4", text).
-                            
+
             AibMemoLine(equiId; singleton(5, text)) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "MEMO LINE 5", text).
+
+            AibMemoLine(equiId; singleton(6, text)) :- 
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "@EXTRA_MEMO", text).
 
             // Long Text could be memoText
             LongText1(equiId; memoText) :- 

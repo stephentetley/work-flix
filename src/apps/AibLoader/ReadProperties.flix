@@ -24,18 +24,32 @@ namespace AibLoader/ReadProperties {
     use BasicDb.RowEvaluator;
 
     use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, 
-        AibProperties, PropertyAlias};
+        PropertyAlias, AibProperties};
+
+
+    pub type alias DbRelations[r1: SchemaRow] =
+        #{StringProperty, IntProperty, FloatProperty, PropertyAlias | r1}
+
+    pub def loadDbRelations(dbpath: System.FilePath): Result[DbRelations[r1], String] & Impure =         
+        let loadAll = () -> { 
+            ((r1, r2) -> r1 <+> r2 )
+                <$> readProperties()
+                <*> readPropertyAliases()
+        };
+        BasicDb/DbMonad.runSQLite(loadAll(), dbpath)
+
+
 
     /// # Properties
 
-    pub def readProperties(dbpath: System.FilePath): Result[AibProperties[r1], String] & Impure =         
-        let readRelns = () -> {
-            ((r1, r2, r3) -> r1 <+> r2 <+> r3)
-                <$> readPropertyTable("string_properties",  evalStringProperty())
-                <*> readPropertyTable("int_properties",     evalIntProperty())
-                <*> readPropertyTable("float_properties",   evalFloatProperty())
-        };
-        BasicDb/DbMonad.runSQLite(readRelns(), dbpath)
+
+
+    pub def readProperties(): DbMonad[AibProperties[r1]] =
+        ((r1, r2, r3) -> r1 <+> r2 <+> r3)
+            <$> readPropertyTable("string_properties",  evalStringProperty())
+            <*> readPropertyTable("int_properties",     evalIntProperty())
+            <*> readPropertyTable("float_properties",   evalFloatProperty())
+        
 
     def readPropertyTable(tableName: String, eval: RowEvaluator[#{| r}]): DbMonad[#{| r}] = 
         let sql = "SELECT pli_num, prop_name, prop_value FROM ${tableName} ORDER BY pli_num;";
@@ -66,9 +80,9 @@ namespace AibLoader/ReadProperties {
     /// # Meta data - property aliases
 
 
-    pub def readPropertyAliases(dbpath: System.FilePath): Result[#{PropertyAlias |r1}, String] & Impure =         
+    pub def readPropertyAliases(): DbMonad[#{PropertyAlias |r1}] =         
         let sql = "SELECT ai_prop_name, s4_class_name, s4_char_name FROM dd_property_aliases ORDER BY ai_prop_name;";
-        BasicDb/DbMonad.runSQLite(BasicDb/Reader.allRelations(evalPropertyAlias(), sql), dbpath)
+        BasicDb/Reader.allRelations(evalPropertyAlias(), sql)
 
     
     def evalPropertyAlias(): RowEvaluator[#{PropertyAlias | r}] = 
