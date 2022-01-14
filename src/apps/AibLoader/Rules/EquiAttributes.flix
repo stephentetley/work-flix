@@ -22,8 +22,7 @@ namespace AibLoader/Rules/EquiAttributes {
 
     use AibLoader/Base/AttributesLattice.{Attributes, AttributeValue};
     use AibLoader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
-    use AibLoader/Base/Relations.{StringProperty, FloatProperty};
-    use AibLoader/Rules/CommonRelations.{EquiWorkItem3};
+    use AibLoader/Base/Relations.{StringProperty, FloatProperty, EquiWorkItem3};
 
     // Collect with a lattice because we are expecting relations that are one-to-one 
     // or one-to-zero rather than one-to-many.

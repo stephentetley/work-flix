@@ -1,9 +1,8 @@
 use SheetIO/Reader.{XlsxSource};
 
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
-use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
+use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
 use AibLoader/Base/AttributesLattice.{Attributes, AttributeValue};
-use AibLoader/Rules/CommonRelations.{EquiWorkItem3};
 use AibLoader/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
 
 

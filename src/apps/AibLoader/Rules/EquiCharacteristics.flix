@@ -20,9 +20,8 @@ namespace AibLoader/Rules/EquiCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
 
-    use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
-    use AibLoader/Rules/CommonRelations.{EquiWorkItem3};
-
+    use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
+    
     /// Helper relations...
 
     pub rel HasFloatProperty(equiId: String, propName: String)

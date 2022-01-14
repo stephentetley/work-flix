@@ -21,11 +21,10 @@ namespace AibLoader/Rules/FlocCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     
-    use AibLoader/Base/Relations.{StringProperty, IntProperty};
+    use AibLoader/Base/Relations.{StringProperty, IntProperty, FlocWorkItem3};
     use AibLoader/WorkLists.{FlocWorkItem};
     
-    // TODO remove, don't use relations.
-    use AibLoader/Rules/CommonRelations.{FlocWorkItem3};
+    // TODO don't use relations.
     
 
     pub type alias FlocCharacteristicSchema[r1: SchemaRow] = 

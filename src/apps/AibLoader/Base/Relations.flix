@@ -16,7 +16,7 @@
 
 namespace AibLoader/Base/Relations {
 
-
+    /// ## Property relations
     
     pub type alias AibProperties[r1: SchemaRow] =
         #{StringProperty, IntProperty, FloatProperty | r1}
@@ -30,5 +30,15 @@ namespace AibLoader/Base/Relations {
 
 
     pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
+
+    /// ## WorkList relations
+
+    pub rel FlocWorkItem3(s4Floc: String, level: Int32, ngr: String)
+
+    /// `itemId` will be pli-number for facts extracted from Aib Exports.
+    /// But it can represent other item types depending where the facts come from.
+
+    pub rel EquiWorkItem3(pliNum: String, s4ObjType: String, s4Class: String)
+
 
 }

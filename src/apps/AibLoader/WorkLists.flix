@@ -20,8 +20,7 @@ namespace AibLoader/WorkLists {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AibLoader/Base/Relations.{StringProperty};
-    use AibLoader/Rules/CommonRelations.{EquiWorkItem3};
+    use AibLoader/Base/Relations.{StringProperty, EquiWorkItem3};
 
     /// Functional Location 
 
@@ -72,7 +71,7 @@ namespace AibLoader/WorkLists {
         use RelLib/Relation.{whenTrue};
         whenTrue(not String.isEmpty(x.s4Name), #{ StringProperty(x.equipmentId, "@S4_NAME", x.s4Name). })
             <+> whenTrue(not String.isEmpty(x.solutionId), #{ StringProperty(x.equipmentId, "@SOLUTION_ID", x.solutionId). })
-            <+> whenTrue(not String.isEmpty(x.extraMemo), #{ StringProperty(x.equipmentId, "@EXTRA_MEMO", x.extraMemo). })
+            <+> whenTrue(not String.isEmpty(x.extraMemo),  #{ StringProperty(x.equipmentId, "@EXTRA_MEMO", x.extraMemo). })
 
 
 
