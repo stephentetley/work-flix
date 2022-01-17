@@ -60,7 +60,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{evaluateString};
         let split = s -> leadingSepBy(s, "|");
         let* s0 = restOfLine(true);
-        let s1 = Text/Regex.replace(Text/Regex/Pattern.irrefutablePattern("\\R"), "", s0);
+        let s1 = Text/Regex.replace(from = Text/Regex/Pattern.irrefutablePattern("\\R"), to = "", s0);
         liftActionResult(_ -> evaluateString(split, s1, eval))
 
 

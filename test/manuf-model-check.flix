@@ -31,7 +31,7 @@ def main1(): Result[Unit, String] & Impure =
     let ztable2         = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
     let* allowedModel   = AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(ztable2) |> Result.map(buildManufModel);
 
-    let worklist        = {path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx"), 
+    let worklist        = {path = System/FilePath.new("G:/work/assets/capital_schemes/loxle/loxley-worklist.xlsx"), 
                             sheet = "Equi"};
     let* equis          = readEquiWorkListRows(worklist);
 
@@ -75,9 +75,9 @@ def check(x: WorkItem[r], objMan: Allowed, manMod: Allowed): Result[Unit, String
     match allowed(x.objectType, x.manufacturer, objMan) {
         case true => match allowed(x.manufacturer, x.modelNumber, manMod) {
             case true => Ok()
-            case false => Err("Invalid Model Number - `${x.modelNumber}` for manufacturer `${x.manufacturer}`")
+            case false => Err("Invalid Model Number - (${x.manufacturer},${x.modelNumber},${x.equiId})")
         }
-        case false => Err("Invalid Manufactuer - `${x.manufacturer}` for object_type `${x.objectType}`")
+        case false => Err("Invalid Manufactuer - (${x.objectType},${x.manufacturer},${x.equiId})")
     }
 
 

@@ -105,7 +105,7 @@ namespace AssetLib/Aruba/Common/Provenance {
             case xs => Node(("Root", "", Existing), xs)
         };
         let headers = List.map(PlantUml/Creole.text, "Key" :: "Name" :: Nil);
-        PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1, z1) = xy; printKey(x1, z1) :: printLabel(y1, z1) :: Nil}, headers, tree1)
+        PlantUml/SaltTreeTable.printTreeTable(printCells = xy -> {let (x1, y1, z1) = xy; printKey(x1, z1) :: printLabel(y1, z1) :: Nil}, headers, tree1)
 
 
     def toRoseForest(src: #{Site, Function, ProcessGroup, Process, System, Subsystem,

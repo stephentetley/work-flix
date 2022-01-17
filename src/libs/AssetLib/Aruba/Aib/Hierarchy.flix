@@ -287,7 +287,7 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             case t1 :: Nil => t1
             case xs => Node(("Root", ""), xs)
         };
-        PlantUml/SaltTree.tree(printLabel = xy -> {let (x1, _) = xy; PlantUml/Creole.text(x1)}, tree1) |> PlantUml/Puml.render
+        PlantUml/SaltTree.printTree(printLabel = xy -> {let (x1, _) = xy; PlantUml/Creole.text(x1)}, tree1) |> PlantUml/Puml.render
 
 
     pub def toSaltTreeTable(src: #{Installation, SubInstallation, ProcessGroup, Process, Plant, PlantItem, 
@@ -297,7 +297,7 @@ namespace AssetLib/Aruba/Aib/Hierarchy {
             case xs => Node(("Root", ""), xs)
         };
         let headers = List.map(PlantUml/Creole.text, "Key" :: "Name" :: Nil);
-        PlantUml/SaltTreeTable.treeTable(printCells = xy -> {let (x1, y1) = xy; PlantUml/Creole.text(x1) :: PlantUml/Creole.text(y1) :: Nil}, headers, tree1) |> PlantUml/Puml.render
+        PlantUml/SaltTreeTable.printTreeTable(printCells = xy -> {let (x1, y1) = xy; PlantUml/Creole.text(x1) :: PlantUml/Creole.text(y1) :: Nil}, headers, tree1) |> PlantUml/Puml.render
 
 
 }

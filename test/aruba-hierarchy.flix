@@ -77,7 +77,7 @@ def main2(): Result[Unit, String] & Impure =
     query db <+> rules select (x1, x2, x3, x4, x5) from Organization(x1, x2, x3, x4, x5) 
         |> Array.map(RelLib/Tree2.path5)
         |> RelLib/Tree2.buildTree 
-        |> Result.map(PlantUml/SaltTree.tree({printLabel = PlantUml/Creole.text}))
+        |> Result.map(PlantUml/SaltTree.printTree({printLabel = PlantUml/Creole.text}))
         |> Result.map(PlantUml/Puml.render)
         |> println;
     Ok()
