@@ -23,8 +23,6 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     use AssetLib/FileIO/S4/ZTable/Relations.{SuperSubEquipObject, 
         SuperSubFlocObject, FlocObjectDescription, AllowedManufacturer, 
         AllowedManufacturerModel};
-
-
     use AssetLib/FileIO/S4/ZTable.RowEvaluator;
 
     // EquipObject
