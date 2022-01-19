@@ -17,7 +17,7 @@
 
 namespace AssetLib/FileIO/S4/ZTable/Relations {
 
-    /// TODO - maybe better to allow libraries to define these...
+    /// TODO - maybe better to allow libraries/clients to define these...
 
     pub rel SuperSubEquipObject(superObject: String, subObject: String, category: String)
 

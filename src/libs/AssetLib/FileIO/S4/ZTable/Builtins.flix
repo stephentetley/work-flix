@@ -17,7 +17,10 @@
 
 namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
-    use AssetLib/FileIO/S4/ZTable/Datatypes.{EquipObject, 
+    use Functor.{<$>};
+    use Applicative.{<*>};
+
+    use AssetLib/FileIO/S4/ZTable/Datatypes.{EquiObject, 
         FlocObject, FlocDescription, ObjTypeManufacturer, ManufacturerModel};
     use AssetLib/FileIO/S4/ZTable/Parser.{importRows};
     use AssetLib/FileIO/S4/ZTable/Relations.{SuperSubEquipObject, 
@@ -27,25 +30,26 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
     // EquipObject
 
-    pub def loadSuperSubEquipObject(path: System.FilePath): Result[#{SuperSubEquipObject | r}, String] & Impure = 
-        let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubEquipObject(x1.superObject, x1.subObject, x1.category). });
-        loadEquipObject(path)
+    pub def loadSuperSubEquiObject(path: System.FilePath): Result[#{SuperSubEquipObject | r}, String] & Impure = 
+        let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubEquipObject(x1.parent, x1.child, x1.category). });
+        loadEquiObject(path)
             |> Result.map(build)
 
-    pub def loadEquipObject(path: System.FilePath): Result[List[EquipObject], String] & Impure =        
-        importRows(evalEquipObject(), path)  
+    pub def loadEquiObject(path: System.FilePath): Result[List[EquiObject], String] & Impure =        
+        importRows(evalEquiObject(), path)  
 
-    def evalEquipObject(): RowEvaluator[EquipObject] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
-        let* supero     = getStringAt(0);
-        let* subo       = getStringAt(1);
-        let* cat        = getStringAt(2);
-        point({superObject = supero, subObject = subo, category = cat})
+    def evalEquiObject(): RowEvaluator[EquiObject] = 
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{getStringAt};
+        ((x1, x2, x3) -> {parent = x1, child = x2, category = x3})
+            <$> getStringAt(0)
+            <*> getStringAt(1)
+            <*> getStringAt(2)
+        
 
     // FlocObject
 
     pub def loadSuperSubFlocObject(path: System.FilePath): Result[#{SuperSubFlocObject | r}, String] & Impure = 
-        let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubFlocObject(x1.superObject, x1.subObject, x1.structure). });
+        let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubFlocObject(x1.parent, x1.child, x1.structure). });
         loadFlocObject(path)
             |> Result.map(build)
 
@@ -53,11 +57,12 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
         importRows(evalFlocObject(), path)  
 
     def evalFlocObject(): RowEvaluator[FlocObject] = 
-        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
-        let* struct     = getStringAt(0);
-        let* supero     = getStringAt(1);
-        let* subo       = getStringAt(2);
-        point({superObject = supero, subObject = subo, structure = struct})
+        use AssetLib/FileIO/S4/ZTable/RowEvaluator.{getStringAt};
+        ((x1, x2, x3) -> {structure = x1, parent = x2, child = x3})
+            <$> getStringAt(0)
+            <*> getStringAt(1)
+            <*> getStringAt(2)
+        
 
     // FlocDescription
     

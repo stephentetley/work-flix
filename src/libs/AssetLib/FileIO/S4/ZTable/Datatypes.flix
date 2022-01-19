@@ -17,16 +17,16 @@
 
 namespace AssetLib/FileIO/S4/ZTable/Datatypes {
 
-    pub type alias EquipObject = 
-        { superObject :: String
-        , subObject :: String
-        , category :: String
+    pub type alias EquiObject = 
+        { category :: String
+        , parent :: String
+        , child :: String
         }
 
     pub type alias FlocObject = 
-        { superObject :: String
-        , subObject :: String
-        , structure :: String
+        { structure :: String
+        , parent :: String
+        , child :: String
         }
 
     pub type alias FlocDescription = 
