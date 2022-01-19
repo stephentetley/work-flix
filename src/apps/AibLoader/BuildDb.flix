@@ -16,6 +16,8 @@
 
 namespace AibLoader/BuildDb {
 
+    use Monad.{>>=};
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
@@ -30,8 +32,10 @@ namespace AibLoader/BuildDb {
 
     rel AibType(propName: String, aibType: String)
 
-    pub def readClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
-        AssetLib/FileIO/S4/ClassList/Builder.loadEquiClassList(path)
+
+    pub def storeProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): DbMonad[Int32] = 
+        use BasicDb/DbMonad.{liftActionResult};
+        liftActionResult(_ -> readProperties(input)) >>= insertProperties
 
     pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
         use Result.flatMap;        
@@ -106,20 +110,18 @@ namespace AibLoader/BuildDb {
     def floatValue(s: String): Float64 = 
         Float64.fromString(s) |> Result.getWithDefault(-1.0f64)
 
-    pub def storeProperties(dbpath: System.FilePath, relns: AibProperties[r1]): Result[Int32, String] & Impure = 
+    pub def insertProperties(relns: AibProperties[r1]): DbMonad[Int32] = 
         use BasicDb/DbMonad.{flatMap, point};
-        let steps = {
-            let* n1 = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
-            let* n2 = storeProperties1("int_properties", intPropertySetter, query relns select (x1, x2, x3) from IntProperty(x1, x2, x3));
-            let* n3 = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
-            point(n1 + n2 + n3)
-        };
-        BasicDb/DbMonad.runSQLite(steps, dbpath)
+        let* n1 = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
+        let* n2 = storeProperties1("int_properties", intPropertySetter, query relns select (x1, x2, x3) from IntProperty(x1, x2, x3));
+        let* n3 = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
+        point(n1 + n2 + n3)
+        
             
 
-    def storeProperties1(table: String, setter: a -> PreparedStatementSetter[Unit], rows: Array[(a)]): DbMonad[Int32] & Impure =
-        use BasicDb/DbMonad.{flatMap, point, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
-        let rows1       = Array.toList(rows);
+    def storeProperties1(table: String, setter: a -> PreparedStatementSetter[Unit], rows: Array[(a)]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, point, liftAction, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        let* rows1      = liftAction(_ -> Array.toList(rows));
         let* _          = setAutoCommit(false);
         let* stmt       = prepareStatement(insertPropertyRowSql(table));
         let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, setter(x)); point(ac+n)}, 0, rows1);
@@ -166,18 +168,22 @@ namespace AibLoader/BuildDb {
 
     // # S4 Equi class export
 
-    pub def storeS4ClassInfo(dbpath: System.FilePath, src: ClassList): Result[Int32, String] & Impure = 
-        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
-        let steps = {
-            let chars       = List.flatMap(x -> x.characteristics, src.classes);
-            let* _          = setAutoCommit(false);
-            let* stmt       = prepareStatement(insertDDS4PropertyRowSql());
-            let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, ddS4PropertySetter(x)); point(ac+n)}, 0, chars);
-            let* _          = commit();        
-            point(nrows)
-        };
-        BasicDb/DbMonad.runSQLite(steps, dbpath)
+    pub def storeS4ClassInfo(path: System.FilePath): DbMonad[Int32] = 
+        use BasicDb/DbMonad.{liftActionResult};
+        liftActionResult(_ -> readClassList(path)) >>= insertS4ClassInfo
 
+    def readClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
+        AssetLib/FileIO/S4/ClassList/Builder.loadEquiClassList(path)
+
+    def insertS4ClassInfo(src: ClassList): DbMonad[Int32] = 
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
+        let chars       = List.flatMap(x -> x.characteristics, src.classes);
+        let* _          = setAutoCommit(false);
+        let* stmt       = prepareStatement(insertDDS4PropertyRowSql());
+        let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, ddS4PropertySetter(x)); point(ac+n)}, 0, chars);
+        let* _          = commit();        
+        point(nrows)
+    
 
     def ddS4PropertySetter(x: Characteristic): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putInt32At!, putOptionInt32At!};
@@ -207,6 +213,11 @@ namespace AibLoader/BuildDb {
         , s4Char :: String
         }
 
+    pub def storePropertyAliases(src: System.FilePath): DbMonad[Int32] = 
+        use BasicDb/DbMonad.{liftActionResult};
+        liftActionResult(_ -> readPropertyAliases(src)) >>= insertPropertyAliases
+
+
     pub def readPropertyAliases(src: System.FilePath): Result[List[PropertyAlias], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringAt};
@@ -216,16 +227,14 @@ namespace AibLoader/BuildDb {
         CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src)
         
 
-    pub def storePropertyAliases(dbpath: System.FilePath, src: List[PropertyAlias]): Result[Int32, String] & Impure = 
+    pub def insertPropertyAliases(xs: List[PropertyAlias]): DbMonad[Int32] = 
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
-        let steps = {
-            let* _          = setAutoCommit(false);
-            let* stmt       = prepareStatement(insertDDPropertyAliasRowSql());
-            let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, ddPropertyAliasSetter(x)); point(ac+n)}, 0, src);
-            let* _          = commit();        
-            point(nrows)
-        };
-        BasicDb/DbMonad.runSQLite(steps, dbpath)
+        let* _          = setAutoCommit(false);
+        let* stmt       = prepareStatement(insertDDPropertyAliasRowSql());
+        let* nrows      = Foldable.foldLeftM((ac, x) -> {let* n = psExecuteUpdate(stmt, ddPropertyAliasSetter(x)); point(ac+n)}, 0, xs);
+        let* _          = commit();        
+        point(nrows)
+    
 
 
 
@@ -245,5 +254,10 @@ namespace AibLoader/BuildDb {
                 :: "VALUES(?,?,?);"
                 :: Nil
         )
+
+
+    // # ZTables
+
+
 
 }
