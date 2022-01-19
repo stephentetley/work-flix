@@ -29,7 +29,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     // # Objtype Manuf
 
 
-    pub def storeObjTypeManufacturer(table: String, rows: List[ObjTypeManufacturer]): DbMonad[Int32] =
+    pub def storeObjTypeManufacturer(table: String, rows: t[ObjTypeManufacturer]): DbMonad[Int32] with Foldable[t] =
         store(insertObjTypeManufacturerRowSql(table), objTypeManufacturerSetter, rows)
 
 
@@ -60,7 +60,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
 
     // # Manufacturer Model
 
-    pub def storeManufacturerModel(table: String, rows: List[ManufacturerModel]): DbMonad[Int32] =
+    pub def storeManufacturerModel(table: String, rows: t[ManufacturerModel]): DbMonad[Int32] with Foldable[t] =
         store(insertManufacturerModelRowSql(table), manufacturerModelSetter, rows)
 
     def manufacturerModelSetter(x: ManufacturerModel): PreparedStatementSetter[Unit] =
@@ -91,7 +91,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     // # Floc Object Type Hierarchy
 
 
-    pub def storeFlocObject(table: String, rows: List[FlocObject]): DbMonad[Int32] =
+    pub def storeFlocObject(table: String, rows: t[FlocObject]): DbMonad[Int32] with Foldable[t] =
         store(insertFlocObjectRowSql(table), flocObjectSetter, rows)
 
     def flocObjectSetter(x: FlocObject): PreparedStatementSetter[Unit] =
@@ -101,7 +101,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     def insertFlocObjectRowSql(tableName: String): String =
         String.unwords(
             "INSERT OR IGNORE INTO ${tableName} "
-                :: "(structure, "
+                :: "(structure_name, "
                 :: "parent, "
                 :: "child) "
                 :: "VALUES(?,?,?);"
@@ -109,7 +109,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
         )
 
     pub def readFlocObject(tableName: String): DbMonad[List[FlocObject]] =         
-        let sql = "SELECT structure, parent, child FROM ${tableName} ORDER BY structure;";
+        let sql = "SELECT structure_name, parent, child FROM ${tableName} ORDER BY structure_name;";
         BasicDb/Reader.allRows(evalFlocObject(), sql)
 
     
@@ -124,7 +124,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     // # Equi object Type Hierarchy
 
 
-    pub def storeEquiObject(table: String, rows: List[EquiObject]): DbMonad[Int32] =
+    pub def storeEquiObject(table: String, rows: t[EquiObject]): DbMonad[Int32] with Foldable[t] =
         store(insertEquiObjectRowSql(table), equiObjectSetter, rows)
 
     def equiObjectSetter(x: EquiObject): PreparedStatementSetter[Unit] =

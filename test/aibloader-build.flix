@@ -16,6 +16,8 @@ def buildDb(): DbMonad[Int32] =
     let src1    = System/FilePath.new("E:/coding/work/work-flix/data/aib_property_types.csv");
     let src2    = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
     let src3    = System/FilePath.new("E:/coding/work/work-flix/data/property_aliases.csv");
+    let src4    = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
+    let src5    = System/FilePath.new("G:/work/assets/facts/ztables/ztable-objtype-manufacturer.txt");
 
     let exports = 
         List.map(makeXlsxSource("G:/work/assets/capital_schemes/bever/"),
@@ -30,6 +32,8 @@ def buildDb(): DbMonad[Int32] =
     let* _      = AibLoader/BuildDb.storeProperties({typesCsv = src1, exports = exports});
     let* _      = AibLoader/BuildDb.storeS4ClassInfo(src2);
     let* _      = AibLoader/BuildDb.storePropertyAliases(src3);
+    let* _      = AibLoader/BuildDb.storeZTableManuf(src4);
+    let* _      = AibLoader/BuildDb.storeZTableObj(src5);
     point(0)
 
 def makeXlsxSource(name1: String, name2: String): XlsxSource = 

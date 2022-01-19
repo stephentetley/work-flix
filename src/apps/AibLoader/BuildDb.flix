@@ -258,6 +258,17 @@ namespace AibLoader/BuildDb {
 
     // # ZTables
 
+    pub def storeZTableManuf(src: System.FilePath): DbMonad[Int32] = 
+        use BasicDb/DbMonad.{liftActionResult};
+        liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(src))
+            >>= AssetLib/FileIO/S4/ZTable/SQLite.storeManufacturerModel("ztable_manuf")
 
+
+    pub def storeZTableObj(src: System.FilePath): DbMonad[Int32] = 
+        use BasicDb/DbMonad.{liftActionResult};
+        liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadObjTypeManufacturer(src))
+            >>= AssetLib/FileIO/S4/ZTable/SQLite.storeObjTypeManufacturer("ztable_obj")
+    
+    
 
 }
