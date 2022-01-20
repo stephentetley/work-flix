@@ -22,7 +22,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/FileIO/PDT/CollateRows.{FieldValue};
+    use AssetLib/FileIO/PDT/Base.{FieldValue};
 
     pub def storeFieldValues(table: String, relns: #{FieldValue | r}): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
@@ -56,7 +56,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     type alias Setter[a] = a -> PreparedStatementSetter[Unit]
 
-    def store(insertSql: String, setter: Setter[a] , rows: t[a]): DbMonad[Int32] with Foldable[t] =
+    def store(insertSql: String, setter: Setter[a], rows: t[a]): DbMonad[Int32] with Foldable[t] =
         use BasicDb/DbMonad.{flatMap, point, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
         let* _          = setAutoCommit(false);
         let* stmt       = prepareStatement(insertSql);

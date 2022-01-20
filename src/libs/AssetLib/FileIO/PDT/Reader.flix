@@ -23,11 +23,22 @@ namespace AssetLib/FileIO/PDT/Reader {
     use SheetIO.SheetReader;
     use SheetIO.RowEvaluator;
 
-    pub type alias PDTValueRow = 
-        { rowNumber :: Int32
-        , rowName :: String
-        , cellValues :: List[String]
-        }
+    use AssetLib/FileIO/PDT/Base.{FieldValue, PDTValueRow, ADTMetaData, ADTParamRow};
+
+    pub def readFieldValuesAll(srcs: List[System.FilePath]): Result[#{FieldValue | r}, String] & Impure = 
+        Result.traverse(readFieldValues, srcs)
+            |> Result.map(RelLib/Relation.combineAll)
+
+    pub def readFieldValues(src: System.FilePath): Result[#{FieldValue | r}, String] & Impure = 
+        use SheetIO/SheetReader.{flatMap, point};
+        let fileName    = System/FilePath.getFileName(src) |> Option.getWithDefault(src) |> ToString.toString;
+        let body = () -> { 
+            let* valueRows  = readDataSheet();
+            let* typings    = readADTParamData();
+            let relns       = AssetLib/FileIO/PDT/CollateRows.collateValueRows(fileName, valueRows, typings);
+            point(relns)
+        };
+        SheetIO/SheetReader.runXlsx(body(), src)
 
     pub def readDataSheet(): SheetReader[List[PDTValueRow]] = 
         use SheetIO/SheetReader.{flatMap, getSheetNames, getSheetNamed, liftOption};
@@ -50,21 +61,6 @@ namespace AssetLib/FileIO/PDT/Reader {
             point({rowNumber = ix, rowName = normalize(name), cellValues = vs})
         }
 
-
-    /// The first n rows (currently n=8)
-    pub type alias ADTMetaData = 
-        { metaName :: String
-        , metaValue :: String
-        }
-
-    // Value Column [col 3] is not useful
-    pub type alias ADTParamRow = 
-        { rowNumber :: Int32
-        , category :: String
-        , paramName :: String
-        , paramUnits :: String
-        , notes :: String
-        }
 
 
     pub def readADTMetaData(): SheetReader[List[ADTMetaData]] = 

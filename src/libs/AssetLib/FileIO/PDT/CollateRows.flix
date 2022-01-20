@@ -16,7 +16,8 @@
 
 namespace AssetLib/FileIO/PDT/CollateRows {
 
-    use AssetLib/FileIO/PDT/Reader.{PDTValueRow, ADTParamRow};
+
+    use AssetLib/FileIO/PDT/Base.{FieldValue, PDTValueRow, ADTParamRow};
 
     pub rel AssetName(columnId: Int32, name: String)
 
@@ -25,8 +26,6 @@ namespace AssetLib/FileIO/PDT/CollateRows {
     pub rel ParamUnit(paramName: String, paramUnit: String)
 
     pub rel HasParamUnit(paramName: String)
-
-    pub rel FieldValue(fileName: String, rowNum: Int32, assetName: String, fieldName: String, fieldValue: String, fieldUnits: String)
 
     
 
