@@ -11,18 +11,10 @@ pub def main(_args: Array[String]): Int32 & Impure =
 
 def writeDb(src: System.FilePath, dst: System.FilePath): Result[Unit, String] & Impure = 
     use Result.{flatMap};
+    let fileName    = System/FilePath.getFileName(src) |> Option.getWithDefault(src) |> ToString.toString;
     let* valueRows  = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readDataSheet(), src);
     let* typings    = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readADTParamData(), src);
-    let relns       = AssetLib/FileIO/PDT/CollateRows.collateValueRows(valueRows, typings);
+    let relns       = AssetLib/FileIO/PDT/CollateRows.collateValueRows(fileName, valueRows, typings);
     let* _          = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/PDT/SQLite.storeFieldValues("pdt_raw_values", relns), dst);
     Ok()
 
-/*
-def tempMeta(src: System.FilePath): Result[Unit, String] & Impure =  
-    use Result.{flatMap};
-    let* xs = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readADTMetaData(), src);
-    let _   = List.map(x -> println("${x.metaName} => ${x.metaValue}"), xs);
-    let* ys = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readADTParamData(), src);
-    let _   = List.map(x -> println("${x.rowNumber} ${x.paramName} => ${x.paramUnits} (${x.notes})"), ys);
-    Ok()
-*/

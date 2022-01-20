@@ -26,23 +26,29 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     pub def storeFieldValues(table: String, relns: #{FieldValue | r}): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5) from FieldValue(x1, x2, x3, x4, x5) |> Array.toList);
+        let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6) from FieldValue(x1, x2, x3, x4, x5, x6) |> Array.toList);
         store(insertFieldValueRowSql(table), fieldValueSetter, rows)
 
-    def fieldValueSetter(x: (Int32, String, String, String, String)): PreparedStatementSetter[Unit] =
+    def fieldValueSetter(x: (String, Int32, String, String, String, String)): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putInt32At!, putStringAt!};
-        let (x1, x2, x3, x4, x5) = x;
-        putInt32At!(0, x1) *> putStringAt!(1, x2) *> putStringAt!(2, x3) *> putStringAt!(3, x4) *> putStringAt!(4, x5)
+        let (x1, x2, x3, x4, x5, x6) = x;
+        putStringAt!(0, x1)
+            *> putInt32At!(1, x2) 
+            *> putStringAt!(2, x3) 
+            *> putStringAt!(3, x4) 
+            *> putStringAt!(4, x5) 
+            *> putStringAt!(5, x6)
         
     def insertFieldValueRowSql(tableName: String): String =
         String.unwords(
             "INSERT OR IGNORE INTO ${tableName} "
-                :: "(row_num, "
+                :: "(source_file, "
+                :: "row_num, "
                 :: "asset_name, "
                 :: "field_name, "
                 :: "field_value, "
                 :: "field_units) "
-                :: "VALUES(?,?,?,?,?);"
+                :: "VALUES(?,?,?, ?,?,?);"
                 :: Nil
         )
 

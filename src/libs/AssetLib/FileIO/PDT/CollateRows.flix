@@ -26,30 +26,30 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
     pub rel HasParamUnit(paramName: String)
 
-    pub rel FieldValue(rowNum: Int32, assetName: String, fieldName: String, fieldValue: String, fieldUnits: String)
+    pub rel FieldValue(fileName: String, rowNum: Int32, assetName: String, fieldName: String, fieldValue: String, fieldUnits: String)
 
     
 
-    pub def collateValueRows(valueRows: List[PDTValueRow], typings: List[ADTParamRow]): #{FieldValue | r} = match valueRows {
+    pub def collateValueRows(fileName: String, valueRows: List[PDTValueRow], typings: List[ADTParamRow]): #{FieldValue | r} = match valueRows {
         case x :: xs if x.rowName == "Asset Name" => {
             let r1 = makeAssetNames(x);
             let r2 = RelLib/Relation.foldMap(makeIndexedValues, xs);
             let r3 = makeParamUnits(typings);
-            solve (r1 <+> r2 <+> r3 <+> valueRules()) project FieldValue 
+            solve (r1 <+> r2 <+> r3 <+> valueRules(fileName)) project FieldValue 
         }
         case _                                     => #{}
     }
 
-    def valueRules(): #{AssetName, IndexedValue, FieldValue, ParamUnit, HasParamUnit} = #{
+    def valueRules(fileName: String): #{AssetName, IndexedValue, FieldValue, ParamUnit, HasParamUnit} = #{
 
         HasParamUnit(fieldName) :- ParamUnit(fieldName, _).
 
-        FieldValue(rowNum, assetName, fieldName, fieldValue, fieldUnit) :- 
+        FieldValue(fileName, rowNum, assetName, fieldName, fieldValue, fieldUnit) :- 
             AssetName(colId, assetName),
             IndexedValue(colId, rowNum, fieldName, fieldValue),
             ParamUnit(fieldName, fieldUnit).
     
-        FieldValue(rowNum, assetName, fieldName, fieldValue, "Unknown") :- 
+        FieldValue(fileName, rowNum, assetName, fieldName, fieldValue, "Unknown") :- 
             AssetName(colId, assetName),
             IndexedValue(colId, rowNum, fieldName, fieldValue),
             not HasParamUnit(fieldName).
