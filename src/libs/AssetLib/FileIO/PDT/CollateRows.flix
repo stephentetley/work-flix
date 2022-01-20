@@ -16,40 +16,58 @@
 
 namespace AssetLib/FileIO/PDT/CollateRows {
 
-    use AssetLib/FileIO/PDT/Reader.PDTRow;
+    use AssetLib/FileIO/PDT/Reader.{PDTValueRow, ADTParamRow};
 
     pub rel AssetName(columnId: Int32, name: String)
 
     pub rel IndexedValue(columnId: Int32, rowNum: Int32, name: String, value: String)
 
-    pub rel FieldValue(rowNum: Int32, assetName: String, fieldName: String, fieldValue: String)
+    pub rel ParamUnit(paramName: String, paramUnit: String)
+
+    pub rel HasParamUnit(paramName: String)
+
+    pub rel FieldValue(rowNum: Int32, assetName: String, fieldName: String, fieldValue: String, fieldUnits: String)
 
     
 
-    pub def collateRows(rows: List[PDTRow]): #{FieldValue | r} = match rows {
+    pub def collateValueRows(valueRows: List[PDTValueRow], typings: List[ADTParamRow]): #{FieldValue | r} = match valueRows {
         case x :: xs if x.rowName == "Asset Name" => {
             let r1 = makeAssetNames(x);
             let r2 = RelLib/Relation.foldMap(makeIndexedValues, xs);
-            solve (r1 <+> r2 <+> rules()) project FieldValue 
+            let r3 = makeParamUnits(typings);
+            solve (r1 <+> r2 <+> r3 <+> valueRules()) project FieldValue 
         }
         case _                                     => #{}
     }
 
-    def rules(): #{AssetName, IndexedValue, FieldValue} = #{
+    def valueRules(): #{AssetName, IndexedValue, FieldValue, ParamUnit, HasParamUnit} = #{
 
-        FieldValue(rowNum, assetName, fieldName, fieldValue) :- 
+        HasParamUnit(fieldName) :- ParamUnit(fieldName, _).
+
+        FieldValue(rowNum, assetName, fieldName, fieldValue, fieldUnit) :- 
             AssetName(colId, assetName),
-            IndexedValue(colId, rowNum, fieldName, fieldValue).
-
+            IndexedValue(colId, rowNum, fieldName, fieldValue),
+            ParamUnit(fieldName, fieldUnit).
+    
+        FieldValue(rowNum, assetName, fieldName, fieldValue, "Unknown") :- 
+            AssetName(colId, assetName),
+            IndexedValue(colId, rowNum, fieldName, fieldValue),
+            not HasParamUnit(fieldName).
     }
 
-    def makeAssetNames(nameRow: PDTRow): #{AssetName | r} = 
+    def makeAssetNames(nameRow: PDTValueRow): #{AssetName | r} = 
         let make1 = (s, ix) -> RelLib/Relation.whenTrue(not String.isEmpty(s), #{ AssetName(ix, s). });
         RelLib/Relation.foldMapWithIndex(make1, nameRow.cellValues)
 
 
-    def makeIndexedValues(row: PDTRow): #{IndexedValue | r} = 
+    def makeIndexedValues(row: PDTValueRow): #{IndexedValue | r} = 
         let make1 = (s, ix) -> RelLib/Relation.whenTrue(not String.isEmpty(s), #{ IndexedValue(ix, row.rowNumber, row.rowName, s). });
-        RelLib/Relation.foldMapWithIndex(make1, row.cellValues)
+        row.cellValues 
+            |> List.map(String.trim) 
+            |> RelLib/Relation.foldMapWithIndex(make1)
+
+    def makeParamUnits(rows: List[ADTParamRow]): #{ParamUnit | r} = 
+        let make1 = x1 -> RelLib/Relation.whenTrue(not String.isEmpty(x1.paramUnits), #{ ParamUnit(x1.paramName, x1.paramUnits). });
+        RelLib/Relation.foldMap(make1, rows)
 
 }

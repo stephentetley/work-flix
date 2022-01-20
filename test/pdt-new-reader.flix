@@ -1,20 +1,28 @@
 use SheetIO.SheetReader;
-use AssetLib/FileIO/PDT/Reader.PDTRow;
 use AssetLib/FileIO/PDT/CollateRows.{FieldValue};
 
 pub def main(_args: Array[String]): Int32 & Impure = 
     println("Running... ${Time/LocalTime.now()}");
     let src = System/FilePath.new("G:/work/assets/product-data-templates/pannal/EQUI_Valves 1.xlsx");
-    match SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readDataSheet(), src) {
-        case Ok(xs) => {
-            AssetLib/FileIO/PDT/CollateRows.collateRows(xs) 
-                |> db -> query db select (x1, x2, x3, x4) from FieldValue(x1, x2, x3, x4) |> Array.foreach(println); 
-            0
-        }
-        case Err(msg) => {println("Error: ${msg}"); 1}
-    }
+    let dst = System/FilePath.new("G:/work/assets/product-data-templates/pannal/pannal-pdt.sqlite");
+    writeDb(src, dst) |> println;
+    0
 
 
+def writeDb(src: System.FilePath, dst: System.FilePath): Result[Unit, String] & Impure = 
+    use Result.{flatMap};
+    let* valueRows  = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readDataSheet(), src);
+    let* typings    = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readADTParamData(), src);
+    let relns       = AssetLib/FileIO/PDT/CollateRows.collateValueRows(valueRows, typings);
+    let* _          = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/PDT/SQLite.storeFieldValues("pdt_raw_values", relns), dst);
+    Ok()
 
-
-
+/*
+def tempMeta(src: System.FilePath): Result[Unit, String] & Impure =  
+    use Result.{flatMap};
+    let* xs = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readADTMetaData(), src);
+    let _   = List.map(x -> println("${x.metaName} => ${x.metaValue}"), xs);
+    let* ys = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readADTParamData(), src);
+    let _   = List.map(x -> println("${x.rowNumber} ${x.paramName} => ${x.paramUnits} (${x.notes})"), ys);
+    Ok()
+*/
