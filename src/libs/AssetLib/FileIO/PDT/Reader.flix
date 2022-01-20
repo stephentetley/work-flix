@@ -26,13 +26,11 @@ namespace AssetLib/FileIO/PDT/Reader {
         , cellValues :: List[String]
         }
 
-    pub def getDataSheet(): SheetReader[Sheet] = 
+    pub def readDataSheet(): SheetReader[List[PDTRow]] = 
         use SheetIO/SheetReader.{flatMap, getSheetNames, getSheetNamed, liftOption};
         let* xs     = getSheetNames();
         let* name   = liftOption(List.find(String.startsWith(prefix ="PDT_"), xs), "Could not find PDT datasheet");
-        getSheetNamed(name)
-
-    pub def readDataSheet(sheet1: Sheet): SheetReader[List[PDTRow]] = 
+        let* sheet1 = getSheetNamed(name);
         SheetIO/SheetReader.someRows(SheetIO/RowEvaluator.optional(evalPDTRow()), sheet1)
         
 
