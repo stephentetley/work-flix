@@ -25,8 +25,8 @@ pub def main(args: Array[String]): Int32 & Impure =
 
 
 type alias ProgramArgs = 
-    { inputFile: System.FilePath
-    , outputFile: System.FilePath
+    { inputFile :: System.FilePath
+    , outputFile :: System.FilePath
     }
 
 def defaultArguments(): ProgramArgs = 
