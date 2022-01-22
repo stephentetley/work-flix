@@ -157,7 +157,7 @@ namespace AssetLib/S4Lite/S4LiteRelations {
     instance Order[CharValue] {
         pub def compare(x: CharValue, y: CharValue): Comparison = match (x, y) {
             case (S4String(s1), S4String(s2)) => s1 <=> s2
-            case (S4Date(dt1), S4Date(dt2)) => dt1<=> dt2
+            case (S4Date(dt1), S4Date(dt2)) => dt1 <=> dt2
             case (S4Int(i1), S4Int(i2)) => i1 <=> i2
             case (S4Float(d1), S4Float(d2)) => d1 <=> d2
             case (S4String(_), _) => LessThan
@@ -168,7 +168,7 @@ namespace AssetLib/S4Lite/S4LiteRelations {
     }
 
     instance Hash[CharValue] {
-        pub def hash(x: CharValue): Int = Hash.hash(ToString.toString(x))
+        pub def hash(x: CharValue): Int32 = Hash.hash(ToString.toString(x))
     }
 
     instance Boxable[CharValue] 

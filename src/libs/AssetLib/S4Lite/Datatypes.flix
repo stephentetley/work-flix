@@ -157,7 +157,7 @@ namespace AssetLib/S4Lite/Datatypes {
     }
 
     instance Hash[SLDatatype] {
-        pub def hash(x: SLDatatype): Int = Hash.hash(ToString.toString(x))
+        pub def hash(x: SLDatatype): Int32 = Hash.hash(ToString.toString(x))
     }
 
 

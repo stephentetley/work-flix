@@ -3,11 +3,8 @@ use AssetLib/FileIO/PDT/Base.{FieldValue};
 
 pub def main(_args: Array[String]): Int32 & Impure = 
     println("Running... ${Time/LocalTime.now()}");
-    let srcs = List.map(System/FilePath.new, 
-           "G:/work/assets/product-data-templates/pannal/EQUI_Kiosk.xlsx" 
-        :: "G:/work/assets/product-data-templates/pannal/EQUI_Valves 1.xlsx"
-        :: "G:/work/assets/product-data-templates/pannal/EQUI_Valves 2.xlsx"
-        :: Nil);
+    let srcdir  = System/FilePath.new("G:/work/assets/product-data-templates/pannal");
+    let srcs    = System/Directory.contents(srcdir) |> Result.getWithDefault(Nil) |> List.filter(x -> System/FilePath.getExtension(x) == Some("xlsx"));
     let dst = System/FilePath.new("G:/work/assets/product-data-templates/pannal/pannal-pdt.sqlite");
     writeDb(srcs, dst) |> println;
     0
