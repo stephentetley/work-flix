@@ -49,6 +49,14 @@ namespace AibLoader/Rules/EquiAttributes {
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "INSTALLED FROM", value).
 
+            EquiAttributes(equiId; singleton("MANUFACTURER", AttrString(value))) :-  
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "MANUFACTURER", value).
+
+            EquiAttributes(equiId; singleton("MODEL", AttrString(value))) :-  
+                EquiWorkItem3(equiId, _, _),
+                StringProperty(equiId, "MODEL", value).
+
             EquiAttributes(equiId; singleton("SERIAL_NO", AttrString(value))) :-  
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "SERIAL NO", value).

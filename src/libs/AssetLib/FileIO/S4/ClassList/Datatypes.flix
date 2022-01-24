@@ -20,6 +20,7 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
     use Time.LocalDate;
 
     /// Source type indicates minor but important formatting differences in the input files
+    /// that the parser must account for.
     pub enum SourceType {
         case FlocClasses
         case EquiClasses
@@ -50,6 +51,8 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
         , description :: String
         , chartype :: Datatype 
         }
+
+    // # Nested representation 
 
     /// Nested representation.
     pub type alias ClassList = 

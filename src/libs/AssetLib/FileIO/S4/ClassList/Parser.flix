@@ -38,19 +38,20 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
     use AssetLib/FileIO/S4/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
 
     /// Always UTF-8 with BOM? 
-    pub def parseFile(path: System.FilePath, srctype: SourceType) : Result[ClassListFile, String] & Impure = 
-        FlixParsec/Extras.parsesFileWithBOM(classListParser(srctype), 4, path) 
+    pub def parseEquiClassFile(path: System.FilePath) : Result[ClassListFile, String] & Impure = 
+        FlixParsec/Extras.parsesFileWithBOM(classListParser(EquiClasses), 4, path) 
 
+    pub def parseFlocClassFile(path: System.FilePath) : Result[ClassListFile, String] & Impure =  
+        FlixParsec/Extras.parsesFileWithBOM(classListParser(FlocClasses), 4, path) 
 
     def classListParser(srctype: SourceType): Parser[t1, ClassListFile] = 
         use FlixParsec/Prim.{flatMap};
-        use Data/DList.{empty, toList};
         let* _  = symbol("Class List");
         let* d  = pDateStamp();
         let* _  = anchorLine(Text/Regex/Pattern.quote("Class -> Characteristic"));
         let* _  = anchorLine("\\-{40,}");
-        let* rows = manyWith(append, empty(), parseLine(classListRow(srctype), true));
-        point({ dateStamp = d, rows = toList(rows)})
+        let* rows = manyWith(append, Chain.empty(), parseLine(classListRow(srctype), true));
+        point({ dateStamp = d, rows = Chain.toList(rows)})
 
     def pDateStamp(): Parser[t1, LocalDate] = 
         use FlixParsec/Prim.{flatMap};
@@ -111,10 +112,9 @@ namespace AssetLib/FileIO/S4/ClassList/Parser {
 
     /// Utils
     
-    def append(ac: DList[a], x: Option[a]): DList[a] = 
-        use Data/DList.{snoc};
+    def append(ac: Chain[a], x: Option[a]): Chain[a] = 
         match x { 
-            case Some(a) => snoc(ac, a)
+            case Some(a) => Chain.snoc(ac, a)
             case None => ac
         }
 

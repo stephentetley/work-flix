@@ -43,14 +43,11 @@ namespace AibLoader/WorkLists {
         }
 
     /// Equipment
-
     pub type alias EquiWorkItem = 
         { rowId :: Int32
         , equipmentId :: String
         , s4Name :: String
         , s4Floc :: String
-        , manufacturer :: String
-        , model :: String
         , superEquiId :: String
         , solutionId :: String
         , position :: Option[Int32]
@@ -132,8 +129,6 @@ namespace AibLoader/WorkLists {
         let* aibref         = getNonEmptyContentNamed("Reference");
         let* s4Name         = getNonEmptyContentNamed("S4 Equi Name");
         let* s4Floc         = getNonEmptyContentNamed("S4 Floc");
-        let* manufacturer   = getTrimmedContentNamed("Manufacturer");
-        let* model          = getTrimmedContentNamed("Model");
         let* superId        = getTrimmedContentNamed("Super Equi");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
         let* position       = map(FromString.fromString, getTrimmedContentNamed("Position"));
@@ -146,8 +141,6 @@ namespace AibLoader/WorkLists {
                 , equipmentId   = aibref
                 , s4Name        = s4Name
                 , s4Floc        = s4Floc
-                , manufacturer  = manufacturer
-                , model         = model
                 , superEquiId   = superId
                 , solutionId    = solutionId
                 , position      = position

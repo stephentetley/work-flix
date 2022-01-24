@@ -16,8 +16,6 @@
 
 namespace AssetLib/FileIO/S4/ClassList/Builder {
 
-    use Data.{RoseTree, RoseForest};
-    use Data.RoseTree.{Node};
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Class, Characteristic, Refinement};
@@ -28,13 +26,13 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
 
     pub def loadFlocClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
         use Result.{flatMap};
-        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseFile(path, FlocClasses);
+        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseFlocClassFile(path);
         let ans     = buildClassList(ast);
         Ok(ans)
 
     pub def loadEquiClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
         use Result.{flatMap};
-        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseFile(path, EquiClasses);
+        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseEquiClassFile(path);
         let ans     = buildClassList(ast);
         Ok(ans)
 
@@ -95,39 +93,6 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
         let eval    = Applicative.liftA2((x, y) -> IntRange(x,y), getInt32Named("start"), getInt32Named("end"));
         Text/Regex.evalContains(patt, eval, src)
 
-    /// Print Html via a rose tree
 
-    pub type alias Label = {name :: String, description :: String}
-
-    pub def allTrees(src: ClassList): RoseForest[Label] = 
-        List.map(buildRoseTree, src.classes)
-
-    def buildRoseTree(src: Class): RoseTree[Label] = 
-        let label = { name = src.name, description = src.description};
-        roseTreeChars(src.characteristics,  xs -> Node(label, xs))
-
-    def roseTreeChars(xs: List[Characteristic], k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
-        match xs { 
-            case Nil => k(Nil)
-            case x1 :: rest =>
-                roseTreeChar1(x1, v1 -> 
-                    roseTreeChars(rest, vs -> k(v1 :: vs)))
-        }
-
-    def roseTreeChar1(src: Characteristic, k: RoseTree[Label] -> RoseTree[Label]): RoseTree[Label] = 
-        let label = { name = src.name, description = src.description};
-        match src.refinement { 
-            case Some(r) => roseTreeRefines1(r, kids -> k(Node(label, kids)))
-            case None => k(Node(label, Nil))
-        }
-
-    def roseTreeRefines1(src: Refinement, k: List[RoseTree[Label]] -> RoseTree[Label]): RoseTree[Label] = 
-        let intRangeLabel = (x,y) -> {name = "Int Range", description = Int32.toString(x) + " - " + Int32.toString(y) };
-        let decimalRangeLabel = (x,y) -> {name = "Decimal Range", description = Float64.toString(x) + " - " + Float64.toString(y) };
-        match src { 
-            case ListOfValues(xs)   => k(List.map(x -> Node({name = "Value", description = x}, Nil), xs))
-            case IntRange(x, y)     => k(Node(intRangeLabel(x,y), Nil) :: Nil)
-            case DecimalRange(x, y) => k(Node(decimalRangeLabel(x,y), Nil) :: Nil)
-        }
         
 }
