@@ -40,6 +40,14 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
         case ValueRow(String)
     }
 
+    instance ToString[ClassListRow] {
+        pub def toString(x: ClassListRow): String = match x {
+            case ClassRow(r)          => "ClassRow({classtype = ${r.classtype}, name = ${r.name}, description = ${r.description}})"
+            case CharacteristicRow(r) => "CharacteristicRow({name = ${r.name}, description = ${r.description}, chartype = ${r.chartype}})"
+            case ValueRow(s)          => "ValueRow(${s})"
+        }
+    }
+
     pub type alias ClassRow = 
         { classtype :: String
         , name :: String

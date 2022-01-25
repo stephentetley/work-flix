@@ -19,11 +19,7 @@
 
 namespace AssetLib/FileIO/S4/ClassList/Parser {
 
-
-    use Data.DList;
-    use System.Error.{Generic};
     use Time.LocalDate;
-
 
     use FlixParsec.Parser;
     use FlixParsec/Prim.{parseFile, point, map, alt, throwError, liftResult, liftOption, swapError};
