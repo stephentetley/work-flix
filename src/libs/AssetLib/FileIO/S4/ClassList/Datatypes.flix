@@ -17,34 +17,23 @@
 
 namespace AssetLib/FileIO/S4/ClassList/Datatypes {
 
-    use Time.LocalDate;
 
-    /// Source type indicates minor but important formatting differences in the input files
-    /// that the parser must account for.
-    pub enum SourceType {
-        case FlocClasses
-        case EquiClasses
-    }
-
-
-    /// Flat representation - not a tree.
-    pub type alias ClassListFile = 
-        { dateStamp :: LocalDate
-        , rows :: List[ClassListRow]
-        }
+    /// Parser types (low level)
 
     /// ValueRow could be a list-of-values item or a range. It is decoded later.
     pub enum ClassListRow {
         case ClassRow(ClassRow)
-        case CharacteristicRow(CharacteristicRow)
+        case CharRow(CharacteristicRow)
         case ValueRow(String)
+        case EmptyRow
     }
 
     instance ToString[ClassListRow] {
         pub def toString(x: ClassListRow): String = match x {
-            case ClassRow(r)          => "ClassRow({classtype = ${r.classtype}, name = ${r.name}, description = ${r.description}})"
-            case CharacteristicRow(r) => "CharacteristicRow({name = ${r.name}, description = ${r.description}, chartype = ${r.chartype}})"
-            case ValueRow(s)          => "ValueRow(${s})"
+            case ClassRow(r)  => "ClassRow({classtype = ${r.classtype}, name = ${r.name}, description = ${r.description}})"
+            case CharRow(r)   => "CharacteristicRow({name = ${r.name}, description = ${r.description}, chartype = ${r.chartype}, textLength = ${r.textLength}, decimalPlaces = ${r.decimalPlaces}})"
+            case ValueRow(s)  => "ValueRow(${s})"
+            case EmptyRow     => "EmptyRow"
         }
     }
 
@@ -57,69 +46,49 @@ namespace AssetLib/FileIO/S4/ClassList/Datatypes {
     pub type alias CharacteristicRow = 
         { name :: String
         , description :: String
-        , chartype :: Datatype 
-        }
-
-    // # Nested representation 
-
-    /// Nested representation.
-    pub type alias ClassList = 
-        { dateStamp :: LocalDate
-        , classes :: List[Class]
+        , chartype :: String
+        , textLength :: Int32
+        , decimalPlaces :: Option[Int32]
         }
 
 
-    // classType eg "002", "003"
-    pub type alias Class = 
-        { name :: String
+    /// Builder types (higher level)
+
+    pub type alias ClassRecords = 
+        { classDescriptions :: List[ClassDescription]
+        , characteristics :: List[Characteristic]
+        , picklistValues :: List[PicklistValue]
+        , intRanges :: List[IntRange]
+        }
+
+
+    pub type alias ClassDescription = 
+        { className :: String
         , description :: String
-        , classtype :: String
-        , characteristics :: List[Characteristic] 
         }
+
 
     pub type alias Characteristic = 
-        { name :: String
+        { className :: String
+        , charName :: String
         , description :: String
-        , chartype :: Datatype
-        , refinement :: Option[Refinement] 
+        , s4Datatype :: String
+        , textLength :: Int32
+        , decimalPlaces :: Option[Int32]
         }
 
-    pub enum Datatype with Eq, Order, ToString, Hash, Boxable { 
-        case Text(Int32)
-        case Date(Int32)
-        case NumInt(Int32)
-        case NumDecimal(Int32, Int32)
-    }
 
-    pub def s4StorageSize(x: Datatype): Int32 = match x {
-        case Text(i)            => i
-        case Date(i)            => i
-        case NumInt(i)          => i
-        case NumDecimal(i, _)   => i
-    }
+    pub type alias PicklistValue = 
+        { className :: String
+        , charName :: String
+        , value :: String
+        }
 
-    pub def s4DecimalPlaces(x: Datatype): Option[Int32] = match x {
-        case Text(_)            => None
-        case Date(_)            => None
-        case NumInt(_)          => None
-        case NumDecimal(_, p)   => Some(p)
-    }
+    pub type alias IntRange = 
+        { className :: String
+        , charName :: String
+        , rangeFrom :: Int32
+        , rangeTo :: Int32
+        }
 
-    /// Instances ???
-
-    pub def s4TypeName(x: Datatype): String = match x {
-        case Text(_)            => "Char"
-        case Date(_)            => "Date"
-        case NumInt(_)          => "Int"
-        case NumDecimal(_, _)   => "Float"
-    }
-
-    pub enum Refinement with Eq, Order, ToString, Hash, Boxable {
-        case ListOfValues(List[String])
-        case IntRange(Int32, Int32)
-        case DecimalRange(Float64, Float64)
-    }
-    
-    /// Instances ???
-    
 }

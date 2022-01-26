@@ -24,37 +24,8 @@ namespace AssetLib/FileIO/S4/ClassList/EquiParser {
 
     use Text/Regex.{MatchEvaluator};
 
-    /// ValueRow could be a list-of-values item or a range. It is decoded later.
-    pub enum ClassListRow {
-        case ClassRow(ClassRow)
-        case CharRow(CharacteristicRow)
-        case ValueRow(String)
-        case EmptyRow
-    }
-
-    instance ToString[ClassListRow] {
-        pub def toString(x: ClassListRow): String = match x {
-            case ClassRow(r)  => "ClassRow({classtype = ${r.classtype}, name = ${r.name}, description = ${r.description}})"
-            case CharRow(r)   => "CharacteristicRow({name = ${r.name}, description = ${r.description}, chartype = ${r.chartype}, textLength = ${r.textLength}, decimalPlaces = ${r.decimalPlaces}})"
-            case ValueRow(s)  => "ValueRow(${s})"
-            case EmptyRow     => "EmptyRow"
-        }
-    }
-
-    pub type alias ClassRow = 
-        { classtype :: String
-        , name :: String
-        , description :: String 
-        }
-
-    pub type alias CharacteristicRow = 
-        { name :: String
-        , description :: String
-        , chartype :: String
-        , textLength :: Int32
-        , decimalPlaces :: Option[Int32]
-        }
-
+    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListRow};
+    use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow, EmptyRow};
 
     type alias LineParser[a] = String -> Result[a, String]
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2022 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,81 +16,81 @@
 
 namespace AssetLib/FileIO/S4/ClassList/Builder {
 
-
-    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListFile, ClassListRow, ClassRow, CharacteristicRow, Datatype};
-    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Class, Characteristic, Refinement};
-    use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharacteristicRow, ValueRow};
-    use AssetLib/FileIO/S4/ClassList/Datatypes.Datatype.{Text, Date, NumInt, NumDecimal};
-    use AssetLib/FileIO/S4/ClassList/Datatypes.Refinement.{ListOfValues, IntRange, DecimalRange};
-    use AssetLib/FileIO/S4/ClassList/Datatypes.SourceType.{FlocClasses, EquiClasses};
-
-    pub def loadFlocClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
-        use Result.{flatMap};
-        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseFlocClassFile(path);
-        let ans     = buildClassList(ast);
-        Ok(ans)
-
-    pub def loadEquiClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
-        use Result.{flatMap};
-        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseEquiClassFile(path);
-        let ans     = buildClassList(ast);
-        Ok(ans)
+    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListRow};
+    use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow};
+    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
 
-    pub def buildClassList(src: ClassListFile): ClassList = 
-        let cs = classesList(src.rows, xs -> xs);
-        { dateStamp = src.dateStamp, classes = cs }
+    pub def buildRecords(xs: List[ClassListRow]): ClassRecords = 
+        { classDescriptions = extractClassDescriptions(xs)
+        , characteristics   = extractCharacteristics(xs)
+        , picklistValues    = extractPicklistValues(xs)
+        , intRanges         = extractIntRanges(xs)
+        }
 
-    /// In CPS ...
-    /// This is preorder builder with max depth of 3 and each row has 
-    /// a distinct type, so we can tell from the node type whether to
-    /// go up or down.
 
-    def classesList(src: List[ClassListRow], k: List[Class] -> List[Class]): List[Class] = 
-        match src { 
-            case ClassRow(r1) :: rest => {
-                characteristicsList(rest, (cxs, rest1) -> 
-                    let c1 = {classtype = r1.classtype, name = r1.name, 
-                                description = r1.description, characteristics = cxs};
-                    classesList(rest1, cs -> k(c1 :: cs)))
+
+    def extractClassDescriptions(xs: List[ClassListRow]): List[ClassDescription] = 
+        let step = (acc, x) -> match x {
+            case ClassRow(r1) => Chain.snoc(acc, {className = r1.name, description = r1.description})
+            case _            => acc
+        };
+        Foldable.foldLeft(step, Chain.empty(), xs) |> Chain.toList
+
+
+    def extractCharacteristics(xs: List[ClassListRow]): List[Characteristic] = 
+        let step = (acc, x) -> match x {
+            case ClassRow(r1) => {className = r1.name | acc}
+            case CharRow(r1)  => { 
+                let x1 = {className = acc.className, charName = r1.name, description = r1.description, 
+                            s4Datatype = r1.chartype, textLength = r1.textLength, 
+                            decimalPlaces = r1.decimalPlaces}; 
+                {results = Chain.snoc(acc.results, x1) | acc}
             }
-            case _ => k(Nil)
-        }
+            case _            => acc
+        };
+        Foldable.foldLeft(step, {results = Chain.empty(), className = ""}, xs) |> x -> x.results |> Chain.toList
 
-    def characteristicsList(src: List[ClassListRow], k: (List[Characteristic], List[ClassListRow]) -> List[Class]): List[Class] = 
-        match src { 
-            case CharacteristicRow(r1) :: rest => {
-                listOfValuesList(rest, (vals, rest1) ->
-                    let c1 = {name = r1.name, description = r1.description, 
-                                chartype = r1.chartype, refinement = makeRefinement(vals)};
-                    characteristicsList(rest1, (cs, rest2) -> k(c1 :: cs, rest2)))
+    def extractPicklistValues(xs: List[ClassListRow]): List[PicklistValue] = 
+        let step = (acc, x) -> match x {
+            case ClassRow(r1) => {classname = r1.name | acc}
+            case CharRow(r1)  => {charname = r1.name, chartype = r1.chartype | acc}
+            case ValueRow(s) if acc.chartype == "CHAR" => {
+                let x1 = { className = acc.classname, charName = acc.charname, value = s}; 
+                {results = Chain.snoc(acc.results, x1) | acc}
             }
-            case xs => k(Nil, xs)
-        }
+            case _            => acc
+        };
+        Foldable.foldLeft(step, {results = Chain.empty(), classname = "", charname = "", chartype = ""}, xs) |> x -> x.results |> Chain.toList
 
-    def listOfValuesList(src: List[ClassListRow], k: (List[String],  List[ClassListRow]) -> List[Class]): List[Class] =  
-        match src { 
-            case ValueRow(v1) :: rest => listOfValuesList(rest, (vs, rest1) -> k(v1 :: vs, rest1))
-            case xs => k(Nil, xs)
-        }
 
-    def makeRefinement(xs: List[String]): Option[Refinement] = 
-        match xs {
-            case Nil => None
-            case r1 :: Nil => match intRange(r1) { 
-                case Ok(rng) => Some(rng)
-                case Err(_) => Some(ListOfValues(r1 :: Nil))
+
+    def extractIntRanges(xs: List[ClassListRow]): List[IntRange] = 
+        let step = (acc, x) -> match x {
+            case ClassRow(r1) => {classname = r1.name | acc}
+            case CharRow(r1)  => {charname = r1.name, chartype = r1.chartype | acc}
+            case ValueRow(s) if acc.chartype == "NUM" => {
+                let (rstart, rend) = intRange(s);
+                let x1 = { className = acc.classname, charName = acc.charname, 
+                            rangeFrom = rstart, rangeTo = rend}; 
+                {results = Chain.snoc(acc.results, x1), chartype = "" | acc}
             }
-            case ans => Some(ListOfValues(ans))
+            case _            => acc
+        };
+        Foldable.foldLeft(step, {results = Chain.empty(), classname = "", charname = "", chartype = ""}, xs) |> x -> x.results |> Chain.toList
+
+
+    def intRange(src: String): (Int32, Int32) = 
+        match (intRangeHelper(src) as & Pure) {
+            case Ok(rng) => rng
+            case Err(_) => (-1, -1)
         }
 
-    def intRange(src: String): Result[Refinement, String] = intRangeHelper(src) as & Pure 
-
-    def intRangeHelper(src: String): Result[Refinement, String] & Impure = 
+    def intRangeHelper(src: String): Result[(Int32, Int32), String] & Impure = 
         use Result.flatMap;
         use Text/Regex/MatchEvaluator.{getInt32Named};
         let* patt   = Text/Regex/Pattern.compile("(?<start>\\d+) \\- (?<end>\\d+)");
-        let eval    = Applicative.liftA2((x, y) -> IntRange(x,y), getInt32Named("start"), getInt32Named("end"));
+        let eval    = Applicative.product(getInt32Named("start"), getInt32Named("end"));
         Text/Regex.evalContains(patt, eval, src)
 
 

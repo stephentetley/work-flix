@@ -23,11 +23,28 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/FileIO/S4/ClassList/Builder2.{ClassDescription, Characteristic, PicklistValue, IntRange};
+    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
+
+    pub type alias TableNames = 
+        { classDescriptionTable :: String
+        , characteristicTable :: String
+        , picklistValueTable :: String
+        , intRangeTable :: String
+        }
+    
+    pub def storeClassListData(names: TableNames, src: ClassRecords): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, point};
+        let* n1 = storeClassDescriptions(names.classDescriptionTable, src.classDescriptions);
+        let* n2 = storeCharacteristics(names.characteristicTable, src.characteristics);
+        let* n3 = storePicklistValues(names.picklistValueTable, src.picklistValues);
+        let* n4 = storeIntRanges(names.intRangeTable, src.intRanges);
+        point(n1 + n2 + n3 + n4)
+    
+
 
 
     // # ClassDescription
-    pub def storeClassDescriptions(table: String, rows: List[ClassDescription]): DbMonad[Int32] =
+    def storeClassDescriptions(table: String, rows: List[ClassDescription]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         store({tableName = table, tableDdl = createClassDescriptionTableDdl(table), 
                 prepStatement = insertClassDescriptionRowSql(table), setter = classDescriptionSetter}, rows)
@@ -57,7 +74,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
 
     // # Characteristic
     
-    pub def storeCharacteristics(table: String, rows: List[Characteristic]): DbMonad[Int32] =
+    def storeCharacteristics(table: String, rows: List[Characteristic]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         store({tableName = table, tableDdl = createCharacteristicTableDdl(table), 
                 prepStatement = insertCharacteristicRowSql(table), setter = characteristicSetter}, rows)
@@ -100,7 +117,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
         )
 
     // # PicklistValue
-    pub def storePicklistValues(table: String, rows: List[PicklistValue]): DbMonad[Int32] =
+    def storePicklistValues(table: String, rows: List[PicklistValue]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         store({tableName = table, tableDdl = createPicklistValueTableDdl(table), 
                 prepStatement = insertPicklistValueRowSql(table), setter = picklistValueSetter}, rows)
@@ -134,7 +151,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
         )
 
     // # IntRange
-    pub def storeIntRanges(table: String, rows: List[IntRange]): DbMonad[Int32] =
+    def storeIntRanges(table: String, rows: List[IntRange]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         store({tableName = table, tableDdl = createIntRangeTableDdl(table), 
                 prepStatement = insertIntRangeRowSql(table), setter = intRangeSetter}, rows)
