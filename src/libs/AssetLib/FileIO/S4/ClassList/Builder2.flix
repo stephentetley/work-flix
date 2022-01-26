@@ -21,7 +21,7 @@ namespace AssetLib/FileIO/S4/ClassList/Builder2 {
 
 
     pub type alias ClassRecords = 
-        { descriptions :: List[ClassDescription]
+        { classDescriptions :: List[ClassDescription]
         , characteristics :: List[Characteristic]
         , picklistValues :: List[PicklistValue]
         , intRanges :: List[IntRange]
@@ -58,10 +58,10 @@ namespace AssetLib/FileIO/S4/ClassList/Builder2 {
         }
 
     pub def buildRecords(xs: List[ClassListRow]): ClassRecords = 
-        { descriptions    = extractClassDescriptions(xs)
-        , characteristics = extractCharacteristics(xs)
-        , picklistValues  = extractPicklistValues(xs)
-        , intRanges       = extractIntRanges(xs)
+        { classDescriptions = extractClassDescriptions(xs)
+        , characteristics   = extractCharacteristics(xs)
+        , picklistValues    = extractPicklistValues(xs)
+        , intRanges         = extractIntRanges(xs)
         }
 
 

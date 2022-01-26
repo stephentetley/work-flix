@@ -38,6 +38,10 @@ def tempMetaEqui(src: System.FilePath): Result[Unit, String] & Impure =
     use Result.flatMap;
     let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     let* xs = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
+    List.foreach(println, xs);
     let answers = AssetLib/FileIO/S4/ClassList/Builder2.buildRecords(xs);
     let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeCharacteristics("meta_equi_characteristics", answers.characteristics), dst);
+    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassDescriptions("meta_equi_classes", answers.classDescriptions), dst);
+    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storePicklistValues("meta_equi_picklist_values", answers.picklistValues), dst);
+    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeIntRanges("meta_equi_int_ranges", answers.intRanges), dst);
     Ok()

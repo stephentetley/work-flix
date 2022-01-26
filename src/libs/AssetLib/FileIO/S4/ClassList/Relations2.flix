@@ -22,6 +22,12 @@ namespace AssetLib/FileIO/S4/ClassList/Relations2 {
     use AssetLib/FileIO/S4/ClassList/EquiParser.{ClassListRow};
     use AssetLib/FileIO/S4/ClassList/EquiParser.ClassListRow.{ClassRow => CClassRow , CharRow => CCharRow, ValueRow};
 
+    /// TODO - we can do this with a single stateful traversal rather than with relations.
+    /// The "problem" with a single traversal is we want three (int-range making four?)
+    /// answer types.
+    /// Maybe a traversal for each answer type will be the simplest... 
+
+
     pub rel Characteristic(charName: String, className: String, description: String, s4Datatype: String, textLength: Int32, decimalPlaces: Option[Int32])
 
     pub rel ClassDescription(className: String, description: String)
@@ -35,7 +41,7 @@ namespace AssetLib/FileIO/S4/ClassList/Relations2 {
 
     pub rel Successor(className: String, succClassName: String)
 
-    pub lat ClassRange(className: String, range: Range)
+    pub lat ClassSpan(className: String, range: Range)
 
 
     pub def equiClassRelations(src: System.FilePath): Result[#{Characteristic, ClassDescription | r}, String] & Impure = 
@@ -44,21 +50,21 @@ namespace AssetLib/FileIO/S4/ClassList/Relations2 {
         let db      = makeRows(rows) <+> makeSuccesors(rows);        
         println("Successor");
         let _       = query (db) select (x1, x2) from Successor(x1, x2) |> Array.foreach(println);
-        println("ClassRange");
-        let _       = query (db <+> rules()) select (x1, x2) from ClassRange(x1; x2) |> Array.foreach(println);
+        println("ClassSpan");
+        let _       = query (db <+> rules()) select (x1, x2) from ClassSpan(x1; x2) |> Array.foreach(println);
         let ans     = solve (db <+> rules()) project Characteristic, ClassDescription;
         Ok(ans)
 
-    def rules(): #{Characteristic, ClassDescription, ClassRow, CharRow, Successor, ClassRange | r} = #{
+    def rules(): #{Characteristic, ClassDescription, ClassRow, CharRow, Successor, ClassSpan | r} = #{
 
         ClassDescription(name, descr) :- ClassRow(_, name, descr).
 
         Characteristic(name, className, descr, s4Type, textLen, decimalPlaces) :- 
             CharRow(idx, name, descr, s4Type, textLen, decimalPlaces),
-            ClassRange(className; rng),
+            ClassSpan(className; rng),
             if RelLib/Lattice/Range.inRange(idx, rng).
 
-        ClassRange(className; RelLib/Lattice/Range.range(start, next-1)) :-
+        ClassSpan(className; RelLib/Lattice/Range.range(start, next-1)) :-
             ClassRow(start, className, _),
             Successor(className, successor),
             ClassRow(next, successor, _).
