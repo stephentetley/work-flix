@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stephen Tetley
+ * Copyright 2022 Stephen Tetley
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ namespace AssetLib/FileIO/S4/ClassList/Relations2 {
 
     use RelLib/Lattice/Range.{Range};
 
-    use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListRow};
-    use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow => CClassRow , CharacteristicRow => CCharRow, ValueRow};
+    use AssetLib/FileIO/S4/ClassList/EquiParser.{ClassListRow};
+    use AssetLib/FileIO/S4/ClassList/EquiParser.ClassListRow.{ClassRow => CClassRow , CharRow => CCharRow, ValueRow};
 
     pub rel Characteristic(charName: String, className: String, description: String, s4Datatype: String, textLength: Int32, decimalPlaces: Option[Int32])
 
@@ -40,10 +40,13 @@ namespace AssetLib/FileIO/S4/ClassList/Relations2 {
 
     pub def equiClassRelations(src: System.FilePath): Result[#{Characteristic, ClassDescription | r}, String] & Impure = 
         use Result.flatMap;
-        let* ast    = AssetLib/FileIO/S4/ClassList/Parser.parseEquiClassFile(src);
-        let r1      = makeRows(ast.rows);
-        let r2      = makeSuccesors(ast.rows);
-        let ans     = solve (r1 <+> r2 <+> rules()) project Characteristic, ClassDescription;
+        let* rows   = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
+        let db      = makeRows(rows) <+> makeSuccesors(rows);        
+        println("Successor");
+        let _       = query (db) select (x1, x2) from Successor(x1, x2) |> Array.foreach(println);
+        println("ClassRange");
+        let _       = query (db <+> rules()) select (x1, x2) from ClassRange(x1; x2) |> Array.foreach(println);
+        let ans     = solve (db <+> rules()) project Characteristic, ClassDescription;
         Ok(ans)
 
     def rules(): #{Characteristic, ClassDescription, ClassRow, CharRow, Successor, ClassRange | r} = #{
@@ -67,16 +70,15 @@ namespace AssetLib/FileIO/S4/ClassList/Relations2 {
         use AssetLib/FileIO/S4/ClassList/Datatypes.{s4TypeName, s4StorageSize, s4DecimalPlaces};
         let step = (x, ix) -> match x {
             case CClassRow(r1) => #{ ClassRow(ix, r1.name, r1.description). }
-            case CCharRow(r1)  => #{ CharRow(ix, r1.name, r1.description, s4TypeName(r1.chartype), 
-                                                s4StorageSize(r1.chartype), s4DecimalPlaces(r1.chartype)). }
+            case CCharRow(r1)  => #{ CharRow(ix, r1.name, r1.description, r1.chartype, r1.textLength, r1.decimalPlaces). }
             case _             => #{}
         };
         RelLib/Relation.foldMapWithIndex(step, xs)
 
     def makeSuccesors(xs: List[ClassListRow]): #{Successor | r} = 
         let step = (reln, s1, x) -> match x {
-            case CClassRow(r1) if not String.isEmpty(s1) => (reln <+> #{ Successor(s1, r1.name). }, r1.name)
-            case _                                       => (reln, s1)
+            case CClassRow(r1) => if (String.isEmpty(s1)) (reln, r1.name) else (reln <+> #{ Successor(s1, r1.name). }, r1.name)
+            case _             => (reln, s1)
         };
         Foldable.foldLeft((acc, x) -> {let (r1, s1) = acc; step(r1, s1, x)}, (#{}, ""), xs) |> fst
 

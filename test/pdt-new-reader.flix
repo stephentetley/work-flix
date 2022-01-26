@@ -13,9 +13,10 @@ pub def main(_args: Array[String]): Int32 & Impure =
     let srcs    = System/Directory.contents(srcdir) |> Result.getWithDefault(Nil) |> List.filter(x -> System/FilePath.getExtension(x) == Some("xlsx"));
     let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     writeDb(srcs, dst) |> println;
-    // tempClasses() |> println;
+
 */    
-    tempParse(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
+    // tempParse(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
+    tempClasses() |> println;
     0
 
 
@@ -25,7 +26,7 @@ def _writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Unit, St
     let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/PDT/SQLite.storeFieldValues("pdt_raw_values", relns), dst);
     Ok()
 
-def _tempClasses(): Result[Unit, String] & Impure = 
+def tempClasses(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let src     = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
     let* relns  = AssetLib/FileIO/S4/ClassList/Relations2.equiClassRelations(src);
@@ -33,7 +34,7 @@ def _tempClasses(): Result[Unit, String] & Impure =
     query relns select (x1, x2, x3, x4, x5, x6) from Characteristic(x1, x2, x3, x4, x5, x6) |> Array.foreach(println);
     Ok()
 
-def tempParse(src: System.FilePath): Result[Unit, String] & Impure = 
+def _tempParse(src: System.FilePath): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let* xs = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
     List.foreach(println, xs);
