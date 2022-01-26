@@ -15,7 +15,7 @@
  */
 
 
-namespace AibLoader/Base/AttributesLattice {
+namespace S4Loader/Base/AttributesLattice {
 
     
     pub enum AttributeValue with Eq, Order, ToString, Boxable, Hash {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AibLoader/Base/Relations {
+namespace S4Loader/Base/Relations {
 
     /// ## Property relations
     

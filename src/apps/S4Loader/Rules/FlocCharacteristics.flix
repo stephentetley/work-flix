@@ -15,14 +15,14 @@
  */
 
 
-namespace AibLoader/Rules/FlocCharacteristics {
+namespace S4Loader/Rules/FlocCharacteristics {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     
-    use AibLoader/Base/Relations.{StringProperty, IntProperty, FlocWorkItem3};
-    use AibLoader/WorkLists.{FlocWorkItem};
+    use S4Loader/Base/Relations.{StringProperty, IntProperty, FlocWorkItem3};
+    use S4Loader/WorkLists.{FlocWorkItem};
     
     // TODO don't use relations.
     

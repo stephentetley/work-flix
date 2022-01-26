@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AibLoader/BuildDb {
+namespace S4Loader/BuildDb {
 
     use Monad.{>>=};
 
@@ -25,7 +25,7 @@ namespace AibLoader/BuildDb {
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Characteristic};
 
-    use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
+    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
 
     /// A temporary untyped property
     rel UniProperty(rowId: Int32, name: String, value: String)
@@ -39,9 +39,9 @@ namespace AibLoader/BuildDb {
 
     pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
         use Result.flatMap;        
-        let* r1 = AibLoader/BuildDb.readAibTypes(input.typesCsv);
-        let* rs = Result.traverse(AibLoader/BuildDb.readAibExport, input.exports);
-        let props = AibLoader/BuildDb.genProperties(r1 <+> RelLib/Relation.combineAll(rs));
+        let* r1 = S4Loader/BuildDb.readAibTypes(input.typesCsv);
+        let* rs = Result.traverse(S4Loader/BuildDb.readAibExport, input.exports);
+        let props = S4Loader/BuildDb.genProperties(r1 <+> RelLib/Relation.combineAll(rs));
         Ok(props)
 
     
@@ -167,7 +167,7 @@ namespace AibLoader/BuildDb {
         )
 
     // # S4 Equi class export
-
+/*
     pub def storeS4ClassInfo(path: System.FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> readClassList(path)) >>= insertS4ClassInfo
@@ -203,7 +203,7 @@ namespace AibLoader/BuildDb {
                 :: "VALUES(?,?,?,?);"
                 :: Nil
         )
-
+*/
 
     // # `property_aliases.csv`
 

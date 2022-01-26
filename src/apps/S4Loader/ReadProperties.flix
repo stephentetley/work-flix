@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AibLoader/ReadProperties {
+namespace S4Loader/ReadProperties {
 
 
     use Functor.{<$>};
@@ -23,7 +23,7 @@ namespace AibLoader/ReadProperties {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, 
+    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, 
         PropertyAlias, AibProperties};
 
 

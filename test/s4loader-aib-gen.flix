@@ -1,9 +1,9 @@
 use SheetIO/Reader.{XlsxSource};
 
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
-use AibLoader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
-use AibLoader/Base/AttributesLattice.{Attributes, AttributeValue};
-use AibLoader/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
+use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
+use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
+use S4Loader/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
 
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -19,13 +19,13 @@ def main01(): Result[Int32, String] & Impure =
     let dbpath      = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
     let xlssrc      = {sheet = "Equi", 
                         path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx")};
-    let* db         = AibLoader/ReadProperties.loadDbRelations(dbpath);
-    let* equiRelns  = AibLoader/WorkLists.readEquiWorkList(xlssrc) |> Result.map(AibLoader/WorkLists.makeEquiWorkRelations);
+    let* db         = S4Loader/ReadProperties.loadDbRelations(dbpath);
+    let* equiRelns  = S4Loader/WorkLists.readEquiWorkList(xlssrc) |> Result.map(S4Loader/WorkLists.makeEquiWorkRelations);
     let db2         = db
-                        <+> AibLoader/Rules/EquiCommon.equiCommon() 
-                        <+> AibLoader/Rules/EquiCharacteristics.equiCharacteristics()
-                        <+> AibLoader/Rules/EquiLongText.equiLongText()
-                        <+> AibLoader/Rules/EquiAttributes.equiAttributes()
+                        <+> S4Loader/Rules/EquiCommon.equiCommon() 
+                        <+> S4Loader/Rules/EquiCharacteristics.equiCharacteristics()
+                        <+> S4Loader/Rules/EquiLongText.equiLongText()
+                        <+> S4Loader/Rules/EquiAttributes.equiAttributes()
                         <+> equiRelns;
     query db2 select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
     query db2 select (x1, x2, x3) from EquiLongText(x1, x2, x3) |> Array.foreach(println);
