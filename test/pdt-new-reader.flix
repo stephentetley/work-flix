@@ -14,8 +14,8 @@ pub def main(_args: Array[String]): Int32 & Impure =
     writeDb(srcs, dst) |> println;
 
 */    
-    // tempParse(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
-    tempMetaEqui(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
+    storeMetaEqui(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
+    storeMetaFloc(System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")) |> println;
     0
 
 
@@ -26,13 +26,24 @@ def _writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Unit, St
     Ok()
 
 
-def tempMetaEqui(src: System.FilePath): Result[Unit, String] & Impure = 
+def storeMetaEqui(src: System.FilePath): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     let* xs = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
-    List.foreach(println, xs);
+    /// List.foreach(println, xs);
     let answers = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);
     let names   = {classDescriptionTable = "meta_equi_classes", characteristicTable = "meta_equi_characteristics",
                     picklistValueTable = "meta_equi_picklist_values", intRangeTable = "meta_equi_int_ranges"};    
     let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, answers), dst);
     Ok()
+
+def storeMetaFloc(src: System.FilePath): Result[Unit, String] & Impure = 
+    use Result.flatMap;
+    let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
+    let* xs = AssetLib/FileIO/S4/ClassList/FlocParser.parseFile(src);
+    List.foreach(println, xs);
+    let answers = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);
+    let names   = {classDescriptionTable = "meta_floc_classes", characteristicTable = "meta_floc_characteristics",
+                    picklistValueTable = "meta_floc_picklist_values", intRangeTable = "meta_floc_int_ranges"};    
+    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, answers), dst);
+    Ok()    

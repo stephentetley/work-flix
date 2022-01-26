@@ -17,7 +17,7 @@
 
 
 
-namespace AssetLib/FileIO/S4/ClassList/EquiParser {
+namespace AssetLib/FileIO/S4/ClassList/FlocParser {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -53,28 +53,28 @@ namespace AssetLib/FileIO/S4/ClassList/EquiParser {
 
 
     pub def classRow1(): LineParser[ClassListRow] = 
-        let regex = "[\\u0020\\u002D\\u007C]{11}002 (?<classname>[\\p{Print}\\u0020]{34}) (?<classdesc>.{39}) X";
-        let eval = ((x1, x2) -> ClassRow({classtype = "002", name = x1, description = x2})) 
+        let regex = "[\\u0020\\u002D\\u007C]{11}003 (?<classname>[\\p{Print}\\u0020]{32}) (?<classdesc>.{35}) X";
+        let eval = ((x1, x2) -> ClassRow({classtype = "003", name = x1, description = x2})) 
                         <$> getTrimmed("classname") <*> getTrimmed("classdesc"); 
         makeLineParser(regex, eval)
 
     pub def classRow2(): LineParser[ClassListRow] = 
-        let regex = "[\\u0020\\u002D\\u007C]{11}002 (?<classname>[\\p{Print}\\u0020]{34}) (?<classdesc>.+)";
-        let eval = ((x1, x2) -> ClassRow({classtype = "002", name = x1, description = x2})) 
+        let regex = "[\\u0020\\u002D\\u007C]{11}003 (?<classname>[\\p{Print}\\u0020]{32}) (?<classdesc>.+)";
+        let eval = ((x1, x2) -> ClassRow({classtype = "003", name = x1, description = x2})) 
                         <$> getTrimmed("classname") <*> getTrimmed("classdesc"); 
         makeLineParser(regex, eval)
 
 
     pub def charRow1(): LineParser[ClassListRow] = 
         use Text/Regex/MatchEvaluator.{getInt32Named};
-        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{34}) (?<chardesc>.{50}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+)";
+        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+)";
         let eval = ((x1, x2, x3, x4, x5) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = Some(x5)})) 
                         <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length") <*> getInt32Named("decimals"); 
         makeLineParser(regex, eval)
 
     pub def charRow2(): LineParser[ClassListRow] = 
         use Text/Regex/MatchEvaluator.{getInt32Named};
-        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{34}) (?<chardesc>.{50}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+)";
+        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+)";
         let eval = ((x1, x2, x3, x4) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = None})) 
                         <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length"); 
         makeLineParser(regex, eval)
