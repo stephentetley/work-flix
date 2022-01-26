@@ -16,7 +16,7 @@ pub def main(_args: Array[String]): Int32 & Impure =
 
 */    
     // tempParse(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
-    tempClasses() |> println;
+    tempMetaEqui(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
     0
 
 
@@ -26,7 +26,7 @@ def _writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Unit, St
     let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/PDT/SQLite.storeFieldValues("pdt_raw_values", relns), dst);
     Ok()
 
-def tempClasses(): Result[Unit, String] & Impure = 
+def _tempClasses(): Result[Unit, String] & Impure = 
     use Result.{flatMap};
     let src     = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
     let* relns  = AssetLib/FileIO/S4/ClassList/Relations2.equiClassRelations(src);
@@ -34,8 +34,10 @@ def tempClasses(): Result[Unit, String] & Impure =
     query relns select (x1, x2, x3, x4, x5, x6) from Characteristic(x1, x2, x3, x4, x5, x6) |> Array.foreach(println);
     Ok()
 
-def _tempParse(src: System.FilePath): Result[Unit, String] & Impure = 
+def tempMetaEqui(src: System.FilePath): Result[Unit, String] & Impure = 
     use Result.flatMap;
+    let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     let* xs = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
-    List.foreach(println, xs);
+    let answers = AssetLib/FileIO/S4/ClassList/Builder2.buildRecords(xs);
+    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeCharacteristics("meta_equi_characteristics", answers.characteristics), dst);
     Ok()
