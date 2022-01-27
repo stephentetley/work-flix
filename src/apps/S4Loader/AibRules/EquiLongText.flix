@@ -15,7 +15,7 @@
  */
 
 
-namespace S4Loader/Rules/EquiLongText {
+namespace S4Loader/AibRules/EquiLongText {
 
 
     use AssetLib/Base/OrderedStringsLattice.{OrderedStrings};
@@ -45,23 +45,23 @@ namespace S4Loader/Rules/EquiLongText {
 
             AibMemoLine(equiId; singleton(1, text)) :- 
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "MEMO LINE 1", text).
+                StringProperty(equiId, "Memo Line 1", text).
             
             AibMemoLine(equiId; singleton(2, text)) :- 
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "MEMO LINE 2", text).
+                StringProperty(equiId, "Memo Line 2", text).
             
             AibMemoLine(equiId; singleton(3, text)) :- 
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "MEMO LINE 3", text).
+                StringProperty(equiId, "Memo Line 3", text).
             
             AibMemoLine(equiId; singleton(4, text)) :- 
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "MEMO LINE 4", text).
+                StringProperty(equiId, "Memo Line 4", text).
 
             AibMemoLine(equiId; singleton(5, text)) :- 
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "MEMO LINE 5", text).
+                StringProperty(equiId, "Memo Line 5", text).
 
             AibMemoLine(equiId; singleton(6, text)) :- 
                 EquiWorkItem3(equiId, _, _),
@@ -75,7 +75,7 @@ namespace S4Loader/Rules/EquiLongText {
             // Long Text could be locatio text if too long
             LongText1(equiId; locationText(location)) :- 
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "LOCATION ON SITE", location),
+                StringProperty(equiId, "Location On Site", location),
                 if String.length(location) > 30.
 
             

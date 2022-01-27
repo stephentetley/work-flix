@@ -15,12 +15,12 @@
  */
 
 
-namespace S4Loader/Rules/EquiCharacteristics {
+namespace S4Loader/AibRules/EquiCharacteristics {
 
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
 
-    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
+    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiCharacteristicSpec, EquiWorkItem3};
     
     /// Helper relations...
 
@@ -30,13 +30,15 @@ namespace S4Loader/Rules/EquiCharacteristics {
     pub rel RangeUnit(aibName: String, s4Name: String)
     pub rel Signal1(unit: String, signalName: String)
     pub rel Signal3(smin: Int32, smax: Int32, unit: String, signalName: String)
+    pub rel PropertyName(objectName: String, suffix: String, propName: String)
     
 
-
+    /// TODO remove PropertyAlias...
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, StringProperty, IntProperty, PropertyAlias, 
             IntOfFloatProperty, HasFloatProperty, 
             RangeUnit, Signal1, Signal3, 
+            EquiCharacteristicSpec, PropertyName,
             EquiCharacteristic | r1}
 
 
@@ -51,15 +53,19 @@ namespace S4Loader/Rules/EquiCharacteristics {
                 FloatProperty(equiId, propName, d),
                 if isWholeFloat(d).
 
+            /// TODO - synthesize from `meta_equi_characteristics`
+            PropertyName("ACTU", "RATED_CURRENT_A", "ACTU_RATED_CURRENT_A").
+
 
             // Current in
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :-
-                EquiWorkItem3(equiId, _, s4EquiClass),
+            EquiCharacteristic(equiId, equiClass, charName, S4Float(value)) :-
+                EquiWorkItem3(equiId, equiObject, equiClass),
                 FloatProperty(equiId, "CURRENT IN", value),
-                PropertyAlias("CURRENT IN", s4EquiClass, s4CharName).
+                PropertyName(equiObject, "RATED_CURRENT_A", charName),
+                EquiCharacteristicSpec(equiClass, charName, _, _, _, _).
 
-            EquiCharacteristic(equiId, s4EquiClass, "INSULATION_CLASS_DEG_C", S4String(String.toUpperCase(value))) :-
-                EquiWorkItem3(equiId, _, s4EquiClass),
+            EquiCharacteristic(equiId, equiClass, "INSULATION_CLASS_DEG_C", S4String(String.toUpperCase(value))) :-
+                EquiWorkItem3(equiId, _, equiClass),
                 StringProperty(equiId, "INSULATION CLASS", value).
         
             EquiCharacteristic(equiId, s4EquiClass, "IP_RATING", S4String(String.toUpperCase(value))) :-
@@ -70,11 +76,13 @@ namespace S4Loader/Rules/EquiCharacteristics {
             
 
             // Range min
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :- 
-                EquiWorkItem3(equiId, _, s4EquiClass),
+            EquiCharacteristic(equiId, equiClass, charName, S4Float(value)) :- 
+                EquiWorkItem3(equiId, equiObject, equiClass),
                 FloatProperty(equiId, "RANGE MIN", value),
                 StringProperty(equiId, "RANGE UNIT", units),
-                PropertyAlias("RANGE MIN", s4EquiClass, s4CharName),
+                // PropertyAlias("RANGE MIN", s4EquiClass, s4CharName),
+                PropertyName(equiObject, "RANGE_MIN", charName),
+                EquiCharacteristicSpec(equiClass, charName, _, _, _, _),
                 RangeUnit(units, _).
 
             // Range max

@@ -15,7 +15,7 @@
  */
 
 
-namespace S4Loader/Rules/EquiCommon {
+namespace S4Loader/AibRules/EquiCommon {
 
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};

@@ -40,5 +40,6 @@ namespace S4Loader/Base/Relations {
 
     pub rel EquiWorkItem3(pliNum: String, s4ObjType: String, s4Class: String)
 
-
+    /// from Equi (002) Class List
+    pub rel EquiCharacteristicSpec(className: String, charName: String, description: String, s4Type: String, textLength: Int32, decimalPlaces: Int32)
 }

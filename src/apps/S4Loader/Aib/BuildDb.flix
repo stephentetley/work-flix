@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace S4Loader/BuildDb {
+namespace S4Loader/Aib/BuildDb {
 
     use Monad.{>>=};
 
@@ -39,9 +39,9 @@ namespace S4Loader/BuildDb {
 
     pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
         use Result.flatMap;        
-        let* r1 = S4Loader/BuildDb.readAibTypes(input.typesCsv);
-        let* rs = Result.traverse(S4Loader/BuildDb.readAibExport, input.exports);
-        let props = S4Loader/BuildDb.genProperties(r1 <+> RelLib/Relation.combineAll(rs));
+        let* r1     = readAibTypes(input.typesCsv);
+        let* rs     = Result.traverse(readAibExport, input.exports);
+        let props   = genProperties(r1 <+> RelLib/Relation.combineAll(rs));
         Ok(props)
 
     
@@ -51,8 +51,7 @@ namespace S4Loader/BuildDb {
         match allRows { 
             case Nil          => Ok(#{})
             case hdrs :: rows => { 
-                let headers = Array.map(String.toUpperCase, hdrs);
-                RelLib/Relation.foldMapWithIndex(makeUniProperties(headers), rows) |> Ok
+                RelLib/Relation.foldMapWithIndex(makeUniProperties(hdrs), rows) |> Ok
             }
         }
         
@@ -64,7 +63,8 @@ namespace S4Loader/BuildDb {
         let eval = Applicative.product(getStringAt(0), getStringAt(1));
         let mk1 = xy -> {let (x,y) = xy; #{ AibType(x, y). }};
         let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
-        RelLib/Relation.foldMap(mk1, rows) |> Ok
+        let relns = RelLib/Relation.foldMap(mk1, rows);
+        Ok(relns)
 
 
     
@@ -79,19 +79,19 @@ namespace S4Loader/BuildDb {
             StringProperty(plinum, propName, propValue) :- 
                 AibType(propName, "STRING"),
                 UniProperty(rowIx, propName, propValue),
-                UniProperty(rowIx, "REFERENCE", plinum), 
+                UniProperty(rowIx, "Reference", plinum), 
                 if not String.isEmpty(propValue).
 
             IntProperty(plinum, propName, intValue(propValue)) :- 
                 AibType(propName, "INTEGER"),
                 UniProperty(rowIx, propName, propValue),
-                UniProperty(rowIx, "REFERENCE", plinum), 
+                UniProperty(rowIx, "Reference", plinum), 
                 if isIntValue(propValue).
 
             FloatProperty(plinum, propName, floatValue(propValue)) :- 
                 AibType(propName, "DECIMAL"),
                 UniProperty(rowIx, propName, propValue),
-                UniProperty(rowIx, "REFERENCE", plinum), 
+                UniProperty(rowIx, "Reference", plinum), 
                 if isFloatValue(propValue).
 
         };
@@ -117,7 +117,14 @@ namespace S4Loader/BuildDb {
         let* n3 = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
         point(n1 + n2 + n3)
         
-            
+    pub def deleteProperties(): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _          = setAutoCommit(false);
+        let* _          = execute("DELETE FROM string_properties;");
+        let* _          = execute("DELETE FROM int_properties;");
+        let* _          = execute("DELETE FROM float_properties;");
+        let* _          = commit();
+        point()
 
     def storeProperties1(table: String, setter: a -> PreparedStatementSetter[Unit], rows: Array[(a)]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point, liftAction, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
@@ -167,6 +174,9 @@ namespace S4Loader/BuildDb {
         )
 
     // # S4 Equi class export
+
+    // Use ClassList instead...
+
 /*
     pub def storeS4ClassInfo(path: System.FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
@@ -206,6 +216,8 @@ namespace S4Loader/BuildDb {
 */
 
     // # `property_aliases.csv`
+
+    // TODO - make from ClassList data instead...
 
     pub type alias PropertyAlias = 
         { aiName :: String

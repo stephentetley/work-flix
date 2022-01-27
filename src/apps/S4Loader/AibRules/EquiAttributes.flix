@@ -15,7 +15,7 @@
  */
 
 
-namespace S4Loader/Rules/EquiAttributes {
+namespace S4Loader/AibRules/EquiAttributes {
 
     use AssetLib/S4Lite/S4LiteRelations.CharValue;
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
