@@ -45,9 +45,9 @@ namespace S4Loader/AibRules/EquiAttributes {
                 StringProperty(equiId, "ASSETSTATUS", value).
 
                 // INSTALLED FROM
-            EquiAttributes(equiId; singleton("INSTALLED_FROM", AttrDate(Option.getWithDefault(fallbackDate(), sqliteDate(value))))) :-  
+            EquiAttributes(equiId; singleton("INSTALLED_FROM", AttrDate(value))) :-  
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "INSTALLED FROM", value).
+                DateProperty(equiId, "INSTALLED FROM", value).
 
             EquiAttributes(equiId; singleton("MANUFACTURER", AttrString(value))) :-  
                 EquiWorkItem3(equiId, _, _),
