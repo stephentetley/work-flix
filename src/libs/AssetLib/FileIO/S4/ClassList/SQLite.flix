@@ -25,7 +25,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
-    pub type alias TableNames = 
+    pub type alias ClassListTableNames = 
         { classDescriptionTable :: String
         , characteristicTable :: String
         , picklistValueTable :: String
@@ -33,7 +33,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
         }
 
 
-    pub def createClassListTables(names: TableNames): DbMonad[Unit] =
+    pub def createClassListTables(names: ClassListTableNames): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
         let* _  = execute("DROP TABLE IF EXISTS ${names.classDescriptionTable};");
@@ -43,12 +43,12 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
         let* _  = execute(classDescriptionTableDdl(names.classDescriptionTable));
         let* _  = execute(characteristicTableDdl(names.characteristicTable));
         let* _  = execute(picklistValueTableDdl(names.picklistValueTable));
-        let* _  = execute(intRangeTableDdl(names.picklistValueTable));
+        let* _  = execute(intRangeTableDdl(names.intRangeTable));
         let* _  = commit();
         point()
 
 
-    pub def storeClassListData(names: TableNames, src: ClassRecords): DbMonad[Int32] =
+    pub def storeClassListData(names: ClassListTableNames, src: ClassRecords): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point};
         let* n1 = storeClassDescriptions(names.classDescriptionTable, src.classDescriptions);
         let* n2 = storeCharacteristics(names.characteristicTable, src.characteristics);
@@ -208,7 +208,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
                         setter :: Setter[a]}, rows: t[a]): DbMonad[Int32] with Foldable[t] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, prepareStatement, psExecuteUpdate, commit};
         let* _          = setAutoCommit(false);
-        let* _          = execute("DROP FROM ${config.tableName};");
+        let* _          = execute("DELETE FROM ${config.tableName};");
         let* stmt       = prepareStatement(config.prepStatement);
         let psSetter    = config.setter;
         let* nrows      = Foldable.foldLeftM((ac, x) -> 

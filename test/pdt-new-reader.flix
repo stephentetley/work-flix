@@ -28,22 +28,18 @@ def _writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Unit, St
 
 def storeMetaEqui(src: System.FilePath): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
-    let* xs = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
-    /// List.foreach(println, xs);
-    let answers = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);
+    let dst     = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     let names   = {classDescriptionTable = "meta_equi_classes", characteristicTable = "meta_equi_characteristics",
                     picklistValueTable = "meta_equi_picklist_values", intRangeTable = "meta_equi_int_ranges"};    
-    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, answers), dst);
+    let* ans    = AssetLib/FileIO/S4/ClassList/Builder.readEquiClassRecords(src);
+    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, ans), dst);
     Ok()
 
 def storeMetaFloc(src: System.FilePath): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
-    let* xs = AssetLib/FileIO/S4/ClassList/FlocParser.parseFile(src);
-    List.foreach(println, xs);
-    let answers = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);
     let names   = {classDescriptionTable = "meta_floc_classes", characteristicTable = "meta_floc_characteristics",
                     picklistValueTable = "meta_floc_picklist_values", intRangeTable = "meta_floc_int_ranges"};    
-    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, answers), dst);
+    let* ans    = AssetLib/FileIO/S4/ClassList/Builder.readFlocClassRecords(src);
+    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, ans), dst);
     Ok()    

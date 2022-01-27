@@ -21,11 +21,15 @@ namespace S4Loader/Pdt/BuildDb {
     /// Create tables...
     pub def initDb(): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, point};
-        let* _  = S4Loader/Aib/InitDb.createPropertiesTables();
-        let* _  = S4Loader/Aib/InitDb.createEquiClassListTables();
+        let* _  = S4Loader/Base/InitDb.createPropertiesTables();
+        let* _  = S4Loader/Base/InitDb.createEquiClassListTables();
         point()
 
 
     /// Load from PDT Db and metadata
+    pub def storeMetaData(x: {equiClassList :: System.FilePath}): DbMonad[Unit] = 
+        use BasicDb/DbMonad.{flatMap, point};
+        let* _  = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
+        point()
 
 }

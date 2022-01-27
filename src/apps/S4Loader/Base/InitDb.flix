@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace S4Loader/Aib/InitDb {
+namespace S4Loader/Base/InitDb {
 
     use BasicDb.DbMonad;
 
@@ -81,12 +81,19 @@ namespace S4Loader/Aib/InitDb {
 
     /// # meta_equi_classes etc.
     pub def createEquiClassListTables(): DbMonad[Unit] =
-        let tableNames = {
-            classDescriptionTable = "meta_equi_classes", 
-            characteristicTable = "meta_equi_characteristics",
-            picklistValueTable = "meta_equi_picklist_values", 
-            intRangeTable = "meta_equi_int_ranges"
-        };
-        AssetLib/FileIO/S4/ClassList/SQLite.createClassListTables(tableNames)
+        AssetLib/FileIO/S4/ClassList/SQLite.createClassListTables(classListTableNames())
+
+    pub def storeEquiClassListData(src: System.FilePath): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* ans    = liftActionResult(_ -> AssetLib/FileIO/S4/ClassList/Builder.readEquiClassRecords(src));
+        let* n      = AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(classListTableNames(), ans);
+        point(n)
+
+    def classListTableNames(): AssetLib/FileIO/S4/ClassList/SQLite.ClassListTableNames = 
+        { classDescriptionTable = "meta_equi_classes"
+        , characteristicTable   = "meta_equi_characteristics"
+        , picklistValueTable    = "meta_equi_picklist_values"
+        , intRangeTable         = "meta_equi_int_ranges"
+        }
 
 }

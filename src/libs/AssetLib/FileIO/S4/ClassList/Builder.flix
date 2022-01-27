@@ -21,7 +21,20 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
 
-    pub def buildRecords(xs: List[ClassListRow]): ClassRecords = 
+    pub def readEquiClassRecords(src: System.FilePath): Result[ClassRecords, String] & Impure = 
+        use Result.flatMap;
+        let* xs = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
+        let ans = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);
+        Ok(ans)
+
+    pub def readFlocClassRecords(src: System.FilePath): Result[ClassRecords, String] & Impure = 
+        use Result.flatMap;
+        let* xs = AssetLib/FileIO/S4/ClassList/FlocParser.parseFile(src);
+        let ans = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);
+        Ok(ans)
+
+
+    def buildRecords(xs: List[ClassListRow]): ClassRecords = 
         { classDescriptions = extractClassDescriptions(xs)
         , characteristics   = extractCharacteristics(xs)
         , picklistValues    = extractPicklistValues(xs)
