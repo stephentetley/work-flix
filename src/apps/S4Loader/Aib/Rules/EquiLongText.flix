@@ -15,7 +15,7 @@
  */
 
 
-namespace S4Loader/AibRules/EquiLongText {
+namespace S4Loader/Aib/Rules/EquiLongText {
 
 
     use AssetLib/Base/OrderedStringsLattice.{OrderedStrings};

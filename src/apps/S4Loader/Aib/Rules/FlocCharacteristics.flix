@@ -15,7 +15,7 @@
  */
 
 
-namespace S4Loader/AibRules/FlocCharacteristics {
+namespace S4Loader/Aib/Rules/FlocCharacteristics {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
