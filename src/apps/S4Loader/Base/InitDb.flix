@@ -34,6 +34,7 @@ namespace S4Loader/Aib/InitDb {
         point()
 
 
+
     def stringPropertiesTableDdl(): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS string_properties ("
@@ -77,4 +78,15 @@ namespace S4Loader/Aib/InitDb {
 	            :: ");"
                 :: Nil
         )
+
+    /// # meta_equi_classes etc.
+    pub def createEquiClassListTables(): DbMonad[Unit] =
+        let tableNames = {
+            classDescriptionTable = "meta_equi_classes", 
+            characteristicTable = "meta_equi_characteristics",
+            picklistValueTable = "meta_equi_picklist_values", 
+            intRangeTable = "meta_equi_int_ranges"
+        };
+        AssetLib/FileIO/S4/ClassList/SQLite.createClassListTables(tableNames)
+
 }

@@ -31,7 +31,23 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
         , picklistValueTable :: String
         , intRangeTable :: String
         }
-    
+
+
+    pub def createClassListTables(names: TableNames): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DROP TABLE IF EXISTS ${names.classDescriptionTable};");
+        let* _  = execute("DROP TABLE IF EXISTS ${names.characteristicTable};");
+        let* _  = execute("DROP TABLE IF EXISTS ${names.picklistValueTable};");
+        let* _  = execute("DROP TABLE IF EXISTS ${names.intRangeTable};");
+        let* _  = execute(classDescriptionTableDdl(names.classDescriptionTable));
+        let* _  = execute(characteristicTableDdl(names.characteristicTable));
+        let* _  = execute(picklistValueTableDdl(names.picklistValueTable));
+        let* _  = execute(intRangeTableDdl(names.picklistValueTable));
+        let* _  = commit();
+        point()
+
+
     pub def storeClassListData(names: TableNames, src: ClassRecords): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point};
         let* n1 = storeClassDescriptions(names.classDescriptionTable, src.classDescriptions);
@@ -46,14 +62,13 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
     // # ClassDescription
     def storeClassDescriptions(table: String, rows: List[ClassDescription]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, tableDdl = createClassDescriptionTableDdl(table), 
-                prepStatement = insertClassDescriptionRowSql(table), setter = classDescriptionSetter}, rows)
+        store({tableName = table, prepStatement = insertClassDescriptionRowSql(table), setter = classDescriptionSetter}, rows)
 
     def classDescriptionSetter(x: ClassDescription): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
         putStringAt!(0, x.className) *> putStringAt!(1, x.description) 
 
-    def createClassDescriptionTableDdl(tableName: String): String =
+    def classDescriptionTableDdl(tableName: String): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ( "
                 :: "class_name TEXT NOT NULL, "
@@ -76,8 +91,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
     
     def storeCharacteristics(table: String, rows: List[Characteristic]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, tableDdl = createCharacteristicTableDdl(table), 
-                prepStatement = insertCharacteristicRowSql(table), setter = characteristicSetter}, rows)
+        store({tableName = table, prepStatement = insertCharacteristicRowSql(table), setter = characteristicSetter}, rows)
 
     def characteristicSetter(x: Characteristic): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
@@ -89,7 +103,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
             *> putOptionInt32At!(5, x.decimalPlaces)
 
         
-    def createCharacteristicTableDdl(tableName: String): String =
+    def characteristicTableDdl(tableName: String): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ( "
                 :: "class_name TEXT NOT NULL, "
@@ -119,8 +133,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
     // # PicklistValue
     def storePicklistValues(table: String, rows: List[PicklistValue]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, tableDdl = createPicklistValueTableDdl(table), 
-                prepStatement = insertPicklistValueRowSql(table), setter = picklistValueSetter}, rows)
+        store({tableName = table, prepStatement = insertPicklistValueRowSql(table), setter = picklistValueSetter}, rows)
 
     def picklistValueSetter(x: PicklistValue): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putStringAt!};
@@ -129,7 +142,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
             *> putStringAt!(2, x.value) 
 
         
-    def createPicklistValueTableDdl(tableName: String): String =
+    def picklistValueTableDdl(tableName: String): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ( "
                 :: "class_name TEXT NOT NULL, "
@@ -153,8 +166,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
     // # IntRange
     def storeIntRanges(table: String, rows: List[IntRange]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, tableDdl = createIntRangeTableDdl(table), 
-                prepStatement = insertIntRangeRowSql(table), setter = intRangeSetter}, rows)
+        store({tableName = table, prepStatement = insertIntRangeRowSql(table), setter = intRangeSetter}, rows)
 
     def intRangeSetter(x: IntRange): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!};
@@ -164,7 +176,7 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
             *> putInt32At!(3, x.rangeTo)
 
     // No primary key
-    def createIntRangeTableDdl(tableName: String): String =
+    def intRangeTableDdl(tableName: String): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ( "
                 :: "class_name TEXT NOT NULL, "
@@ -191,11 +203,12 @@ namespace AssetLib/FileIO/S4/ClassList/SQLite {
 
     type alias Setter[a] = a -> PreparedStatementSetter[Unit]
 
-    def store(config: {tableName :: String, tableDdl :: String, prepStatement :: String, setter :: Setter[a]}, rows: t[a]): DbMonad[Int32] with Foldable[t] =
+    def store(config: {tableName :: String, 
+                        prepStatement :: String, 
+                        setter :: Setter[a]}, rows: t[a]): DbMonad[Int32] with Foldable[t] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, prepareStatement, psExecuteUpdate, commit};
         let* _          = setAutoCommit(false);
-        let* _          = execute("DROP TABLE IF EXISTS ${config.tableName};");
-        let* _          = execute(config.tableDdl);
+        let* _          = execute("DROP FROM ${config.tableName};");
         let* stmt       = prepareStatement(config.prepStatement);
         let psSetter    = config.setter;
         let* nrows      = Foldable.foldLeftM((ac, x) -> 

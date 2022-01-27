@@ -60,13 +60,13 @@ namespace S4Loader/Aib/Rules/EquiCharacteristics {
             // Current in
             EquiCharacteristic(equiId, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem3(equiId, equiObject, equiClass),
-                FloatProperty(equiId, "CURRENT IN", value),
+                FloatProperty(equiId, "Current In", value),
                 PropertyName(equiObject, "RATED_CURRENT_A", charName),
                 EquiCharacteristicSpec(equiClass, charName, _, _, _, _).
 
             EquiCharacteristic(equiId, equiClass, "INSULATION_CLASS_DEG_C", S4String(String.toUpperCase(value))) :-
                 EquiWorkItem3(equiId, _, equiClass),
-                StringProperty(equiId, "INSULATION CLASS", value).
+                StringProperty(equiId, "Insulation Class", value).
         
             EquiCharacteristic(equiId, s4EquiClass, "IP_RATING", S4String(String.toUpperCase(value))) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),

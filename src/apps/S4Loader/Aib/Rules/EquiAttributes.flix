@@ -42,32 +42,32 @@ namespace S4Loader/Aib/Rules/EquiAttributes {
 
             EquiAttributes(equiId; singleton("ASSET_STATUS", AttrString(value))) :-  
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "ASSETSTATUS", value).
+                StringProperty(equiId, "AssetStatus", value).
 
                 // INSTALLED FROM
             EquiAttributes(equiId; singleton("INSTALLED_FROM", AttrDate(value))) :-  
                 EquiWorkItem3(equiId, _, _),
-                DateProperty(equiId, "INSTALLED FROM", value).
+                DateProperty(equiId, "Installed From", value).
 
             EquiAttributes(equiId; singleton("MANUFACTURER", AttrString(value))) :-  
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "MANUFACTURER", value).
+                StringProperty(equiId, "Manufacturer", value).
 
             EquiAttributes(equiId; singleton("MODEL", AttrString(value))) :-  
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "MODEL", value).
+                StringProperty(equiId, "Model", value).
 
             EquiAttributes(equiId; singleton("SERIAL_NO", AttrString(value))) :-  
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "SERIAL NO", value).
+                StringProperty(equiId, "Serial No", value).
 
             EquiAttributes(equiId; singleton("SPECIFIC_MODEL_FRAME", AttrString(value))) :-  
                 EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "SPECIFIC MODEL/FRAME", value).
+                StringProperty(equiId, "Specific Model/Frame", value).
 
             EquiAttributes(equiId; singleton("WEIGHT_KG", AttrFloat(value))) :- 
                 EquiWorkItem3(equiId, _, _),
-                FloatProperty(equiId, "WEIGHT KG", value).
+                FloatProperty(equiId, "Weight kg", value).
                           
         } 
 

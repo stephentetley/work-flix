@@ -3,7 +3,7 @@ use SheetIO/Reader.{XlsxSource};
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
 use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
 use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
-use S4Loader/AibRules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
+use S4Loader/Aib/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
 
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -22,10 +22,10 @@ def main01(): Result[Int32, String] & Impure =
     let* db         = S4Loader/Base/ReadProperties.loadDbRelations(dbpath);
     let* equiRelns  = S4Loader/Aib/WorkLists.readEquiWorkList(xlssrc) |> Result.map(S4Loader/Aib/WorkLists.makeEquiWorkRelations);
     let db2         = db
-                        <+> S4Loader/AibRules/EquiCommon.equiCommon() 
-                        <+> S4Loader/AibRules/EquiCharacteristics.equiCharacteristics()
-                        <+> S4Loader/AibRules/EquiLongText.equiLongText()
-                        <+> S4Loader/AibRules/EquiAttributes.equiAttributes()
+                        <+> S4Loader/Aib/Rules/EquiCommon.equiCommon() 
+                        <+> S4Loader/Aib/Rules/EquiCharacteristics.equiCharacteristics()
+                        <+> S4Loader/Aib/Rules/EquiLongText.equiLongText()
+                        <+> S4Loader/Aib/Rules/EquiAttributes.equiAttributes()
                         <+> equiRelns;
     query db2 select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4) |> Array.foreach(println);
     query db2 select (x1, x2, x3) from EquiLongText(x1, x2, x3) |> Array.foreach(println);
