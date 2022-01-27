@@ -6,10 +6,24 @@ use S4Loader/Relations.{StringProperty, IntProperty, FloatProperty};
 def main(_: Array[String]): Int32 & Impure = 
     use BasicDb/DbMonad.{runSQLite};
     println("Running... ${Time/LocalTime.now()}");
+    getIsoLocalDateTimeAsString() |> println;
     runSQLite(buildDb(), System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite"))
         |> println;
+    sqliteDate("M/d/yy H:m") |> println;
     0
-    
+
+def sqliteDate(patt: String): Option[Time.LocalDate] =
+    use Option.flatMap;
+    let* fmt    = Time/Format/DateTimeFormatter.ofPattern(patt);
+    let* dt     = Time/LocalDateTime.parse(fmt, "4/29/21 17:47");
+    Some(Time/LocalDateTime.toLocalDate(dt))
+
+def getIsoLocalDateTimeAsString(): String & Impure = 
+    let dt = Time/LocalDateTime.now();
+    let fmt = Time/Format/DateTimeFormatter.iso_local_date_time();
+    let s   = Time/LocalDateTime.format(fmt, dt);
+    s
+
 
 def buildDb(): DbMonad[Int32] = 
     use BasicDb/DbMonad.{flatMap, point};

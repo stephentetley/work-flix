@@ -19,7 +19,7 @@ namespace S4Loader/Base/Relations {
     /// ## Property relations
     
     pub type alias AibProperties[r1: SchemaRow] =
-        #{StringProperty, IntProperty, FloatProperty | r1}
+        #{StringProperty, IntProperty, FloatProperty, DateProperty | r1}
 
 
     pub rel StringProperty(plinum: String, propName: String, propValue: String)
@@ -27,6 +27,8 @@ namespace S4Loader/Base/Relations {
     pub rel IntProperty(plinum: String, propName: String, propValue: Int32)
 
     pub rel FloatProperty(plinum: String, propName: String, propValue: Float64)
+
+    pub rel DateProperty(plinum: String, propName: String, propValue: Time.LocalDate)
 
 
     pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)

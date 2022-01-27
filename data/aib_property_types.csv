@@ -9,7 +9,7 @@ Duty Head,DECIMAL
 Flow Units,STRING
 Flow,DECIMAL
 Impeller Type,STRING
-Installed From,STRING
+Installed From,DATE
 Insulation Class,STRING
 IP Rating,STRING
 Lifting Type,STRING

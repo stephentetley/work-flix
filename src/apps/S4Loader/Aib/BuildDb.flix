@@ -18,6 +18,8 @@ namespace S4Loader/Aib/BuildDb {
 
     use Monad.{>>=};
 
+    use Time.LocalDate;
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
@@ -25,7 +27,7 @@ namespace S4Loader/Aib/BuildDb {
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Characteristic};
 
-    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, AibProperties};
+    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, DateProperty, AibProperties};
 
     /// A temporary untyped property
     rel UniProperty(rowId: Int32, name: String, value: String)
@@ -41,20 +43,12 @@ namespace S4Loader/Aib/BuildDb {
         use Result.flatMap;        
         let* r1     = readAibTypes(input.typesCsv);
         let* rs     = Result.traverse(readAibExport, input.exports);
-        let props   = genProperties(r1 <+> RelLib/Relation.combineAll(rs));
+        let r2      = RelLib/Relation.combineAll(rs);
+        let props   = genProperties(r1 <+> r2);
+        query r2 select (x1, x2, x3) from UniProperty(x1, x2, x3) 
+            |> Array.filter(xyz -> let (_, y, _) = xyz; y == "Installed From")
+            |> Array.foreach(println);
         Ok(props)
-
-    
-    pub def readAibExport(src: XlsxSource): Result[#{UniProperty | r}, String] & Impure = 
-        use Result.flatMap;
-        let* allRows = SheetIO/Reader.allRows(SheetIO/RowEvaluator.getRowContents(), src);
-        match allRows { 
-            case Nil          => Ok(#{})
-            case hdrs :: rows => { 
-                RelLib/Relation.foldMapWithIndex(makeUniProperties(hdrs), rows) |> Ok
-            }
-        }
-        
 
     pub def readAibTypes(src: System.FilePath): Result[#{AibType | r}, String] & Impure = 
         use Result.flatMap;
@@ -65,6 +59,18 @@ namespace S4Loader/Aib/BuildDb {
         let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
         let relns = RelLib/Relation.foldMap(mk1, rows);
         Ok(relns)
+    
+    pub def readAibExport(src: XlsxSource): Result[#{UniProperty | r}, String] & Impure = 
+        use Result.flatMap;
+        let* allRows = SheetIO/Reader.allRows(SheetIO/RowEvaluator.getRowContentsIsoLocalDateTime(), src);
+        match allRows { 
+            case Nil          => Ok(#{})
+            case hdrs :: rows => { 
+                RelLib/Relation.foldMapWithIndex(makeUniProperties(hdrs), rows) |> Ok
+            }
+        }
+        
+
 
 
     
@@ -73,7 +79,7 @@ namespace S4Loader/Aib/BuildDb {
         Array.foldLeft2(step, #{}, headers, row)
 
 
-    pub def genProperties(input: #{UniProperty, AibType | r}): #{StringProperty, IntProperty, FloatProperty | r} = 
+    pub def genProperties(input: #{UniProperty, AibType | r}): #{StringProperty, IntProperty, FloatProperty, DateProperty | r} = 
         let rules = #{
 
             StringProperty(plinum, propName, propValue) :- 
@@ -82,40 +88,36 @@ namespace S4Loader/Aib/BuildDb {
                 UniProperty(rowIx, "Reference", plinum), 
                 if not String.isEmpty(propValue).
 
-            IntProperty(plinum, propName, intValue(propValue)) :- 
+            IntProperty(plinum, propName, S4Loader/Base/Utils.intValue(propValue)) :- 
                 AibType(propName, "INTEGER"),
                 UniProperty(rowIx, propName, propValue),
                 UniProperty(rowIx, "Reference", plinum), 
-                if isIntValue(propValue).
+                if S4Loader/Base/Utils.isIntValue(propValue).
 
-            FloatProperty(plinum, propName, floatValue(propValue)) :- 
+            FloatProperty(plinum, propName, S4Loader/Base/Utils.floatValue(propValue)) :- 
                 AibType(propName, "DECIMAL"),
                 UniProperty(rowIx, propName, propValue),
                 UniProperty(rowIx, "Reference", plinum), 
-                if isFloatValue(propValue).
+                if S4Loader/Base/Utils.isFloatValue(propValue).
+
+            DateProperty(plinum, propName, S4Loader/Base/Utils.dateFromIsoLocalDateTime(propValue)) :- 
+                AibType(propName, "DATE"),
+                UniProperty(rowIx, propName, propValue),
+                UniProperty(rowIx, "Reference", plinum), 
+                if S4Loader/Base/Utils.isIsoLocalDateTimeValue(propValue).
 
         };
-        let input1 = input as #{UniProperty, AibType, StringProperty, IntProperty, FloatProperty | r};
-        solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty
+        let input1 = input as #{UniProperty, AibType, StringProperty, IntProperty, FloatProperty, DateProperty | r};
+        solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty, DateProperty
 
-    def isIntValue(s: String): Bool = 
-        Int32.fromString(s) |> Result.isOk
-
-    def intValue(s: String): Int32 = 
-        Int32.fromString(s) |> Result.getWithDefault(-1)
-
-    def isFloatValue(s: String): Bool = 
-        Float64.fromString(s) |> Result.isOk
-
-    def floatValue(s: String): Float64 = 
-        Float64.fromString(s) |> Result.getWithDefault(-1.0f64)
 
     pub def insertProperties(relns: AibProperties[r1]): DbMonad[Int32] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* n1 = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
         let* n2 = storeProperties1("int_properties", intPropertySetter, query relns select (x1, x2, x3) from IntProperty(x1, x2, x3));
         let* n3 = storeProperties1("float_properties", floatPropertySetter, query relns select (x1, x2, x3) from FloatProperty(x1, x2, x3));
-        point(n1 + n2 + n3)
+        let* n4 = storeProperties1("date_properties", datePropertySetter, query relns select (x1, x2, x3) from DateProperty(x1, x2, x3));
+        point(n1 + n2 + n3 + n4)
         
     pub def deleteProperties(): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
@@ -123,6 +125,7 @@ namespace S4Loader/Aib/BuildDb {
         let* _          = execute("DELETE FROM string_properties;");
         let* _          = execute("DELETE FROM int_properties;");
         let* _          = execute("DELETE FROM float_properties;");
+        let* _          = execute("DELETE FROM date_properties;");
         let* _          = commit();
         point()
 
@@ -162,11 +165,19 @@ namespace S4Loader/Aib/BuildDb {
         let* _  = putFloat64At!(2, value);
         point()
 
+    def datePropertySetter(x: (String, String, LocalDate)): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!, putIsoLocalDateStringAt!};
+        let (pli, name, value) = x;
+        let* _  = putStringAt!(0, pli);
+        let* _  = putStringAt!(1, name);
+        let* _  = putIsoLocalDateStringAt!(2, value);        
+        point()
+
 
     def insertPropertyRowSql(tableName: String): String =
         String.unwords(
             "INSERT OR IGNORE INTO ${tableName} "
-                :: "(pli_num, "
+                :: "(equipment_id, "
                 :: "prop_name, "
                 :: "prop_value) "
                 :: "VALUES(?,?,?);"

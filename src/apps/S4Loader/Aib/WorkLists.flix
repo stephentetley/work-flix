@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace S4Loader/WorkLists {
+namespace S4Loader/Aib/WorkLists {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;

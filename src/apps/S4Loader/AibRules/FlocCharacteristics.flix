@@ -22,7 +22,7 @@ namespace S4Loader/AibRules/FlocCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     
     use S4Loader/Base/Relations.{StringProperty, IntProperty, FlocWorkItem3};
-    use S4Loader/WorkLists.{FlocWorkItem};
+    use S4Loader/Aib/WorkLists.{FlocWorkItem};
     
     // TODO don't use relations.
     

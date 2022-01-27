@@ -49,9 +49,9 @@ namespace S4Loader/AibRules/EquiCharacteristics {
 
             HasFloatProperty(equiId, propName) :- FloatProperty(equiId, propName, _).
 
-            IntOfFloatProperty(equiId, propName, wholeFloat(d)) :-
+            IntOfFloatProperty(equiId, propName, S4Loader/Base/Utils.wholeFloat(d)) :-
                 FloatProperty(equiId, propName, d),
-                if isWholeFloat(d).
+                if S4Loader/Base/Utils.isWholeFloat(d).
 
             /// TODO - synthesize from `meta_equi_characteristics`
             PropertyName("ACTU", "RATED_CURRENT_A", "ACTU_RATED_CURRENT_A").
@@ -161,29 +161,6 @@ namespace S4Loader/AibRules/EquiCharacteristics {
 
         }
         
-
-    /// Tolerant equals...
-    def tEqual(threshold: Float64, x: Float64, y: Float64): Bool = 
-        abs(x - y) < threshold
-
-    def abs(x: Float64): Float64 = 
-        import static java.lang.Math.abs(Float64);
-        abs(x) as & Pure
-
-    /// Call this only from Datalog...
-    def isWholeFloat(x: Float64): Bool = 
-        let x1 = Float64.round(x);
-        tEqual(0.01f64, x, x1)
-
-    /// This should only be called after `isWholeFloat` because otherwise we won't know whether
-    /// `-1` is a valid answer or the out-of-band signal.
-    def wholeFloat(x: Float64): Int32 = 
-        let x1 = Float64.round(x);
-        if (tEqual(0.01f64, x, x1))
-            Float64.tryToInt32(x1) |> Option.getWithDefault(-1)
-        else 
-            -1
-
 
 
 }

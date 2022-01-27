@@ -19,8 +19,8 @@ def main01(): Result[Int32, String] & Impure =
     let dbpath      = System/FilePath.new("G:/work/assets/capital_schemes/bever/properties.sqlite");
     let xlssrc      = {sheet = "Equi", 
                         path = System/FilePath.new("G:/work/assets/capital_schemes/bever/beverley-worklist2.xlsx")};
-    let* db         = S4Loader/ReadProperties.loadDbRelations(dbpath);
-    let* equiRelns  = S4Loader/WorkLists.readEquiWorkList(xlssrc) |> Result.map(S4Loader/WorkLists.makeEquiWorkRelations);
+    let* db         = S4Loader/Base/ReadProperties.loadDbRelations(dbpath);
+    let* equiRelns  = S4Loader/Aib/WorkLists.readEquiWorkList(xlssrc) |> Result.map(S4Loader/Aib/WorkLists.makeEquiWorkRelations);
     let db2         = db
                         <+> S4Loader/AibRules/EquiCommon.equiCommon() 
                         <+> S4Loader/AibRules/EquiCharacteristics.equiCharacteristics()

@@ -71,13 +71,5 @@ namespace S4Loader/AibRules/EquiAttributes {
                           
         } 
 
-    // Stored as string e.g. "4/29/21 17:47"
-    def sqliteDate(s: String): Option[Time.LocalDate] =
-        use Option.flatMap;
-        let* fmt    = Time/Format/DateTimeFormatter.ofPattern("M/d/yy H:m");
-        let* dt     = Time/LocalDateTime.parse(fmt, s);
-        Some(Time/LocalDateTime.toLocalDate(dt))
 
-    def fallbackDate(): Time.LocalDate = 
-        Time/LocalDate.new({year=1970, month=1, dayOfMonth=1})
 }

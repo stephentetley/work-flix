@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace S4Loader/ReadProperties {
+namespace S4Loader/Base/ReadProperties {
 
 
     use Functor.{<$>};
@@ -52,7 +52,7 @@ namespace S4Loader/ReadProperties {
         
 
     def readPropertyTable(tableName: String, eval: RowEvaluator[#{| r}]): DbMonad[#{| r}] = 
-        let sql = "SELECT pli_num, prop_name, prop_value FROM ${tableName} ORDER BY pli_num;";
+        let sql = "SELECT equipment_id, prop_name, prop_value FROM ${tableName} ORDER BY equipment_id;";
         BasicDb/Reader.allRelations(eval, sql)
 
 
@@ -79,6 +79,7 @@ namespace S4Loader/ReadProperties {
 
     /// # Meta data - property aliases
 
+    /// TODO - remove and use data derived from Class List
 
     pub def readPropertyAliases(): DbMonad[#{PropertyAlias |r1}] =         
         let sql = "SELECT ai_prop_name, s4_class_name, s4_char_name FROM dd_property_aliases ORDER BY ai_prop_name;";
