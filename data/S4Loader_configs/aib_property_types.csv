@@ -1,0 +1,60 @@
+property_name,property_type
+AGASP Survey Year,Int
+AssetStatus,String
+Condition Grade Reason,String
+Condition Grade,String
+Current In,Float
+Duty Head Units,String
+Duty Head,Float
+Flow Units,String
+Flow,Float
+Impeller Type,String
+Installed From,Date
+Insulation Class,String
+IP Rating,String
+Lifting Type,String
+Loading Factor Reason,String
+Loading Factor,String
+Loc.Ref.,String
+Location On Site,String
+Manufacturer,String
+Memo Line 1,String
+Memo Line 2,String
+Memo Line 3,String
+Memo Line 4,String
+Memo Line 5,String
+Model,String
+P AND I Tag No,String
+Performance Grade Reason,String
+Performance Grade,String
+Power Units,String
+Power,Float
+Range Max,Float
+Range Min,Float
+Range Unit,String
+Rating (Power),Float
+Rating Units,String
+Serial No,String
+Signal Max,Float
+Signal Min,Float
+Signal Unit,String
+Size Units,String
+Size,Float
+Specific Model/Frame,String
+Speed (RPM),Float
+Tank Construction,String
+Tank Level,String
+Tank Shape,String
+Transducer Serial No,String
+Transducer Type,String
+Unit Capacity cum,Float
+Unit Centre Depth m,Float
+Unit Diameter  m,Float
+Unit Length m,Float
+Unit Side Depth m,Float
+Unit Side Depth Max m,Float
+Unit Side Depth Min m,Float
+Valve Type,String
+Voltage In (AC Or DC),String
+Voltage In,Int
+Weight kg,Float

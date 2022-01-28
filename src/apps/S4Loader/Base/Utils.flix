@@ -21,11 +21,8 @@ namespace S4Loader/Base/Utils {
 
     /// Tolerant equals...
     pub def tEqual(threshold: Float64, x: Float64, y: Float64): Bool = 
-        abs(x - y) < threshold
+        Float64.abs(x - y) < threshold
 
-    pub def abs(x: Float64): Float64 = 
-        import static java.lang.Math.abs(Float64);
-        abs(x) as & Pure
 
     /// Call this only from Datalog...
     pub def isWholeFloat(x: Float64): Bool = 

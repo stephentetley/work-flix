@@ -49,8 +49,8 @@ namespace AssetLib/FileIO/PDT/Reader {
         
 
     def evalPDTRow(): RowEvaluator[PDTValueRow] = 
-        use SheetIO/RowEvaluator.{flatMap, point, getRowContents, getRowNum, liftAction, throwError};
-        let* arr    = getRowContents();
+        use SheetIO/RowEvaluator.{flatMap, point, getRowContentsIsoLocalDateTime, getRowNum, liftAction, throwError};
+        let* arr    = getRowContentsIsoLocalDateTime();
         let sz      = Array.length(arr);
         if (sz < 2)
             throwError("evalPDTRow - row is missing content")

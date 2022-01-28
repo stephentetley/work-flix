@@ -7,7 +7,7 @@ use S4Loader/Relations.{StringProperty, IntProperty, FloatProperty};
 def main(_: Array[String]): Int32 & Impure = 
     use BasicDb/DbMonad.{runSQLite};
     println("Running... ${Time/LocalTime.now()}");
-    let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/s4loader.sqlite");
+    let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-s4loader.sqlite");
     let metaSources = {
         equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
     };

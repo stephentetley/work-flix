@@ -42,12 +42,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Utils {
 
 
     pub def tEqual(threshold: Float64, x: Float64, y: Float64): Bool = 
-        abs(x - y) < threshold
+        Float64.abs(x - y) < threshold
 
-
-    def abs(x: Float64): Float64 = 
-        import static java.lang.Math.abs(Float64);
-        abs(x) as & Pure
 
     pub def recognizedVoltageUnits(s: String): Bool = match s { 
         case "ALTERNATING CURRENT" => true

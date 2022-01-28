@@ -18,6 +18,7 @@ namespace S4Loader/Base/InitDb {
 
     use BasicDb.DbMonad;
 
+    // # Properties Tables
 
     pub def createPropertiesTables(): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
@@ -80,6 +81,9 @@ namespace S4Loader/Base/InitDb {
         )
 
     /// # meta_equi_classes etc.
+
+    /// Most work is done by the ClassList library
+
     pub def createEquiClassListTables(): DbMonad[Unit] =
         AssetLib/FileIO/S4/ClassList/SQLite.createClassListTables(classListTableNames())
 
@@ -95,5 +99,28 @@ namespace S4Loader/Base/InitDb {
         , picklistValueTable    = "meta_equi_picklist_values"
         , intRangeTable         = "meta_equi_int_ranges"
         }
+
+    // # Meta PDT field unit types 
+
+
+    pub def createMetaPDTTables(): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DROP TABLE IF EXISTS meta_pdt_field_unit_types;");
+        let* _  = execute(metaPdtFieldUnitTypesTableDdl());
+        let* _  = commit();
+        point()
+
+
+    def metaPdtFieldUnitTypesTableDdl(): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS meta_pdt_field_unit_types ("
+                :: "field_unit TEXT NOT NULL,"
+                :: "s4_type TEXT NOT NULL,"
+	            :: "PRIMARY KEY(field_unit)"
+	            :: ");"
+                :: Nil
+        )
+
 
 }

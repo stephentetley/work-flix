@@ -23,6 +23,7 @@ namespace S4Loader/Pdt/BuildDb {
         use BasicDb/DbMonad.{flatMap, point};
         let* _  = S4Loader/Base/InitDb.createPropertiesTables();
         let* _  = S4Loader/Base/InitDb.createEquiClassListTables();
+        let* _  = S4Loader/Base/InitDb.createMetaPDTTables();      
         point()
 
 

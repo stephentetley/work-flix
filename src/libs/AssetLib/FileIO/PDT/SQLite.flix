@@ -27,7 +27,12 @@ namespace AssetLib/FileIO/PDT/SQLite {
     pub def storeFieldValues(table: String, relns: #{FieldValue | r}): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6) from FieldValue(x1, x2, x3, x4, x5, x6) |> Array.toList);
-        store(table, fieldValueSetter, rows)
+        let sqlstrings = { 
+            prepStmt = insertFieldValueRowSql(table)
+            /// TODO shouldn't bee dropping table at this point...
+            tableActions = "DROP TABLE IF EXISTS ${table};" :: insertFieldValueRowSql(table) :: Nil
+        };
+        BasicDb/Writer.store(sqlstrings, fieldValueSetter, rows)
 
     def fieldValueSetter(x: (String, Int32, String, String, String, String)): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putInt32At!, putStringAt!};
@@ -70,17 +75,19 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     // Helpers
 
-    type alias Setter[a] = a -> PreparedStatementSetter[Unit]
+    /// TODO use BasicDb/Writer...
 
-    def store(tableName: String, setter: Setter[a], rows: t[a]): DbMonad[Int32] with Foldable[t] =
-        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, prepareStatement, psExecuteUpdate, commit};
-        let* _          = setAutoCommit(false);
-        let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
-        let* _          = execute(createTableSql(tableName));
-        let* stmt       = prepareStatement(insertFieldValueRowSql(tableName));
-        let* nrows      = Foldable.foldLeftM((ac, x) -> 
-                                {let* n = psExecuteUpdate(stmt, setter(x)); point(ac+n)}, 0, rows);
-        let* _          = commit();
-        point(nrows)
+    /// type alias Setter[a] = a -> PreparedStatementSetter[Unit]
+
+    /// def store(tableName: String, setter: Setter[a], rows: t[a]): DbMonad[Int32] with Foldable[t] =
+    ///     use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, prepareStatement, psExecuteUpdate, commit};
+    ///     let* _          = setAutoCommit(false);
+    ///     let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
+    ///     let* _          = execute(createTableSql(tableName));
+    ///     let* stmt       = prepareStatement(insertFieldValueRowSql(tableName));
+    ///     let* nrows      = Foldable.foldLeftM((ac, x) -> 
+    ///                             {let* n = psExecuteUpdate(stmt, setter(x)); point(ac+n)}, 0, rows);
+    ///     let* _          = commit();
+    ///     point(nrows)
 
 }
