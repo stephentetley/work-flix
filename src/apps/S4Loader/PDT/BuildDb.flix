@@ -28,9 +28,10 @@ namespace S4Loader/Pdt/BuildDb {
 
 
     /// Load from PDT Db and metadata
-    pub def storeMetaData(x: {equiClassList :: System.FilePath}): DbMonad[Unit] = 
+    pub def storeMetaData(x: {equiClassList :: System.FilePath, fieldUnitTypes :: System.FilePath}): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* _  = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
+        let* _unitsTypes    = S4Loader/PDT/BuildDb/ReadConfigs.readAndStoreFieldUnitTypes(x.fieldUnitTypes);
         point()
 
 }

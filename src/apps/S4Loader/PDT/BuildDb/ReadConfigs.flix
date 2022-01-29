@@ -20,6 +20,7 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
     use Applicative.{<*>};
 
     use BasicDb.DbMonad;
+    use BasicDb.PreparedStatementSetter;
 
     use CsvIO.RowReader;
 
@@ -28,15 +29,21 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
         , s4Type :: String
         }
 
-    pub def readFieldUnitTypes(src: System.FilePath): Result[List[FieldUnitType], String] & Impure = 
+    pub def readAndStoreFieldUnitTypes(src: System.FilePath): DbMonad[List[FieldUnitType]] =
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* ans    = liftActionResult(_ -> readFieldUnitTypes(src));
+        let* _      = insertFieldUnitTypes(ans);
+        point(ans)
+
+    def readFieldUnitTypes(src: System.FilePath): Result[List[FieldUnitType], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringAt};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
-        let eval = ((x1, x2) -> { pdtFieldUnits = x1, s4Type :: x2}) <$> getStringAt(0) <*> getStringAt(1);
+        let eval = ((x1, x2) -> { pdtFieldUnits = x1, s4Type = x2}) <$> getStringAt(0) <*> getStringAt(1);
         let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
         Ok(rows)
 
-    pub storeFieldTypes(src: List[FieldUnitType]): DbMonad[Int32] = 
+    def insertFieldUnitTypes(src: List[FieldUnitType]): DbMonad[Int32] = 
         let sqlstrings = { 
             prepStmt = "INSERT OR IGNORE INTO meta_pdt_field_unit_types (field_unit, s4_type) VALUES(?,?);",
             tableActions = "DELETE FROM meta_pdt_field_unit_types;" :: Nil

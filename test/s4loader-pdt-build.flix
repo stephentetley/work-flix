@@ -8,19 +8,17 @@ def main(_: Array[String]): Int32 & Impure =
     use BasicDb/DbMonad.{runSQLite};
     println("Running... ${Time/LocalTime.now()}");
     let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-s4loader.sqlite");
-    let metaSources = {
-        equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
-    };
+    let metaSources = 
+        { equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
+        , fieldUnitTypes = System/FilePath.new("E:/coding/work/work-flix/data/S4Loader_configs/pdt_field_unit_types.csv")
+        };
     let overwrite = true;
     if (System/IO.fileExists(dst) != Ok(true) or overwrite == true)
         runSQLite(S4Loader/Pdt/BuildDb.initDb() *> S4Loader/Pdt/BuildDb.storeMetaData(metaSources), dst) |> println
     else
         ();
 
-/*
-    runSQLite(buildDb(), System/FilePath.new("G:/work/assets/capital_schemes/chell/s4loader.sqlite"))
-        |> println;
-*/
+
     println("Done.");
     0
 

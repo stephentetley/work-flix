@@ -30,7 +30,11 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
 
 
     pub def storeObjTypeManufacturer(table: String, rows: t[ObjTypeManufacturer]): DbMonad[Int32] with Foldable[t] =
-        store(insertObjTypeManufacturerRowSql(table), objTypeManufacturerSetter, rows)
+        let sqlstrings = { 
+            prepStmt = insertObjTypeManufacturerRowSql(table),
+            tableActions = "DELETE FROM {table};" :: Nil
+        };
+        BasicDb/Writer.store(isqlstrings, objTypeManufacturerSetter, rows)
 
 
     def objTypeManufacturerSetter(x: ObjTypeManufacturer): PreparedStatementSetter[Unit] =
@@ -61,7 +65,11 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     // # Manufacturer Model
 
     pub def storeManufacturerModel(table: String, rows: t[ManufacturerModel]): DbMonad[Int32] with Foldable[t] =
-        store(insertManufacturerModelRowSql(table), manufacturerModelSetter, rows)
+        let sqlstrings = { 
+            prepStmt = insertManufacturerModelRowSql(table),
+            tableActions = "DELETE FROM {table};" :: Nil
+        };
+        BasicDb/Writer.store(sqlstrings, manufacturerModelSetter, rows)
 
     def manufacturerModelSetter(x: ManufacturerModel): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putStringAt!};
@@ -92,7 +100,11 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
 
 
     pub def storeFlocObject(table: String, rows: t[FlocObject]): DbMonad[Int32] with Foldable[t] =
-        store(insertFlocObjectRowSql(table), flocObjectSetter, rows)
+        let sqlstrings = { 
+            prepStmt = insertFlocObjectRowSql(table),
+            tableActions = "DELETE FROM {table};" :: Nil
+        };
+        BasicDb/Writer.store(sqlstrings, flocObjectSetter, rows)
 
     def flocObjectSetter(x: FlocObject): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putStringAt!};
@@ -125,7 +137,11 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
 
 
     pub def storeEquiObject(table: String, rows: t[EquiObject]): DbMonad[Int32] with Foldable[t] =
-        store(insertEquiObjectRowSql(table), equiObjectSetter, rows)
+        let sqlstrings = { 
+            prepStmt = insertEquiObjectRowSql(table),
+            tableActions = "DELETE FROM {table};" :: Nil
+        };
+        BasicDb/Writer.store(sqlstrings, equiObjectSetter, rows)
 
     def equiObjectSetter(x: EquiObject): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putStringAt!};
@@ -153,18 +169,6 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
             <*> getStringAt(1)
             <*> getStringAt(2)
 
-    // Helpers
-
-    type alias Setter[a] = a -> PreparedStatementSetter[Unit]
-
-    def store(insertSql: String, setter: Setter[a] , rows: t[a]): DbMonad[Int32] with Foldable[t] =
-        use BasicDb/DbMonad.{flatMap, point, foldLeftM, setAutoCommit, prepareStatement, psExecuteUpdate, commit};
-        let* _          = setAutoCommit(false);
-        let* stmt       = prepareStatement(insertSql);
-        let* nrows      = Foldable.foldLeftM((ac, x) -> 
-                                {let* n = psExecuteUpdate(stmt, setter(x)); point(ac+n)}, 0, rows);
-        let* _          = commit();
-        point(nrows)
 
 
 }
