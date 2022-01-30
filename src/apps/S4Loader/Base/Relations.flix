@@ -22,25 +22,26 @@ namespace S4Loader/Base/Relations {
         #{StringProperty, IntProperty, FloatProperty, DateProperty | r1}
 
 
-    pub rel StringProperty(plinum: String, propName: String, propValue: String)
+    pub rel StringProperty(uid: String, propName: String, propValue: String)
 
-    pub rel IntProperty(plinum: String, propName: String, propValue: Int32)
+    pub rel IntProperty(uid: String, propName: String, propValue: Int32)
 
-    pub rel FloatProperty(plinum: String, propName: String, propValue: Float64)
+    pub rel FloatProperty(uid: String, propName: String, propValue: Float64)
 
-    pub rel DateProperty(plinum: String, propName: String, propValue: Time.LocalDate)
+    pub rel DateProperty(uid: String, propName: String, propValue: Time.LocalDate)
 
 
     pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
 
     /// ## WorkList relations
+    /// (This might be the wrong place for these - Aib/PDT may have different WorkItem relations)
 
     pub rel FlocWorkItem3(s4Floc: String, level: Int32, ngr: String)
 
-    /// `itemId` will be pli-number for facts extracted from Aib Exports.
+    /// `uid` will be pli-number for facts extracted from Aib Exports.
     /// But it can represent other item types depending where the facts come from.
 
-    pub rel EquiWorkItem3(pliNum: String, s4ObjType: String, s4Class: String)
+    pub rel EquiWorkItem3(uid: String, s4ObjType: String, s4Class: String)
 
     /// from Equi (002) Class List
     pub rel EquiCharacteristicSpec(className: String, charName: String, description: String, s4Type: String, textLength: Int32, decimalPlaces: Int32)

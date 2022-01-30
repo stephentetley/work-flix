@@ -24,16 +24,19 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
 
     use CsvIO.RowReader;
 
-    type alias FieldUnitType = 
+    use S4Loader/PDT/BuildDb/Schema.{UnitsType};
+
+    pub type alias FieldUnitType = 
         { pdtFieldUnits :: String 
         , s4Type :: String
         }
 
-    pub def readAndStoreFieldUnitTypes(src: System.FilePath): DbMonad[List[FieldUnitType]] =
+    pub def readAndStoreFieldUnitTypes(src: System.FilePath): DbMonad[#{UnitsType | r}] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> readFieldUnitTypes(src));
         let* _      = insertFieldUnitTypes(ans);
-        point(ans)
+        let relns   = RelLib/Relation.foldMap(x1 -> #{ UnitsType(x1.pdtFieldUnits, x1.s4Type). }, ans);
+        point(relns)
 
     def readFieldUnitTypes(src: System.FilePath): Result[List[FieldUnitType], String] & Impure = 
         use Result.flatMap;

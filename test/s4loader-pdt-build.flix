@@ -1,7 +1,7 @@
 use Applicative.{*>};
 use BasicDb.DbMonad;
 use SheetIO/Reader.{XlsxSource};
-use S4Loader/Relations.{StringProperty, IntProperty, FloatProperty};
+use S4Loader/Base/Relations.{AibProperties, StringProperty, IntProperty, FloatProperty};
 
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -12,34 +12,27 @@ def main(_: Array[String]): Int32 & Impure =
         { equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
         , fieldUnitTypes = System/FilePath.new("E:/coding/work/work-flix/data/S4Loader_configs/pdt_field_unit_types.csv")
         };
+    let pdtDb = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     let overwrite = true;
     if (System/IO.fileExists(dst) != Ok(true) or overwrite == true)
-        runSQLite(S4Loader/Pdt/BuildDb.initDb() *> S4Loader/Pdt/BuildDb.storeMetaData(metaSources), dst) |> println
+        match runSQLite(buildDb(metaSources, pdtDb), dst) {
+            case Ok(relns) => query relns select (x1, x2, x3) from StringProperty(x1, x2 ,x3) |> Array.foreach(println)
+            case Err(e) => println("Error: ${e}")
+        }
     else
         ();
-
-
     println("Done.");
     0
 
 
-/*
-def buildDb(): DbMonad[Int32] = 
+
+def buildDb(metaSources: {equiClassList :: System.FilePath, 
+                            fieldUnitTypes :: System.FilePath}, 
+            pdtDb: System.FilePath): DbMonad[AibProperties[r1]] = 
     use BasicDb/DbMonad.{flatMap, point};
+    let* _ = S4Loader/Pdt/BuildDb.initDb();
+    let* r1 = S4Loader/Pdt/BuildDb.storeMetaData(metaSources);
+    let* r2 = S4Loader/PDT/BuildDb/MakeProperties.readPDTValueRows(pathToPdtDb = pdtDb, "pdt_values_with_item_name");
+    let ans = S4Loader/PDT/BuildDb/MakeProperties.genProperties(r1 <+> r2);
+    point(ans)
 
-    // let src2    = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
-    let src3    = System/FilePath.new("E:/coding/work/work-flix/data/aib_property_aliases.csv");
-    let src4    = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
-    let src5    = System/FilePath.new("G:/work/assets/facts/ztables/ztable-objtype-manufacturer.txt");
-
-    let* _      = S4Loader/Aib/BuildDb.deleteProperties();
-    let* n1     = S4Loader/Aib/BuildDb.storeProperties({typesCsv = src1, exports = exports});
-    // let* _      = S4Loader/BuildDb.storeS4ClassInfo(src2);
-    let* _      = S4Loader/Aib/BuildDb.storePropertyAliases(src3);
-    let* _      = S4Loader/Aib/BuildDb.storeZTableManuf(src4);
-    let* _      = S4Loader/Aib/BuildDb.storeZTableObj(src5);
-    point(n1)
-
-def makeXlsxSource(name1: String, name2: String): XlsxSource = 
-    {path = System/FilePath.new("${name1}${name2}"), sheet = "Sheet1"}
-*/

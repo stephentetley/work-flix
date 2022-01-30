@@ -24,24 +24,32 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     use AssetLib/FileIO/PDT/Base.{FieldValue};
 
+    pub type alias PDTTableNames = 
+        { valuesTable :: String
+        , fileIndicesTable :: String
+        , valuesWithShortNameView :: String
+        }
 
-    pub def storeFieldValuesAll(names: {valuesTable :: String, fileIndicesTable :: String}, srcs: List[System.FilePath]): DbMonad[Int32] =
+
+    pub def storeFieldValuesAll(names: PDTTableNames, srcs: List[System.FilePath]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValuesAll(srcs));
         let* n      = insertFieldValues(names.valuesTable, relns);
         let* _      = deriveFileIndices(names);
         point(n)
 
-    pub def storeFieldValues(names: {valuesTable :: String, fileIndicesTable :: String}, src: System.FilePath): DbMonad[Int32] =
+    pub def storeFieldValues(names: PDTTableNames, src: System.FilePath): DbMonad[Int32] =
         storeFieldValuesAll(names, src :: Nil)
 
-    pub def createPDTTables(names: {valuesTable :: String, fileIndicesTable :: String}): DbMonad[Unit] =
+    pub def createPDTTables(names: PDTTableNames): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
         let* _  = execute("DROP TABLE IF EXISTS ${names.valuesTable};");
         let* _  = execute("DROP TABLE IF EXISTS ${names.fileIndicesTable};");
+        let* _  = execute("DROP VIEW IF EXISTS ${names.valuesWithShortNameView};");
         let* _  = execute(fieldValueTableDdl(names.valuesTable));
         let* _  = execute(fileIndicesTableDdl(names.fileIndicesTable));
+        let* _  = execute(valuesWithShortNameViewDdl(names));
         let* _  = commit();
         point()
 
@@ -105,7 +113,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: Nil
         )
 
-    def deriveFileIndices(names: {valuesTable :: String, fileIndicesTable :: String}): DbMonad[Unit] =
+    def deriveFileIndices(names: PDTTableNames): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
         let* _  = execute("DELETE FROM ${names.fileIndicesTable};");
@@ -114,7 +122,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         point()
 
 
-    def insertFileIndicesSql(names: {valuesTable :: String, fileIndicesTable :: String}): String =
+    def insertFileIndicesSql(names: PDTTableNames): String =
         String.unwords(
             "INSERT INTO ${names.fileIndicesTable} (file_name) "
                 :: "SELECT DISTINCT(v.source_file) AS file_name "
@@ -123,6 +131,19 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: Nil
         )
 
+    def valuesWithShortNameViewDdl(names: PDTTableNames): String =
+        String.unlines(
+            "CREATE VIEW IF NOT EXISTS ${names.valuesWithShortNameView}(item_name, row_num, field_name, field_value, field_units) AS "
+            :: "SELECT "
+	        :: "    'F' || CAST(pfi.file_index AS TEXT) || '_C' || CAST(prv.item_num AS TEXT) || '_' || prv.asset_name AS item_name, "
+	        :: "    prv.row_num     AS row_num, "
+	        :: "    prv.field_name  AS field_name, "
+	        :: "    prv.field_value AS field_value, "
+	        :: "    prv.field_units AS field_units "
+            :: "FROM ${names.valuesTable} prv "
+            :: "INNER JOIN ${names.fileIndicesTable} pfi ON prv.source_file = pfi.file_name; "
+            :: Nil
+        )
 
 
 }

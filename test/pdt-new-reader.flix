@@ -22,6 +22,7 @@ def writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Int32, St
     let tableNames = 
         { valuesTable = "pdt_raw_values"
         , fileIndicesTable = "pdt_file_indices"
+        , valuesWithShortNameView = "pdt_values_with_item_name"
         };
     let actions = AssetLib/FileIO/PDT/SQLite.createPDTTables(tableNames) *>
                     AssetLib/FileIO/PDT/SQLite.storeFieldValuesAll(tableNames, srcs);
