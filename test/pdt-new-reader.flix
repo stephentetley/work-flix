@@ -19,8 +19,12 @@ pub def main(_args: Array[String]): Int32 & Impure =
 
 def writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Int32, String] & Impure = 
     use Applicative.{*>};
-    let actions = AssetLib/FileIO/PDT/SQLite.createPDTValuesTable("pdt_raw_values") *>
-                    AssetLib/FileIO/PDT/SQLite.storeFieldValuesAll("pdt_raw_values", srcs);
+    let tableNames = 
+        { valuesTable = "pdt_raw_values"
+        , fileIndicesTable = "pdt_file_indices"
+        };
+    let actions = AssetLib/FileIO/PDT/SQLite.createPDTTables(tableNames) *>
+                    AssetLib/FileIO/PDT/SQLite.storeFieldValuesAll(tableNames, srcs);
     BasicDb/DbMonad.runSQLite(actions, dst)
 
 

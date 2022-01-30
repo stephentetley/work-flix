@@ -25,23 +25,23 @@ namespace AssetLib/FileIO/PDT/SQLite {
     use AssetLib/FileIO/PDT/Base.{FieldValue};
 
 
-    pub def storeFieldValuesAll(table: String, srcs: List[System.FilePath]): DbMonad[Int32] =
+    pub def storeFieldValuesAll(names: {valuesTable :: String, fileIndicesTable :: String}, srcs: List[System.FilePath]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValuesAll(srcs));
-        let* n      = insertFieldValues(table, relns);
+        let* n      = insertFieldValues(names.valuesTable, relns);
+        let* _      = deriveFileIndices(names);
         point(n)
 
-    pub def storeFieldValues(table: String, src: System.FilePath): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
-        let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValues(src));
-        let* n      = insertFieldValues(table, relns);
-        point(n)
+    pub def storeFieldValues(names: {valuesTable :: String, fileIndicesTable :: String}, src: System.FilePath): DbMonad[Int32] =
+        storeFieldValuesAll(names, src :: Nil)
 
-    pub def createPDTValuesTable(table: String): DbMonad[Unit] =
+    pub def createPDTTables(names: {valuesTable :: String, fileIndicesTable :: String}): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
-        let* _  = execute("DROP TABLE IF EXISTS ${table};");
-        let* _  = execute(createTableSql(table));
+        let* _  = execute("DROP TABLE IF EXISTS ${names.valuesTable};");
+        let* _  = execute("DROP TABLE IF EXISTS ${names.fileIndicesTable};");
+        let* _  = execute(fieldValueTableDdl(names.valuesTable));
+        let* _  = execute(fileIndicesTableDdl(names.fileIndicesTable));
         let* _  = commit();
         point()
 
@@ -49,7 +49,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         use BasicDb/DbMonad.{flatMap, liftAction};
         let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6, x7) from FieldValue(x1, x2, x3, x4, x5, x6, x7) |> Array.toList);
         let sqlstrings = { 
-            prepStmt = insertFieldValueRowSql(table),
+            prepStmt = insertFieldValueSql(table),
             tableActions = "DELETE FROM ${table};" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, fieldValueSetter, rows)
@@ -65,7 +65,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
             *> putStringAt!(5, x6) 
             *> putStringAt!(6, x7)
         
-    def insertFieldValueRowSql(tableName: String): String =
+    def insertFieldValueSql(tableName: String): String =
         String.unwords(
             "INSERT OR IGNORE INTO ${tableName} "
                 :: "(source_file, "
@@ -81,7 +81,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
 
         
-    def createTableSql(tableName: String): String =
+    def fieldValueTableDdl(tableName: String): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "source_file TEXT NOT NULL, "
@@ -95,5 +95,34 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: ");"
                 :: Nil
         )
+
+    def fileIndicesTableDdl(tableName: String): String = 
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
+                :: "file_index INTEGER PRIMARY KEY ASC, "
+                :: "file_name NOT NULL "
+                :: ");"
+                :: Nil
+        )
+
+    def deriveFileIndices(names: {valuesTable :: String, fileIndicesTable :: String}): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DELETE FROM ${names.fileIndicesTable};");
+        let* _  = execute(insertFileIndicesSql(names));
+        let* _  = commit();
+        point()
+
+
+    def insertFileIndicesSql(names: {valuesTable :: String, fileIndicesTable :: String}): String =
+        String.unwords(
+            "INSERT INTO ${names.fileIndicesTable} (file_name) "
+                :: "SELECT DISTINCT(v.source_file) AS file_name "
+                :: "FROM ${names.valuesTable} v "
+                :: "ORDER BY file_name ASC;"
+                :: Nil
+        )
+
+
 
 }
