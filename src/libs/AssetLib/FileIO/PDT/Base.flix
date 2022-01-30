@@ -17,7 +17,13 @@
 namespace AssetLib/FileIO/PDT/Base {
 
 
-    pub rel FieldValue(fileName: String, rowNum: Int32, assetName: String, fieldName: String, fieldValue: String, fieldUnits: String)
+    pub rel FieldValue(fileName: String, 
+                            rowNum: Int32, 
+                            colNum: Int32, 
+                            assetName: String, 
+                            fieldName: String, 
+                            fieldValue: String, 
+                            fieldUnits: String)
 
 
     pub type alias PDTValueRow = 

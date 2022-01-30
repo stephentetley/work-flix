@@ -34,7 +34,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
             prepStmt = insertObjTypeManufacturerRowSql(table),
             tableActions = "DELETE FROM {table};" :: Nil
         };
-        BasicDb/Writer.store(isqlstrings, objTypeManufacturerSetter, rows)
+        BasicDb/Writer.store(sqlstrings, objTypeManufacturerSetter, rows)
 
 
     def objTypeManufacturerSetter(x: ObjTypeManufacturer): PreparedStatementSetter[Unit] =

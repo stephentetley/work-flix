@@ -7,25 +7,24 @@ use AssetLib/FileIO/PDT/Base.{FieldValue};
 
 pub def main(_args: Array[String]): Int32 & Impure = 
     println("Running... ${Time/LocalTime.now()}");
-/*
+
     let srcdir  = System/FilePath.new("G:/work/assets/capital_schemes/chell/pdts");
     let srcs    = System/Directory.contents(srcdir) |> Result.getWithDefault(Nil) |> List.filter(x -> System/FilePath.getExtension(x) == Some("xlsx"));
     let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     writeDb(srcs, dst) |> println;
-
-*/    
-    storeMetaEqui(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
-    storeMetaFloc(System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")) |> println;
+    /// storeMetaEqui(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
+    /// storeMetaFloc(System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")) |> println;
     0
 
 
-def _writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Unit, String] & Impure = 
-    use Result.{flatMap};
-    let* relns  = AssetLib/FileIO/PDT/Reader.readFieldValuesAll(srcs);
-    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/PDT/SQLite.storeFieldValues("pdt_raw_values", relns), dst);
-    Ok()
+def writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Int32, String] & Impure = 
+    use Applicative.{*>};
+    let actions = AssetLib/FileIO/PDT/SQLite.createPDTValuesTable("pdt_raw_values") *>
+                    AssetLib/FileIO/PDT/SQLite.storeFieldValuesAll("pdt_raw_values", srcs);
+    BasicDb/DbMonad.runSQLite(actions, dst)
 
 
+/*
 def storeMetaEqui(src: System.FilePath): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let dst     = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
@@ -43,3 +42,5 @@ def storeMetaFloc(src: System.FilePath): Result[Unit, String] & Impure =
     let* ans    = AssetLib/FileIO/S4/ClassList/Builder.readFlocClassRecords(src);
     let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, ans), dst);
     Ok()    
+
+*/    

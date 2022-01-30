@@ -24,36 +24,58 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     use AssetLib/FileIO/PDT/Base.{FieldValue};
 
-    pub def storeFieldValues(table: String, relns: #{FieldValue | r}): DbMonad[Int32] =
+
+    pub def storeFieldValuesAll(table: String, srcs: List[System.FilePath]): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValuesAll(srcs));
+        let* n      = insertFieldValues(table, relns);
+        point(n)
+
+    pub def storeFieldValues(table: String, src: System.FilePath): DbMonad[Int32] =
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValues(src));
+        let* n      = insertFieldValues(table, relns);
+        point(n)
+
+    pub def createPDTValuesTable(table: String): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DROP TABLE IF EXISTS ${table};");
+        let* _  = execute(createTableSql(table));
+        let* _  = commit();
+        point()
+
+    pub def insertFieldValues(table: String, relns: #{FieldValue | r}): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6) from FieldValue(x1, x2, x3, x4, x5, x6) |> Array.toList);
+        let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6, x7) from FieldValue(x1, x2, x3, x4, x5, x6, x7) |> Array.toList);
         let sqlstrings = { 
-            prepStmt = insertFieldValueRowSql(table)
-            /// TODO shouldn't bee dropping table at this point...
-            tableActions = "DROP TABLE IF EXISTS ${table};" :: insertFieldValueRowSql(table) :: Nil
+            prepStmt = insertFieldValueRowSql(table),
+            tableActions = "DELETE FROM ${table};" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, fieldValueSetter, rows)
 
-    def fieldValueSetter(x: (String, Int32, String, String, String, String)): PreparedStatementSetter[Unit] =
+    def fieldValueSetter(x: (String, Int32, Int32, String, String, String, String)): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putInt32At!, putStringAt!};
-        let (x1, x2, x3, x4, x5, x6) = x;
+        let (x1, x2, x3, x4, x5, x6, x7) = x;
         putStringAt!(0, x1)
             *> putInt32At!(1, x2) 
-            *> putStringAt!(2, x3) 
+            *> putInt32At!(2, x3) 
             *> putStringAt!(3, x4) 
             *> putStringAt!(4, x5) 
-            *> putStringAt!(5, x6)
+            *> putStringAt!(5, x6) 
+            *> putStringAt!(6, x7)
         
     def insertFieldValueRowSql(tableName: String): String =
         String.unwords(
             "INSERT OR IGNORE INTO ${tableName} "
                 :: "(source_file, "
                 :: "row_num, "
+                :: "item_num, "
                 :: "asset_name, "
                 :: "field_name, "
                 :: "field_value, "
                 :: "field_units) "
-                :: "VALUES(?,?,?, ?,?,?);"
+                :: "VALUES(?,?,?, ?,?,?, ?);"
                 :: Nil
         )
 
@@ -64,6 +86,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
             "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "source_file TEXT NOT NULL, "
                 :: "row_num INTEGER NOT NULL, "
+                :: "item_num INTEGER NOT NULL, "
                 :: "asset_name TEXT NOT NULL, "
                 :: "field_name TEXT NOT NULL, "
                 :: "field_value TEXT, "
@@ -72,22 +95,5 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: ");"
                 :: Nil
         )
-
-    // Helpers
-
-    /// TODO use BasicDb/Writer...
-
-    /// type alias Setter[a] = a -> PreparedStatementSetter[Unit]
-
-    /// def store(tableName: String, setter: Setter[a], rows: t[a]): DbMonad[Int32] with Foldable[t] =
-    ///     use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, prepareStatement, psExecuteUpdate, commit};
-    ///     let* _          = setAutoCommit(false);
-    ///     let* _          = execute("DROP TABLE IF EXISTS ${tableName};");
-    ///     let* _          = execute(createTableSql(tableName));
-    ///     let* stmt       = prepareStatement(insertFieldValueRowSql(tableName));
-    ///     let* nrows      = Foldable.foldLeftM((ac, x) -> 
-    ///                             {let* n = psExecuteUpdate(stmt, setter(x)); point(ac+n)}, 0, rows);
-    ///     let* _          = commit();
-    ///     point(nrows)
 
 }

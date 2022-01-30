@@ -27,7 +27,6 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
     pub rel HasParamUnit(paramName: String)
 
-    
 
     pub def collateValueRows(fileName: String, valueRows: List[PDTValueRow], typings: List[ADTParamRow]): #{FieldValue | r} = match valueRows {
         case x :: xs if x.rowName == "Asset Name" => {
@@ -43,14 +42,14 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
         HasParamUnit(fieldName) :- ParamUnit(fieldName, _).
 
-        FieldValue(fileName, rowNum, assetName, fieldName, fieldValue, fieldUnit) :- 
-            AssetName(colId, assetName),
-            IndexedValue(colId, rowNum, fieldName, fieldValue),
+        FieldValue(fileName, rowNum, colNum, assetName, fieldName, fieldValue, fieldUnit) :- 
+            AssetName(colNum, assetName),
+            IndexedValue(colNum, rowNum, fieldName, fieldValue),
             ParamUnit(fieldName, fieldUnit).
     
-        FieldValue(fileName, rowNum, assetName, fieldName, fieldValue, "Unknown") :- 
-            AssetName(colId, assetName),
-            IndexedValue(colId, rowNum, fieldName, fieldValue),
+        FieldValue(fileName, rowNum, colNum, assetName, fieldName, fieldValue, "Unknown") :- 
+            AssetName(colNum, assetName),
+            IndexedValue(colNum, rowNum, fieldName, fieldValue),
             not HasParamUnit(fieldName).
     }
 
