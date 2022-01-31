@@ -44,7 +44,7 @@ def buildDb(): DbMonad[Int32] =
                     ::  "bever-valve-export.xlsx"
                     ::  Nil);
     let* _      = S4Loader/Aib/BuildDb.deleteProperties();
-    let* n1     = S4Loader/Aib/BuildDb.storeProperties({typesCsv = src1, exports = exports});
+    let* n1     = S4Loader/Aib/BuildDb.generateProperties({typesCsv = src1, exports = exports});
     /// let* _      = S4Loader/BuildDb.storeS4ClassInfo(src2);
     /// let* _      = S4Loader/Aib/BuildDb.storePropertyAliases(src3);
     let* _      = S4Loader/Aib/BuildDb.storeZTableManuf(src4);

@@ -34,5 +34,6 @@ def buildDb(metaSources: {equiClassList :: System.FilePath,
     let* r1 = S4Loader/Pdt/BuildDb.storeMetaData(metaSources);
     let* r2 = S4Loader/PDT/BuildDb/MakeProperties.readPDTValueRows(pathToPdtDb = pdtDb, "pdt_values_with_item_name");
     let ans = S4Loader/PDT/BuildDb/MakeProperties.genProperties(r1 <+> r2);
+    let* _  = S4Loader/Base/StoreProperties.storeProperties(ans);
     point(ans)
 
