@@ -1,7 +1,7 @@
 use SheetIO/Reader.{XlsxSource};
 
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
-use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
+use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
 use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
 use S4Loader/Aib/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
 

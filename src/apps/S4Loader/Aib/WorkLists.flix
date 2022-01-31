@@ -20,7 +20,7 @@ namespace S4Loader/Aib/WorkLists {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use S4Loader/Base/Relations.{StringProperty, EquiWorkItem3};
+    use S4Loader/Base/Schema.{StringProperty, EquiWorkItem3};
 
     /// Functional Location 
 

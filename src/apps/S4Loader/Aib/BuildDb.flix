@@ -27,7 +27,7 @@ namespace S4Loader/Aib/BuildDb {
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Characteristic};
 
-    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, DateProperty, AibProperties};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, S4Properties};
 
     /// A temporary untyped property
     rel UniProperty(rowId: Int32, name: String, value: String)
@@ -39,7 +39,7 @@ namespace S4Loader/Aib/BuildDb {
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> readProperties(input)) >>= insertProperties
 
-    pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[AibProperties[r1], String] & Impure = 
+    pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[S4Properties[r1], String] & Impure = 
         use Result.flatMap;        
         let* r1     = readAibTypes(input.typesCsv);
         let* rs     = Result.traverse(readAibExport, input.exports);
@@ -111,7 +111,7 @@ namespace S4Loader/Aib/BuildDb {
         solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty, DateProperty
 
 
-    pub def insertProperties(relns: AibProperties[r1]): DbMonad[Int32] = 
+    pub def insertProperties(relns: S4Properties[r1]): DbMonad[Int32] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* n1 = storeProperties1("string_properties", stringPropertySetter, query relns select (x1, x2, x3) from StringProperty(x1, x2, x3));
         let* n2 = storeProperties1("int_properties", intPropertySetter, query relns select (x1, x2, x3) from IntProperty(x1, x2, x3));

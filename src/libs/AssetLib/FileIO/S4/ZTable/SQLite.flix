@@ -32,7 +32,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     pub def storeObjTypeManufacturer(table: String, rows: t[ObjTypeManufacturer]): DbMonad[Int32] with Foldable[t] =
         let sqlstrings = { 
             prepStmt = insertObjTypeManufacturerRowSql(table),
-            tableActions = "DELETE FROM {table};" :: Nil
+            tableActions = "DELETE FROM ${table};" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, objTypeManufacturerSetter, rows)
 
@@ -67,7 +67,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     pub def storeManufacturerModel(table: String, rows: t[ManufacturerModel]): DbMonad[Int32] with Foldable[t] =
         let sqlstrings = { 
             prepStmt = insertManufacturerModelRowSql(table),
-            tableActions = "DELETE FROM {table};" :: Nil
+            tableActions = "DELETE FROM ${table};" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, manufacturerModelSetter, rows)
 
@@ -102,7 +102,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     pub def storeFlocObject(table: String, rows: t[FlocObject]): DbMonad[Int32] with Foldable[t] =
         let sqlstrings = { 
             prepStmt = insertFlocObjectRowSql(table),
-            tableActions = "DELETE FROM {table};" :: Nil
+            tableActions = "DELETE FROM ${table};" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, flocObjectSetter, rows)
 
@@ -139,7 +139,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     pub def storeEquiObject(table: String, rows: t[EquiObject]): DbMonad[Int32] with Foldable[t] =
         let sqlstrings = { 
             prepStmt = insertEquiObjectRowSql(table),
-            tableActions = "DELETE FROM {table};" :: Nil
+            tableActions = "DELETE FROM ${table};" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, equiObjectSetter, rows)
 

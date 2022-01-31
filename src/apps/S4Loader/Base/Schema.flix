@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-namespace S4Loader/Base/Relations {
+namespace S4Loader/Base/Schema {
 
     /// ## Property relations
     
-    pub type alias AibProperties[r1: SchemaRow] =
+    pub type alias S4Properties[r1: SchemaRow] =
         #{StringProperty, IntProperty, FloatProperty, DateProperty | r1}
 
 

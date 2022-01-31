@@ -22,7 +22,7 @@ namespace S4Loader/Aib/Rules/EquiAttributes {
 
     use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
     use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
-    use S4Loader/Base/Relations.{StringProperty, FloatProperty, EquiWorkItem3};
+    use S4Loader/Base/Schema.{StringProperty, FloatProperty, EquiWorkItem3};
 
     // Collect with a lattice because we are expecting relations that are one-to-one 
     // or one-to-zero rather than one-to-many.

@@ -1,7 +1,7 @@
 use Applicative.{*>};
 use BasicDb.DbMonad;
 use SheetIO/Reader.{XlsxSource};
-use S4Loader/Base/Relations.{AibProperties, StringProperty, IntProperty, FloatProperty};
+use S4Loader/Base/Schema.{S4Properties, StringProperty, IntProperty, FloatProperty};
 
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -28,7 +28,7 @@ def main(_: Array[String]): Int32 & Impure =
 
 def buildDb(metaSources: {equiClassList :: System.FilePath, 
                             fieldUnitTypes :: System.FilePath}, 
-            pdtDb: System.FilePath): DbMonad[AibProperties[r1]] = 
+            pdtDb: System.FilePath): DbMonad[S4Properties[r1]] = 
     use BasicDb/DbMonad.{flatMap, point};
     let* _ = S4Loader/Pdt/BuildDb.initDb();
     let* r1 = S4Loader/Pdt/BuildDb.storeMetaData(metaSources);

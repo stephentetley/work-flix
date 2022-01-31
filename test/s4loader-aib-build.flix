@@ -1,6 +1,6 @@
 use BasicDb.DbMonad;
 use SheetIO/Reader.{XlsxSource};
-use S4Loader/Relations.{StringProperty, IntProperty, FloatProperty};
+use S4Loader/Schema.{StringProperty, IntProperty, FloatProperty};
 
 
 def main(_: Array[String]): Int32 & Impure = 
@@ -27,9 +27,9 @@ def getIsoLocalDateTimeAsString(): String & Impure =
 
 def buildDb(): DbMonad[Int32] = 
     use BasicDb/DbMonad.{flatMap, point};
-    let src1    = System/FilePath.new("E:/coding/work/work-flix/data/aib_property_types.csv");
-    // let src2    = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
-    let src3    = System/FilePath.new("E:/coding/work/work-flix/data/aib_property_aliases.csv");
+    let src1    = System/FilePath.new("E:/coding/work/work-flix/data/S4Loader_configs/aib_property_types.csv");
+    /// let src2    = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt");
+    /// let src3    = System/FilePath.new("E:/coding/work/work-flix/data/aib_property_aliases.csv");
     let src4    = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
     let src5    = System/FilePath.new("G:/work/assets/facts/ztables/ztable-objtype-manufacturer.txt");
 
@@ -45,8 +45,8 @@ def buildDb(): DbMonad[Int32] =
                     ::  Nil);
     let* _      = S4Loader/Aib/BuildDb.deleteProperties();
     let* n1     = S4Loader/Aib/BuildDb.storeProperties({typesCsv = src1, exports = exports});
-    // let* _      = S4Loader/BuildDb.storeS4ClassInfo(src2);
-    let* _      = S4Loader/Aib/BuildDb.storePropertyAliases(src3);
+    /// let* _      = S4Loader/BuildDb.storeS4ClassInfo(src2);
+    /// let* _      = S4Loader/Aib/BuildDb.storePropertyAliases(src3);
     let* _      = S4Loader/Aib/BuildDb.storeZTableManuf(src4);
     let* _      = S4Loader/Aib/BuildDb.storeZTableObj(src5);
     point(n1)

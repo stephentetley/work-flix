@@ -20,7 +20,7 @@ namespace S4Loader/Aib/Rules/EquiCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
 
-    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiCharacteristicSpec, EquiWorkItem3};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiCharacteristicSpec, EquiWorkItem3};
     
     /// Helper relations...
 

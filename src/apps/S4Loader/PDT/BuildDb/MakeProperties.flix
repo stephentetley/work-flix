@@ -22,7 +22,7 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, DateProperty};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty};
 
     pub rel PDTValueRow(itemName: String, fieldName: String, fieldValue: String, fieldUnits: String)
 

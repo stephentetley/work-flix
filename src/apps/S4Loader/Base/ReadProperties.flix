@@ -23,8 +23,8 @@ namespace S4Loader/Base/ReadProperties {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use S4Loader/Base/Relations.{StringProperty, IntProperty, FloatProperty, DateProperty,
-        PropertyAlias, AibProperties};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty,
+        PropertyAlias, S4Properties};
 
 
     pub type alias DbRelations[r1: SchemaRow] =
@@ -44,7 +44,7 @@ namespace S4Loader/Base/ReadProperties {
 
 
 
-    pub def readProperties(): DbMonad[AibProperties[r1]] =
+    pub def readProperties(): DbMonad[S4Properties[r1]] =
         ((r1, r2, r3, r4) -> r1 <+> r2 <+> r3 <+> r4)
             <$> readPropertyTable("string_properties",  evalStringProperty())
             <*> readPropertyTable("int_properties",     evalIntProperty())
