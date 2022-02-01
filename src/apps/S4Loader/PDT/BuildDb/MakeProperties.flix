@@ -49,6 +49,22 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
                 PDTValueRow(uid, propName, propValue, units),
                 UnitsType(units, "String").
 
+            IntProperty(uid, propName, S4Loader/Base/Utils.intValue(propValue)) :-
+                PDTValueRow(uid, propName, propValue, units),
+                UnitsType(units, "Int"),
+                if S4Loader/Base/Utils.isIntValue(propValue).
+
+            FloatProperty(uid, propName, S4Loader/Base/Utils.floatValue(propValue)) :-
+                PDTValueRow(uid, propName, propValue, units),
+                UnitsType(units, "Float"),
+                if S4Loader/Base/Utils.isFloatValue(propValue).
+
+            DateProperty(uid, propName, S4Loader/Base/Utils.dateFromIsoLocalDateTime(propValue)) :- 
+                PDTValueRow(uid, propName, propValue, units),
+                UnitsType(units, "Date"),
+                if S4Loader/Base/Utils.isIsoLocalDateTimeValue(propValue).
+
+
         };
         let input1 = input as #{PDTValueRow, UnitsType, StringProperty, IntProperty, FloatProperty, DateProperty | r};
         solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty, DateProperty

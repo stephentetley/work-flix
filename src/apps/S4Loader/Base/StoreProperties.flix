@@ -50,7 +50,7 @@ namespace S4Loader/Base/StoreProperties {
 
     def storeProperties1(table: String, setter: RowSetter[a], rows: Array[(a)]): DbMonad[Int32] =
         let sqlstrings = {prepStmt = insertPropertyRowSql(table), tableActions = "DELETE FROM ${table};" :: Nil };
-        BasicDb/DbMonad.liftAction(_ -> Array.toList(rows)) >>= BasicDb/Writer.store(sqlstrings, setter)
+        BasicDb/Writer.storeArray(sqlstrings, setter, rows)
 
 
     def stringPropertySetter(x: (String, String, String)): PreparedStatementSetter[Unit] =
