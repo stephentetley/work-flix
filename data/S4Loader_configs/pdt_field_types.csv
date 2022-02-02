@@ -1,0 +1,66 @@
+pdt_field_name,property_type
+Accuracy,Float
+Analogue Outputs - No of:,Int
+Asset Name,String
+Asset Status,String
+Asset Type,String
+Base Height (mm),Int
+Battery Type,String
+Battery rating,String
+Body Material,String
+Bore Diameter (mm),Int
+Capacity (m3),Float
+Cost,String
+Date of installation,Date
+Depth (mm),Int
+Diameter (mm),Int
+Direction of closure,String
+Height (mm),Int
+IP Rating,String
+Impeller type,String
+Input Current (A),String
+Insulation Class (°c),String
+Legacy GUID (Globally Unique Identifier) reference,String
+Length (mm),Int
+Location in Asset Hierarchy,String
+Location on Site,String
+Manufacturer,String
+Manufacturer's serial number,String
+Memo Line,String
+Mounting Type,String
+No. of batteries,String
+Number of Phase,String
+Number of Poles,Int
+Output Signal Type,String
+Output Type,String
+Pipe Diameter (mm),Int
+Product Model Number,String
+Product model number,String
+Product range,String
+Range Max,Float
+Range Min,Float
+Range Unit,String
+Rated Current (A),Float
+Rated Input Voltage (V),String
+Rated Power (W),Float
+Rated Power (kW),Float
+Rated Voltage,Int
+Rated Voltage Units,String
+Serial Number,String
+Side Depth (mm),Int
+Side Depth Max (mm),Int
+Side Depth Min (mm),Int
+Single Line Drawing Ref Number,String
+Specific Model,String
+Standard,String
+Tank Shape,String
+Top Surface Area (m2),Float
+Transducer Model,String
+Transducer Serial No,String
+Transmitter Model,String
+Transmitter Serial No,String
+Type,String
+UPS - Application,String
+Weight(kg),Float
+Width (mm),Int
+pH,String

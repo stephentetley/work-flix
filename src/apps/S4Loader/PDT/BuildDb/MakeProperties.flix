@@ -23,50 +23,45 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
     use BasicDb.RowEvaluator;
 
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty};
-
-    pub rel PDTValueRow(itemName: String, fieldName: String, fieldValue: String, fieldUnits: String)
-
-    pub rel UnitsType(units: String, pdtType: String)
+    use S4Loader/PDT/BuildDb/Schema.{PDTRawValue, FieldType};
 
     /// Reads from another SQLite db...
-    pub def readPDTValueRows(path: {pathToPdtDb :: System.FilePath}, viewName: String): DbMonad[#{PDTValueRow| r}] = 
-        let sql = "SELECT item_name, field_name, field_value, field_units FROM ${viewName} ORDER BY item_name;";
-        BasicDb/DbMonad.localSQLiteConnection(path.pathToPdtDb, BasicDb/Reader.allRelations(evalPDTValueRow(), sql))
+    pub def readPDTRawValues(path: {pathToPdtDb :: System.FilePath}, viewName: String): DbMonad[#{PDTRawValue| r}] = 
+        let sql = "SELECT item_name, field_name, field_value FROM ${viewName} ORDER BY item_name;";
+        BasicDb/DbMonad.localSQLiteConnection(path.pathToPdtDb, BasicDb/Reader.allRelations(evalPDTRawValue(), sql))
 
-    def evalPDTValueRow(): RowEvaluator[#{PDTValueRow | r}] = 
+    def evalPDTRawValue(): RowEvaluator[#{PDTRawValue | r}] = 
         use BasicDb/RowEvaluator.{getStringAt};
-        ((x1, x2, x3, x4) -> #{ PDTValueRow(x1, x2, x3, x4). })
+        ((x1, x2, x3) -> #{ PDTRawValue(x1, x2, x3). })
             <$> getStringAt(0)
             <*> getStringAt(1)
             <*> getStringAt(2)
-            <*> getStringAt(3)
 
 
-    pub def genProperties(input: #{PDTValueRow, UnitsType | r}): #{StringProperty, IntProperty, FloatProperty, DateProperty | r} = 
+    pub def genProperties(input: #{PDTRawValue, FieldType | r}): #{StringProperty, IntProperty, FloatProperty, DateProperty | r} = 
         let rules = #{
             
             StringProperty(uid, propName, propValue) :- 
-                PDTValueRow(uid, propName, propValue, units),
-                UnitsType(units, "String").
+                PDTRawValue(uid, propName, propValue),
+                FieldType(propName, "String").
 
             IntProperty(uid, propName, S4Loader/Base/Utils.intValue(propValue)) :-
-                PDTValueRow(uid, propName, propValue, units),
-                UnitsType(units, "Int"),
+                PDTRawValue(uid, propName, propValue),
+                FieldType(propName, "Int"),
                 if S4Loader/Base/Utils.isIntValue(propValue).
 
             FloatProperty(uid, propName, S4Loader/Base/Utils.floatValue(propValue)) :-
-                PDTValueRow(uid, propName, propValue, units),
-                UnitsType(units, "Float"),
+                PDTRawValue(uid, propName, propValue),
+                FieldType(propName, "Float"),
                 if S4Loader/Base/Utils.isFloatValue(propValue).
 
             DateProperty(uid, propName, S4Loader/Base/Utils.dateFromIsoLocalDateTime(propValue)) :- 
-                PDTValueRow(uid, propName, propValue, units),
-                UnitsType(units, "Date"),
+                PDTRawValue(uid, propName, propValue),
+                FieldType(propName, "Date"),
                 if S4Loader/Base/Utils.isIsoLocalDateTimeValue(propValue).
 
-
         };
-        let input1 = input as #{PDTValueRow, UnitsType, StringProperty, IntProperty, FloatProperty, DateProperty | r};
+        let input1 = input as #{PDTRawValue, FieldType, StringProperty, IntProperty, FloatProperty, DateProperty | r};
         solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty, DateProperty
 
 

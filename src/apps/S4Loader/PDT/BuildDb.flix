@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-namespace S4Loader/Pdt/BuildDb {
+namespace S4Loader/PDT/BuildDb {
 
     use BasicDb.DbMonad;
 
-    use S4Loader/PDT/BuildDb/Schema.{UnitsType};
+    use S4Loader/PDT/BuildDb/Schema.{FieldType};
 
     /// Create tables...
     pub def initDb(): DbMonad[Unit] = 
@@ -31,11 +31,11 @@ namespace S4Loader/Pdt/BuildDb {
 
     /// Load from PDT Db and metadata
     pub def storeMetaData(x: {equiClassList :: System.FilePath, 
-                                fieldUnitTypes :: System.FilePath,
-                                assetTypes :: System.FilePath}): DbMonad[#{UnitsType | r}] = 
+                                fieldTypes :: System.FilePath,
+                                assetTypes :: System.FilePath}): DbMonad[#{FieldType | r}] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* _      = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
-        let* utypes = S4Loader/PDT/BuildDb/ReadConfigs.readAndStoreFieldUnitTypes(x.fieldUnitTypes);
+        let* utypes = S4Loader/PDT/BuildDb/ReadConfigs.readAndStoreFieldTypes(x.fieldTypes);
         let* _      = S4Loader/PDT/BuildDb/ReadConfigs.readAndStoreAssetTypes(x.assetTypes);
         point(utypes)
 

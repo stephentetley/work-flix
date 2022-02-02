@@ -1,7 +1,7 @@
 use SheetIO/Reader.{XlsxSource};
 
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
-use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
+use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass};
 use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
 use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
 use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
@@ -29,11 +29,19 @@ def main01(): Result[Int32, String] & Impure =
     // query db2 select (x1, x2, x3) from EquiLongText(x1, x2, x3) |> Array.foreach(println);
     query db2 select (x1; x2) from EquiAttributes(x1; x2) |> Array.foreach(println);
 
+    /// println("EquiObjectClass ======> ");
+    /// query db2 select (x1, x2, x3) from EquiObjectClass(x1, x2, x3) |> Array.foreach(println);
+
     Ok(0)
 
 
 def dummyWorkList(): #{EquiWorkItem | r1} = #{
-    EquiWorkItem("F12_C01_RTW Pump 1", "Run To Waste Pump-1").
-    EquiWorkItem("F12_C02_RTW Pump 2", "Run To Waste Pump-2").
-    EquiWorkItem("F12_C03_RTW Pump 3", "Run To Waste Pump-3").
+    EquiWorkItem("F23_C00_RTW Pump 1", "Run To Waste Pump-1").
+    EquiWorkItem("F23_C01_RTW Pump 2", "Run To Waste Pump-2").
+    EquiWorkItem("F23_C02_RTW Pump 3", "Run To Waste Pump-3").
+    EquiWorkItem("F23_C03_RTW Sample Pump", "Run To Waste Sample Pump").
+
+    EquiWorkItem("F12_C01_RTW Pump 1", "RTW Pump 1 Flow Monitor").
+    EquiWorkItem("F12_C02_RTW Pump 2", "RTW Pump 1 Flow Monitor").
+    EquiWorkItem("F12_C03_RTW Pump 3", "RTW Pump 1 Flow Monitor").
 }    

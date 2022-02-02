@@ -17,9 +17,9 @@
 namespace S4Loader/PDT/BuildDb/Schema {
 
 
-    pub rel PDTValueRow(itemName: String, fieldName: String, fieldValue: String, fieldUnits: String)
+    pub rel PDTRawValue(itemName: String, fieldName: String, fieldValue: String)
 
-    pub rel UnitsType(units: String, pdtType: String)
+    pub rel FieldType(fieldName: String, pdtType: String)
 
 
 }
