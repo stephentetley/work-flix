@@ -11,6 +11,7 @@ def main(_: Array[String]): Int32 & Impure =
     let metaSources = 
         { equiClassList = System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")
         , fieldUnitTypes = System/FilePath.new("E:/coding/work/work-flix/data/S4Loader_configs/pdt_field_unit_types.csv")
+        , assetTypes = System/FilePath.new("E:/coding/work/work-flix/data/S4Loader_configs/pdt_asset_types.csv")
         };
     let pdtDb = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     let overwrite = true;
@@ -27,7 +28,8 @@ def main(_: Array[String]): Int32 & Impure =
 
 
 def buildDb(metaSources: {equiClassList :: System.FilePath, 
-                            fieldUnitTypes :: System.FilePath}, 
+                            fieldUnitTypes :: System.FilePath,
+                            assetTypes :: System.FilePath}, 
             pdtDb: System.FilePath): DbMonad[S4Properties[r1]] = 
     use BasicDb/DbMonad.{flatMap, point};
     let* _ = S4Loader/Pdt/BuildDb.initDb();

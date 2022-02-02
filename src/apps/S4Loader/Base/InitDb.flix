@@ -107,7 +107,9 @@ namespace S4Loader/Base/InitDb {
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
         let* _  = execute("DROP TABLE IF EXISTS meta_pdt_field_unit_types;");
+        let* _  = execute("DROP TABLE IF EXISTS meta_pdt_asset_types;");
         let* _  = execute(metaPdtFieldUnitTypesTableDdl());
+        let* _  = execute(metaPdtAssetTypesTableDdl());
         let* _  = commit();
         point()
 
@@ -122,5 +124,15 @@ namespace S4Loader/Base/InitDb {
                 :: Nil
         )
 
+    def metaPdtAssetTypesTableDdl(): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS meta_pdt_asset_types ("
+                :: "pdt_asset_type TEXT NOT NULL,"
+                :: "s4_object TEXT NOT NULL,"
+                :: "s4_class TEXT NOT NULL,"
+	            :: "PRIMARY KEY(pdt_asset_type)"
+	            :: ");"
+                :: Nil
+        )
 
 }
