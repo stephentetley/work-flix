@@ -22,18 +22,19 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
     use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
     use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
-    use S4Loader/Base/Schema.{StringProperty, FloatProperty, EquiWorkItem3};
+    use S4Loader/Base/Schema.{StringProperty, FloatProperty};
+
+    use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
 
     // Collect with a lattice because we are expecting relations that are one-to-one 
     // or one-to-zero rather than one-to-many.
 
 
     pub type alias EquiAttributesSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, StringProperty, FloatProperty, EquiAttributes | r1}
+        #{EquiWorkItem, StringProperty, FloatProperty, EquiAttributes | r1}
 
 
-    /// Strings of location-on-site and Memos
-    pub lat EquiAttributes(equiId: String, attrs: Attributes)
+    pub lat EquiAttributes(uid: String, attrs: Attributes)
 
 
     pub def equiAttributes(): EquiAttributesSchema[r1] = 
@@ -41,34 +42,34 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
         #{
 
             /// Needs translation...
-            EquiAttributes(equiId; singleton("Status of an object", AttrString(value))) :-  
-                EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "AssetStatus", value).
+            EquiAttributes(uid; singleton("Status of an object", AttrString(value))) :-  
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "AssetStatus", value).
 
             // 
-            EquiAttributes(equiId; singleton("Start-up date", AttrDate(value))) :-  
-                EquiWorkItem3(equiId, _, _),
-                DateProperty(equiId, "Date of installation", value).
+            EquiAttributes(uid; singleton("Start-up date", AttrDate(value))) :-  
+                EquiWorkItem(uid, _),
+                DateProperty(uid, "Date of installation", value).
 
-            EquiAttributes(equiId; singleton("Manufacturer", AttrString(value))) :-  
-                EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "Manufacturer", value).
+            EquiAttributes(uid; singleton("Manufacturer", AttrString(value))) :-  
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Manufacturer", value).
 
-            EquiAttributes(equiId; singleton("Model number", AttrString(value))) :-  
-                EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "Model", value).
+            EquiAttributes(uid; singleton("Model number", AttrString(value))) :-  
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Model", value).
 
-            EquiAttributes(equiId; singleton("ManufSerialNo.", AttrString(value))) :-  
-                EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "Serial No", value).
+            EquiAttributes(uid; singleton("ManufSerialNo.", AttrString(value))) :-  
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Serial No", value).
 
-            EquiAttributes(equiId; singleton("ManufPartNo.", AttrString(value))) :-  
-                EquiWorkItem3(equiId, _, _),
-                StringProperty(equiId, "Specific Model/Frame", value).
+            EquiAttributes(uid; singleton("ManufPartNo.", AttrString(value))) :-  
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Specific Model/Frame", value).
 
-            EquiAttributes(equiId; singleton("Gross Weight kg", AttrFloat(value))) :- 
-                EquiWorkItem3(equiId, _, _),
-                FloatProperty(equiId, "Weight kg", value).
+            EquiAttributes(uid; singleton("Gross Weight kg", AttrFloat(value))) :- 
+                EquiWorkItem(uid, _),
+                FloatProperty(uid, "Weight kg", value).
                           
         } 
 

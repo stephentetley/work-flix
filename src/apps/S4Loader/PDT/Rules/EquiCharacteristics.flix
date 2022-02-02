@@ -20,12 +20,12 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiWorkItem3};
-       
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias};
+    use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
 
 
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 
-        #{EquiWorkItem3, StringProperty, IntProperty, PropertyAlias, 
+        #{EquiWorkItem, StringProperty, IntProperty, PropertyAlias, 
             EquiCharacteristic | r1}
 
 
@@ -35,13 +35,13 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
             
             
             EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :-
-                EquiWorkItem3(equiId, _, s4EquiClass),
+                EquiWorkItem(equiId, _),
                 FloatProperty(equiId, "Rated Current (A)", value),
                 PropertyAlias("Rated Current (A)", s4EquiClass, s4CharName).
             
-            EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :-
-                EquiWorkItem3(equiId, _, s4EquiClass),
-                FloatProperty(equiId, "Insulation Class (°c)", value),
+            EquiCharacteristic(uid, s4EquiClass, s4CharName, S4Float(value)) :-
+                EquiWorkItem(uid, _),
+                FloatProperty(uid, "Insulation Class (°c)", value),
                 PropertyAlias("Insulation Class (°c)", s4EquiClass, s4CharName).
 
             

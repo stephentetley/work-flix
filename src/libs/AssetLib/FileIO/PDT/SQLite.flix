@@ -135,7 +135,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         String.unlines(
             "CREATE VIEW IF NOT EXISTS ${names.valuesWithShortNameView}(item_name, row_num, field_name, field_value, field_units) AS "
             :: "SELECT "
-	        :: "    'F' || CAST(pfi.file_index AS TEXT) || '_C' || CAST(prv.item_num AS TEXT) || '_' || prv.asset_name AS item_name, "
+            :: "    printf('F%02d_C%02d_%s', pfi.file_index, prv.item_num, prv.asset_name) AS item_name, "
 	        :: "    prv.row_num     AS row_num, "
 	        :: "    prv.field_name  AS field_name, "
 	        :: "    prv.field_value AS field_value, "

@@ -29,9 +29,9 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
 
     pub def collateValueRows(fileName: String, valueRows: List[PDTValueRow], typings: List[ADTParamRow]): #{FieldValue | r} = match valueRows {
-        case x :: xs if x.rowName == "Asset Name" => {
+        case x :: _ if x.rowName == "Asset Name" => {
             let r1 = makeAssetNames(x);
-            let r2 = RelLib/Relation.foldMap(makeIndexedValues, xs);
+            let r2 = RelLib/Relation.foldMap(makeIndexedValues, valueRows);
             let r3 = makeParamUnits(typings);
             solve (r1 <+> r2 <+> r3 <+> valueRules(fileName)) project FieldValue 
         }
