@@ -20,13 +20,13 @@ namespace S4Loader/PDT/Rules/EquiCommon {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass};
     use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
 
 
 
     pub type alias EquiCommonSchema[r1: SchemaRow] = 
-        #{EquiWorkItem, StringProperty, IntProperty, EquiCharacteristic | r1}
+        #{EquiWorkItem, EquiObjectClass, StringProperty, IntProperty, EquiCharacteristic | r1}
 
 
     pub def equiCommon(): EquiCommonSchema[r1] =  
@@ -41,25 +41,29 @@ namespace S4Loader/PDT/Rules/EquiCommon {
 
             // # __CLASS__
 
-            EquiCharacteristic(uid, s4EquiClass, "UNICLASS_CODE", S4String("")) :- 
-                EquiWorkItem(uid, _, s4EquiClass).
+            EquiCharacteristic(uid, equiClass, "UNICLASS_CODE", S4String("")) :- 
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, equiClass).
 
-            EquiCharacteristic(uid, s4EquiClass, "UNICLASS_DESC", S4String("")) :-
-                EquiWorkItem(uid, _, s4EquiClass).
+            EquiCharacteristic(uid, equiClass, "UNICLASS_DESC", S4String("")) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, equiClass).
 
-            EquiCharacteristic(uid, s4EquiClass, "LOCATION_ON_SITE", S4String(value)) :-
-                EquiWorkItem(uid, _, s4EquiClass),
+            EquiCharacteristic(uid, equiClass, "LOCATION_ON_SITE", S4String(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, equiClass),
                 StringProperty(uid, "LOCATION ON SITE", value),
                 if String.length(value) < 30.
 
-            EquiCharacteristic(uid, s4EquiClass, "LOCATION_ON_SITE", S4String("SEE LONG TEXT")) :-
-                EquiWorkItem3(uid, _, s4EquiClass),
+            EquiCharacteristic(uid, equiClass, "LOCATION_ON_SITE", S4String("SEE LONG TEXT")) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, equiClass),
                 StringProperty(uid, "LOCATION ON SITE", value),
                 if String.length(value) >= 30.
 
 
             EquiCharacteristic(uid, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :-  
-                EquiWorkItem(uid, _, _),
+                EquiWorkItem(uid, _),
                 StringProperty(uid, "@SOLUTION_ID", solutionId).
 
         }

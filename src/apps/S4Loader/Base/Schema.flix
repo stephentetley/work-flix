@@ -33,7 +33,8 @@ namespace S4Loader/Base/Schema {
 
     pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
 
-    pub rel EquiObjectClass(uid: String , s4Object: String, s4Class : String)
+    /// Maybe this is PDT specific...
+    pub rel EquiObjectClass(uid: String, s4Object: String, s4Class : String)
 
     /// ## WorkList relations
     /// (This might be the wrong place for these - Aib/PDT may have different WorkItem relations)

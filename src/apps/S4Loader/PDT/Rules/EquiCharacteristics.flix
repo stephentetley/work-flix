@@ -33,24 +33,26 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
         #{
 
                     
-            EquiCharacteristic(uid, equiClass, s4CharName, S4Float(value)) :-
+            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
                 EquiObjectClass(uid, _, equiClass),
                 FloatProperty(uid, "Rated Current (A)", value),
-                PropertyAlias("Rated Current (A)", equiClass, s4CharName).
+                PropertyAlias("Rated Current (A)", equiClass, charName).
             
-            EquiCharacteristic(uid, s4EquiClass, s4CharName, S4Float(value)) :-
+            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, equiClass),
                 FloatProperty(uid, "Insulation Class (°c)", value),
-                PropertyAlias("Insulation Class (°c)", s4EquiClass, s4CharName).
+                PropertyAlias("Insulation Class (°c)", equiClass, charName).
 
             // rated power kw
 
             
-            EquiCharacteristic(uid, s4EquiClass, s4CharName, S4Float(value)) :-
+            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, equiClass),
                 FloatProperty(uid, "Rated Power (kW)", value),
-                PropertyAlias("Rated Power (kW)", s4EquiClass, s4CharName).
+                PropertyAlias("Rated Power (kW)", equiClass, charName).
 
         }
         

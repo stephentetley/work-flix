@@ -20,7 +20,7 @@ def main01(): Result[Int32, String] & Impure =
     let* db         = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);
     let equiRelns   = dummyWorkList();
     let db2         = db
-                        /// <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 
+                        <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 
                         <+> S4Loader/PDT/Rules/EquiCharacteristics.equiCharacteristics()
                         /// <+> S4Loader/PDT/Rules/EquiLongText.equiLongText()
                         <+> S4Loader/PDT/Rules/EquiAttributes.equiAttributes()
