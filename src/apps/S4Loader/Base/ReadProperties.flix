@@ -23,27 +23,18 @@ namespace S4Loader/Base/ReadProperties {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty,
-        PropertyAlias, S4Properties};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, S4Properties};
 
 
     pub type alias DbRelations[r1: SchemaRow] =
-        #{StringProperty, IntProperty, FloatProperty, PropertyAlias | r1}
+        #{StringProperty, IntProperty, FloatProperty, DateProperty | r1}
 
     pub def loadDbRelations(dbpath: System.FilePath): Result[DbRelations[r1], String] & Impure =         
-        let loadAll = () -> { 
-            ((r1, r2) -> r1 <+> r2 )
-                <$> readProperties()
-                <*> readPropertyAliases()
-        };
-        BasicDb/DbMonad.runSQLite(loadAll(), dbpath)
+        BasicDb/DbMonad.runSQLite(readProperties(), dbpath)
 
 
 
     /// # Properties
-
-
-
     pub def readProperties(): DbMonad[S4Properties[r1]] =
         ((r1, r2, r3, r4) -> r1 <+> r2 <+> r3 <+> r4)
             <$> readPropertyTable("string_properties",  evalStringProperty())
@@ -88,7 +79,7 @@ namespace S4Loader/Base/ReadProperties {
     /// # Meta data - property aliases
 
     /// TODO - remove and use data derived from Class List
-
+/*
     pub def readPropertyAliases(): DbMonad[#{PropertyAlias |r1}] =         
         let sql = "SELECT ai_prop_name, s4_class_name, s4_char_name FROM dd_property_aliases ORDER BY ai_prop_name;";
         BasicDb/Reader.allRelations(evalPropertyAlias(), sql)
@@ -100,5 +91,5 @@ namespace S4Loader/Base/ReadProperties {
             <$> getStringAt(0)
             <*> getStringAt(1)
             <*> getStringAt(2)
-
+*/
 }

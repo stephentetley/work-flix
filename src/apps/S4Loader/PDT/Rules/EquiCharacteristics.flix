@@ -32,8 +32,7 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
         #{
 
-            
-            
+                    
             EquiCharacteristic(equiId, s4EquiClass, s4CharName, S4Float(value)) :-
                 EquiWorkItem(equiId, _),
                 FloatProperty(equiId, "Rated Current (A)", value),
