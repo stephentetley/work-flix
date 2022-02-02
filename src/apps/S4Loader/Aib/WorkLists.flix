@@ -22,25 +22,6 @@ namespace S4Loader/Aib/WorkLists {
 
     use S4Loader/Base/Schema.{StringProperty, EquiWorkItem3};
 
-    /// Functional Location 
-
-    // Track rowId for error messages
-    pub type alias FlocWorkItem = 
-        { rowId :: Int32
-        , funcloc :: String
-        , description :: String
-        , level :: Int32
-        , sainums :: List[String]
-        , installedFrom :: Time.LocalDate
-        , structureIndicator :: String
-        , objectType :: String 
-        , systemClass :: String                   /// Level 5 flocs only
-        , systemTypeDescription :: String         /// Level 5 flocs only
-        , position :: Option[Int32]
-        , gridRef :: String
-        , solutionId :: String
-        , batchNumber :: Int32
-        }
 
     /// Equipment
     pub type alias EquiWorkItem = 
@@ -72,48 +53,6 @@ namespace S4Loader/Aib/WorkLists {
 
 
 
-    /// Read from Aib xlsx export file...
-    pub def readFlocWorkList(src: XlsxSource): Result[List[FlocWorkItem], String] & Impure =
-        SheetIO/Reader.allNamedRows(evalFlocWorkItem(), src)
-
-    def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
-        use SheetIO/NamedRowEvaluator.{flatMap, point, map, getRowNum, 
-            getNonEmptyContentNamed, getTrimmedContentNamed, getInt32Named, optional, liftResult}; 
-        use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
-        let* rowId          = getRowNum();
-        let* floc           = getNonEmptyContentNamed("Functional Location");
-        let* name           = getNonEmptyContentNamed("Description");
-        let* sainums        = getTrimmedContentNamed("Aib References (semi sep list)");
-        let* installedFrom  = getS4LocalDateNamed("Installed From (dd.MM.yyyy)");
-        let* structureInd   = getNonEmptyContentNamed("Structure Indicator");
-        let* objType        = getNonEmptyContentNamed("Object Type");
-        let* sysClass       = getTrimmedContentNamed("Class Name (System)");
-        let* sysType        = getTrimmedContentNamed("System Type (Text)");
-        let* position       = optional(getInt32Named("Position"));
-        let* ngr            = getNonEmptyContentNamed("NGR");
-        let* solutionId     = getTrimmedContentNamed("Solution ID");
-        let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
-        let* batch          = optional(getInt32Named("Batch"));
-        point({ rowId                   = rowId
-                , funcloc               = floc
-                , description           = name
-                , level                 = AssetLib/Base/S4/Floc.level(objfloc)
-                , sainums               = stringList(sainums)
-                , installedFrom         = installedFrom
-                , structureIndicator    = structureInd
-                , objectType            = objType
-                , systemClass           = sysClass
-                , systemTypeDescription = sysType
-                , position              = position
-                , gridRef               = ngr
-                , solutionId            = solutionId
-                , batchNumber           = Option.getWithDefault(1, batch)
-                })
-
-    def stringList(s: String): List[String] = 
-        String.splitOn({substr = ";"}, s)
-            |> List.map(String.trim)
-            |> List.filter(s1 -> not String.isEmpty(s1))
 
     /// Read from Aib xlsx export file...
     pub def readEquiWorkList(src: XlsxSource): Result[List[EquiWorkItem], String] & Impure =

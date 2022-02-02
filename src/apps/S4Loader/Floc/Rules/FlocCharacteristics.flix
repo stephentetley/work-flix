@@ -15,18 +15,16 @@
  */
 
 
-namespace S4Loader/Aib/Rules/FlocCharacteristics {
+namespace S4Loader/Floc/Ruls/FlocCharacteristics {
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FlocWorkItem3};
-    use S4Loader/Aib/WorkLists.{FlocWorkItem};
+    use S4Loader/Floc/WorkList.{FlocWorkItemRow};
     
-    // TODO don't use relations.
     
-
     pub type alias FlocCharacteristicSchema[r1: SchemaRow] = 
         #{FlocWorkItem3, StringProperty, IntProperty, FlocCharacteristic | r1}
 
@@ -34,7 +32,9 @@ namespace S4Loader/Aib/Rules/FlocCharacteristics {
     // NOTE - there is no real need to generate these with Datalog.
     // No properties are read from the database, they are entirely derived from a row 
     // in the worklist file.
-
+    //
+    // The only advantage of Datalog is we have much the machinary already written.
+    //
 
 
     pub def flocCharacteristics(): FlocCharacteristicSchema[r1] =  
@@ -62,9 +62,7 @@ namespace S4Loader/Aib/Rules/FlocCharacteristics {
                 if level == 5.
             
 
-
             // # EAST_NORTH
-            // (NGR is mandatory so could be added to FlocWorkItem)
             FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
                 FlocWorkItem3(funcloc, _, ngr).
 
@@ -72,7 +70,6 @@ namespace S4Loader/Aib/Rules/FlocCharacteristics {
                 FlocWorkItem3(funcloc, _, ngr).
 
             // # SOLUTION_ID
-
             FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :-  
                 FlocWorkItem3(funcloc, _, _),
                 StringProperty(funcloc, "@SOLUTION_ID", solutionId).
@@ -93,7 +90,9 @@ namespace S4Loader/Aib/Rules/FlocCharacteristics {
     // Note - generating S4Lite without Datalog is currently cumbersome. 
     // Maybe we need a mini-DSL...
 
-    pub def uniclassCode(r: FlocWorkItem): Chain[SLFlocCharacteristic] = 
+    // Current Example (without DSL)
+
+    pub def uniclassCode(r: FlocWorkItemRow): Chain[SLFlocCharacteristic] = 
         use AssetLib/S4Lite/Datatypes.SLDatatype.{Character};
         if (r.level != 5) 
             Chain.singleton(

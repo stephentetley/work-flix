@@ -17,7 +17,8 @@
 
 namespace AssetLib/S4Lite/S4LiteRelations {
 
-    use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
+    use AssetLib/S4Lite/Datatypes.{UxlSource, 
+        SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
         SLEquipment, SLEquiLongText, SLEquiCharacteristic, 
         SLDatatype};
 
@@ -56,12 +57,21 @@ namespace AssetLib/S4Lite/S4LiteRelations {
                                 charValue: CharValue)
 
 
+    pub def genS4Lite(relns: #{FlocLongText, FlocCharacteristic, 
+                                EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
+        { funclocs = Chain.empty()
+        , funclocLongTexts = toSLFlocLongText(relns)
+        , funclocCharacteristics = toSLFlocCharacteristics(relns)
+        , equipment = Chain.empty()
+        , equiLongTexts = toSLEquiLongTexts(relns)
+        , equiCharacteristics = toSLEquiCharacteristics(relns)
+        }
 
 
-
-    pub def toSLFlocLongText(src: #{FlocLongText | r}): Array[SLFlocLongText] & Impure = 
+    pub def toSLFlocLongText(src: #{FlocLongText | r}): Chain[SLFlocLongText] & Impure = 
         query src select (x1, x2, x3) from FlocLongText(x1, x2, x3)
             |> Array.map(flocLongTextToS4Lite)
+            |> Array.toChain
 
     def flocLongTextToS4Lite(x: (String, String, String)): SLFlocLongText = 
         let (x1, x2, x3) = x;
@@ -71,9 +81,10 @@ namespace AssetLib/S4Lite/S4LiteRelations {
         }
 
 
-    pub def toSLFlocCharacteristics(src: #{FlocCharacteristic | r}): Array[SLFlocCharacteristic] & Impure = 
+    pub def toSLFlocCharacteristics(src: #{FlocCharacteristic | r}): Chain[SLFlocCharacteristic] & Impure = 
         query src select (x1, x2, x3, x4) from FlocCharacteristic(x1, x2, x3, x4)
             |> Array.map(flocCharacteristicToS4Lite)
+            |> Array.toChain
 
     def flocCharacteristicToS4Lite(x: (String, String, String, CharValue)): SLFlocCharacteristic = 
         let (x1, x2, x3, x4) = x;
@@ -86,9 +97,10 @@ namespace AssetLib/S4Lite/S4LiteRelations {
 
 
 
-    pub def toSLEquiLongTexts(src: #{ EquiLongText | r }): Array[SLEquiLongText] & Impure = 
+    pub def toSLEquiLongTexts(src: #{EquiLongText | r}): Chain[SLEquiLongText] & Impure = 
         query src select (x1, x2, x3) from EquiLongText(x1, x2, x3)
             |> Array.map(equiLongTextToS4Lite)
+            |> Array.toChain
 
     def equiLongTextToS4Lite(x: (String, String, String)): SLEquiLongText = 
         let (x1, x2, x3) = x;
@@ -98,9 +110,10 @@ namespace AssetLib/S4Lite/S4LiteRelations {
         }
 
 
-    pub def toSLEquiCharacteristics(src: #{ EquiCharacteristic | r }): Array[SLEquiCharacteristic] & Impure = 
+    pub def toSLEquiCharacteristics(src: #{EquiCharacteristic | r}): Chain[SLEquiCharacteristic] & Impure = 
         query src select (x1, x2, x3, x4) from EquiCharacteristic(x1, x2, x3, x4)
             |> Array.map(equiCharacteristicToS4Lite)
+            |> Array.toChain
 
     def equiCharacteristicToS4Lite(x: (String, String, String, CharValue)): SLEquiCharacteristic = 
         let (x1, x2, x3, x4) = x;

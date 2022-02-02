@@ -58,7 +58,14 @@ namespace AssetLib/Base/S4/Floc {
             Err("Err: Empty Floc")
         else
             Ok(Floc(String.splitOn({substr = "-"}, s)))
-                
+
+    /// Build an invalid floc if `s` is empty...
+    pub def new1(s: String): Floc = 
+        if (String.isEmpty(s))
+            Floc("???" :: Nil)
+        else
+            Floc(String.splitOn({substr = "-"}, s))
+
 
     pub def equals(x: Floc, y: Floc): Bool = 
         let Floc(xs) = x;

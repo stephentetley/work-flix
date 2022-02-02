@@ -175,7 +175,7 @@ namespace AssetLib/GenS4/GenMonad {
 
     pub def tellFlocCharacteristics(rels: #{FlocCharacteristic | r}): GenMonad[Unit] = 
         tell(r1 ->  
-            let cs = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics(rels) |> Array.toChain;
+            let cs = AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics(rels);
             {funclocCharacteristics = Chain.append(r1.funclocCharacteristics, cs) | r1}
         )
 
@@ -186,7 +186,7 @@ namespace AssetLib/GenS4/GenMonad {
     /// 
     pub def tellEquiCharacteristics(rels: #{EquiCharacteristic | r}): GenMonad[Unit] = 
         tell(r1 -> 
-            let cs = AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics(rels) |> Array.toChain;
+            let cs = AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics(rels);
             {equiCharacteristics = Chain.append(r1.equiCharacteristics, cs) | r1}
         )
 
