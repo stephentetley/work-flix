@@ -108,7 +108,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         String.unwords(
             "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "file_index INTEGER PRIMARY KEY ASC, "
-                :: "file_name NOT NULL "
+                :: "file_name TEXT NOT NULL "
                 :: ");"
                 :: Nil
         )
@@ -121,7 +121,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         let* _  = commit();
         point()
 
-
+    /// Note this expects SQLite ORDER BY ... ASC to be same order as the order from the file system
     def insertFileIndicesSql(names: PDTTableNames): String =
         String.unwords(
             "INSERT INTO ${names.fileIndicesTable} (file_name) "

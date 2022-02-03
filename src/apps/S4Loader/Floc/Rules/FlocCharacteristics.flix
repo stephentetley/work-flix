@@ -17,21 +17,23 @@
 
 namespace S4Loader/Floc/Ruls/FlocCharacteristics {
 
+    use RelLib.Writer;
+
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FlocWorkItem3};
-    use S4Loader/Floc/WorkList.{FlocWorkItemRow};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty};
+    use S4Loader/Floc/WorkList.{FlocWorkItem, FlocWorkItemRow};
     
     
     pub type alias FlocCharacteristicSchema[r1: SchemaRow] = 
-        #{FlocWorkItem3, StringProperty, IntProperty, FlocCharacteristic | r1}
+        #{FlocWorkItem, StringProperty, IntProperty, FlocCharacteristic | r1}
 
 
     // NOTE - there is no real need to generate these with Datalog.
-    // No properties are read from the database, they are entirely derived from a row 
-    // in the worklist file.
+    // No properties are read from the database, they are entirely derived from 
+    // a single row in the worklist file.
     //
     // The only advantage of Datalog is we have much the machinary already written.
     //
@@ -45,64 +47,62 @@ namespace S4Loader/Floc/Ruls/FlocCharacteristics {
 
             /// S4_AIB_REFERENCE (blank)
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :-
-                FlocWorkItem3(funcloc, _, _).
+                FlocWorkItem(funcloc, _).
 
             /// AIB_REFERENCE (from worklist semi sep list)
             FlocCharacteristic(funcloc, "AIB_REFERENCE", "AI2_AIB_REFERENCE", S4String(sainum)) :- 
-                FlocWorkItem3(funcloc, _, _), 
+                FlocWorkItem(funcloc, _), 
                 StringProperty(funcloc, "@AIB_REFERENCE", sainum).
 
 
             // # __CLASS__
             
             FlocCharacteristic(funcloc, className, "SYSTEM_TYPE", S4String(systemName)) :- 
-                FlocWorkItem3(funcloc, level, _),
+                FlocWorkItem(funcloc, level),
                 StringProperty(funcloc, "@CLASS_NAME", className),
-                StringProperty(funcloc, "@SYSTEM_TYPE", systemName),
+                StringProperty(funcloc, "@SYSTEM_DESCR", systemName),
                 if level == 5.
             
 
             // # EAST_NORTH
             FlocCharacteristic(funcloc, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
-                FlocWorkItem3(funcloc, _, ngr).
+                FlocWorkItem(funcloc, _),
+                StringProperty(funcloc, "@GRID_REF", ngr).
 
             FlocCharacteristic(funcloc, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
-                FlocWorkItem3(funcloc, _, ngr).
+                FlocWorkItem(funcloc, _),
+                StringProperty(funcloc, "@GRID_REF", ngr).
 
             // # SOLUTION_ID
             FlocCharacteristic(funcloc, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :-  
-                FlocWorkItem3(funcloc, _, _),
+                FlocWorkItem(funcloc, _),
                 StringProperty(funcloc, "@SOLUTION_ID", solutionId).
 
             // # UNICLASS_CODE
 
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_CODE", S4String("")) :- 
-                FlocWorkItem3(funcloc, level, _),
+                FlocWorkItem(funcloc, level),
                 if level != 5.
 
             FlocCharacteristic(funcloc, "UNICLASS_CODE", "UNICLASS_DESC", S4String("")) :- 
-                FlocWorkItem3(funcloc, level, _),
+                FlocWorkItem(funcloc, level),
                 if level != 5.
 
         }
-        
 
-    // Note - generating S4Lite without Datalog is currently cumbersome. 
-    // Maybe we need a mini-DSL...
 
-    // Current Example (without DSL)
+    pub def deriveProperties(xs: List[FlocWorkItemRow]): #{StringProperty, IntProperty | r} = 
+        RelLib/Writer.execWriter(Foldable.foreachM(tellProperties, xs)) as & Pure
 
-    pub def uniclassCode(r: FlocWorkItemRow): Chain[SLFlocCharacteristic] = 
-        use AssetLib/S4Lite/Datatypes.SLDatatype.{Character};
-        if (r.level != 5) 
-            Chain.singleton(
-                { funcloc           = r.funcloc
-                , className         = "UNICLASS_CODE"
-                , charName          = "UNICLASS_DESC"
-                , valueType         = Character
-                , charValue         = ""
-                })
-        else
-            Chain.empty()
+    def tellProperties(x: FlocWorkItemRow): Writer[ka, #(StringProperty | w), Unit] = 
+        use RelLib/Writer.{flatMap, point, tell, whenTrue};
+        let* _      = tell(#{ StringProperty(x.funcloc, "@GRID_REF", x.gridRef). });
+        let* _      = whenTrue(not String.isEmpty(x.solutionId), tell(#{ StringProperty(x.funcloc, "@SOLUTION_ID", x.solutionId). }));
+        let* _      = whenTrue(not String.isEmpty(x.systemClass), tell(#{ StringProperty(x.funcloc, "@CLASS_NAME", x.systemClass). }));
+        let* _      = whenTrue(not String.isEmpty(x.systemTypeDescription), tell(#{ StringProperty(x.funcloc, "@SYSTEM_DESCR", x.systemTypeDescription). }));
+        let* _      = Foldable.foreachM(s1 -> tell(#{ StringProperty(x.funcloc, "@AIB_REFERENCE", s1). }), x.sainums);
+        point()
+
+
 
 }

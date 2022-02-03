@@ -54,12 +54,12 @@ namespace AssetLib/FileIO/PDT/CollateRows {
     }
 
     def makeAssetNames(nameRow: PDTValueRow): #{AssetName | r} = 
-        let make1 = (s, ix) -> RelLib/Relation.whenTrue(not String.isEmpty(s), #{ AssetName(ix, s). });
+        let make1 = (s, col) -> RelLib/Relation.whenTrue(not String.isEmpty(s), #{ AssetName(col+1, s). });
         RelLib/Relation.foldMapWithIndex(make1, nameRow.cellValues)
 
 
     def makeIndexedValues(row: PDTValueRow): #{IndexedValue | r} = 
-        let make1 = (s, ix) -> RelLib/Relation.whenTrue(not String.isEmpty(s), #{ IndexedValue(ix, row.rowNumber, row.rowName, s). });
+        let make1 = (s, col) -> RelLib/Relation.whenTrue(not String.isEmpty(s), #{ IndexedValue(col+1, row.rowNumber, row.rowName, s). });
         row.cellValues 
             |> List.map(String.trim) 
             |> RelLib/Relation.foldMapWithIndex(make1)

@@ -39,7 +39,6 @@ namespace S4Loader/Base/Schema {
     /// ## WorkList relations
     /// (This might be the wrong place for these - Aib/PDT may have different WorkItem relations)
 
-    pub rel FlocWorkItem3(s4Floc: String, level: Int32, ngr: String)
 
     /// `uid` will be pli-number for facts extracted from Aib Exports.
     /// But it can represent other item types depending where the facts come from.

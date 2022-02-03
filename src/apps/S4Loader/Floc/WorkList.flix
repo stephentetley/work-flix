@@ -22,7 +22,9 @@ namespace S4Loader/Floc/WorkList {
 
     use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation};
 
-    /// Functional Location 
+
+    pub rel FlocWorkItem(s4Floc: String, level: Int32)
+
 
     // Track rowId for error messages
     pub type alias FlocWorkItemRow = 
@@ -62,7 +64,7 @@ namespace S4Loader/Floc/WorkList {
         let* position       = optional(getInt32Named("Position"));
         let* ngr            = getNonEmptyContentNamed("NGR");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
-        let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
+        let objfloc         = AssetLib/Base/S4/Floc.new1(floc);
         let* batch          = optional(getInt32Named("Batch"));
         point({ rowId                   = rowId
                 , funcloc               = floc
@@ -86,7 +88,7 @@ namespace S4Loader/Floc/WorkList {
             |> List.filter(s1 -> not String.isEmpty(s1))
 
 
-    pub def genS4Lite(x: FlocWorkItemRow): SLFunctionalLocation = 
+    pub def genSLFunctionalLocation(x: FlocWorkItemRow): SLFunctionalLocation = 
         let floc    = AssetLib/Base/S4/Floc.new1(x.funcloc);
         let level   = AssetLib/Base/S4/Floc.level(floc);
         let parent  = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> Option.getWithDefault("");

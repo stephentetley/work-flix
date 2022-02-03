@@ -9,11 +9,10 @@ pub def main(_args: Array[String]): Int32 & Impure =
     println("Running... ${Time/LocalTime.now()}");
 
     let srcdir  = System/FilePath.new("G:/work/assets/capital_schemes/chell/pdts");
-    let srcs    = System/Directory.contents(srcdir) |> Result.getWithDefault(Nil) |> List.filter(x -> System/FilePath.getExtension(x) == Some("xlsx"));
+    let srcs    = System/Directory.contents(srcdir) |> Result.getWithDefault(Nil) |> List.filter(x -> System/FilePath.getExtension(x) == Some("xlsx"));    
     let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
     writeDb(srcs, dst) |> println;
-    /// storeMetaEqui(System/FilePath.new("G:/work/assets/facts/002-equi-class-list.txt")) |> println;
-    /// storeMetaFloc(System/FilePath.new("G:/work/assets/facts/003-floc-class-list.txt")) |> println;
+    /// tempRead() |> println;
     0
 
 
@@ -28,24 +27,15 @@ def writeDb(srcs: List[System.FilePath], dst: System.FilePath): Result[Int32, St
                     AssetLib/FileIO/PDT/SQLite.storeFieldValuesAll(tableNames, srcs);
     BasicDb/DbMonad.runSQLite(actions, dst)
 
-
 /*
-def storeMetaEqui(src: System.FilePath): Result[Unit, String] & Impure = 
+def tempRead(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let dst     = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
-    let names   = {classDescriptionTable = "meta_equi_classes", characteristicTable = "meta_equi_characteristics",
-                    picklistValueTable = "meta_equi_picklist_values", intRangeTable = "meta_equi_int_ranges"};    
-    let* ans    = AssetLib/FileIO/S4/ClassList/Builder.readEquiClassRecords(src);
-    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, ans), dst);
+    let src1 = System/FilePath.new("G:/work/assets/capital_schemes/chell/pdts/CHELL WBK TWP MLP DS H 0001 CR.001 - EQUI_ACTUATOR_2 - RTW System.xlsx");
+    let* xs1 = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readDataSheet(), src1);
+    println("${src1} - lines read: ${List.length(xs1)}");
+    let src2 = System/FilePath.new("G:/work/assets/capital_schemes/chell/pdts/CHELL WBK TWP MLP DS H 0001 CR.001 - EQUI_ACTUATOR_3 - East Reservoir.xlsx");
+    let* xs2 = SheetIO/SheetReader.runXlsx(AssetLib/FileIO/PDT/Reader.readDataSheet(), src1);
+    println("${src2} - lines read: ${List.length(xs2)}");
+    List.foreach(x1 -> println("${x1.rowName} --- ${x1.cellValues}"), xs2);
     Ok()
-
-def storeMetaFloc(src: System.FilePath): Result[Unit, String] & Impure = 
-    use Result.flatMap;
-    let dst = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
-    let names   = {classDescriptionTable = "meta_floc_classes", characteristicTable = "meta_floc_characteristics",
-                    picklistValueTable = "meta_floc_picklist_values", intRangeTable = "meta_floc_int_ranges"};    
-    let* ans    = AssetLib/FileIO/S4/ClassList/Builder.readFlocClassRecords(src);
-    let* _      = BasicDb/DbMonad.runSQLite(AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(names, ans), dst);
-    Ok()    
-
-*/    
+*/
