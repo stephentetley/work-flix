@@ -15,7 +15,7 @@
  */
 
 
-namespace S4Loader/Floc/Ruls/FlocCharacteristics {
+namespace S4Loader/Floc/Rules/FlocCharacteristics {
 
     use RelLib.Writer;
 

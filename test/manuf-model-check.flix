@@ -31,7 +31,7 @@ def main1(): Result[Unit, String] & Impure =
     let ztable2         = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt");
     let* allowedModel   = AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(ztable2) |> Result.map(buildManufModel);
 
-    let worklist        = {path = System/FilePath.new("G:/work/assets/capital_schemes/loxle/loxley-worklist.xlsx"), 
+    let worklist        = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-worklist2.xlsx"), 
                             sheet = "Equi"};
     let* equis          = readEquiWorkListRows(worklist);
 

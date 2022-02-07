@@ -13,7 +13,7 @@ rel EquiName(plinum: String, shortName: String)
 def main1(): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let src         = 
-        { path = System/FilePath.new("G:/work/assets/capital_schemes/loxle/loxley-worklist.xlsx")
+        { path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-worklist2.xlsx")
         , sheet = "Equi" 
         };
     let* baseRep     = AssetLib/Aruba/Aib/Import/ExportFile.readExportRelations(src);

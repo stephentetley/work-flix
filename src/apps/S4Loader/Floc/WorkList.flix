@@ -88,6 +88,9 @@ namespace S4Loader/Floc/WorkList {
             |> List.filter(s1 -> not String.isEmpty(s1))
 
 
+    pub def genFlocWorkItems(xs: List[FlocWorkItemRow]): #{FlocWorkItem | r} = 
+        RelLib/Relation.foldMap(x1 -> #{ FlocWorkItem(x1.funcloc, x1.level). }, xs)
+
     pub def genSLFunctionalLocation(x: FlocWorkItemRow): SLFunctionalLocation = 
         let floc    = AssetLib/Base/S4/Floc.new1(x.funcloc);
         let level   = AssetLib/Base/S4/Floc.level(floc);

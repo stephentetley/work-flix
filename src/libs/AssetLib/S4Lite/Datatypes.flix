@@ -26,9 +26,9 @@ namespace AssetLib/S4Lite/Datatypes {
 
     /// TODO - group with List or Chain?
     /// If we use Chain we should probably make it an opaque type...
-    /// The (assumed) speed loss of List concat is probably not enough to merit 
-    /// a non-standard type (Chain)
-    
+
+    pub type alias UxlOutput = UxlSource
+
     pub type alias UxlSource = 
         { funclocs :: Chain[SLFunctionalLocation]
         , funclocLongTexts :: Chain[SLFlocLongText]

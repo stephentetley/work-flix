@@ -231,7 +231,8 @@ namespace AssetLib/GenS4/Rules/Characteristics/Mechanical {
         /// TODO may have to limit pump-classes here...
         EquiCharacteristic(equiId, s4Class, "PUMS_IMPELLER_TYPE", S4String(ans)) :-
             EquiWorkItem3(equiId, "PUMS", s4Class),
-            ImpellerType(equiId, ans).
+            ImpellerType(equiId, ans),
+            if s4Class != "PUMSBH".
 
         EquiCharacteristic(equiId, s4Class, "PUMS_LIFTING_TYPE", S4String(ans)) :-
             EquiWorkItem3(equiId, "PUMS", s4Class),

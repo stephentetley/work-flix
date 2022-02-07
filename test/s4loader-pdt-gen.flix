@@ -3,6 +3,7 @@ use SheetIO/Reader.{XlsxSource};
 use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};
 use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass};
 use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
+use S4Loader/Floc/WorkList.{FlocWorkItem};
 use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
 use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
 
@@ -16,8 +17,11 @@ def main(_: Array[String]): Int32 & Impure =
 def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
     let dbpath      = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-s4loader.sqlite");
-
+    let flocsrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-worklist2.xlsx"),
+                        sheet = "Floc"};
     let* db         = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);
+    // let* uxl1       = S4Loader/Floc/GenUxl.genUxl(flocsrc);
+    // println("Floc char count: ${Chain.length(uxl1.funclocCharacteristics)}");
     let equiRelns   = dummyWorkList();
     let db2         = db
                         <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 

@@ -53,6 +53,7 @@ Side Depth Min (mm),Int
 Single Line Drawing Ref Number,String
 Specific Model,String
 Standard,String
+Tag reference,String
 Tank Shape,String
 Top Surface Area (m2),Float
 Transducer Model,String
