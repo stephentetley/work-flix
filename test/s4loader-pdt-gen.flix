@@ -20,8 +20,8 @@ def main01(): Result[Int32, String] & Impure =
     let flocsrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-worklist2.xlsx"),
                         sheet = "Floc"};
     let* db         = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);
-    // let* uxl1       = S4Loader/Floc/GenUxl.genUxl(flocsrc);
-    // println("Floc char count: ${Chain.length(uxl1.funclocCharacteristics)}");
+    let* uxl1       = S4Loader/Floc/GenUxl.genUxl(flocsrc);
+    println("Floc char count: ${Chain.length(uxl1.funclocCharacteristics)}");
     let equiRelns   = dummyWorkList();
     let db2         = db
                         <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 

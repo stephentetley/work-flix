@@ -17,7 +17,7 @@
 
 namespace S4Loader/Floc/Rules/FlocCharacteristics {
 
-    use RelLib.Writer;
+
 
     use AssetLib/S4Lite/Datatypes.{SLFlocCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
@@ -92,17 +92,15 @@ namespace S4Loader/Floc/Rules/FlocCharacteristics {
 
 
     pub def deriveProperties(xs: List[FlocWorkItemRow]): #{StringProperty, IntProperty | r} = 
-        RelLib/Writer.execWriter(Foldable.foreachM(tellProperties, xs)) as & Pure
+        RelLib/Relation.foldMap(tellProperties, xs)
+        
 
-    def tellProperties(x: FlocWorkItemRow): Writer[ka, #(StringProperty | w), Unit] = 
-        use RelLib/Writer.{flatMap, point, tell, whenTrue};
-        let* _      = tell(#{ StringProperty(x.funcloc, "@GRID_REF", x.gridRef). });
-        let* _      = whenTrue(not String.isEmpty(x.solutionId), tell(#{ StringProperty(x.funcloc, "@SOLUTION_ID", x.solutionId). }));
-        let* _      = whenTrue(not String.isEmpty(x.systemClass), tell(#{ StringProperty(x.funcloc, "@CLASS_NAME", x.systemClass). }));
-        let* _      = whenTrue(not String.isEmpty(x.systemTypeDescription), tell(#{ StringProperty(x.funcloc, "@SYSTEM_DESCR", x.systemTypeDescription). }));
-        let* _      = Foldable.foreachM(s1 -> tell(#{ StringProperty(x.funcloc, "@AIB_REFERENCE", s1). }), x.sainums);
-        point()
-
-
+    def tellProperties(x: FlocWorkItemRow): #{StringProperty, IntProperty | r} = 
+        use RelLib/Relation.{whenTrue, foldMap};
+        #{ StringProperty(x.funcloc, "@GRID_REF", x.gridRef). }
+            <+> whenTrue(not String.isEmpty(x.solutionId),              #{ StringProperty(x.funcloc, "@SOLUTION_ID", x.solutionId). })
+            <+> whenTrue(not String.isEmpty(x.systemClass),             #{ StringProperty(x.funcloc, "@CLASS_NAME", x.systemClass). })
+            <+> whenTrue(not String.isEmpty(x.systemTypeDescription),   #{ StringProperty(x.funcloc, "@SYSTEM_DESCR", x.systemTypeDescription). })
+            <+> foldMap(s1 -> #{ StringProperty(x.funcloc, "@AIB_REFERENCE", s1). }, x.sainums)
 
 }
