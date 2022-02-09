@@ -17,7 +17,7 @@
 
 namespace AssetLib/S4Lite/S4LiteRelations {
 
-    use AssetLib/S4Lite/Datatypes.{UxlSource, 
+    use AssetLib/S4Lite/Datatypes.{UxlOutput, 
         SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
         SLEquipment, SLEquiLongText, SLEquiCharacteristic, 
         SLDatatype};
@@ -58,7 +58,7 @@ namespace AssetLib/S4Lite/S4LiteRelations {
 
 
     pub def genS4Lite(relns: #{FlocLongText, FlocCharacteristic, 
-                                EquiLongText, EquiCharacteristic | r}): UxlSource & Impure = 
+                                EquiLongText, EquiCharacteristic | r}): UxlOutput & Impure = 
         { funclocs = Chain.empty()
         , funclocLongTexts = toSLFlocLongText(relns)
         , funclocCharacteristics = toSLFlocCharacteristics(relns)

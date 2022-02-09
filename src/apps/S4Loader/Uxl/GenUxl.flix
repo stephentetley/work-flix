@@ -16,6 +16,19 @@
 
 namespace S4Loader/Uxl/GenUxl {
 
+    use AssetLib/S4Lite/Datatypes.{UxlOutput};
+    use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
+
+    pub def emitUxl(args: UxlOutputArgs, batches: Map[Int32, UxlOutput]): Result[Unit, String] & Impure = 
+        let xs = batches |> Map.toList |> List.map(xy -> let (x, y) = xy; {batchNumber = x, uxl = y });
+        AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(args, xs)
+
+
+    pub def combineBatches(b1: Map[Int32, UxlOutput], Map[Int32, UxlOutput]): Map[Int32, UxlOutput] = 
+        Map.unionWith(AssetLib/S4Lite/Datatypes.combineUxlOutput, b1, b2)
+
+    pub def combineBatchesAll(xs: f[Map[Int32, UxlOutput]]): Map[Int32, UxlOutput] with Foldable[f] = 
+        Foldable.foldLeft(combineBatches, AssetLib/S4Lite/Datatypes.emptyUXlOutput(), xs)
 
 
 }

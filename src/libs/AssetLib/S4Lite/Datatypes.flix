@@ -24,12 +24,8 @@ namespace AssetLib/S4Lite/Datatypes {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
 
-    /// TODO - group with List or Chain?
-    /// If we use Chain we should probably make it an opaque type...
 
-    pub type alias UxlOutput = UxlSource
-
-    pub type alias UxlSource = 
+    pub type alias UxlOutput = 
         { funclocs :: Chain[SLFunctionalLocation]
         , funclocLongTexts :: Chain[SLFlocLongText]
         , funclocCharacteristics :: Chain[SLFlocCharacteristic]
@@ -38,7 +34,7 @@ namespace AssetLib/S4Lite/Datatypes {
         , equiCharacteristics :: Chain[SLEquiCharacteristic]
         }
 
-    pub def emptyUxlSource(): UxlSource = 
+    pub def emptyUxlOutput(): UxlOutput = 
         { funclocs = Chain.empty()
         , funclocLongTexts = Chain.empty()
         , funclocCharacteristics = Chain.empty()
@@ -47,7 +43,7 @@ namespace AssetLib/S4Lite/Datatypes {
         , equiCharacteristics = Chain.empty()
         }
 
-    pub def combineUxlSource(s1: UxlSource, s2: UxlSource): UxlSource = 
+    pub def combineUxlOutput(s1: UxlOutput, s2: UxlOutput): UxlOutput = 
         { funclocs = Monoid.combine(s1.funclocs, s2.funclocs)
         , funclocLongTexts = Monoid.combine(s1.funclocLongTexts, s2.funclocLongTexts)
         , funclocCharacteristics = Monoid.combine(s1.funclocCharacteristics, s2.funclocCharacteristics)

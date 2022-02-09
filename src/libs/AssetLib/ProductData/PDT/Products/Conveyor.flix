@@ -21,7 +21,7 @@ namespace AssetLib/ProductData/PDT/Products/Conveyor {
 
     use SheetIO/SheetParser.SheetParser;
 
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
+    use AssetLib/S4Lite/Datatypes.{UxlOutput, SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
 
     /// Base is CVYR
@@ -32,7 +32,7 @@ namespace AssetLib/ProductData/PDT/Products/Conveyor {
     /// Category = "M"
     /// objectType = "CVYR"
     
-    pub def parseConveyor(equiId: String): SheetParser[ka1, UxlSource] = 
+    pub def parseConveyor(equiId: String): SheetParser[ka1, UxlOutput] = 
         use SheetIO/SheetParser.{flatMap, point};
         let* info = AssetLib/ProductData/PDT/Equipment.parseEquipmentInfo(equiId, "M", "CVYR");
         let* chars = parseConveyorCharacteristics(equiId, info.assetType);

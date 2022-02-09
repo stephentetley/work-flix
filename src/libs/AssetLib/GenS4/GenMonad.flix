@@ -43,7 +43,7 @@ namespace AssetLib/GenS4 {
 
 namespace AssetLib/GenS4/GenMonad {
 
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
+    use AssetLib/S4Lite/Datatypes.{UxlOutput, SLFunctionalLocation, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic, EquiCharacteristic};
     use AssetLib/GenS4.GenMonad;
     use AssetLib/GenS4.GenMonad.{GenMonad};
@@ -52,7 +52,7 @@ namespace AssetLib/GenS4/GenMonad {
     /// Potentially Env should be open to the user: `Env[e] = (Time.LocalDate, e)`
     pub type alias Env = Time.LocalDate
 
-    pub type alias Output = UxlSource
+    pub type alias Output = UxlOutput
 
     pub opaque type EquiRef = String
 
@@ -62,15 +62,15 @@ namespace AssetLib/GenS4/GenMonad {
 
     /// Alternative to `WorkLists` for generating equipment ...
 
-    pub def runGenMonad(mx: GenMonad[a]): Result[(UxlSource, a), String] & Impure = 
+    pub def runGenMonad(mx: GenMonad[a]): Result[(UxlOutput, a), String] & Impure = 
         use Result.flatMap;
         let today               = Time/LocalDate.now();
         let index               = AssetLib/S4Lite/Utils.getStartUid();
-        let acc                 = AssetLib/S4Lite/Datatypes.emptyUxlSource();
+        let acc                 = AssetLib/S4Lite/Datatypes.emptyUxlOutput();
         let* ((_, uxl, ans))    = apply1(mx, index, acc, today);
         Ok((uxl, ans))
 
-    pub def execGenMonad(mx: GenMonad[a]): Result[UxlSource, String] & Impure = 
+    pub def execGenMonad(mx: GenMonad[a]): Result[UxlOutput, String] & Impure = 
         runGenMonad(mx) |> Result.map(fst)
 
     pub def evalGenMonad(mx: GenMonad[a]): Result[a, String] & Impure = 

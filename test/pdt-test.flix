@@ -2,7 +2,6 @@ use GetOpt.{ArgDescr, OptionDescr};
 use GetOpt.ArgDescr.{NoArg, ReqArg, OptArg};
 
 use SheetIO/SheetParser.SheetParser;
-use AssetLib/S4Lite/Datatypes.{UxlSource};
 
 
 pub def main(args: Array[String]): Int32 & Impure = 

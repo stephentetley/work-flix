@@ -19,11 +19,11 @@
 
 namespace AssetLib/S4Lite/Internal/FreshRenumber {
 
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
+    use AssetLib/S4Lite/Datatypes.{UxlOutput, SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
     
     /// We must sort src.equipment so that subordinate equipment is numbered after the respective parent...
-    pub def equiRenumber(src: UxlSource): UxlSource & Impure = 
+    pub def equiRenumber(src: UxlOutput): UxlOutput & Impure = 
         let n1 = AssetLib/S4Lite/Utils.getStartUid();
         let (st, equis) = Chain.mapAccumLeft(renumberEqui, (n1, Map.empty()), Chain.sortWith(compareEqui, src.equipment));
         let lookups     = snd(st);

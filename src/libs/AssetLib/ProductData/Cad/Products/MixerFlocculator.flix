@@ -19,7 +19,7 @@ namespace AssetLib/ProductData/Cad/Products/MixerFlocculator {
     use SheetIO.NamedRowEvaluator;
     use SheetIO/Reader.XlsxSource;
 
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
+    use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
     use AssetLib/GenS4/Base/CommonRelations.{EquiWorkItem3, ValveSize};
     use AssetLib/GenS4.GenMonad;

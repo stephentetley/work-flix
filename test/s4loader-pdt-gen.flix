@@ -30,7 +30,7 @@ def main01(): Result[Int32, String] & Impure =
     let* db         = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);
     let* batches    = S4Loader/Floc/GenUxl.genUxl(flocsrc);
     println("Floc batch count: ${Map.size(batches)}");
-    let* _          = AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(outputArgs(), batches |> Map.toList |> List.map(snd));
+    let* _          = S4Loader/Uxl/GenUxl.emitUxl(outputArgs(), batches);
     let equiRelns   = dummyWorkList();
     let db2         = db
                         <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 

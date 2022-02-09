@@ -18,7 +18,7 @@ namespace AssetLib/ProductData/PDT/Utils {
 
     use SheetIO/SheetParser.SheetParser;
 
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLEquipment, SLEquiCharacteristic, SLDatatype};
+    use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic, SLDatatype};
     use AssetLib/S4Lite/Datatypes.SLDatatype.{Character, NumericInt, NumericFloat};
 
     pub def validFromToday(): SheetParser[ka1, Time.LocalDate] =

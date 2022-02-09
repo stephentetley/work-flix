@@ -40,7 +40,7 @@ namespace S4Loader/Floc/GenUxl {
         let r2              = S4Loader/Floc/Rules/FlocCharacteristics.deriveProperties(workitems);
         let db              = r1 <+> r2 <+> S4Loader/Floc/Rules/FlocCharacteristics.flocCharacteristics();
         let flocchars       = (solve db project FlocCharacteristic) |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics;
-        let uxl             = AssetLib/S4Lite/Datatypes.emptyUxlSource();
+        let uxl             = AssetLib/S4Lite/Datatypes.emptyUxlOutput();
         {funclocs = flocs, funclocCharacteristics = flocchars | uxl}
 
         

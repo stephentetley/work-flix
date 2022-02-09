@@ -23,7 +23,7 @@ namespace AssetLib/S4Lite/EmitUxl {
         FunctionalLocationData, FlMultilingualText, FlClassification, 
         EquipmentData, EqMultilingualText, EqClassification};
         
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
+    use AssetLib/S4Lite/Datatypes.{UxlOutput, SLFunctionalLocation, SLFlocLongText, SLFlocCharacteristic, 
         SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
     pub type alias UxlOutputArgs = 
@@ -34,25 +34,22 @@ namespace AssetLib/S4Lite/EmitUxl {
 
 
 
-    pub def outputMocrUxlBatches(args: UxlOutputArgs, xs: List[UxlSource]): Result[Unit, String] & Impure = 
-        use Result.{flatMap};
+    pub def outputMocrUxlBatches(args: UxlOutputArgs, xs: List[{batchNumber :: Int32, uxl :: UxlOutput}]): Result[Unit, String] & Impure = 
         let strIndex = i -> String.padLeft(2, '0', "${i}");
-        let step = (ix, uxl) -> { 
-            let path    = System/FilePath.mapBaseName(s -> s + "_${strIndex(ix)}", args.outpath);
-            let crname  = String.replace(from = "##", to = strIndex(ix),  args.changeRequestName);
-            let args2    = {outpath = path, changeRequestName = crname, uxlTemplate = args.uxlTemplate};
-            let* _      = outputMocrUxl(args2, uxl);
-            Ok(ix + 1)
+        let step = x1 -> { 
+            let path    = System/FilePath.mapBaseName(s -> s + "_${strIndex(x1.batchNumber)}", args.outpath);
+            let crname  = String.replace(from = "##", to = strIndex(x1.batchNumber), args.changeRequestName);
+            let args2   = {outpath = path, changeRequestName = crname, uxlTemplate = args.uxlTemplate};
+            outputMocrUxl(args2, x1.uxl)
         };
-        let* _  = Result.foldLeftM(step, 1, xs);
-        Ok()
+        Result.traverse(step, xs) |> Result.map(constant())
 
     pub def outputMocrUxl(args: UxlOutputArgs,
-                        src: UxlSource): Result[Unit, String] & Impure = 
+                        src: UxlOutput): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(writeMocrUxl(args.changeRequestName, src), args.uxlTemplate, args.outpath)
 
 
-    def writeMocrUxl(changeRequestName: String, input: UxlSource): SheetWriter[Unit] = 
+    def writeMocrUxl(changeRequestName: String, input: UxlOutput): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, point, liftAction};
         let* src        = liftAction(_ -> AssetLib/S4Lite/Internal/FreshRenumber.equiRenumber(input));
         let flocs       = toFunctionalLocationData(src.funclocs);

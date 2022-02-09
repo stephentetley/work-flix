@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/GenUxl {
 
     use SheetIO/Reader.{XlsxSource};
-    use AssetLib/S4Lite/Datatypes.{UxlSource, SLFunctionalLocation, SLFlocCharacteristic};
+    use AssetLib/S4Lite/Datatypes.{UxlOutput, SLFunctionalLocation, SLFlocCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
     use AssetLib/GenS4.{GenMonad};
@@ -109,7 +109,7 @@ namespace AssetLib/GenS4/GenUxl {
 
 
 
-    def writeBatches(outputArgs: UxlOutputArgs, xs: List[UxlSource]): Result[Unit, String] & Impure = 
+    def writeBatches(outputArgs: UxlOutputArgs, xs: List[UxlOutput]): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         let strIndex = i -> String.padLeft(2, '0', "${i}");
         let step = (ix, uxl) -> { 
