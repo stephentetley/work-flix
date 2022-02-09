@@ -135,4 +135,44 @@ namespace S4Loader/Base/InitDb {
                 :: Nil
         )
 
+    /// PDT only
+    pub def createPdtViews(): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DROP VIEW IF EXISTS pdt_equipment_list;");
+        let* _  = execute(pdtEquipmentListViewDdl());
+        let* _  = commit();
+        point()
+
+
+    def pdtEquipmentListViewDdl(): String =
+        String.unlines(
+            "CREATE VIEW IF NOT EXISTS pdt_equipment_list(uid, asset_name, asset_type, tag_ref, funcloc) AS "
+            :: "SELECT "
+            :: "    sp.equipment_id AS uid, "
+            :: "    sp.prop_value 	AS asset_name, "
+            :: "    sp1.prop_value  AS asset_type, "
+            :: "    sp2.prop_value  AS tag_ref, "
+            :: "    sp3.prop_value  AS funcloc "
+            :: "FROM string_properties sp "
+            :: "LEFT OUTER JOIN (SELECT ss1.equipment_id, ss1.prop_value "
+            :: "        FROM string_properties ss1 "
+            :: "        WHERE ss1.prop_name = 'Asset Type' "
+            :: "        ) as sp1 "
+            :: "    ON sp.equipment_id  = sp1.equipment_id "
+            :: "LEFT OUTER JOIN (SELECT ss2.equipment_id, ss2.prop_value "
+            :: "        FROM string_properties ss2 "
+            :: "        WHERE ss2.prop_name = 'Tag reference' "
+            :: "        ) as sp2 "
+            :: "    ON sp.equipment_id  = sp2.equipment_id "
+            :: "LEFT OUTER JOIN (SELECT ss3.equipment_id, ss3.prop_value "
+            :: "        FROM string_properties ss3 "
+            :: "        WHERE ss3.prop_name = 'Location in Asset Hierarchy' "
+            :: "        ) as sp3 "
+            :: "    ON sp.equipment_id  = sp3.equipment_id"
+            :: "WHERE "
+	        :: "    sp.prop_name = 'Asset Name';"
+            :: Nil
+        )
+
 }

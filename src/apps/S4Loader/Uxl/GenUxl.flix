@@ -24,11 +24,11 @@ namespace S4Loader/Uxl/GenUxl {
         AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(args, xs)
 
 
-    pub def combineBatches(b1: Map[Int32, UxlOutput], Map[Int32, UxlOutput]): Map[Int32, UxlOutput] = 
+    pub def combineBatches(b1: Map[Int32, UxlOutput], b2: Map[Int32, UxlOutput]): Map[Int32, UxlOutput] = 
         Map.unionWith(AssetLib/S4Lite/Datatypes.combineUxlOutput, b1, b2)
 
     pub def combineBatchesAll(xs: f[Map[Int32, UxlOutput]]): Map[Int32, UxlOutput] with Foldable[f] = 
-        Foldable.foldLeft(combineBatches, AssetLib/S4Lite/Datatypes.emptyUXlOutput(), xs)
+        Foldable.foldLeft(combineBatches, Map.empty(), xs)
 
 
 }

@@ -99,7 +99,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: "field_name TEXT NOT NULL, "
                 :: "field_value TEXT, "
                 :: "field_units TEXT NOT NULL, "
-                :: "PRIMARY KEY(source_file, row_num, asset_name, field_name) "
+                :: "PRIMARY KEY(source_file, item_num, asset_name, field_name) "
                 :: ");"
                 :: Nil
         )
