@@ -25,13 +25,15 @@ def outputArgs(): UxlOutputArgs =
 def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
     let dbpath      = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-s4loader.sqlite");
-    let flocsrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-worklist2.xlsx"),
+    let flocsrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-worklist.xlsx"),
                         sheet = "Floc"};
+    let equisrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-worklist.xlsx"), 
+                        sheet = "Equi"};
     let* db         = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);
     let* batches    = S4Loader/Floc/GenUxl.genUxl(flocsrc);
     println("Floc batch count: ${Map.size(batches)}");
     let* _          = S4Loader/Uxl/GenUxl.emitUxl(outputArgs(), batches);
-    let equiRelns   = dummyWorkList();
+    let* equiRelns  = S4Loader/PDT/WorkList.readEquiWorkList(equisrc) |> Result.map(S4Loader/PDT/WorkList.genEquiWorkItems);
     let db2         = db
                         <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 
                         <+> S4Loader/PDT/Rules/EquiCharacteristics.equiCharacteristics()
@@ -47,7 +49,7 @@ def main01(): Result[Int32, String] & Impure =
 
     Ok(0)
 
-
+/*
 def dummyWorkList(): #{EquiWorkItem | r1} = #{
     EquiWorkItem("F23_C00_RTW Pump 1", "Run To Waste Pump-1").
     EquiWorkItem("F23_C01_RTW Pump 2", "Run To Waste Pump-2").
@@ -58,3 +60,4 @@ def dummyWorkList(): #{EquiWorkItem | r1} = #{
     EquiWorkItem("F12_C02_RTW Pump 2", "RTW Pump 1 Flow Monitor").
     EquiWorkItem("F12_C03_RTW Pump 3", "RTW Pump 1 Flow Monitor").
 }    
+*/
