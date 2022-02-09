@@ -21,16 +21,27 @@ namespace S4Loader/Floc/GenUxl {
     use AssetLib/S4Lite/Datatypes.{UxlOutput};
     use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
 
-    pub def genUxl(worklist: XlsxSource): Result[UxlOutput, String] & Impure =
+    use S4Loader/Floc/WorkList.{FlocWorkItemRow};
+
+    /// Returns a Map of the batches - may be sparse.
+    pub def genUxl(worklist: XlsxSource): Result[Map[Int32, UxlOutput], String] & Impure =
         use Result.{flatMap};
         let* workitems      = S4Loader/Floc/WorkList.readFlocWorkList(worklist);
+        let groups          = List.foldLeft((m, x1) -> Map.insertWith(Chain.append, x1.batchNumber, Chain.singleton(x1), m), 
+                                            Map.empty(), workitems);
+        let output          = Map.map(Chain.toList >> genUxl1, groups);
+        Ok(output)
+    
+    
+    def genUxl1(workitems: List[FlocWorkItemRow]): UxlOutput & Impure =
+        use Result.{flatMap};
         let flocs           = List.map(S4Loader/Floc/WorkList.genSLFunctionalLocation, workitems) |> List.toChain;
         let r1              = S4Loader/Floc/WorkList.genFlocWorkItems(workitems);
         let r2              = S4Loader/Floc/Rules/FlocCharacteristics.deriveProperties(workitems);
         let db              = r1 <+> r2 <+> S4Loader/Floc/Rules/FlocCharacteristics.flocCharacteristics();
         let flocchars       = (solve db project FlocCharacteristic) |> AssetLib/S4Lite/S4LiteRelations.toSLFlocCharacteristics;
         let uxl             = AssetLib/S4Lite/Datatypes.emptyUxlSource();
-        Ok({funclocs = flocs, funclocCharacteristics = flocchars | uxl})
+        {funclocs = flocs, funclocCharacteristics = flocchars | uxl}
 
         
 }

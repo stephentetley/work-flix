@@ -32,6 +32,21 @@ namespace AssetLib/S4Lite/EmitUxl {
         , outpath :: System.FilePath
         }
 
+
+
+    pub def outputMocrUxlBatches(args: UxlOutputArgs, xs: List[UxlSource]): Result[Unit, String] & Impure = 
+        use Result.{flatMap};
+        let strIndex = i -> String.padLeft(2, '0', "${i}");
+        let step = (ix, uxl) -> { 
+            let path    = System/FilePath.mapBaseName(s -> s + "_${strIndex(ix)}", args.outpath);
+            let crname  = String.replace(from = "##", to = strIndex(ix),  args.changeRequestName);
+            let args2    = {outpath = path, changeRequestName = crname, uxlTemplate = args.uxlTemplate};
+            let* _      = outputMocrUxl(args2, uxl);
+            Ok(ix + 1)
+        };
+        let* _  = Result.foldLeftM(step, 1, xs);
+        Ok()
+
     pub def outputMocrUxl(args: UxlOutputArgs,
                         src: UxlSource): Result[Unit, String] & Impure = 
         SheetIO/SheetWriter.runTemplateXssf(writeMocrUxl(args.changeRequestName, src), args.uxlTemplate, args.outpath)
