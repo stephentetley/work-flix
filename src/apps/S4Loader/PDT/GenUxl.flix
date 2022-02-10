@@ -51,7 +51,8 @@ namespace S4Loader/PDT/GenUxl {
     def genUxl1(dbrelns: PersistentRelations[r1], workitems: List[EquiWorkItemRow]): UxlOutput & Impure =
         let dbrelns1        = dbrelns as UnionSchema[r1];
         let r1              = S4Loader/PDT/Gen/WorkList.genEquiWorkItems(workitems);
-        let db              = dbrelns1 <+> r1
+        let r2              = S4Loader/PDT/Gen/WorkList.genProperties(workitems);
+        let db              = dbrelns1 <+> r1 <+> r2
                                 <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 
                                 <+> S4Loader/PDT/Rules/EquiCharacteristics.equiCharacteristics()
                                 <+> S4Loader/PDT/Rules/EquiLongText.equiLongText()

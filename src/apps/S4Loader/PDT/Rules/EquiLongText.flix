@@ -43,7 +43,7 @@ namespace S4Loader/PDT/Rules/EquiLongText {
                 LongText(uid; longText).
 
             // Long Text could be memoText
-            LongText(uid; singleton("M1", AttrString(memoText))) :- 
+            LongText(uid; singleton("A1", AttrString(memoText))) :- 
                 EquiWorkItem(uid, _),
                 StringProperty(uid, "Memo Line", memoText),
                 if isLongOrMultiline(memoText).
@@ -54,6 +54,10 @@ namespace S4Loader/PDT/Rules/EquiLongText {
                 StringProperty(uid, "Location on Site", location),
                 if isLongOrMultiline(location).
 
+            LongText(uid; singleton("Z1", AttrString(memoText))) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@EXTRA_MEMO", memoText).
+                
         }
 
     def getLongText(attrs: Attributes): String = 

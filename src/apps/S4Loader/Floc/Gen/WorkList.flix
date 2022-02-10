@@ -20,7 +20,6 @@ namespace S4Loader/Floc/Gen/WorkList {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-
     use S4Loader/Base/Schema.{StringProperty, IntProperty};
 
 
@@ -90,10 +89,10 @@ namespace S4Loader/Floc/Gen/WorkList {
 
 
     pub def genProperties(xs: List[FlocWorkItemRow]): #{StringProperty, IntProperty | r} = 
-        RelLib/Relation.foldMap(tellProperties, xs)
+        RelLib/Relation.foldMap(makeProperties1, xs)
         
 
-    def tellProperties(x: FlocWorkItemRow): #{StringProperty, IntProperty | r} = 
+    def makeProperties1(x: FlocWorkItemRow): #{StringProperty, IntProperty | r} = 
         use RelLib/Relation.{whenTrue, foldMap};
         #{ StringProperty(x.funcloc, "@GRID_REF", x.gridRef). }
             <+> whenTrue(not String.isEmpty(x.solutionId),              #{ StringProperty(x.funcloc, "@SOLUTION_ID", x.solutionId). })

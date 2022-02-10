@@ -20,6 +20,7 @@ namespace S4Loader/PDT/Gen/WorkList {
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
+    use S4Loader/Base/Schema.{StringProperty, IntProperty};
 
     pub rel EquiWorkItem(uid: String, s4Name: String)
 
@@ -65,7 +66,15 @@ namespace S4Loader/PDT/Gen/WorkList {
                 , extraMemo     = extraMemo
                 })
 
+    pub def genProperties(xs: List[EquiWorkItemRow]): #{StringProperty, IntProperty | r} = 
+        RelLib/Relation.foldMap(makeProperties1, xs)
+        
 
+    def makeProperties1(x: EquiWorkItemRow): #{StringProperty, IntProperty | r} = 
+        use RelLib/Relation.{whenTrue, foldMap};
+        whenTrue(not String.isEmpty(x.solutionId), #{ StringProperty(x.uid, "@SOLUTION_ID", x.solutionId). })
+            <+> whenTrue(not String.isEmpty(x.extraMemo), #{ StringProperty(x.uid, "@EXTRA_MEMO", x.extraMemo). })
+        
 
     pub def genEquiWorkItems(xs: List[EquiWorkItemRow]): #{EquiWorkItem | r} = 
         RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem(x1.uid, x1.s4Name). }, xs)
