@@ -23,6 +23,7 @@ namespace S4Loader/PDT/GenUxl {
     
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, PropertyAlias, EquiObjectClass};
     use S4Loader/Base/AttributesLattice.{AttributeValue};
+    use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
     use S4Loader/PDT/Gen/ReadDb.{PersistentRelations};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItemRow, EquiWorkItem};
     use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributes};
@@ -60,11 +61,13 @@ namespace S4Loader/PDT/GenUxl {
         let equis           = List.map(makeEquipment1(equiPatches), workitems) |> List.toChain;
         {equipment = equis, equiLongTexts = equiMemos, equiCharacteristics = equiChars | uxl}
 
-    def makeEquipment1(_attrsAll: Map[String, Map[String, AttributeValue]], workitem: EquiWorkItemRow): SLEquipment & Impure =
-        let equi1 = draftSLEquipment(workitem);
-        /// Patch TODO
-        equi1
-
+    def makeEquipment1(attrsAll: Map[String, Map[String, AttributeValue]], workitem: EquiWorkItemRow): SLEquipment & Impure =
+        draftSLEquipment(workitem)
+            |> patchFloatAttribute(attrsAll,    "Gross Weight kg",          (d, x) -> {weightKg = Some(d) | x})
+            |> patchDateAttribute(attrsAll,     "Start-up date",            (d, x) -> {startupDate = d | x})
+            |> patchStringAttribute(attrsAll,   "Manufacturer",             (s, x) -> {manufacturer = s | x})
+            |> patchStringAttribute(attrsAll,   "TechIdentNo.",             (s, x) -> {techIdentNo = s | x})
+            |> patchStringAttribute(attrsAll,   "Status of an object",      (s, x) -> {status = s | x})
 
 
     def draftSLEquipment(x: EquiWorkItemRow): SLEquipment & Impure = 
@@ -86,6 +89,50 @@ namespace S4Loader/PDT/GenUxl {
         , techIdentNo           = ""
         , status                = ""
         }
+
+    def patchStringAttribute(attrsAll: Map[String, Map[String, AttributeValue]], 
+                                attrName: String, 
+                                update: (String, SLEquipment) -> SLEquipment, 
+                                x: SLEquipment): SLEquipment = 
+        let update1 = (v1, e1) -> match v1 {
+            case AttrString(s1) => update(s1, e1)
+            case _              => e1
+        };
+        patchEquipment(attrsAll, attrName, update1, x)                                
+
+    def patchDateAttribute(attrsAll: Map[String, Map[String, AttributeValue]], 
+                                attrName: String, 
+                                update: (Time.LocalDate, SLEquipment) -> SLEquipment, 
+                                x: SLEquipment): SLEquipment = 
+        let update1 = (v1, e1) -> match v1 {
+            case AttrDate(d1) => update(d1, e1)
+            case _            => e1
+        };
+        patchEquipment(attrsAll, attrName, update1, x)
+
+    def patchFloatAttribute(attrsAll: Map[String, Map[String, AttributeValue]], 
+                                attrName: String, 
+                                update: (Float64, SLEquipment) -> SLEquipment, 
+                                x: SLEquipment): SLEquipment = 
+        let update1 = (v1, e1) -> match v1 {
+            case AttrFloat(d1) => update(d1, e1)
+            case _             => e1
+        };
+        patchEquipment(attrsAll, attrName, update1, x)
+
+    def patchEquipment(attrsAll: Map[String, Map[String, AttributeValue]], 
+                        attrName: String, 
+                        update: (AttributeValue, SLEquipment) -> SLEquipment, 
+                        x: SLEquipment): SLEquipment = 
+        use Option.{flatMap};
+        let step = () -> {
+            let* patches    = Map.get(x.equiId, attrsAll);
+            let* newval     = Map.get(attrName, patches);
+            Some(update(newval, x))
+        };
+        Option.getWithDefault(x, step())
+
+
 
   
 }

@@ -67,6 +67,10 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
                 EquiWorkItem(uid, _),
                 StringProperty(uid, "Product model number", value).
 
+            EquiAttributes(uid; singleton("TechIdentNo.", AttrString(value))) :-  
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Tag reference", value).
+                
             EquiAttributes(uid; singleton("Gross Weight kg", AttrFloat(value))) :- 
                 EquiWorkItem(uid, _),
                 FloatProperty(uid, "Weight(kg)", value).

@@ -24,24 +24,12 @@ def outputArgs(): UxlOutputArgs =
 
 def main01(): Result[Int32, String] & Impure = 
     use Result.flatMap;
-    let dbpath      = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-s4loader.sqlite");
-    let flocsrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-worklist.xlsx"),
-                        sheet = "Floc"};
-    let equisrc     = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-worklist.xlsx"), 
-                        sheet = "Equi"};
+    let dbpath          = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-s4loader.sqlite");
+    let flocsrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-worklist.xlsx"),
+                            sheet = "Floc"};
+    let equisrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-worklist.xlsx"), 
+                            sheet = "Equi"};
     let* flocbatches    = S4Loader/Floc/GenUxl.genFlocUxlBatches(flocsrc);
-    println("Floc batch count: ${Map.size(flocbatches)}");
     let* equibatches    = S4Loader/PDT/GenUxl.genEquiUxlBatches(dbpath, equisrc);
-    let* _          = S4Loader/Uxl/GenUxl.emitUxl(outputArgs(), S4Loader/Uxl/GenUxl.combineBatches(flocbatches, equibatches));
-    /// let* db             = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);
-    /// let* equiRelns  = S4Loader/PDT/Gen/WorkList.readEquiWorkList(equisrc) |> Result.map(S4Loader/PDT/Gen/WorkList.genEquiWorkItems);
-    /// let db2         = db
-    ///                     <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 
-    ///                     <+> S4Loader/PDT/Rules/EquiCharacteristics.equiCharacteristics()
-    ///                     /// <+> S4Loader/PDT/Rules/EquiLongText.equiLongText()
-    ///                     <+> S4Loader/PDT/Rules/EquiAttributes.equiAttributes()
-    ///                     <+> equiRelns;
-    /// query db2 select (x1; x2) from EquiAttributes(x1; x2) |> Array.foreach(println);
-
-
+    let* _              = S4Loader/Uxl/GenUxl.emitUxl(outputArgs(), S4Loader/Uxl/GenUxl.combineBatches(flocbatches, equibatches));
     Ok(0)
