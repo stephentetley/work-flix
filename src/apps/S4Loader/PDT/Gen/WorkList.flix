@@ -52,7 +52,7 @@ namespace S4Loader/PDT/Gen/WorkList {
         let* floc           = getNonEmptyContentNamed("S4 Floc");
         let* superEqui      = getTrimmedContentNamed("Super Equi");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
-        let* position       = getNonEmptyContentNamed("Position") |> map(Int32.fromString >> Result.toOption);
+        let* position       = getTrimmedContentNamed("Position") |> map(Int32.fromString >> Result.toOption);
         let* batch          = optional(getInt32Named("Batch"));
         let* extraMemo      = getTrimmedContentNamed("Extra Memo");
         point({ rowId           = rowId
@@ -66,6 +66,9 @@ namespace S4Loader/PDT/Gen/WorkList {
                 , extraMemo     = extraMemo
                 })
 
+    pub def genEquiWorkItems(xs: List[EquiWorkItemRow]): #{EquiWorkItem | r} = 
+        RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem(x1.uid, x1.s4Name). }, xs)
+
     pub def genProperties(xs: List[EquiWorkItemRow]): #{StringProperty, IntProperty | r} = 
         RelLib/Relation.foldMap(makeProperties1, xs)
         
@@ -76,8 +79,6 @@ namespace S4Loader/PDT/Gen/WorkList {
             <+> whenTrue(not String.isEmpty(x.extraMemo), #{ StringProperty(x.uid, "@EXTRA_MEMO", x.extraMemo). })
         
 
-    pub def genEquiWorkItems(xs: List[EquiWorkItemRow]): #{EquiWorkItem | r} = 
-        RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem(x1.uid, x1.s4Name). }, xs)
 
 
 

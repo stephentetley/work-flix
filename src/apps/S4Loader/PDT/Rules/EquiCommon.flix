@@ -49,22 +49,35 @@ namespace S4Loader/PDT/Rules/EquiCommon {
                 EquiWorkItem(uid, _),
                 EquiObjectClass(uid, _, equiClass).
 
+                    
+            EquiCharacteristic(uid, "SOLUTION_ID", "SOLUTION_ID", S4String(value)) :-
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@SOLUTION_ID", value).
+
             EquiCharacteristic(uid, equiClass, "LOCATION_ON_SITE", S4String(value)) :-
                 EquiWorkItem(uid, _),
                 EquiObjectClass(uid, _, equiClass),
-                StringProperty(uid, "LOCATION ON SITE", value),
+                StringProperty(uid, "Location on Site", value),
                 if String.length(value) < 30.
 
             EquiCharacteristic(uid, equiClass, "LOCATION_ON_SITE", S4String("SEE LONG TEXT")) :-
                 EquiWorkItem(uid, _),
                 EquiObjectClass(uid, _, equiClass),
-                StringProperty(uid, "LOCATION ON SITE", value),
+                StringProperty(uid, "Location on Site", value),
                 if String.length(value) >= 30.
 
-
-            EquiCharacteristic(uid, "SOLUTION_ID", "SOLUTION_ID", S4String(solutionId)) :-  
+            EquiCharacteristic(uid, equiClass, "MEMO_LINE", S4String(value)) :-
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "@SOLUTION_ID", solutionId).
+                EquiObjectClass(uid, _, equiClass),
+                StringProperty(uid, "Memo Line", value),
+                if String.length(value) < 30.
+
+            EquiCharacteristic(uid, equiClass, "MEMO_LINE", S4String("SEE LONG TEXT")) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, equiClass),
+                StringProperty(uid, "Memo Line", value),
+                if String.length(value) >= 30.
+
 
         }
         

@@ -32,10 +32,6 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
         #{
 
-                    
-            EquiCharacteristic(uid, "SOLUTION_ID", "SOLUTION_ID", S4String(value)) :-
-                EquiWorkItem(uid, _),
-                StringProperty(uid, "@SOLUTION_ID", value).
 
 
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
