@@ -16,16 +16,23 @@
 
 namespace S4Loader/Uxl/GenUxl {
 
+    use SheetIO/Reader.{XlsxSource};
+
     use AssetLib/S4Lite/Datatypes.{UxlOutput};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
+
+    pub def generatePDTUxl(outputArgs: UxlOutputArgs, 
+                            src: { dbpath :: System.FilePath, flocsrc :: XlsxSource, equisrc :: XlsxSource }): Result[Unit, String] & Impure = 
+        use Result.flatMap;
+        let* flocbatches    = S4Loader/Floc/GenUxl.genFlocUxlBatches(src.flocsrc);
+        let* equibatches    = S4Loader/PDT/GenUxl.genEquiUxlBatches(src.dbpath, src.equisrc);
+        let* _              = emitUxl(outputArgs, combineBatches(flocbatches, equibatches));
+        Ok()
+
 
     pub def emitUxl(args: UxlOutputArgs, batches: Map[Int32, UxlOutput]): Result[Unit, String] & Impure = 
         let xs = batches |> Map.toList |> List.map(xy -> let (x, y) = xy; {batchNumber = x, uxl = y });
         AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(args, xs)
-
-    /// pub def emitRenumberedUxl(args: UxlOutputArgs, batches: Map[Int32, UxlOutput]): Result[Unit, String] & Impure = 
-    ///     let xs = batches |> Map.toList |> List.map(xy -> let (x, y) = xy; {batchNumber = x, uxl = y });
-    ///     AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(args, xs)
 
 
     pub def combineBatches(b1: Map[Int32, UxlOutput], b2: Map[Int32, UxlOutput]): Map[Int32, UxlOutput] = 

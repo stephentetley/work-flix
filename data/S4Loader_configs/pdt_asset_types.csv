@@ -1,9 +1,11 @@
 pdt_asset_type,s4_category,s4_object,s4_class
 Air Release Valve,M,VALV,VALVAV
 Ball Valve,M,VALV,VALVBA
+Borehole Pump,E,PUMS,PUMSBH
 Butterfly Valve,M,VALV,VALVBP
 Changeover Switch,E,SGER,SGERCO
 Clean Water Compartment,C,TANK,TANKCC
+Conductive Level Device,I,LSTN,LSTNCO
 Diaphragm Type Pressure Device,I,PSTN,PSTNDI
 Direct On Line Starter,E,STAR,STARDO
 Electric Motor Actuator,E,ACTU,ACTUEM
@@ -18,6 +20,7 @@ Submersible Pump with Integral Motor,E,PUMS,PUMSMO
 Thermal Mass Flow Transmitter,I,FSTM,FSTNTM
 Thermal Mass Flow Transmitter,I,FSTN,FSTNTM
 Turbidity in Fluid Analyser,I,ANAL,ANALTB
+Uninterruptable Power Supply,E,PODE,PODEUP
 Ultrasonic Time of Flight Level Device,I,LSTN,LSTNUT
 Variable Frequency Starter,E,STAR,STARVF
 Wet Well,C,WELL,WELLWT

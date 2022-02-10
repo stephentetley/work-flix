@@ -44,8 +44,13 @@ Rated Current (A),Float
 Rated Input Voltage (V),String
 Rated Power (W),Float
 Rated Power (kW),Float
+Rated Speed (RPM),Int
 Rated Voltage,Int
 Rated Voltage Units,String
+Sensor Calibration Factor 1,Float
+Sensor Calibration Factor 2,Float
+Sensor Calibration Factor 3,Float
+Sensor Calibration Factor 4,Float
 Serial Number,String
 Side Depth (mm),Int
 Side Depth Max (mm),Int

@@ -33,6 +33,9 @@ namespace S4Loader/Base/Schema {
 
     pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
 
+    /// This is PDT specific...
+    pub rel TankShape(pdtTankEnum: String, tankShapeClass: String)
+
     /// Maybe this is PDT specific...
     pub rel EquiObjectClass(uid: String, s4Category: String, s4Object: String, s4Class : String)
 

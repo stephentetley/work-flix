@@ -20,25 +20,47 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass, TankShape};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
 
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 
-        #{EquiWorkItem, StringProperty, IntProperty, PropertyAlias, EquiObjectClass, 
+        #{EquiWorkItem, StringProperty, IntProperty, PropertyAlias, EquiObjectClass, TankShape, 
             EquiCharacteristic | r1}
 
 
+    /// Use `PropertyAlias` even for characteristics that don't have a four character object
+    /// prefix. `PropertyAlias` works as an inclusion test showing that the respective class
+    /// contains that characteristic.
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
         #{
+            /// Special - uses TankShape
+            EquiCharacteristic(uid, tankShapeClass, charName, S4Float(value)) :-
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Tank Shape", shape),
+                TankShape(shape, tankShapeClass),
+                FloatProperty(uid, "Capacity (m3)", value),
+                PropertyAlias("Capacity (m3)", tankShapeClass, charName).
+
+            /// Special - uses TankShape
+            EquiCharacteristic(uid, tankShapeClass, charName, S4Int(value)) :-
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Tank Shape", shape),
+                TankShape(shape, tankShapeClass),
+                IntProperty(uid, "Diameter (mm)", value),
+                PropertyAlias("Diameter (mm)", tankShapeClass, charName).
+
+            /// TODO these can likely be derived from `equi class list`...
+            TankShape("Shape Circular Flat Bottom", "SHCFBM").
+            TankShape("Shape Rect Sloping Bottom", "SHRSBM").
 
 
-
-            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
+            EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
                 EquiWorkItem(uid, _),
                 EquiObjectClass(uid, _, _, equiClass),
-                FloatProperty(uid, "Rated Current (A)", value),
-                PropertyAlias("Rated Current (A)", equiClass, charName).
+                StringProperty(uid, "IP Rating", value),
+                PropertyAlias("IP Rating", equiClass, charName).
+
             
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
@@ -48,7 +70,13 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
 
             // rated power kw
 
-            
+
+            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                FloatProperty(uid, "Rated Current (A)", value),
+                PropertyAlias("Rated Current (A)", equiClass, charName).
+
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
                 EquiObjectClass(uid, _, _, equiClass),
