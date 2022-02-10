@@ -128,6 +128,7 @@ namespace S4Loader/Base/InitDb {
         String.unwords(
             "CREATE TABLE IF NOT EXISTS meta_pdt_asset_types ("
                 :: "pdt_asset_type TEXT NOT NULL,"
+                :: "s4_category TEXT NOT NULL,"
                 :: "s4_object TEXT NOT NULL,"
                 :: "s4_class TEXT NOT NULL,"
 	            :: "PRIMARY KEY(pdt_asset_type)"

@@ -43,11 +43,11 @@ namespace S4Loader/PDT/Rules/EquiCommon {
 
             EquiCharacteristic(uid, equiClass, "UNICLASS_CODE", S4String("")) :- 
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass).
+                EquiObjectClass(uid, _, _, equiClass).
 
             EquiCharacteristic(uid, equiClass, "UNICLASS_DESC", S4String("")) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass).
+                EquiObjectClass(uid, _, _, equiClass).
 
                     
             EquiCharacteristic(uid, "SOLUTION_ID", "SOLUTION_ID", S4String(value)) :-
@@ -56,25 +56,25 @@ namespace S4Loader/PDT/Rules/EquiCommon {
 
             EquiCharacteristic(uid, equiClass, "LOCATION_ON_SITE", S4String(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 StringProperty(uid, "Location on Site", value),
                 if String.length(value) < 30.
 
             EquiCharacteristic(uid, equiClass, "LOCATION_ON_SITE", S4String("SEE LONG TEXT")) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 StringProperty(uid, "Location on Site", value),
                 if String.length(value) >= 30.
 
             EquiCharacteristic(uid, equiClass, "MEMO_LINE", S4String(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 StringProperty(uid, "Memo Line", value),
                 if String.length(value) < 30.
 
             EquiCharacteristic(uid, equiClass, "MEMO_LINE", S4String("SEE LONG TEXT")) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 StringProperty(uid, "Memo Line", value),
                 if String.length(value) >= 30.
 

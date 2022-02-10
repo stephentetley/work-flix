@@ -22,7 +22,7 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
     use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
     use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
-    use S4Loader/Base/Schema.{StringProperty, FloatProperty};
+    use S4Loader/Base/Schema.{StringProperty, FloatProperty, EquiObjectClass};
 
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
@@ -31,7 +31,7 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
 
     pub type alias EquiAttributesSchema[r1: SchemaRow] = 
-        #{EquiWorkItem, StringProperty, FloatProperty, EquiAttributes | r1}
+        #{EquiWorkItem, StringProperty, FloatProperty, EquiAttributes, EquiObjectClass | r1}
 
 
     pub lat EquiAttributes(uid: String, attrs: Attributes)
@@ -40,6 +40,16 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
     pub def equiAttributes(): EquiAttributesSchema[r1] = 
         use S4Loader/Base/AttributesLattice.{singleton};
         #{
+
+
+            EquiAttributes(uid; singleton("EquipCategory", AttrString(category))) :-  
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, category, _, _).
+
+
+            EquiAttributes(uid; singleton("Object type", AttrString(objtype))) :-  
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, objtype, _).
 
             /// Needs translation...
             EquiAttributes(uid; singleton("Status of an object", AttrString(value))) :-  

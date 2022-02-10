@@ -1,23 +1,23 @@
-pdt_asset_type,s4_object,s4_class
-Air Release Valve,VALV,VALVAV
-Ball Valve,VALV,VALVBA
-Butterfly Valve,VALV,VALVBP
-Changeover Switch,SGER,SGERCO
-Clean Water Compartment,TANK,TANKCC
-Diaphragm Type Pressure Device,PSTN,PSTNDI
-Direct On Line Starter,STAR,STARDO
-Electric Motor Actuator,ACTU,ACTUEM
-Electromagnetic Flow Device,FSTN,FSTNEM
-Gate Valve,VALV,VALVGA
-Kiosk,KISK,KISKKI
-Level Float Device,LSTN,LSTNFL
-Motor Control Centre Panel,MCCE,MCCEPA
-Non Return Valve,VALV,VALVNR
-Programmable Logic Controller,CONT,CONTPL
-Submersible Pump with Integral Motor,PUMS,PUMSMO
-Thermal Mass Flow Transmitter,FSTM,FSTNTM
-Thermal Mass Flow Transmitter,FSTN,FSTNTM
-Turbidity in Fluid Analyser,ANAL,ANALTB
-Ultrasonic Time of Flight Level Device,LSTN,LSTNUT
-Variable Frequency Starter,STAR,STARVF
-Wet Well,WELL,WELLWT
+pdt_asset_type,s4_category,s4_object,s4_class
+Air Release Valve,M,VALV,VALVAV
+Ball Valve,M,VALV,VALVBA
+Butterfly Valve,M,VALV,VALVBP
+Changeover Switch,E,SGER,SGERCO
+Clean Water Compartment,C,TANK,TANKCC
+Diaphragm Type Pressure Device,I,PSTN,PSTNDI
+Direct On Line Starter,E,STAR,STARDO
+Electric Motor Actuator,E,ACTU,ACTUEM
+Electromagnetic Flow Device,I,FSTN,FSTNEM
+Gate Valve,M,VALV,VALVGA
+Kiosk,C,KISK,KISKKI
+Level Float Device,I,LSTN,LSTNFL
+Motor Control Centre Panel,E,MCCE,MCCEPA
+Non Return Valve,M,VALV,VALVNR
+Programmable Logic Controller,I,CONT,CONTPL
+Submersible Pump with Integral Motor,E,PUMS,PUMSMO
+Thermal Mass Flow Transmitter,I,FSTM,FSTNTM
+Thermal Mass Flow Transmitter,I,FSTN,FSTNTM
+Turbidity in Fluid Analyser,I,ANAL,ANALTB
+Ultrasonic Time of Flight Level Device,I,LSTN,LSTNUT
+Variable Frequency Starter,E,STAR,STARVF
+Wet Well,C,WELL,WELLWT

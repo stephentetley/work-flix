@@ -51,17 +51,18 @@ namespace S4Loader/PDT/Gen/ReadDb {
 
     def evalEquiObjectClass(): RowEvaluator[#{EquiObjectClass | r}] = 
         use BasicDb/RowEvaluator.{getStringAt};
-        ((x1, x2, x3) -> #{ EquiObjectClass(x1, x2, x3). })
+        ((x1, x2, x3, x4) -> #{ EquiObjectClass(x1, x2, x3, x4). })
             <$> getStringAt(0)
             <*> getStringAt(1)
             <*> getStringAt(2)
-
+            <*> getStringAt(3)
 
     /// This uses a join that we could do in Datalog but we do it here for efficiency
     def selectEquiObjectClassSQL(): String = 
         String.unlines(
             "SELECT "
 	            :: "    sp.equipment_id,"
+                :: "    mpat.s4_category,"
 	            :: "    mpat.s4_object,"
 	            :: "    mpat.s4_class"
                 :: "FROM string_properties sp "

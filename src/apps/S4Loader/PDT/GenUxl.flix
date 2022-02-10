@@ -66,6 +66,8 @@ namespace S4Loader/PDT/GenUxl {
 
     def makeEquipment1(attrsAll: Map[String, Map[String, AttributeValue]], workitem: EquiWorkItemRow): SLEquipment & Impure =
         draftSLEquipment(workitem)
+            |> patchStringAttribute(attrsAll,   "EquipCategory",            (s, x) -> {category = s | x})
+            |> patchStringAttribute(attrsAll,   "Object type",              (s, x) -> {objectType = s | x})
             |> patchFloatAttribute(attrsAll,    "Gross Weight kg",          (d, x) -> {weightKg = Some(d) | x})
             |> patchDateAttribute(attrsAll,     "Start-up date",            (d, x) -> {startupDate = d | x})
             |> patchStringAttribute(attrsAll,   "Manufacturer",             (s, x) -> {manufacturer = s | x})

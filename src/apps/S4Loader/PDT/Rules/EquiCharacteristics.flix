@@ -36,13 +36,13 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
 
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 FloatProperty(uid, "Rated Current (A)", value),
                 PropertyAlias("Rated Current (A)", equiClass, charName).
             
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 FloatProperty(uid, "Insulation Class (°c)", value),
                 PropertyAlias("Insulation Class (°c)", equiClass, charName).
 
@@ -51,28 +51,28 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
             
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 FloatProperty(uid, "Rated Power (kW)", value),
                 PropertyAlias("Rated Power (kW)", equiClass, charName).
 
 
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 FloatProperty(uid, "Range Max", value),
                 PropertyAlias("Range Max", equiClass, charName).
 
                 
             EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 FloatProperty(uid, "Range Min", value),
                 PropertyAlias("Range Min", equiClass, charName).
 
                 
             EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
                 EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, equiClass),
+                EquiObjectClass(uid, _, _, equiClass),
                 StringProperty(uid, "Range Unit", value),
                 PropertyAlias("Range Unit", equiClass, charName).
 
