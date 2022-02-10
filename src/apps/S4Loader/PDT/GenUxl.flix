@@ -27,6 +27,7 @@ namespace S4Loader/PDT/GenUxl {
     use S4Loader/PDT/Gen/ReadDb.{PersistentRelations};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItemRow, EquiWorkItem};
     use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributes};
+    use S4Loader/PDT/Rules/EquiLongText.{LongText};
 
     /// Returns a Map of the batches - may be sparse.
     pub def genEquiUxlBatches(dbpath: System.FilePath, worklist: XlsxSource): Result[Map[Int32, UxlOutput], String] & Impure =
@@ -43,7 +44,8 @@ namespace S4Loader/PDT/GenUxl {
     type alias UnionSchema[r1: SchemaRow] = 
         #{EquiLongText, EquiCharacteristic, EquiWorkItem, PropertyAlias, EquiObjectClass, 
             StringProperty, IntProperty, FloatProperty, DateProperty,
-            EquiAttributes
+            EquiAttributes,
+            LongText
             | r1}
 
     def genUxl1(dbrelns: PersistentRelations[r1], workitems: List[EquiWorkItemRow]): UxlOutput & Impure =
@@ -52,14 +54,14 @@ namespace S4Loader/PDT/GenUxl {
         let db              = dbrelns1 <+> r1
                                 <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 
                                 <+> S4Loader/PDT/Rules/EquiCharacteristics.equiCharacteristics()
-                                /// <+> S4Loader/PDT/Rules/EquiLongText.equiLongText()
+                                <+> S4Loader/PDT/Rules/EquiLongText.equiLongText()
                                 <+> S4Loader/PDT/Rules/EquiAttributes.equiAttributes();
         let equiPatches     = (solve db project EquiAttributes) |> S4Loader/PDT/Rules/EquiAttributes.toAttributePatches;
-        let equiMemos       = (solve db project EquiLongText) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongTexts;
+        let equiLongTexts   = (solve db project EquiLongText) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongTexts;
         let equiChars       = (solve db project EquiCharacteristic) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics;
         let uxl             = AssetLib/S4Lite/Datatypes.emptyUxlOutput();
         let equis           = List.map(makeEquipment1(equiPatches), workitems) |> List.toChain;
-        {equipment = equis, equiLongTexts = equiMemos, equiCharacteristics = equiChars | uxl}
+        {equipment = equis, equiLongTexts = equiLongTexts, equiCharacteristics = equiChars | uxl}
 
     def makeEquipment1(attrsAll: Map[String, Map[String, AttributeValue]], workitem: EquiWorkItemRow): SLEquipment & Impure =
         draftSLEquipment(workitem)

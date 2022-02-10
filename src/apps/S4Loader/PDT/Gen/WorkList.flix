@@ -51,7 +51,7 @@ namespace S4Loader/PDT/Gen/WorkList {
         let* floc           = getNonEmptyContentNamed("S4 Floc");
         let* superEqui      = getTrimmedContentNamed("Super Equi");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
-        let* position       = optional(getInt32Named("Position"));
+        let* position       = getNonEmptyContentNamed("Position") |> map(Int32.fromString >> Result.toOption);
         let* batch          = optional(getInt32Named("Batch"));
         let* extraMemo      = getTrimmedContentNamed("Extra Memo");
         point({ rowId           = rowId
