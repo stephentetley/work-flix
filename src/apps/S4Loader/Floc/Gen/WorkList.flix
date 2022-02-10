@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-namespace S4Loader/Floc/WorkList {
+namespace S4Loader/Floc/Gen/WorkList {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation};
+
+    use S4Loader/Base/Schema.{StringProperty, IntProperty};
 
 
     pub rel FlocWorkItem(s4Floc: String, level: Int32)
@@ -88,30 +89,20 @@ namespace S4Loader/Floc/WorkList {
             |> List.filter(s1 -> not String.isEmpty(s1))
 
 
+    pub def genProperties(xs: List[FlocWorkItemRow]): #{StringProperty, IntProperty | r} = 
+        RelLib/Relation.foldMap(tellProperties, xs)
+        
+
+    def tellProperties(x: FlocWorkItemRow): #{StringProperty, IntProperty | r} = 
+        use RelLib/Relation.{whenTrue, foldMap};
+        #{ StringProperty(x.funcloc, "@GRID_REF", x.gridRef). }
+            <+> whenTrue(not String.isEmpty(x.solutionId),              #{ StringProperty(x.funcloc, "@SOLUTION_ID", x.solutionId). })
+            <+> whenTrue(not String.isEmpty(x.systemClass),             #{ StringProperty(x.funcloc, "@CLASS_NAME", x.systemClass). })
+            <+> whenTrue(not String.isEmpty(x.systemTypeDescription),   #{ StringProperty(x.funcloc, "@SYSTEM_DESCR", x.systemTypeDescription). })
+            <+> foldMap(s1 -> #{ StringProperty(x.funcloc, "@AIB_REFERENCE", s1). }, x.sainums)
+
+
     pub def genFlocWorkItems(xs: List[FlocWorkItemRow]): #{FlocWorkItem | r} = 
         RelLib/Relation.foldMap(x1 -> #{ FlocWorkItem(x1.funcloc, x1.level). }, xs)
-
-    pub def genSLFunctionalLocation(x: FlocWorkItemRow): SLFunctionalLocation = 
-        let floc    = AssetLib/Base/S4/Floc.new1(x.funcloc);
-        let level   = AssetLib/Base/S4/Floc.level(floc);
-        let parent  = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> Option.getWithDefault("");
-        { funcloc               = x.funcloc
-        , description           = x.description
-        , category              = level
-        , structureIndicator    = x.structureIndicator
-        , objectType            = x.objectType
-        , startupDate           = x.installedFrom
-        , position              = x.position
-        , superiorFloc          = parent
-        , equipmentInstall      = equipmentInstall(x.structureIndicator, level)
-        , status                = "UCON"
-        }
-
-
-    def equipmentInstall(structure: String, level: Int32): Bool = match structure {
-        case "YW-GS" if level >= 5 => true
-        case "YW-ES" if level >= 3 => true
-        case _ => false
-    }
 
 }

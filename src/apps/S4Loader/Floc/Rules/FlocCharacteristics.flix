@@ -24,7 +24,7 @@ namespace S4Loader/Floc/Rules/FlocCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
     
     use S4Loader/Base/Schema.{StringProperty, IntProperty};
-    use S4Loader/Floc/WorkList.{FlocWorkItem, FlocWorkItemRow};
+    use S4Loader/Floc/Gen/WorkList.{FlocWorkItem};
     
     
     pub type alias FlocCharacteristicSchema[r1: SchemaRow] = 
@@ -90,17 +90,5 @@ namespace S4Loader/Floc/Rules/FlocCharacteristics {
 
         }
 
-
-    pub def deriveProperties(xs: List[FlocWorkItemRow]): #{StringProperty, IntProperty | r} = 
-        RelLib/Relation.foldMap(tellProperties, xs)
-        
-
-    def tellProperties(x: FlocWorkItemRow): #{StringProperty, IntProperty | r} = 
-        use RelLib/Relation.{whenTrue, foldMap};
-        #{ StringProperty(x.funcloc, "@GRID_REF", x.gridRef). }
-            <+> whenTrue(not String.isEmpty(x.solutionId),              #{ StringProperty(x.funcloc, "@SOLUTION_ID", x.solutionId). })
-            <+> whenTrue(not String.isEmpty(x.systemClass),             #{ StringProperty(x.funcloc, "@CLASS_NAME", x.systemClass). })
-            <+> whenTrue(not String.isEmpty(x.systemTypeDescription),   #{ StringProperty(x.funcloc, "@SYSTEM_DESCR", x.systemTypeDescription). })
-            <+> foldMap(s1 -> #{ StringProperty(x.funcloc, "@AIB_REFERENCE", s1). }, x.sainums)
 
 }

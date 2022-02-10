@@ -44,7 +44,7 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
             /// Needs translation...
             EquiAttributes(uid; singleton("Status of an object", AttrString(value))) :-  
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "AssetStatus", value).
+                StringProperty(uid, "Asset Status", value).
 
             // 
             EquiAttributes(uid; singleton("Start-up date", AttrDate(value))) :-  
@@ -57,19 +57,19 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
             EquiAttributes(uid; singleton("Model number", AttrString(value))) :-  
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "Model", value).
+                StringProperty(uid, "Product range", value).
 
             EquiAttributes(uid; singleton("ManufSerialNo.", AttrString(value))) :-  
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "Serial No", value).
+                StringProperty(uid, "Manufacturer's serial number", value).
 
             EquiAttributes(uid; singleton("ManufPartNo.", AttrString(value))) :-  
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "Specific Model/Frame", value).
+                StringProperty(uid, "Product model number", value).
 
             EquiAttributes(uid; singleton("Gross Weight kg", AttrFloat(value))) :- 
                 EquiWorkItem(uid, _),
-                FloatProperty(uid, "Weight kg", value).
+                FloatProperty(uid, "Weight(kg)", value).
                           
         } 
 
