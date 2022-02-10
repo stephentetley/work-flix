@@ -23,6 +23,10 @@ namespace S4Loader/Uxl/GenUxl {
         let xs = batches |> Map.toList |> List.map(xy -> let (x, y) = xy; {batchNumber = x, uxl = y });
         AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(args, xs)
 
+    /// pub def emitRenumberedUxl(args: UxlOutputArgs, batches: Map[Int32, UxlOutput]): Result[Unit, String] & Impure = 
+    ///     let xs = batches |> Map.toList |> List.map(xy -> let (x, y) = xy; {batchNumber = x, uxl = y });
+    ///     AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(args, xs)
+
 
     pub def combineBatches(b1: Map[Int32, UxlOutput], b2: Map[Int32, UxlOutput]): Map[Int32, UxlOutput] = 
         Map.unionWith(AssetLib/S4Lite/Datatypes.combineUxlOutput, b1, b2)

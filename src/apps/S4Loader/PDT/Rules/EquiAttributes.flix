@@ -24,7 +24,7 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
     use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
     use S4Loader/Base/Schema.{StringProperty, FloatProperty};
 
-    use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
+    use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
     // Collect with a lattice because we are expecting relations that are one-to-one 
     // or one-to-zero rather than one-to-many.

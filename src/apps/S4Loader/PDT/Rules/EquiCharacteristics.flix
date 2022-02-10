@@ -21,7 +21,7 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
 
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass};
-    use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
+    use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
 
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 

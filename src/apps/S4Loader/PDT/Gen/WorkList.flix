@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-namespace S4Loader/PDT/WorkList {
+namespace S4Loader/PDT/Gen/WorkList {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
     use SheetIO/Reader.{XlsxSource};
 
-    /// use AssetLib/S4Lite/Datatypes.{SLFunctionalLocation};
-    use S4Loader/PDT/Rules/Schema.{EquiWorkItem};
 
+    pub rel EquiWorkItem(uid: String, s4Name: String)
 
     // Track rowId for error messages
     pub type alias EquiWorkItemRow = 
@@ -71,21 +70,7 @@ namespace S4Loader/PDT/WorkList {
     pub def genEquiWorkItems(xs: List[EquiWorkItemRow]): #{EquiWorkItem | r} = 
         RelLib/Relation.foldMap(x1 -> #{ EquiWorkItem(x1.uid, x1.s4Name). }, xs)
 
-    /// pub def genSLFunctionalLocation(x: FlocWorkItemRow): SLFunctionalLocation = 
-    ///     let floc    = AssetLib/Base/S4/Floc.new1(x.funcloc);
-    ///     let level   = AssetLib/Base/S4/Floc.level(floc);
-    ///     let parent  = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> Option.getWithDefault("");
-    ///     { funcloc               = x.funcloc
-    ///     , description           = x.description
-    ///     , category              = level
-    ///     , structureIndicator    = x.structureIndicator
-    ///     , objectType            = x.objectType
-    ///     , startupDate           = x.installedFrom
-    ///     , position              = x.position
-    ///     , superiorFloc          = parent
-    ///     , equipmentInstall      = equipmentInstall(x.structureIndicator, level)
-    ///     , status                = "UCON"
-    ///     }
+
 
 
 
