@@ -73,5 +73,13 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
                           
         } 
 
+    pub def toAttributePatches(relns: #{EquiAttributes | r1}): Map[String, Map[String, AttributeValue]] & Impure = 
+        query relns select (x1; x2) from EquiAttributes(x1; x2)
+            |> Array.map(makePatch1)
+            |> Array.toMap
+
+    def makePatch1(x: (String, Attributes)): (String, Map[String, AttributeValue]) = 
+        let (uid, x1) = x;
+        (uid, S4Loader/Base/AttributesLattice.getAttributes1(x1))
 
 }

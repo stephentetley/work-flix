@@ -18,13 +18,14 @@ namespace S4Loader/PDT/GenUxl {
 
     use SheetIO/Reader.{XlsxSource};
 
-    use AssetLib/S4Lite/Datatypes.{UxlOutput, SLFunctionalLocation};
+    use AssetLib/S4Lite/Datatypes.{UxlOutput, SLEquipment};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, PropertyAlias, EquiObjectClass};
+    use S4Loader/Base/AttributesLattice.{AttributeValue};
     use S4Loader/PDT/Gen/ReadDb.{PersistentRelations};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItemRow, EquiWorkItem};
-
+    use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributes};
 
     /// Returns a Map of the batches - may be sparse.
     pub def genEquiUxlBatches(dbpath: System.FilePath, worklist: XlsxSource): Result[Map[Int32, UxlOutput], String] & Impure =
@@ -41,7 +42,7 @@ namespace S4Loader/PDT/GenUxl {
     type alias UnionSchema[r1: SchemaRow] = 
         #{EquiLongText, EquiCharacteristic, EquiWorkItem, PropertyAlias, EquiObjectClass, 
             StringProperty, IntProperty, FloatProperty, DateProperty,
-            S4Loader/PDT/Rules/EquiAttributes.EquiAttributes
+            EquiAttributes
             | r1}
 
     def genUxl1(dbrelns: PersistentRelations[r1], workitems: List[EquiWorkItemRow]): UxlOutput & Impure =
@@ -52,9 +53,39 @@ namespace S4Loader/PDT/GenUxl {
                                 <+> S4Loader/PDT/Rules/EquiCharacteristics.equiCharacteristics()
                                 /// <+> S4Loader/PDT/Rules/EquiLongText.equiLongText()
                                 <+> S4Loader/PDT/Rules/EquiAttributes.equiAttributes();
+        let equiPatches     = (solve db project EquiAttributes) |> S4Loader/PDT/Rules/EquiAttributes.toAttributePatches;
         let equiMemos       = (solve db project EquiLongText) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongTexts;
         let equiChars       = (solve db project EquiCharacteristic) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics;
         let uxl             = AssetLib/S4Lite/Datatypes.emptyUxlOutput();
-        {equipment = Chain.empty(), equiLongTexts = equiMemos, equiCharacteristics = equiChars | uxl}
+        let equis           = List.map(makeEquipment1(equiPatches), workitems) |> List.toChain;
+        {equipment = equis, equiLongTexts = equiMemos, equiCharacteristics = equiChars | uxl}
 
+    def makeEquipment1(_attrsAll: Map[String, Map[String, AttributeValue]], workitem: EquiWorkItemRow): SLEquipment & Impure =
+        let equi1 = draftSLEquipment(workitem);
+        /// Patch TODO
+        equi1
+
+
+
+    def draftSLEquipment(x: EquiWorkItemRow): SLEquipment & Impure = 
+        let defaultDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1});
+        { equiId                = x.uid
+        , category              = ""
+        , description           = x.s4Name
+        , validFrom             = Time/LocalDate.now()
+        , objectType            = ""
+        , weightKg              = None
+        , startupDate           = defaultDate
+        , manufacturer          = ""
+        , model                 = ""
+        , partNumber            = ""
+        , serialNumber          = ""
+        , functionalLocation    = x.s4Floc
+        , superOrdinateEqui     = x.superEquiId
+        , position              = x.position
+        , techIdentNo           = ""
+        , status                = ""
+        }
+
+  
 }

@@ -38,6 +38,12 @@ namespace S4Loader/Base/AttributesLattice {
         case Bottom        => None
     }
 
+    pub def getAttributes1(x: Attributes): Map[String, AttributeValue] = match x {
+        case Top           => Map.empty()
+        case Attributes(m) => m
+        case Bottom        => Map.empty()
+    }
+
     pub def singleton(k: String, v: AttributeValue): Attributes = 
         Attributes(Map.singleton(k, v))
 
