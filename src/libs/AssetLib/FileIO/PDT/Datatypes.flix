@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-namespace AssetLib/FileIO/PDT/Base {
+namespace AssetLib/FileIO/PDT/Datatypes {
 
-
+    /// TODO - probably don't want to do this join ourselves.
+    /// `filedUnits` is unreliable anyway.
     pub rel FieldValue(fileName: String, 
                             rowNum: Int32, 
                             colNum: Int32, 

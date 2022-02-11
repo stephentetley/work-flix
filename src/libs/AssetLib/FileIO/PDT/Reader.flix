@@ -23,7 +23,7 @@ namespace AssetLib/FileIO/PDT/Reader {
     use SheetIO.SheetReader;
     use SheetIO.RowEvaluator;
 
-    use AssetLib/FileIO/PDT/Base.{FieldValue, PDTValueRow, ADTMetaData, ADTParamRow};
+    use AssetLib/FileIO/PDT/Datatypes.{FieldValue, PDTValueRow, ADTMetaData, ADTParamRow};
 
     pub def readFieldValuesAll(srcs: List[System.FilePath]): Result[#{FieldValue | r}, String] & Impure = 
         Result.traverse(readFieldValues, srcs)

@@ -17,7 +17,7 @@
 namespace AssetLib/FileIO/PDT/CollateRows {
 
 
-    use AssetLib/FileIO/PDT/Base.{FieldValue, PDTValueRow, ADTParamRow};
+    use AssetLib/FileIO/PDT/Datatypes.{FieldValue, PDTValueRow, ADTParamRow};
 
     pub rel AssetName(columnId: Int32, name: String)
 
