@@ -46,13 +46,10 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
             EquiCharacteristic(uid, tankShapeClass, charName, S4Int(value)) :-
                 EquiWorkItem(uid, _),
                 StringProperty(uid, "Tank Shape", shape),
-                TankShape(shape, tankShapeClass),
+                TankShape(tankShapeClass, shape),
                 IntProperty(uid, "Diameter (mm)", value),
                 PropertyAlias("Diameter (mm)", tankShapeClass, charName).
 
-            /// TODO these can likely be derived from `equi class list`...
-            TankShape("Shape Circular Flat Bottom", "SHCFBM").
-            TankShape("Shape Rect Sloping Bottom", "SHRSBM").
 
 
             EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-

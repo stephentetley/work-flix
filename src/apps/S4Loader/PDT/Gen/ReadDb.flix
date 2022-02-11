@@ -22,17 +22,30 @@ namespace S4Loader/PDT/Gen/ReadDb {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use S4Loader/Base/Schema.{PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty};
+    use S4Loader/Base/Schema.{PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty, TankShape};
 
     pub type alias PersistentRelations[r1: SchemaRow] =
-        #{PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty | r1}    
+        #{PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty, TankShape | r1}
 
     pub def readDbAll(): DbMonad[PersistentRelations[r]] = 
-        use BasicDb/DbMonad.{flatMap, point};
-        let* r1     = readPropertyAliases();
-        let* r2     = readEquiObjectClasses();
-        let* r3     = S4Loader/Base/ReadProperties.readProperties();
-        point(r1 <+> r2 <+> r3)
+        ((x1, x2, x3, x4) -> x1 <+> x2 <+> x3 <+> x4)
+            <$> readTankShape()
+            <*> readPropertyAliases()
+            <*> readEquiObjectClasses()
+            <*> S4Loader/Base/ReadProperties.readProperties()
+        
+
+    pub def readTankShape(): DbMonad[#{TankShape | r}] = 
+        let sql = "SELECT mec.class_name,  mec.description FROM meta_equi_classes mec;";
+        BasicDb/Reader.allRelations(evalTankShape(), sql)
+
+
+    def evalTankShape(): RowEvaluator[#{TankShape | r}] = 
+        use BasicDb/RowEvaluator.{getStringAt};
+        ((x1, x2) -> #{ TankShape(x1, x2). })
+            <$> getStringAt(0)
+            <*> getStringAt(1)
+
 
     pub def readPropertyAliases(): DbMonad[#{PropertyAlias | r}] = 
         let sql = "SELECT mec.description, mec.class_name, mec.char_name FROM meta_equi_characteristics mec;";
