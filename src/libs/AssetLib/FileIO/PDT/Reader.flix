@@ -72,14 +72,15 @@ namespace AssetLib/FileIO/PDT/Reader {
         
 
     def evalADTMetaData(): RowEvaluator[ADTMetaData] = 
-        use SheetIO/RowEvaluator.{flatMap, point, throwError, getNonEmptyContentAt, getContentAt};
-        let* x1     = getNonEmptyContentAt(0);
-        let* x2     = getNonEmptyContentAt(1);
-        let* x3     = getContentAt(2);
-        if (not String.isEmpty(x3))
+        use SheetIO/RowEvaluator.{flatMap, point, throwError, getNonEmptyContentAt, getContentAt, getRowNum};
+        let* x1     = getRowNum();
+        let* x2     = getNonEmptyContentAt(0);
+        let* x3     = getNonEmptyContentAt(1);
+        let* x4     = getContentAt(2);
+        if (not String.isEmpty(x4))
             throwError("evalADTMetaData - not a header row")
         else {
-            point({metaName = x1, metaValue = x2})
+            point({rowNumber = x1, metaName = x2, metaValue = x3})
         }
 
     pub def readADTParamData(): SheetReader[List[ADTParamRow]] = 

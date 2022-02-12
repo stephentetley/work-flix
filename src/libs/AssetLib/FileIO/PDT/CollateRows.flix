@@ -40,17 +40,16 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
     def valueRules(fileName: String): #{AssetName, IndexedValue, FieldValue, ParamUnit, HasParamUnit} = #{
 
-        HasParamUnit(fieldName) :- ParamUnit(fieldName, _).
+        /// HasParamUnit(fieldName) :- ParamUnit(fieldName, _).
 
-        FieldValue(fileName, rowNum, colNum, assetName, fieldName, fieldValue, fieldUnit) :- 
+        FieldValue(fileName, rowNum, colNum, assetName, fieldName, fieldValue) :- 
             AssetName(colNum, assetName),
-            IndexedValue(colNum, rowNum, fieldName, fieldValue),
-            ParamUnit(fieldName, fieldUnit).
+            IndexedValue(colNum, rowNum, fieldName, fieldValue).
     
-        FieldValue(fileName, rowNum, colNum, assetName, fieldName, fieldValue, "Unknown") :- 
-            AssetName(colNum, assetName),
-            IndexedValue(colNum, rowNum, fieldName, fieldValue),
-            not HasParamUnit(fieldName).
+        /// FieldValue(fileName, rowNum, colNum, assetName, fieldName, fieldValue) :- 
+        ///     AssetName(colNum, assetName),
+        ///     IndexedValue(colNum, rowNum, fieldName, fieldValue),
+        ///     not HasParamUnit(fieldName).
     }
 
     def makeAssetNames(nameRow: PDTValueRow): #{AssetName | r} = 

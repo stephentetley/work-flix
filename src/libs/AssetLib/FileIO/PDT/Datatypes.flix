@@ -17,14 +17,12 @@
 namespace AssetLib/FileIO/PDT/Datatypes {
 
     /// TODO - probably don't want to do this join ourselves.
-    /// `filedUnits` is unreliable anyway.
     pub rel FieldValue(fileName: String, 
                             rowNum: Int32, 
                             colNum: Int32, 
                             assetName: String, 
                             fieldName: String, 
-                            fieldValue: String, 
-                            fieldUnits: String)
+                            fieldValue: String)
 
 
     pub type alias PDTValueRow = 
@@ -36,7 +34,8 @@ namespace AssetLib/FileIO/PDT/Datatypes {
 
     /// The first n rows (currently n=8)
     pub type alias ADTMetaData = 
-        { metaName :: String
+        { rowNumber :: Int32
+        , metaName :: String
         , metaValue :: String
         }
 
