@@ -34,7 +34,7 @@ namespace AssetLib/FileIO/PDT/Datatypes {
 
 
     /// The first n rows (currently n=8)
-    pub type alias ADTMetaData = 
+    pub type alias ADTHeaderRow = 
         { fileName :: String
         , rowNumber :: Int32
         , metaName :: String

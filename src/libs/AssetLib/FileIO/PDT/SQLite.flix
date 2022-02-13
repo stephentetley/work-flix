@@ -22,7 +22,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/FileIO/PDT/Datatypes.{FieldValue, ADTMetaData, ADTParamRow};
+    use AssetLib/FileIO/PDT/Datatypes.{FieldValue, ADTHeaderRow, ADTParamRow};
 
 
     pub def createPDTDatabase(srcs: List[System.FilePath], dst: System.FilePath): Result[Int32, String] & Impure = 
@@ -41,8 +41,9 @@ namespace AssetLib/FileIO/PDT/SQLite {
         let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValuesAll(srcs));
         let* n1     = insertFieldValues(relns);
         let* _      = deriveFileIndices();
-        let* n2     = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readADTMetaDataAll(srcs)) >>= insertPdtAdtHeaderMetadata;
-        point(n1 + n2)
+        let* n2     = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readADTHeaderRowsAll(srcs)) >>= insertPdtAdtHeaderRows;
+        let* n3     = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readADTParamDataAll(srcs)) >>= insertPdtAdtParamRows;
+        point(n1 + n2 + n3)
 
 
     pub def createPDTTables(): DbMonad[Unit] =
@@ -110,23 +111,24 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: Nil
             )
 
+    /// ADTHeaderRow
 
-    pub def insertPdtAdtHeaderMetadata(rows: t[ADTMetaData]): DbMonad[Int32] with Foldable[t] =
+    pub def insertPdtAdtHeaderRows(rows: t[ADTHeaderRow]): DbMonad[Int32] with Foldable[t] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         let sqlstrings = { 
-            prepStmt = insertPdtAdtHeaderMetadataSql(),
+            prepStmt = insertADTHeaderRowSql(),
             tableActions = "DELETE FROM pdt_adt_header_metadata;" :: Nil
         };
-        BasicDb/Writer.store(sqlstrings, pdtAdtHeaderMetadataSetter, rows)
+        BasicDb/Writer.store(sqlstrings, pdtADTHeaderRowSetter, rows)
 
-    def pdtAdtHeaderMetadataSetter(row: ADTMetaData): PreparedStatementSetter[Unit] =
+    def pdtADTHeaderRowSetter(row: ADTHeaderRow): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putInt32At!, putStringAt!};
         putStringAt!(0, row.fileName)
             *> putInt32At!(1, row.rowNumber) 
             *> putStringAt!(2, row.metaName) 
             *> putStringAt!(3, row.metaValue)
         
-    def insertPdtAdtHeaderMetadataSql(): String =
+    def insertADTHeaderRowSql(): String =
         String.unlines(
             "INSERT OR IGNORE INTO pdt_adt_header_metadata "
                 :: "(source_file, "
@@ -136,6 +138,39 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: "VALUES(?,?,?,?);"
                 :: Nil
             )
+
+    /// ADTParamRow
+    
+    pub def insertPdtAdtParamRows(rows: t[ADTParamRow]): DbMonad[Int32] with Foldable[t] =
+        use BasicDb/DbMonad.{flatMap, liftAction};
+        let sqlstrings = { 
+            prepStmt = insertADTParamRowSql(),
+            tableActions = "DELETE FROM pdt_adt_param_specification;" :: Nil
+        };
+        BasicDb/Writer.store(sqlstrings, pdtADTParamRowSetter, rows)
+
+    def pdtADTParamRowSetter(row: ADTParamRow): PreparedStatementSetter[Unit] =
+        use BasicDb/PreparedStatementSetter.{putInt32At!, putStringAt!};
+        putStringAt!(0, row.fileName)
+            *> putInt32At!(1, row.rowNumber) 
+            *> putStringAt!(2, row.category)
+            *> putStringAt!(3, row.paramName)
+            *> putStringAt!(4, row.paramUnits)
+            *> putStringAt!(5, row.notes)
+        
+    def insertADTParamRowSql(): String =
+        String.unlines(
+            "INSERT OR IGNORE INTO pdt_adt_param_specification "
+                :: "(source_file, "
+                :: "row_num, "
+                :: "category, "
+                :: "param_name, "
+                :: "param_units, "
+                :: "notes)"
+                :: "VALUES(?,?,?,?,?,?);"
+                :: Nil
+            )
+
 
 
     def pdtAdtHeaderMetadataTableDdl(): String = 
@@ -155,10 +190,10 @@ namespace AssetLib/FileIO/PDT/SQLite {
             "CREATE TABLE IF NOT EXISTS pdt_adt_param_specification ("
                 :: "source_file TEXT NOT NULL,"
                 :: "row_num INTEGER NOT NULL,"
-                :: "param_name TEXT NOT NULL,"
                 :: "category TEXT NOT NULL,"
-                :: "index_aka_value INTEGER NOT NULL,"
+                :: "param_name TEXT NOT NULL,"
                 :: "param_units TEXT,"
+                :: "notes TEXT,"
                 :: "PRIMARY KEY(source_file, row_num)"
                 :: ");"
                 :: Nil
