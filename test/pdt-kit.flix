@@ -9,6 +9,6 @@ def main01(): Result[Unit, String] & Impure =
     let src     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt.sqlite");
     let* r1     = PDTKit/Aggregate/Loader.readAll(src);
     let relns   = r1 <+> PDTKit/Aggregate/Rules.makeAggregates();
-    query relns select (x1, x2, x3) from AggregateRow(x1, x2, x3; _) |> Array.foreach(println);
+    query relns select (x1, x2, x3; x4) from AggregateRow(x1, x2, x3; x4) |> Array.foreach(println);
     Ok()
 

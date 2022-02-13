@@ -22,16 +22,17 @@ namespace PDTKit/Aggregate/Loader {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use PDTKit/Aggregate/Schema.{Classification, ValueRow};
+    use PDTKit/Aggregate/Schema.{Classification, ValueRow, ParamSpec};
 
-    pub def readAll(src: System.FilePath): Result[#{Classification, ValueRow | r}, String] & Impure = 
+    pub def readAll(src: System.FilePath): Result[#{Classification, ValueRow, ParamSpec | r}, String] & Impure = 
         BasicDb/DbMonad.runSQLite(readAllDb(), src)
 
 
-    pub def readAllDb(): DbMonad[#{Classification, ValueRow | r}] = 
-        ((x1, x2) -> x1 <+> x2)
+    pub def readAllDb(): DbMonad[#{Classification, ValueRow, ParamSpec | r}] = 
+        ((x1, x2, x3) -> x1 <+> x2 <+> x3)
             <$> readClassifications()
             <*> readValueRows()
+            <*> readParamSpecs()
         
 
     def readClassifications(): DbMonad[#{Classification | r}] = 
@@ -68,5 +69,20 @@ namespace PDTKit/Aggregate/Loader {
             <*> getStringAt(2)
             <*> getStringAt(3)
 
+    def readParamSpecs(): DbMonad[#{ParamSpec | r}] = 
+        let sql = String.unlines(
+                    "SELECT pahm.adt_heading_value, paps.param_name, paps.param_index "
+                        :: "FROM pdt_adt_header_metadata pahm "
+                        :: "LEFT JOIN pdt_adt_param_specification paps ON pahm.source_file = paps.source_file "
+                        :: "WHERE pahm.adt_heading_name = 'Classification Title'; "
+                        :: Nil
+        );
+        BasicDb/Reader.allRelations(evalParamSpec(), sql)
 
+    def evalParamSpec(): RowEvaluator[#{ParamSpec | r}] = 
+        use BasicDb/RowEvaluator.{getStringAt, getInt32At};
+        ((x1, x2, x3) -> #{ ParamSpec(x1, x2, x3). })
+            <$> getStringAt(0)
+            <*> getStringAt(1)
+            <*> getInt32At(2)
 }

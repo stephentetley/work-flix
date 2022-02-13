@@ -19,15 +19,21 @@ namespace PDTKit/Aggregate/Rules {
     use AssetLib/Base/AttributesLattice.{Attributes, AttributeValue};
     use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString};
 
-    use PDTKit/Aggregate/Schema.{Classification, ValueRow, AggregateRow};
+    use PDTKit/Aggregate/Schema.{Classification, ValueRow, ParamSpec, AggregateRow};
 
-    pub type alias AggregateSchema[r1: SchemaRow] = #{Classification, ValueRow, AggregateRow | r1}
+    pub type alias AggregateSchema[r1: SchemaRow] = #{Classification, ValueRow, ParamSpec, AggregateRow | r1}
 
     pub def makeAggregates(): AggregateSchema[r1] = 
         use AssetLib/Base/AttributesLattice.singleton;
         #{
-            AggregateRow(assetName, sourceFile, classification; singleton(fieldName, AttrString(fieldValue))) :- 
+            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(paramIndex, fieldName), AttrString(fieldValue))) :- 
                 ValueRow(assetName, sourceFile, fieldName, fieldValue),
-                Classification(sourceFile, classification).
+                Classification(sourceFile, classification),
+                ParamSpec(classification, fieldName, paramIndex).
         }
+
+    def makeKey(ix: Int32, fieldName: String): String  = 
+        let index = String.padLeft(3, '0', ToString.toString(ix));
+        "${index}:${fieldName}"
+
 }
