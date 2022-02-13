@@ -18,12 +18,12 @@
 namespace S4Loader/PDT/Rules/EquiLongText {
 
 
-    use AssetLib/Base/OrderedStringsLattice.{OrderedStrings};
+    /// use AssetLib/Base/OrderedStringsLattice.{OrderedStrings};
+    use AssetLib/Base/AttributesLattice.{Attributes, AttributeValue};
+    use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText};
     
     use S4Loader/Base/Schema.{StringProperty};
-    use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
-    use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
     pub type alias EquiLongTextSchema[r1: SchemaRow] = 
@@ -35,7 +35,7 @@ namespace S4Loader/PDT/Rules/EquiLongText {
 
 
     pub def equiLongText(): EquiLongTextSchema[r1] =  
-        use S4Loader/Base/AttributesLattice.{singleton};
+        use AssetLib/Base/AttributesLattice.{singleton};
         #{
 
             EquiLongText(uid, s4Name, getLongText(longText)) :- 
@@ -66,7 +66,7 @@ namespace S4Loader/PDT/Rules/EquiLongText {
             case _             => ""
         };
         attrs
-            |> S4Loader/Base/AttributesLattice.getAttributes1
+            |> AssetLib/Base/AttributesLattice.getAttributes1
             |> Map.valuesOf
             |> List.map(get1)
             |> String.unlines

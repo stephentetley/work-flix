@@ -19,9 +19,9 @@ namespace S4Loader/Aib/Rules/EquiAttributes {
 
     use AssetLib/S4Lite/S4LiteRelations.CharValue;
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
+    use AssetLib/Base/AttributesLattice.{Attributes, AttributeValue};
+    use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
 
-    use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
-    use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
     use S4Loader/Base/Schema.{StringProperty, FloatProperty, EquiWorkItem3};
 
     // Collect with a lattice because we are expecting relations that are one-to-one 
@@ -37,7 +37,7 @@ namespace S4Loader/Aib/Rules/EquiAttributes {
 
 
     pub def equiAttributes(): EquiAttributesSchema[r1] = 
-        use S4Loader/Base/AttributesLattice.{singleton};
+        use AssetLib/Base/AttributesLattice.{singleton};
         #{
 
             EquiAttributes(equiId; singleton("ASSET_STATUS", AttrString(value))) :-  

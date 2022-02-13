@@ -18,13 +18,13 @@ namespace S4Loader/PDT/GenUxl {
 
     use SheetIO/Reader.{XlsxSource};
 
+    use AssetLib/Base/AttributesLattice.{AttributeValue};
+    use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
     use AssetLib/S4Lite/Datatypes.{UxlOutput, SLEquipment};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, PropertyAlias, 
         EquiObjectClass, TankShape};
-    use S4Loader/Base/AttributesLattice.{AttributeValue};
-    use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
     use S4Loader/PDT/Gen/ReadDb.{PersistentRelations};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItemRow, EquiWorkItem};
     use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributes};

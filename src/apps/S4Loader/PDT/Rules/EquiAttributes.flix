@@ -19,9 +19,9 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
     use AssetLib/S4Lite/S4LiteRelations.CharValue;
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
+    use AssetLib/Base/AttributesLattice.{Attributes, AttributeValue};
+    use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
 
-    use S4Loader/Base/AttributesLattice.{Attributes, AttributeValue};
-    use S4Loader/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};
     use S4Loader/Base/Schema.{StringProperty, FloatProperty, EquiObjectClass};
 
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
@@ -38,7 +38,7 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
 
     pub def equiAttributes(): EquiAttributesSchema[r1] = 
-        use S4Loader/Base/AttributesLattice.{singleton};
+        use AssetLib/Base/AttributesLattice.{singleton};
         #{
 
 
@@ -94,6 +94,6 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
     def makePatch1(x: (String, Attributes)): (String, Map[String, AttributeValue]) = 
         let (uid, x1) = x;
-        (uid, S4Loader/Base/AttributesLattice.getAttributes1(x1))
+        (uid, AssetLib/Base/AttributesLattice.getAttributes1(x1))
 
 }
