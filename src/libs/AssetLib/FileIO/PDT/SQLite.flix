@@ -25,16 +25,25 @@ namespace AssetLib/FileIO/PDT/SQLite {
     use AssetLib/FileIO/PDT/Datatypes.{FieldValue, ADTMetaData, ADTParamRow};
 
 
+    pub def createPDTDatabase(srcs: List[System.FilePath], dst: System.FilePath): Result[Int32, String] & Impure = 
+        let actions = 
+            AssetLib/FileIO/PDT/SQLite.createPDTTables() 
+                *> AssetLib/FileIO/PDT/SQLite.insertDataAll(srcs);
+        BasicDb/DbMonad.runSQLite(actions, dst)
 
-    pub def storeFieldValuesAll(srcs: List[System.FilePath]): DbMonad[Int32] =
+
+    pub def insertData(src: System.FilePath): DbMonad[Int32] =
+        insertDataAll(src :: Nil)
+
+    pub def insertDataAll(srcs: List[System.FilePath]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        use Monad.{>>=};
         let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValuesAll(srcs));
-        let* n      = insertFieldValues(relns);
+        let* n1     = insertFieldValues(relns);
         let* _      = deriveFileIndices();
-        point(n)
+        let* n2     = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readADTMetaDataAll(srcs)) >>= insertPdtAdtHeaderMetadata;
+        point(n1 + n2)
 
-    pub def storeFieldValues(src: System.FilePath): DbMonad[Int32] =
-        storeFieldValuesAll(src :: Nil)
 
     pub def createPDTTables(): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
@@ -102,17 +111,17 @@ namespace AssetLib/FileIO/PDT/SQLite {
             )
 
 
-    pub def insertPdtAdtHeaderMetadata(fileName: String, rows: t[ADTMetaData]): DbMonad[Int32] with Foldable[t] =
+    pub def insertPdtAdtHeaderMetadata(rows: t[ADTMetaData]): DbMonad[Int32] with Foldable[t] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         let sqlstrings = { 
             prepStmt = insertPdtAdtHeaderMetadataSql(),
             tableActions = "DELETE FROM pdt_adt_header_metadata;" :: Nil
         };
-        BasicDb/Writer.store(sqlstrings, pdtAdtHeaderMetadataSetter(fileName), rows)
+        BasicDb/Writer.store(sqlstrings, pdtAdtHeaderMetadataSetter, rows)
 
-    def pdtAdtHeaderMetadataSetter(fileName: String, row: ADTMetaData): PreparedStatementSetter[Unit] =
+    def pdtAdtHeaderMetadataSetter(row: ADTMetaData): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putInt32At!, putStringAt!};
-        putStringAt!(0, fileName)
+        putStringAt!(0, row.fileName)
             *> putInt32At!(1, row.rowNumber) 
             *> putStringAt!(2, row.metaName) 
             *> putStringAt!(3, row.metaValue)
@@ -184,13 +193,12 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     def pdtValuesWithShortNameViewDdl(): String =
         String.unlines(
-            "CREATE VIEW IF NOT EXISTS pdt_values_with_item_name(item_name, row_num, field_name, field_value, field_units) AS "
+            "CREATE VIEW IF NOT EXISTS pdt_values_with_item_name(item_name, row_num, field_name, field_value) AS "
                 :: "SELECT "
                 :: "    printf('F%02d_C%02d_%s', pfi.file_index, prv.item_num, prv.asset_name) AS item_name, "
                 :: "    prv.row_num     AS row_num, "
                 :: "    prv.field_name  AS field_name, "
-                :: "    prv.field_value AS field_value, "
-                :: "    prv.field_units AS field_units "
+                :: "    prv.field_value AS field_value "
                 :: "FROM pdt_raw_values prv "
                 :: "INNER JOIN pdt_file_indices pfi ON prv.source_file = pfi.file_name; "
                 :: Nil

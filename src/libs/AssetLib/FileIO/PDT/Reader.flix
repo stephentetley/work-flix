@@ -31,24 +31,30 @@ namespace AssetLib/FileIO/PDT/Reader {
 
     pub def readFieldValues(src: System.FilePath): Result[#{FieldValue | r}, String] & Impure = 
         use SheetIO/SheetReader.{flatMap, point};
-        let fileName    = System/FilePath.getFileName(src) |> Option.getWithDefault(src) |> ToString.toString;
         let body = () -> { 
-            let* valueRows  = readDataSheet();
-            let* typings    = readADTParamData();
-            let relns       = AssetLib/FileIO/PDT/CollateRows.collateValueRows(fileName, valueRows, typings);
+            let fileName    = getFileName(src);
+            let* valueRows  = readDataSheet(fileName);
+            let relns       = AssetLib/FileIO/PDT/CollateRows.collateValueRows(valueRows);
             point(relns)
         };
         SheetIO/SheetReader.runXlsx(body(), src)
 
-    pub def readDataSheet(): SheetReader[List[PDTValueRow]] = 
+    /// Defaults to input if supplied a folder
+    def getFileName(src: System.FilePath): String = 
+        src 
+            |> System/FilePath.getFileName 
+            |> Option.getWithDefault(src) 
+            |> ToString.toString
+
+    pub def readDataSheet(fileName: String): SheetReader[List[PDTValueRow]] = 
         use SheetIO/SheetReader.{flatMap, getSheetNames, getSheetNamed, liftOption};
         let* xs     = getSheetNames();
         let* name   = liftOption(List.find(String.startsWith(prefix ="PDT_"), xs), "Could not find PDT datasheet");
         let* sheet1 = getSheetNamed(name);
-        SheetIO/SheetReader.someRows(SheetIO/RowEvaluator.optional(evalPDTRow()), sheet1)
+        SheetIO/SheetReader.someRows(SheetIO/RowEvaluator.optional(evalPDTRow(fileName)), sheet1)
         
 
-    def evalPDTRow(): RowEvaluator[PDTValueRow] = 
+    def evalPDTRow(fileName: String): RowEvaluator[PDTValueRow] = 
         use SheetIO/RowEvaluator.{flatMap, point, getRowContentsIsoLocalDateTime, getRowNum, liftAction, throwError};
         let* arr    = getRowContentsIsoLocalDateTime();
         let sz      = Array.length(arr);
@@ -58,20 +64,27 @@ namespace AssetLib/FileIO/PDT/Reader {
             let* ix     = getRowNum();
             let* name   = liftAction(_ -> arr[0]);
             let* vs     = liftAction(_ -> Array.toList(arr) |> List.drop(1));
-            point({rowNumber = ix, rowName = normalize(name), cellValues = vs})
+            point({fileName = fileName, rowNumber = ix, rowName = normalize(name), cellValues = vs})
         }
 
 
+    pub def readADTMetaDataAll(srcs: List[System.FilePath]): Result[List[ADTMetaData], String] & Impure = 
+        Result.traverse(readADTMetaData, srcs)
+            |> Result.map(List.flatten)
 
-    pub def readADTMetaData(): SheetReader[List[ADTMetaData]] = 
+    def readADTMetaData(src: System.FilePath): Result[List[ADTMetaData], String] & Impure = 
+        let fileName    = getFileName(src);
+        SheetIO/SheetReader.runXlsx(readADTMetaDataSheet(fileName), src)
+
+    def readADTMetaDataSheet(fileName: String): SheetReader[List[ADTMetaData]] = 
         use SheetIO/SheetReader.{flatMap, getSheetNames, getSheetNamed, liftOption};
         let* xs     = getSheetNames();
         let* name   = liftOption(List.find(s -> s == "PDS_ADT", xs), "Could not find PDS_ADT sheet");
         let* sheet1 = getSheetNamed(name);
-        SheetIO/SheetReader.someRows(SheetIO/RowEvaluator.optional(evalADTMetaData()), sheet1)
+        SheetIO/SheetReader.someRows(SheetIO/RowEvaluator.optional(evalADTMetaData(fileName)), sheet1)
         
 
-    def evalADTMetaData(): RowEvaluator[ADTMetaData] = 
+    def evalADTMetaData(fileName: String): RowEvaluator[ADTMetaData] = 
         use SheetIO/RowEvaluator.{flatMap, point, throwError, getNonEmptyContentAt, getContentAt, getRowNum};
         let* x1     = getRowNum();
         let* x2     = getNonEmptyContentAt(0);
@@ -80,20 +93,28 @@ namespace AssetLib/FileIO/PDT/Reader {
         if (not String.isEmpty(x4))
             throwError("evalADTMetaData - not a header row")
         else {
-            point({rowNumber = x1, metaName = x2, metaValue = x3})
+            point({fileName = fileName, rowNumber = x1, metaName = x2, metaValue = x3})
         }
 
-    pub def readADTParamData(): SheetReader[List[ADTParamRow]] = 
+    pub def readADTParamDataAll(srcs: List[System.FilePath]): Result[List[ADTParamRow], String] & Impure = 
+        Result.traverse(readADTParamData, srcs)
+            |> Result.map(List.flatten)
+
+    def readADTParamData(src: System.FilePath): Result[List[ADTParamRow], String] & Impure = 
+        let fileName    = getFileName(src);
+        SheetIO/SheetReader.runXlsx(readADTParamDataSheet(fileName), src)
+
+    pub def readADTParamDataSheet(fileName: String): SheetReader[List[ADTParamRow]] = 
         use SheetIO/SheetReader.{flatMap, getSheetNames, getSheetNamed, liftOption};
         let* xs     = getSheetNames();
         let* name   = liftOption(List.find(s -> s == "PDS_ADT", xs), "Could not find PDS_ADT sheet");
         let* sheet1 = getSheetNamed(name);
-        SheetIO/SheetReader.someRows(SheetIO/RowEvaluator.optional(evalADTParamData()), sheet1)
+        SheetIO/SheetReader.someRows(SheetIO/RowEvaluator.optional(evalADTParamData(fileName)), sheet1)
         
 
-    def evalADTParamData(): RowEvaluator[ADTParamRow] = 
+    def evalADTParamData(fileName: String): RowEvaluator[ADTParamRow] = 
         use SheetIO/RowEvaluator.{flatMap, point, throwError, getRowNum, getNonEmptyContentAt, getInt32At, getContentAt};
-        ((x1, x2, x3, _, x4, x5) -> {rowNumber = x1, category = x2, paramName = normalize(x3), paramUnits = x4, notes = x5})
+        ((x1, x2, x3, _, x4, x5) -> {fileName = fileName, rowNumber = x1, category = x2, paramName = normalize(x3), paramUnits = x4, notes = x5})
             <$> getRowNum()
             <*> getNonEmptyContentAt(0)
             <*> getNonEmptyContentAt(1)

@@ -26,7 +26,8 @@ namespace AssetLib/FileIO/PDT/Datatypes {
 
 
     pub type alias PDTValueRow = 
-        { rowNumber :: Int32
+        { fileName :: String
+        , rowNumber :: Int32
         , rowName :: String
         , cellValues :: List[String]
         }
@@ -34,14 +35,16 @@ namespace AssetLib/FileIO/PDT/Datatypes {
 
     /// The first n rows (currently n=8)
     pub type alias ADTMetaData = 
-        { rowNumber :: Int32
+        { fileName :: String
+        , rowNumber :: Int32
         , metaName :: String
         , metaValue :: String
         }
 
     // Value Column [col 3] is not useful
     pub type alias ADTParamRow = 
-        { rowNumber :: Int32
+        { fileName :: String
+        , rowNumber :: Int32
         , category :: String
         , paramName :: String
         , paramUnits :: String
