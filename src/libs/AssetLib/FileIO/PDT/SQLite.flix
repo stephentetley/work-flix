@@ -155,8 +155,9 @@ namespace AssetLib/FileIO/PDT/SQLite {
             *> putInt32At!(1, row.rowNumber) 
             *> putStringAt!(2, row.category)
             *> putStringAt!(3, row.paramName)
-            *> putStringAt!(4, row.paramUnits)
-            *> putStringAt!(5, row.notes)
+            *> putInt32At!(4, row.paramIndex)
+            *> putStringAt!(5, row.paramUnits)
+            *> putStringAt!(6, row.notes)
         
     def insertADTParamRowSql(): String =
         String.unlines(
@@ -165,9 +166,10 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: "row_num, "
                 :: "category, "
                 :: "param_name, "
+                :: "param_index, "
                 :: "param_units, "
                 :: "notes)"
-                :: "VALUES(?,?,?,?,?,?);"
+                :: "VALUES(?,?,?,?,?,?,?);"
                 :: Nil
             )
 
@@ -192,6 +194,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: "row_num INTEGER NOT NULL,"
                 :: "category TEXT NOT NULL,"
                 :: "param_name TEXT NOT NULL,"
+                :: "param_index INTEGER NOT NULL,"
                 :: "param_units TEXT,"
                 :: "notes TEXT,"
                 :: "PRIMARY KEY(source_file, row_num)"

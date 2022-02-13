@@ -41,12 +41,14 @@ namespace AssetLib/FileIO/PDT/Datatypes {
         , metaValue :: String
         }
 
-    // Value Column [col 3] is not useful
+    /// Value Column [col 3] we call `paramIndex` - this is used
+    /// for ordering the fields of an aggregate 
     pub type alias ADTParamRow = 
         { fileName :: String
         , rowNumber :: Int32
         , category :: String
         , paramName :: String
+        , paramIndex :: Int32
         , paramUnits :: String
         , notes :: String
         }

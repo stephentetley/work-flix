@@ -18,7 +18,6 @@
 namespace S4Loader/PDT/Rules/EquiLongText {
 
 
-    /// use AssetLib/Base/OrderedStringsLattice.{OrderedStrings};
     use AssetLib/Base/AttributesLattice.{Attributes, AttributeValue};
     use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText};

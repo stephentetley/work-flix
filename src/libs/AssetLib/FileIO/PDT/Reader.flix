@@ -114,7 +114,9 @@ namespace AssetLib/FileIO/PDT/Reader {
 
     def evalADTParamRow(fileName: String): RowEvaluator[ADTParamRow] = 
         use SheetIO/RowEvaluator.{flatMap, point, throwError, getRowNum, getNonEmptyContentAt, getInt32At, getContentAt};
-        ((x1, x2, x3, _, x4, x5) -> {fileName = fileName, rowNumber = x1, category = x2, paramName = normalize(x3), paramUnits = x4, notes = x5})
+        ((x1, x2, x3, x4, x5, x6) -> 
+            {fileName = fileName, rowNumber = x1, category = x2, paramName = normalize(x3), 
+                paramIndex = x4, paramUnits = x5, notes = x6})
             <$> getRowNum()
             <*> getNonEmptyContentAt(0)
             <*> getNonEmptyContentAt(1)
