@@ -16,7 +16,8 @@
 
 namespace PDTKit/Aggregate/Schema {
 
-    use AssetLib/Base/AttributesLattice.{Attributes};
+    use RelLib/Lattice/StringAttributes.{StringAttributes};
+    
 
     pub rel Classification(sourceFile: String, classification: String)
 
@@ -25,8 +26,8 @@ namespace PDTKit/Aggregate/Schema {
     pub rel ParamSpec(classification: String, paramName: String, paramIndex: Int32)
 
     /// Store properties in a Map lattice...
+    pub lat AggregateRow(classification: String, assetName: String, sourceFile: String, attributes: StringAttributes)
 
-    pub lat AggregateRow(classification: String, assetName: String, sourceFile: String, attributes: Attributes)
-
+    pub lat TabSpec(classification: String, columns: StringAttributes)
 
 }

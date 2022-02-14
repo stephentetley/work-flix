@@ -16,20 +16,48 @@
 
 namespace PDTKit/Aggregate/Rules {
 
-    use AssetLib/Base/AttributesLattice.{Attributes, AttributeValue};
-    use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString};
+    use RelLib/Lattice/StringAttributes.{StringAttributes};   /// TODO can we have a polymorphic Map lattice in RelLib?
 
-    use PDTKit/Aggregate/Schema.{Classification, ValueRow, ParamSpec, AggregateRow};
 
-    pub type alias AggregateSchema[r1: SchemaRow] = #{Classification, ValueRow, ParamSpec, AggregateRow | r1}
+    use PDTKit/Aggregate/Schema.{Classification, ValueRow, ParamSpec, AggregateRow, TabSpec};
+
+
+
+    pub type alias AggregateSchema[r1: SchemaRow] = #{Classification, ValueRow, ParamSpec, AggregateRow, TabSpec | r1}
 
     pub def makeAggregates(): AggregateSchema[r1] = 
-        use AssetLib/Base/AttributesLattice.singleton;
+        use RelLib/Lattice/StringAttributes.singleton;
         #{
-            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(paramIndex, fieldName), AttrString(fieldValue))) :- 
+            ///
+            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(2, "Asset Type"), fieldValue)) :- 
+                ValueRow(assetName, sourceFile, "Asset Type", fieldValue),
+                Classification(sourceFile, classification).
+            
+            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(3, "Asset Status"), fieldValue)) :- 
+                ValueRow(assetName, sourceFile, "Asset Status", fieldValue),
+                Classification(sourceFile, classification).
+
+            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(4, "Uniclass Code"), fieldValue)) :- 
+                ValueRow(assetName, sourceFile, "Uniclass Code", fieldValue),
+                Classification(sourceFile, classification).
+
+            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(5, "Uniclass Description"), fieldValue)) :- 
+                ValueRow(assetName, sourceFile, "Uniclass Description", fieldValue),
+                Classification(sourceFile, classification).
+
+            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(paramIndex + 10, fieldName), fieldValue)) :- 
                 ValueRow(assetName, sourceFile, fieldName, fieldValue),
                 Classification(sourceFile, classification),
                 ParamSpec(classification, fieldName, paramIndex).
+
+            
+
+            TabSpec(classification; singleton(makeKey(0, ""), "Asset Name")) :- Classification(_, classification).
+            TabSpec(classification; singleton(makeKey(1, ""), "Source File")) :- Classification(_, classification).
+            TabSpec(classification; singleton(makeKey(2, ""), "Asset Type")) :- Classification(_, classification).
+            TabSpec(classification; singleton(makeKey(3, ""), "Asset Status")) :- Classification(_, classification).
+            
+            TabSpec(classification; singleton(makeKey(paramIndex + 10, ""), fieldName)) :- ParamSpec(classification, fieldName, paramIndex).
         }
 
     def makeKey(ix: Int32, fieldName: String): String  = 
