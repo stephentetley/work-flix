@@ -9,12 +9,8 @@ pub def main(_args: Array[String]): Int32 & Impure =
 def main01(): Result[Unit, String] & Impure = 
     use Result.flatMap;
     let src     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt.sqlite");
+    let dst     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-summary.xlsx");
     let* r1     = PDTKit/Aggregate/Loader.readAll(src);
     let relns   = r1 <+> PDTKit/Aggregate/Rules.makeAggregates();
-    relns |> PDTKit/Aggregate/ExcelOutput.makeHeaders |> println;
-    /// query relns select (x1, x2, x3; x4) from AggregateRow(x1, x2, x3; x4) |> Array.foreach(println);
+    let* _      = PDTKit/Aggregate/ExcelOutput.outputExcel(relns, dst);    
     Ok()
-
-/// def collapse(x: (String, String, String, Attributes[String, String])): (String, String, String, String) = 
-///     let (x1, x2, x3, x4) = x;
-///     (x1, x2, x3, ToString.toString(x4))

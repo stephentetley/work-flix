@@ -29,39 +29,15 @@ namespace PDTKit/Aggregate/Rules {
         use RelLib/Lattice/StringAttributes.singleton;
         #{
             ///
-            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(2, "Asset Type"), fieldValue)) :- 
-                ValueRow(assetName, sourceFile, "Asset Type", fieldValue),
-                Classification(sourceFile, classification).
-            
-            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(3, "Asset Status"), fieldValue)) :- 
-                ValueRow(assetName, sourceFile, "Asset Status", fieldValue),
-                Classification(sourceFile, classification).
-
-            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(4, "Uniclass Code"), fieldValue)) :- 
-                ValueRow(assetName, sourceFile, "Uniclass Code", fieldValue),
-                Classification(sourceFile, classification).
-
-            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(5, "Uniclass Description"), fieldValue)) :- 
-                ValueRow(assetName, sourceFile, "Uniclass Description", fieldValue),
-                Classification(sourceFile, classification).
-
-            AggregateRow(classification, assetName, sourceFile; singleton(makeKey(paramIndex + 10, fieldName), fieldValue)) :- 
+            AggregateRow(classification, assetName, sourceFile; RelLib/Lattice/StringAttributes.singleton(fieldName, fieldValue)) :- 
                 ValueRow(assetName, sourceFile, fieldName, fieldValue),
-                Classification(sourceFile, classification),
+                Classification(sourceFile, classification).
+
+            TabSpec(classification; RelLib/Lattice/Int32StringAttributes.singleton(paramIndex, fieldName)) :- 
                 ParamSpec(classification, fieldName, paramIndex).
-
-            
-
-            TabSpec(classification; singleton(makeKey(0, ""), "Asset Name")) :- Classification(_, classification).
-            TabSpec(classification; singleton(makeKey(1, ""), "Source File")) :- Classification(_, classification).
-            TabSpec(classification; singleton(makeKey(2, ""), "Asset Type")) :- Classification(_, classification).
-            TabSpec(classification; singleton(makeKey(3, ""), "Asset Status")) :- Classification(_, classification).
-            
-            TabSpec(classification; singleton(makeKey(paramIndex + 10, ""), fieldName)) :- ParamSpec(classification, fieldName, paramIndex).
         }
 
-    def makeKey(ix: Int32, fieldName: String): String  = 
-        let index = String.padLeft(3, '0', ToString.toString(ix));
-        "${index}:${fieldName}"
+    pub def columnsPrefix(): List[String] = 
+        "Asset Name" :: "Source File" :: "Asset Type" :: "Asset Status" :: Nil
 
 }
