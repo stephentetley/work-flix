@@ -46,7 +46,7 @@ namespace PDTKit/Aggregate/ExcelOutput {
 
 
     pub def makeHeaders(relns: #{TabSpec | r}): Map[String, Array[String]] & Impure = 
-        query relns select (x1; x2) from TabSpec(x1; x2)
+        query relns select (x1, x2) from TabSpec(x1; x2)
             |> Array.map(makeHeaders1)
             |> Array.toMap
 
@@ -62,7 +62,7 @@ namespace PDTKit/Aggregate/ExcelOutput {
         (classification, headers)
 
     pub def makeRows(relns: #{AggregateRow | r}): Array[(String, Map[String, String])] & Impure = 
-        query relns select (x1, x2, x3; x4) from AggregateRow(x1, x2, x3; x4)
+        query relns select (x1, x2, x3, x4) from AggregateRow(x1, x2, x3; x4)
             |> Array.map(makeRow1)
 
     def makeRow1(x: (String, String, String, StringAttributes)): (String, Map[String, String]) = 

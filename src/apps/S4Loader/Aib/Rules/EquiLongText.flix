@@ -41,7 +41,7 @@ namespace S4Loader/Aib/Rules/EquiLongText {
             EquiLongText(equiId, s4Name, getValue(longText)) :- 
                 EquiWorkItem3(equiId, _, _),
                 StringProperty(equiId, "@S4_NAME", s4Name),
-                LongText1(equiId; longText).
+                fix LongText1(equiId; longText).
 
             AibMemoLine(equiId; singleton(1, text)) :- 
                 EquiWorkItem3(equiId, _, _),

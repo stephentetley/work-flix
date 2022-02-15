@@ -39,7 +39,7 @@ namespace S4Loader/PDT/Rules/EquiLongText {
 
             EquiLongText(uid, s4Name, getLongText(longText)) :- 
                 EquiWorkItem(uid, s4Name),
-                LongText(uid; longText).
+                fix LongText(uid; longText).
 
             // Long Text could be memoText
             LongText(uid; singleton("A1", AttrString(memoText))) :- 

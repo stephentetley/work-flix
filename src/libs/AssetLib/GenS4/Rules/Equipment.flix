@@ -88,7 +88,7 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
            EquiCharacteristic(equiId, s4EquiClass, "MEMO_LINE", S4String(s4MemoLine(body))) :-
                 EquiWorkItem3(equiId, _, s4EquiClass),
-                AibMemoLine(equiId; body).
+                fix AibMemoLine(equiId; body).
 
         };
         AssetLib/GenS4/GenMonad.tellEquiCharacteristics(rules <+> input)

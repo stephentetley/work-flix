@@ -88,7 +88,7 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
         } 
 
     pub def toAttributePatches(relns: #{EquiAttributes | r1}): Map[String, Map[String, AttributeValue]] & Impure = 
-        query relns select (x1; x2) from EquiAttributes(x1; x2)
+        query relns select (x1, x2) from EquiAttributes(x1; x2)
             |> Array.map(makePatch1)
             |> Array.toMap
 

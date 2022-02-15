@@ -68,7 +68,7 @@ namespace AssetLib/GenS4/Rules/MultilingualText {
 
             EquiLongText(equiId, description, AssetLib/GenS4/Base/OrderedStrings.getValue(longText)) :- 
                 EquiLongTextWorkItem(equiId, description),
-                LongText1(equiId; longText).
+                fix LongText1(equiId; longText).
 
         };
         let* answers = 
