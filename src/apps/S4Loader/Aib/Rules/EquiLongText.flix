@@ -17,12 +17,13 @@
 
 namespace S4Loader/Aib/Rules/EquiLongText {
 
-
     use AssetLib/Base/OrderedStringsLattice.{OrderedStrings};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText};
     
     use S4Loader/Base/Schema.{StringProperty, EquiWorkItem3};
 
+
+    /// TODO - use AttributesLattice
 
     pub type alias EquiLongTextSchema[r1: SchemaRow] = 
         #{EquiWorkItem3, StringProperty, LongText1, MemoLine, EquiLongText | r1}

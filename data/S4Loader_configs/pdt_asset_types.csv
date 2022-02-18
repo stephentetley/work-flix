@@ -1,26 +1,204 @@
-pdt_asset_type,s4_category,s4_object,s4_class
-Air Release Valve,M,VALV,VALVAV
-Ball Valve,M,VALV,VALVBA
-Borehole Pump,E,PUMS,PUMSBH
-Butterfly Valve,M,VALV,VALVBP
-Changeover Switch,E,SGER,SGERCO
-Clean Water Compartment,C,TANK,TANKCC
-Conductive Level Device,I,LSTN,LSTNCO
-Diaphragm Type Pressure Device,I,PSTN,PSTNDI
-Direct On Line Starter,E,STAR,STARDO
-Electric Motor Actuator,E,ACTU,ACTUEM
-Electromagnetic Flow Device,I,FSTN,FSTNEM
-Gate Valve,M,VALV,VALVGA
-Kiosk,C,KISK,KISKKI
-Level Float Device,I,LSTN,LSTNFL
-Motor Control Centre Panel,E,MCCE,MCCEPA
-Non Return Valve,M,VALV,VALVNR
-Programmable Logic Controller,I,CONT,CONTPL
-Submersible Pump with Integral Motor,E,PUMS,PUMSMO
-Thermal Mass Flow Transmitter,I,FSTM,FSTNTM
-Thermal Mass Flow Transmitter,I,FSTN,FSTNTM
-Turbidity in Fluid Analyser,I,ANAL,ANALTB
-Uninterruptable Power Supply,E,PODE,PODEUP
-Ultrasonic Time of Flight Level Device,I,LSTN,LSTNUT
-Variable Frequency Starter,E,STAR,STARVF
-Wet Well,C,WELL,WELLWT
+object_description,class_description,s4_category,s4_object,s4_class
+Actuation Device,Electric Motor Actuator,E,ACTU,ACTUEM
+Actuation Device,Hydraulic Actuator,M,ACTU,ACTUEH
+Actuation Device,Pneumatic Actuator,M,ACTU,ACTUEP
+Analyser Instrument,Aluminium (Ion) Analyser,I,ANAL,ANALAL
+Analyser Instrument,Ammonia (Ion) Analyser,I,ANAL,ANALAM
+Analyser Instrument,Chemical Oxygen Demand Analyser,I,ANAL,ANALCD
+Analyser Instrument,Chlorine (Ion) Analyser,I,ANAL,ANALCL
+Analyser Instrument,Conductivity (in fluid) Analyser,I,ANAL,ANALCO
+Analyser Instrument,Density Analyser,I,ANAL,ANALDE
+Analyser Instrument,Dissolved Oxygen Analyser,I,ANAL,ANALDO
+Analyser Instrument,Flue Gas Emissions Analyser,I,ANAL,ANALFG
+Analyser Instrument,Gas Composition Analyser,I,ANAL,ANALGA
+Analyser Instrument,Iron (Ion) Analyser,I,ANAL,ANALFE
+Analyser Instrument,Lead (Ion) Analyser,I,ANAL,ANALPB
+Analyser Instrument,Manganese (Ion) Analyser,I,ANAL,ANALMN
+Analyser Instrument,Miscellaneous Analyser Instrument,I,ANAL,ANALMISC
+Analyser Instrument,Nitrate (Ion) Analyser,I,ANAL,ANALNO
+Analyser Instrument,Oxygen Gas Analyser,I,ANAL,ANALO2
+Analyser Instrument,Ozone Gas Analyser,I,ANAL,ANALO3
+Analyser Instrument,Particle Count Analyser,I,ANAL,ANALPA
+Analyser Instrument,pH (Proportion Hydrogen) Analyser,I,ANAL,ANALPH
+Analyser Instrument,Phosphate (Ion) Analyser,I,ANAL,ANALPP
+Analyser Instrument,Reduction - Oxidation (REDOX) Analyser,I,ANAL,ANALRO
+Analyser Instrument,Suspended and Dry Solids Analyser,I,ANAL,ANALSS
+Analyser Instrument,Turbidity in Fluid Analyser,I,ANAL,ANALTB
+Analyser Instrument,UV Absorbtion (254) Analyser,I,ANAL,ANALUV
+Analyser Instrument,Water Colour Analyser,I,ANAL,ANALWC
+Analyser Instrument,Water Hardness Analyser,I,ANAL,ANALHA
+Analyser Instrument,Water Pollution Analyser,I,ANAL,ANALPO
+Coarse Screen,Bar,M,SCRC,SCRCBA
+Controller,CHP Engine Controller,I,CONT,CONTEN
+Controller,Dedicated Flow Controller,I,CONT,CONTFL
+Controller,Dedicated Temperature Controller,I,CONT,CONTTM
+Controller,Industrial PC Controller,I,CONT,CONTIP
+Controller,PID Controller,I,CONT,CONTPI
+Controller,Programmable Logic Controller,I,CONT,CONTPL
+Controller,Relay Logic Controller,I,CONT,CONTRL
+Controller,Valve Position Controller,I,CONT,CONTPO
+Distribution Board,Distribution Board,E,DIST,DISTBD
+Electric Motor,Brake Motor,E,EMTR,EMTRBK
+Electric Motor,Direct Current Motor,E,EMTR,EMTRDC
+Electric Motor,Induction Motor,E,EMTR,EMTRIN
+Electric Motor,Miscellaneous Electric Motor,E,EMTR,EMTRMISC
+Electric Motor,Slip Ring Motor,E,EMTR,EMTRSR
+Electric Motor,Submersible Motor,E,EMTR,EMTRSU
+Fine Screen,Band,M,SCRF,SCRFBA
+Fine Screen,Brush Screen,M,SCRF,SCRFBR
+Fine Screen,Brush Screen with Macerator,M,SCRF,SCRFBM
+Fine Screen,Escalator or Fine Screen,M,SCRF,SCRFES
+Fine Screen,Horizontal Spiral Brush,M,SCRF,SCRFHS
+Fine Screen,Raked Bar,M,SCRF,SCRFRB
+Fine Screen,Replaceable Screening Sack,M,SCRF,SCRFRS
+Fine Screen,Rotating Drum or Cup,M,SCRF,SCRFDC
+Fine Screen,Rotating Drum or Cup with Compactor,M,SCRF,SCRFRC
+Fine Screen,Spiral Brush with Compactor,M,SCRF,SCRFSC
+Fine Screen,Static Screen,M,SCRF,SCRFST
+Fine Screen,Stepped Bar,M,SCRF,SCRFSE
+Fine Screen,Vertical Spiral Brush,M,SCRF,SCRFVS
+Flow Transmitter,Closed Pipe Doppler Flow Device,I,FSTN,FSTNUS
+Flow Transmitter,Coriolis Effect Flow Device,I,FSTN,FSTNCF
+Flow Transmitter,Electromagnetic Flow Device,I,FSTN,FSTNEM
+Flow Transmitter,Laser Surface Effect Flow Device,I,FSTN,FSTNLS
+Flow Transmitter,Mechanically Actuated Flow Switch,I,FSTN,FSTNME
+Flow Transmitter,Open Channel (usonic) Flow Device,I,FSTN,FSTNOC
+Flow Transmitter,Orifice plate (DP) Flow Device,I,FSTN,FSTNOP
+Flow Transmitter,Rotating Turbine Flow Device,I,FSTN,FSTNTU
+Flow Transmitter,Thermal Flow Transmitter,I,FSTN,FSTNTH
+Flow Transmitter,Thermal Mass Flow Transmitter,I,FSTN,FSTNTM
+Flow Transmitter,Variable Area Flow Device,I,FSTN,FSTNVA
+Flow Transmitter,Venturi Effect Flow Device,I,FSTN,FSTNVE
+Flow Transmitter,Vortex Effect Flow Device,I,FSTN,FSTNVO
+Geared Motor,Geared Motor,E,GMTR,GMTRGM
+Geared Motor,Miscellaneous Geared Motor,E,GMTR,GMTRMISC
+Heating Unit,Air Heater,E,HEAT,HEATAI
+Heating Unit,Domestic Heating Boiler,M,HEAT,HEATBO
+Heating Unit,Fan Heater,E,HEAT,HEATFA
+Heating Unit,Gas Heater,M,HEAT,HEATGS
+Heating Unit,Heater Evaporator,M,HEAT,HEATEV
+Heating Unit,Heating Radiator,M,HEAT,HEATRA
+Heating Unit,Immersion Heater,E,HEAT,HEATIM
+Heating Unit,Oil Heater,M,HEAT,HEATOI
+Heating Unit,Storage Heater,E,HEAT,HEATSH
+Heating Unit,Trace Heating,E,HEAT,HEATTR
+Heating Unit,Tubular Heater,E,HEAT,HEATTU
+Kiosk,Kiosk,C,KISK,KISKKI
+Level Transmitter,Capacitive Level Device,I,LSTN,LSTNCP
+Level Transmitter,Conductive Level Device,I,LSTN,LSTNCO
+Level Transmitter,Level Float Device,I,LSTN,LSTNFL
+Level Transmitter,Magnetic Level Device,I,LSTN,LSTNMG
+Level Transmitter,Mechanical Level Device,I,LSTN,LSTNME
+Level Transmitter,Optical Light Level Device,I,LSTN,LSTNOP
+Level Transmitter,Pressure converted for Level Device,I,LSTN,LSTNPR
+Level Transmitter,Radar Level Device,I,LSTN,LSTNRD
+Level Transmitter,Radioactive Source Level Device,I,LSTN,LSTNNU
+Level Transmitter,Sludge Blanket Level Device,I,LSTN,LSTNUS
+Level Transmitter,Tipping Bucket Type Rain Gauge Device,I,LSTN,LSTNTP
+Level Transmitter,Ultrasonic Time of Flight Level Device,I,LSTN,LSTNUT
+Level Transmitter,Vibrating Tuning Fork Level Device,I,LSTN,LSTNTF
+Motor Control Centre,Motor Control Centre Panel,E,MCCE,MCCEPA
+Motor Starter,Auto Transformer Starter,E,STAR,STARAT
+Motor Starter,Direct On Line Starter,E,STAR,STARDO
+Motor Starter,Liquid Resistance Starter,E,STAR,STARLQ
+Motor Starter,Resistance Starter,E,STAR,STARRE
+Motor Starter,Reversing Starter,E,STAR,STARRV
+Motor Starter,Soft Starter,E,STAR,STARSS
+Motor Starter,Star-Delta Starter,E,STAR,STARDT
+Motor Starter,Variable Frequency Starter,E,STAR,STARVF
+Movement Sensor,Rotation Monitor,I,SPTN,SPTNRO
+Movement Sensor,Vibration Monitor,I,SPTN,SPTNVI
+Network,Condition Monitoring Comms Network,I,NETW,NETWCM
+Network,MODBUS Network Hub,I,NETW,NETWMB
+Network,Network Device connecting to Telecoms,I,NETW,NETWMO
+Network,Network Device connecting via Radio,I,NETW,NETWRA
+Network,Network Node converting Signals,I,NETW,NETWCO
+Network,PROFIBUS Network Hub,I,NETW,NETWPB
+Network,Telemetry System Network Node,I,NETW,NETWTL
+Position Sensor,Capacitive Effect Proximity Switch,I,GASW,GASWCP
+Position Sensor,Inductive Effect Proximity Switch,I,GASW,GASWIP
+Position Sensor,Light Reflection Position Switch,I,GASW,GASWOP
+Position Sensor,Magnetic Interlock Position Switch,I,GASW,GASWMG
+Position Sensor,Mechanical Interlock Position Switch,I,GASW,GASWME
+Position Sensor,Ultrasonic Position Switch,I,GASW,GASWUS
+Power Device,Telemetry Uninterruptable Power Supply,I,PODE,PODETU
+Power Device,Uninterruptable Power Supply,E,PODE,PODEUP
+Pressure Transmitter,Diaphragm Type Pressure Device,I,PSTN,PSTNDI
+Pressure Vessel,Air and Oil Receiver Vessel,H,VEPR,VEPRAO
+Pressure Vessel,Air and Water Receiver Vessel,H,VEPR,VEPRAW
+Pressure Vessel,Air Receiver Vessel,H,VEPR,VEPRAR
+Pressure Vessel,Autoclave,H,VEPR,VEPRAC
+Pressure Vessel,Gas Holder,H,VEPR,VEPRGH
+Pressure Vessel,Nitrogen and Water Receiver Vessel,H,VEPR,VEPRNW
+Pressure Vessel,Ozone Generator,H,VEPR,VEPROZ
+Pressure Vessel,Pasteurisation Vessel,H,VEPR,VEPRPA
+Pressure Vessel,Pressure Vessel,H,VEPR,VEPRPR
+Pressure Vessel,Pulsation Damper,H,VEPR,VEPRPD
+Pressure Vessel,Steam Boiler,H,VEPR,VEPRSB
+Pressure Vessel,Steam System,H,VEPR,VEPRSS
+Pressure Vessel,Vacuum Vessel,H,VEPR,VEPRVA
+Pump,Axial Pump,M,PUMP,PUMPAX
+Pump,Borehole Pump,E,PUMS,PUMSBH
+Pump,Centrifugal Pump,M,PUMP,PUMPCE
+Pump,Diaphragm Pump,M,PUMP,PUMPDI
+Pump,Ejector Pump,M,PUMP,PUMPEJ
+Pump,Gear Pump,M,PUMP,PUMPGE
+Pump,Helical Rotor Pump,M,PUMP,PUMPHR
+Pump,Lobe Pump,M,PUMP,PUMPLO
+Pump,Lubrication Pump,M,PUMP,PUMPLU
+Pump,Maceration Pump,M,PUMP,PUMPMA
+Pump,Peristaltic Pump,M,PUMP,PUMPPE
+Pump,Plunger Pump,M,PUMP,PUMPPG
+Pump,Ram Pump,M,PUMP,PUMPRA
+Pump,Screw Pump,M,PUMP,PUMPSC
+Pump,Vacuum Pump,M,PUMP,PUMPVA
+Submersible Pump,Submersible Pump with Integral Motor,E,PUMS,PUMSMO
+Switchgear,Bypass Switch,E,SGER,SGERBP
+Switchgear,Changeover Switch,E,SGER,SGERCO
+Switchgear,Changeover Switch,E,SGER,SGERCO
+Switchgear,Contactor Feeder,E,SGER,SGERCF
+Switchgear,Isolator Switch,E,SGER,SGERIS
+Switchgear,Miscellaneous Switchgear,E,SGER,SGERMISC
+Switchgear,Neutral Earth Contactor,E,SGER,SGERNE
+Switchgear,Oil Switch,E,SGER,SGEROS
+Switchgear,Ring Main Unit,E,SGER,SGERRM
+Switchgear,SF6 Switch,E,SGER,SGERSF
+Tank,Clean Water Compartment,C,TANK,TANKCC
+Tank,Process Tank,C,TANK,TANKPR
+Tank,Storage Tank,C,TANK,TANKST
+Transmission Unit,Bevel Gearbox,M,TRUT,TRUTBG
+Transmission Unit,Helical Bevel Gearbox,M,TRUT,TRUTHB
+Transmission Unit,Helical Gearbox,M,TRUT,TRUTHG
+Transmission Unit,Planetary Gearbox,M,TRUT,TRUTPG
+Transmission Unit,Spur Gearbox,M,TRUT,TRUTSG
+Transmission Unit,Worm Gearbox,M,TRUT,TRUTWG
+Valve,Air Release Valve,M,VALV,VALVAV
+Valve,Ball Valve,M,VALV,VALVBA
+Valve,Bellmouth Valve,M,VALV,VALVBE
+Valve,Butterfly Valve,M,VALV,VALVBP
+Valve,Decant Valve,M,VALV,VALVDE
+Valve,Diaphragm Valve,M,VALV,VALVDI
+Valve,Directional Control Valve,M,VALV,VALVDR
+Valve,Disc Valve,M,VALV,VALVDC
+Valve,Flap Valve,M,VALV,VALVFL
+Valve,Flush Valve,M,VALV,VALVFU
+Valve,Gate Valve,M,VALV,VALVGA
+Valve,Gate Valve,M,VALV,VALVGA
+Valve,Globe Valve,M,VALV,VALVGL
+Valve,Multi Way Valve,M,VALV,VALVMW
+Valve,Needle Valve,M,VALV,VALVNE
+Valve,Non Return Valve,M,VALV,VALVNR
+Valve,Penstock Valve,M,VALV,VALVPE
+Valve,Pinch Valve,M,VALV,VALVPI
+Valve,Plug Valve,M,VALV,VALVPG
+Valve,Pressure and Vacuum Relief Valve,M,VALV,VALVPV
+Valve,Pressure Reducing Valve,M,VALV,VALVPR
+Valve,Pressure Regulating Valve,M,VALV,VALVRE
+Valve,Pressure Sustaining Valve,M,VALV,VALVSC
+Valve,Ram Valve,M,VALV,VALVRA
+Valve,Safety Pressure Relief Valve,M,VALV,VALVSF
+Valve,Solenoid Valve,E,VALV,VALVSL
+Valve,Vacuum Interface Valve,M,VALV,VALVVI
+Valve,Vacuum Regulator Valve,M,VALV,VALVVR
+Well,Dry Well,C,WELL,WELLDR
+Well,Wet Well,C,WELL,WELLWT

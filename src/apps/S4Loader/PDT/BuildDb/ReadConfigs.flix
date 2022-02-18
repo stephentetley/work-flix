@@ -42,9 +42,10 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
 
     def readFieldTypes(src: System.FilePath): Result[List[FieldTypeRow], String] & Impure = 
         use Result.flatMap;
-        use CsvIO/RowEvaluator.{getStringAt};
+        use CsvIO/RowEvaluator.{getStringNamed};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
-        let eval = ((x1, x2) -> { pdtFieldName = x1, propertyType = x2}) <$> getStringAt(0) <*> getStringAt(1);
+        let eval = ((x1, x2) -> { pdtFieldName = x1, propertyType = x2}) 
+                        <$> getStringNamed("pdt_field_name") <*> getStringNamed("property_type");
         let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
         Ok(rows)
 
@@ -79,10 +80,11 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
 
     def readAssetTypes(src: System.FilePath): Result[List[AssetTypeRow], String] & Impure = 
         use Result.flatMap;
-        use CsvIO/RowEvaluator.{getStringAt};
+        use CsvIO/RowEvaluator.{getStringNamed};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
         let eval = ((x1, x2, x3, x4) -> { pdtAssetType = x1, s4Category = x2, s4Object = x3, s4Class = x4}) 
-                        <$> getStringAt(0) <*> getStringAt(1) <*> getStringAt(2) <*> getStringAt(3);
+                        <$> getStringNamed("class_description") <*> getStringNamed("s4_category") 
+                        <*> getStringNamed("s4_object")         <*> getStringNamed("s4_class");
         let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
         Ok(rows)
 
