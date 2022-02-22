@@ -14,10 +14,10 @@ def main(_args: Array[String]): Int32 & Impure =
 
 def main1(): Result[Unit, String] & Impure =
     use Result.flatMap;
-    let src         = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06-structure-list.txt");
-    let htmldest    = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.html");
-    let jsondest    = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.json"); 
-    let dbdest      = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.sqlite");   
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-ih06.txt");
+    let htmldest    = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-ih06-output.html");
+    let jsondest    = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-ih06-output.json"); 
+    let dbdest      = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-ih06-output.sqlite");   
     let* ast        = parseFileWithBOM(src);
     let _           = println("Count: " + Int32.toString(List.length(ast.rows))); 
     let* tree1      = buildIH06Tree(ast);

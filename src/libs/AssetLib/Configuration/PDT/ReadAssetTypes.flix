@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace S4Loader/PDT/BuildDb/ReadConfigs {
+namespace AssetLib/Configuration/PDT/ReadAssetTypes {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -23,45 +23,6 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
     use BasicDb.PreparedStatementSetter;
 
     use CsvIO.RowReader;
-
-    use S4Loader/PDT/BuildDb/Schema.{FieldType};
-
-    /// ## pdt_field_types.csv
-
-    pub type alias FieldTypeRow = 
-        { pdtFieldName :: String 
-        , propertyType :: String
-        }
-
-    pub def readAndStoreFieldTypes(src: System.FilePath): DbMonad[#{FieldType | r}] =
-        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
-        let* ans    = liftActionResult(_ -> readFieldTypes(src));
-        let* _      = insertFieldTypes(ans);
-        let relns   = RelLib/Relation.foldMap(x1 -> #{ FieldType(x1.pdtFieldName, x1.propertyType). }, ans);
-        point(relns)
-
-    def readFieldTypes(src: System.FilePath): Result[List[FieldTypeRow], String] & Impure = 
-        use Result.flatMap;
-        use CsvIO/RowEvaluator.{getStringNamed};
-        let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
-        let eval = ((x1, x2) -> { pdtFieldName = x1, propertyType = x2}) 
-                        <$> getStringNamed("pdt_field_name") <*> getStringNamed("property_type");
-        let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
-        Ok(rows)
-
-    def insertFieldTypes(src: List[FieldTypeRow]): DbMonad[Int32] = 
-        let sqlstrings = { 
-            prepStmt = "INSERT OR IGNORE INTO meta_pdt_field_types (pdt_field_name,property_type) VALUES(?,?);",
-            tableActions = "DELETE FROM meta_pdt_field_types;" :: Nil
-        };
-        BasicDb/Writer.store(sqlstrings, fieldTypeSetter, src)
-    
-
-    def fieldTypeSetter(x: FieldTypeRow): PreparedStatementSetter[Unit] =
-        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!};
-        let* _  = putStringAt!(0, x.pdtFieldName);
-        let* _  = putStringAt!(1, x.propertyType);
-        point()
 
     /// ## pdt_asset_types.csv
 
@@ -72,11 +33,11 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
         , s4Class :: String
         }
 
-    pub def readAndStoreAssetTypes(src: System.FilePath): DbMonad[Unit] =
+    pub def readAndStoreAssetTypes(src: System.FilePath): DbMonad[List[AssetTypeRow]] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> readAssetTypes(src));
         let* _      = insertAssetTypes(ans);
-        point()
+        point(ans)
 
     def readAssetTypes(src: System.FilePath): Result[List[AssetTypeRow], String] & Impure = 
         use Result.flatMap;
@@ -106,6 +67,27 @@ namespace S4Loader/PDT/BuildDb/ReadConfigs {
 
 
 
+    /// PDT only
+    pub def createMetaPdtAssetTypesTable(): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DROP VIEW IF EXISTS meta_pdt_asset_types;");
+        let* _  = execute(metaPdtAssetTypesTableDdl());
+        let* _  = commit();
+        point()
 
+
+
+    def metaPdtAssetTypesTableDdl(): String =
+        String.unwords(
+            "CREATE TABLE IF NOT EXISTS meta_pdt_asset_types ("
+                :: "pdt_asset_type TEXT NOT NULL,"
+                :: "s4_category TEXT NOT NULL,"
+                :: "s4_object TEXT NOT NULL,"
+                :: "s4_class TEXT NOT NULL,"
+	            :: "PRIMARY KEY(pdt_asset_type)"
+	            :: ");"
+                :: Nil
+        )
 
 }

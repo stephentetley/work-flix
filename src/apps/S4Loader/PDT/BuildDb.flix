@@ -35,9 +35,10 @@ namespace S4Loader/PDT/BuildDb {
                                 fieldTypes :: System.FilePath,
                                 assetTypes :: System.FilePath}): DbMonad[#{FieldType | r}] = 
         use BasicDb/DbMonad.{flatMap, point};
-        let* _      = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
-        let* utypes = S4Loader/PDT/BuildDb/ReadConfigs.readAndStoreFieldTypes(x.fieldTypes);
-        let* _      = S4Loader/PDT/BuildDb/ReadConfigs.readAndStoreAssetTypes(x.assetTypes);
-        point(utypes)
+        let* _          = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
+        let* xs         = AssetLib/Configuration/PDT/ReadFieldTypes.readAndStoreFieldTypes(x.fieldTypes);
+        let* _          = AssetLib/Configuration/PDT/ReadAssetTypes.readAndStoreAssetTypes(x.assetTypes);
+        let fieldtypes  = RelLib/Relation.foldMap(x1 -> #{ FieldType(x1.pdtFieldName, x1.propertyType). }, xs);
+        point(fieldtypes)
 
 }
