@@ -102,7 +102,8 @@ namespace S4Loader/Base/InitDb {
 
     // # Meta PDT field unit types 
 
-
+    /// TODO use AssetLib/PDT/Metadata/...
+    
     pub def createMetaPDTTables(): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);

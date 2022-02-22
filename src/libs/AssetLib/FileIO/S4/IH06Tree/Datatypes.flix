@@ -44,6 +44,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
         }
 
     /// Empty string for no super
+    /// `equiId` is a String in case the data is a "dollar number"
     pub type alias EquiRow = 
         { equiId :: String
         , description :: String
@@ -53,7 +54,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
 
 
     /// Nested representation.
-    /// With IH06 imports we don't have any more structure than a RoseTree, 
+    /// With IH06 exports we don't have any more structure than a RoseTree, 
     /// so we use a RoseTree.
     pub type alias IH06Tree = RoseTree[IH06Node]
 

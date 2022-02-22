@@ -14,16 +14,17 @@ def main(_args: Array[String]): Int32 & Impure =
 
 def main1(): Result[Unit, String] & Impure =
     use Result.flatMap;
-    use AssetLib/Base/ExportHtmlTree.{writeHtmlTree};
-    use AssetLib/FileIO/S4/IH06Tree/ExportJson.{exportJson};
-    let src         = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06-all.txt");
-    let htmldest    = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.html");
-    let jsondest    = System/FilePath.new("G:/work/assets/capital_schemes/wethe-reference/wethe-ih06.json");   
+    let src         = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06-structure-list.txt");
+    let htmldest    = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.html");
+    let jsondest    = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.json"); 
+    let dbdest      = System/FilePath.new("G:/work/assets/capital_schemes/bever/bever-ih06.sqlite");   
     let* ast        = parseFileWithBOM(src);
     let _           = println("Count: " + Int32.toString(List.length(ast.rows))); 
     let* tree1      = buildIH06Tree(ast);
-    let* _          = writeHtmlTree(htmldest, toLabelledTree(tree1));
-    let* _          = exportJson(jsondest, tree1);
+    let* _          = AssetLib/Base/ExportHtmlTree.writeHtmlTree(htmldest, toLabelledTree(tree1));
+    let* _          = AssetLib/FileIO/S4/IH06Tree/ExportJson.exportJson(jsondest, tree1);
+    let tableNames  = {flocTable = "ih06_flocs", equiTable = "ih06_equis"};
+    let* _          = AssetLib/FileIO/S4/IH06Tree/SQLite.exportSQLite(tableNames, dbdest, ast);
     Ok()
 
 

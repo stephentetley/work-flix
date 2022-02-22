@@ -28,7 +28,7 @@ namespace AssetLib/Base/ExportHtmlTree {
     use Text/HtmlDoc.{<&>};
     use Text/HtmlDoc/Tree.{LabelPrinter, collapsibleTree2};
 
-    pub type alias Label = {name: String, description: String}
+    pub type alias Label = {name :: String, description :: String}
 
 
     pub def writeHtmlTree(path: System.FilePath, x: RoseTree[Label]): Result[Unit, String] & Impure =
