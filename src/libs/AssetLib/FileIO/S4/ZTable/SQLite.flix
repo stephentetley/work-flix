@@ -61,6 +61,23 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
             <$> getStringAt(0)
             <*> getStringAt(1)
 
+    pub def createObjTypeManufacturerTable(): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DROP VIEW IF EXISTS ztable_objtype_manufacturer;");
+        let* _  = execute(objTypeManufacturerTableDdl());
+        let* _  = commit();
+        point()
+
+    def objTypeManufacturerTableDdl(): String =
+        String.unlines(
+            "CREATE TABLE IF NOT EXISTS ztable_objtype_manufacturer ("
+                :: "object_type TEXT NOT NULL, "
+                :: "manufacturer TEXT NOT NULL, "
+                :: "PRIMARY KEY(object_type, manufacturer) "
+                :: ");"
+                :: Nil
+            )
 
     // # Manufacturer Model
 
@@ -95,6 +112,23 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
             <$> getStringAt(0)
             <*> getStringAt(1)
 
+    pub def createManufacturerModelTable(): DbMonad[Unit] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
+        let* _  = setAutoCommit(false);
+        let* _  = execute("DROP VIEW IF EXISTS ztable_manufacturer_model;");
+        let* _  = execute(manufacturerModelTableDdl());
+        let* _  = commit();
+        point()
+
+    def manufacturerModelTableDdl(): String =
+        String.unlines(
+            "CREATE TABLE IF NOT EXISTS ztable_manufacturer_model ("
+                :: "manufacturer TEXT NOT NULL, "
+                :: "model TEXT NOT NULL, "
+                :: "PRIMARY KEY(manufacturer, model) "
+                :: ");"
+                :: Nil
+            )
 
     // # Floc Object Type Hierarchy
 

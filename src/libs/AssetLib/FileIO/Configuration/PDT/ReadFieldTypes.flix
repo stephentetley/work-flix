@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/Configuration/PDT/ReadFieldTypes {
+namespace AssetLib/FileIO/Configuration/PDT/ReadFieldTypes {
 
     use Functor.{<$>};
     use Applicative.{<*>};
