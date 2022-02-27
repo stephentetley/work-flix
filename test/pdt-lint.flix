@@ -1,5 +1,4 @@
-use RelLib/Lattice/Attributes.{Attributes};
-use PDTKit/Aggregate/Schema.{AggregateRow, Tab};
+use PDTKit/Lint/Base/Schema.{Warning, PdtValueRow, MetaPdtAssetType};
 
 pub def main(_args: Array[String]): Int32 & Impure = 
     println("Running... ${Time/LocalTime.now()}");
@@ -8,7 +7,14 @@ pub def main(_args: Array[String]): Int32 & Impure =
 
 def main01(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let _src     = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
-    let _dst     = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-lint.xlsx");
-    println("TODO");
+    let srcs    = 
+        { pdtDB = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt.sqlite")
+        , assetTypesCsv = System/FilePath.new("E:/coding/work/work-flix/data/S4Loader_configs/pdt_asset_types.csv")
+        , manuModelZTable = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt")
+        };
+    let _dst     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt-lint.xlsx");
+    let* relns  = PDTKit/Lint/Base/Loader.readAll(srcs);
+    let ans     = relns <+> PDTKit/Lint/Rules/ManufacturerModel.invalidManufacturerModel();
+    query ans select (x1, x2, x3, x4) from Warning(x1, x2, x3, x4) |> Array.foreach(println);
+    /// query ans select (x1, x2, x3, x4) from MetaPdtAssetType(x1, x2, x3, x4) |> Array.foreach(println);
     Ok()

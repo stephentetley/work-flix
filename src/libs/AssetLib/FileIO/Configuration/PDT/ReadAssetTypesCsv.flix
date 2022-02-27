@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/FileIO/Configuration/PDT/ReadAssetTypes {
+namespace AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -39,7 +39,7 @@ namespace AssetLib/FileIO/Configuration/PDT/ReadAssetTypes {
         let* _      = insertAssetTypes(ans);
         point(ans)
 
-    def readAssetTypes(src: System.FilePath): Result[List[AssetTypeRow], String] & Impure = 
+    pub def readAssetTypes(src: System.FilePath): Result[List[AssetTypeRow], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringNamed};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
@@ -71,7 +71,7 @@ namespace AssetLib/FileIO/Configuration/PDT/ReadAssetTypes {
     pub def createMetaPdtAssetTypesTable(): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
-        let* _  = execute("DROP VIEW IF EXISTS meta_pdt_asset_types;");
+        let* _  = execute("DROP TABLE IF EXISTS meta_pdt_asset_types;");
         let* _  = execute(metaPdtAssetTypesTableDdl());
         let* _  = commit();
         point()

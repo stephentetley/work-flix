@@ -26,22 +26,32 @@ namespace PDTKit/Lint/Rules/ManufacturerModel {
     pub rel ZTableManufModel(manu: String, model: String)
 
     pub def invalidManufacturerModel(): InvalidManufacturer[r1] = 
+        
         #{
+            
+            
             ///
-            Warning(sourceFile, row, column, "Invalid manufacturer ${manu} for asset ${assetName} [object type ${objType}]") :- 
+            Warning(sourceFile, row, column, invalidManufacturerMsg(manu, assetName, objType)) :- 
                 PdtValueRow(sourceFile, row, column, assetName, "Manufacturer", manu),
-                PdtValueRow(sourceFile, row, column, assetName, "AssetType", assetType),
+                PdtValueRow(sourceFile, _, column, assetName, "Asset Type", assetType),
                 MetaPdtAssetType(assetType, _, objType, _),
                 not ZTableObjTypeManufacturer(objType, manu).
 
-            Warning(sourceFile, row, column, "Invalid model ${model} for asset ${assetName} [manufacturer ${manu}]") :- 
-                PdtValueRow(sourceFile, row, column, assetName, "Manufacturer", manu),
+            Warning(sourceFile, row, column, invalidModelMsg(manu, assetName, model)) :- 
+                PdtValueRow(sourceFile, _, column, assetName, "Manufacturer", manu),
                 PdtValueRow(sourceFile, row, column, assetName, "Product range", model),
-                PdtValueRow(sourceFile, row, column, assetName, "AssetType", assetType),
+                PdtValueRow(sourceFile, _, column, assetName, "Asset Type", assetType),
                 MetaPdtAssetType(assetType, _, objType, _),
                 ZTableObjTypeManufacturer(objType, manu),
                 not ZTableManufModel(manu, model).
 
         }
+
+    def invalidManufacturerMsg(manu: String, assetName: String, objType: String): String = 
+        "Invalid manufacturer '${manu}' for asset '${assetName}' (object type: ${objType})"
+
+    def invalidModelMsg(manu: String, assetName: String, model: String): String = 
+        "Invalid model '${model}' for asset '${assetName}' (manufacturer: '${manu}')"
+
 
 }
