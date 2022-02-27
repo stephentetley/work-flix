@@ -15,7 +15,9 @@ def main01(): Result[Unit, String] & Impure =
         };
     let _dst     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt-lint.xlsx");
     let* relns  = PDTKit/Lint/Base/Loader.readAll(srcs);
-    let ans     = relns <+> PDTKit/Lint/Rules/ManufacturerModel.invalidManufacturerModel();
+    let ans     = 
+        relns <+> PDTKit/Lint/Rules/ManufacturerModel.invalidManufacturerModel()
+              <+> PDTKit/Lint/Rules/AssetName.invalidAssetName();
     query ans select (x1, x2, x3, x4) from Warning(x1, x2, x3, x4) |> Array.foreach(println);
     /// query ans select (x1, x2, x3, x4) from MetaPdtAssetType(x1, x2, x3, x4) |> Array.foreach(println);
     Ok()
