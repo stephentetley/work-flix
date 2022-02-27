@@ -23,29 +23,38 @@ namespace PDTKit/Lint/Base/Loader {
     use BasicDb.RowEvaluator;
 
     use AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.{AssetTypeRow};
-    use PDTKit/Lint/Base/Schema.{PdtValueRow, MetaPdtAssetType};
+    use AssetLib/FileIO/S4/ZTable/Datatypes.{ObjTypeManufacturer, ManufacturerModel};
+    use PDTKit/Lint/Base/Schema.{PdtValueRow, MetaPdtAssetType, 
+        ZObjTypeManufacturer, ZManufModel};
 
     pub type alias PDTLintSources = 
         { pdtDB :: System.FilePath
         , assetTypesCsv :: System.FilePath
-        , manuModelZTable :: System.FilePath
+        , ztableObjTypeManuf :: System.FilePath
+        , ztableManuModel :: System.FilePath
         }
 
 
-    pub def readAll(srcs: PDTLintSources): Result[#{PdtValueRow, MetaPdtAssetType | r}, String] & Impure = 
+    pub type alias InputSchema[r1: SchemaRow] = #{PdtValueRow, MetaPdtAssetType, ZObjTypeManufacturer, ZManufModel | r1}
+
+    pub def readAll(srcs: PDTLintSources): Result[InputSchema[r], String] & Impure = 
         BasicDb/DbMonad.runSQLite(extendDb() *> readAllDb(srcs), srcs.pdtDB)
 
 
     def extendDb(): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap};
         let* _  = AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.createMetaPdtAssetTypesTable();
+        let* _  = AssetLib/FileIO/S4/ZTable/SQLite.createObjTypeManufacturerTable("ztable_objtype_manuf");
+        let* _  = AssetLib/FileIO/S4/ZTable/SQLite.createManufacturerModelTable("ztable_manuf_model");
         point()
 
 
-    pub def readAllDb(srcs: PDTLintSources): DbMonad[#{PdtValueRow, MetaPdtAssetType | r}] = 
-        ((x1, x2) -> x1 <+> x2)
+    pub def readAllDb(srcs: PDTLintSources): DbMonad[InputSchema[r]] = 
+        ((x1, x2, x3, x4) -> x1 <+> x2 <+> x3 <+> x4)
             <$> readPdtValueRows()
             <*> readMetaPdtAssetTypes(srcs.assetTypesCsv)
+            <*> readZObjTypeManufacturer(srcs.ztableObjTypeManuf)
+            <*> readZManufModel(srcs.ztableManuModel)
         
 
     def readPdtValueRows(): DbMonad[#{PdtValueRow | r}] = 
@@ -70,17 +79,30 @@ namespace PDTKit/Lint/Base/Loader {
 
     /// From Configuration...
     
-
     def readMetaPdtAssetTypes(src: System.FilePath): DbMonad[#{MetaPdtAssetType | r}] = 
         AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.readAndStoreAssetTypes(src)
             |> Functor.map(getMetaPdtAssetTypes)
-
-
 
     def getMetaPdtAssetTypes(l: List[AssetTypeRow]): #{MetaPdtAssetType | r} = 
         let make1 = x1 -> #{ MetaPdtAssetType(x1.pdtAssetType, x1.s4Category, x1.s4Object, x1.s4Class). };
         RelLib/Relation.foldMap(make1, l)
         
+    /// From ZTables...
 
+    def readZObjTypeManufacturer(src: System.FilePath): DbMonad[#{ZObjTypeManufacturer | r}] = 
+        AssetLib/FileIO/S4/ZTable/SQLite.readAndStoreObjTypeManufacturer("ztable_objtype_manuf", src)
+            |> Functor.map(getZObjTypeManufacturers)
+
+    def getZObjTypeManufacturers(l: List[ObjTypeManufacturer]): #{ZObjTypeManufacturer | r} = 
+        let make1 = x1 -> #{ ZObjTypeManufacturer(x1.objectType, x1.manufacturer). };
+        RelLib/Relation.foldMap(make1, l)
+
+    def readZManufModel(src: System.FilePath): DbMonad[#{ZManufModel | r}] = 
+        AssetLib/FileIO/S4/ZTable/SQLite.readAndStoreManufacturerModel("ztable_manuf_model", src)
+            |> Functor.map(getZManufModels)
+
+    def getZManufModels(l: List[ManufacturerModel]): #{ZManufModel | r} = 
+        let make1 = x1 -> #{ ZManufModel(x1.manufacturer, x1.model). };
+        RelLib/Relation.foldMap(make1, l)
 
 }

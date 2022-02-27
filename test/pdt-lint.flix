@@ -10,7 +10,8 @@ def main01(): Result[Unit, String] & Impure =
     let srcs    = 
         { pdtDB = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt.sqlite")
         , assetTypesCsv = System/FilePath.new("E:/coding/work/work-flix/data/S4Loader_configs/pdt_asset_types.csv")
-        , manuModelZTable = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt")
+        , ztableManuModel = System/FilePath.new("G:/work/assets/facts/ztables/ztable-manuf-model.txt")
+        , ztableObjTypeManuf = System/FilePath.new("G:/work/assets/facts/ztables/ztable-objtype-manuf.txt")
         };
     let _dst     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt-lint.xlsx");
     let* relns  = PDTKit/Lint/Base/Loader.readAll(srcs);

@@ -28,6 +28,12 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
 
     // # Objtype Manuf
 
+    pub def readAndStoreObjTypeManufacturer(table: String, path: System.FilePath): DbMonad[List[ObjTypeManufacturer]]=
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* ans    = liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadObjTypeManufacturer(path));
+        let* _      = storeObjTypeManufacturer(table, ans);
+        point(ans)
+
 
     pub def storeObjTypeManufacturer(table: String, rows: t[ObjTypeManufacturer]): DbMonad[Int32] with Foldable[t] =
         let sqlstrings = { 
@@ -61,17 +67,17 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
             <$> getStringAt(0)
             <*> getStringAt(1)
 
-    pub def createObjTypeManufacturerTable(): DbMonad[Unit] =
+    pub def createObjTypeManufacturerTable(tableName: String): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
-        let* _  = execute("DROP VIEW IF EXISTS ztable_objtype_manufacturer;");
-        let* _  = execute(objTypeManufacturerTableDdl());
+        let* _  = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _  = execute(objTypeManufacturerTableDdl(tableName));
         let* _  = commit();
         point()
 
-    def objTypeManufacturerTableDdl(): String =
+    def objTypeManufacturerTableDdl(tableName: String): String =
         String.unlines(
-            "CREATE TABLE IF NOT EXISTS ztable_objtype_manufacturer ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "object_type TEXT NOT NULL, "
                 :: "manufacturer TEXT NOT NULL, "
                 :: "PRIMARY KEY(object_type, manufacturer) "
@@ -80,6 +86,13 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
             )
 
     // # Manufacturer Model
+
+
+    pub def readAndStoreManufacturerModel(table: String, path: System.FilePath): DbMonad[List[ManufacturerModel]]=
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* ans    = liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(path));
+        let* _      = storeManufacturerModel(table, ans);
+        point(ans)
 
     pub def storeManufacturerModel(table: String, rows: t[ManufacturerModel]): DbMonad[Int32] with Foldable[t] =
         let sqlstrings = { 
@@ -112,17 +125,17 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
             <$> getStringAt(0)
             <*> getStringAt(1)
 
-    pub def createManufacturerModelTable(): DbMonad[Unit] =
+    pub def createManufacturerModelTable(tableName: String): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
-        let* _  = execute("DROP VIEW IF EXISTS ztable_manufacturer_model;");
-        let* _  = execute(manufacturerModelTableDdl());
+        let* _  = execute("DROP TABLE IF EXISTS ${tableName};");
+        let* _  = execute(manufacturerModelTableDdl(tableName));
         let* _  = commit();
         point()
 
-    def manufacturerModelTableDdl(): String =
+    def manufacturerModelTableDdl(tableName: String): String =
         String.unlines(
-            "CREATE TABLE IF NOT EXISTS ztable_manufacturer_model ("
+            "CREATE TABLE IF NOT EXISTS ${tableName} ("
                 :: "manufacturer TEXT NOT NULL, "
                 :: "model TEXT NOT NULL, "
                 :: "PRIMARY KEY(manufacturer, model) "

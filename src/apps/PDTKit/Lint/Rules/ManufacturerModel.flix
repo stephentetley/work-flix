@@ -16,17 +16,12 @@
 
 namespace PDTKit/Lint/Rules/ManufacturerModel {
 
-    use PDTKit/Lint/Base/Schema.{Warning, PdtValueRow, MetaPdtAssetType};
+    use PDTKit/Lint/Base/Schema.{Warning, PdtValueRow, MetaPdtAssetType, ZObjTypeManufacturer, ZManufModel};
 
     pub type alias InvalidManufacturer[r1: SchemaRow] = 
-        #{Warning, PdtValueRow, MetaPdtAssetType, ZTableObjTypeManufacturer, ZTableManufModel | r1}
-
-    pub rel ZTableObjTypeManufacturer(objType: String, manu: String)
-
-    pub rel ZTableManufModel(manu: String, model: String)
+        #{Warning, PdtValueRow, MetaPdtAssetType, ZObjTypeManufacturer, ZManufModel | r1}
 
     pub def invalidManufacturerModel(): InvalidManufacturer[r1] = 
-        
         #{
             
             
@@ -35,15 +30,15 @@ namespace PDTKit/Lint/Rules/ManufacturerModel {
                 PdtValueRow(sourceFile, row, column, assetName, "Manufacturer", manu),
                 PdtValueRow(sourceFile, _, column, assetName, "Asset Type", assetType),
                 MetaPdtAssetType(assetType, _, objType, _),
-                not ZTableObjTypeManufacturer(objType, manu).
+                not ZObjTypeManufacturer(objType, manu).
 
             Warning(sourceFile, row, column, invalidModelMsg(manu, assetName, model)) :- 
                 PdtValueRow(sourceFile, _, column, assetName, "Manufacturer", manu),
                 PdtValueRow(sourceFile, row, column, assetName, "Product range", model),
                 PdtValueRow(sourceFile, _, column, assetName, "Asset Type", assetType),
                 MetaPdtAssetType(assetType, _, objType, _),
-                ZTableObjTypeManufacturer(objType, manu),
-                not ZTableManufModel(manu, model).
+                ZObjTypeManufacturer(objType, manu),
+                not ZManufModel(manu, model).
 
         }
 

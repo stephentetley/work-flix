@@ -23,5 +23,9 @@ namespace PDTKit/Lint/Base/Schema {
                 
     pub rel MetaPdtAssetType(pdtAssetName: String, s4Category: String, s4ObjType: String, s4Class: String)
     
+    pub rel ZObjTypeManufacturer(objType: String, manu: String)
+
+    pub rel ZManufModel(manu: String, model: String)
+
 
 }
