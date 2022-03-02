@@ -62,7 +62,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         let* _  = commit();
         point()
 
-    /// TODO - don't do the join in Datalog...
+    /// Note - this does a join in Datalog (could we do it within SQL?)
     pub def insertFieldValues(relns: #{FieldValue | r}): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
         let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6) from FieldValue(x1, x2, x3, x4, x5, x6) |> Array.toList);

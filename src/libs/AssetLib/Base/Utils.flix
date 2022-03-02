@@ -94,11 +94,11 @@ namespace AssetLib/Base/Utils {
 
 
     pub def readExponentInt64(s: String): Result[Int64, String] = 
-        import java.lang.String.strip();
-        import new java.math.BigDecimal(String) as newBD;
-        import java.math.BigDecimal.longValue();
+        import java.lang.String.strip(): String & Pure;
+        import new java.math.BigDecimal(String): ##java.math.BigDecimal & Pure as newBD;
+        import java.math.BigDecimal.longValue(): Int64 & Pure;
         try {
-            Ok(s |> strip |> newBD |> longValue) as & Pure
+            Ok(s |> strip |> newBD |> longValue)
         } catch {
             case _: ##java.lang.NumberFormatException => Err("readExponentInt64")
         }

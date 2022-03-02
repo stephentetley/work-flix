@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
+/// Note
+/// This component reads and "packages" PDT data for analysis, "output" is to SQLite.
+/// There is no intention for "roundtripping" unlike Transfer files for instance.
+
 namespace AssetLib/FileIO/PDT/Datatypes {
 
-    /// TODO - probably don't want to do this join ourselves.
+    /// Note - we use Datalog for a join (maybe we could do it in SQL 
+    /// when we ingest the data).
     pub rel FieldValue(fileName: String, 
                             rowNum: Int32, 
                             colNum: Int32, 
