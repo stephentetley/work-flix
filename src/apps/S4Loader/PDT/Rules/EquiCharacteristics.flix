@@ -33,7 +33,8 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     /// prefix. `PropertyAlias` works as an inclusion test showing that the respective class
     /// contains that characteristic.
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
-        #{
+        #{            
+
             /// Special - uses TankShape
             EquiCharacteristic(uid, tankShapeClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),

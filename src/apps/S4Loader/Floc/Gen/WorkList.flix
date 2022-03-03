@@ -46,7 +46,8 @@ namespace S4Loader/Floc/Gen/WorkList {
 
     /// Read from Aib xlsx export file...
     pub def readFlocWorkList(src: XlsxSource): Result[List[FlocWorkItemRow], String] & Impure =
-        SheetIO/Reader.allNamedRows(evalFlocWorkItem(), src)
+        use SheetIO/NamedRowEvaluator.{optional}; 
+        SheetIO/Reader.someNamedRows(optional(evalFlocWorkItem()), src)
 
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItemRow] =
         use SheetIO/NamedRowEvaluator.{flatMap, point, map, getRowNum, 

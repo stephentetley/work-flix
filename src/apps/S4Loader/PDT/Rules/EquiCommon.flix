@@ -39,6 +39,17 @@ namespace S4Loader/PDT/Rules/EquiCommon {
             EquiCharacteristic(uid, "AIB_REFERENCE", "S4_AIB_REFERENCE", S4String("")) :-
                 EquiWorkItem(uid, _).
 
+            // # EAST_NORTH
+            EquiCharacteristic(uid, "EAST_NORTH", "EASTING", S4Int(eastingfromOsgb36(ngr))) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@GRID_REF", ngr).
+
+            EquiCharacteristic(uid, "EAST_NORTH", "NORTHING", S4Int(northingfromOsgb36(ngr))) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@GRID_REF", ngr).
+
+
+
             // # __CLASS__
 
             EquiCharacteristic(uid, equiClass, "UNICLASS_CODE", S4String("")) :- 

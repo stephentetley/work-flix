@@ -33,6 +33,7 @@ namespace S4Loader/PDT/Gen/WorkList {
         , superEquiId :: String
         , solutionId :: String
         , position :: Option[Int32]
+        , gridRef :: String
         , batchNumber :: Int32
         , extraMemo :: String
         }
@@ -53,6 +54,7 @@ namespace S4Loader/PDT/Gen/WorkList {
         let* superEqui      = getTrimmedContentNamed("Super Equi");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
         let* position       = getTrimmedContentNamed("Position") |> map(Int32.fromString >> Result.toOption);
+        let* ngr            = getNonEmptyContentNamed("NGR");
         let* batch          = optional(getInt32Named("Batch"));
         let* extraMemo      = getTrimmedContentNamed("Extra Memo");
         point({ rowId           = rowId
@@ -63,6 +65,7 @@ namespace S4Loader/PDT/Gen/WorkList {
                 , solutionId    = solutionId
                 , position      = position
                 , batchNumber   = Option.getWithDefault(1, batch)
+                , gridRef       = ngr
                 , extraMemo     = extraMemo
                 })
 
@@ -75,8 +78,9 @@ namespace S4Loader/PDT/Gen/WorkList {
 
     def makeProperties1(x: EquiWorkItemRow): #{StringProperty, IntProperty | r} = 
         use RelLib/Relation.{whenTrue, foldMap};
-        whenTrue(not String.isEmpty(x.solutionId), #{ StringProperty(x.uid, "@SOLUTION_ID", x.solutionId). })
-            <+> whenTrue(not String.isEmpty(x.extraMemo), #{ StringProperty(x.uid, "@EXTRA_MEMO", x.extraMemo). })
+        whenTrue(not String.isEmpty(x.solutionId),          #{ StringProperty(x.uid, "@SOLUTION_ID", x.solutionId). })
+            <+> whenTrue(not String.isEmpty(x.extraMemo),   #{ StringProperty(x.uid, "@EXTRA_MEMO", x.extraMemo). })
+            <+> whenTrue(not String.isEmpty(x.gridRef),     #{ StringProperty(x.uid, "@GRID_REF", x.gridRef). })
         
 
 

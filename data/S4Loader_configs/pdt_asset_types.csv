@@ -202,3 +202,10 @@ Valve,Vacuum Interface Valve,M,VALV,VALVVI
 Valve,Vacuum Regulator Valve,M,VALV,VALVVR
 Well,Dry Well,C,WELL,WELLDR
 Well,Wet Well,C,WELL,WELLWT
+Detection Device,Gas Detector for Explosive Atmospheres,I,DECT,DECTEX
+Detection Device,Detector for boiler flame sources,I,DECT,DECTFM
+Detection Device,Miscellaneous Detection Device,I,DECT,DECTMISC
+Detection Device,Monitor Panel for Gas Detectors,I,DECT,DECTPA
+Detection Device,Gas Detector for Toxic Atmospheres,I,DECT,DECTTX
+
+
