@@ -21,12 +21,12 @@ namespace PDTKit/Aggregate/Schema {
 
     pub rel Classification(sourceFile: String, classification: String)
 
-    pub rel ValueRow(assetName: String, sourceFile: String, fieldName: String, fieldValue: String)
+    pub rel ValueRow(assetName: String, sourceFile: String, sourceItem: Int32, fieldName: String, fieldValue: String)
 
     pub rel ParamSpec(classification: String, paramName: String, paramIndex: Int32)
 
     /// Store properties in a Map lattice...
-    pub lat AggregateRow(classification: String, assetName: String, sourceFile: String, attributes: StringAttributes)
+    pub lat AggregateRow(classification: String, sourceFile: String, column: Int32, assetName: String, attributes: StringAttributes)
 
     pub lat TabSpec(classification: String, columns: Int32StringAttributes)
 

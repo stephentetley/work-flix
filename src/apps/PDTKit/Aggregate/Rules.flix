@@ -29,8 +29,8 @@ namespace PDTKit/Aggregate/Rules {
         use RelLib/Lattice/StringAttributes.singleton;
         #{
             ///
-            AggregateRow(classification, assetName, sourceFile; RelLib/Lattice/StringAttributes.singleton(fieldName, fieldValue)) :- 
-                ValueRow(assetName, sourceFile, fieldName, fieldValue),
+            AggregateRow(classification, sourceFile, column, assetName; RelLib/Lattice/StringAttributes.singleton(fieldName, fieldValue)) :- 
+                ValueRow(assetName, sourceFile, column, fieldName, fieldValue),
                 Classification(sourceFile, classification).
 
             TabSpec(classification; RelLib/Lattice/Int32StringAttributes.singleton(paramIndex, fieldName)) :- 
@@ -38,6 +38,6 @@ namespace PDTKit/Aggregate/Rules {
         }
 
     pub def columnsPrefix(): List[String] = 
-        "Asset Name" :: "Source File" :: "Asset Type" :: "Asset Status" :: Nil
+        "Source File" :: "Item" :: "Asset Name" :: "Asset Type" :: "Asset Status" :: Nil
 
 }

@@ -8,8 +8,8 @@ pub def main(_args: Array[String]): Int32 & Impure =
 
 def main01(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    let src     = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt.sqlite");
-    let dst     = System/FilePath.new("G:/work/assets/capital_schemes/chell/chell-pdt-summary.xlsx");
+    let src     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt.sqlite");
+    let dst     = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt-summary.xlsx");
     let* r1     = PDTKit/Aggregate/Loader.readAll(src);
     let relns   = r1 <+> PDTKit/Aggregate/Rules.makeAggregates();
     let* _      = PDTKit/Aggregate/ExcelOutput.outputExcel(relns, dst);    

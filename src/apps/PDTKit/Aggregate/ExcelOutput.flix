@@ -62,16 +62,17 @@ namespace PDTKit/Aggregate/ExcelOutput {
         (classification, headers)
 
     pub def makeRows(relns: #{AggregateRow | r}): Array[(String, Map[String, String])] & Impure = 
-        query relns select (x1, x2, x3, x4) from AggregateRow(x1, x2, x3; x4)
+        query relns select (x1, x2, x3, x4, x5) from AggregateRow(x1, x2, x3, x4; x5)
             |> Array.map(makeRow1)
 
-    def makeRow1(x: (String, String, String, StringAttributes)): (String, Map[String, String]) = 
-        let (classification, name, srcFile, values) = x;
+    def makeRow1(x: (String, String, Int32, String, StringAttributes)): (String, Map[String, String]) = 
+        let (classification, srcFile, itemNum, assetName, values) = x;
         let cells = 
             values
                 |> RelLib/Lattice/StringAttributes.getAttributes1
-                |> Map.insert("Asset Name", name) 
-                |> Map.insert("Source File", srcFile);
+                |> Map.insert("Source File", srcFile)
+                |> Map.insert("Item", ToString.toString(itemNum))
+                |> Map.insert("Asset Name", assetName);
         (classification, cells)
 
 

@@ -53,7 +53,7 @@ namespace PDTKit/Aggregate/Loader {
 
     def readValueRows(): DbMonad[#{ValueRow | r}] = 
         let sql = String.unlines(
-                    "SELECT prv.asset_name, prv.source_file, prv.field_name, prv.field_value "
+                    "SELECT prv.asset_name, prv.source_file, prv.item_num, prv.field_name, prv.field_value "
                         :: "FROM pdt_raw_values prv "
                         :: "WHERE prv.field_name <> 'Asset Name';"
                         :: Nil
@@ -62,12 +62,13 @@ namespace PDTKit/Aggregate/Loader {
 
 
     def evalValueRow(): RowEvaluator[#{ValueRow | r}] = 
-        use BasicDb/RowEvaluator.{getStringAt};
-        ((x1, x2, x3, x4) -> #{ ValueRow(x1, x2, x3, x4). })
+        use BasicDb/RowEvaluator.{getStringAt, getInt32At};
+        ((x1, x2, x3, x4, x5) -> #{ ValueRow(x1, x2, x3, x4, x5). })
             <$> getStringAt(0)
             <*> getStringAt(1)
-            <*> getStringAt(2)
+            <*> getInt32At(2)
             <*> getStringAt(3)
+            <*> getStringAt(4)
 
     def readParamSpecs(): DbMonad[#{ParamSpec | r}] = 
         let sql = String.unlines(
