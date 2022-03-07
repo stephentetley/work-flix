@@ -21,7 +21,7 @@ namespace PDTKit/RunLint {
     use PDTKit/Lint/Base/Schema.{Warning, PdtValueRow, MetaPdtAssetType};
 
 
-    pub def runLint(): Result[Unit, String] & Impure = 
+    pub def runLint(_args: Array[String]): Result[Int32, String] & Impure = 
         use Result.flatMap;
         let srcs    = 
             { pdtDB = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-pdt.sqlite")
@@ -37,6 +37,6 @@ namespace PDTKit/RunLint {
                 <+> PDTKit/Lint/Rules/AssetName.invalidAssetName();
         query ans select (x1, x2, x3, x4) from Warning(x1, x2, x3, x4) |> Array.foreach(println);
         /// query ans select (x1, x2, x3, x4) from MetaPdtAssetType(x1, x2, x3, x4) |> Array.foreach(println);
-        Ok()
+        Ok(0)
 
 }
