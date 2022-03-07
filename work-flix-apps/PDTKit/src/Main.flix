@@ -1,10 +1,10 @@
 
-
+/// TODO make this a proper `main` with GetOpt or JSON params etc.
 
 use PDTKit/Lint/Base/Schema.{Warning, PdtValueRow, MetaPdtAssetType};
 
 pub def main(_args: Array[String]): Int32 & Impure = 
-    println("Running... ${Time/LocalTime.now()}");
+    println("Running PDT Kit... ${Time/LocalTime.now()}");
     main01() |> println;
     0
 
