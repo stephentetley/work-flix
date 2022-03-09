@@ -25,7 +25,7 @@ namespace S4Loader/App/PdtInit {
 
 
     /// Needs a `PDT Db` built by PDT new reader (Asset Lib)
-    pub def makePdtDb(_args: Array[String]): Result[Bool, String] & Impure =
+    pub def makePdtDb(): Result[Bool, String] & Impure =
         use Result.flatMap;
         let* srcdir     = S4Loader/App/Config.getWorkingDirectory() |> Result.map(flip(System/FilePath.snoc, "pdts"));
         let srcs        = 
@@ -38,7 +38,7 @@ namespace S4Loader/App/PdtInit {
 
 
     /// Make Loader Db...
-    pub def makeLoaderDb(_: Array[String]): Result[Bool, String] & Impure =
+    pub def makeLoaderDb(): Result[Bool, String] & Impure =
         use Result.flatMap;
         use BasicDb/DbMonad.{runSQLite};
         let* configSources  = getConfigSources();

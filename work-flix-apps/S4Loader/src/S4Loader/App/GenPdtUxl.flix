@@ -28,21 +28,17 @@ namespace S4Loader/App/GenPdtUxl {
     use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributesSchema, EquiAttributes};
 
 
-    pub def runGenPdtUxl(_: Array[String]): Int32 & Impure = 
-        main01() |> println;
-        0
         
 
     /// Need to get worklist from the command line...
-    def main01(): Result[Unit, String] & Impure = 
+    pub def runGenPdtUxl(worklist: String): Result[Unit, String] & Impure = 
         use Result.flatMap;
         let* outputArgs     = makeOutputArgs();
+        let* outputRoot     = S4Loader/App/Config.getWorkingDirectory();
         let* dbpath         = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "s4loader-s4loader.sqlite"));
-        dbpath |> println;
-        let flocsrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt-worklist.xlsx"),
-                                sheet = "Floc"};
-        let equisrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt-worklist.xlsx"), 
-                                sheet = "Equi"};
+        let worklistpath    = System/FilePath.snoc(outputRoot, worklist);
+        let flocsrc         = {path = worklistpath, sheet = "Floc"};
+        let equisrc         = {path = worklistpath, sheet = "Equi"};
         let* _              = S4Loader/Uxl/GenUxl.generatePDTUxl(outputArgs, {dbpath = dbpath, flocsrc = flocsrc, equisrc = equisrc});
         Ok()
 
