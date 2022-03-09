@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace S4Loader/RunGenPdtUxl {
+namespace S4Loader/App/GenPdtUxl {
 
     use SheetIO/Reader.{XlsxSource};
 
@@ -29,25 +29,16 @@ namespace S4Loader/RunGenPdtUxl {
 
 
     pub def runGenPdtUxl(_: Array[String]): Int32 & Impure = 
-        println("Running... ${Time/LocalTime.now()}");
         main01() |> println;
         0
         
 
-    def getOutputArgs(): Result[UxlOutputArgs, String] = 
-        use Result.flatMap;
-        let* configPath = getConfigPath();
-        let* outputRoot = getWorkingDirectory();
-        Ok({ uxlTemplate = System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
-            , changeRequestName = "ABCDE ## UXL"
-            , outpath = System/FilePath.snoc(outputRoot, "NEW-sca05_dsear_pdt_uxl.xlsx")
-            })
-
+    /// Need to get worklist from the command line...
     def main01(): Result[Unit, String] & Impure = 
         use Result.flatMap;
-        let* outputArgs     = getOutputArgs();
-        outputArgs.uxlTemplate |> println;
-        let dbpath          = System/FilePath.new("G:/work/assets/capital_schemes/sca05/.s4loader/s4loader-s4loader.sqlite");
+        let* outputArgs     = makeOutputArgs();
+        let* dbpath         = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "s4loader-s4loader.sqlite"));
+        dbpath |> println;
         let flocsrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt-worklist.xlsx"),
                                 sheet = "Floc"};
         let equisrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt-worklist.xlsx"), 
@@ -55,13 +46,14 @@ namespace S4Loader/RunGenPdtUxl {
         let* _              = S4Loader/Uxl/GenUxl.generatePDTUxl(outputArgs, {dbpath = dbpath, flocsrc = flocsrc, equisrc = equisrc});
         Ok()
 
-    pub def getAppPath(): Result[System.FilePath, String] = 
-        Environment.getVar("S4LOADER_HOME") |> Option.map(System/FilePath.new) |> flip(Option.toOk, "Env var `S4LOADER_HOME` not set")
 
-    pub def getConfigPath(): Result[System.FilePath, String] = 
-        getAppPath() |> Result.map(flip(System/FilePath.snoc, "config"))
-
-    pub def getWorkingDirectory(): Result[System.FilePath, String] = 
-        Environment.getCurrentWorkingDirectory() |> Option.map(System/FilePath.new) |> flip(Option.toOk, "Could not get Current-Working-Directory")
+    def makeOutputArgs(): Result[UxlOutputArgs, String] & Impure = 
+        use Result.flatMap;
+        let* configPath = S4Loader/App/Config.getAppConfigPath();
+        let* outputRoot = S4Loader/App/Config.getWorkingDirectory();
+        Ok({ uxlTemplate = System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
+            , changeRequestName = "ABCDE ## UXL"
+            , outpath = System/FilePath.snoc(outputRoot, "NEW-sca05_dsear_pdt_uxl.xlsx")
+            })
 
 }
