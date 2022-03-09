@@ -34,20 +34,34 @@ namespace S4Loader/RunGenPdtUxl {
         0
         
 
-    def outputArgs(): UxlOutputArgs = 
-        { uxlTemplate = System/FilePath.new("G:/work/assets/uxl/1909_AIW_MOCR_Template.xlsx")
-        , changeRequestName = "Chello ## UXL"
-        , outpath = System/FilePath.new("G:/work/assets/capital_schemes/sca05/output/sca05_dsear_pdt_uxl.xlsx")
-        }
+    def getOutputArgs(): Result[UxlOutputArgs, String] = 
+        use Result.flatMap;
+        let* configPath = getConfigPath();
+        let* outputRoot = getWorkingDirectory();
+        Ok({ uxlTemplate = System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
+            , changeRequestName = "ABCDE ## UXL"
+            , outpath = System/FilePath.snoc(outputRoot, "NEW-sca05_dsear_pdt_uxl.xlsx")
+            })
 
     def main01(): Result[Unit, String] & Impure = 
         use Result.flatMap;
-        let dbpath          = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-s4loader.sqlite");
+        let* outputArgs     = getOutputArgs();
+        outputArgs.uxlTemplate |> println;
+        let dbpath          = System/FilePath.new("G:/work/assets/capital_schemes/sca05/.s4loader/s4loader-s4loader.sqlite");
         let flocsrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt-worklist.xlsx"),
                                 sheet = "Floc"};
         let equisrc         = {path = System/FilePath.new("G:/work/assets/capital_schemes/sca05/sca05-dsear-pdt-worklist.xlsx"), 
                                 sheet = "Equi"};
-        let* _              = S4Loader/Uxl/GenUxl.generatePDTUxl(outputArgs(), {dbpath = dbpath, flocsrc = flocsrc, equisrc = equisrc});
+        let* _              = S4Loader/Uxl/GenUxl.generatePDTUxl(outputArgs, {dbpath = dbpath, flocsrc = flocsrc, equisrc = equisrc});
         Ok()
+
+    pub def getAppPath(): Result[System.FilePath, String] = 
+        Environment.getVar("S4LOADER_HOME") |> Option.map(System/FilePath.new) |> flip(Option.toOk, "Env var `S4LOADER_HOME` not set")
+
+    pub def getConfigPath(): Result[System.FilePath, String] = 
+        getAppPath() |> Result.map(flip(System/FilePath.snoc, "config"))
+
+    pub def getWorkingDirectory(): Result[System.FilePath, String] = 
+        Environment.getCurrentWorkingDirectory() |> Option.map(System/FilePath.new) |> flip(Option.toOk, "Could not get Current-Working-Directory")
 
 }

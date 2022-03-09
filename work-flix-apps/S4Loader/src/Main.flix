@@ -20,5 +20,20 @@
 
 
 def main(args: Array[String]): Int32 & Impure = 
+    println("Running S4Loader... ${Time/LocalTime.now()}");
+    println("Args:");
+    Array.foreach(println, args);
+    match Environment.getCurrentWorkingDirectory() { 
+        case Some(cwd) => "Current Working Directory: ${cwd}"
+        case None      => "**Fail - no S4LOADER_HOME**"
+    } |> println;
+    match Environment.getVar("S4LOADER_HOME") { 
+        case Some(cwd) => "S4LOADER_HOME: ${cwd}"
+        case None      => "**Fail - no S4LOADER_HOME**"
+    } |> println;    
+    S4Loader/RunPdtInit.makeS4LoaderDir() |> println;
+    S4Loader/RunGenPdtUxl.getAppPath() |> println;
+    S4Loader/RunGenPdtUxl.getConfigPath() |> println;
     S4Loader/RunGenPdtUxl.runGenPdtUxl(args)
+
 
