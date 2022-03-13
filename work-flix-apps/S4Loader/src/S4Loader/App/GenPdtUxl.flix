@@ -35,7 +35,7 @@ namespace S4Loader/App/GenPdtUxl {
         use Result.flatMap;
         let* outputArgs     = makeOutputArgs();
         let* outputRoot     = S4Loader/App/Config.getWorkingDirectory();
-        let* dbpath         = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "s4loader-s4loader.sqlite"));
+        let* dbpath         = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "s4loader.sqlite"));
         let worklistpath    = System/FilePath.snoc(outputRoot, worklist);
         let flocsrc         = {path = worklistpath, sheet = "Floc"};
         let equisrc         = {path = worklistpath, sheet = "Equi"};

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
  
-/// TODO make this a proper `main` with GetOpt or JSON params etc.
 
 use GetOpt.{OptionDescr};
 use GetOpt.ArgDescr.{ReqArg, NoArg};
@@ -39,6 +38,8 @@ namespace S4Loader {
             case "help"         => showHelp()
             case "initpdt"      => pdtInit()
             case "pdtuxl"       => pdtUxl(opts.worklist)
+            case "pdtsummary"   => S4Loader/App/PdtFilesSummary.pdtFilesSummary()
+            case "pdtlint"      => S4Loader/App/PdtLint.pdtLint()
             case _              => showHelp()
         }
 
@@ -57,6 +58,8 @@ namespace S4Loader {
            {optionNames = "help" :: Nil,        optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "help" | opts}),       explanation = "show help"}
         :: {optionNames = "initpdt" :: Nil,     optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "initpdt" | opts}),    explanation = "init for PDTs"}
         :: {optionNames = "pdtuxl" :: Nil,      optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtuxl" | opts}),     explanation = "gen uxl from PDTs"}
+        :: {optionNames = "pdtsummary" :: Nil,      optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtsummary" | opts}),     explanation = "summarize PDTs"}
+        :: {optionNames = "pdtlint" :: Nil,      optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtlint" | opts}),     explanation = "run Lint on PDTs"}
         :: {optionNames = "worklist" :: Nil,    optionIds = Nil,    argDescriptor = ReqArg(s -> Some(opts -> { worklist = validate(s) | opts}), "<file>"),   explanation = "worklist"}
         :: Nil
 
@@ -81,7 +84,7 @@ namespace S4Loader {
         let* _      = S4Loader/App/PdtInit.makePdtDb();
         let* _      = S4Loader/App/PdtInit.makeLoaderDb();
         Ok()
-
+        
     def pdtUxl(worklist: Option[String]): Result[Unit, String] & Impure = 
         use Result.flatMap;
         match worklist {

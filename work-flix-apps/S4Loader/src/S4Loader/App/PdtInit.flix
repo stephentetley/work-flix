@@ -14,7 +14,7 @@
  * limitations under the License.
  */
  
-/// Makes `PDT db` and `S4 Loader db`...
+/// Makes `PDT db` (pdt_files.sqlite) and `S4 Loader db` (s4loader.sqlite)...
 
 namespace S4Loader/App/PdtInit {
 
@@ -32,7 +32,7 @@ namespace S4Loader/App/PdtInit {
             System/Directory.contents(srcdir) 
                 |> Result.getWithDefault(Nil) 
                 |> List.filter(x -> System/FilePath.getExtension(x) == Some("xlsx"));    
-        let* dst        = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "s4loader-pdt.sqlite"));        
+        let* dst        = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "pdt_files.sqlite"));        
         let* _          = AssetLib/FileIO/PDT/SQLite.createPDTDatabase(srcs, dst);
         Ok(true)
 
@@ -43,8 +43,8 @@ namespace S4Loader/App/PdtInit {
         use BasicDb/DbMonad.{runSQLite};
         let* configSources  = getConfigSources();
         let* s4dir          = S4Loader/App/Config.getS4LoaderDirectory();
-        let pdtDb           = System/FilePath.snoc(s4dir, "s4loader-pdt.sqlite");
-        let dst             = System/FilePath.snoc(s4dir, "s4loader-s4loader.sqlite");
+        let pdtDb           = System/FilePath.snoc(s4dir, "pdt_files.sqlite");
+        let dst             = System/FilePath.snoc(s4dir, "s4loader.sqlite");
         let* _              = runSQLite(buildDb(configSources, pdtDb), dst);
         Ok(true)
 
