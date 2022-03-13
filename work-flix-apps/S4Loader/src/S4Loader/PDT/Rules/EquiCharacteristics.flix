@@ -32,6 +32,9 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     /// Use `PropertyAlias` even for characteristics that don't have a four character object
     /// prefix. `PropertyAlias` works as an inclusion test showing that the respective class
     /// contains that characteristic.
+    ///
+    /// Must ensure `pdt_field_types.csv` includes the expected property and its type.
+    ///
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
         #{            
 
@@ -101,6 +104,21 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
                 EquiObjectClass(uid, _, _, equiClass),
                 StringProperty(uid, "Range Unit", value),
                 PropertyAlias("Range Unit", equiClass, charName).
+
+
+            EquiCharacteristic(uid, equiClass, charName, S4String("HYDROGEN SULPHIDE")) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                StringProperty(uid, "Type of Gas Sensor 1", value),
+                PropertyAlias("Type of Gas Sensor 1", equiClass, charName),
+                if String.toUpperCase(value) == "HYDROGEN SULPHIDE".
+
+            EquiCharacteristic(uid, equiClass, charName, S4String(String.toUpperCase(value))) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                StringProperty(uid, "Type of Gas Sensor 1", value),
+                PropertyAlias("Type of Gas Sensor 2", equiClass, charName),
+                if String.toUpperCase(value) != "HYDROGEN SULPHIDE".
 
         }
         

@@ -70,3 +70,8 @@ UPS - Application,String
 Weight(kg),Float
 Width (mm),Int
 pH,String
+Type of Gas Sensor 1,String
+Type of Gas Sensor 2,String
+Type of Gas Sensor 3,String
+Type of Gas Sensor 4,String
+Type of Gas Sensor 5,String

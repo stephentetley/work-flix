@@ -49,7 +49,7 @@ namespace S4Loader/App/GenPdtUxl {
         let* outputRoot = S4Loader/App/Config.getWorkingDirectory();
         Ok({ uxlTemplate = System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
             , changeRequestName = "ABCDE ## UXL"
-            , outpath = System/FilePath.snoc(outputRoot, "NEW-sca05_dsear_pdt_uxl.xlsx")
+            , outpath = System/FilePath.snoc(outputRoot, "pdt_uxl.xlsx")
             })
 
 }
