@@ -20,13 +20,13 @@ namespace S4Loader/PDT/Rules/EquiCommon {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int};
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, PropertyAlias, EquiObjectClass};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
 
 
     pub type alias EquiCommonSchema[r1: SchemaRow] = 
-        #{EquiWorkItem, EquiObjectClass, StringProperty, IntProperty, EquiCharacteristic | r1}
+        #{EquiWorkItem, EquiObjectClass, StringProperty, IntProperty, DateProperty, EquiCharacteristic | r1}
 
 
     pub def equiCommon(): EquiCommonSchema[r1] =  
@@ -48,6 +48,35 @@ namespace S4Loader/PDT/Rules/EquiCommon {
                 EquiWorkItem(uid, _),
                 StringProperty(uid, "@GRID_REF", ngr).
 
+            // # ASSET_CONDITION
+            EquiCharacteristic(uid, "ASSET_CONDITION", "CONDITION_GRADE", S4String("1 - GOOD")) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@ASSET_CONDITION", "New").
+
+            EquiCharacteristic(uid, "ASSET_CONDITION", "CONDITION_GRADE_REASON", S4String("NEW")) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@ASSET_CONDITION", "New").
+            
+            EquiCharacteristic(uid, "ASSET_CONDITION", "LOADING_FACTOR", S4String("3 - SATISFACTORY")) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@ASSET_CONDITION", "New").
+
+            EquiCharacteristic(uid, "ASSET_CONDITION", "LOADING_FACTOR_REASON", S4String("NEW")) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@ASSET_CONDITION", "New").
+
+            EquiCharacteristic(uid, "ASSET_CONDITION", "PERFORMANCE_GRADE", S4String("1 - AVAILABILITY 95%")) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@ASSET_CONDITION", "New").
+
+            EquiCharacteristic(uid, "ASSET_CONDITION", "PERFORMANCE_GRADE_REASON", S4String("NEW")) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@ASSET_CONDITION", "New").
+
+            EquiCharacteristic(uid, "ASSET_CONDITION", "SURVEY_DATE", S4Int(Time/LocalDate.getYear(localdate))) :- 
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "@ASSET_CONDITION", "New"),
+                DateProperty(uid, "Date of installation", localdate).
 
 
             // # __CLASS__

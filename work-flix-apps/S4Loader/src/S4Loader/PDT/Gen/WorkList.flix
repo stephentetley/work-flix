@@ -34,6 +34,7 @@ namespace S4Loader/PDT/Gen/WorkList {
         , solutionId :: String
         , position :: Option[Int32]
         , gridRef :: String
+        , assetCondition :: String
         , batchNumber :: Int32
         , extraMemo :: String
         }
@@ -55,18 +56,20 @@ namespace S4Loader/PDT/Gen/WorkList {
         let* solutionId     = getTrimmedContentNamed("Solution ID");
         let* position       = getTrimmedContentNamed("Position") |> map(Int32.fromString >> Result.toOption);
         let* ngr            = getNonEmptyContentNamed("NGR");
+        let* assetCondition = getTrimmedContentNamed("Asset Condition");
         let* batch          = optional(getInt32Named("Batch"));
         let* extraMemo      = getTrimmedContentNamed("Extra Memo");
-        point({ rowId           = rowId
-                , uid           = uid
-                , s4Name        = name
-                , s4Floc        = floc
-                , superEquiId   = superEqui
-                , solutionId    = solutionId
-                , position      = position
-                , batchNumber   = Option.getWithDefault(1, batch)
-                , gridRef       = ngr
-                , extraMemo     = extraMemo
+        point({ rowId               = rowId
+                , uid               = uid
+                , s4Name            = name
+                , s4Floc            = floc
+                , superEquiId       = superEqui
+                , solutionId        = solutionId
+                , position          = position
+                , batchNumber       = Option.getWithDefault(1, batch)
+                , assetCondition    = assetCondition
+                , gridRef           = ngr
+                , extraMemo         = extraMemo
                 })
 
     pub def genEquiWorkItems(xs: List[EquiWorkItemRow]): #{EquiWorkItem | r} = 
@@ -78,9 +81,10 @@ namespace S4Loader/PDT/Gen/WorkList {
 
     def makeProperties1(x: EquiWorkItemRow): #{StringProperty, IntProperty | r} = 
         use RelLib/Relation.{whenTrue, foldMap};
-        whenTrue(not String.isEmpty(x.solutionId),          #{ StringProperty(x.uid, "@SOLUTION_ID", x.solutionId). })
-            <+> whenTrue(not String.isEmpty(x.extraMemo),   #{ StringProperty(x.uid, "@EXTRA_MEMO", x.extraMemo). })
-            <+> whenTrue(not String.isEmpty(x.gridRef),     #{ StringProperty(x.uid, "@GRID_REF", x.gridRef). })
+        whenTrue(not String.isEmpty(x.solutionId),              #{ StringProperty(x.uid, "@SOLUTION_ID", x.solutionId). })
+            <+> whenTrue(not String.isEmpty(x.extraMemo),       #{ StringProperty(x.uid, "@EXTRA_MEMO", x.extraMemo). })
+            <+> whenTrue(not String.isEmpty(x.gridRef),         #{ StringProperty(x.uid, "@GRID_REF", x.gridRef). })
+            <+> whenTrue(not String.isEmpty(x.assetCondition),  #{ StringProperty(x.uid, "@ASSET_CONDITION", x.assetCondition). })
         
 
 
