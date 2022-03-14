@@ -20,7 +20,7 @@ namespace S4Loader/App/PdtLint {
 
     use PDTKit/Lint/Base/Schema.{Warning};
 
-
+    /// TODO - `objtype-manuf` and `manuf-model` are already stored in `pdt_files.sqlite`.
     pub def pdtLint(): Result[Unit, String] & Impure = 
         use Result.flatMap;
         let* pdtDB              = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "pdt_files.sqlite"));

@@ -72,6 +72,9 @@ namespace S4Loader/PDT/GenUxl {
             |> patchFloatAttribute(attrsAll,    "Gross Weight kg",          (d, x) -> {weightKg = Some(d) | x})
             |> patchDateAttribute(attrsAll,     "Start-up date",            (d, x) -> {startupDate = d | x})
             |> patchStringAttribute(attrsAll,   "Manufacturer",             (s, x) -> {manufacturer = s | x})
+            |> patchStringAttribute(attrsAll,   "Model number",             (s, x) -> {model = s | x})
+            |> patchStringAttribute(attrsAll,   "ManufPartNo.",             (s, x) -> {partNumber = s | x})
+            |> patchStringAttribute(attrsAll,   "ManufSerialNo.",           (s, x) -> {serialNumber = s | x})
             |> patchStringAttribute(attrsAll,   "TechIdentNo.",             (s, x) -> {techIdentNo = s | x})
             |> patchStringAttribute(attrsAll,   "Status of an object",      (s, x) -> {status = s | x})
 
