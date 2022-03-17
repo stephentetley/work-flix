@@ -120,6 +120,22 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
                 PropertyAlias("Type of Gas Sensor 2", equiClass, charName),
                 if String.toUpperCase(value) != "HYDROGEN SULPHIDE".
 
+            /// TODO - should have a single rule for "regular Mapping"
+
+            /// "Inlet Size (mm)", valves etc.
+            EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                IntProperty(uid, "Inlet Size (mm)", value),
+                PropertyAlias("Inlet Size (mm)", equiClass, charName).
+
+            /// "Bore Diameter (mm)", STAK VAVLRE
+            EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                IntProperty(uid, "Bore Diameter (mm)", value),
+                PropertyAlias("Bore Diameter (mm)", equiClass, charName).
+
         }
         
 

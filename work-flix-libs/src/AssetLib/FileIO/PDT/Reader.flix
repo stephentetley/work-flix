@@ -63,7 +63,7 @@ namespace AssetLib/FileIO/PDT/Reader {
         else {
             let* ix     = getRowNum();
             let* name   = liftAction(_ -> arr[0]);
-            let* vs     = liftAction(_ -> Array.toList(arr) |> List.drop(1));
+            let* vs     = liftAction(_ -> Array.toList(arr) |> List.drop(1) |> List.map(String.trim));
             point({fileName = fileName, rowNumber = ix, rowName = normalize(name), cellValues = vs})
         }
 
