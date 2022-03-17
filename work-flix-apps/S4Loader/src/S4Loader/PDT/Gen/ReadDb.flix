@@ -22,14 +22,15 @@ namespace S4Loader/PDT/Gen/ReadDb {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use S4Loader/Base/Schema.{PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty, TankShape};
+    use S4Loader/Base/Schema.{PdtOneToOneMapping, PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty, TankShape};
 
     pub type alias PersistentRelations[r1: SchemaRow] =
-        #{PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty, TankShape | r1}
+        #{PdtOneToOneMapping, PropertyAlias, EquiObjectClass, StringProperty, IntProperty, FloatProperty, DateProperty, TankShape | r1}
 
     pub def readDbAll(): DbMonad[PersistentRelations[r]] = 
-        ((x1, x2, x3, x4) -> x1 <+> x2 <+> x3 <+> x4)
+        ((x1, x2, x3, x4, x5) -> x1 <+> x2 <+> x3 <+> x4 <+> x5)
             <$> readTankShape()
+            <*> readPdtOneToOneMappings()
             <*> readPropertyAliases()
             <*> readEquiObjectClasses()
             <*> S4Loader/Base/ReadProperties.readProperties()
@@ -45,6 +46,20 @@ namespace S4Loader/PDT/Gen/ReadDb {
         ((x1, x2) -> #{ TankShape(x1, x2). })
             <$> getStringAt(0)
             <*> getStringAt(1)
+
+
+
+    pub def readPdtOneToOneMappings(): DbMonad[#{PdtOneToOneMapping | r}] = 
+        let sql = "SELECT mpom.s4_equi_class, mpom.s4_equi_char, mpom.pdt_field_name FROM meta_pdt_oto_mappings mpom;";
+        BasicDb/Reader.allRelations(evalPdtOneToOneMapping(), sql)
+
+
+    def evalPdtOneToOneMapping(): RowEvaluator[#{PdtOneToOneMapping | r}] = 
+        use BasicDb/RowEvaluator.{getStringAt};
+        ((x1, x2, x3) -> #{ PdtOneToOneMapping(x1, x2, x3). })
+            <$> getStringAt(0)
+            <*> getStringAt(1)
+            <*> getStringAt(2)
 
 
     pub def readPropertyAliases(): DbMonad[#{PropertyAlias | r}] = 

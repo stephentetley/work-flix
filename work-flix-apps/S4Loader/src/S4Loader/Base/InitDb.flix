@@ -100,56 +100,6 @@ namespace S4Loader/Base/InitDb {
         , intRangeTable         = "meta_equi_int_ranges"
         }
 
-    // # Meta PDT field unit types 
-
-    /// /// TODO use AssetLib/PDT/Metadata/...
-    
-    /// pub def createMetaPDTTables(): DbMonad[Unit] =
-    ///     use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
-    ///     let* _  = setAutoCommit(false);
-    ///     let* _  = execute("DROP TABLE IF EXISTS meta_pdt_field_types;");
-    ///     let* _  = execute("DROP TABLE IF EXISTS meta_pdt_asset_types;");
-    ///     let* _  = execute("DROP TABLE IF EXISTS meta_pdt_oto_mappings;");
-    ///     let* _  = execute(metaPdtFieldTypesTableDdl());
-    ///     let* _  = execute(metaPdtAssetTypesTableDdl());
-    ///     let* _  = execute(metaPdtOtoMappingsTableDdl());
-    ///     let* _  = commit();
-    ///     point()
-
-
-    /// def metaPdtFieldTypesTableDdl(): String =
-    ///     String.unwords(
-    ///         "CREATE TABLE IF NOT EXISTS meta_pdt_field_types ("
-    ///             :: "pdt_field_name TEXT NOT NULL,"
-    ///             :: "property_type TEXT NOT NULL,"
-	///             :: "PRIMARY KEY(pdt_field_name)"
-	///             :: ");"
-    ///             :: Nil
-    ///     )
-
-    /// def metaPdtAssetTypesTableDdl(): String =
-    ///     String.unwords(
-    ///         "CREATE TABLE IF NOT EXISTS meta_pdt_asset_types ("
-    ///             :: "pdt_asset_type TEXT NOT NULL,"
-    ///             :: "s4_category TEXT NOT NULL,"
-    ///             :: "s4_object TEXT NOT NULL,"
-    ///             :: "s4_class TEXT NOT NULL,"
-	///             :: "PRIMARY KEY(pdt_asset_type)"
-	///             :: ");"
-    ///             :: Nil
-    ///     )
-
-
-    /// def metaPdtOtoMappingsTableDdl(): String =
-    ///     String.unwords(
-    ///         "CREATE TABLE IF NOT EXISTS meta_pdt_oto_mappings ("
-    ///             :: "s4_equi_class TEXT NOT NULL,"
-    ///             :: "s4_equi_char TEXT NOT NULL,"
-    ///             :: "pdt_field_name TEXT NOT NULL,"
-	///             :: "PRIMARY KEY(s4_equi_class, s4_equi_char)"
-	///             :: ");"
-    ///             :: Nil
-    ///     )
 
     /// PDT only
     pub def createPdtViews(): DbMonad[Unit] =

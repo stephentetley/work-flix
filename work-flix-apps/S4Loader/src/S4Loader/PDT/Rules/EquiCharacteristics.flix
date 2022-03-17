@@ -18,25 +18,50 @@
 namespace S4Loader/PDT/Rules/EquiCharacteristics {
 
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
-    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float};
+    use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PropertyAlias, EquiObjectClass, TankShape};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass, TankShape};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
 
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 
-        #{EquiWorkItem, StringProperty, IntProperty, PropertyAlias, EquiObjectClass, TankShape, 
+        #{EquiWorkItem, StringProperty, IntProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass, TankShape, 
             EquiCharacteristic | r1}
 
 
-    /// Use `PropertyAlias` even for characteristics that don't have a four character object
-    /// prefix. `PropertyAlias` works as an inclusion test showing that the respective class
-    /// contains that characteristic.
     ///
     /// Must ensure `pdt_field_types.csv` includes the expected property and its type.
     ///
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
         #{            
+
+            /// One-to-one Mappings
+            /// Check table `meta_pdt_oto_mappings` if suspected characteristic is 
+            /// missing in output...
+            EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+                StringProperty(uid, pdtFieldName, value).
+
+            EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+                IntProperty(uid, pdtFieldName, value).
+
+            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+                FloatProperty(uid, pdtFieldName, value).
+
+            EquiCharacteristic(uid, equiClass, charName, S4Date(value)) :-
+                EquiWorkItem(uid, _),
+                EquiObjectClass(uid, _, _, equiClass),
+                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+                DateProperty(uid, pdtFieldName, value).
+
 
             /// Special - uses TankShape
             EquiCharacteristic(uid, tankShapeClass, charName, S4Float(value)) :-
@@ -56,56 +81,7 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
 
 
 
-            EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                StringProperty(uid, "IP Rating", value),
-                PropertyAlias("IP Rating", equiClass, charName).
-
-            
-            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                FloatProperty(uid, "Insulation Class (°c)", value),
-                PropertyAlias("Insulation Class (°c)", equiClass, charName).
-
-            // rated power kw
-
-
-            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                FloatProperty(uid, "Rated Current (A)", value),
-                PropertyAlias("Rated Current (A)", equiClass, charName).
-
-            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                FloatProperty(uid, "Rated Power (kW)", value),
-                PropertyAlias("Rated Power (kW)", equiClass, charName).
-
-
-            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                FloatProperty(uid, "Range Max", value),
-                PropertyAlias("Range Max", equiClass, charName).
-
-                
-            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                FloatProperty(uid, "Range Min", value),
-                PropertyAlias("Range Min", equiClass, charName).
-
-                
-            EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                StringProperty(uid, "Range Unit", value),
-                PropertyAlias("Range Unit", equiClass, charName).
-
-
+            /// Special - "Type of Gas Sensor"
             EquiCharacteristic(uid, equiClass, charName, S4String("HYDROGEN SULPHIDE")) :-
                 EquiWorkItem(uid, _),
                 EquiObjectClass(uid, _, _, equiClass),
@@ -119,22 +95,6 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
                 StringProperty(uid, "Type of Gas Sensor 1", value),
                 PropertyAlias("Type of Gas Sensor 2", equiClass, charName),
                 if String.toUpperCase(value) != "HYDROGEN SULPHIDE".
-
-            /// TODO - should have a single rule for "regular Mapping"
-
-            /// "Inlet Size (mm)", valves etc.
-            EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                IntProperty(uid, "Inlet Size (mm)", value),
-                PropertyAlias("Inlet Size (mm)", equiClass, charName).
-
-            /// "Bore Diameter (mm)", STAK VAVLRE
-            EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                IntProperty(uid, "Bore Diameter (mm)", value),
-                PropertyAlias("Bore Diameter (mm)", equiClass, charName).
 
         }
         

@@ -24,7 +24,7 @@ namespace S4Loader/PDT/GenUxl {
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, PropertyAlias, 
-        EquiObjectClass, TankShape};
+        PdtOneToOneMapping, EquiObjectClass, TankShape};
     use S4Loader/PDT/Gen/ReadDb.{PersistentRelations};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItemRow, EquiWorkItem};
     use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributes};
@@ -43,7 +43,7 @@ namespace S4Loader/PDT/GenUxl {
     /// This is a union of all relations used - it needs updating every time a new relation / lattice
     /// is added to the Rules - this is a pain, hopefully Flix gets extended with input output types for relations...
     type alias UnionSchema[r1: SchemaRow] = 
-        #{EquiLongText, EquiCharacteristic, EquiWorkItem, PropertyAlias, EquiObjectClass, TankShape,
+        #{EquiLongText, EquiCharacteristic, EquiWorkItem, PropertyAlias, PdtOneToOneMapping, EquiObjectClass, TankShape,
             StringProperty, IntProperty, FloatProperty, DateProperty, 
             EquiAttributes,
             LongText

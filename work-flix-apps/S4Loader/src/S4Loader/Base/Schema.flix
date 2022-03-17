@@ -30,8 +30,11 @@ namespace S4Loader/Base/Schema {
 
     pub rel DateProperty(uid: String, propName: String, propValue: Time.LocalDate)
 
-
+    /// Only need when not a PdtOneToOneMapping...
     pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
+
+    /// This is PDT specific...
+    pub rel PdtOneToOneMapping(s4Class: String, s4Chararacteristic: String, pdtFieldName: String)
 
     /// This is PDT specific...
     pub rel TankShape(tankShapeClass: String, description: String)
