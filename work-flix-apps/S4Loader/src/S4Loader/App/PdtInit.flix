@@ -53,15 +53,17 @@ namespace S4Loader/App/PdtInit {
         { equiClassList :: System.FilePath
         , fieldTypes :: System.FilePath
         , assetTypes :: System.FilePath
+        , otoMappings :: System.FilePath
         }
          
 
     def getConfigSources(): Result[ConfigSources, String] & Impure= 
         use Result.flatMap;
         let* cfgpath    = S4Loader/App/Config.getAppConfigPath();
-        Ok({ equiClassList = System/FilePath.snoc(cfgpath, "002-equi-class-list.txt")
-            , fieldTypes = System/FilePath.snoc(cfgpath, "pdt_field_types.csv")
-            , assetTypes = System/FilePath.snoc(cfgpath, "pdt_asset_types.csv")
+        Ok({ equiClassList  = System/FilePath.snoc(cfgpath, "002-equi-class-list.txt")
+            , fieldTypes    = System/FilePath.snoc(cfgpath, "pdt_field_types.csv")
+            , assetTypes    = System/FilePath.snoc(cfgpath, "pdt_asset_types.csv")
+            , otoMappings   = System/FilePath.snoc(cfgpath, "s4_to_pdt_one_to_one_mapping.csv")
             })
         
 
