@@ -42,15 +42,15 @@ namespace AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsCsv {
         point(ans)
 
     /// s4_equi_class,s4_equi_char,pdt_field_name
-
+    /// pdt_field_name maybe be blank - drop.
     def readOtoMappings(src: System.FilePath): Result[List[OtoMappingRow], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringNamed};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
-        let eval = ((x1, x2, x3) -> { s4EquiClass = x1, s4EquiChar = x2, pdtFieldName = x3}) 
+        let eval = ((x1, x2, x3) ->  if(String.isEmpty(x3)) None else Some({ s4EquiClass = x1, s4EquiChar = x2, pdtFieldName = x3})) 
                         <$> getStringNamed("s4_equi_class") <*> getStringNamed("s4_equi_char") <*> getStringNamed("pdt_field_name");
         let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
-        Ok(rows)
+        Ok(List.filterMap(identity, rows))
 
     def insertOtoMappings(src: List[OtoMappingRow]): DbMonad[Int32] = 
         let sqlstrings = { 

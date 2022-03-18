@@ -113,16 +113,16 @@ namespace AssetLib/FileIO/PDT/Reader {
         
 
     def evalADTParamRow(fileName: String): RowEvaluator[ADTParamRow] = 
-        use SheetIO/RowEvaluator.{flatMap, point, throwError, getRowNum, getNonEmptyContentAt, getInt32At, getContentAt};
+        use SheetIO/RowEvaluator.{flatMap, point, throwError, getRowNum, getNonEmptyContentAt, getInt32At, getTrimmedContentAt};
         ((x1, x2, x3, x4, x5, x6) -> 
             {fileName = fileName, rowNumber = x1, category = x2, paramName = normalize(x3), 
-                paramIndex = x4, paramUnits = x5, notes = x6})
+                paramIndex = x4, paramUnits = if (String.isEmpty(x5)) "**Missing_Units**" else x5, notes = x6})
             <$> getRowNum()
             <*> getNonEmptyContentAt(0)
             <*> getNonEmptyContentAt(1)
             <*> getInt32At(2)
-            <*> getNonEmptyContentAt(3)
-            <*> getContentAt(4)
+            <*> getTrimmedContentAt(3)         /// Units - ideally should be filled in
+            <*> getTrimmedContentAt(4)
 
     def normalize(s: String): String = 
         use Text/Regex/Pattern.Flag.{Multiline};
