@@ -27,7 +27,7 @@ namespace S4Loader/PDT/BuildDb {
         let* _  = S4Loader/Base/InitDb.createEquiClassListTables();
         let* _  = AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.createMetaPdtAssetTypesTable();
         let* _  = AssetLib/FileIO/Configuration/PDT/ReadFieldTypesCsv.createMetaPdtFieldTypesTable();
-        let* _  = AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsCsv.createMetaPdtOtoMappingsTable();
+        let* _  = AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsXlsx.createMetaPdtOtoMappingsTable();
         let* _  = S4Loader/Base/InitDb.createPdtViews();
         point()
 
@@ -42,7 +42,7 @@ namespace S4Loader/PDT/BuildDb {
         let* _          = AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.readAndStoreAssetTypes(x.assetTypes);
         let* xs         = AssetLib/FileIO/Configuration/PDT/ReadFieldTypesCsv.readAndStoreFieldTypes(x.fieldTypes);
         let fieldtypes  = RelLib/Relation.foldMap(x1 -> #{ FieldType(x1.pdtFieldName, x1.propertyType). }, xs);
-        let* _          = AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsCsv.readAndStoreOtoMappings(x.otoMappings);
+        let* _          = AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsXlsx.readAndStoreOtoMappings(x.otoMappings);
         point(fieldtypes)
 
 }

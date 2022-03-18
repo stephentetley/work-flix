@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-// One-to-One mappings
+// One-to-One mappings - multiple tabs
 
-namespace AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsCsv {
+namespace AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsXlsx {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -24,7 +24,7 @@ namespace AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsCsv {
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
-    use CsvIO.RowReader;
+    use SheetIO.NamedRowEvaluator;
 
 
     /// ## s4_to_pdt_one_to_one_mappings.csv
@@ -46,11 +46,19 @@ namespace AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsCsv {
     def readOtoMappings(src: System.FilePath): Result[List[OtoMappingRow], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringNamed};
-        let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
-        let eval = ((x1, x2, x3) ->  if(String.isEmpty(x3)) None else Some({ s4EquiClass = x1, s4EquiChar = x2, pdtFieldName = x3})) 
-                        <$> getStringNamed("s4_equi_class") <*> getStringNamed("s4_equi_char") <*> getStringNamed("pdt_field_name");
-        let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
-        Ok(List.filterMap(identity, rows))
+        let* tabs = SheetIO/SheetReader.runXlsx(SheetIO/SheetReader.getSheetNames(), src);
+        List.foreach(println, tabs);
+        let* ans  = SheetIO/Reader.someNamedRowsOfSheets(evalOtoMappingRow(), tabs, src);
+        Ok(ans)
+
+    /// Drop rows with blank `pdt_field_name`
+    def evalOtoMappingRow(): NamedRowEvaluator[Option[OtoMappingRow]] = 
+        use SheetIO/NamedRowEvaluator.{getNonEmptyContentNamed, getTrimmedContentNamed}; 
+        ((x1, x2, x3) ->  if (String.isEmpty(x3)) None else Some({s4EquiClass = x1, s4EquiChar = x2, pdtFieldName = x3}))
+            <$> getNonEmptyContentNamed("s4_equi_class") 
+            <*> getNonEmptyContentNamed("s4_equi_char") 
+            <*> getTrimmedContentNamed("pdt_field_name")
+
 
     def insertOtoMappings(src: List[OtoMappingRow]): DbMonad[Int32] = 
         let sqlstrings = { 
