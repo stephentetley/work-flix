@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetLib/FileIO/Configuration/PDT/ReadFieldTypesCsv {
+namespace PDTKit/Configuration/ReadFieldTypesCsv {
 
     use Functor.{<$>};
     use Applicative.{<*>};

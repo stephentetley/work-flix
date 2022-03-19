@@ -22,8 +22,8 @@ namespace PDTKit/Lint/Base/Loader {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.{AssetTypeRow};
     use AssetLib/FileIO/S4/ZTable/Datatypes.{ObjTypeManufacturer, ManufacturerModel};
+    use PDTKit/Configuration/ReadAssetTypesCsv.{AssetTypeRow};    
     use PDTKit/Lint/Base/Schema.{PdtValueRow, MetaPdtAssetType, 
         ZObjTypeManufacturer, ZManufModel};
 
@@ -43,7 +43,7 @@ namespace PDTKit/Lint/Base/Loader {
 
     def extendDb(): DbMonad[Unit] =
         use BasicDb/DbMonad.{flatMap};
-        let* _  = AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.createMetaPdtAssetTypesTable();
+        let* _  = PDTKit/Configuration/ReadAssetTypesCsv.createMetaPdtAssetTypesTable();
         let* _  = AssetLib/FileIO/S4/ZTable/SQLite.createObjTypeManufacturerTable("ztable_objtype_manuf");
         let* _  = AssetLib/FileIO/S4/ZTable/SQLite.createManufacturerModelTable("ztable_manuf_model");
         point()
@@ -80,7 +80,7 @@ namespace PDTKit/Lint/Base/Loader {
     /// From Configuration...
     
     def readMetaPdtAssetTypes(src: System.FilePath): DbMonad[#{MetaPdtAssetType | r}] = 
-        AssetLib/FileIO/Configuration/PDT/ReadAssetTypesCsv.readAndStoreAssetTypes(src)
+        PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(src)
             |> Functor.map(getMetaPdtAssetTypes)
 
     def getMetaPdtAssetTypes(l: List[AssetTypeRow]): #{MetaPdtAssetType | r} = 

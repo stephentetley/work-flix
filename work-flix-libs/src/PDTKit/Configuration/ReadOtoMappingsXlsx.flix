@@ -16,7 +16,7 @@
 
 // One-to-One mappings - multiple tabs
 
-namespace AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsXlsx {
+namespace PDTKit/Configuration/ReadOtoMappingsXlsx {
 
     use Functor.{<$>};
     use Applicative.{<*>};
