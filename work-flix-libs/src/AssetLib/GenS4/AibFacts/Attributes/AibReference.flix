@@ -52,7 +52,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
 
 
     def evalAibRow(): NamedRowEvaluator[AibRow] =
-        use SheetIO/NamedRowEvaluator.{getContentNamed, getLocalDateNamed, withDefault, swapErrorWithRowNum}; 
+        use SheetIO/NamedRowEvaluator.{getContentNamed}; 
         ((x1, x2) -> {reference = x1, commonName = x2})
             <$> getContentNamed("Reference")
             <*> getContentNamed("Common Name")

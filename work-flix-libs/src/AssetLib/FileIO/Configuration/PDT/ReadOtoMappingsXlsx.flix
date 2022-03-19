@@ -47,7 +47,6 @@ namespace AssetLib/FileIO/Configuration/PDT/ReadOtoMappingsXlsx {
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringNamed};
         let* tabs = SheetIO/SheetReader.runXlsx(SheetIO/SheetReader.getSheetNames(), src);
-        List.foreach(println, tabs);
         let* ans  = SheetIO/Reader.someNamedRowsOfSheets(evalOtoMappingRow(), tabs, src);
         Ok(ans)
 
