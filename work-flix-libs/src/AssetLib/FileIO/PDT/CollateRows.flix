@@ -21,7 +21,7 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
     pub rel AssetName(columnId: Int32, name: String)
 
-    pub rel IndexedValue(columnId: Int32, rowNum: Int32, fileName: String, name: String, value: String)
+    pub rel IndexedValue(columnId: Int32, rowNum: Int32, fileName: String, pdtClassNAme: String, name: String, value: String)
 
     /// This makes rows for each "value column" and does a join so each row gets assigned the asset name.
     pub def collateValueRows(valueRows: List[PDTValueRow]): #{FieldValue | r} = match valueRows {
@@ -35,9 +35,9 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
     def valueRules(): #{AssetName, IndexedValue, FieldValue} = #{
 
-        FieldValue(fileName, rowNum, colNum, assetName, fieldName, fieldValue) :- 
+        FieldValue(fileName, pdtClassName, rowNum, colNum, assetName, fieldName, fieldValue) :- 
             AssetName(colNum, assetName),
-            IndexedValue(colNum, rowNum, fileName, fieldName, fieldValue).
+            IndexedValue(colNum, rowNum, fileName, pdtClassName, fieldName, fieldValue).
     
     }
 
@@ -47,7 +47,8 @@ namespace AssetLib/FileIO/PDT/CollateRows {
 
 
     def makeIndexedValues(row: PDTValueRow): #{IndexedValue | r} = 
-        let make1 = (s, col) -> RelLib/Relation.whenTrue(not String.isEmpty(s), #{ IndexedValue(col+1, row.rowNumber, row.fileName, row.rowName, s). });
+        let make1 = (s, col) -> 
+            RelLib/Relation.whenTrue(not String.isEmpty(s), #{ IndexedValue(col+1, row.rowNumber, row.fileName, row.pdtClassName, row.rowName, s). });
         row.cellValues 
             |> List.map(String.trim) 
             |> RelLib/Relation.foldMapWithIndex(make1)

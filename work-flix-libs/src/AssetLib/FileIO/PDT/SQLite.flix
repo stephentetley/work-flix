@@ -65,33 +65,35 @@ namespace AssetLib/FileIO/PDT/SQLite {
     /// Note - this does a join in Datalog (could we do it within SQL?)
     pub def insertFieldValues(relns: #{FieldValue | r}): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6) from FieldValue(x1, x2, x3, x4, x5, x6) |> Array.toList);
+        let* rows = liftAction(_ -> query relns select (x1, x2, x3, x4, x5, x6, x7) from FieldValue(x1, x2, x3, x4, x5, x6, x7) |> Array.toList);
         let sqlstrings = { 
             prepStmt = insertPdtRawValuesSql(),
             tableActions = "DELETE FROM pdt_raw_values;" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, pdtRawValuesSetter, rows)
 
-    def pdtRawValuesSetter(x: (String, Int32, Int32, String, String, String)): PreparedStatementSetter[Unit] =
+    def pdtRawValuesSetter(x: (String, String, Int32, Int32, String, String, String)): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{putInt32At!, putStringAt!};
-        let (x1, x2, x3, x4, x5, x6) = x;
+        let (x1, x2, x3, x4, x5, x6, x7) = x;
         putStringAt!(0, x1)
-            *> putInt32At!(1, x2) 
+            *> putStringAt!(1, x2) 
             *> putInt32At!(2, x3) 
-            *> putStringAt!(3, x4) 
+            *> putInt32At!(3, x4) 
             *> putStringAt!(4, x5) 
-            *> putStringAt!(5, x6)
+            *> putStringAt!(5, x6) 
+            *> putStringAt!(6, x7)
         
     def insertPdtRawValuesSql(): String =
         String.unlines(
             "INSERT OR IGNORE INTO pdt_raw_values "
                 :: "(source_file, "
+                :: "pdt_class_name, "
                 :: "row_num, "
                 :: "item_num, "
                 :: "asset_name, "
                 :: "field_name, "
                 :: "field_value) "
-                :: "VALUES(?,?,?, ?,?,?);"
+                :: "VALUES(?,?,?, ?,?,?, ?);"
                 :: Nil
             )
 
@@ -101,12 +103,13 @@ namespace AssetLib/FileIO/PDT/SQLite {
         String.unlines(
             "CREATE TABLE IF NOT EXISTS pdt_raw_values ("
                 :: "source_file TEXT NOT NULL, "
+                :: "pdt_class_name TEXT NOT NULL, "
                 :: "row_num INTEGER NOT NULL, "
                 :: "item_num INTEGER NOT NULL, "
                 :: "asset_name TEXT NOT NULL, "
                 :: "field_name TEXT NOT NULL, "
                 :: "field_value TEXT, "
-                :: "PRIMARY KEY(source_file, item_num, asset_name, field_name) "
+                :: "PRIMARY KEY(source_file, item_num, asset_name, field_name)"
                 :: ");"
                 :: Nil
             )
@@ -169,7 +172,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: "param_index, "
                 :: "param_units, "
                 :: "notes)"
-                :: "VALUES(?,?,?,?,?,?,?);"
+                :: "VALUES(?,?,?, ?,?,?, ?);"
                 :: Nil
             )
 

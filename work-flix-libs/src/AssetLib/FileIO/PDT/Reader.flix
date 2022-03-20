@@ -55,16 +55,17 @@ namespace AssetLib/FileIO/PDT/Reader {
         
 
     def evalPDTRow(fileName: String): RowEvaluator[PDTValueRow] = 
-        use SheetIO/RowEvaluator.{flatMap, point, getRowContentsIsoLocalDateTime, getRowNum, liftAction, throwError};
+        use SheetIO/RowEvaluator.{flatMap, point, getRowContentsIsoLocalDateTime, getRowNum, getSheetName, liftAction, throwError};
         let* arr    = getRowContentsIsoLocalDateTime();
         let sz      = Array.length(arr);
         if (sz < 2)
             throwError("evalPDTRow - row is missing content")
         else {
-            let* ix     = getRowNum();
-            let* name   = liftAction(_ -> arr[0]);
-            let* vs     = liftAction(_ -> Array.toList(arr) |> List.drop(1) |> List.map(String.trim));
-            point({fileName = fileName, rowNumber = ix, rowName = normalize(name), cellValues = vs})
+            let* ix             = getRowNum();
+            let* pdtClassName   = getSheetName();
+            let* name           = liftAction(_ -> arr[0]);
+            let* vs             = liftAction(_ -> Array.toList(arr) |> List.drop(1) |> List.map(String.trim));
+            point({fileName = fileName, pdtClassName = pdtClassName, rowNumber = ix, rowName = normalize(name), cellValues = vs})
         }
 
 

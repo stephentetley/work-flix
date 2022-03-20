@@ -37,7 +37,7 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
             <*> getStringAt(1)
             <*> getStringAt(2)
 
-
+    ///TODO expand with field evaluators
     pub def genProperties(input: #{PDTRawValue, FieldType | r}): #{StringProperty, IntProperty, FloatProperty, DateProperty | r} = 
         let rules = #{
             

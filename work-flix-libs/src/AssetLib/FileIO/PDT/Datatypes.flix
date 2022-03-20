@@ -23,6 +23,7 @@ namespace AssetLib/FileIO/PDT/Datatypes {
     /// Note - we use Datalog for a join (maybe we could do it in SQL 
     /// when we ingest the data).
     pub rel FieldValue(fileName: String, 
+                            pdtClassName: String,
                             rowNum: Int32, 
                             colNum: Int32, 
                             assetName: String, 
@@ -32,6 +33,7 @@ namespace AssetLib/FileIO/PDT/Datatypes {
 
     pub type alias PDTValueRow = 
         { fileName :: String
+        , pdtClassName :: String
         , rowNumber :: Int32
         , rowName :: String
         , cellValues :: List[String]
