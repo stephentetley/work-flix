@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-namespace S4Loader/PDT/BuildDb/Schema {
+namespace S4Loader/PDT/BuildDb/FieldEval {
 
+    use RelLib/Lattice/Constant.Constant;
+    use RelLib/Lattice/Constant.Constant.{Bottom, Constant};
 
-    pub rel PDTRawValue(itemName: String, pdtClassName: String, fieldName: String, fieldValue: String)
+    pub def evalAny(s: String): Constant[String] = Constant(String.trim(s))
 
-    pub rel FieldType(fieldName: String, pdtType: String)
+    pub def evalEnum(s: String): Constant[String] = Constant(String.trim(s))
 
-    pub rel FieldEval(fieldName: String, pdtType: String, fieldType: String, evaluatorType: String, evaluator: String)
+    pub def evalNonEmptyString(s: String): Constant[String] = match String.trim(s) {
+        case s1 if String.isEmpty(s1) => Bottom
+        case s1                       => Constant(s1)
+    }
+
+    /// To improve...
+    pub def evalFloc(s: String): Constant[String] = Constant(String.trim(s))
 
 
 }

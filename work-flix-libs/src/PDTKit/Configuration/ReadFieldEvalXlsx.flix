@@ -35,6 +35,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         { pdtClass :: String            // e.g. "PDT_Damper"
         , pdtFieldName :: String
         , s4Type :: String
+        , evaluatorType :: String
         , evaluator :: String
         , sample :: String
         }
@@ -45,8 +46,6 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let* _      = insertOtoMappings(ans);
         point(ans)
 
-    /// s4_equi_class,s4_equi_char,pdt_field_name
-    /// pdt_field_name maybe be blank - drop.
     def readFieldEvals(src: System.FilePath): Result[List[FieldEvalRow], String] & Impure = 
         use Result.flatMap;
         use SheetIO/NamedRowEvaluator.{optional};
@@ -54,14 +53,15 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let* ans  = SheetIO/Reader.someNamedRowsOfSheets(optional(evalFieldEvalRow()), tabs, src);
         Ok(ans)
 
-    /// Drop incomplete rows 
+    /// Drop incomplete rows - wrap this with `optional`
     def evalFieldEvalRow(): NamedRowEvaluator[FieldEvalRow] = 
         use SheetIO/NamedRowEvaluator.{getSheetName, getNonEmptyContentNamed, getTrimmedContentNamed}; 
-        ((x1, x2, x3, x4, x5) ->  
-                {pdtClass = x1, pdtFieldName = x2, s4Type = x3, evaluator = x4, sample = x5})
+        ((x1, x2, x3, x4, x5, x6) ->  
+                {pdtClass = x1, pdtFieldName = x2, s4Type = x3, evaluatorType = x4, evaluator = x5, sample = x6})
             <$> getSheetName()
             <*> getNonEmptyContentNamed("pdt_field_name ") 
             <*> getNonEmptyContentNamed("s4_type") 
+            <*> getNonEmptyContentNamed("evaluator_type")
             <*> getTrimmedContentNamed("evaluator")
             <*> getTrimmedContentNamed("sample")
 
@@ -70,10 +70,10 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let sqlstrings = { 
             prepStmt = String.unlines(
                             "INSERT OR IGNORE INTO meta_pdt_field_evaluators"
-                        :: "(pdt_class_name, pdt_field_name, s4_type, evaluator, sample)"
-                        :: "VALUES(?,?,?, ?,?);"
+                        :: "(pdt_class_name, pdt_field_name, s4_type, eval_type, evaluator, sample)"
+                        :: "VALUES(?,?,?, ?,?,?);"
                         :: Nil),
-            tableActions = "DELETE FROM meta_pdt_oto_mappings;" :: Nil
+            tableActions = "DELETE FROM meta_pdt_field_evaluators;" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, fieldEvaluatorsSetter, src)
     
@@ -83,8 +83,9 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let* _  = putStringAt!(0, x.pdtClass);
         let* _  = putStringAt!(1, x.pdtFieldName);
         let* _  = putStringAt!(2, x.s4Type);
-        let* _  = putStringAt!(3, x.evaluator);
-        let* _  = putStringAt!(4, x.sample);
+        let* _  = putStringAt!(3, x.evaluatorType);
+        let* _  = putStringAt!(4, x.evaluator);
+        let* _  = putStringAt!(5, x.sample);
         point()
 
     pub def createMetaPdtFieldEvaluatorsTable(): DbMonad[Unit] =
@@ -102,7 +103,8 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
                 :: "pdt_class_name TEXT NOT NULL,"
                 :: "pdt_field_name TEXT NOT NULL,"
                 :: "s4_type TEXT NOT NULL,"
-                :: "evaluator TEXT NOT NULL,"
+                :: "eval_type TEXT NOT NULL,"
+                :: "evaluator TEXT,"
                 :: "sample TEXT,"
 	            :: "PRIMARY KEY(pdt_class_name, pdt_field_name)"
 	            :: ");"

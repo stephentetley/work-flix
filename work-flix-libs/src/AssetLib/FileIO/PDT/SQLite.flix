@@ -234,12 +234,13 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     def pdtValuesWithShortNameViewDdl(): String =
         String.unlines(
-            "CREATE VIEW IF NOT EXISTS pdt_values_with_item_name(item_name, row_num, field_name, field_value) AS "
+            "CREATE VIEW IF NOT EXISTS pdt_values_with_item_name(item_name, pdt_class_name, row_num, field_name, field_value) AS "
                 :: "SELECT "
                 :: "    printf('F%02d_C%02d_%s', pfi.file_index, prv.item_num, prv.asset_name) AS item_name, "
-                :: "    prv.row_num     AS row_num, "
-                :: "    prv.field_name  AS field_name, "
-                :: "    prv.field_value AS field_value "
+                :: "    prv.pdt_class_name  AS pdt_class_name, "
+                :: "    prv.row_num         AS row_num, "
+                :: "    prv.field_name      AS field_name, "
+                :: "    prv.field_value     AS field_value "
                 :: "FROM pdt_raw_values prv "
                 :: "INNER JOIN pdt_file_indices pfi ON prv.source_file = pfi.file_name; "
                 :: Nil
