@@ -27,7 +27,10 @@ namespace PDTKit/Configuration/ReadOtoMappingsXlsx {
     use SheetIO.NamedRowEvaluator;
 
 
-    /// ## s4_to_pdt_one_to_one_mappings.csv
+    /// s4_to_pdt_one_to_one_mapping.xlsx
+
+    /// Ideally we wouldn't use an xslx file but curating multiple Csv files
+    /// is too cumbersome...
 
     pub type alias OtoMappingRow = 
         { s4EquiClass :: String 
@@ -45,7 +48,6 @@ namespace PDTKit/Configuration/ReadOtoMappingsXlsx {
     /// pdt_field_name maybe be blank - drop.
     def readOtoMappings(src: System.FilePath): Result[List[OtoMappingRow], String] & Impure = 
         use Result.flatMap;
-        use CsvIO/RowEvaluator.{getStringNamed};
         let* tabs = SheetIO/SheetReader.runXlsx(SheetIO/SheetReader.getSheetNames(), src);
         let* ans  = SheetIO/Reader.someNamedRowsOfSheets(evalOtoMappingRow(), tabs, src);
         Ok(ans)

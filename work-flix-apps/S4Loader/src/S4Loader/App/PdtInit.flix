@@ -51,7 +51,7 @@ namespace S4Loader/App/PdtInit {
 
     type alias ConfigSources = 
         { equiClassList :: System.FilePath
-        , fieldTypes :: System.FilePath
+        , fieldEvals :: System.FilePath
         , assetTypes :: System.FilePath
         , otoMappings :: System.FilePath
         }
@@ -61,7 +61,7 @@ namespace S4Loader/App/PdtInit {
         use Result.flatMap;
         let* cfgpath    = S4Loader/App/Config.getAppConfigPath();
         Ok({ equiClassList  = System/FilePath.snoc(cfgpath, "002-equi-class-list.txt")
-            , fieldTypes    = System/FilePath.snoc(cfgpath, "pdt_field_types.csv")
+            , fieldEvals    = System/FilePath.snoc(cfgpath, "pdt_field_eval.xlsx")
             , assetTypes    = System/FilePath.snoc(cfgpath, "pdt_asset_types.csv")
             , otoMappings   = System/FilePath.snoc(cfgpath, "s4_to_pdt_one_to_one_mapping.xlsx")
             })

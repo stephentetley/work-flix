@@ -17,7 +17,7 @@
 namespace S4Loader/PDT/BuildDb {
 
     use BasicDb.DbMonad;
-
+    use PDTKit/Configuration/ReadFieldEvalXlsx.{FieldEvalRow};
     use S4Loader/PDT/BuildDb/Schema.{FieldType};
 
     /// Create tables...
@@ -26,23 +26,26 @@ namespace S4Loader/PDT/BuildDb {
         let* _  = S4Loader/Base/InitDb.createPropertiesTables();
         let* _  = S4Loader/Base/InitDb.createEquiClassListTables();
         let* _  = PDTKit/Configuration/ReadAssetTypesCsv.createMetaPdtAssetTypesTable();
-        let* _  = PDTKit/Configuration/ReadFieldTypesCsv.createMetaPdtFieldTypesTable();
+        let* _  = PDTKit/Configuration/ReadFieldEvalXlsx.createMetaPdtFieldEvaluatorsTable();
         let* _  = PDTKit/Configuration/ReadOtoMappingsXlsx.createMetaPdtOtoMappingsTable();
         let* _  = S4Loader/Base/InitDb.createPdtViews();
         point()
 
 
     /// Load from PDT Db and metadata
-    pub def storeMetaData(x: {equiClassList :: System.FilePath, 
-                                fieldTypes :: System.FilePath,
-                                assetTypes :: System.FilePath, 
+    pub def storeMetaData(x: {equiClassList :: System.FilePath,
+                                fieldEvals :: System.FilePath,
+                                assetTypes :: System.FilePath,
                                 otoMappings :: System.FilePath}): DbMonad[#{FieldType | r}] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* _          = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
         let* _          = PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(x.assetTypes);
-        let* xs         = PDTKit/Configuration/ReadFieldTypesCsv.readAndStoreFieldTypes(x.fieldTypes);
-        let fieldtypes  = RelLib/Relation.foldMap(x1 -> #{ FieldType(x1.pdtFieldName, x1.propertyType). }, xs);
+        let* xs         = PDTKit/Configuration/ReadFieldEvalXlsx.readAndStoreFieldEvals(x.fieldEvals);
+        let fieldtypes  = RelLib/Relation.foldMap(makeFieldType, xs);
         let* _          = PDTKit/Configuration/ReadOtoMappingsXlsx.readAndStoreOtoMappings(x.otoMappings);
         point(fieldtypes)
+
+    def makeFieldType(r: FieldEvalRow): #{FieldType | r} = 
+        #{ FieldType(r.pdtFieldName, r.s4Type). }   
 
 }
