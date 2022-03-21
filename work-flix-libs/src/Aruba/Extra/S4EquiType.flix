@@ -26,10 +26,10 @@ namespace Aruba/Extra/S4EquiType {
 
     def getTypeFromCommonNameHelper(commonName: String): Result[Option[String], String] & Impure = 
         use Result.flatMap;
-        use Text/Regex/MatchEvaluator.{optional, getCaptureNamed};
+        use Text/RegexEval/MatchEvaluator.{optional, getCaptureNamed};
         let* patt = Text/Regex/Pattern.compile("(?<equitype>EQUIPMENT: .+)$");
         let eval = getCaptureNamed("equitype");
-        match Text/Regex.evalContains(patt, eval, commonName) {
+        match Text/RegexEval/Regex.contains(patt, eval, commonName) {
             /// Error means both "not found" and operational error - Regex API needs changing to support optional `evalContains`...
             case Err(_) => Ok(None)
             case Ok(s) => Ok(Some(s))

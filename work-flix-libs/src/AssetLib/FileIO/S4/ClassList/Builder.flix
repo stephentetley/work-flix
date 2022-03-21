@@ -101,10 +101,10 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
 
     def intRangeHelper(src: String): Result[(Int32, Int32), String] & Impure = 
         use Result.flatMap;
-        use Text/Regex/MatchEvaluator.{getInt32Named};
+        use Text/RegexEval/MatchEvaluator.{getInt32Named};
         let* patt   = Text/Regex/Pattern.compile("(?<start>\\d+) \\- (?<end>\\d+)");
         let eval    = Applicative.product(getInt32Named("start"), getInt32Named("end"));
-        Text/Regex.evalContains(patt, eval, src)
+        Text/RegexEval/Regex.contains(patt, eval, src)
 
 
         

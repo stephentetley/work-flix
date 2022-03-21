@@ -22,7 +22,7 @@ namespace AssetLib/FileIO/S4/ClassList/FlocParser {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use Text/Regex.{MatchEvaluator};
+    use Text/RegexEval.MatchEvaluator;
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListRow};
     use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow, EmptyRow};
@@ -66,14 +66,14 @@ namespace AssetLib/FileIO/S4/ClassList/FlocParser {
 
 
     pub def charRow1(): LineParser[ClassListRow] = 
-        use Text/Regex/MatchEvaluator.{getInt32Named};
+        use Text/RegexEval/MatchEvaluator.{getInt32Named};
         let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+)";
         let eval = ((x1, x2, x3, x4, x5) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = Some(x5)})) 
                         <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length") <*> getInt32Named("decimals"); 
         makeLineParser(regex, eval)
 
     pub def charRow2(): LineParser[ClassListRow] = 
-        use Text/Regex/MatchEvaluator.{getInt32Named};
+        use Text/RegexEval/MatchEvaluator.{getInt32Named};
         let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+)";
         let eval = ((x1, x2, x3, x4) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = None})) 
                         <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length"); 
@@ -93,11 +93,11 @@ namespace AssetLib/FileIO/S4/ClassList/FlocParser {
     def makeLineParser(regex: String, eval: MatchEvaluator[a]): LineParser[a] = 
         match Text/Regex/Pattern.compile(regex) { 
             case Err(msg) => constant(Err(msg))
-            case Ok(patt) => input -> Text/Regex.evalMatches(patt, eval, input) as & Pure
+            case Ok(patt) => input -> Text/RegexEval/Regex.matches(patt, eval, input) as & Pure
         }
 
 
     def getTrimmed(name: String): MatchEvaluator[String] = 
-        String.trim <$> Text/Regex/MatchEvaluator.getCaptureNamed(name)
+        String.trim <$> Text/RegexEval/MatchEvaluator.getCaptureNamed(name)
 
 }

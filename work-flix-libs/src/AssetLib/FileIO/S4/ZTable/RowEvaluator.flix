@@ -42,6 +42,8 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
 
     use FromString.fromString;
     
+    use Text/RegexEval.MatchEvaluator;
+
     use AssetLib/FileIO/S4/ZTable.RowEvaluator;
     use AssetLib/FileIO/S4/ZTable.RowEvaluator.{RowEvaluator};
 
@@ -133,14 +135,14 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
         )
 
 
-    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
+    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: MatchEvaluator[a]): RowEvaluator[a] =
         let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/Regex.evalMatches(patt, eval, input));
+        let* ans = liftOperation(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
         point(ans)
 
-    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
+    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: MatchEvaluator[a]): RowEvaluator[a] =
         let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/Regex.evalContains(patt, eval, input));
+        let* ans = liftOperation(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
         point(ans)
 
     pub def getInt8At(ix: Int32): RowEvaluator[Int8] =

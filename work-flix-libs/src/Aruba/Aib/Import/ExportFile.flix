@@ -76,8 +76,8 @@ namespace Aruba/Aib/Import/ExportFile {
 
     def getEquipment1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibEqui |r}, String] & Impure =
         use Result.flatMap;
-        use Text/Regex/MatchEvaluator.{getCaptureNamed};        
-        let* equiType = Text/Regex.evalMatchesOptional(patt, getCaptureNamed("equiType"), row.commonName);
+        use Text/RegexEval/MatchEvaluator.{getCaptureNamed};        
+        let* equiType = Text/RegexEval/Regex.matchesOptional(patt, getCaptureNamed("equiType"), row.commonName);
         match equiType { 
             case None      => Ok(#{})
             case Some(ty1) => Ok(#{ AibEqui(row.reference, row.commonName, ty1). })
