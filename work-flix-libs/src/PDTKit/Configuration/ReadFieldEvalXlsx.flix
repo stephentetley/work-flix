@@ -32,7 +32,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
 
 
     pub type alias FieldEvalRow = 
-        { pdtClass :: String            // e.g. "PDT_Damper"
+        { pdtAssetClass :: String            // e.g. "PDT_Damper"
         , pdtFieldName :: String
         , s4Type :: String
         , evaluatorType :: String
@@ -57,9 +57,9 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
     def evalFieldEvalRow(): NamedRowEvaluator[FieldEvalRow] = 
         use SheetIO/NamedRowEvaluator.{getSheetName, getNonEmptyContentNamed, getTrimmedContentNamed}; 
         ((x1, x2, x3, x4, x5, x6) ->  
-                {pdtClass = x1, pdtFieldName = x2, s4Type = x3, evaluatorType = x4, evaluator = x5, sample = x6})
+                {pdtAssetClass = x1, pdtFieldName = x2, s4Type = x3, evaluatorType = x4, evaluator = x5, sample = x6})
             <$> getSheetName()
-            <*> getNonEmptyContentNamed("pdt_field_name ") 
+            <*> getNonEmptyContentNamed("pdt_field_name") 
             <*> getNonEmptyContentNamed("s4_type") 
             <*> getNonEmptyContentNamed("evaluator_type")
             <*> getTrimmedContentNamed("evaluator")
@@ -70,7 +70,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let sqlstrings = { 
             prepStmt = String.unlines(
                             "INSERT OR IGNORE INTO meta_pdt_field_evaluators"
-                        :: "(pdt_class_name, pdt_field_name, s4_type, eval_type, evaluator, sample)"
+                        :: "(pdt_asset_class, pdt_field_name, s4_type, eval_type, evaluator, sample)"
                         :: "VALUES(?,?,?, ?,?,?);"
                         :: Nil),
             tableActions = "DELETE FROM meta_pdt_field_evaluators;" :: Nil
@@ -80,7 +80,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
 
     def fieldEvaluatorsSetter(x: FieldEvalRow): PreparedStatementSetter[Unit] =
         use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!};
-        let* _  = putStringAt!(0, x.pdtClass);
+        let* _  = putStringAt!(0, x.pdtAssetClass);
         let* _  = putStringAt!(1, x.pdtFieldName);
         let* _  = putStringAt!(2, x.s4Type);
         let* _  = putStringAt!(3, x.evaluatorType);
@@ -100,13 +100,13 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
     def metaPdtFieldEvaluatorsTableDdl(): String =
         String.unlines(
             "CREATE TABLE IF NOT EXISTS meta_pdt_field_evaluators ("
-                :: "pdt_class_name TEXT NOT NULL,"
+                :: "pdt_asset_class TEXT NOT NULL,"
                 :: "pdt_field_name TEXT NOT NULL,"
                 :: "s4_type TEXT NOT NULL,"
                 :: "eval_type TEXT NOT NULL,"
                 :: "evaluator TEXT,"
                 :: "sample TEXT,"
-	            :: "PRIMARY KEY(pdt_class_name, pdt_field_name)"
+	            :: "PRIMARY KEY(pdt_asset_class, pdt_field_name)"
 	            :: ");"
                 :: Nil
         )

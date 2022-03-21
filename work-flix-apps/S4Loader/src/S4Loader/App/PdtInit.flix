@@ -45,7 +45,7 @@ namespace S4Loader/App/PdtInit {
         let* s4dir          = S4Loader/App/Config.getS4LoaderDirectory();
         let pdtDb           = System/FilePath.snoc(s4dir, "pdt_files.sqlite");
         let dst             = System/FilePath.snoc(s4dir, "s4loader.sqlite");
-        let* _              = runSQLite(buildDb(configSources, pdtDb), dst);
+        let* _              = runSQLite(buildLoaderDb(configSources, pdtDb), dst);
         Ok(true)
 
 
@@ -61,13 +61,13 @@ namespace S4Loader/App/PdtInit {
         use Result.flatMap;
         let* cfgpath    = S4Loader/App/Config.getAppConfigPath();
         Ok({ equiClassList  = System/FilePath.snoc(cfgpath, "002-equi-class-list.txt")
-            , fieldEvals    = System/FilePath.snoc(cfgpath, "pdt_field_eval.xlsx")
+            , fieldEvals    = System/FilePath.snoc(cfgpath, "pdt_field_eval_specifications.xlsx")
             , assetTypes    = System/FilePath.snoc(cfgpath, "pdt_asset_types.csv")
             , otoMappings   = System/FilePath.snoc(cfgpath, "s4_to_pdt_one_to_one_mapping.xlsx")
             })
         
 
-    def buildDb(metaSources: ConfigSources, pdtDb: System.FilePath): DbMonad[Unit] = 
+    def buildLoaderDb(metaSources: ConfigSources, pdtDb: System.FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* _  = S4Loader/PDT/BuildDb.initDb();
         let* r1 = S4Loader/PDT/BuildDb.storeMetaData(metaSources);

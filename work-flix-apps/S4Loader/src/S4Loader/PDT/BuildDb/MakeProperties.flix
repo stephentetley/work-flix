@@ -23,7 +23,8 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
     use BasicDb.RowEvaluator;
 
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty};
-    use S4Loader/PDT/BuildDb/Schema.{PDTRawValue, FieldType};
+    use S4Loader/PDT/BuildDb/Schema.{PDTRawValue, FieldEval};
+    use S4Loader/PDT/BuildDb/Schema.{FieldType};    // TO REMOVE
 
     /// Reads from another SQLite db...
     pub def readPDTRawValues(path: {pathToPdtDb :: System.FilePath}, viewName: String): DbMonad[#{PDTRawValue| r}] = 
@@ -39,17 +40,24 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
             <*> getStringAt(3)
 
     ///TODO expand with field evaluators
-    pub def genProperties(input: #{PDTRawValue, FieldType | r}): #{StringProperty, IntProperty, FloatProperty, DateProperty | r} = 
+    pub def genProperties(input: #{PDTRawValue, FieldEval, FieldType | r}): #{StringProperty, IntProperty, FloatProperty, DateProperty | r} = 
+        use S4Loader/PDT/BuildDb/FieldEval.{evalIntRegex};
         let rules = #{
             
             StringProperty(uid, propName, propValue) :- 
-                PDTRawValue(uid, _, propName, propValue),
-                FieldType(propName, "String").
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "String", "builtin", "any").
 
             IntProperty(uid, propName, S4Loader/Base/Utils.intValue(propValue)) :-
                 PDTRawValue(uid, _, propName, propValue),
                 FieldType(propName, "Int"),
                 if S4Loader/Base/Utils.isIntValue(propValue).
+
+/*
+            IntProperty(uid, propName, evalIntRegex({patt = evaluator}, propValue)) :-
+                PDTRawValue(uid, _, propName, propValue),
+                FieldEval(propName, _, "Int", "regex", evaluator).
+*/
 
             FloatProperty(uid, propName, S4Loader/Base/Utils.floatValue(propValue)) :-
                 PDTRawValue(uid, _, propName, propValue),
@@ -62,7 +70,7 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
                 if S4Loader/Base/Utils.isIsoLocalDateTimeValue(propValue).
 
         };
-        let input1 = input as #{PDTRawValue, FieldType, StringProperty, IntProperty, FloatProperty, DateProperty | r};
+        let input1 = input as #{PDTRawValue, FieldEval, FieldType, StringProperty, IntProperty, FloatProperty, DateProperty | r};
         solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty, DateProperty
 
 

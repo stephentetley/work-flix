@@ -18,7 +18,7 @@ namespace S4Loader/PDT/BuildDb {
 
     use BasicDb.DbMonad;
     use PDTKit/Configuration/ReadFieldEvalXlsx.{FieldEvalRow};
-    use S4Loader/PDT/BuildDb/Schema.{FieldType};
+    use S4Loader/PDT/BuildDb/Schema.{FieldEval};
 
     /// Create tables...
     pub def initDb(): DbMonad[Unit] = 
@@ -36,16 +36,19 @@ namespace S4Loader/PDT/BuildDb {
     pub def storeMetaData(x: {equiClassList :: System.FilePath,
                                 fieldEvals :: System.FilePath,
                                 assetTypes :: System.FilePath,
-                                otoMappings :: System.FilePath}): DbMonad[#{FieldType | r}] = 
+                                otoMappings :: System.FilePath}): DbMonad[#{FieldEval | r}] = 
         use BasicDb/DbMonad.{flatMap, point};
-        let* _          = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
-        let* _          = PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(x.assetTypes);
-        let* xs         = PDTKit/Configuration/ReadFieldEvalXlsx.readAndStoreFieldEvals(x.fieldEvals);
-        let fieldtypes  = RelLib/Relation.foldMap(makeFieldType, xs);
-        let* _          = PDTKit/Configuration/ReadOtoMappingsXlsx.readAndStoreOtoMappings(x.otoMappings);
-        point(fieldtypes)
+        let* _      = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
+        let* _      = PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(x.assetTypes);
+        let* xs     = PDTKit/Configuration/ReadFieldEvalXlsx.readAndStoreFieldEvals(x.fieldEvals);
+        let evals   = RelLib/Relation.foldMap(makeFieldEval, xs);
+        let* _      = PDTKit/Configuration/ReadOtoMappingsXlsx.readAndStoreOtoMappings(x.otoMappings);
+        point(evals)
 
-    def makeFieldType(r: FieldEvalRow): #{FieldType | r} = 
-        #{ FieldType(r.pdtFieldName, r.s4Type). }   
+
+    def makeFieldEval(r: FieldEvalRow): #{FieldEval | r} = 
+        #{ FieldEval(r.pdtFieldName, r.pdtAssetClass, r.s4Type, r.evaluatorType, r.evaluator). } 
+
+
 
 }

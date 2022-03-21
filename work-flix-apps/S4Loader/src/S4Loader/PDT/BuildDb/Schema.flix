@@ -16,12 +16,28 @@
 
 namespace S4Loader/PDT/BuildDb/Schema {
 
+    use RelLib/Lattice/Constant.Constant;
 
-    pub rel PDTRawValue(itemName: String, pdtClassName: String, fieldName: String, fieldValue: String)
+    pub rel PDTRawValue(itemName: String, pdtAssetClass: String, fieldName: String, fieldValue: String)
 
     pub rel FieldType(fieldName: String, pdtType: String)
 
-    pub rel FieldEval(fieldName: String, pdtType: String, fieldType: String, evaluatorType: String, evaluator: String)
+    pub rel FieldEval(fieldName: String, pdtAssetClass: String, fieldType: String, evaluatorType: String, evaluator: String)
 
+
+    
+    pub type alias S4Properties[r1: SchemaRow] =
+        #{StringPropertyLat, IntPropertyLat, FloatPropertyLat, DatePropertyLat | r1}
+
+
+    pub lat StringPropertyLat(uid: String, propName: String, propValue: Constant[String])
+
+    pub lat IntPropertyLat(uid: String, propName: String, propValue: Constant[Int32])
+
+    pub lat FloatPropertyLat(uid: String, propName: String, propValue: Constant[Float64])
+
+    pub lat DatePropertyLat(uid: String, propName: String, propValue: Constant[Time.LocalDate])
+
+    
 
 }

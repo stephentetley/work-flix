@@ -19,6 +19,22 @@ namespace S4Loader/PDT/BuildDb/FieldEval {
     use RelLib/Lattice/Constant.Constant;
     use RelLib/Lattice/Constant.Constant.{Bottom, Constant};
 
+    pub def evalIntRegex(r: {patt :: String}, s: String): Constant[Int32] =
+        let eval = Text/Regex/MatchEvaluator.getInt32Named("value");
+        match Result.flatMap(patt -> Text/Regex.evalMatches(patt, eval, s) as & Pure, Text/Regex/Pattern.compile(r.patt))  {
+            case Ok(i)  => Constant(i)
+            case Err(_) => Bottom
+        }
+
+
+    pub def evalFloatRegex(r: {patt :: String}, s: String): Constant[Float64] =
+        let eval = Text/Regex/MatchEvaluator.getFloat64Named("value");
+        match Result.flatMap(patt -> Text/Regex.evalMatches(patt, eval, s) as & Pure, Text/Regex/Pattern.compile(r.patt))  {
+            case Ok(d)  => Constant(d)
+            case Err(_) => Bottom
+        }
+
+
     pub def evalAny(s: String): Constant[String] = Constant(String.trim(s))
 
     pub def evalEnum(s: String): Constant[String] = Constant(String.trim(s))

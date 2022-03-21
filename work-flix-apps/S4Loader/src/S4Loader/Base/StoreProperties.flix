@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/// Out-of-date
+/// PDT has own version
+/// When AIB is picked up again it needs to make its own version
+
 namespace S4Loader/Base/StoreProperties {
 
     use Monad.{>>=};
