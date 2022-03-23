@@ -47,7 +47,7 @@ namespace S4Loader/PDT/BuildDb {
 
 
     def makeFieldEval(r: FieldEvalRow): #{FieldEval | r} = 
-        #{ FieldEval(r.pdtFieldName, r.pdtAssetClass, r.s4Type, r.evaluatorType, r.evaluator). } 
+        #{ FieldEval(r.pdtFieldName, r.pdtAssetClass, r.s4Type, r.evaluatorType, r.evaluator, r.builtinArg1). } 
 
 
 

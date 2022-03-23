@@ -37,6 +37,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         , s4Type :: String
         , evaluatorType :: String
         , evaluator :: String
+        , builtinArg1 :: String                // e.g. "kg"
         , sample :: String
         }
 
@@ -53,16 +54,18 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let* ans  = SheetIO/Reader.someNamedRowsOfSheets(optional(evalFieldEvalRow()), tabs, src);
         Ok(ans)
 
-    /// Drop incomplete rows - wrap this with `optional`
+    /// Drop incomplete rows - caller should wrap this with `optional`
     def evalFieldEvalRow(): NamedRowEvaluator[FieldEvalRow] = 
         use SheetIO/NamedRowEvaluator.{getSheetName, getNonEmptyContentNamed, getTrimmedContentNamed}; 
-        ((x1, x2, x3, x4, x5, x6) ->  
-                {pdtAssetClass = x1, pdtFieldName = x2, s4Type = x3, evaluatorType = x4, evaluator = x5, sample = x6})
+        ((x1, x2, x3, x4, x5, x6, x7) ->  
+                { pdtAssetClass = x1, pdtFieldName = x2, s4Type = x3, 
+                  evaluatorType = x4, evaluator = String.toLowerCase(x5), builtinArg1 = x6, sample = x7})
             <$> getSheetName()
             <*> getNonEmptyContentNamed("pdt_field_name") 
             <*> getNonEmptyContentNamed("s4_type") 
             <*> getNonEmptyContentNamed("evaluator_type")
-            <*> getTrimmedContentNamed("evaluator")
+            <*> getTrimmedContentNamed("evaluator")            
+            <*> getTrimmedContentNamed("builtin_arg1")
             <*> getTrimmedContentNamed("sample")
 
 
@@ -70,8 +73,8 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let sqlstrings = { 
             prepStmt = String.unlines(
                             "INSERT OR IGNORE INTO meta_pdt_field_evaluators"
-                        :: "(pdt_asset_class, pdt_field_name, s4_type, eval_type, evaluator, sample)"
-                        :: "VALUES(?,?,?, ?,?,?);"
+                        :: "(pdt_asset_class, pdt_field_name, s4_type, eval_type, evaluator, builtin_arg1, sample)"
+                        :: "VALUES(?,?,?, ?,?,?, ?);"
                         :: Nil),
             tableActions = "DELETE FROM meta_pdt_field_evaluators;" :: Nil
         };
@@ -85,7 +88,8 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         let* _  = putStringAt!(2, x.s4Type);
         let* _  = putStringAt!(3, x.evaluatorType);
         let* _  = putStringAt!(4, x.evaluator);
-        let* _  = putStringAt!(5, x.sample);
+        let* _  = putStringAt!(5, x.builtinArg1);
+        let* _  = putStringAt!(6, x.sample);
         point()
 
     pub def createMetaPdtFieldEvaluatorsTable(): DbMonad[Unit] =
@@ -105,6 +109,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
                 :: "s4_type TEXT NOT NULL,"
                 :: "eval_type TEXT NOT NULL,"
                 :: "evaluator TEXT,"
+                :: "builtin_arg1 TEXT,"
                 :: "sample TEXT,"
 	            :: "PRIMARY KEY(pdt_asset_class, pdt_field_name)"
 	            :: ");"

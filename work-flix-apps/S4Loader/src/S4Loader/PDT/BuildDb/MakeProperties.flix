@@ -52,35 +52,57 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
             
             StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringAny(propValue)) :- 
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "String", "builtin", "any").
+                FieldEval(propName, pdtAssetClass, "String", "builtin", "any", _).
 
             StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringNonEmptyString(propValue)) :- 
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "String", "builtin", "non-empty-string").
+                FieldEval(propName, pdtAssetClass, "String", "builtin", "non-empty-string", _).
 
             StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringFloc(propValue)) :- 
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "String", "builtin", "floc").
+                FieldEval(propName, pdtAssetClass, "String", "builtin", "floc", _).
 
+            StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringIPRating(propValue)) :- 
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "String", "builtin", "ip-rating", _).
+
+
+            StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringRegex(patt = patt, propValue)) :-
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "String", "regex", patt, _).
+
+
+            // Date 
             DatePropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.dateLocalDate(propValue)) :- 
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "Date", "builtin", "local-date").
+                FieldEval(propName, pdtAssetClass, "Date", "builtin", "local-date", _).
 
+            // Int
             IntPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.intInteger(propValue)) :-
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "Int", "builtin", "integer").
+                FieldEval(propName, pdtAssetClass, "Int", "builtin", "integer", _).
+
+            IntPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.intIntegerWithUnits(unitsName = arg1, propValue)) :-
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "Int", "builtin", "integer-with-units", arg1).
 
             IntPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.intRegex(patt = patt, propValue)) :-
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "Int", "regex", patt).
+                FieldEval(propName, pdtAssetClass, "Int", "regex", patt, _).
 
+
+            // Float
             FloatPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.decimalDecimal(propValue)) :-
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "Decimal", "builtin", "decimal").
+                FieldEval(propName, pdtAssetClass, "Decimal", "builtin", "decimal", _).
+
+            FloatPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.decimalDecimalWithUnits(unitsName = arg1, propValue)) :-
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "Decimal", "builtin", "decimal-with-units", arg1).
 
             FloatPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.decimalRegex(patt = patt, propValue)) :-
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
-                FieldEval(propName, pdtAssetClass, "Decimal", "regex", patt).
+                FieldEval(propName, pdtAssetClass, "Decimal", "regex", patt, _).
 
         };
         let input1 = input as #{PDTRawValue, FieldEval, 

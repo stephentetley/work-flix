@@ -43,6 +43,10 @@ namespace S4Loader/PDT/BuildDb/FieldEval {
         evalRegex(r, Text/RegexEval/MatchEvaluator.getCaptureNamed("value"), s)
 
 
+    pub def stringIPRating(s: String): Constant[String] = 
+        stringRegex(patt = "(?i)(IP)?\\s*(?<value>\\d{2})\\s*", s)
+
+
     /// To improve...
     pub def stringFloc(s: String): Constant[String] = stringNonEmptyString(s)
 
@@ -57,16 +61,25 @@ namespace S4Loader/PDT/BuildDb/FieldEval {
             |> Option.map(Time/LocalDateTime.toLocalDate)
             |> ofOption
 
+
     pub def intInteger(s: String): Constant[Int32] = 
         Int32.fromString(s) |> ofResult
 
-    pub def decimalDecimal(s: String): Constant[Float64] = 
-        Float64.fromString(s) |> ofResult
-
+    pub def intIntegerWithUnits(r: {unitsName :: String}, s: String): Constant[Int32] = 
+        let patt = "(?i)(?<value>\\d+)\\s?(${r.unitsName})?";
+        intRegex(patt = patt, s)
 
     pub def intRegex(r: {patt :: String}, s: String): Constant[Int32] =
         evalRegex(r, Text/RegexEval/MatchEvaluator.getInt32Named("value"), s)
 
+
+
+    pub def decimalDecimal(s: String): Constant[Float64] = 
+        Float64.fromString(s) |> ofResult
+
+    pub def decimalDecimalWithUnits(r: {unitsName :: String}, s: String): Constant[Float64] = 
+        let patt = "(?i)(?<value>\\d+\\.?\\d*)\\s*(${r.unitsName})?";
+        decimalRegex(patt = patt, s)
 
     pub def decimalRegex(r: {patt :: String}, s: String): Constant[Float64] =
         evalRegex(r, Text/RegexEval/MatchEvaluator.getFloat64Named("value"), s)

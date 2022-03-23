@@ -22,7 +22,7 @@ namespace S4Loader/PDT/BuildDb/Schema {
 
     pub rel FieldType(fieldName: String, pdtType: String)
 
-    pub rel FieldEval(fieldName: String, pdtAssetClass: String, fieldType: String, evaluatorType: String, evaluator: String)
+    pub rel FieldEval(fieldName: String, pdtAssetClass: String, fieldType: String, evaluatorType: String, evaluator: String, evalArg1: String)
 
 
     
