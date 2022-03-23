@@ -22,8 +22,9 @@ namespace S4Loader/PDT/BuildDb/Schema {
 
     pub rel FieldType(fieldName: String, pdtType: String)
 
-    pub rel FieldEval(fieldName: String, pdtAssetClass: String, fieldType: String, evaluatorType: String, evaluator: String, evalArg1: String)
+    pub rel FieldEvalSpec(fieldName: String, pdtAssetClass: String, fieldType: String, evaluatorType: String, evaluator: String, evalArg1: String)
 
+    pub rel FieldValueEnum(fieldName: String, pdtAssetClass: String, pdtValue : String, s4Value: String)
 
     
     pub type alias S4Properties[r1: SchemaRow] =

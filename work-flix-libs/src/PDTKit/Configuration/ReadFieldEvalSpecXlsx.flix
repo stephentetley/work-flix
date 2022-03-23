@@ -16,7 +16,7 @@
 
 // Multiple tabs
 
-namespace PDTKit/Configuration/ReadFieldEvalXlsx {
+namespace PDTKit/Configuration/ReadFieldEvalSpecXlsx {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -27,7 +27,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
     use SheetIO.NamedRowEvaluator;
 
 
-    /// ## s4_to_pdt_one_to_one_mappings.csv
+    /// ## pdt_field_eval_specifications.xlsx
 
 
 
@@ -41,10 +41,10 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
         , sample :: String
         }
 
-    pub def readAndStoreFieldEvals(src: System.FilePath): DbMonad[List[FieldEvalRow]] =
+    pub def readAndStoreFieldEvalSpecs(src: System.FilePath): DbMonad[List[FieldEvalRow]] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> readFieldEvals(src));
-        let* _      = insertOtoMappings(ans);
+        let* _      = insertPdtFieldEvaluators(ans);
         point(ans)
 
     def readFieldEvals(src: System.FilePath): Result[List[FieldEvalRow], String] & Impure = 
@@ -69,7 +69,7 @@ namespace PDTKit/Configuration/ReadFieldEvalXlsx {
             <*> getTrimmedContentNamed("sample")
 
 
-    def insertOtoMappings(src: List[FieldEvalRow]): DbMonad[Int32] = 
+    def insertPdtFieldEvaluators(src: List[FieldEvalRow]): DbMonad[Int32] = 
         let sqlstrings = { 
             prepStmt = String.unlines(
                             "INSERT OR IGNORE INTO meta_pdt_field_evaluators"

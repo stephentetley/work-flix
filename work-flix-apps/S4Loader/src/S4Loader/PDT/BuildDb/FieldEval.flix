@@ -53,6 +53,11 @@ namespace S4Loader/PDT/BuildDb/FieldEval {
     /// TODO...
     pub def stringEnum(s: String): Constant[String] = Constant(String.trim(s))
 
+    pub def stringAssetStatus(s: String): Constant[String] = match String.trim(s) {
+        case "New"         => Constant("OPER")
+        case "Replacement" => Constant("OPER")
+        case _             => Bottom
+    }
 
 
     pub def dateLocalDate(s: String): Constant[Time.LocalDate] =  

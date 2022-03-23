@@ -17,8 +17,9 @@
 namespace S4Loader/PDT/BuildDb {
 
     use BasicDb.DbMonad;
-    use PDTKit/Configuration/ReadFieldEvalXlsx.{FieldEvalRow};
-    use S4Loader/PDT/BuildDb/Schema.{FieldEval};
+    use PDTKit/Configuration/ReadFieldEvalSpecXlsx.{FieldEvalRow};
+    use PDTKit/Configuration/ReadFieldValueEnumXlsx.{FieldValueEnumRow};
+    use S4Loader/PDT/BuildDb/Schema.{FieldEvalSpec, FieldValueEnum};
 
     /// Create tables...
     pub def initDb(): DbMonad[Unit] = 
@@ -26,7 +27,8 @@ namespace S4Loader/PDT/BuildDb {
         let* _  = S4Loader/Base/InitDb.createPropertiesTables();
         let* _  = S4Loader/Base/InitDb.createEquiClassListTables();
         let* _  = PDTKit/Configuration/ReadAssetTypesCsv.createMetaPdtAssetTypesTable();
-        let* _  = PDTKit/Configuration/ReadFieldEvalXlsx.createMetaPdtFieldEvaluatorsTable();
+        let* _  = PDTKit/Configuration/ReadFieldEvalSpecXlsx.createMetaPdtFieldEvaluatorsTable();
+        let* _  = PDTKit/Configuration/ReadFieldValueEnumXlsx.createMetaPdtFieldValueEnumsTable();
         let* _  = PDTKit/Configuration/ReadOtoMappingsXlsx.createMetaPdtOtoMappingsTable();
         let* _  = S4Loader/Base/InitDb.createPdtViews();
         point()
@@ -35,20 +37,25 @@ namespace S4Loader/PDT/BuildDb {
     /// Load from PDT Db and metadata
     pub def storeMetaData(x: {equiClassList :: System.FilePath,
                                 fieldEvals :: System.FilePath,
+                                fieldValueEnums :: System.FilePath,
                                 assetTypes :: System.FilePath,
-                                otoMappings :: System.FilePath}): DbMonad[#{FieldEval | r}] = 
+                                otoMappings :: System.FilePath}): DbMonad[#{FieldEvalSpec, FieldValueEnum | r}] = 
         use BasicDb/DbMonad.{flatMap, point};
-        let* _      = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
-        let* _      = PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(x.assetTypes);
-        let* xs     = PDTKit/Configuration/ReadFieldEvalXlsx.readAndStoreFieldEvals(x.fieldEvals);
-        let evals   = RelLib/Relation.foldMap(makeFieldEval, xs);
-        let* _      = PDTKit/Configuration/ReadOtoMappingsXlsx.readAndStoreOtoMappings(x.otoMappings);
-        point(evals)
+        let* _          = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
+        let* _          = PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(x.assetTypes);
+        let* xs         = PDTKit/Configuration/ReadFieldEvalSpecXlsx.readAndStoreFieldEvalSpecs(x.fieldEvals);
+        let evals       = RelLib/Relation.foldMap(makeFieldEvalSpec, xs);
+        let* ys         = PDTKit/Configuration/ReadFieldValueEnumXlsx.readAndStoreFieldValueEnums(x.fieldValueEnums);
+        let valEnums    = RelLib/Relation.foldMap(makeFieldValueEnum, ys);
+        let* _          = PDTKit/Configuration/ReadOtoMappingsXlsx.readAndStoreOtoMappings(x.otoMappings);
+        point(evals <+> valEnums)
 
 
-    def makeFieldEval(r: FieldEvalRow): #{FieldEval | r} = 
-        #{ FieldEval(r.pdtFieldName, r.pdtAssetClass, r.s4Type, r.evaluatorType, r.evaluator, r.builtinArg1). } 
+    def makeFieldEvalSpec(r: FieldEvalRow): #{FieldEvalSpec | r} = 
+        #{ FieldEvalSpec(r.pdtFieldName, r.pdtAssetClass, r.s4Type, r.evaluatorType, r.evaluator, r.builtinArg1). } 
 
+    def makeFieldValueEnum(r: FieldValueEnumRow): #{FieldValueEnum | r} = 
+        #{ FieldValueEnum(r.pdtFieldName, r.pdtAssetClass, r.pdtEnumValue, r.s4EnumValue). }
 
 
 }
