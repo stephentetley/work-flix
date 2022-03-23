@@ -73,7 +73,7 @@ namespace S4Loader/App/PdtInit {
         let* r1 = S4Loader/PDT/BuildDb.storeMetaData(metaSources);
         let* r2 = S4Loader/PDT/BuildDb/MakeProperties.readPDTRawValues(pathToPdtDb = pdtDb, "pdt_values_with_item_name");
         let ans = S4Loader/PDT/BuildDb/MakeProperties.genProperties(r1 <+> r2);
-        let* _  = S4Loader/Base/StoreProperties.storeProperties(ans);
+        let* _  = S4Loader/PDT/BuildDb/StoreProperties.storeProperties(ans);
         point()
 
 

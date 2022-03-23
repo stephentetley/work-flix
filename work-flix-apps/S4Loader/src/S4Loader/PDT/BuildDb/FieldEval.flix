@@ -16,36 +16,67 @@
 
 namespace S4Loader/PDT/BuildDb/FieldEval {
 
+    use Text/RegexEval.MatchEvaluator;
+
     use RelLib/Lattice/Constant.Constant;
     use RelLib/Lattice/Constant.Constant.{Bottom, Constant};
 
-    pub def evalIntRegex(r: {patt :: String}, s: String): Constant[Int32] =
-        let eval = Text/RegexEval/MatchEvaluator.getInt32Named("value");
-        match Result.flatMap(patt -> Text/RegexEval/Regex.matches(patt, eval, s) as & Pure, Text/Regex/Pattern.compile(r.patt))  {
-            case Ok(i)  => Constant(i)
-            case Err(_) => Bottom
-        }
+    def ofOption(x: Option[a]): Constant[a] = match x { 
+        case Some(x1) => Constant(x1)
+        case None     => Bottom
+    }
 
+    def ofResult(x: Result[a, err]): Constant[a] = match x { 
+        case Ok(x1) => Constant(x1)
+        case Err(_) => Bottom
+    }
 
-    pub def evalFloatRegex(r: {patt :: String}, s: String): Constant[Float64] =
-        let eval = Text/RegexEval/MatchEvaluator.getFloat64Named("value");
-        match Result.flatMap(patt -> Text/RegexEval/Regex.matches(patt, eval, s) as & Pure, Text/Regex/Pattern.compile(r.patt))  {
-            case Ok(d)  => Constant(d)
-            case Err(_) => Bottom
-        }
+    pub def stringAny(s: String): Constant[String] = Constant(String.trim(s))
 
-
-    pub def evalAny(s: String): Constant[String] = Constant(String.trim(s))
-
-    pub def evalEnum(s: String): Constant[String] = Constant(String.trim(s))
-
-    pub def evalNonEmptyString(s: String): Constant[String] = match String.trim(s) {
+    pub def stringNonEmptyString(s: String): Constant[String] = match String.trim(s) {
         case s1 if String.isEmpty(s1) => Bottom
         case s1                       => Constant(s1)
     }
 
+
+    pub def stringRegex(r: {patt :: String}, s: String): Constant[String] =
+        evalRegex(r, Text/RegexEval/MatchEvaluator.getCaptureNamed("value"), s)
+
+
     /// To improve...
-    pub def evalFloc(s: String): Constant[String] = Constant(String.trim(s))
+    pub def stringFloc(s: String): Constant[String] = stringNonEmptyString(s)
+
+    /// TODO...
+    pub def stringEnum(s: String): Constant[String] = Constant(String.trim(s))
+
+
+
+    pub def dateLocalDate(s: String): Constant[Time.LocalDate] =  
+        let fmt = Time/Format/DateTimeFormatter.iso_local_date_time();
+        Time/LocalDateTime.parse(fmt, s) 
+            |> Option.map(Time/LocalDateTime.toLocalDate)
+            |> ofOption
+
+    pub def intInteger(s: String): Constant[Int32] = 
+        Int32.fromString(s) |> ofResult
+
+    pub def decimalDecimal(s: String): Constant[Float64] = 
+        Float64.fromString(s) |> ofResult
+
+
+    pub def intRegex(r: {patt :: String}, s: String): Constant[Int32] =
+        evalRegex(r, Text/RegexEval/MatchEvaluator.getInt32Named("value"), s)
+
+
+    pub def decimalRegex(r: {patt :: String}, s: String): Constant[Float64] =
+        evalRegex(r, Text/RegexEval/MatchEvaluator.getFloat64Named("value"), s)
+
+
+    def evalRegex(r: {patt :: String}, eval: MatchEvaluator[a], s: String): Constant[a] =
+        match Result.flatMap(patt -> Text/RegexEval/Regex.matches(patt, eval, s) as & Pure, Text/Regex/Pattern.compile(r.patt))  {
+            case Ok(i)  => Constant(i)
+            case Err(_) => Bottom
+        }
 
 
 }

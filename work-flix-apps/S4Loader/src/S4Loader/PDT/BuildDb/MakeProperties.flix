@@ -22,9 +22,13 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty};
-    use S4Loader/PDT/BuildDb/Schema.{PDTRawValue, FieldEval};
-    use S4Loader/PDT/BuildDb/Schema.{FieldType};    // TO REMOVE
+    use RelLib/Lattice/Constant.Constant;
+    use RelLib/Lattice/Constant.{constant};
+
+    /// use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty};
+    use S4Loader/PDT/BuildDb/Schema.{PDTRawValue, FieldEval,
+        StringPropertyLat, IntPropertyLat, FloatPropertyLat, DatePropertyLat};
+    
 
     /// Reads from another SQLite db...
     pub def readPDTRawValues(path: {pathToPdtDb :: System.FilePath}, viewName: String): DbMonad[#{PDTRawValue| r}] = 
@@ -39,39 +43,49 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
             <*> getStringAt(2)
             <*> getStringAt(3)
 
+
     ///TODO expand with field evaluators
-    pub def genProperties(input: #{PDTRawValue, FieldEval, FieldType | r}): #{StringProperty, IntProperty, FloatProperty, DateProperty | r} = 
-        use S4Loader/PDT/BuildDb/FieldEval.{evalIntRegex};
+    pub def genProperties(input: #{PDTRawValue, FieldEval | r}): #{StringPropertyLat, IntPropertyLat, FloatPropertyLat, DatePropertyLat | r} = 
+        /// use S4Loader/PDT/BuildDb/FieldEval.{stringAny, stringNonEmptyString, stringFloc, dateLocalDate};
         let rules = #{
             
-            StringProperty(uid, propName, propValue) :- 
+            
+            StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringAny(propValue)) :- 
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
                 FieldEval(propName, pdtAssetClass, "String", "builtin", "any").
 
-            IntProperty(uid, propName, S4Loader/Base/Utils.intValue(propValue)) :-
-                PDTRawValue(uid, _, propName, propValue),
-                FieldType(propName, "Int"),
-                if S4Loader/Base/Utils.isIntValue(propValue).
+            StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringNonEmptyString(propValue)) :- 
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "String", "builtin", "non-empty-string").
 
-/*
-            IntProperty(uid, propName, evalIntRegex({patt = evaluator}, propValue)) :-
-                PDTRawValue(uid, _, propName, propValue),
-                FieldEval(propName, _, "Int", "regex", evaluator).
-*/
+            StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringFloc(propValue)) :- 
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "String", "builtin", "floc").
 
-            FloatProperty(uid, propName, S4Loader/Base/Utils.floatValue(propValue)) :-
-                PDTRawValue(uid, _, propName, propValue),
-                FieldType(propName, "Float"),
-                if S4Loader/Base/Utils.isFloatValue(propValue).
+            DatePropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.dateLocalDate(propValue)) :- 
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "Date", "builtin", "local-date").
 
-            DateProperty(uid, propName, S4Loader/Base/Utils.dateFromIsoLocalDateTime(propValue)) :- 
-                PDTRawValue(uid, _, propName, propValue),
-                FieldType(propName, "Date"),
-                if S4Loader/Base/Utils.isIsoLocalDateTimeValue(propValue).
+            IntPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.intInteger(propValue)) :-
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "Int", "builtin", "integer").
+
+            IntPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.intRegex(patt = patt, propValue)) :-
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "Int", "regex", patt).
+
+            FloatPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.decimalDecimal(propValue)) :-
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "Decimal", "builtin", "decimal").
+
+            FloatPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.decimalRegex(patt = patt, propValue)) :-
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEval(propName, pdtAssetClass, "Decimal", "regex", patt).
 
         };
-        let input1 = input as #{PDTRawValue, FieldEval, FieldType, StringProperty, IntProperty, FloatProperty, DateProperty | r};
-        solve (input1 <+> rules) project StringProperty, IntProperty, FloatProperty, DateProperty
+        let input1 = input as #{PDTRawValue, FieldEval, 
+                                StringPropertyLat, IntPropertyLat, FloatPropertyLat, DatePropertyLat | r};
+        solve (input1 <+> rules) project StringPropertyLat, IntPropertyLat, FloatPropertyLat, DatePropertyLat
 
 
 
