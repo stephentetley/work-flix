@@ -96,7 +96,7 @@ namespace PDTKit/Configuration/ReadFieldValueEnumXlsx {
                 :: "pdt_field_name TEXT NOT NULL,"
                 :: "pdt_enum_value TEXT NOT NULL,"
                 :: "s4_enum_value TEXT,"
-	            :: "PRIMARY KEY(pdt_asset_class, pdt_field_name)"
+	            :: "PRIMARY KEY(pdt_asset_class, pdt_field_name, pdt_enum_value)"
 	            :: ");"
                 :: Nil
         )
