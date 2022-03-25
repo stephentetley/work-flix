@@ -38,6 +38,7 @@ namespace S4Loader {
             case "help"         => showHelp()
             case "initpdt"      => pdtInit()
             case "pdtuxl"       => pdtUxl(opts.worklist)
+            case "flocuxl"      => flocUxl(opts.worklist)
             case "pdtsummary"   => S4Loader/App/PdtFilesSummary.pdtFilesSummary()
             case "pdtlint"      => S4Loader/App/PdtLint.pdtLint()
             case _              => showHelp()
@@ -57,9 +58,10 @@ namespace S4Loader {
         let validate = s -> if (String.isEmpty(s)) None else Some(s);
            {optionNames = "help" :: Nil,        optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "help" | opts}),       explanation = "show help"}
         :: {optionNames = "initpdt" :: Nil,     optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "initpdt" | opts}),    explanation = "init for PDTs"}
-        :: {optionNames = "pdtuxl" :: Nil,      optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtuxl" | opts}),     explanation = "gen uxl from PDTs"}
-        :: {optionNames = "pdtsummary" :: Nil,      optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtsummary" | opts}),     explanation = "summarize PDTs"}
-        :: {optionNames = "pdtlint" :: Nil,      optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtlint" | opts}),     explanation = "run Lint on PDTs"}
+        :: {optionNames = "pdtuxl" :: Nil,      optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtuxl" | opts}),     explanation = "gen uxl from PDTs  (needs --worklist)"}
+        :: {optionNames = "flocuxl" :: Nil,     optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "flocuxl" | opts}),     explanation = "gen uxl for Flocs only (needs --worklist)"}        
+        :: {optionNames = "pdtsummary" :: Nil,  optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtsummary" | opts}),     explanation = "summarize PDTs"}
+        :: {optionNames = "pdtlint" :: Nil,     optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "pdtlint" | opts}),     explanation = "run Lint on PDTs"}
         :: {optionNames = "worklist" :: Nil,    optionIds = Nil,    argDescriptor = ReqArg(s -> Some(opts -> { worklist = validate(s) | opts}), "<file>"),   explanation = "worklist"}
         :: Nil
 
@@ -91,6 +93,14 @@ namespace S4Loader {
             case None       => Err("Must supply 'worklist' as a cmd line argument")
             case Some(name) => S4Loader/App/GenPdtUxl.runGenPdtUxl(name)
         }
+
+    def flocUxl(worklist: Option[String]): Result[Unit, String] & Impure = 
+        use Result.flatMap;
+        match worklist {
+            case None       => Err("Must supply 'worklist' as a cmd line argument")
+            case Some(name) => S4Loader/App/GenFlocUxl.runGenFlocUxl(name)
+        }
+
 
 
 }

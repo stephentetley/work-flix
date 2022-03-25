@@ -19,9 +19,23 @@ namespace S4Loader/Floc/GenUxl {
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{UxlOutput, SLFunctionalLocation};
-    use AssetLib/S4Lite/S4LiteRelations.{FlocCharacteristic};
+    use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 
     use S4Loader/Floc/Gen/WorkList.{FlocWorkItemRow};
+
+
+    pub def generateFlocUxl(outputArgs: UxlOutputArgs, worklist: XlsxSource): Result[Unit, String] & Impure = 
+        use Result.flatMap;
+        let* flocbatches    = genFlocUxlBatches(worklist);
+        let* _              = emitUxl(outputArgs, flocbatches);
+        Ok()
+
+
+    pub def emitUxl(args: UxlOutputArgs, batches: Map[Int32, UxlOutput]): Result[Unit, String] & Impure = 
+        let xs = batches |> Map.toList |> List.map(xy -> let (x, y) = xy; {batchNumber = x, uxl = y });
+        AssetLib/S4Lite/EmitUxl.outputMocrUxlBatches(args, xs)
+
+
 
     /// Returns a Map of the batches - may be sparse.
     pub def genFlocUxlBatches(worklist: XlsxSource): Result[Map[Int32, UxlOutput], String] & Impure =

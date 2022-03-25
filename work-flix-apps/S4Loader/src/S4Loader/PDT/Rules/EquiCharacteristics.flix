@@ -20,12 +20,12 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass, TankShape};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
 
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 
-        #{EquiWorkItem, StringProperty, IntProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass, TankShape, 
+        #{EquiWorkItem, StringProperty, IntProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass, 
             EquiCharacteristic | r1}
 
 
@@ -63,19 +63,17 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
                 DateProperty(uid, pdtFieldName, value).
 
 
-            /// Special - uses TankShape
+            /// Special - uses "Tank Shape" has been converted as an enum to the appropriate class
             EquiCharacteristic(uid, tankShapeClass, charName, S4Float(value)) :-
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "Tank Shape", shape),
-                TankShape(shape, tankShapeClass),
+                StringProperty(uid, "Tank Shape", tankShapeClass),
                 FloatProperty(uid, "Capacity (m3)", value),
                 PropertyAlias("Capacity (m3)", tankShapeClass, charName).
 
-            /// Special - uses TankShape
+            /// Special - uses TankShape property
             EquiCharacteristic(uid, tankShapeClass, charName, S4Int(value)) :-
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "Tank Shape", shape),
-                TankShape(tankShapeClass, shape),
+                StringProperty(uid, "Tank Shape", tankShapeClass),
                 IntProperty(uid, "Diameter (mm)", value),
                 PropertyAlias("Diameter (mm)", tankShapeClass, charName).
 
