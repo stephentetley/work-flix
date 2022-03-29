@@ -59,6 +59,10 @@ namespace S4Loader/PDT/BuildDb/FieldEval {
         case _             => Bottom
     }
 
+    pub def stringAssetType(s: String): Constant[String] = stringNonEmptyString(s)
+
+    pub def stringManufacturer(s: String): Constant[String] = Constant(s |> String.trim |> String.toUpperCase)
+
 
     pub def dateLocalDate(s: String): Constant[Time.LocalDate] =  
         let fmt = Time/Format/DateTimeFormatter.iso_local_date_time();

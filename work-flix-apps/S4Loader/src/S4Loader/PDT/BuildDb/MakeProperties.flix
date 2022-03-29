@@ -77,6 +77,15 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
                 PDTRawValue(uid, pdtAssetClass, propName, propValue),
                 FieldEvalSpec(propName, pdtAssetClass, "String", "builtin", "asset-status", _).
 
+            StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringAssetType(propValue)) :- 
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEvalSpec(propName, pdtAssetClass, "String", "builtin", "asset-type", _).
+
+            StringPropertyLat(uid, propName; S4Loader/PDT/BuildDb/FieldEval.stringManufacturer(propValue)) :- 
+                PDTRawValue(uid, pdtAssetClass, propName, propValue),
+                FieldEvalSpec(propName, pdtAssetClass, "String", "builtin", "manufacturer", _).
+
+
             StringPropertyLat(uid, propName; constant(enumValue)) :- 
                 PDTRawValue(uid, pdtAssetClass, propName, rawValue),
                 FieldEvalSpec(propName, pdtAssetClass, "String", "enum", _, _),
