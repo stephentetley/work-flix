@@ -50,6 +50,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit, execute, commit};
         let* _  = setAutoCommit(false);
         let* _  = execute("DROP VIEW IF EXISTS pdt_values_with_item_name;");
+        let* _  = execute("DROP VIEW IF EXISTS pdt_equi_items;");
         let* _  = execute("DROP TABLE IF EXISTS pdt_raw_values;");
         let* _  = execute("DROP TABLE IF EXISTS pdt_file_indices;");
         let* _  = execute("DROP TABLE IF EXISTS pdt_adt_header_metadata;");
@@ -59,6 +60,7 @@ namespace AssetLib/FileIO/PDT/SQLite {
         let* _  = execute(pdtAdtHeaderMetadataTableDdl());
         let* _  = execute(pdtAdtParamSpecificationTableDdl());
         let* _  = execute(pdtValuesWithShortNameViewDdl());
+        let* _  = execute(pdtEquiItemsViewDdl());
         let* _  = commit();
         point()
 
@@ -245,6 +247,23 @@ namespace AssetLib/FileIO/PDT/SQLite {
                 :: "INNER JOIN pdt_file_indices pfi ON prv.source_file = pfi.file_name; "
                 :: Nil
             )
+
+    def pdtEquiItemsViewDdl(): String =
+        String.unlines(
+            "CREATE VIEW IF NOT EXISTS pdt_equi_items(item_name, pdt_class_name, item_type, file_index, file_name) AS "
+                :: "SELECT "
+                :: "printf('F%02d_C%02d_%s', pfi.file_index, prv.item_num, prv.asset_name) AS item_name, "
+                :: "prv.pdt_class_name  AS pdt_class_name, "
+                :: "prv.field_value     AS item_type, "
+                :: "pfi.file_index      AS file_index, "
+                :: "pfi.file_name       AS file_name "
+                :: "FROM pdt_raw_values prv "
+                :: "INNER JOIN pdt_file_indices pfi ON prv.source_file = pfi.file_name "
+                :: "WHERE "
+                :: "prv.field_name = 'Asset Type' "
+                :: "ORDER BY item_name;"
+                :: Nil
+        )
 
 
 }

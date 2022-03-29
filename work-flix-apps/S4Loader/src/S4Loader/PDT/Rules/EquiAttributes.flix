@@ -67,7 +67,7 @@ namespace S4Loader/PDT/Rules/EquiAttributes {
 
             EquiAttributes(uid; singleton("Model number", AttrString(value))) :-  
                 EquiWorkItem(uid, _),
-                StringProperty(uid, "Product range", value).
+                StringProperty(uid, "Specific Model", value).
 
             EquiAttributes(uid; singleton("ManufSerialNo.", AttrString(value))) :-  
                 EquiWorkItem(uid, _),
