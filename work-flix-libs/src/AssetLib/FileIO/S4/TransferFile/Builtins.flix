@@ -115,7 +115,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
     def evalValuaFlocRow(): DownloadRowEvaluator[ValuaFlocRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getInt32Named, optional};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) ->
                 { funcloc           = x1
                 , classType         = x2
                 , charId            = x3
@@ -124,8 +124,9 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , valueDescription  = x6
                 , instanceCounter   = x7
                 , intCounterValue   = x8
-                , valueFrom         = x9
-                , valueTo           = x10
+                , position          = x9
+                , valueFrom         = x10
+                , valueTo           = x11
                 })
             <$> getStringNamed("FUNCLOC")               /// Functional Location
             <*> getStringNamed("CLASSTYPE")             /// Class Type
@@ -135,6 +136,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getStringNamed("TEXTBEZ")               /// Description
             <*> getInt32Named("ATZIS")                  /// Instance counter
             <*> getInt32Named("VALCNT")                 /// Int counter values
+            <*> getStringNamed("ATSRT")                 /// Position
             <*> getStringNamed("ATFLV")                 /// Value from
             <*> getStringNamed("ATFLB")                 /// Value to
 
@@ -250,7 +252,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// Read
     def evalValuaEquiRow(): DownloadRowEvaluator[ValuaEquiRow] = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
-        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) ->
+        ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) ->
                 { equi              = x1
                 , classType         = x2
                 , charId            = x3
@@ -259,8 +261,9 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
                 , valueDescription  = x6
                 , instanceCounter   = x7
                 , intCounterValue   = x8
-                , valueFrom         = x9
-                , valueTo           = x10
+                , position          = x9
+                , valueFrom         = x10
+                , valueTo           = x11
                 })
             <$> getStringNamed("EQUI")                  /// Equipment
             <*> getStringNamed("CLASSTYPE")             /// Class Type
@@ -270,6 +273,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getStringNamed("TEXTBEZ")               /// Description
             <*> getInt32Named("ATZIS")                  /// Instance counter
             <*> getInt32Named("VALCNT")                 /// Int counter values
+            <*> getStringNamed("ATSRT")                 /// Position
             <*> getStringNamed("ATFLV")                 /// Value from
             <*> getStringNamed("ATFLB")                 /// Value to
 

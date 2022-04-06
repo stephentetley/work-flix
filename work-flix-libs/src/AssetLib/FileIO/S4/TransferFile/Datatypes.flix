@@ -133,6 +133,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
         , valueDescription :: String
         , instanceCounter :: Int32
         , intCounterValue :: Int32
+        , position :: String            /// Int32?
         , valueFrom :: String
         , valueTo :: String
         }
@@ -157,6 +158,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
         , valueDescription :: String
         , instanceCounter :: Int32
         , intCounterValue :: Int32
+        , position :: String            /// Int32?
         , valueFrom :: String
         , valueTo :: String
         }
