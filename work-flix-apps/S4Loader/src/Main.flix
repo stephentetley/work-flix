@@ -20,19 +20,20 @@ use GetOpt.ArgDescr.{ReqArg, NoArg};
 use GetOpt.ArgOrder.{RequireOrder};
 
 
-def main(args: Array[String]): Int32 & Impure = 
+def main(): Unit & Impure = 
     println("Running S4Loader... ${Time/LocalTime.now()}");
     println("Args:");
-    match S4Loader.main1(args) { 
-        case Ok() => 0
-        case Err(msg) => {println(msg); 1}
+    match S4Loader.main1() { 
+        case Ok() => ()
+        case Err(msg) => println(msg)
     }
 
 
 namespace S4Loader {
 
-    pub def main1(args: Array[String]): Result[Unit, String] & Impure = 
+    pub def main1(): Result[Unit, String] & Impure = 
         use Result.flatMap;
+        let args = Environment.getArgs();
         let* opts = getCmdLineOpts(args);
         match opts.cmd { 
             case "help"         => showHelp()
@@ -42,7 +43,8 @@ namespace S4Loader {
             case "pdtsummary"   => S4Loader/App/PdtFilesSummary.pdtFilesSummary()
             case "pdtlint"      => S4Loader/App/PdtLint.pdtLint()
             case _              => showHelp()
-        }
+        };
+        Ok()
 
     type alias S4LoaderOptions = 
         { cmd :: String
@@ -67,7 +69,7 @@ namespace S4Loader {
 
     def optionsHeader(): String = "Usage:"
 
-    def getCmdLineOpts(args: Array[String]): Result[S4LoaderOptions, String] & Impure =         
+    def getCmdLineOpts(args: List[String]): Result[S4LoaderOptions, String] =
         let args1 = GetOpt.preprocess({quoteOpen = "'", quoteClose = "'", stripQuoteMarks = false}, args);
         let options = options();
         let header = optionsHeader();

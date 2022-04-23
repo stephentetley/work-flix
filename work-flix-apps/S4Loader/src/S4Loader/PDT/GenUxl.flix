@@ -16,6 +16,8 @@
 
 namespace S4Loader/PDT/GenUxl {
 
+    use FlixSandbox/System.FilePath;
+
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/Base/AttributesLattice.{AttributeValue};
@@ -31,7 +33,7 @@ namespace S4Loader/PDT/GenUxl {
     use S4Loader/PDT/Rules/EquiLongText.{LongText};
 
     /// Returns a Map of the batches - may be sparse.
-    pub def genEquiUxlBatches(dbpath: System.FilePath, worklist: XlsxSource): Result[Map[Int32, UxlOutput], String] & Impure =
+    pub def genEquiUxlBatches(dbpath: FilePath, worklist: XlsxSource): Result[Map[Int32, UxlOutput], String] & Impure =
         use Result.{flatMap};
         let* workitems      = S4Loader/PDT/Gen/WorkList.readEquiWorkList(worklist);
         let groups          = List.foldLeft((m, x1) -> Map.insertWith(Chain.append, x1.batchNumber, Chain.singleton(x1), m), 

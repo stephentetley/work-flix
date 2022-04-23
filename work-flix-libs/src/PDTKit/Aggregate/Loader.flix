@@ -19,12 +19,14 @@ namespace PDTKit/Aggregate/Loader {
     use Functor.{<$>};
     use Applicative.{<*>};
     
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
     use PDTKit/Aggregate/Schema.{Classification, ValueRow, ParamSpec};
 
-    pub def readAll(src: System.FilePath): Result[#{Classification, ValueRow, ParamSpec | r}, String] & Impure = 
+    pub def readAll(src: FilePath): Result[#{Classification, ValueRow, ParamSpec | r}, String] & Impure = 
         BasicDb/DbMonad.runSQLite(readAllDb(), src)
 
 

@@ -24,33 +24,31 @@ namespace AssetLib/GenS4/Patch {
     /// TODO can we use RelLib/Relation.Organization instead?
     /// Also can patches be first-order, rather than update functions?
 
-    pub type alias EquipmentPatches = MutMap[String, SLEquipment -> SLEquipment]
+    pub type alias EquipmentPatches = Map[String, SLEquipment -> SLEquipment]
 
-    pub def softPatchEquipment(patches: EquipmentPatches, xs: List[SLEquipment]): List[SLEquipment] & Impure = 
+    pub def softPatchEquipment(patches: EquipmentPatches, xs: List[SLEquipment]): List[SLEquipment] = 
         let fn = x1 -> match patchEquipment1(patches, x1) {
             case Ok(a1) => a1
             case Err(_) => x1
         };
         List.map(fn, xs)
 
-    pub def patchEquipment(patches: EquipmentPatches, xs: List[SLEquipment]): Result[List[SLEquipment], String] & Impure = 
+    pub def patchEquipment(patches: EquipmentPatches, xs: List[SLEquipment]): Result[List[SLEquipment], String] = 
         Result.traverse(patchEquipment1(patches), xs)
 
 
-    def patchEquipment1(patches: EquipmentPatches, equi: SLEquipment): Result[SLEquipment, String] & Impure = 
+    def patchEquipment1(patches: EquipmentPatches, equi: SLEquipment): Result[SLEquipment, String] = 
         use Result.flatMap;
-        let* fn = Option.toOk(MutMap.get(equi.equiId, patches), "cannot patch ${equi.equiId}");
+        let* fn = Option.toOk(Map.get(equi.equiId, patches), "cannot patch ${equi.equiId}");
         Ok(fn(equi))
 
     /// TODO should this load its data from file rather than take a list?
-    pub def makeEquipmentAttributesPatches(xs: List[EquipmentAttributes]): EquipmentPatches & Impure = 
-        let mm = MutMap.empty();
-        let ins1 = row -> { 
+    pub def makeEquipmentAttributesPatches(xs: List[EquipmentAttributes]): EquipmentPatches = 
+        let ins1 = (ac, row) -> { 
             let update: SLEquipment -> SLEquipment = makePatch1(row);
-            MutMap.put!(row.aibref, update, mm)            
+            Map.insert(row.aibref, update, ac)            
         }; 
-        List.foreach(ins1, xs);
-        mm
+        List.foldLeft(ins1, Map.empty(), xs)
 
 
     def makePatch1(attribs: EquipmentAttributes, x: SLEquipment): SLEquipment =

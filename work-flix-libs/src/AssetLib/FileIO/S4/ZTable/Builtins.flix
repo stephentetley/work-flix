@@ -20,6 +20,8 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use AssetLib/FileIO/S4/ZTable/Datatypes.{EquiObject, 
         FlocObject, FlocDescription, ObjTypeManufacturer, ManufacturerModel};
     use AssetLib/FileIO/S4/ZTable/Parser.{importRows};
@@ -30,12 +32,12 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
     // EquipObject
 
-    pub def loadSuperSubEquiObject(path: System.FilePath): Result[#{SuperSubEquipObject | r}, String] & Impure = 
+    pub def loadSuperSubEquiObject(path: FilePath): Result[#{SuperSubEquipObject | r}, String] & Impure = 
         let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubEquipObject(x1.parent, x1.child, x1.category). });
         loadEquiObject(path)
             |> Result.map(build)
 
-    pub def loadEquiObject(path: System.FilePath): Result[List[EquiObject], String] & Impure =        
+    pub def loadEquiObject(path: FilePath): Result[List[EquiObject], String] & Impure =        
         importRows(evalEquiObject(), path)  
 
     def evalEquiObject(): RowEvaluator[EquiObject] = 
@@ -48,12 +50,12 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
     // FlocObject
 
-    pub def loadSuperSubFlocObject(path: System.FilePath): Result[#{SuperSubFlocObject | r}, String] & Impure = 
+    pub def loadSuperSubFlocObject(path: FilePath): Result[#{SuperSubFlocObject | r}, String] & Impure = 
         let build = RelLib/Relation.foldMap(x1 -> #{ SuperSubFlocObject(x1.parent, x1.child, x1.structure). });
         loadFlocObject(path)
             |> Result.map(build)
 
-    pub def loadFlocObject(path: System.FilePath): Result[List[FlocObject], String] & Impure =
+    pub def loadFlocObject(path: FilePath): Result[List[FlocObject], String] & Impure =
         importRows(evalFlocObject(), path)  
 
     def evalFlocObject(): RowEvaluator[FlocObject] = 
@@ -66,12 +68,12 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
     // FlocDescription
     
-    pub def loadFlocObjectDescription(path: System.FilePath): Result[#{FlocObjectDescription | r}, String] & Impure = 
+    pub def loadFlocObjectDescription(path: FilePath): Result[#{FlocObjectDescription | r}, String] & Impure = 
         let build = RelLib/Relation.foldMap(x1 -> #{ FlocObjectDescription(x1.objectType, x1.description). });
         loadFlocDescription(path)
             |> Result.map(build)
 
-    pub def loadFlocDescription(path: System.FilePath): Result[List[FlocDescription], String] & Impure =
+    pub def loadFlocDescription(path: FilePath): Result[List[FlocDescription], String] & Impure =
         importRows(evalFlocDescription(), path)           
 
     def evalFlocDescription(): RowEvaluator[FlocDescription] = 
@@ -82,12 +84,12 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
     // ObjTypeManufacturer
     
-    pub def loadAllowedManufacturer(path: System.FilePath): Result[#{AllowedManufacturer | r}, String] & Impure = 
+    pub def loadAllowedManufacturer(path: FilePath): Result[#{AllowedManufacturer | r}, String] & Impure = 
         let build = RelLib/Relation.foldMap(x1 -> #{ AllowedManufacturer(x1.objectType, x1.manufacturer). });
         loadObjTypeManufacturer(path)
             |> Result.map(build)
 
-    pub def loadObjTypeManufacturer(path: System.FilePath): Result[List[ObjTypeManufacturer], String] & Impure =
+    pub def loadObjTypeManufacturer(path: FilePath): Result[List[ObjTypeManufacturer], String] & Impure =
         importRows(evalObjTypeManufacturer(), path)  
 
     def evalObjTypeManufacturer(): RowEvaluator[ObjTypeManufacturer] = 
@@ -98,12 +100,12 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
 
     // ManufacturerModel
     
-    pub def loadAllowedManufacturerModel(path: System.FilePath): Result[#{AllowedManufacturerModel | r}, String] & Impure = 
+    pub def loadAllowedManufacturerModel(path: FilePath): Result[#{AllowedManufacturerModel | r}, String] & Impure = 
         let build = RelLib/Relation.foldMap(x1 -> #{ AllowedManufacturerModel(x1.manufacturer, x1.model). });
         loadManufacturerModel(path)
             |> Result.map(build)
 
-    pub def loadManufacturerModel(path: System.FilePath): Result[List[ManufacturerModel], String] & Impure =
+    pub def loadManufacturerModel(path: FilePath): Result[List[ManufacturerModel], String] & Impure =
         importRows(evalManufacturerModel(), path)   
 
     def evalManufacturerModel(): RowEvaluator[ManufacturerModel] = 

@@ -20,6 +20,8 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     use Functor.{map, ignore};
     use Applicative.{point, *>};
 
+    use FlixSandbox/System.FilePath;
+
     use Time.LocalDate;
 
     use FlixParsec.Parser;
@@ -33,10 +35,10 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     /// Always UTF-8? No need to handle utf8+BOM...
-    pub def parseFile(path: System.FilePath, cs: Text.Charset) : Result[IH06File, String] & Impure = 
+    pub def parseFile(path: FilePath, cs: FlixSandbox/Text.Charset) : Result[IH06File, String] & Impure = 
         FlixParsec/Extras.parsesFile(ih06FileParser(), 4, path, cs) 
 
-    pub def parseFileWithBOM(path: System.FilePath) : Result[IH06File, String] & Impure = 
+    pub def parseFileWithBOM(path: FilePath) : Result[IH06File, String] & Impure = 
         FlixParsec/Extras.parsesFileWithBOM(ih06FileParser(), 4, path) 
 
 

@@ -21,6 +21,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{ClassFloc, ValuaFloc, ClassEqui, ValuaEqui};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
 
@@ -43,7 +45,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         }
     
 
-    pub def readIflotxFile(src: System.FilePath) : Result[List[IflotxRow], String] & Impure = 
+    pub def readIflotxFile(src: FilePath) : Result[List[IflotxRow], String] & Impure = 
         AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalIflotxRow(), src)
 
     /// Read
@@ -66,7 +68,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// CLASSEQUI
 
 
-    pub def readClassFlocFile(src: System.FilePath) : Result[List[ClassFlocRow], String] & Impure = 
+    pub def readClassFlocFile(src: FilePath) : Result[List[ClassFlocRow], String] & Impure = 
         AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalClassFlocRow(), src)
         
 
@@ -89,7 +91,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// Don't write "CLINT" (internalClassNumber)
     pub def writeClassFlocFile(user: String,
                                 rows: List[ClassFlocRow], 
-                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+                                outpath: FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
         let headers = ["FUNCLOC", "CLASS", "CLASSTYPE", "CLSTATUS1"];
@@ -109,7 +111,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
 
 
-    pub def readValuaFlocFile(src: System.FilePath): Result[List[ValuaFlocRow], String] & Impure = 
+    pub def readValuaFlocFile(src: FilePath): Result[List[ValuaFlocRow], String] & Impure = 
         AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalValuaFlocRow(), src)
 
 
@@ -145,7 +147,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
     pub def writeValuaFlocFile(user: String,
                                 rows: List[ValuaFlocRow], 
-                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+                                outpath: FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
         let headers = ["FUNCLOC", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "ATZIS", "VALCNT", "ATFLV", "ATFLB"];
@@ -180,7 +182,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         }
     
 
-    pub def readEqmltxtFile(src: System.FilePath): Result[List[EqmltxtRow], String] & Impure = 
+    pub def readEqmltxtFile(src: FilePath): Result[List[EqmltxtRow], String] & Impure = 
         AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalEqmltxtRow(), src)
         
 
@@ -206,7 +208,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
 
 
-    pub def readClassEquiFile(src: System.FilePath): Result[List[ClassEquiRow], String] & Impure = 
+    pub def readClassEquiFile(src: FilePath): Result[List[ClassEquiRow], String] & Impure = 
         AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalClassEquiRow(), src)
     
     def evalClassEquiRow(): DownloadRowEvaluator[ClassEquiRow] = 
@@ -228,7 +230,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     /// Don't write "CLINT" (internalClassNumber)
     pub def writeClassEquiFile(user: String,
                                 rows: List[ClassEquiRow], 
-                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+                                outpath: FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
         let headers = ["EQUI", "CLASS", "CLASSTYPE", "CLSTATUS1"];
@@ -246,7 +248,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
     /// VALUAEQUI
 
-    pub def readValuaEquiFile(path: System.FilePath) : Result[List[ValuaEquiRow], String] & Impure =         
+    pub def readValuaEquiFile(path: FilePath) : Result[List[ValuaEquiRow], String] & Impure =         
         AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalValuaEquiRow(), path)
         
     /// Read
@@ -281,7 +283,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
     pub def writeValuaEquiFile(user: String,
                                 rows: List[ValuaEquiRow], 
-                                outpath: System.FilePath): Result[Unit, String] & Impure = 
+                                outpath: FilePath): Result[Unit, String] & Impure = 
         use Result.{flatMap};
         use AssetLib/FileIO/S4/TransferFile/UploadWriter.{outputUploadFile, execMapUploadRowSetter};
         let headers = ["EQUI", "CLASSTYPE", "CHARID", "ATWRT", "ATCOD", "TEXTBEZ", "ATZIS", "VALCNT","ATFLV", "ATFLB"];

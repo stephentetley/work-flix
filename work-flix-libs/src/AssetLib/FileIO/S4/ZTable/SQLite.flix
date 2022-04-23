@@ -20,6 +20,8 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     use Functor.{<$>};
     use Applicative.{<*>, *>};
 
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
@@ -28,7 +30,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
 
     // # Objtype Manuf
 
-    pub def readAndStoreObjTypeManufacturer(table: String, path: System.FilePath): DbMonad[List[ObjTypeManufacturer]]=
+    pub def readAndStoreObjTypeManufacturer(table: String, path: FilePath): DbMonad[List[ObjTypeManufacturer]]=
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadObjTypeManufacturer(path));
         let* _      = storeObjTypeManufacturer(table, ans);
@@ -88,7 +90,7 @@ namespace AssetLib/FileIO/S4/ZTable/SQLite {
     // # Manufacturer Model
 
 
-    pub def readAndStoreManufacturerModel(table: String, path: System.FilePath): DbMonad[List[ManufacturerModel]]=
+    pub def readAndStoreManufacturerModel(table: String, path: FilePath): DbMonad[List[ManufacturerModel]]=
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(path));
         let* _      = storeManufacturerModel(table, ans);

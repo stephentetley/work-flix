@@ -16,6 +16,7 @@
 
 namespace S4Loader/App/GenFlocUxl {
 
+
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
@@ -35,7 +36,7 @@ namespace S4Loader/App/GenFlocUxl {
         use Result.flatMap;
         let* outputArgs     = makeOutputArgs();
         let* outputRoot     = S4Loader/App/Config.getWorkingDirectory();
-        let worklistpath    = System/FilePath.snoc(outputRoot, worklist);
+        let worklistpath    = FlixSandbox/System/FilePath.snoc(outputRoot, worklist);
         let flocsrc         = {path = worklistpath, sheet = "Floc"};
         let* _              = S4Loader/Floc/GenUxl.generateFlocUxl(outputArgs, flocsrc);
         Ok()
@@ -45,9 +46,9 @@ namespace S4Loader/App/GenFlocUxl {
         use Result.flatMap;
         let* configPath = S4Loader/App/Config.getAppConfigPath();
         let* outputRoot = S4Loader/App/Config.getWorkingDirectory();
-        Ok({ uxlTemplate = System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
+        Ok({ uxlTemplate = FlixSandbox/System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
             , changeRequestName = "ABCDE ## UXL"
-            , outpath = System/FilePath.snoc(outputRoot, "pdt_uxl.xlsx")
+            , outpath = FlixSandbox/System/FilePath.snoc(outputRoot, "pdt_uxl.xlsx")
             })
 
 }

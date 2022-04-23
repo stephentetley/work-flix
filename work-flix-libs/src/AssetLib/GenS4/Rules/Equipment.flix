@@ -33,10 +33,10 @@ namespace AssetLib/GenS4/Rules/Equipment {
 
 
     pub def genEquis(attribs: List[EquipmentAttributes], xs: List[EquiWorkItem]): GenMonad[Unit] = 
-        use AssetLib/GenS4/GenMonad.{flatMap, liftAction, liftActionResult, mapX, tellSLEquipment};
-        let* patches    = liftAction(_ -> AssetLib/GenS4/Patch.makeEquipmentAttributesPatches(attribs));
+        use AssetLib/GenS4/GenMonad.{flatMap, liftAction, liftResult, mapX, tellSLEquipment};
+        let* patches    = liftResult(_ -> AssetLib/GenS4/Patch.makeEquipmentAttributesPatches(attribs) |> Ok);
         let* today      = liftAction(_ -> Time/LocalDate.now());
-        let* answers    = liftActionResult(_ -> List.map(genEqui1(today), xs) 
+        let* answers    = liftResult(_ -> List.map(genEqui1(today), xs) 
                                                     |> AssetLib/GenS4/Patch.patchEquipment(patches));
         mapX(tellSLEquipment, answers)    
 

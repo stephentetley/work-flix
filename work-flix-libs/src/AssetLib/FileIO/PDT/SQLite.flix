@@ -18,6 +18,8 @@ namespace AssetLib/FileIO/PDT/SQLite {
 
     use Applicative.{*>};
 
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
@@ -25,17 +27,17 @@ namespace AssetLib/FileIO/PDT/SQLite {
     use AssetLib/FileIO/PDT/Datatypes.{FieldValue, ADTHeaderRow, ADTParamRow};
 
 
-    pub def createPDTDatabase(srcs: List[System.FilePath], dst: System.FilePath): Result[Int32, String] & Impure = 
+    pub def createPDTDatabase(srcs: List[FilePath], dst: FilePath): Result[Int32, String] & Impure = 
         let actions = 
             AssetLib/FileIO/PDT/SQLite.createPDTTables() 
                 *> AssetLib/FileIO/PDT/SQLite.insertDataAll(srcs);
         BasicDb/DbMonad.runSQLite(actions, dst)
 
 
-    pub def insertData(src: System.FilePath): DbMonad[Int32] =
+    pub def insertData(src: FilePath): DbMonad[Int32] =
         insertDataAll(src :: Nil)
 
-    pub def insertDataAll(srcs: List[System.FilePath]): DbMonad[Int32] =
+    pub def insertDataAll(srcs: List[FilePath]): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         use Monad.{>>=};
         let* relns  = liftActionResult(_ -> AssetLib/FileIO/PDT/Reader.readFieldValuesAll(srcs));

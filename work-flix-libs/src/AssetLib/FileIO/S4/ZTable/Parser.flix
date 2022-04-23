@@ -19,29 +19,27 @@
 namespace AssetLib/FileIO/S4/ZTable/Parser {
 
 
-    use Data.DList;
+    use FlixSandbox/System.FilePath;
     use FlixParsec.Parser;
 
     use AssetLib/FileIO/S4/ZTable.RowEvaluator;
 
     /// Note - parser may loop rather than fail if given wrong ztable input source for the RowEvaluator, needs investigating...
 
-    pub def importRows(eval: RowEvaluator[row], path: System.FilePath): Result[List[row], String] & Impure = 
+    pub def importRows(eval: RowEvaluator[row], path: FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
-        use Data/DList.{toList};
-        let* rows = FlixParsec/Extras.parsesFile(importRowsParser(eval), 4, path, Text/Charset.utf_8());
-        Ok(toList(rows))
+        let* rows = FlixParsec/Extras.parsesFile(importRowsParser(eval), 4, path, FlixSandbox/Text/Charset.utf_8());
+        Ok(Chain.toList(rows))
 
 
-    def importRowsParser(eval: RowEvaluator[row]): Parser[t1, DList[row]] = 
-        use Data/DList.{empty, snoc};
+    def importRowsParser(eval: RowEvaluator[row]): Parser[t1, Chain[row]] = 
         use FlixParsec/Prim.{flatMap, point};
         use FlixParsec/Combinators.{manyTill, manyTillWith, count};
         use FlixParsec/Text.{skipLine};
         let* _      = manyTill(skipLine(), separatingLine());
         let* _      = count(2, skipLine());
         let row1    = makeLineParser(eval);
-        let* rows   = manyTillWith((ac, x) -> snoc(ac, x), empty(), row1, separatingLine()); 
+        let* rows   = manyTillWith((ac, x) -> Chain.snoc(ac, x), Chain.empty(), row1, separatingLine()); 
         point(rows)
 
     /// Line of many '-' chars.

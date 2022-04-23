@@ -22,6 +22,7 @@ namespace S4Loader/Base/StoreProperties {
 
     use Monad.{>>=};
 
+    use FlixSandbox/System.FilePath;
     use Time.LocalDate;
 
     use BasicDb.DbMonad;
@@ -107,11 +108,11 @@ namespace S4Loader/Base/StoreProperties {
     // Use ClassList instead...
 
 /*
-    pub def storeS4ClassInfo(path: System.FilePath): DbMonad[Int32] = 
+    pub def storeS4ClassInfo(path: FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> readClassList(path)) >>= insertS4ClassInfo
 
-    def readClassList(path: System.FilePath): Result[ClassList, String] & Impure = 
+    def readClassList(path: FilePath): Result[ClassList, String] & Impure = 
         AssetLib/FileIO/S4/ClassList/Builder.loadEquiClassList(path)
 
     def insertS4ClassInfo(src: ClassList): DbMonad[Int32] = 
@@ -154,18 +155,18 @@ namespace S4Loader/Base/StoreProperties {
         , s4Char :: String
         }
 
-    pub def storePropertyAliases(src: System.FilePath): DbMonad[Int32] = 
+    pub def storePropertyAliases(src: FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> readPropertyAliases(src)) >>= insertPropertyAliases
 
 
-    pub def readPropertyAliases(src: System.FilePath): Result[List[PropertyAlias], String] & Impure = 
+    pub def readPropertyAliases(src: FilePath): Result[List[PropertyAlias], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringAt};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
         let eval = Applicative.liftA3((x, y, z) -> {aiName = x, s4Class = y, s4Char = z}, 
                                             getStringAt(0), getStringAt(1), getStringAt(2));
-        CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src)
+        CsvIO/CsvReader.readCsv(format, FlixSandbox/Text/Charset.utf_8(), eval, src)
         
 
     pub def insertPropertyAliases(xs: List[PropertyAlias]): DbMonad[Int32] = 
@@ -199,13 +200,13 @@ namespace S4Loader/Base/StoreProperties {
 
     // # ZTables
 
-    pub def storeZTableManuf(src: System.FilePath): DbMonad[Int32] = 
+    pub def storeZTableManuf(src: FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(src))
             >>= AssetLib/FileIO/S4/ZTable/SQLite.storeManufacturerModel("ztable_manuf")
 
 
-    pub def storeZTableObj(src: System.FilePath): DbMonad[Int32] = 
+    pub def storeZTableObj(src: FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadObjTypeManufacturer(src))
             >>= AssetLib/FileIO/S4/ZTable/SQLite.storeObjTypeManufacturer("ztable_obj")

@@ -22,6 +22,8 @@ namespace AssetLib/FileIO/S4/ClassList/FlocParser {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use Text/RegexEval.MatchEvaluator;
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListRow};
@@ -30,10 +32,10 @@ namespace AssetLib/FileIO/S4/ClassList/FlocParser {
     type alias LineParser[a] = String -> Result[a, String]
 
 
-    pub def parseFile(src: System.FilePath): Result[List[ClassListRow], String] & Impure = 
+    pub def parseFile(src: FilePath): Result[List[ClassListRow], String] & Impure = 
         use Result.flatMap;
-        let* buf    = System/File/BOM.openBufferedReaderWithBOM(src);
-        let* all    = System/File/BufferedReader.lines(buf) |> X/Cursor.toList!;
+        let* buf    = FlixSandbox/System/File/BOM.openBufferedReaderWithBOM(src);
+        let* all    = FlixSandbox/System/File/BufferedReader.lines(buf) |> FlixSandbox/Deprecated/Cursor.toList!;
         let body    = all |> List.dropWhile(s -> not String.startsWith(prefix = "-----", s)) |> List.drop(1);
         Result.traverse(parseRow(), body)
         

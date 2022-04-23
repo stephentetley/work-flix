@@ -16,7 +16,7 @@
 
 namespace AssetLib/FileIO/S4/IH06Tree/Datatypes {
 
-    use Data.RoseTree;
+    use FlixSandbox.RoseTree;
     use Time.LocalDate;
 
     /// Flat representation - not a tree.

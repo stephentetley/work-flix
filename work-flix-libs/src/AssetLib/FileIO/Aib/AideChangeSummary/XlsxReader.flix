@@ -16,12 +16,13 @@
 
 namespace AssetLib/FileIO/Aib/AideChangeSummary/XlsxReader {
 
+    use FlixSandbox/System.FilePath;
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 
     use AssetLib/FileIO/Aib/AideChangeSummary/Datatypes.AibExportRow;
 
-    pub def readFile(path: System.FilePath) : Result[List[AibExportRow], String] & Impure = 
+    pub def readFile(path: FilePath) : Result[List[AibExportRow], String] & Impure = 
         SheetIO/SheetReader.runXlsx(readAideChanges(), path)
 
     def readAideChanges(): SheetReader[List[AibExportRow]] = 

@@ -17,8 +17,9 @@
 
 namespace AssetLib/FileIO/S4/IH06Tree/ExportJson {
 
-    use Data.RoseTree;
-    use Data.RoseTree.{Node};
+    use FlixSandbox/System.FilePath;
+    use FlixSandbox.RoseTree;
+    use FlixSandbox.RoseTree.{Node};
 
     use BasicJson.JsonValue;
     use BasicJson/JsonBuilder.JsObject;
@@ -27,11 +28,11 @@ namespace AssetLib/FileIO/S4/IH06Tree/ExportJson {
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
 
 
-    pub def exportJson(path: System.FilePath, x: IH06Tree): Result[Unit, String] & Impure =
+    pub def exportJson(path: FilePath, x: IH06Tree): Result[Unit, String] & Impure =
         let json1 = jsonTree(x);
         BasicJson/Pretty.writeJson(path, json1)
 
-    pub def exportJsonArray(path: System.FilePath, xs: List[IH06Tree]): Result[Unit, String] & Impure =
+    pub def exportJsonArray(path: FilePath, xs: List[IH06Tree]): Result[Unit, String] & Impure =
         use BasicJson/JsonBuilder.{arrayOf};
         let jsonForest = List.map(jsonTree, xs) |> arrayOf;
         BasicJson/Pretty.writeJson(path, jsonForest)

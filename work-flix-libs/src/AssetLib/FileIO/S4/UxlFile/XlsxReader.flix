@@ -20,6 +20,8 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 
@@ -129,7 +131,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
 
     /// FL-Classification
 
-    pub def loadFlClassification(path: System.FilePath): Result[List[FlClassification], String] & Impure =   
+    pub def loadFlClassification(path: FilePath): Result[List[FlClassification], String] & Impure =   
         SheetIO/SheetReader.runXlsx(readFlClassification(), path)
 
     pub def readFlClassification(): SheetReader[List[FlClassification]] = 
@@ -160,7 +162,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
             <*> getS4BoolNamed("DeleteCh")
 
     /// Equipment Data
-    pub def loadEquipmentDataMocr(path: System.FilePath): Result[List[EquipmentData], String] & Impure =   
+    pub def loadEquipmentDataMocr(path: FilePath): Result[List[EquipmentData], String] & Impure =   
         SheetIO/SheetReader.runXlsx(readEquipmentDataMocr(), path)
 
     pub def readEquipmentDataMocr(): SheetReader[List[EquipmentData]] = 
@@ -258,7 +260,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
 
     /// EQ-Classification
     
-    pub def loadEqClassificationMocr(path: System.FilePath): Result[List[EqClassification], String] & Impure =   
+    pub def loadEqClassificationMocr(path: FilePath): Result[List[EqClassification], String] & Impure =   
         SheetIO/SheetReader.runXlsx(readEqClassificationMocr(), path)
 
     pub def readEqClassificationMocr(): SheetReader[List[EqClassification]] = 

@@ -19,6 +19,7 @@ namespace PDTKit/Configuration/ReadAssetTypesCsv {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
@@ -33,20 +34,20 @@ namespace PDTKit/Configuration/ReadAssetTypesCsv {
         , s4Class :: String
         }
 
-    pub def readAndStoreAssetTypes(src: System.FilePath): DbMonad[List[AssetTypeRow]] =
+    pub def readAndStoreAssetTypes(src: FilePath): DbMonad[List[AssetTypeRow]] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> readAssetTypes(src));
         let* _      = insertAssetTypes(ans);
         point(ans)
 
-    pub def readAssetTypes(src: System.FilePath): Result[List[AssetTypeRow], String] & Impure = 
+    pub def readAssetTypes(src: FilePath): Result[List[AssetTypeRow], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringNamed};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
         let eval = ((x1, x2, x3, x4) -> { pdtAssetType = x1, s4Category = x2, s4Object = x3, s4Class = x4}) 
                         <$> getStringNamed("class_description") <*> getStringNamed("s4_category") 
                         <*> getStringNamed("s4_object")         <*> getStringNamed("s4_class");
-        let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
+        let* rows = CsvIO/CsvReader.readCsv(format, FlixSandbox/Text/Charset.utf_8(), eval, src);
         Ok(rows)
 
     def insertAssetTypes(src: List[AssetTypeRow]): DbMonad[Int32] = 

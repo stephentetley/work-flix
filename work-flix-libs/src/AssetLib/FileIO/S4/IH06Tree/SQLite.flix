@@ -18,6 +18,8 @@ namespace AssetLib/FileIO/S4/IH06Tree/SQLite {
 
     use Applicative.{point, *>};
 
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
@@ -31,7 +33,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/SQLite {
         , equiTable :: String
         }
 
-    pub def exportSQLite(names: IH06TableNames, path: System.FilePath, src: IH06File): Result[Unit, String] & Impure =
+    pub def exportSQLite(names: IH06TableNames, path: FilePath, src: IH06File): Result[Unit, String] & Impure =
         let action = createIH06Tables(names) *> storeIH06Data(names, src) *> point();
         BasicDb/DbMonad.runSQLite(action, path)
 

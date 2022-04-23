@@ -17,6 +17,7 @@
 
 namespace AssetLib/S4Lite/EmitUxl {
 
+    use FlixSandbox/System.FilePath;
     use SheetIO.SheetWriter;
 
     use AssetLib/FileIO/S4/UxlFile/Datatypes.{ChangeRequestDetails, 
@@ -27,9 +28,9 @@ namespace AssetLib/S4Lite/EmitUxl {
         SLEquipment, SLEquiLongText, SLEquiCharacteristic};
 
     pub type alias UxlOutputArgs = 
-        { uxlTemplate :: System.FilePath
+        { uxlTemplate :: FilePath
         , changeRequestName :: String
-        , outpath :: System.FilePath
+        , outpath :: FilePath
         }
 
 
@@ -37,7 +38,7 @@ namespace AssetLib/S4Lite/EmitUxl {
     pub def outputMocrUxlBatches(args: UxlOutputArgs, xs: List[{batchNumber :: Int32, uxl :: UxlOutput}]): Result[Unit, String] & Impure = 
         let strIndex = i -> String.padLeft(2, '0', "${i}");
         let step = x1 -> { 
-            let path    = System/FilePath.mapBaseName(s -> s + "_${strIndex(x1.batchNumber)}", args.outpath);
+            let path    = FlixSandbox/System/FilePath.mapBaseName(s -> s + "_${strIndex(x1.batchNumber)}", args.outpath);
             let crname  = String.replace(from = "##", to = strIndex(x1.batchNumber), args.changeRequestName);
             let args2   = {outpath = path, changeRequestName = crname, uxlTemplate = args.uxlTemplate};
             outputMocrUxl(args2, x1.uxl)

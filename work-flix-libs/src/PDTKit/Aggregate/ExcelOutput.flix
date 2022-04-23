@@ -16,6 +16,8 @@
 
 namespace PDTKit/Aggregate/ExcelOutput {
     
+    use FlixSandbox/System.FilePath;
+
     use SheetIO.RowSetter;
     use SheetIO.SheetWriter;
 
@@ -25,7 +27,7 @@ namespace PDTKit/Aggregate/ExcelOutput {
     use PDTKit/Aggregate/Schema.{TabSpec, AggregateRow};
 
 
-    pub def outputExcel(relns: #{TabSpec, AggregateRow | r}, path: System.FilePath): Result[Unit, String] & Impure = 
+    pub def outputExcel(relns: #{TabSpec, AggregateRow | r}, path: FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
         let headers = makeHeaders(relns);
         let rows    = makeRows(relns);

@@ -18,34 +18,35 @@
 
 namespace S4Loader/App/Config {
 
+    use FlixSandbox/System.FilePath;
 
     /// TODO - should System/FilePath.new unquote strings?
     /// On Windows, paths retreived from env-vars might be quoted...
-    pub def getAppPath(): Result[System.FilePath, String] & Impure = 
+    pub def getAppPath(): Result[FilePath, String] & Impure = 
         use Result.flatMap;
         let* var    = Environment.getVar("S4LOADER_HOME") |> flip(Option.toOk, "Env var `S4LOADER_HOME` not set");
-        let path    = System/FilePath.new(var);
+        let path    = FlixSandbox/System/FilePath.new(var);
         let* exists = File.exists(path |> ToString.toString);
         if (exists) 
             Ok(path)
         else 
             Err("S4LOADER_PATH `${var}` is invalid")
 
-    pub def getAppConfigPath(): Result[System.FilePath, String] & Impure = 
-        getAppPath() |> Result.map(flip(System/FilePath.snoc, "config"))
+    pub def getAppConfigPath(): Result[FilePath, String] & Impure = 
+        getAppPath() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "config"))
 
-    pub def getWorkingDirectory(): Result[System.FilePath, String] = 
-        Environment.getCurrentWorkingDirectory() |> Option.map(System/FilePath.new) |> flip(Option.toOk, "Could not get Current-Working-Directory")
+    pub def getWorkingDirectory(): Result[FilePath, String] = 
+        Environment.getCurrentWorkingDirectory() |> Option.map(FlixSandbox/System/FilePath.new) |> flip(Option.toOk, "Could not get Current-Working-Directory")
 
-    pub def getS4LoaderDirectory(): Result[System.FilePath, String] = 
-        getWorkingDirectory() |> Result.map(flip(System/FilePath.snoc, ".s4loader"))
+    pub def getS4LoaderDirectory(): Result[FilePath, String] = 
+        getWorkingDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, ".s4loader"))
 
 
 
     pub def makeS4LoaderDir(): Result[Bool, String] & Impure = 
         use Result.flatMap;
-        let* path1  = Environment.getCurrentWorkingDirectory() |> Option.map(System/FilePath.new) |> flip(Option.toOk, "No CWD");
-        let dest    = System/FilePath.snoc(path1, ".s4loader");
+        let* path1  = Environment.getCurrentWorkingDirectory() |> Option.map(FlixSandbox/System/FilePath.new) |> flip(Option.toOk, "No CWD");
+        let dest    = FlixSandbox/System/FilePath.snoc(path1, ".s4loader");
         let* exists = File.exists(ToString.toString(dest));
         if (not exists) 
             File.mkdir(ToString.toString(dest))

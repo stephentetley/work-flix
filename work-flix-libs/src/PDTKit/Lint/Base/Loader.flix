@@ -19,6 +19,8 @@ namespace PDTKit/Lint/Base/Loader {
     use Functor.{<$>};
     use Applicative.{<*>, *>, point};
     
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
@@ -28,10 +30,10 @@ namespace PDTKit/Lint/Base/Loader {
         ZObjTypeManufacturer, ZManufModel};
 
     pub type alias PDTLintSources = 
-        { pdtDB :: System.FilePath
-        , assetTypesCsv :: System.FilePath
-        , ztableObjTypeManuf :: System.FilePath
-        , ztableManuModel :: System.FilePath
+        { pdtDB :: FilePath
+        , assetTypesCsv :: FilePath
+        , ztableObjTypeManuf :: FilePath
+        , ztableManuModel :: FilePath
         }
 
 
@@ -79,7 +81,7 @@ namespace PDTKit/Lint/Base/Loader {
 
     /// From Configuration...
     
-    def readMetaPdtAssetTypes(src: System.FilePath): DbMonad[#{MetaPdtAssetType | r}] = 
+    def readMetaPdtAssetTypes(src: FilePath): DbMonad[#{MetaPdtAssetType | r}] = 
         PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(src)
             |> Functor.map(getMetaPdtAssetTypes)
 
@@ -89,7 +91,7 @@ namespace PDTKit/Lint/Base/Loader {
         
     /// From ZTables...
 
-    def readZObjTypeManufacturer(src: System.FilePath): DbMonad[#{ZObjTypeManufacturer | r}] = 
+    def readZObjTypeManufacturer(src: FilePath): DbMonad[#{ZObjTypeManufacturer | r}] = 
         AssetLib/FileIO/S4/ZTable/SQLite.readAndStoreObjTypeManufacturer("ztable_objtype_manuf", src)
             |> Functor.map(getZObjTypeManufacturers)
 
@@ -97,7 +99,7 @@ namespace PDTKit/Lint/Base/Loader {
         let make1 = x1 -> #{ ZObjTypeManufacturer(x1.objectType, x1.manufacturer). };
         RelLib/Relation.foldMap(make1, l)
 
-    def readZManufModel(src: System.FilePath): DbMonad[#{ZManufModel | r}] = 
+    def readZManufModel(src: FilePath): DbMonad[#{ZManufModel | r}] = 
         AssetLib/FileIO/S4/ZTable/SQLite.readAndStoreManufacturerModel("ztable_manuf_model", src)
             |> Functor.map(getZManufModels)
 

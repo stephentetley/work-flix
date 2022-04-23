@@ -17,10 +17,10 @@
 
 namespace AssetLib/Base/ExportHtmlTree {
 
-
-    use Data.{RoseTree, RoseForest};
-    use Data.RoseTree.{RoseTree};
-    use System.Error.{Generic};
+    use FlixSandbox/System.FilePath;
+    use FlixSandbox.{RoseTree, RoseForest};
+    use FlixSandbox.RoseTree.{RoseTree};
+    
 
     use Text/HtmlDoc.{Html};
     use Text/HtmlDoc.{writeHtml, concat, html, head, meta, title, body, paragraph, text, link, div, toString, 
@@ -31,15 +31,15 @@ namespace AssetLib/Base/ExportHtmlTree {
     pub type alias Label = {name :: String, description :: String}
 
 
-    pub def writeHtmlTree(path: System.FilePath, x: RoseTree[Label]): Result[Unit, String] & Impure =
+    pub def writeHtmlTree(path: FilePath, x: RoseTree[Label]): Result[Unit, String] & Impure =
         let htmltree = paragraph(Nil, collapsibleTree2(nodePrinter(), leafPrinter(), x));
         let doc = makeDoc(htmltree);
-        writeHtml(160, path, Text/Charset.utf_8(), doc)
+        writeHtml(160, path, FlixSandbox/Text/Charset.utf_8(), doc)
 
-    pub def writeHtmlForest(path: System.FilePath, xs: RoseForest[Label]): Result[Unit, String] & Impure =
+    pub def writeHtmlForest(path: FilePath, xs: RoseForest[Label]): Result[Unit, String] & Impure =
         let htmltrees = List.map(x -> paragraph(Nil, collapsibleTree2(nodePrinter(), leafPrinter(), x)), xs) |> concat;
         let doc = makeDoc(htmltrees);
-        writeHtml(160, path, Text/Charset.utf_8(), doc)
+        writeHtml(160, path, FlixSandbox/Text/Charset.utf_8(), doc)
 
 
     def makeDoc(content: Html): Html = 

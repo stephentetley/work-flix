@@ -21,6 +21,8 @@ namespace PDTKit/Configuration/ReadFieldValueEnumXlsx {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
@@ -36,13 +38,13 @@ namespace PDTKit/Configuration/ReadFieldValueEnumXlsx {
         , s4EnumValue :: String
         }
 
-    pub def readAndStoreFieldValueEnums(src: System.FilePath): DbMonad[List[FieldValueEnumRow]] =
+    pub def readAndStoreFieldValueEnums(src: FilePath): DbMonad[List[FieldValueEnumRow]] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> readFieldValueEnums(src));
         let* _      = insertPdtFieldValueEnums(ans);
         point(ans)
 
-    def readFieldValueEnums(src: System.FilePath): Result[List[FieldValueEnumRow], String] & Impure = 
+    def readFieldValueEnums(src: FilePath): Result[List[FieldValueEnumRow], String] & Impure = 
         use Result.flatMap;
         use SheetIO/NamedRowEvaluator.{optional};
         let* tabs = SheetIO/SheetReader.runXlsx(SheetIO/SheetReader.getSheetNames(), src);

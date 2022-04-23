@@ -16,6 +16,7 @@
 
 namespace S4Loader/PDT/BuildDb {
 
+    use FlixSandbox/System.FilePath;
     use BasicDb.DbMonad;
     use PDTKit/Configuration/ReadFieldEvalSpecXlsx.{FieldEvalRow};
     use PDTKit/Configuration/ReadFieldValueEnumXlsx.{FieldValueEnumRow};
@@ -35,11 +36,11 @@ namespace S4Loader/PDT/BuildDb {
 
 
     /// Load from PDT Db and metadata
-    pub def storeMetaData(x: {equiClassList :: System.FilePath,
-                                fieldEvals :: System.FilePath,
-                                fieldValueEnums :: System.FilePath,
-                                assetTypes :: System.FilePath,
-                                otoMappings :: System.FilePath}): DbMonad[#{FieldEvalSpec, FieldValueEnum | r}] = 
+    pub def storeMetaData(x: {equiClassList :: FilePath,
+                                fieldEvals :: FilePath,
+                                fieldValueEnums :: FilePath,
+                                assetTypes :: FilePath,
+                                otoMappings :: FilePath}): DbMonad[#{FieldEvalSpec, FieldValueEnum | r}] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* _          = S4Loader/Base/InitDb.storeEquiClassListData(x.equiClassList);
         let* _          = PDTKit/Configuration/ReadAssetTypesCsv.readAndStoreAssetTypes(x.assetTypes);

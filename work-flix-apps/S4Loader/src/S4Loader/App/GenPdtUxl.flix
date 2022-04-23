@@ -35,8 +35,8 @@ namespace S4Loader/App/GenPdtUxl {
         use Result.flatMap;
         let* outputArgs     = makeOutputArgs();
         let* outputRoot     = S4Loader/App/Config.getWorkingDirectory();
-        let* dbpath         = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "s4loader.sqlite"));
-        let worklistpath    = System/FilePath.snoc(outputRoot, worklist);
+        let* dbpath         = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "s4loader.sqlite"));
+        let worklistpath    = FlixSandbox/System/FilePath.snoc(outputRoot, worklist);
         let flocsrc         = {path = worklistpath, sheet = "Floc"};
         let equisrc         = {path = worklistpath, sheet = "Equi"};
         let* _              = S4Loader/Uxl/GenUxl.generatePDTUxl(outputArgs, {dbpath = dbpath, flocsrc = flocsrc, equisrc = equisrc});
@@ -47,9 +47,9 @@ namespace S4Loader/App/GenPdtUxl {
         use Result.flatMap;
         let* configPath = S4Loader/App/Config.getAppConfigPath();
         let* outputRoot = S4Loader/App/Config.getWorkingDirectory();
-        Ok({ uxlTemplate = System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
+        Ok({ uxlTemplate = FlixSandbox/System/FilePath.snoc(configPath, "1909_AIW_MOCR_Template.xlsx")
             , changeRequestName = "ABCDE ## UXL"
-            , outpath = System/FilePath.snoc(outputRoot, "pdt_uxl.xlsx")
+            , outpath = FlixSandbox/System/FilePath.snoc(outputRoot, "pdt_uxl.xlsx")
             })
 
 }

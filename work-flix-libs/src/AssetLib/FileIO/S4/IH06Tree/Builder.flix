@@ -17,8 +17,9 @@
 
 namespace AssetLib/FileIO/S4/IH06Tree/Builder {
         
-    use Data.{RoseTree, RoseForest};
-    use Data.RoseTree.{Node};
+    use FlixSandbox/System.FilePath;
+    use FlixSandbox.{RoseTree, RoseForest};
+    use FlixSandbox.RoseTree.{Node};
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File, IH06Row, IH06Tree, IH06Node, FlocRow, EquiRow};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
@@ -37,7 +38,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
         case Nil => Err("buildIH06Trees - Empty Structure List")
     }
         
-    pub def readTree(src: System.FilePath): Result[IH06Tree, String] & Impure = 
+    pub def readTree(src: FilePath): Result[IH06Tree, String] & Impure = 
         use Result.{flatMap};
         let* ast = AssetLib/FileIO/S4/IH06Tree/Parser.parseFileWithBOM(src);
         buildIH06Tree(ast)
@@ -104,7 +105,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
 
 
     pub def toLabelledTree(src: IH06Tree): RoseTree[Label] = 
-        Data/RoseTree.map(makeRTLabel, src)
+        FlixSandbox/RoseTree.map(makeRTLabel, src)
 
         
     def makeRTLabel(x: IH06Node): Label = match x {

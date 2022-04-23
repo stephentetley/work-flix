@@ -23,10 +23,10 @@ namespace S4Loader/App/PdtLint {
     /// TODO - `objtype-manuf` and `manuf-model` are already stored in `pdt_files.sqlite`.
     pub def pdtLint(): Result[Unit, String] & Impure = 
         use Result.flatMap;
-        let* pdtDB              = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "pdt_files.sqlite"));
-        let* assetTypesCsv      = S4Loader/App/Config.getAppConfigPath() |> Result.map(flip(System/FilePath.snoc, "pdt_asset_types.csv"));
-        let* ztableObjTypeManuf = S4Loader/App/Config.getAppConfigPath() |> Result.map(flip(System/FilePath.snoc, "ztable-objtype-manuf.txt"));
-        let* ztableManuModel    = S4Loader/App/Config.getAppConfigPath() |> Result.map(flip(System/FilePath.snoc, "ztable-manuf-model.txt"));
+        let* pdtDB              = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "pdt_files.sqlite"));
+        let* assetTypesCsv      = S4Loader/App/Config.getAppConfigPath() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "pdt_asset_types.csv"));
+        let* ztableObjTypeManuf = S4Loader/App/Config.getAppConfigPath() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "ztable-objtype-manuf.txt"));
+        let* ztableManuModel    = S4Loader/App/Config.getAppConfigPath() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "ztable-manuf-model.txt"));
         let srcs    = 
             { pdtDB = pdtDB
             , assetTypesCsv = assetTypesCsv

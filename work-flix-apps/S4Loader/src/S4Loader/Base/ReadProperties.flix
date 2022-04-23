@@ -20,6 +20,7 @@ namespace S4Loader/Base/ReadProperties {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
@@ -29,7 +30,7 @@ namespace S4Loader/Base/ReadProperties {
     pub type alias DbRelations[r1: SchemaRow] =
         #{StringProperty, IntProperty, FloatProperty, DateProperty | r1}
 
-    pub def loadDbRelations(dbpath: System.FilePath): Result[DbRelations[r1], String] & Impure =         
+    pub def loadDbRelations(dbpath: FilePath): Result[DbRelations[r1], String] & Impure =         
         BasicDb/DbMonad.runSQLite(readProperties(), dbpath)
 
 

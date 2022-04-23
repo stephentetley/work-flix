@@ -16,8 +16,8 @@
 
 namespace Aruba/S4/Hierarchy {
 
-    use Data.RoseForest;
-    use Data.RoseTree.{Node};
+    use FlixSandbox.RoseForest;
+    use FlixSandbox.RoseTree.{Node};
     use Aruba/S4/Base.{S4Floc, S4SubFloc, S4FlocLevel, S4Equi, S4SubEqui, S4EquiLocation};
 
 

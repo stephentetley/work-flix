@@ -18,21 +18,22 @@
 
 namespace AssetLib/FileIO/S4/TransferFile/Printer {
 
-    use Time.LocalDateTime;
-    use Text/SimpleFormat.{Doc};
-    use Text/SimpleFormat.{toString, besideSpace, beside, below, hcat, vcat, text, char, colon, punctuate, tab, line};
-    use Text/SimpleFormat.{<>, <<>>, <!>};
+    use FlixSandbox/Deprecated/SimpleFormat.{Doc};
+    use FlixSandbox/Deprecated/SimpleFormat.{toString, besideSpace, beside, below, hcat, vcat, text, char, colon, punctuate, tab, line};
+    use FlixSandbox/Deprecated/SimpleFormat.{<>, <<>>, <!>};
+    use FlixSandbox/System.FilePath;
 
+    use Time.LocalDateTime;
 
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{TransferFile, FileHeader, FileType, DataModel, EntityType, Headers, DataRow};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.FileType.{Download, Upload};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.DataModel.{U1};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
-    pub def writeTransferFile(x: TransferFile, path: System.FilePath): Result[Unit, String] & Impure = 
-        use System/IO.WriteMode.{Create};
+    pub def writeTransferFile(x: TransferFile, path: FilePath): Result[Unit, String] & Impure = 
+        use FlixSandbox/System/IO.WriteMode.{Create};
         let str = ppTransferFile(x) |> toString;
-        System/IO.writeFileWith({path = path, charset = Text/Charset.utf_8(), mode = Create}, str) |> Result.mapErr(e -> "${e}")
+        FlixSandbox/System/IO.writeFileWith({path = path, charset = FlixSandbox/Text/Charset.utf_8(), mode = Create}, str) |> Result.mapErr(e -> "${e}")
 
     pub def printTransferFile(x: TransferFile): String & Impure =         
         ppTransferFile(x) |> toString

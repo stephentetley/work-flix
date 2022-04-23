@@ -21,6 +21,8 @@ namespace PDTKit/Configuration/ReadOtoMappingsXlsx {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
@@ -38,7 +40,7 @@ namespace PDTKit/Configuration/ReadOtoMappingsXlsx {
         , pdtFieldName :: String
         }
 
-    pub def readAndStoreOtoMappings(src: System.FilePath): DbMonad[List[OtoMappingRow]] =
+    pub def readAndStoreOtoMappings(src: FilePath): DbMonad[List[OtoMappingRow]] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> readOtoMappings(src));
         let* _      = insertOtoMappings(ans);
@@ -46,7 +48,7 @@ namespace PDTKit/Configuration/ReadOtoMappingsXlsx {
 
     /// s4_equi_class,s4_equi_char,pdt_field_name
     /// pdt_field_name maybe be blank - drop.
-    def readOtoMappings(src: System.FilePath): Result[List[OtoMappingRow], String] & Impure = 
+    def readOtoMappings(src: FilePath): Result[List[OtoMappingRow], String] & Impure = 
         use Result.flatMap;
         let* tabs = SheetIO/SheetReader.runXlsx(SheetIO/SheetReader.getSheetNames(), src);
         let* ans  = SheetIO/Reader.someNamedRowsOfSheets(evalOtoMappingRow(), tabs, src);

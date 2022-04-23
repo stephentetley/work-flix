@@ -16,8 +16,8 @@
 
 namespace Aruba/Aib/Hierarchy {
 
-    use Data.RoseForest;
-    use Data.RoseTree.{Node};
+    use FlixSandbox.RoseForest;
+    use FlixSandbox.RoseTree.{Node};
     use RelLib/Lattice/LongestString.{LongestString};
     use Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibFlocLevel, AibEquiType};
 

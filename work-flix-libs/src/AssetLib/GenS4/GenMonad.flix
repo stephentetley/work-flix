@@ -145,6 +145,14 @@ namespace AssetLib/GenS4/GenMonad {
         )
 
 
+    pub def liftResult(f: Unit -> Result[a, String]): GenMonad[a] = 
+        GenMonad((st, w, _) -> 
+            match (f() as & Impure) {
+                case Ok(ans) => Ok((st, w, ans))
+                case Err(msg) => Err(msg)
+            }            
+        )
+
     pub def genEqui(f: (String, Time.LocalDate) -> SLEquipment & ef): GenMonad[EquiRef] = 
         GenMonad((st, w, r) -> 
             let equiId = "$" + ToString.toString(st);

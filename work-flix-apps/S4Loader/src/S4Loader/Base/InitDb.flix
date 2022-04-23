@@ -16,6 +16,7 @@
 
 namespace S4Loader/Base/InitDb {
 
+    use FlixSandbox/System.FilePath;
     use BasicDb.DbMonad;
 
     // # Properties Tables
@@ -87,7 +88,7 @@ namespace S4Loader/Base/InitDb {
     pub def createEquiClassListTables(): DbMonad[Unit] =
         AssetLib/FileIO/S4/ClassList/SQLite.createClassListTables(classListTableNames())
 
-    pub def storeEquiClassListData(src: System.FilePath): DbMonad[Int32] =
+    pub def storeEquiClassListData(src: FilePath): DbMonad[Int32] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> AssetLib/FileIO/S4/ClassList/Builder.readEquiClassRecords(src));
         let* n      = AssetLib/FileIO/S4/ClassList/SQLite.storeClassListData(classListTableNames(), ans);

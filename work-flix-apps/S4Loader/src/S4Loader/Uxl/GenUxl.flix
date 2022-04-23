@@ -16,13 +16,15 @@
 
 namespace S4Loader/Uxl/GenUxl {
 
+    use FlixSandbox/System.FilePath;
+
     use SheetIO/Reader.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{UxlOutput};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
 
     pub def generatePDTUxl(outputArgs: UxlOutputArgs, 
-                            src: { dbpath :: System.FilePath, flocsrc :: XlsxSource, equisrc :: XlsxSource }): Result[Unit, String] & Impure = 
+                            src: { dbpath :: FilePath, flocsrc :: XlsxSource, equisrc :: XlsxSource }): Result[Unit, String] & Impure = 
         use Result.flatMap;
         let* flocbatches    = S4Loader/Floc/GenUxl.genFlocUxlBatches(src.flocsrc);
         let* equibatches    = S4Loader/PDT/GenUxl.genEquiUxlBatches(src.dbpath, src.equisrc);

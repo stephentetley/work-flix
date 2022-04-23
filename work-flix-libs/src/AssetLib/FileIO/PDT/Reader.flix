@@ -19,17 +19,19 @@ namespace AssetLib/FileIO/PDT/Reader {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use SheetIO.Sheet;
     use SheetIO.SheetReader;
     use SheetIO.RowEvaluator;
 
     use AssetLib/FileIO/PDT/Datatypes.{FieldValue, PDTValueRow, ADTHeaderRow, ADTParamRow};
 
-    pub def readFieldValuesAll(srcs: List[System.FilePath]): Result[#{FieldValue | r}, String] & Impure = 
+    pub def readFieldValuesAll(srcs: List[FilePath]): Result[#{FieldValue | r}, String] & Impure = 
         Result.traverse(readFieldValues, srcs)
             |> Result.map(RelLib/Relation.combineAll)
 
-    pub def readFieldValues(src: System.FilePath): Result[#{FieldValue | r}, String] & Impure = 
+    pub def readFieldValues(src: FilePath): Result[#{FieldValue | r}, String] & Impure = 
         use SheetIO/SheetReader.{flatMap, point};
         let body = () -> { 
             let fileName    = getFileName(src);
@@ -40,9 +42,9 @@ namespace AssetLib/FileIO/PDT/Reader {
         SheetIO/SheetReader.runXlsx(body(), src)
 
     /// Defaults to input if supplied a folder
-    def getFileName(src: System.FilePath): String = 
+    def getFileName(src: FilePath): String = 
         src 
-            |> System/FilePath.getFileName 
+            |> FlixSandbox/System/FilePath.getFileName 
             |> Option.getWithDefault(src) 
             |> ToString.toString
 
@@ -69,11 +71,11 @@ namespace AssetLib/FileIO/PDT/Reader {
         }
 
 
-    pub def readADTHeaderRowsAll(srcs: List[System.FilePath]): Result[List[ADTHeaderRow], String] & Impure = 
+    pub def readADTHeaderRowsAll(srcs: List[FilePath]): Result[List[ADTHeaderRow], String] & Impure = 
         Result.traverse(readADTHeaderRows, srcs)
             |> Result.map(List.flatten)
 
-    def readADTHeaderRows(src: System.FilePath): Result[List[ADTHeaderRow], String] & Impure = 
+    def readADTHeaderRows(src: FilePath): Result[List[ADTHeaderRow], String] & Impure = 
         let fileName    = getFileName(src);
         SheetIO/SheetReader.runXlsx(readADTSheetHeaders(fileName), src)
 
@@ -97,11 +99,11 @@ namespace AssetLib/FileIO/PDT/Reader {
             point({fileName = fileName, rowNumber = x1, metaName = x2, metaValue = x3})
         }
 
-    pub def readADTParamDataAll(srcs: List[System.FilePath]): Result[List[ADTParamRow], String] & Impure = 
+    pub def readADTParamDataAll(srcs: List[FilePath]): Result[List[ADTParamRow], String] & Impure = 
         Result.traverse(readADTParamData, srcs)
             |> Result.map(List.flatten)
 
-    def readADTParamData(src: System.FilePath): Result[List[ADTParamRow], String] & Impure = 
+    def readADTParamData(src: FilePath): Result[List[ADTParamRow], String] & Impure = 
         let fileName    = getFileName(src);
         SheetIO/SheetReader.runXlsx(readADTSheetParams(fileName), src)
 

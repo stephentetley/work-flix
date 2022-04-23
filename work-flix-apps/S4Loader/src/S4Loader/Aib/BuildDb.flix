@@ -18,6 +18,7 @@ namespace S4Loader/Aib/BuildDb {
 
     use Monad.{>>=};
 
+    use FlixSandbox/System.FilePath;
     use Time.LocalDate;
 
     use BasicDb.DbMonad;
@@ -35,11 +36,11 @@ namespace S4Loader/Aib/BuildDb {
     rel AibType(propName: String, aibType: String)
 
 
-    pub def generateProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): DbMonad[Int32] = 
+    pub def generateProperties(input: {typesCsv :: FilePath, exports :: List[XlsxSource]}): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> readProperties(input)) >>= S4Loader/Base/StoreProperties.storeProperties
 
-    pub def readProperties(input: {typesCsv :: System.FilePath, exports :: List[XlsxSource]}): Result[S4Properties[r1], String] & Impure = 
+    pub def readProperties(input: {typesCsv :: FilePath, exports :: List[XlsxSource]}): Result[S4Properties[r1], String] & Impure = 
         use Result.flatMap;        
         let* r1     = readAibTypes(input.typesCsv);
         let* rs     = Result.traverse(readAibExport, input.exports);
@@ -50,13 +51,13 @@ namespace S4Loader/Aib/BuildDb {
             |> Array.foreach(println);
         Ok(props)
 
-    pub def readAibTypes(src: System.FilePath): Result[#{AibType | r}, String] & Impure = 
+    pub def readAibTypes(src: FilePath): Result[#{AibType | r}, String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringAt};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
         let eval = Applicative.product(getStringAt(0), getStringAt(1));
         let mk1 = xy -> {let (x,y) = xy; #{ AibType(x, y). }};
-        let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
+        let* rows = CsvIO/CsvReader.readCsv(format, FlixSandbox/Text/Charset.utf_8(), eval, src);
         let relns = RelLib/Relation.foldMap(mk1, rows);
         Ok(relns)
     
@@ -121,18 +122,18 @@ namespace S4Loader/Aib/BuildDb {
         , s4Char :: String
         }
 
-    pub def storePropertyAliases(src: System.FilePath): DbMonad[Int32] = 
+    pub def storePropertyAliases(src: FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> readPropertyAliases(src)) >>= insertPropertyAliases
 
 
-    pub def readPropertyAliases(src: System.FilePath): Result[List[PropertyAlias], String] & Impure = 
+    pub def readPropertyAliases(src: FilePath): Result[List[PropertyAlias], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringAt};
         let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
         let eval = Applicative.liftA3((x, y, z) -> {aiName = x, s4Class = y, s4Char = z}, 
                                             getStringAt(0), getStringAt(1), getStringAt(2));
-        CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src)
+        CsvIO/CsvReader.readCsv(format, FlixSandbox/Text/Charset.utf_8(), eval, src)
         
 
     pub def insertPropertyAliases(xs: List[PropertyAlias]): DbMonad[Int32] = 
@@ -166,13 +167,13 @@ namespace S4Loader/Aib/BuildDb {
 
     // # ZTables
 
-    pub def storeZTableManuf(src: System.FilePath): DbMonad[Int32] = 
+    pub def storeZTableManuf(src: FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadManufacturerModel(src))
             >>= AssetLib/FileIO/S4/ZTable/SQLite.storeManufacturerModel("ztable_manuf")
 
 
-    pub def storeZTableObj(src: System.FilePath): DbMonad[Int32] = 
+    pub def storeZTableObj(src: FilePath): DbMonad[Int32] = 
         use BasicDb/DbMonad.{liftActionResult};
         liftActionResult(_ -> AssetLib/FileIO/S4/ZTable/Builtins.loadObjTypeManufacturer(src))
             >>= AssetLib/FileIO/S4/ZTable/SQLite.storeObjTypeManufacturer("ztable_obj")

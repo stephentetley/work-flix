@@ -16,8 +16,8 @@
 
 namespace Aruba/Common/Provenance {
 
-    use Data.RoseForest;
-    use Data.RoseTree.{Node};    
+    use FlixSandbox.RoseForest;
+    use FlixSandbox.RoseTree.{Node};    
     use PlantUml/Creole.Creole;
 
     use Aruba/S4/Base.{S4Floc, S4Equi};

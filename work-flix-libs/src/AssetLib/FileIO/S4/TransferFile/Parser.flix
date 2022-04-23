@@ -21,6 +21,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use Functor.{map, ignore};
     use Applicative.{*>};
 
+    use FlixSandbox/System.FilePath;
     use Time.LocalDateTime;
 
     use FlixParsec.Parser;
@@ -37,8 +38,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
     /// Always UTF-8?
-    pub def parseFile(path: System.FilePath) : Result[TransferFile, String] & Impure = 
-        FlixParsec/Extras.parsesFile(transferFileParser(), 4, path, Text/Charset.utf_8())
+    pub def parseFile(path: FilePath) : Result[TransferFile, String] & Impure = 
+        FlixParsec/Extras.parsesFile(transferFileParser(), 4, path, FlixSandbox/Text/Charset.utf_8())
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.

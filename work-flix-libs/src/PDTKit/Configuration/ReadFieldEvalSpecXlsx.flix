@@ -21,6 +21,8 @@ namespace PDTKit/Configuration/ReadFieldEvalSpecXlsx {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
+
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
@@ -41,13 +43,13 @@ namespace PDTKit/Configuration/ReadFieldEvalSpecXlsx {
         , sample :: String
         }
 
-    pub def readAndStoreFieldEvalSpecs(src: System.FilePath): DbMonad[List[FieldEvalRow]] =
+    pub def readAndStoreFieldEvalSpecs(src: FilePath): DbMonad[List[FieldEvalRow]] =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> readFieldEvals(src));
         let* _      = insertPdtFieldEvaluators(ans);
         point(ans)
 
-    def readFieldEvals(src: System.FilePath): Result[List[FieldEvalRow], String] & Impure = 
+    def readFieldEvals(src: FilePath): Result[List[FieldEvalRow], String] & Impure = 
         use Result.flatMap;
         use SheetIO/NamedRowEvaluator.{optional};
         let* tabs = SheetIO/SheetReader.runXlsx(SheetIO/SheetReader.getSheetNames(), src);

@@ -16,6 +16,8 @@
 
 namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
 
+    use FlixSandbox/System.FilePath;
+
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{EntityType, DataRow, 
         ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.FileType.{Upload};
@@ -28,7 +30,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
                             , user: String
                             , headers: Array[String]
                             , rows: List[DataRow]
-                            , outpath: System.FilePath): Result[Unit, String] & Impure = 
+                            , outpath: FilePath): Result[Unit, String] & Impure = 
         use AssetLib/FileIO/S4/TransferFile/Printer.{writeTransferFile};
         let fileHeader =  
             { fileType      = Upload

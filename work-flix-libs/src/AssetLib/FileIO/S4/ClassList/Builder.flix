@@ -16,18 +16,20 @@
 
 namespace AssetLib/FileIO/S4/ClassList/Builder {
 
+    use FlixSandbox/System.FilePath;
+
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListRow};
     use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow};
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
 
-    pub def readEquiClassRecords(src: System.FilePath): Result[ClassRecords, String] & Impure = 
+    pub def readEquiClassRecords(src: FilePath): Result[ClassRecords, String] & Impure = 
         use Result.flatMap;
         let* xs = AssetLib/FileIO/S4/ClassList/EquiParser.parseFile(src);
         let ans = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);
         Ok(ans)
 
-    pub def readFlocClassRecords(src: System.FilePath): Result[ClassRecords, String] & Impure = 
+    pub def readFlocClassRecords(src: FilePath): Result[ClassRecords, String] & Impure = 
         use Result.flatMap;
         let* xs = AssetLib/FileIO/S4/ClassList/FlocParser.parseFile(src);
         let ans = AssetLib/FileIO/S4/ClassList/Builder.buildRecords(xs);

@@ -114,7 +114,7 @@ namespace AssetLib/GenS4/GenUxl {
         use Result.{flatMap};
         let strIndex = i -> String.padLeft(2, '0', "${i}");
         let step = (ix, uxl) -> { 
-            let path    = System/FilePath.mapBaseName(s -> s + "_${strIndex(ix)}", outputArgs.outpath);
+            let path    = FlixSandbox/System/FilePath.mapBaseName(s -> s + "_${strIndex(ix)}", outputArgs.outpath);
             let crname  = String.replace(from = "##", to = strIndex(ix),  outputArgs.changeRequestName);
             let args    = {outpath = path, changeRequestName = crname, uxlTemplate = outputArgs.uxlTemplate};
             let* _      = AssetLib/S4Lite/EmitUxl.outputMocrUxl(args, uxl);

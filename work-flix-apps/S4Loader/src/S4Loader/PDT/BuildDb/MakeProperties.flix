@@ -19,6 +19,7 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
     use Functor.{<$>};
     use Applicative.{<*>};
 
+    use FlixSandbox/System.FilePath;
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 
@@ -31,7 +32,7 @@ namespace S4Loader/PDT/BuildDb/MakeProperties {
     
 
     /// Reads from another SQLite db...
-    pub def readPDTRawValues(path: {pathToPdtDb :: System.FilePath}, viewName: String): DbMonad[#{PDTRawValue| r}] = 
+    pub def readPDTRawValues(path: {pathToPdtDb :: FilePath}, viewName: String): DbMonad[#{PDTRawValue| r}] = 
         let sql = "SELECT item_name, pdt_class_name, field_name, field_value FROM ${viewName} ORDER BY item_name;";
         BasicDb/DbMonad.localSQLiteConnection(path.pathToPdtDb, BasicDb/Reader.allRelations(evalPDTRawValue(), sql))
 

@@ -19,6 +19,8 @@
 namespace S4Loader/App/PdtInit {
 
     use Applicative.{*>};
+
+    use FlixSandbox/System.FilePath;
     use BasicDb.DbMonad;
     use SheetIO/Reader.{XlsxSource};
     use S4Loader/Base/Schema.{S4Properties, StringProperty, IntProperty, FloatProperty};
@@ -27,12 +29,12 @@ namespace S4Loader/App/PdtInit {
     /// Needs a `PDT Db` built by PDT new reader (Asset Lib)
     pub def makePdtDb(): Result[Bool, String] & Impure =
         use Result.flatMap;
-        let* srcdir     = S4Loader/App/Config.getWorkingDirectory() |> Result.map(flip(System/FilePath.snoc, "pdts"));
+        let* srcdir     = S4Loader/App/Config.getWorkingDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "pdts"));
         let srcs        = 
-            System/Directory.contents(srcdir) 
+            FlixSandbox/System/Directory.contents(srcdir) 
                 |> Result.getWithDefault(Nil) 
-                |> List.filter(x -> System/FilePath.getExtension(x) == Some("xlsx"));    
-        let* dst        = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "pdt_files.sqlite"));        
+                |> List.filter(x -> FlixSandbox/System/FilePath.getExtension(x) == Some("xlsx"));    
+        let* dst        = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "pdt_files.sqlite"));        
         let* _          = AssetLib/FileIO/PDT/SQLite.createPDTDatabase(srcs, dst);
         Ok(true)
 
@@ -43,33 +45,33 @@ namespace S4Loader/App/PdtInit {
         use BasicDb/DbMonad.{runSQLite};
         let* configSources  = getConfigSources();
         let* s4dir          = S4Loader/App/Config.getS4LoaderDirectory();
-        let pdtDb           = System/FilePath.snoc(s4dir, "pdt_files.sqlite");
-        let dst             = System/FilePath.snoc(s4dir, "s4loader.sqlite");
+        let pdtDb           = FlixSandbox/System/FilePath.snoc(s4dir, "pdt_files.sqlite");
+        let dst             = FlixSandbox/System/FilePath.snoc(s4dir, "s4loader.sqlite");
         let* _              = runSQLite(buildLoaderDb(configSources, pdtDb), dst);
         Ok(true)
 
 
     type alias ConfigSources = 
-        { equiClassList :: System.FilePath
-        , fieldEvals :: System.FilePath
-        , fieldValueEnums :: System.FilePath
-        , assetTypes :: System.FilePath
-        , otoMappings :: System.FilePath
+        { equiClassList :: FilePath
+        , fieldEvals :: FilePath
+        , fieldValueEnums :: FilePath
+        , assetTypes :: FilePath
+        , otoMappings :: FilePath
         }
          
 
     def getConfigSources(): Result[ConfigSources, String] & Impure= 
         use Result.flatMap;
         let* cfgpath    = S4Loader/App/Config.getAppConfigPath();
-        Ok({ equiClassList      = System/FilePath.snoc(cfgpath, "002-equi-class-list.txt")
-            , fieldEvals        = System/FilePath.snoc(cfgpath, "pdt_field_eval_specifications.xlsx")
-            , fieldValueEnums   = System/FilePath.snoc(cfgpath, "pdt_field_value_enum_specifications.xlsx")
-            , assetTypes        = System/FilePath.snoc(cfgpath, "pdt_asset_types.csv")
-            , otoMappings       = System/FilePath.snoc(cfgpath, "s4_to_pdt_one_to_one_mapping.xlsx")
+        Ok({ equiClassList      = FlixSandbox/System/FilePath.snoc(cfgpath, "002-equi-class-list.txt")
+            , fieldEvals        = FlixSandbox/System/FilePath.snoc(cfgpath, "pdt_field_eval_specifications.xlsx")
+            , fieldValueEnums   = FlixSandbox/System/FilePath.snoc(cfgpath, "pdt_field_value_enum_specifications.xlsx")
+            , assetTypes        = FlixSandbox/System/FilePath.snoc(cfgpath, "pdt_asset_types.csv")
+            , otoMappings       = FlixSandbox/System/FilePath.snoc(cfgpath, "s4_to_pdt_one_to_one_mapping.xlsx")
             })
         
 
-    def buildLoaderDb(metaSources: ConfigSources, pdtDb: System.FilePath): DbMonad[Unit] = 
+    def buildLoaderDb(metaSources: ConfigSources, pdtDb: FilePath): DbMonad[Unit] = 
         use BasicDb/DbMonad.{flatMap, point};
         let* _  = S4Loader/PDT/BuildDb.initDb();
         let* r1 = S4Loader/PDT/BuildDb.storeMetaData(metaSources);

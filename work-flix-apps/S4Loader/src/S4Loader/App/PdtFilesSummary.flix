@@ -19,8 +19,8 @@ namespace S4Loader/App/PdtFilesSummary {
     
     pub def pdtFilesSummary(): Result[Unit, String] & Impure =
         use Result.flatMap;
-        let* dbpath     = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(System/FilePath.snoc, "pdt_files.sqlite"));
-        let* outpath    = S4Loader/App/Config.getWorkingDirectory() |> Result.map(flip(System/FilePath.snoc, "pdt_summary.xlsx"));
+        let* dbpath     = S4Loader/App/Config.getS4LoaderDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "pdt_files.sqlite"));
+        let* outpath    = S4Loader/App/Config.getWorkingDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "pdt_summary.xlsx"));
         let* r1         = PDTKit/Aggregate/Loader.readAll(dbpath);
         let relns       = r1 <+> PDTKit/Aggregate/Rules.makeAggregates();
         let* _          = PDTKit/Aggregate/ExcelOutput.outputExcel(relns, outpath);

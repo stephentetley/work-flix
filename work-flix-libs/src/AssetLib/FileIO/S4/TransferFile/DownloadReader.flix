@@ -16,6 +16,8 @@
 
 namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
+    use FlixSandbox/System.FilePath;
+
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{TransferFile, DataRow, EntityType, Headers};
     use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator;
     use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator.{DownloadRowEvaluator};
@@ -26,7 +28,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
     /// Import rows of a FileDownload
     /// Builds relations from the List.
-    pub def readAllRows(rowp: DownloadRowEvaluator[r], path: System.FilePath): Result[List[r], String] & Impure = 
+    pub def readAllRows(rowp: DownloadRowEvaluator[r], path: FilePath): Result[List[r], String] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/FileIO/S4/TransferFile/Parser.parseFile(path);
         buildRows(rowp, ast)
