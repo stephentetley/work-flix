@@ -41,6 +41,8 @@ namespace AssetLib/FileIO/S4/ZTable {
 namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
 
     use FromString.fromString;
+
+    use Time/Format.DateTimeFormatter;
     
     use Text/RegexEval.MatchEvaluator;
 
@@ -169,19 +171,19 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
         let* s = getStringAt(ix);
         liftOption(fromString(s), "getFloat64At('${ix})")
 
-    pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
+    pub def getLocalDateAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.DateFormat]): RowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateAt(${ix})")
+        liftResult(Time/LocalDate.parse(formatter, input))
 
 
-    pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): RowEvaluator[Time.LocalDateTime] =
+    pub def getLocalDateTimeAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.DateTimeFormat]): RowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        liftOption(Time/LocalDateTime.parse(formatter, input), "getLocalDateTimeAt(${ix})")
+        liftResult(Time/LocalDateTime.parse(formatter, input))
 
 
-    pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): RowEvaluator[Time.LocalTime] =
+    pub def getLocalTimeAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.TimeFormat]): RowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeAt(${ix})")
+        liftResult(Time/LocalTime.parse(formatter, input))
 
 
 

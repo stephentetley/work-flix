@@ -84,9 +84,9 @@ namespace Aruba/S4/Import/IH06StructureList {
         let input1 = input as #{IH06Floc, IH06Equi, S4Floc, S4Equi, S4SubFloc, S4SubEqui, S4EquiLocation, S4FlocLevel};
         solve (rules <+> input1) project S4Floc, S4Equi, S4SubFloc, S4SubEqui, S4EquiLocation,  S4FlocLevel
 
-    def flocLevel(floc: String): Option[Int32] = 
-        use AssetLib/Base/S4/Floc.{level, new};
-        new(floc)
+    def flocLevel(s: String): Option[Int32] = 
+        use AssetLib/Base/S4/Floc.{level, floc};
+        floc(s)
             |> Result.map(level)
             |> Result.toOption
             

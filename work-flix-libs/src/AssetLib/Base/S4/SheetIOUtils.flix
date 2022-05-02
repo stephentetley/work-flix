@@ -23,8 +23,8 @@ namespace AssetLib/Base/S4/SheetIOUtils {
 
 
     pub def putS4DateAt!(ix: Int32, dt: Time.LocalDate): RowSetter[Unit] = 
-        use SheetIO/RowSetter.{flatMap, point, putStringAt!, liftOption};
-        let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "putS4DateAt! date format error");
+        use SheetIO/RowSetter.{flatMap, point, putStringAt!, liftResult};
+        let* fmt    = liftResult(Time/Format/DateTimeFormatter.fromPattern("dd.MM.yyyy"));
         let ans     = Time/LocalDate.format(fmt, dt);
         let* _      = putStringAt!(ix, ans);
         point()
@@ -42,10 +42,10 @@ namespace AssetLib/Base/S4/SheetIOUtils {
         putStringAt!(ix, s)
         
     pub def getS4LocalDateNamed(label: String): NamedRowEvaluator[Time.LocalDate] =
-        use SheetIO/NamedRowEvaluator.{flatMap, point, liftOption, getStringNamed};
-        let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "getS4LocalDateNamed date format error");
+        use SheetIO/NamedRowEvaluator.{flatMap, point, liftResult, getStringNamed};
+        let* fmt    = liftResult(Time/Format/DateTimeFormatter.fromPattern("dd.MM.yyyy"));
         let* s1     = getStringNamed(label); 
-        liftOption(Time/LocalDate.parse(fmt, s1), "getS4LocalDateNamed('${label}') - seen '${s1}'")
+        liftResult(Time/LocalDate.parse(fmt, s1))
 
     /// Must allows blank (false)
     pub def getS4BoolNamed(label: String): NamedRowEvaluator[Bool] = 

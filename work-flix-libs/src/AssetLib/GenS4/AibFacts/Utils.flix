@@ -55,9 +55,9 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     // e.g. "Feb 01 2010"
     pub def getMdyDateFact2(columnName: String, f: (String, Time.LocalDate) -> #{| reln}): NamedRowEvaluator[#{| reln}] =
-        use SheetIO/NamedRowEvaluator.{flatMap, point, getNonEmptyContentNamed, liftOption, getLocalDateNamedWithFormat};  
+        use SheetIO/NamedRowEvaluator.{flatMap, point, getNonEmptyContentNamed, liftResult, getLocalDateNamedWithFormat};  
         let* x1     = getNonEmptyContentNamed("Reference");
-        let* fmt    = liftOption(Time/Format/DateFormatter.ofPattern("MMM dd yyyy"), "getMdyDateFact2 - bad pattern");
+        let* fmt    = liftResult(Time/Format/DateTimeFormatter.fromPattern("MMM dd yyyy"));
         let* x2     = getLocalDateNamedWithFormat(columnName, fmt);
         point(f(x1, x2))
 
@@ -112,7 +112,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     pub def formatDateForS4(dt: Time.LocalDate): Option[String] = 
         use Option.{flatMap};
-        let* fmt = Time/Format/DateFormatter.ofPattern("dd.MM.yyyy");
+        let* fmt = Time/Format/DateTimeFormatter.fromPattern("dd.MM.yyyy") |> Result.toOption;
         let ans = Time/LocalDate.format(fmt, dt);
         Some(ans)
 

@@ -119,8 +119,8 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         use FlixParsec/Prim.{liftOption};
         let* d = symbol("* Date:")  *> lexeme(lookingAts("\\d{8}"));
         let* t = symbol("/ Time:")  *> lexeme(lookingAts("\\d{6}"));
-        let* fmt = liftOption(Time/Format/DateTimeFormatter.ofPattern("yyyyMMdd HHmmss"), "pDateTime");
-        let* ans = liftOption(Time/LocalDateTime.parse(fmt, d + " " + t), "pDateTime");
+        let* fmt = liftResult(Time/Format/DateTimeFormatter.fromPattern("yyyyMMdd HHmmss"));
+        let* ans = liftResult(Time/LocalDateTime.parse(fmt, d + " " + t));
         point(ans)
 
     def pEmptySelection(): Parser[t1, List[String]] = 

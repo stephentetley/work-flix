@@ -56,9 +56,9 @@ namespace AssetLib/FileIO/S4/IH06Tree/Builder {
         let level = getLevel(row.floc);
         EquiNode({ +level = level | row })
 
-    def getLevel(floc: String): Int32 = 
-        use AssetLib/Base/S4/Floc.{new, level};
-        Result.getWithDefault(0, Result.map(level, new(floc)))
+    def getLevel(s: String): Int32 = 
+        use AssetLib/Base/S4/Floc.{floc, level};
+        Result.getWithDefault(0, Result.map(level, floc(s)))
 
 
     def isChildNodeFloc(parentId: String, parentPointer: String): Bool = 

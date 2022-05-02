@@ -138,8 +138,8 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     def dateStamp(): Parser[t1, LocalDate] = 
         use FlixParsec/Prim.{flatMap};
         let* s = lookingAts("\\d{2}\\.\\d{2}\\.\\d{2}");
-        let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yy"),  "DateFormatter.fromPattern failed");
-        let* ans = liftOption(Time/LocalDate.parse(fmt, s), "LocalDate.parse failed");
+        let* fmt = liftResult(Time/Format/DateTimeFormatter.fromPattern("dd.MM.yy"));
+        let* ans = liftResult(Time/LocalDate.parse(fmt, s));
         point(ans)
 
 

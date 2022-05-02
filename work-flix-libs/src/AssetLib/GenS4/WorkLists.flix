@@ -52,7 +52,7 @@ namespace AssetLib/GenS4/WorkLists {
     def evalFlocWorkItem(): NamedRowEvaluator[FlocWorkItem] =
         use SheetIO/NamedRowEvaluator.{flatMap, point, map, getNonEmptyContentNamed, getTrimmedContentNamed, getInt32Named, optional, liftResult}; 
         use AssetLib/Base/S4/SheetIOUtils.{getS4LocalDateNamed}; 
-        let* floc           = getNonEmptyContentNamed("Functional Location");
+        let* floc1          = getNonEmptyContentNamed("Functional Location");
         let* name           = getNonEmptyContentNamed("Description");
         let* sainums        = getTrimmedContentNamed("Aib References (semi sep list)");
         let* installedFrom  = getS4LocalDateNamed("Installed From (dd.MM.yyyy)");
@@ -63,9 +63,9 @@ namespace AssetLib/GenS4/WorkLists {
         let* position       = optional(getInt32Named("Position"));
         let* ngr            = getNonEmptyContentNamed("NGR");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
-        let* objfloc        = liftResult(AssetLib/Base/S4/Floc.new(floc), msg -> msg);
+        let* objfloc        = liftResult(AssetLib/Base/S4/Floc.floc(floc1));
         let* batch          = optional(getInt32Named("Batch"));
-        point({ funcloc                = floc
+        point({ funcloc                = floc1
                 , description           = name
                 , level                 = AssetLib/Base/S4/Floc.level(objfloc)
                 , sainums               = stringList(sainums)

@@ -184,7 +184,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadRowSetter {
         putStringNamed!(label, toString(x)) `swapError` "putFloat64Named!('${label}')"
 
     pub def putS4DateNamed!(label: String, x: Time.LocalDate): UploadRowSetter[Unit] =
-        let* fmt = liftOption(Time/Format/DateFormatter.ofPattern("dd.MM.yyyy"), "putS4DateNamed!('${label}')");
+        let* fmt = liftResult(Time/Format/DateTimeFormatter.fromPattern("dd.MM.yyyy"));
         putStringNamed!(label, Time/LocalDate.format(fmt, x)) `swapError` "putS4DateNamed!('${label}')"
 
     pub def putS4BoolNamed!(label: String, x: Bool): UploadRowSetter[Unit] = 

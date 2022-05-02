@@ -95,15 +95,15 @@ namespace Aruba/S4/Import/GenWorkList {
         let input1 = input as #{WorkListFloc, WorkListEqui, S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
         solve (rules <+> input1) project S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel
 
-    def flocLevel(floc: String): Option[Int32] = 
-        use AssetLib/Base/S4/Floc.{new, level};
-        new(floc)
+    def flocLevel(s: String): Option[Int32] = 
+        use AssetLib/Base/S4/Floc.{floc, level};
+        floc(s)
             |> Result.map(level)
             |> Result.toOption
 
-    def flocParent(floc: String): String = 
-        use AssetLib/Base/S4/Floc.{new, parent};
-        match new(floc) {
+    def flocParent(s: String): String = 
+        use AssetLib/Base/S4/Floc.{floc, parent};
+        match floc(s) {
             case Ok(x1) => parent(x1) |> Option.map(ToString.toString) |> Option.getWithDefault("")
             case Err(_) => ""
         }

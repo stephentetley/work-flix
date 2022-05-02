@@ -29,7 +29,7 @@ namespace AssetLib/Gens4/Rules/FunctionalLocation {
 
     def genFloc1(x: FlocWorkItem): GenMonad[Unit] = 
         use AssetLib/GenS4/GenMonad.{flatMap, liftActionResult, tellSLFunctionalLocation};
-        let* floc   = liftActionResult(_ -> AssetLib/Base/S4/Floc.new(x.funcloc) as & Impure);
+        let* floc   = liftActionResult(_ -> AssetLib/Base/S4/Floc.floc(x.funcloc) as & Impure);
         let level   = AssetLib/Base/S4/Floc.level(floc);
         let super   = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> Option.getWithDefault("");
         tellSLFunctionalLocation( { funcloc               = x.funcloc

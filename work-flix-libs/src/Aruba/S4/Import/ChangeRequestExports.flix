@@ -94,9 +94,9 @@ namespace Aruba/S4/Import/ChangeRequestExports {
         let input1 = input as #{ExportFlocRow, ExportEquiRow, S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
         solve (rules <+> input1) project S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel
 
-    def flocLevel(floc: String): Option[Int32] = 
-        use AssetLib/Base/S4/Floc.{new, level};
-        new(floc)
+    def flocLevel(s: String): Option[Int32] = 
+        use AssetLib/Base/S4/Floc.{floc, level};
+        floc(s)
             |> Result.map(level)
             |> Result.toOption
 
