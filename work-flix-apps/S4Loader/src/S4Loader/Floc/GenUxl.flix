@@ -59,7 +59,7 @@ namespace S4Loader/Floc/GenUxl {
 
 
     def genSLFunctionalLocation(x: FlocWorkItemRow): SLFunctionalLocation = 
-        let floc    = AssetLib/Base/S4/Floc.new1(x.funcloc);
+        let floc    = AssetLib/Base/S4/Floc.floc1(x.funcloc);
         let level   = AssetLib/Base/S4/Floc.level(floc);
         let parent  = AssetLib/Base/S4/Floc.parent(floc) |> Option.map(ToString.toString) |> Option.getWithDefault("");
         { funcloc               = x.funcloc

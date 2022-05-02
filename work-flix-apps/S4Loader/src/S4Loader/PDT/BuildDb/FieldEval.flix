@@ -21,10 +21,10 @@ namespace S4Loader/PDT/BuildDb/FieldEval {
     use RelLib/Lattice/Constant.Constant;
     use RelLib/Lattice/Constant.Constant.{Bottom, Constant};
 
-    def ofOption(x: Option[a]): Constant[a] = match x { 
-        case Some(x1) => Constant(x1)
-        case None     => Bottom
-    }
+    /// def ofOption(x: Option[a]): Constant[a] = match x { 
+    ///     case Some(x1) => Constant(x1)
+    ///     case None     => Bottom
+    /// }
 
     def ofResult(x: Result[a, err]): Constant[a] = match x { 
         case Ok(x1) => Constant(x1)
@@ -67,8 +67,8 @@ namespace S4Loader/PDT/BuildDb/FieldEval {
     pub def dateLocalDate(s: String): Constant[Time.LocalDate] =  
         let fmt = Time/Format/DateTimeFormatter.iso_local_date_time();
         Time/LocalDateTime.parse(fmt, s) 
-            |> Option.map(Time/LocalDateTime.toLocalDate)
-            |> ofOption
+            |> Result.map(Time/LocalDateTime.toLocalDate)
+            |> ofResult
 
 
     pub def intInteger(s: String): Constant[Int32] = 

@@ -82,7 +82,7 @@ namespace S4Loader/PDT/GenUxl {
 
 
     def draftSLEquipment(x: EquiWorkItemRow): SLEquipment & Impure = 
-        let defaultDate = Time/LocalDate.new({year = 1970, month = 1, dayOfMonth = 1});
+        let defaultDate = Time/LocalDate.localDate({year = 1970, month = 1, dayOfMonth = 1});
         { equiId                = x.uid
         , category              = ""
         , description           = x.s4Name

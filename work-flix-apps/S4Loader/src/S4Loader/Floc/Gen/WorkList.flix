@@ -65,7 +65,7 @@ namespace S4Loader/Floc/Gen/WorkList {
         let* position       = optional(getInt32Named("Position"));
         let* ngr            = getNonEmptyContentNamed("NGR");
         let* solutionId     = getTrimmedContentNamed("Solution ID");
-        let objfloc         = AssetLib/Base/S4/Floc.new1(floc);
+        let objfloc         = AssetLib/Base/S4/Floc.floc1(floc);
         let* batch          = optional(getInt32Named("Batch"));
         point({ rowId                   = rowId
                 , funcloc               = floc

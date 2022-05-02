@@ -55,31 +55,31 @@ namespace S4Loader/Base/Utils {
     pub def isIsoLocalDateTimeValue(s: String): Bool = 
         let fmt = Time/Format/DateTimeFormatter.iso_local_date_time();
         match Time/LocalDateTime.parse(fmt, s) {
-            case Some(_) => true
-            case None    => false
+            case Ok(_)  => true
+            case Err(_) => false
         }
 
     /// Should only be called after `isIsoLocalDateTimeValue` has confirmed it is okay to parse
     pub def dateFromIsoLocalDateTime(s: String): Time.LocalDate = 
         let fmt = Time/Format/DateTimeFormatter.iso_local_date_time();
         Time/LocalDateTime.parse(fmt, s) 
-            |> Option.map(Time/LocalDateTime.toLocalDate)
-            |> Option.getWithDefault(fallbackDate())
+            |> Result.map(Time/LocalDateTime.toLocalDate)
+            |> Result.getWithDefault(fallbackDate())
 
     /// Should only be called after `isIsoLocalDateTimeValue` has confirmed it is okay to parse
     pub def dateStringFromIsoLocalDateTime(s: String): String = 
-        let fmt = Time/Format/DateFormatter.iso_local_date();
+        let fmt = Time/Format/DateTimeFormatter.iso_local_date();
         dateFromIsoLocalDateTime(s) 
             |> Time/LocalDate.format(fmt)
 
     // Stored as string e.g. "4/29/21 17:47"
     pub def excelDate(s: String): Option[Time.LocalDate] =
         use Option.flatMap;
-        let* fmt    = Time/Format/DateTimeFormatter.ofPattern("M/d/yy H:m");
-        let* dt     = Time/LocalDateTime.parse(fmt, s);
+        let* fmt    = Time/Format/DateTimeFormatter.fromPattern("M/d/yy H:m") |> Result.toOption;
+        let* dt     = Time/LocalDateTime.parse(fmt, s) |> Result.toOption;
         Some(Time/LocalDateTime.toLocalDate(dt))
 
     pub def fallbackDate(): Time.LocalDate = 
-        Time/LocalDate.new({year=1970, month=1, dayOfMonth=1})
+        Time/LocalDate.localDate({year=1970, month=1, dayOfMonth=1})
 
 }
