@@ -24,7 +24,7 @@ namespace S4Loader/App/Config {
     /// On Windows, paths retreived from env-vars might be quoted...
     pub def getAppPath(): Result[FilePath, String] & Impure = 
         use Result.flatMap;
-        let* var    = Environment.getVar("S4LOADER_HOME") |> flip(Option.toOk, "Env var `S4LOADER_HOME` not set");
+        let* var    = Environment.getVar("S4LOADER_HOME") |> Option.toOk("Env var `S4LOADER_HOME` not set");
         let path    = FlixSandbox/System/FilePath.filePath(var);
         let* exists = File.exists(path |> ToString.toString);
         if (exists) 
@@ -36,7 +36,7 @@ namespace S4Loader/App/Config {
         getAppPath() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, "config"))
 
     pub def getWorkingDirectory(): Result[FilePath, String] = 
-        Environment.getCurrentWorkingDirectory() |> Option.map(FlixSandbox/System/FilePath.filePath) |> flip(Option.toOk, "Could not get Current-Working-Directory")
+        Environment.getCurrentWorkingDirectory() |> Option.map(FlixSandbox/System/FilePath.filePath) |> Option.toOk("Could not get Current-Working-Directory")
 
     pub def getS4LoaderDirectory(): Result[FilePath, String] = 
         getWorkingDirectory() |> Result.map(flip(FlixSandbox/System/FilePath.snoc, ".s4loader"))
@@ -45,7 +45,7 @@ namespace S4Loader/App/Config {
 
     pub def makeS4LoaderDir(): Result[Bool, String] & Impure = 
         use Result.flatMap;
-        let* path1  = Environment.getCurrentWorkingDirectory() |> Option.map(FlixSandbox/System/FilePath.filePath) |> flip(Option.toOk, "No CWD");
+        let* path1  = Environment.getCurrentWorkingDirectory() |> Option.map(FlixSandbox/System/FilePath.filePath) |> Option.toOk("No CWD");
         let dest    = FlixSandbox/System/FilePath.snoc(path1, ".s4loader");
         let* exists = File.exists(ToString.toString(dest));
         if (not exists) 

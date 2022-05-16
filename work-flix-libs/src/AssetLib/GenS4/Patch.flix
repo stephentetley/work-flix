@@ -39,7 +39,7 @@ namespace AssetLib/GenS4/Patch {
 
     def patchEquipment1(patches: EquipmentPatches, equi: SLEquipment): Result[SLEquipment, String] = 
         use Result.flatMap;
-        let* fn = Option.toOk(Map.get(equi.equiId, patches), "cannot patch ${equi.equiId}");
+        let* fn = Map.get(equi.equiId, patches) |> Option.toOk("cannot patch ${equi.equiId}");
         Ok(fn(equi))
 
     /// TODO should this load its data from file rather than take a list?

@@ -35,7 +35,7 @@ namespace AssetLib/FileIO/S4/ClassList/EquiParser {
     pub def parseFile(src: FilePath): Result[List[ClassListRow], String] & Impure = 
         use Result.flatMap;
         let* buf    = FlixSandbox/System/File/BOM.openBufferedReaderWithBOM(src);
-        let* all    = FlixSandbox/System/File/BufferedReader.lines(buf) |> FlixSandbox/Deprecated/Cursor.toList!;
+        let all     = FlixSandbox/System/File/BufferedReader.lines(buf) |> Iterator.toList;
         let body    = all |> List.dropWhile(s -> not String.startsWith(prefix = "-----", s)) |> List.drop(1);
         Result.traverse(parseRow(), body)
         

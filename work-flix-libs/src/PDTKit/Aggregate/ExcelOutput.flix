@@ -60,7 +60,7 @@ namespace PDTKit/Aggregate/ExcelOutput {
                 |> Map.toList
                 |> List.map(snd)
                 |> List.append(PDTKit/Aggregate/Rules.columnsPrefix())
-                |> List.toArray;
+                |> flip(List.toArray, static);
         (classification, headers)
 
     pub def makeRows(relns: #{AggregateRow | r}): Array[(String, Map[String, String])] & Impure = 

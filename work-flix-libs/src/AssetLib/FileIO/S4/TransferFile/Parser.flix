@@ -154,7 +154,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
         let* _      = asterisk();
         let* nl     = makePattern("\\R");
         let* str    = restOfLine(true) |> map(s -> Text/Regex.replace(from = nl, to = "", s));
-        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> List.toArray);
+        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> flip(List.toArray, static));
         point(arr)
 
     
@@ -163,7 +163,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     def pDataRow(): Parser[t1, DataRow] = 
         let* tabnl  = makePatternWithFlags(".+?\\u0009\\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
         let* str    = lookingAt(tabnl);
-        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> List.toArray |> Array.dropRight(1));
+        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> flip(List.toArray, static) |> Array.dropRight(1));
         point(arr)
 
 }
