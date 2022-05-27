@@ -15,23 +15,22 @@
  */
 
 
-namespace S4Loader/PDT/Rules/EquiClasses/ACTU {
+namespace S4Loader/PDT/Rules/EquiClasses/PSTN {
 
     use S4Loader/Base/Schema.{DirectMapping};
     use S4Loader/PDT/Rules/EquiClasses/OneToOneMapping.{directMapping, property, makeRelations};
     
-    pub def all(): #{DirectMapping | r} = actuem()
+    pub def all(): #{DirectMapping | r} = pstndi()
 
-    pub def actuem(): #{DirectMapping | r} = 
-        directMapping("ACTUEM",                         "Electric Motor Actuator")
-            |> property("ACTU_ATEX_CODE",                   "ATEX Code")
+    pub def pstndi(): #{DirectMapping | r} = 
+        directMapping("PSTNDI",                         "Diaphragm Type Pressure Device")
             |> property("IP_RATING",                        "IP Rating")
-            |> property("INSULATION_CLASS_DEG_C",           "Insulation Class (°c)")
-            |> property("ACTU_RATED_POWER_KW",              "Rated Power (kW)")
-            |> property("ACTU_NUMBER_OF_PHASE",             "Number of Phase")
-            |> property("ACTU_RATED_VOLTAGE",               "Rated Voltage")
-            |> property("ACTU_RATED_VOLTAGE_UNITS",         "Rated Voltage Units")        
+            |> property("PSTN_SIGNAL_TYPE",                 "Output Signal Type")	
+            |> property("PSTN_RANGE_MAX",                   "Range Max")
+            |> property("PSTN_RANGE_MIN",                   "Range Min")
+            |> property("PSTN_RANGE_UNITS",                 "Range Unit")
+            |> property("PSTN_SUPPLY_VOLTAGE",              "Supply Voltage")
+            |> property("PSTN_SUPPLY_VOLTAGE_UNITS",        "Supply Voltage Units")
             |> makeRelations
 
- 
 }

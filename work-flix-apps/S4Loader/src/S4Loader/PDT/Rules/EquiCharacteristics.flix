@@ -61,7 +61,28 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
                 EquiObjectClass(uid, _, _, equiClass),
                 PdtOneToOneMapping(equiClass, charName, pdtFieldName),
                 DateProperty(uid, pdtFieldName, value).
+/*
+            
+            EquiCharacteristic(uid, s4ClassName, s4CharName, S4String(value)) :-
+                PdtWorkItem(uid, pdtAssetType),
+                DirectMapping(pdtAssertType, pdtStringProperty, s4ClassName, s4CharName),
+                PdtStringProperty(uid, pdtStringProperty, value).
 
+            EquiCharacteristic(uid, s4ClassName, s4CharName, S4Int(value)) :-
+                PdtWorkItem(uid, pdtAssetType),
+                DirectMapping(pdtAssertType, pdtIntProperty, s4ClassName, s4CharName),
+                PdtIntProperty(uid, pdtIntProperty, value).
+
+            EquiCharacteristic(uid, s4ClassName, s4CharName, S4Float(value)) :-
+                PdtWorkItem(uid, pdtAssetType),
+                DirectMapping(pdtAssertType, pdtFloatProperty, s4ClassName, s4CharName),
+                PdtFloatProperty(uid, pdtFloatProperty, value).
+
+            EquiCharacteristic(uid, equiClass, charName, S4Date(value)) :-
+                PdtWorkItem(uid, pdtAssetType),
+                DirectMapping(pdtAssertType, pdtDateField, s4ClassName, s4CharName),
+                PdtDateProperty(uid, pdtDateField, value).
+*/
 
             /// Special - uses "Tank Shape" has been converted as an enum to the appropriate class
             EquiCharacteristic(uid, tankShapeClass, charName, S4Float(value)) :-
