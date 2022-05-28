@@ -26,8 +26,11 @@ namespace S4Loader/Uxl/GenUxl {
     pub def generatePDTUxl(outputArgs: UxlOutputArgs, 
                             src: { dbpath :: FilePath, flocsrc :: XlsxSource, equisrc :: XlsxSource }): Result[Unit, String] & Impure = 
         use Result.flatMap;
+        println("generatePDTUxl.001");
         let* flocbatches    = S4Loader/Floc/GenUxl.genFlocUxlBatches(src.flocsrc);
+        println("generatePDTUxl.002");
         let* equibatches    = S4Loader/PDT/GenUxl.genEquiUxlBatches(src.dbpath, src.equisrc);
+        println("generatePDTUxl.003");
         let* _              = emitUxl(outputArgs, combineBatches(flocbatches, equibatches));
         Ok()
 

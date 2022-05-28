@@ -26,7 +26,7 @@ namespace S4Loader/PDT/GenUxl {
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText, EquiCharacteristic};
     
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, PropertyAlias, 
-        PdtOneToOneMapping, EquiObjectClass};
+        EquiCharMapping, EquiObjectClass};
     use S4Loader/PDT/Gen/ReadDb.{PersistentRelations};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItemRow, EquiWorkItem};
     use S4Loader/PDT/Rules/EquiAttributes.{EquiAttributes};
@@ -36,16 +36,17 @@ namespace S4Loader/PDT/GenUxl {
     pub def genEquiUxlBatches(dbpath: FilePath, worklist: XlsxSource): Result[Map[Int32, UxlOutput], String] & Impure =
         use Result.{flatMap};
         let* workitems      = S4Loader/PDT/Gen/WorkList.readEquiWorkList(worklist);
+        println("workitems count: ${List.length(workitems)}");
         let groups          = List.foldLeft((m, x1) -> Map.insertWith(Chain.append, x1.batchNumber, Chain.singleton(x1), m), 
                                             Map.empty(), workitems);
-        let* db             = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);                                          
+        let* db             = BasicDb/DbMonad.runSQLite(S4Loader/PDT/Gen/ReadDb.readDbAll(), dbpath);
         let output          = Map.map(Chain.toList >> genUxl1(db), groups);
         Ok(output)
 
     /// This is a union of all relations used - it needs updating every time a new relation / lattice
     /// is added to the Rules - this is a pain, hopefully Flix gets extended with input output types for relations...
     type alias UnionSchema[r1: SchemaRow] = 
-        #{EquiLongText, EquiCharacteristic, EquiWorkItem, PropertyAlias, PdtOneToOneMapping, EquiObjectClass,
+        #{EquiLongText, EquiCharacteristic, EquiWorkItem, PropertyAlias, EquiCharMapping, EquiObjectClass,
             StringProperty, IntProperty, FloatProperty, DateProperty, 
             EquiAttributes,
             LongText
@@ -59,13 +60,20 @@ namespace S4Loader/PDT/GenUxl {
                                 <+> S4Loader/PDT/Rules/EquiCommon.equiCommon() 
                                 <+> S4Loader/PDT/Rules/EquiCharacteristics.equiCharacteristics()
                                 <+> S4Loader/PDT/Rules/EquiLongText.equiLongText()
-                                <+> S4Loader/PDT/Rules/EquiAttributes.equiAttributes();
+                                <+> S4Loader/PDT/Rules/EquiAttributes.equiAttributes()
+                                <+> allCharMappings();
         let equiPatches     = (solve db project EquiAttributes) |> S4Loader/PDT/Rules/EquiAttributes.toAttributePatches;
         let equiLongTexts   = (solve db project EquiLongText) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiLongTexts;
         let equiChars       = (solve db project EquiCharacteristic) |> AssetLib/S4Lite/S4LiteRelations.toSLEquiCharacteristics;
         let uxl             = AssetLib/S4Lite/Datatypes.emptyUxlOutput();
         let equis           = List.map(makeEquipment1(equiPatches), workitems) |> List.toChain;
         {equipment = equis, equiLongTexts = equiLongTexts, equiCharacteristics = equiChars | uxl}
+
+
+    def allCharMappings(): #{EquiCharMapping | r} = 
+            S4Loader/PDT/Rules/EquiClasses/ACTU.all()
+        <+> S4Loader/PDT/Rules/EquiClasses/ANAL.all()
+        <+> S4Loader/PDT/Rules/EquiClasses/PSTN.all()
 
     def makeEquipment1(attrsAll: Map[String, Map[String, AttributeValue]], workitem: EquiWorkItemRow): SLEquipment & Impure =
         draftSLEquipment(workitem)

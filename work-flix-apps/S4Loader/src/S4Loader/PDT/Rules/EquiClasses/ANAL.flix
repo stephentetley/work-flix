@@ -17,10 +17,10 @@
 
 namespace S4Loader/PDT/Rules/EquiClasses/ANAL {
 
-    use S4Loader/Base/Schema.{DirectMapping};
+    use S4Loader/Base/Schema.{EquiCharMapping};
     use S4Loader/PDT/Rules/EquiClasses/OneToOneMapping.{OneToOneMappingBuilder, directMapping, property, makeRelations};
     
-    pub def all(): #{DirectMapping | r} = analal()
+    pub def all(): #{EquiCharMapping | r} = analal()
 
     def commonProperties(): OneToOneMappingBuilder =
         property("ANAL_SIGNAL_TYPE",                 "Output Signal Type")
@@ -30,7 +30,7 @@ namespace S4Loader/PDT/Rules/EquiClasses/ANAL {
 
 
     /// Aluminium (Ion) Analyser
-    pub def analal(): #{DirectMapping | r} = 
+    pub def analal(): #{EquiCharMapping | r} = 
         directMapping("ANALAL",                         "Aluminium (Ion) Analyser")
             |> commonProperties()
             |> property("ANAL_INSTRUMENT_POWER_W",          "Instrument Power (W)")

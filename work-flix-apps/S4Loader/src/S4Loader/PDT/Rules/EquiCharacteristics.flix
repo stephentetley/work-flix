@@ -20,12 +20,12 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.CharValue.{S4String, S4Int, S4Float, S4Date};
 
-    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass};
+    use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, EquiCharMapping, PropertyAlias, EquiObjectClass};
     use S4Loader/PDT/Gen/WorkList.{EquiWorkItem};
 
 
     pub type alias EquiCharacteristicSchema[r1: SchemaRow] = 
-        #{EquiWorkItem, StringProperty, IntProperty, PdtOneToOneMapping, PropertyAlias, EquiObjectClass, 
+        #{EquiWorkItem, StringProperty, IntProperty, EquiCharMapping, PropertyAlias, EquiObjectClass, 
             EquiCharacteristic | r1}
 
 
@@ -35,54 +35,58 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
         #{            
 
-            /// One-to-one Mappings
-            /// Check table `meta_pdt_oto_mappings` if suspected characteristic is 
-            /// missing in output...
-            EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-                StringProperty(uid, pdtFieldName, value).
+            /// /// One-to-one Mappings
+            /// /// Check table `meta_pdt_oto_mappings` if suspected characteristic is 
+            /// /// missing in output...
+            /// EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
+            ///     EquiWorkItem(uid, _),
+            ///     EquiObjectClass(uid, _, _, equiClass),
+            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+            ///     StringProperty(uid, pdtFieldName, value).
 
-            EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-                IntProperty(uid, pdtFieldName, value).
+            /// EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
+            ///     EquiWorkItem(uid, _),
+            ///     EquiObjectClass(uid, _, _, equiClass),
+            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+            ///     IntProperty(uid, pdtFieldName, value).
 
-            EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-                FloatProperty(uid, pdtFieldName, value).
+            /// EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
+            ///     EquiWorkItem(uid, _),
+            ///     EquiObjectClass(uid, _, _, equiClass),
+            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+            ///     FloatProperty(uid, pdtFieldName, value).
 
-            EquiCharacteristic(uid, equiClass, charName, S4Date(value)) :-
-                EquiWorkItem(uid, _),
-                EquiObjectClass(uid, _, _, equiClass),
-                PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-                DateProperty(uid, pdtFieldName, value).
-/*
+            /// EquiCharacteristic(uid, equiClass, charName, S4Date(value)) :-
+            ///     EquiWorkItem(uid, _),
+            ///     EquiObjectClass(uid, _, _, equiClass),
+            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
+            ///     DateProperty(uid, pdtFieldName, value).
+
             
             EquiCharacteristic(uid, s4ClassName, s4CharName, S4String(value)) :-
-                PdtWorkItem(uid, pdtAssetType),
-                DirectMapping(pdtAssertType, pdtStringProperty, s4ClassName, s4CharName),
-                PdtStringProperty(uid, pdtStringProperty, value).
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Asset Type", pdtAssertType),
+                EquiCharMapping(pdtAssertType, pdtStringProperty, s4ClassName, s4CharName),
+                StringProperty(uid, pdtStringProperty, value).
 
             EquiCharacteristic(uid, s4ClassName, s4CharName, S4Int(value)) :-
-                PdtWorkItem(uid, pdtAssetType),
-                DirectMapping(pdtAssertType, pdtIntProperty, s4ClassName, s4CharName),
-                PdtIntProperty(uid, pdtIntProperty, value).
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Asset Type", pdtAssertType),
+                EquiCharMapping(pdtAssertType, pdtIntProperty, s4ClassName, s4CharName),
+                IntProperty(uid, pdtIntProperty, value).
 
             EquiCharacteristic(uid, s4ClassName, s4CharName, S4Float(value)) :-
-                PdtWorkItem(uid, pdtAssetType),
-                DirectMapping(pdtAssertType, pdtFloatProperty, s4ClassName, s4CharName),
-                PdtFloatProperty(uid, pdtFloatProperty, value).
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Asset Type", pdtAssertType),
+                EquiCharMapping(pdtAssertType, pdtFloatProperty, s4ClassName, s4CharName),
+                FloatProperty(uid, pdtFloatProperty, value).
 
-            EquiCharacteristic(uid, equiClass, charName, S4Date(value)) :-
-                PdtWorkItem(uid, pdtAssetType),
-                DirectMapping(pdtAssertType, pdtDateField, s4ClassName, s4CharName),
-                PdtDateProperty(uid, pdtDateField, value).
-*/
+            EquiCharacteristic(uid, s4ClassName, s4CharName, S4Date(value)) :-
+                EquiWorkItem(uid, _),
+                StringProperty(uid, "Asset Type", pdtAssertType),
+                EquiCharMapping(pdtAssertType, pdtDateField, s4ClassName, s4CharName),
+                DateProperty(uid, pdtDateField, value).
+
 
             /// Special - uses "Tank Shape" has been converted as an enum to the appropriate class
             EquiCharacteristic(uid, tankShapeClass, charName, S4Float(value)) :-

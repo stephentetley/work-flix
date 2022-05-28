@@ -36,6 +36,9 @@ namespace S4Loader/Base/Schema {
     /// This is PDT specific...
     pub rel PdtOneToOneMapping(s4Class: String, s4Chararacteristic: String, pdtFieldName: String)
 
+    /// This is PDT specific...
+    pub rel EquiCharMapping(pdtObjectType: String, pdtStringProperty: String, s4ClassName: String, s4CharName: String)
+
 
     /// Maybe this is PDT specific...
     pub rel EquiObjectClass(uid: String, s4Category: String, s4Object: String, s4Class : String)

@@ -17,12 +17,12 @@
 
 namespace S4Loader/PDT/Rules/EquiClasses/PSTN {
 
-    use S4Loader/Base/Schema.{DirectMapping};
+    use S4Loader/Base/Schema.{EquiCharMapping};
     use S4Loader/PDT/Rules/EquiClasses/OneToOneMapping.{directMapping, property, makeRelations};
     
-    pub def all(): #{DirectMapping | r} = pstndi()
+    pub def all(): #{EquiCharMapping | r} = pstndi()
 
-    pub def pstndi(): #{DirectMapping | r} = 
+    pub def pstndi(): #{EquiCharMapping | r} = 
         directMapping("PSTNDI",                         "Diaphragm Type Pressure Device")
             |> property("IP_RATING",                        "IP Rating")
             |> property("PSTN_SIGNAL_TYPE",                 "Output Signal Type")	

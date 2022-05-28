@@ -34,7 +34,7 @@ namespace S4Loader/PDT/Gen/ReadDb {
             <*> readEquiObjectClasses()
             <*> S4Loader/Base/ReadProperties.readProperties()
         
-
+    /// TODO note needed...
     pub def readPdtOneToOneMappings(): DbMonad[#{PdtOneToOneMapping | r}] = 
         let sql = "SELECT mpom.s4_equi_class, mpom.s4_equi_char, mpom.pdt_field_name FROM meta_pdt_oto_mappings mpom;";
         BasicDb/Reader.allRelations(evalPdtOneToOneMapping(), sql)

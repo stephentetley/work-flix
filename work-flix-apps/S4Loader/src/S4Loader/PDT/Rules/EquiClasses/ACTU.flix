@@ -17,12 +17,12 @@
 
 namespace S4Loader/PDT/Rules/EquiClasses/ACTU {
 
-    use S4Loader/Base/Schema.{DirectMapping};
+    use S4Loader/Base/Schema.{EquiCharMapping};
     use S4Loader/PDT/Rules/EquiClasses/OneToOneMapping.{directMapping, property, makeRelations};
     
-    pub def all(): #{DirectMapping | r} = actuem()
+    pub def all(): #{EquiCharMapping | r} = actuem()
 
-    pub def actuem(): #{DirectMapping | r} = 
+    pub def actuem(): #{EquiCharMapping | r} = 
         directMapping("ACTUEM",                         "Electric Motor Actuator")
             |> property("ACTU_ATEX_CODE",                   "ATEX Code")
             |> property("IP_RATING",                        "IP Rating")
