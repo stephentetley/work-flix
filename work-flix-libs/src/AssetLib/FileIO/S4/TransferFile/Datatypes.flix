@@ -24,14 +24,14 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
     /// Potentially we now favour "File Upload" for modifications.
 
 
-    pub type alias TransferFile = 
+    pub type alias TransferFile[r] = 
         { fileHeader :: FileHeader
         , selection :: List[String]       /// uninterpreted
-        , headers :: Headers
-        , dataRows :: List[DataRow]
+        , headers :: Headers[r]
+        , dataRows :: List[DataRow[r]]
         }
 
-    pub type alias DataRow = Array[String]
+    pub type alias DataRow[r: Region] = Array[String, r]
 
     pub type alias FileHeader = 
         { fileType :: FileType
@@ -44,7 +44,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
 
 
     /// We want direct indexing...
-    pub type alias Headers = Array[String]
+    pub type alias Headers[r: Region] = Array[String, r]
     
     /// Possibly change to String?
     /// Generally we are now only concerned with Download files
@@ -83,14 +83,14 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
 
     instance FromString[EntityType] {
         pub def fromString(x: String): Option[EntityType] = match x {
-            case "FUNCLOC" => Some(FuncLoc)
+            case "FUNCLOC"   => Some(FuncLoc)
             case "CLASSFLOC" => Some(ClassFloc)
             case "VALUAFLOC" => Some(ValuaFloc)
-            case "IFLOTX" => Some(Iflotx)
-            case "EQUI" => Some(Equi)
+            case "IFLOTX"    => Some(Iflotx)
+            case "EQUI"      => Some(Equi)
             case "CLASSEQUI" => Some(ClassEqui)
             case "VALUAEQUI" => Some(ValuaEqui)
-            case "EQMLTEXT" => Some(Eqmltxt)
+            case "EQMLTEXT"  => Some(Eqmltxt)
             case _ => None
         }
     }

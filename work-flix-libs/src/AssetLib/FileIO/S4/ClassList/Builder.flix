@@ -106,7 +106,7 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
         use Text/RegexEval/MatchEvaluator.{getInt32Named};
         let* patt   = Text/Regex/Pattern.compile("(?<start>\\d+) \\- (?<end>\\d+)");
         let eval    = Applicative.product(getInt32Named("start"), getInt32Named("end"));
-        Text/RegexEval/Regex.contains(patt, eval, src)
+        Text/RegexEval/Regex.firstSubmatch(patt, eval, src)
 
 
         

@@ -20,7 +20,7 @@ namespace AssetLib/GenS4 {
 
     /// State (for id gen and Output) + Env
     /// Monad is impure so we can lift array handling into it
-    pub opaque type GenMonad[a] = (Int32, Output, Env) -> Result[(Int32, Output, a), String] & Impure
+    pub enum GenMonad[a]((Int32, Output, Env) -> Result[(Int32, Output, a), String] & Impure)
 
     instance Functor[GenMonad] { 
         pub def map(f: a -> b & ef, x: GenMonad[a]): GenMonad[b] & ef = 
@@ -54,7 +54,7 @@ namespace AssetLib/GenS4/GenMonad {
 
     pub type alias Output = UxlOutput
 
-    pub opaque type EquiRef = String
+    pub enum EquiRef(String)
 
     pub def withEquiRef(x: EquiRef, f: String -> a & ef): a & ef = 
         let EquiRef(x1) = x;

@@ -162,12 +162,12 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
 
     pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: MatchEvaluator[a]): DownloadRowEvaluator[a] =
         let* input = getStringNamed(label);
-        let* ans = liftActionResult(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
+        let* ans = liftActionResult(_ -> Text/RegexEval/Regex.matchAll(patt, eval, input));
         point(ans)
 
     pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: MatchEvaluator[a]): DownloadRowEvaluator[a] =
         let* input = getStringNamed(label);
-        let* ans = liftActionResult(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
+        let* ans = liftActionResult(_ -> Text/RegexEval/Regex.firstSubmatch(patt, eval, input));
         point(ans)
 
     pub def getInt8Named(label: String): DownloadRowEvaluator[Int8] =

@@ -95,7 +95,7 @@ namespace AssetLib/FileIO/S4/ClassList/FlocParser {
     def makeLineParser(regex: String, eval: MatchEvaluator[a]): LineParser[a] = 
         match Text/Regex/Pattern.compile(regex) { 
             case Err(msg) => constant(Err(msg))
-            case Ok(patt) => input -> Text/RegexEval/Regex.matches(patt, eval, input) as & Pure
+            case Ok(patt) => input -> Text/RegexEval/Regex.matchAll(patt, eval, input) as & Pure
         }
 
 

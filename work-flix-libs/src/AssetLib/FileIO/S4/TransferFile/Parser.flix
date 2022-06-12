@@ -38,13 +38,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
     /// Always UTF-8?
-    pub def parseFile(path: FilePath) : Result[TransferFile, String] & Impure = 
+    pub def parseFile(path: FilePath) : Result[TransferFile[r], String] & Impure = 
         FlixParsec/Extras.parsesFile(transferFileParser(), 4, path, FlixSandbox/Text/Charset.utf_8())
 
     /// TODO - there's scope for a robust parser that doesn't interpret the initial "header" lines and 
     /// just interprets the last one for column headings.
 
-    pub def transferFileParser(): Parser[t1, TransferFile] = 
+    pub def transferFileParser(): Parser[t1, TransferFile[r]] = 
         let* hdr = pHeader();
         let* sel = alt(pSelection(), pEmptySelection());        
         let* cols = pColumnHeaders();
@@ -150,20 +150,20 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     /// because `asterisk` can only see a token and there is no whitespace.
     /// Note - headers are `sepBy` tab
     /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
-    def pColumnHeaders(): Parser[t1, Headers] = 
+    def pColumnHeaders(r: Region[r]): Parser[t1, Headers[r]] \ Write(r) = 
         let* _      = asterisk();
         let* nl     = makePattern("\\R");
         let* str    = restOfLine(true) |> map(s -> Text/Regex.replace(from = nl, to = "", s));
-        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> flip(List.toArray, static));
+        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> flip(List.toArray, r));
         point(arr)
 
     
     /// Note - datarows are `sepEndBy` tab, hence dropRight(1)
     /// Also use `splitOn` rather than `split` because `split` coalesces adjacent splitters
-    def pDataRow(): Parser[t1, DataRow] = 
+    def pDataRow(r: Region[r]): Parser[t1, DataRow[r]] \ Write(r) = 
         let* tabnl  = makePatternWithFlags(".+?\\u0009\\R", Text/Regex/Pattern/Flag.Dotall :: Nil);
         let* str    = lookingAt(tabnl);
-        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> flip(List.toArray, static) |> Array.dropRight(1));
+        let* arr    = liftAction(_ -> String.splitOn({substr = Char.toString('\u0009')}, str) |> flip(List.toArray, r) |> Array.dropRight(1));
         point(arr)
 
 }

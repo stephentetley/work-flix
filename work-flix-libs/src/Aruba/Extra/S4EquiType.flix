@@ -29,7 +29,7 @@ namespace Aruba/Extra/S4EquiType {
         use Text/RegexEval/MatchEvaluator.{optional, getCaptureNamed};
         let* patt = Text/Regex/Pattern.compile("(?<equitype>EQUIPMENT: .+)$");
         let eval = getCaptureNamed("equitype");
-        match Text/RegexEval/Regex.contains(patt, eval, commonName) {
+        match Text/RegexEval/Regex.firstSubmatch(patt, eval, commonName) {
             /// Error means both "not found" and operational error - Regex API needs changing to support optional `evalContains`...
             case Err(_) => Ok(None)
             case Ok(s) => Ok(Some(s))

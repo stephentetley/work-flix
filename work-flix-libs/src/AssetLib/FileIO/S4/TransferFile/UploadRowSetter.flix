@@ -51,7 +51,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadRowSetter {
     /// intended to be used in a loop...
     pub def runUploadRowSetter(indices: Map[String, Int32],
                          size: Int32,
-                         action: UploadRowSetter[a]): Result[(a, DataRow), String] & Impure =
+                         action: UploadRowSetter[a]): Result[(a, DataRow[r]), String] & Impure =
         use Result.{flatMap};
         let arr = Array.new("", size);
         let* ans = apply1(action, indices, arr);
@@ -61,7 +61,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadRowSetter {
     /// intended to be used in a loop... 
     pub def execUploadRowSetter(indices: Map[String, Int32],
                           size: Int32,
-                          action: UploadRowSetter[a]): Result[DataRow, String] & Impure =
+                          action: UploadRowSetter[a]): Result[DataRow[r], String] & Impure =
         use Result.{flatMap};
         let* (_, arr) = runUploadRowSetter(indices, size, action);
         Ok(arr)

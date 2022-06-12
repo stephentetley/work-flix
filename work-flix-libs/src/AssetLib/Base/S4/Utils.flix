@@ -30,13 +30,13 @@ namespace AssetLib/Base/S4/Utils {
         use Option.{flatMap};
         let* patt = Text/Regex/Pattern.compile("[A-Z]{3}(?<idx>\\d{2})$") |> Result.toOption;
         let eval = Text/RegexEval/MatchEvaluator.getInt32Named("idx");
-        Result.toOption(Text/RegexEval/Regex.contains(patt, eval, s))
+        Result.toOption(Text/RegexEval/Regex.firstSubmatch(patt, eval, s))
 
 
     pub def getFlocIndex(leaf: String, s: String): Option[Int32] & Impure = 
         use Option.{flatMap};
         let* patt = Text/Regex/Pattern.compile("${leaf}{3}(?<idx>\\d{2})") |> Result.toOption;
         let eval = Text/RegexEval/MatchEvaluator.getInt32Named("idx");
-        Result.toOption(Text/RegexEval/Regex.contains(patt, eval, s))
+        Result.toOption(Text/RegexEval/Regex.firstSubmatch(patt, eval, s))
 
 }

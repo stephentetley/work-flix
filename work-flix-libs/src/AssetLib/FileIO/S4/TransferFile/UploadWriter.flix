@@ -28,9 +28,9 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
     pub def outputUploadFile( entityType: EntityType
                             , variant: Option[String]
                             , user: String
-                            , headers: Array[String]
-                            , rows: List[DataRow]
-                            , outpath: FilePath): Result[Unit, String] & Impure = 
+                            , headers: Array[String, r]
+                            , rows: List[DataRow[r]]
+                            , outpath: FilePath): Result[Unit, String] \ { Impure, Read(r) } = 
         use AssetLib/FileIO/S4/TransferFile/Printer.{writeTransferFile};
         let fileHeader =  
             { fileType      = Upload
@@ -48,7 +48,7 @@ namespace AssetLib/FileIO/S4/TransferFile/UploadWriter {
             };
         writeTransferFile(transfer, outpath)
 
-    pub def execMapUploadRowSetter(headers: Array[String], makeRow: a -> UploadRowSetter[b], xs: List[a]): Result[List[DataRow], String] & Impure = 
+    pub def execMapUploadRowSetter(headers: Array[String, r], makeRow: a -> UploadRowSetter[b], xs: List[a]): Result[List[DataRow[r]], String] & Impure = 
         use AssetLib/FileIO/S4/TransferFile/UploadRowSetter.{makeIndices, execUploadRowSetter};
         let size = Array.length(headers);
         let indices = makeIndices(headers);

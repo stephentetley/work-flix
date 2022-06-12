@@ -30,16 +30,16 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
     use AssetLib/FileIO/S4/TransferFile/Datatypes.DataModel.{U1};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{FuncLoc, ClassFloc, ValuaFloc, Iflotx, Equi, ClassEqui, ValuaEqui, Eqmltxt};
 
-    pub def writeTransferFile(x: TransferFile, path: FilePath): Result[Unit, String] & Impure = 
+    pub def writeTransferFile(x: TransferFile[r], path: FilePath): Result[Unit, String] \ { Impure, Read(r) } = 
         use FlixSandbox/System/IO.WriteMode.{Create};
         let str = ppTransferFile(x) |> toString;
         FlixSandbox/System/IO.writeFileWith({path = path, charset = FlixSandbox/Text/Charset.utf_8(), mode = Create}, str) |> Result.mapErr(e -> "${e}")
 
-    pub def printTransferFile(x: TransferFile): String & Impure =         
+    pub def printTransferFile(x: TransferFile[r]): String \ Read(r) =         
         ppTransferFile(x) |> toString
 
     
-    def ppTransferFile(x: TransferFile): Doc & Impure = 
+    def ppTransferFile(x: TransferFile[r]): Doc \ Read(r) = 
         vcat(
                ppFileHeader(x.fileHeader)
             :: ppSelection(x.selection)
@@ -109,11 +109,11 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
     }
         
 
-    def ppHeaders(arr: Headers): Doc & Impure = 
+    def ppHeaders(arr: Headers[r]): Doc \ Read(r) = 
         let names = punctuate(tab(), List.map(x -> text(x), Array.toList(arr)));
         char('*') <> hcat(names)
 
-    def ppDataRow(arr: DataRow): Doc & Impure = 
+    def ppDataRow(arr: DataRow[r]): Doc \ Read(r) = 
         hcat(List.map(x -> text(x) <> tab(), Array.toList(arr)))   
 
 }
