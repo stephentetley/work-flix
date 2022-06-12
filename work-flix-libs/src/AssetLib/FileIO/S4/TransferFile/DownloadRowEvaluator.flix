@@ -18,7 +18,7 @@
 
 namespace AssetLib/FileIO/S4/TransferFile {
 
-    pub opaque type DownloadRowEvaluator[a] = (Map[String,Int32], Array[String]) -> Result[a, String] & Impure
+    pub enum DownloadRowEvaluator[a]((Map[String,Int32], Array[String]) -> Result[a, String] & Impure)
 
     instance Functor[DownloadRowEvaluator] { 
         pub def map(f: a -> b & ef, x: DownloadRowEvaluator[a]): DownloadRowEvaluator[b] & ef = 

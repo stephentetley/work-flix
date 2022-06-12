@@ -17,7 +17,7 @@
 
 namespace AssetLib/Base/S4 {
 
-    pub opaque type Floc = List[String]
+    pub enum Floc(List[String])
 
     instance ToString[Floc] { 
         pub def toString(x: Floc): String = 

@@ -20,7 +20,7 @@ namespace AssetLib/Base/Osgb36 {
 
     
     /// Two letters and 10 digits
-    pub opaque type NGR = String
+    pub enum NGR(String) 
 
     instance ToString[NGR] {
         pub def toString(x: NGR): String = 

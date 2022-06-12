@@ -18,7 +18,7 @@
 
 namespace AssetLib/FileIO/S4/TransferFile {
 
-    pub opaque type UploadRowSetter[a] = (Map[String, Int32], Array[String]) -> Result[a, String] & Impure
+    pub enum UploadRowSetter[a]((Map[String, Int32], Array[String]) -> Result[a, String] & Impure)
 
     instance Functor[UploadRowSetter] { 
         pub def map(f: a -> b & ef, x: UploadRowSetter[a]): UploadRowSetter[b] & ef = 

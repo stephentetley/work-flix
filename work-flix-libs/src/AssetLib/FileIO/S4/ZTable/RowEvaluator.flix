@@ -17,7 +17,7 @@
 
 namespace AssetLib/FileIO/S4/ZTable {
 
-    pub opaque type RowEvaluator[a] = Array[String] -> Result[a, String] & Impure
+    pub enum RowEvaluator[a](Array[String] -> Result[a, String] & Impure)
 
     instance Functor[RowEvaluator] { 
         pub def map(f: a -> b & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef = 

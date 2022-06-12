@@ -20,7 +20,7 @@ namespace AssetLib/Base/OrderedStringsLattice {
     
     /// Special lattice for MemoLines...
 
-    pub opaque type OrderedStrings with Eq, Order, ToString, Boxable, Hash = Set[(Int32, String)]
+    pub enum OrderedStrings(Set[(Int32, String)]) with Eq, Order, ToString, Boxable, Hash
 
     pub def count(x: OrderedStrings): Int32 = 
         let OrderedStrings(x1) = x;
