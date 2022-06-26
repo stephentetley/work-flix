@@ -82,26 +82,27 @@ namespace AssetLib/Base/Osgb36 {
         }
 
 
-    def findMinor (easting: Int32, northing: Int32): Option[Char] & Impure =
-        let arr2D = minorGrid();
-        let modE = easting `Mod.mod` 500000;
-        let modN = northing `Mod.mod` 500000;
-        let divE = modE / 100000;
-        let divN = modN / 100000;
-        if (divE >= 0 and divE < 5 and divN >= 0 and divN < 5) {
-            let row1 = arr2D[divE];
-            let c = row1[divN];
-            Some(c)
-        } else
-            None
-
-    def minorGrid() : Array[Array[Char]] & Impure = 
+    def findMinor (easting: Int32, northing: Int32): Option[Char] =
+        region r {
+            let arr2D = minorGrid(r);
+            let modE = easting `Mod.mod` 500000;
+            let modN = northing `Mod.mod` 500000;
+            let divE = modE / 100000;
+            let divN = modN / 100000;
+            if (divE >= 0 and divE < 5 and divN >= 0 and divN < 5) {
+                let row1 = arr2D[divE];
+                let c = row1[divN];
+                Some(c)
+            } else
+                None
+        }
+    def minorGrid(r: Region[r]) : Array[Array[Char, r], r] = 
         [ [ 'V', 'Q', 'L', 'F', 'A' ]
         , [ 'W', 'R', 'M', 'G', 'B' ]
         , [ 'X', 'S', 'N', 'H', 'C' ]
         , [ 'Y', 'T', 'O', 'J', 'D' ]
         , [ 'Z', 'U', 'P', 'K', 'E' ]
-        ]
+        ] @ r
 
 
     def decodeMajor(c: Char): Option[(Int32, Int32)] = 

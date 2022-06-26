@@ -17,23 +17,23 @@
 
 namespace AssetLib/FileIO/S4/ZTable {
 
-    pub enum RowEvaluator[a](Array[String] -> Result[a, String] & Impure)
+    pub enum RowEvaluator[r: Region, a: Type](Array[String, r] -> Result[a, String])
 
-    instance Functor[RowEvaluator] { 
-        pub def map(f: a -> b & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef = 
+    instance Functor[RowEvaluator[r]] { 
+        pub def map(f: a -> b & ef, x: RowEvaluator[r, a]): RowEvaluator[r, b] & ef = 
             AssetLib/FileIO/S4/ZTable/RowEvaluator.map(f, x)
     }
 
-    instance Applicative[RowEvaluator] { 
-        pub def point(x: a): RowEvaluator[a] = 
+    instance Applicative[RowEvaluator[r]] { 
+        pub def point(x: a): RowEvaluator[r, a] = 
             AssetLib/FileIO/S4/ZTable/RowEvaluator.point(x)
 
-        pub def ap(f: RowEvaluator[a -> b & ef], x: RowEvaluator[a]): RowEvaluator[b] & ef = 
+        pub def ap(f: RowEvaluator[r, a -> b & ef], x: RowEvaluator[r, a]): RowEvaluator[r, b] & ef = 
             AssetLib/FileIO/S4/ZTable/RowEvaluator.ap(f, x)
     }
 
-    instance Monad[RowEvaluator] { 
-        pub def flatMap(k: a -> RowEvaluator[b] & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef = 
+    instance Monad[RowEvaluator[r]] { 
+        pub def flatMap(k: a -> RowEvaluator[r, b] & ef, x: RowEvaluator[r, a]): RowEvaluator[r, b] & ef = 
             AssetLib/FileIO/S4/ZTable/RowEvaluator.flatMap(k, x)
     }
 }
@@ -50,24 +50,24 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
     use AssetLib/FileIO/S4/ZTable.RowEvaluator.{RowEvaluator};
 
 
-    pub def evaluateString(splitter: String -> Array[String] & Impure,
+    pub def evaluateString(splitter: String -> Array[String, r] & Impure,
                            input: String,
-                           eval: RowEvaluator[a]): Result[a, String] & Impure =
+                           eval: RowEvaluator[r, a]): Result[a, String] & Impure =
         use Result.{flatMap};
         let arr     = splitter(input);
         apply1(eval, arr)
 
-    pub def point(x: a): RowEvaluator[a] =
+    pub def point(x: a): RowEvaluator[r, a] =
         RowEvaluator(_ -> Ok(x) as & Impure)
 
-    pub def throwError(msg: String): RowEvaluator[a] =
+    pub def throwError(msg: String): RowEvaluator[r, a] =
         RowEvaluator(_ -> Err(msg) as & Impure)
 
-    def apply1(x: RowEvaluator[a], row: Array[String]): Result[a, String] & Impure =
+    def apply1(x: RowEvaluator[r, a], row: Array[String, r]): Result[a, String] & Impure =
         let RowEvaluator(f) = x;
         f(row)
 
-    pub def map(f: a -> b & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef =
+    pub def map(f: a -> b & ef, x: RowEvaluator[r, a]): RowEvaluator[r, b] & ef =
         RowEvaluator(row ->
             match apply1(x, row) {
                 case Ok(a) => {
@@ -78,7 +78,7 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
             }
         ) as & ef
 
-    pub def ap(mf: RowEvaluator[a -> b & ef], ma: RowEvaluator[a]): RowEvaluator[b] & ef =
+    pub def ap(mf: RowEvaluator[r, a -> b & ef], ma: RowEvaluator[r, a]): RowEvaluator[r, b] & ef =
         RowEvaluator(row ->
             match apply1(mf, row) {
                 case Ok(f) => {
@@ -91,7 +91,7 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
             }
         ) as & ef
 
-    pub def bind(x: RowEvaluator[a], k: a -> RowEvaluator[b] & ef): RowEvaluator[b] & ef =
+    pub def bind(x: RowEvaluator[r, a], k: a -> RowEvaluator[r, b] & ef): RowEvaluator[r, b] & ef =
         RowEvaluator(row ->
             match apply1(x, row) {
                 case Ok(a) => apply1(k(a), row)
@@ -99,9 +99,9 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
             }
         ) as & ef
 
-    pub def flatMap(k: a -> RowEvaluator[b] & ef, x: RowEvaluator[a]): RowEvaluator[b] & ef = bind(x, k)
+    pub def flatMap(k: a -> RowEvaluator[r, b] & ef, x: RowEvaluator[r, a]): RowEvaluator[r, b] & ef = bind(x, k)
 
-    pub def optional(x: RowEvaluator[a]): RowEvaluator[Option[a]] =
+    pub def optional(x: RowEvaluator[r, a]): RowEvaluator[r, Option[a]] =
         RowEvaluator(r ->
             match apply1(x, r) {
                 case Ok(a) => Ok(Some(a))
@@ -109,24 +109,24 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
             }
         )
 
-    pub def liftOption(x: Option[a], errMsg: String): RowEvaluator[a] = match x {
+    pub def liftOption(x: Option[a], errMsg: String): RowEvaluator[r, a] = match x {
         case Some(x1) => point(x1)
         case None => throwError(errMsg)
     }
 
-    pub def liftResult(x: Result[a, String]): RowEvaluator[a] =
+    pub def liftResult(x: Result[a, String]): RowEvaluator[r, a] =
         RowEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(fn: Unit -> Result[a, String] & Impure): RowEvaluator[a] =
+    pub def liftOperation(fn: Unit -> Result[a, String] & Impure): RowEvaluator[r, a] =
         RowEvaluator(_ -> fn())
 
     // Cell readers, by index only
 
     /// Note - answer is trimmed, use `getCell` if you need exact contents
-    pub def getStringAt(ix: Int32): RowEvaluator[String] =
+    pub def getStringAt(ix: Int32): RowEvaluator[r, String] =
         map(String.trim, getCell(ix))
 
-    pub def getCell(ix: Int32): RowEvaluator[String] =
+    pub def getCell(ix: Int32): RowEvaluator[r, String] =
         RowEvaluator(row ->
             if (ix >= 0 and ix < Array.length(row)) {
                 let s = row[ix];
@@ -137,51 +137,51 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
         )
 
 
-    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: MatchEvaluator[a]): RowEvaluator[a] =
+    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: MatchEvaluator[r, a]): RowEvaluator[r, a] =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/RegexEval/Regex.matchAll(patt, eval, input));
         point(ans)
 
-    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: MatchEvaluator[a]): RowEvaluator[a] =
+    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: MatchEvaluator[r, a]): RowEvaluator[r, a] \ Read(r) =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/RegexEval/Regex.firstSubmatch(patt, eval, input));
         point(ans)
 
-    pub def getInt8At(ix: Int32): RowEvaluator[Int8] =
+    pub def getInt8At(ix: Int32): RowEvaluator[r, Int8] \ Read(r) =
         let* s = getStringAt(ix);
         liftOption(fromString(s), "getInt8At(${ix})")
 
-    pub def getInt16At(ix: Int32): RowEvaluator[Int16] =
+    pub def getInt16At(ix: Int32): RowEvaluator[r, Int16] \ Read(r) =
         let* s = getStringAt(ix);
         liftOption(fromString(s), "getInt16At(${ix})")
 
-    pub def getInt32At(ix: Int32): RowEvaluator[Int32] =
+    pub def getInt32At(ix: Int32): RowEvaluator[r, Int32] \ Read(r) =
         let* s = getStringAt(ix);
         liftOption(fromString(s), "getInt32At(${ix})")
 
-    pub def getInt64At(ix: Int32): RowEvaluator[Int64] =
+    pub def getInt64At(ix: Int32): RowEvaluator[r, Int64] \ Read(r) =
         let* s = getStringAt(ix);
         liftOption(fromString(s), "getInt64At(${ix})")
 
-    pub def getFloat32At(ix: Int32): RowEvaluator[Float32] =
+    pub def getFloat32At(ix: Int32): RowEvaluator[r, Float32] \ Read(r) =
         let* s = getStringAt(ix);
         liftOption(fromString(s), "getFloat32At(${ix})")
 
-    pub def getFloat64At(ix: Int32): RowEvaluator[Float64] =
+    pub def getFloat64At(ix: Int32): RowEvaluator[r, Float64] \ Read(r) =
         let* s = getStringAt(ix);
         liftOption(fromString(s), "getFloat64At('${ix})")
 
-    pub def getLocalDateAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.DateFormat]): RowEvaluator[Time.LocalDate] =
+    pub def getLocalDateAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.DateFormat]): RowEvaluator[r, Time.LocalDate] \ Read(r) =
         let* input = getStringAt(ix);
         liftResult(Time/LocalDate.parse(formatter, input))
 
 
-    pub def getLocalDateTimeAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.DateTimeFormat]): RowEvaluator[Time.LocalDateTime] =
+    pub def getLocalDateTimeAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.DateTimeFormat]): RowEvaluator[r, Time.LocalDateTime] \ Read(r) =
         let* input = getStringAt(ix);
         liftResult(Time/LocalDateTime.parse(formatter, input))
 
 
-    pub def getLocalTimeAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.TimeFormat]): RowEvaluator[Time.LocalTime] =
+    pub def getLocalTimeAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.TimeFormat]): RowEvaluator[r, Time.LocalTime] \ Read(r) =
         let* input = getStringAt(ix);
         liftResult(Time/LocalTime.parse(formatter, input))
 

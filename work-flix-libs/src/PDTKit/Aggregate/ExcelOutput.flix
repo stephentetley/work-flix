@@ -27,16 +27,16 @@ namespace PDTKit/Aggregate/ExcelOutput {
     use PDTKit/Aggregate/Schema.{TabSpec, AggregateRow};
 
 
-    pub def outputExcel(relns: #{TabSpec, AggregateRow | r}, path: FilePath): Result[Unit, String] & Impure = 
+    pub def outputExcel(relns: #{TabSpec, AggregateRow | rr}, path: FilePath): Result[Unit, String] & Impure = 
         use Result.flatMap;
         let headers = makeHeaders(relns);
         let rows    = makeRows(relns);
         let groups  = groupTabs(headers, rows);
         SheetIO/SheetWriter.runXlsx(Foldable.foreachM(xyz -> let (x, y, z) = xyz; writeTab(x, y, z),  groups), path)
 
-    def groupTabs(headers: Map[String, Array[String]], 
-                    rows: Array[(String, Map[String, String])]): List[(String, Array[String], List[Map[String, String]])] & Impure = 
-        let groups1 = rows |> Array.toList |> List.groupBy((p1, p2) -> fst(p1) == fst(p2));
+    def groupTabs(headers: Map[String, List[String]], 
+                    rows: List[(String, Map[String, String])]): List[(String, List[String], List[Map[String, String]])] & Impure = 
+        let groups1 = rows |> List.groupBy((p1, p2) -> fst(p1) == fst(p2));
         let step = xs -> match xs {
             case (classification, _) :: _   => match Map.get(classification, headers) {
                 case None           => None
@@ -47,25 +47,26 @@ namespace PDTKit/Aggregate/ExcelOutput {
         List.filterMap(step, groups1)
 
 
-    pub def makeHeaders(relns: #{TabSpec | r}): Map[String, Array[String]] & Impure = 
-        query relns select (x1, x2) from TabSpec(x1; x2)
-            |> Array.map(makeHeaders1)
-            |> Array.toMap
+    pub def makeHeaders(relns: #{TabSpec | rr}, r: Region[r]): Map[String, List[String]] & Impure = 
+        query relns select (x1, x2) from TabSpec(x1; x2) 
+            |> Array.toList
+            |> List.map(makeHeaders1)
+            |> List.toMap
 
-    def makeHeaders1(x: (String, Int32StringAttributes)): (String, Array[String]) & Impure = 
+    def makeHeaders1(x: (String, Int32StringAttributes)): (String, List[String]) = 
         let (classification, attrs) = x;
         let headers = 
             attrs
                 |> RelLib/Lattice/Int32StringAttributes.getAttributes1
                 |> Map.toList
                 |> List.map(snd)
-                |> List.append(PDTKit/Aggregate/Rules.columnsPrefix())
-                |> flip(List.toArray, Static);
+                |> List.append(PDTKit/Aggregate/Rules.columnsPrefix());
         (classification, headers)
 
-    pub def makeRows(relns: #{AggregateRow | r}): Array[(String, Map[String, String])] & Impure = 
+    pub def makeRows(relns: #{AggregateRow | r}): List[(String, Map[String, String])] & Impure = 
         query relns select (x1, x2, x3, x4, x5) from AggregateRow(x1, x2, x3, x4; x5)
-            |> Array.map(makeRow1)
+            |> Array.toList
+            |> List.map(makeRow1)
 
     def makeRow1(x: (String, String, Int32, String, StringAttributes)): (String, Map[String, String]) = 
         let (classification, srcFile, itemNum, assetName, values) = x;
@@ -90,11 +91,10 @@ namespace PDTKit/Aggregate/ExcelOutput {
         List.foldLeft(step, (0, point()), headings) |> snd
         
     /// Note - SheetWriter needs bringing up to date...
-    pub def writeTab(classification: String, headings: Array[String], rows: List[Map[String, String]]): SheetWriter[Unit] = 
+    pub def writeTab(classification: String, headings: List[String], rows: List[Map[String, String]]): SheetWriter[Unit] = 
         use SheetIO/SheetWriter.{flatMap, point, createSheet, liftAction, allRowsWithHeaders};
         let* s1         = createSheet(classification);
-        let* headings1  = liftAction(_ -> Array.toList(headings));
-        let* _          = allRowsWithHeaders(s1, headings, rows, makeRowSetter(headings1));
+        let* _          = allRowsWithHeaders(s1, headings, rows, makeRowSetter(headings));
         point()
 
 }

@@ -24,7 +24,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Datatypes {
     /// Potentially we now favour "File Upload" for modifications.
 
 
-    pub type alias TransferFile[r] = 
+    pub type alias TransferFile[r: Region] = 
         { fileHeader :: FileHeader
         , selection :: List[String]       /// uninterpreted
         , headers :: Headers[r]

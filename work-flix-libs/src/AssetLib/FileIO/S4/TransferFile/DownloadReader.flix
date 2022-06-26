@@ -28,13 +28,13 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
     /// Import rows of a FileDownload
     /// Builds relations from the List.
-    pub def readAllRows(rowp: DownloadRowEvaluator[row], path: FilePath): Result[List[row], String] & Impure = 
+    pub def readAllRows(rowp: DownloadRowEvaluator[r, row], path: FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;        
         let* ast = AssetLib/FileIO/S4/TransferFile/Parser.parseFile(path);
         buildRows(rowp, ast)
 
 
-    def buildRows(rowp: DownloadRowEvaluator[row], x: TransferFile[r]): Result[List[row], String] & Impure = 
+    def buildRows(rowp: DownloadRowEvaluator[r, row], x: TransferFile[r]): Result[List[row], String] & Impure = 
         use Result.flatMap;
         let headers = makeHeaders(x.headers);
         let accumRow = (x1, ac) -> 
@@ -44,7 +44,7 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
             };
         Result.foldRightM(accumRow, Nil,  x.dataRows)
 
-    def evalRow(rowp: DownloadRowEvaluator[row], headers: Map[String, Int32], row: DataRow[r]): Result[row, String] =  
+    def evalRow(rowp: DownloadRowEvaluator[r, row], headers: Map[String, Int32], row: DataRow[r]): Result[row, String] =  
         let DownloadRowEvaluator(f) = rowp;
         f(headers, row)
     

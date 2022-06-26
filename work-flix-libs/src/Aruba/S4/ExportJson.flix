@@ -129,7 +129,7 @@ namespace Aruba/S4/ExportJson {
 
 
     /// `rootKey` is the parent key of the topmost element(s), it should not be present as an item key.
-    def makeJsonFromRows(rootKey: String, rows: Array[JsonPreorderRow]): JsonValue & Impure =  
+    def makeJsonFromRows(rootKey: String, rows: Array[JsonPreorderRow, Static]): JsonValue & Impure =  
         treesList(rootKey, Array.toList(rows), (flocs, _, _) -> flocs) 
             |> BasicJson/JsonBuilder.arrayOfObject
 

@@ -17,7 +17,7 @@
 namespace PDTKit/Configuration/ReadAssetTypesCsv {
 
     use Functor.{<$>};
-    use Applicative.{<*>};
+    use Applicative.{<*>, *>};
 
     use FlixSandbox/System.FilePath;
     use BasicDb.DbMonad;
@@ -43,7 +43,11 @@ namespace PDTKit/Configuration/ReadAssetTypesCsv {
     pub def readAssetTypes(src: FilePath): Result[List[AssetTypeRow], String] & Impure = 
         use Result.flatMap;
         use CsvIO/RowEvaluator.{getStringNamed};
-        let format = CsvIO/CsvFormat.defaultFormat(None) |> CsvIO/CsvFormat.putFirstRecordAsHeader;
+        use CsvIO/CsvFormat.PredefinedFormat.{DEFAULT};
+        use CsvIO/CsvFormatBuilder.{toCsvFormatWithCsvFormat, setHeaderAuto, setHeaders, setSkipHeaderRecord};
+        let format =  region r1 {
+            toCsvFormatWithCsvFormat(CsvIO/CsvFormat.makeCsvFormat(DEFAULT), setHeaderAuto() *> setSkipHeaderRecord(true), r1)
+        }; 
         let eval = ((x1, x2, x3, x4) -> { pdtAssetType = x1, s4Category = x2, s4Object = x3, s4Class = x4}) 
                         <$> getStringNamed("class_description") <*> getStringNamed("s4_category") 
                         <*> getStringNamed("s4_object")         <*> getStringNamed("s4_class");

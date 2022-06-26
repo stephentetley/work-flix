@@ -26,13 +26,13 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
 
     /// Note - parser may loop rather than fail if given wrong ztable input source for the RowEvaluator, needs investigating...
 
-    pub def importRows(eval: RowEvaluator[row], path: FilePath): Result[List[row], String] & Impure = 
+    pub def importRows(eval: RowEvaluator[r, row], path: FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
         let* rows = FlixParsec/Extras.parsesFile(importRowsParser(eval), 4, path, FlixSandbox/Text/Charset.utf_8());
         Ok(Chain.toList(rows))
 
 
-    def importRowsParser(eval: RowEvaluator[row]): Parser[t1, Chain[row]] = 
+    def importRowsParser(eval: RowEvaluator[r, row]): Parser[t1, Chain[row]] = 
         use FlixParsec/Prim.{flatMap, point};
         use FlixParsec/Combinators.{manyTill, manyTillWith, count};
         use FlixParsec/Text.{skipLine};
@@ -52,7 +52,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         point()
 
 
-    def makeLineParser(eval: RowEvaluator[row]): Parser[t1, row] = 
+    def makeLineParser(eval: RowEvaluator[r, row]): Parser[t1, row] = 
         use FlixParsec/Prim.{flatMap, liftActionResult};
         use FlixParsec/Text.{restOfLine};
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{evaluateString};
@@ -62,11 +62,11 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         liftActionResult(_ -> evaluateString(split, s1, eval))
 
 
-    def leadingSepBy(input: String, sep: String): Array[String] & Impure =
+    def leadingSepBy(input: String, sep: String): List[String] & Impure =
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => Text/Regex.split(patt, input) |> Array.dropLeft(1)
-            case Err(_)   => Array.new("", 0)
+            case Ok(patt) => Text/Regex.split(patt, input) |> List.drop(1)
+            case Err(_)   => Nil
         }
 
 }

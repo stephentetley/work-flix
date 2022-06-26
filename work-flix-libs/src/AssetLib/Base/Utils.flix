@@ -66,31 +66,31 @@ namespace AssetLib/Base/Utils {
 
 
 
-    pub def sepBy(input: String, sep: String): Array[String] & Impure =
+    pub def sepBy(input: String, sep: String): List[String] =
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
             case Ok(patt) => split(patt, input)
-            case Err(_)   => Array.new(input, 1)
+            case Err(_)   => input :: Nil
         }
 
-    pub def sepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
+    pub def sepByPattern(input: String, sep: Text/Regex.Pattern): List[String] =
         use Text/Regex.{split};
         split(sep, input)
 
     /// Input starts with sep...
-    pub def leadingSepBy(input: String, sep: String): Array[String] & Impure =
+    pub def leadingSepBy(input: String, sep: String): List[String] =
         use Text/Regex.{split};
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
-            case Ok(patt) => split(patt, input) |> Array.dropLeft(1)
-            case Err(_)   => Array.new("", 0)
+            case Ok(patt) => split(patt, input) |> List.drop(1)
+            case Err(_)   => Nil
         }
 
     /// Input starts with sep...
-    pub def leadingSepByPattern(input: String, sep: Text/Regex.Pattern): Array[String] & Impure =
+    pub def leadingSepByPattern(input: String, sep: Text/Regex.Pattern): List[String] =
         use Text/Regex.{split};
-        split(sep, input) |> Array.dropLeft(1)
+        split(sep, input) |> List.drop(1)
 
 
     pub def readExponentInt64(s: String): Result[Int64, String] = 

@@ -201,7 +201,7 @@ namespace AssetLib/GenS4/GenMonad {
     /// Maybe this is too specific to be defined here. 
     /// Might just be needed for ProductData/Cad...
     pub def equiCharacteristicsSkeleton(makeFacts: EquiRef -> row -> #{| reln}, 
-                                    genChars: #{| reln} -> Array[SLEquiCharacteristic] & Impure, 
+                                    genChars: #{| reln} -> Array[SLEquiCharacteristic, Static], 
                                     xs: List[(EquiRef, row)]): GenMonad[Unit] =
         let facts   = RelLib/Relation.foldMap(uncurry(makeFacts), xs);
         let* chars  = liftAction(_ -> genChars(facts) |> Array.toChain);
