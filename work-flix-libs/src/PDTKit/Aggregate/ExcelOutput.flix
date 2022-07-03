@@ -35,7 +35,7 @@ namespace PDTKit/Aggregate/ExcelOutput {
         SheetIO/SheetWriter.runXlsx(Foldable.foreachM(xyz -> let (x, y, z) = xyz; writeTab(x, y, z),  groups), path)
 
     def groupTabs(headers: Map[String, List[String]], 
-                    rows: List[(String, Map[String, String])]): List[(String, List[String], List[Map[String, String]])] & Impure = 
+                    rows: List[(String, Map[String, String])]): List[(String, List[String], List[Map[String, String]])] = 
         let groups1 = rows |> List.groupBy((p1, p2) -> fst(p1) == fst(p2));
         let step = xs -> match xs {
             case (classification, _) :: _   => match Map.get(classification, headers) {
@@ -47,7 +47,7 @@ namespace PDTKit/Aggregate/ExcelOutput {
         List.filterMap(step, groups1)
 
 
-    pub def makeHeaders(relns: #{TabSpec | rr}, r: Region[r]): Map[String, List[String]] & Impure = 
+    pub def makeHeaders(relns: #{TabSpec | rln}): Map[String, List[String]] & Impure = 
         query relns select (x1, x2) from TabSpec(x1; x2) 
             |> Array.toList
             |> List.map(makeHeaders1)

@@ -94,7 +94,7 @@ namespace AssetLib/FileIO/S4/ClassList/EquiParser {
 
     def makeLineParser(regex: String, eval: MatchEvaluator[r, a]): LineParser[a] = 
         match Text/Regex/Pattern.compile(regex) { 
-            case Err(msg) => constant(Err(msg))
+            case Err(msg) => _ -> Err(msg)
             case Ok(patt) => input -> Text/RegexEval/Regex.matchAll(patt, eval, input) as & Pure
         }
 

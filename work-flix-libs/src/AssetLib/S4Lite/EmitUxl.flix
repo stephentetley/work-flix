@@ -43,7 +43,7 @@ namespace AssetLib/S4Lite/EmitUxl {
             let args2   = {outpath = path, changeRequestName = crname, uxlTemplate = args.uxlTemplate};
             outputMocrUxl(args2, x1.uxl)
         };
-        Result.traverse(step, xs) |> Result.map(constant())
+        Result.traverse(step, xs) |> Result.map(_ -> ())
 
     pub def outputMocrUxl(args: UxlOutputArgs,
                         src: UxlOutput): Result[Unit, String] & Impure = 

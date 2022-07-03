@@ -51,17 +51,19 @@ namespace AssetLib/Base/Utils {
     ///
     /// Only proper-cases words made solely of letters, it should not proper-case codes like "SAB0665"
     /// 
-    def toProperCase1(s: String): Option[String] & Impure =
+    def toProperCase1(s: String): Option[String] =
         use Text/RegexEval/MatchEvaluator.{getCaptureNamed};
         use Option.flatMap;
-        let* patt   = Text/Regex/Pattern.compile("^(?<first>\\p{IsAlphabetic})(?<rest>\\p{IsAlphabetic}*)$") |> Result.toOption;
-        let eval    = Applicative.liftA2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
+        region r {
+            let* patt   = Text/Regex/Pattern.compile("^(?<first>\\p{IsAlphabetic})(?<rest>\\p{IsAlphabetic}*)$") |> Result.toOption;
+            let eval    = Applicative.liftA2((c,rs) -> String.toUpperCase(c) + String.toLowerCase(rs)
                                 , getCaptureNamed("first")
                                 , getCaptureNamed("rest")
                                 );
-        match Text/RegexEval/Regex.replace(from = patt, to = eval, s) { 
-            case Ok(s1) if s1 != "" => Some(s1)
-            case _  => Some(s)
+            match Text/RegexEval/Regex.replace(r, from = patt, to = eval, s) { 
+                case Ok(s1) if s1 != "" => Some(s1)
+                case _  => Some(s)
+            }
         }
 
 

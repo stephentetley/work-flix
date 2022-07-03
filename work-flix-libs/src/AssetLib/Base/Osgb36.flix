@@ -96,12 +96,13 @@ namespace AssetLib/Base/Osgb36 {
             } else
                 None
         }
-    def minorGrid(r: Region[r]) : Array[Array[Char, r], r] = 
-        [ [ 'V', 'Q', 'L', 'F', 'A' ]
-        , [ 'W', 'R', 'M', 'G', 'B' ]
-        , [ 'X', 'S', 'N', 'H', 'C' ]
-        , [ 'Y', 'T', 'O', 'J', 'D' ]
-        , [ 'Z', 'U', 'P', 'K', 'E' ]
+
+    def minorGrid(r: Region[r]) : Array[Array[Char, r], r] \ Write(r) = 
+        [ [ 'V', 'Q', 'L', 'F', 'A' ] @ r
+        , [ 'W', 'R', 'M', 'G', 'B' ] @ r
+        , [ 'X', 'S', 'N', 'H', 'C' ] @ r
+        , [ 'Y', 'T', 'O', 'J', 'D' ] @ r
+        , [ 'Z', 'U', 'P', 'K', 'E' ] @ r
         ] @ r
 
 

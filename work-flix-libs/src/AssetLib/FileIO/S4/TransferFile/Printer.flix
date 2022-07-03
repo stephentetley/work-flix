@@ -33,7 +33,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
     pub def writeTransferFile(x: TransferFile[r], path: FilePath): Result[Unit, String] \ { Impure, Read(r) } = 
         use FlixSandbox/System/IO.WriteMode.{Create};
         let str = ppTransferFile(x) |> toString;
-        FlixSandbox/System/IO.writeFileWith({path = path, charset = FlixSandbox/Text/Charset.utf_8(), mode = Create}, str) |> Result.mapErr(e -> "${e}")
+        FlixSandbox/System/IO.writeFileWith({path = path, charset = Text/Charset.utf_8(), mode = Create}, str) |> Result.mapErr(e -> "${e}")
 
     pub def printTransferFile(x: TransferFile[r]): String \ Read(r) =         
         ppTransferFile(x) |> toString

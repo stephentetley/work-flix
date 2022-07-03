@@ -28,7 +28,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
 
     pub def importRows(eval: RowEvaluator[r, row], path: FilePath): Result[List[row], String] & Impure = 
         use Result.flatMap;
-        let* rows = FlixParsec/Extras.parsesFile(importRowsParser(eval), 4, path, FlixSandbox/Text/Charset.utf_8());
+        let* rows = FlixParsec/Extras.parsesFile(importRowsParser(eval), 4, path, Text/Charset.utf_8());
         Ok(Chain.toList(rows))
 
 
@@ -56,13 +56,17 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         use FlixParsec/Prim.{flatMap, liftActionResult};
         use FlixParsec/Text.{restOfLine};
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{evaluateString};
-        let split = s -> leadingSepBy(s, "|");
-        let* s0 = restOfLine(true);
-        let s1 = Text/Regex.replace(from = Text/Regex/Pattern.irrefutablePattern("\\R"), to = "", s0);
-        liftActionResult(_ -> evaluateString(split, s1, eval))
+        /// Here is the error - cannot "pass down" a region polymorphic eval function 
+        /// from a function arg into a local region...
+        region r1 {
+            let split = s -> leadingSepBy(s, "|");
+            let* s0 = restOfLine(true);
+            let s1 = Text/Regex.replace(from = Text/Regex/Pattern.irrefutablePattern("\\R"), to = "", s0);
+            liftActionResult(_ -> evaluateString(r1, split, s1, eval))
+        }
 
 
-    def leadingSepBy(input: String, sep: String): List[String] & Impure =
+    def leadingSepBy(input: String, sep: String): List[String] =
         use Text/Regex/Pattern.{compile, quote};
         match compile(quote(sep)) {
             case Ok(patt) => Text/Regex.split(patt, input) |> List.drop(1)

@@ -45,13 +45,13 @@ namespace PDTKit/Configuration/ReadAssetTypesCsv {
         use CsvIO/RowEvaluator.{getStringNamed};
         use CsvIO/CsvFormat.PredefinedFormat.{DEFAULT};
         use CsvIO/CsvFormatBuilder.{toCsvFormatWithCsvFormat, setHeaderAuto, setHeaders, setSkipHeaderRecord};
-        let format =  region r1 {
+        let* format = region r1 {
             toCsvFormatWithCsvFormat(CsvIO/CsvFormat.makeCsvFormat(DEFAULT), setHeaderAuto() *> setSkipHeaderRecord(true), r1)
         }; 
         let eval = ((x1, x2, x3, x4) -> { pdtAssetType = x1, s4Category = x2, s4Object = x3, s4Class = x4}) 
                         <$> getStringNamed("class_description") <*> getStringNamed("s4_category") 
                         <*> getStringNamed("s4_object")         <*> getStringNamed("s4_class");
-        let* rows = CsvIO/CsvReader.readCsv(format, FlixSandbox/Text/Charset.utf_8(), eval, src);
+        let* rows = CsvIO/CsvReader.readCsv(format, Text/Charset.utf_8(), eval, src);
         Ok(rows)
 
     def insertAssetTypes(src: List[AssetTypeRow]): DbMonad[Int32] = 
