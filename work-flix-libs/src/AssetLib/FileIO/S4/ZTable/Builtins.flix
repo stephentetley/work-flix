@@ -38,9 +38,11 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
             |> Result.map(build)
 
     pub def loadEquiObject(path: FilePath): Result[List[EquiObject], String] & Impure =        
-        importRows(evalEquiObject(), path)  
+        region r1 {
+            importRows(r1, evalEquiObject(), path)
+        }
 
-    def evalEquiObject(): RowEvaluator[r, EquiObject] = 
+    def evalEquiObject(): RowEvaluator[r, EquiObject] \ Read(r) = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{getStringAt};
         ((x1, x2, x3) -> {parent = x1, child = x2, category = x3})
             <$> getStringAt(0)
@@ -56,9 +58,11 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
             |> Result.map(build)
 
     pub def loadFlocObject(path: FilePath): Result[List[FlocObject], String] & Impure =
-        importRows(evalFlocObject(), path)  
+        region r1 {
+            importRows(r1, evalFlocObject(), path)
+        }
 
-    def evalFlocObject(): RowEvaluator[r, FlocObject] = 
+    def evalFlocObject(): RowEvaluator[r, FlocObject] \ Read(r) = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{getStringAt};
         ((x1, x2, x3) -> {structure = x1, parent = x2, child = x3})
             <$> getStringAt(0)
@@ -74,9 +78,11 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
             |> Result.map(build)
 
     pub def loadFlocDescription(path: FilePath): Result[List[FlocDescription], String] & Impure =
-        importRows(evalFlocDescription(), path)           
+        region r1 {
+            importRows(r1, evalFlocDescription(), path)
+        }
 
-    def evalFlocDescription(): RowEvaluator[r, FlocDescription] = 
+    def evalFlocDescription(): RowEvaluator[r, FlocDescription] \ Read(r) = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* objtype    = getStringAt(0);
         let* desc       = getStringAt(1);
@@ -90,9 +96,11 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
             |> Result.map(build)
 
     pub def loadObjTypeManufacturer(path: FilePath): Result[List[ObjTypeManufacturer], String] & Impure =
-        importRows(evalObjTypeManufacturer(), path)  
+        region r1 {
+            importRows(r1, evalObjTypeManufacturer(), path)
+        }
 
-    def evalObjTypeManufacturer(): RowEvaluator[r, ObjTypeManufacturer] = 
+    def evalObjTypeManufacturer(): RowEvaluator[r, ObjTypeManufacturer] \ Read(r) = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* objectty   = getStringAt(0);
         let* manuf      = getStringAt(1);
@@ -106,9 +114,11 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
             |> Result.map(build)
 
     pub def loadManufacturerModel(path: FilePath): Result[List[ManufacturerModel], String] & Impure =
-        importRows(evalManufacturerModel(), path)   
+        region r1 {
+            importRows(r1, evalManufacturerModel(), path)
+        }
 
-    def evalManufacturerModel(): RowEvaluator[r, ManufacturerModel] = 
+    def evalManufacturerModel(): RowEvaluator[r, ManufacturerModel] \ Read(r) = 
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* manuf      = getStringAt(0);
         let* modl       = getStringAt(1);

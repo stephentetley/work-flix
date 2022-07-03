@@ -17,6 +17,7 @@
 
 namespace AssetLib/FileIO/S4/ZTable {
 
+    /// The LHS is generally between 2 and 4 cells wide, Array not really necessary...
 
     pub enum RowEvaluator[r: Region, a: Type](Array[String, r] -> Result[a, String])
 
@@ -52,9 +53,9 @@ namespace AssetLib/FileIO/S4/ZTable/RowEvaluator {
 
 
     pub def evaluateString(r: Region[r], 
-                            splitter: String -> Array[String, r],
+                            splitter: String -> Array[String, r] \ Write(r),
                             input: String,
-                            eval: RowEvaluator[r, a]): Result[a, String] \ Write(r) =
+                            eval: RowEvaluator[r, a]): Result[a, String] \ { Read(r), Write(r) } =
         use Result.{flatMap};
         let arr     = splitter(input);
         apply1(eval, arr)
