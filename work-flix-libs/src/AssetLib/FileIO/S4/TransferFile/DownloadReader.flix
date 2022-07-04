@@ -28,15 +28,15 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
     /// Import rows of a FileDownload
     /// Builds relations from the List.
-    pub def readAllRows(rowp: DownloadRowEvaluator[r, row], path: FilePath): Result[List[row], String] & Impure = 
+    pub def readAllRows(r: Region[r], rowp: DownloadRowEvaluator[r, row], path: FilePath): Result[List[row], String] \ { Read(r), Write(r), Impure } = 
         use Result.flatMap;        
-        let* ast = AssetLib/FileIO/S4/TransferFile/Parser.parseFile(path);
-        buildRows(rowp, ast)
+        let* ast = AssetLib/FileIO/S4/TransferFile/Parser.parseFile(r, path);
+        buildRows(r, rowp, ast)
 
 
-    def buildRows(rowp: DownloadRowEvaluator[r, row], x: TransferFile[r]): Result[List[row], String] & Impure = 
+    def buildRows(r: Region[r], rowp: DownloadRowEvaluator[r, row], x: TransferFile[r]): Result[List[row], String] \ { Read(r), Write(r) } = 
         use Result.flatMap;
-        let headers = makeHeaders(x.headers);
+        let headers = makeHeaders(r, x.headers);
         let accumRow = (x1, ac) -> 
             match evalRow(rowp, headers, x1) {
                 case Ok(r1) => Ok(r1 :: ac)

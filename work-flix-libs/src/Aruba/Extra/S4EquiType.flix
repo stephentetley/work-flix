@@ -22,19 +22,17 @@ namespace Aruba/Extra/S4EquiType {
     pub rel ValveType(itemId: String, valveType: String)
 
     pub def getTypeFromCommonName(commonName: String): Result[Option[String], String] = 
-        getTypeFromCommonNameHelper(commonName) as & Pure
-
-    def getTypeFromCommonNameHelper(commonName: String): Result[Option[String], String] & Impure = 
         use Result.flatMap;
         use Text/RegexEval/MatchEvaluator.{optional, getCaptureNamed};
-        let* patt = Text/Regex/Pattern.compile("(?<equitype>EQUIPMENT: .+)$");
-        let eval = getCaptureNamed("equitype");
-        match Text/RegexEval/Regex.firstSubmatch(patt, eval, commonName) {
-            /// Error means both "not found" and operational error - Regex API needs changing to support optional `evalContains`...
-            case Err(_) => Ok(None)
-            case Ok(s) => Ok(Some(s))
+        region r {
+            let* patt = Text/Regex/Pattern.compile("(?<equitype>EQUIPMENT: .+)$");
+            let eval = getCaptureNamed("equitype");
+            match Text/RegexEval/Regex.firstSubmatch(r, eval, patt, commonName) {
+                /// Error means both "not found" and operational error - Regex API needs changing to support optional `evalContains`...
+                case Err(_) => Ok(None)
+                case Ok(s) => Ok(Some(s))
+            }
         }
-
 
 
 

@@ -46,10 +46,12 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     
 
     pub def readIflotxFile(src: FilePath) : Result[List[IflotxRow], String] & Impure = 
-        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalIflotxRow(), src)
+        region r {
+            AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(r, evalIflotxRow(), src)
+        }            
 
     /// Read
-    def evalIflotxRow(): DownloadRowEvaluator[r, IflotxRow] = 
+    def evalIflotxRow(): DownloadRowEvaluator[r, IflotxRow] \ { Read(r) } = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getS4BoolNamed};
         ((x1, x2, x3, x4, x5) ->
                 { funcloc           = x1
@@ -69,10 +71,12 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
 
     pub def readClassFlocFile(src: FilePath) : Result[List[ClassFlocRow], String] & Impure = 
-        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalClassFlocRow(), src)
+        region r {
+            AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(r, evalClassFlocRow(), src)
+        }
         
 
-    def evalClassFlocRow(): DownloadRowEvaluator[r, ClassFlocRow] = 
+    def evalClassFlocRow(): DownloadRowEvaluator[r, ClassFlocRow] \ { Read(r) } = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
         ((x1, x2, x3, x4, x5) ->
                 { funcloc               = x1
@@ -92,10 +96,12 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
 
     pub def readValuaFlocFile(src: FilePath): Result[List[ValuaFlocRow], String] & Impure = 
-        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalValuaFlocRow(), src)
+        region r {
+            AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(r, evalValuaFlocRow(), src)
+        }
 
 
-    def evalValuaFlocRow(): DownloadRowEvaluator[r, ValuaFlocRow] = 
+    def evalValuaFlocRow(): DownloadRowEvaluator[r, ValuaFlocRow] \ { Read(r) } = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getInt32Named, optional};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) ->
                 { funcloc           = x1
@@ -134,12 +140,14 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
         }
     
 
-    pub def readEqmltxtFile(src: FilePath): Result[List[EqmltxtRow], String] & Impure = 
-        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalEqmltxtRow(), src)
+    pub def readEqmltxtFile(src: FilePath): Result[List[EqmltxtRow], String] & Impure  = 
+        region r {
+            AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(r, evalEqmltxtRow(), src)
+        }
         
 
     /// Read
-    def evalEqmltxtRow(): DownloadRowEvaluator[r, EqmltxtRow] = 
+    def evalEqmltxtRow(): DownloadRowEvaluator[r, EqmltxtRow] \ { Read(r) } = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{getStringNamed, getS4BoolNamed};
         ((x1, x2, x3, x4, x5) ->
                 { equi              = x1
@@ -161,9 +169,11 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
 
     pub def readClassEquiFile(src: FilePath): Result[List[ClassEquiRow], String] & Impure = 
-        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalClassEquiRow(), src)
+        region r {
+            AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(r, evalClassEquiRow(), src)
+        }
     
-    def evalClassEquiRow(): DownloadRowEvaluator[r, ClassEquiRow] = 
+    def evalClassEquiRow(): DownloadRowEvaluator[r, ClassEquiRow] \ { Read(r) } = 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
         ((x1, x2, x3, x4, x5) ->
                 { equi                  = x1
@@ -181,11 +191,13 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
 
     /// VALUAEQUI
 
-    pub def readValuaEquiFile(path: FilePath) : Result[List[ValuaEquiRow], String] & Impure =         
-        AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(evalValuaEquiRow(), path)
-        
+    pub def readValuaEquiFile(path: FilePath) : Result[List[ValuaEquiRow], String] & Impure =
+        region r {
+            AssetLib/FileIO/S4/TransferFile/DownloadReader.readAllRows(r, evalValuaEquiRow(), path)
+        }
+
     /// Read
-    def evalValuaEquiRow(): DownloadRowEvaluator[r, ValuaEquiRow] = 
+    def evalValuaEquiRow(): DownloadRowEvaluator[r, ValuaEquiRow] \ { Read(r) }= 
         use AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator.{optional, getStringNamed, getInt32Named};
         ((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11) ->
                 { equi              = x1
@@ -212,6 +224,5 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
             <*> getStringNamed("ATFLV")                 /// Value from
             <*> getStringNamed("ATFLB")                 /// Value to
 
-   
 
 }

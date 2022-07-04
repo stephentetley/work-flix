@@ -60,9 +60,9 @@ namespace AssetLib/FileIO/S4/TransferFile/DownloadRowEvaluator {
         let arr = splitter(input);
         apply1(eval, headers, arr)
 
-    pub def makeHeaders(names: List[String]): Map[String,Int32] =
+    pub def makeHeaders(r: Region[r], names: Array[String, r]): Map[String, Int32] \ Read(r) =
         let step = (acc, x) -> { let (i, mx) = acc; (i + 1, Map.insert(x, i, mx)) };
-        List.foldLeft(step, (0, Map.empty()), names) |> snd
+        Array.foldLeft(step, (0, Map.empty()), names) |> snd
 
 
     pub def point(x: a): DownloadRowEvaluator[r, a] =

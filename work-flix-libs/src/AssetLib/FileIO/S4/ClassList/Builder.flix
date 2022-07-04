@@ -101,12 +101,14 @@ namespace AssetLib/FileIO/S4/ClassList/Builder {
             case Err(_) => (-1, -1)
         }
 
-    def intRangeHelper(src: String): Result[(Int32, Int32), String] & Impure = 
+    def intRangeHelper(src: String): Result[(Int32, Int32), String] = 
         use Result.flatMap;
         use Text/RegexEval/MatchEvaluator.{getInt32Named};
-        let* patt   = Text/Regex/Pattern.compile("(?<start>\\d+) \\- (?<end>\\d+)");
-        let eval    = Applicative.product(getInt32Named("start"), getInt32Named("end"));
-        Text/RegexEval/Regex.firstSubmatch(patt, eval, src)
+        region r {
+            let* patt   = Text/Regex/Pattern.compile("(?<start>\\d+) \\- (?<end>\\d+)");
+            let eval    = Applicative.product(getInt32Named("start"), getInt32Named("end"));
+            Text/RegexEval/Regex.firstSubmatch(r, eval, patt, src)
+        }
 
 
         

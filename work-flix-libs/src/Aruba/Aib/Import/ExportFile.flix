@@ -61,7 +61,7 @@ namespace Aruba/Aib/Import/ExportFile {
 
 
 
-    def buildExportFileRelations(rows: List[ExportRow]): Result[#{AibEqui, AibFloc | r}, String] & Impure = 
+    def buildExportFileRelations(rows: List[ExportRow]): Result[#{AibEqui, AibFloc | r}, String] = 
         use Result.{flatMap};
         let* equi           = getEquipment(rows);
         let* flocs          = getFuncloc(rows);
@@ -69,18 +69,20 @@ namespace Aruba/Aib/Import/ExportFile {
 
 
     /// Note this can produce "PIPEWORK AND FITTINGS" and "MEDIA" which are not "true" equipment.
-    def getEquipment(rows: List[ExportRow]): Result[#{AibEqui |r}, String] & Impure = 
+    def getEquipment(rows: List[ExportRow]): Result[#{AibEqui |r}, String] = 
         use Result.flatMap;
         let* patt = Text/Regex/Pattern.compile("^.+/EQ(UI)?P(MEN)?T: (?<equiType>.+)$");
         RelLib/Relation.foldMapResult(getEquipment1(patt), rows)
 
-    def getEquipment1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibEqui |r}, String] & Impure =
+    def getEquipment1(patt: Text/Regex.Pattern, row: ExportRow): Result[#{AibEqui |r}, String] =
         use Result.flatMap;
-        use Text/RegexEval/MatchEvaluator.{getCaptureNamed};        
-        let* equiType = Text/RegexEval/Regex.matchAllOptional(patt, getCaptureNamed("equiType"), row.commonName);
-        match equiType { 
-            case None      => Ok(#{})
-            case Some(ty1) => Ok(#{ AibEqui(row.reference, row.commonName, ty1). })
+        use Text/RegexEval/MatchEvaluator.{getCaptureNamed};
+        region r {
+            let* equiType = Text/RegexEval/Regex.matchAllOptional(r, getCaptureNamed("equiType"), patt, row.commonName);
+            match equiType { 
+                case None      => Ok(#{})
+                case Some(ty1) => Ok(#{ AibEqui(row.reference, row.commonName, ty1). })
+            }
         }
 
     def getFuncloc(rows: List[ExportRow]): Result[#{AibFloc |r}, String] = 

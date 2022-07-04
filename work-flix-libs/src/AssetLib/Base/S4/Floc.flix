@@ -122,9 +122,11 @@ namespace AssetLib/Base/S4/Floc {
     pub def getSystemIndex(x: Floc): Option[Int32] =
         use Option.{flatMap};
         use Text/RegexEval/MatchEvaluator.{getInt32At};
-        let* s = getSystemCode(x);
-        let* patt = Text/Regex/Pattern.compile("SYS(\\d{2})") |> Result.toOption;
-        Result.toOption(Text/RegexEval/Regex.matchAll(patt, getInt32At(0), s)) as & Pure
+        region r {
+            let* s = getSystemCode(x);
+            let* patt = Text/Regex/Pattern.compile("SYS(\\d{2})") |> Result.toOption;
+            Result.toOption(Text/RegexEval/Regex.matchAll(r, getInt32At(0), patt, s))
+        }
         
     pub def getSubsystemCode(x: Floc): Option[String] =
         let Floc(xs1) = x;
@@ -133,17 +135,20 @@ namespace AssetLib/Base/S4/Floc {
     pub def getSubsystemTag(x: Floc): Option[String] =
         use Option.{flatMap};
         use Text/RegexEval/MatchEvaluator.{getCaptureAt};
-        let* s = getSubsystemCode(x);
-        let* patt = Text/Regex/Pattern.compile("(\\p{Upper}{3})\\d{2}") |> Result.toOption;
-        Result.toOption(Text/RegexEval/Regex.matchAll(patt, getCaptureAt(0), s)) as & Pure
+        region r {
+            let* s = getSubsystemCode(x);
+            let* patt = Text/Regex/Pattern.compile("(\\p{Upper}{3})\\d{2}") |> Result.toOption;
+            Result.toOption(Text/RegexEval/Regex.matchAll(r, getCaptureAt(0), patt, s))
+        }
     
     pub def getSubsystemIndex(x: Floc): Option[Int32] =
         use Option.{flatMap};
-        use Text/RegexEval/MatchEvaluator.{getInt32At};        
-        let* s = getSubsystemCode(x);
-        let* patt = Text/Regex/Pattern.compile("\\p{Upper}{3}(\\d{2})") |> Result.toOption;
-        Result.toOption(Text/RegexEval/Regex.matchAll(patt, getInt32At(0), s)) as & Pure
-        
+        region r {
+            use Text/RegexEval/MatchEvaluator.{getInt32At};        
+            let* s = getSubsystemCode(x);
+            let* patt = Text/Regex/Pattern.compile("\\p{Upper}{3}(\\d{2})") |> Result.toOption;
+            Result.toOption(Text/RegexEval/Regex.matchAll(r, getInt32At(0), patt, s))
+        }
 
     def at(i: Int32, xs: List[a]): Option[a] = match (i, xs) {
         case (0, x :: _) => Some(x)

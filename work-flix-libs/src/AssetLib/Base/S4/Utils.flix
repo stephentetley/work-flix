@@ -26,17 +26,19 @@ namespace AssetLib/Base/S4/Utils {
         }
 
 
-    pub def getIntSuffix(s: String): Option[Int32] & Impure = 
+    pub def getIntSuffix(s: String): Option[Int32] = 
         use Option.{flatMap};
-        let* patt = Text/Regex/Pattern.compile("[A-Z]{3}(?<idx>\\d{2})$") |> Result.toOption;
-        let eval = Text/RegexEval/MatchEvaluator.getInt32Named("idx");
-        Result.toOption(Text/RegexEval/Regex.firstSubmatch(patt, eval, s))
+        region r {
+            let* patt = Text/Regex/Pattern.compile("[A-Z]{3}(?<idx>\\d{2})$") |> Result.toOption;
+            let eval = Text/RegexEval/MatchEvaluator.getInt32Named("idx");
+            Result.toOption(Text/RegexEval/Regex.firstSubmatch(r, eval, patt, s))
+        }
 
-
-    pub def getFlocIndex(leaf: String, s: String): Option[Int32] & Impure = 
+    pub def getFlocIndex(leaf: String, s: String): Option[Int32] = 
         use Option.{flatMap};
-        let* patt = Text/Regex/Pattern.compile("${leaf}{3}(?<idx>\\d{2})") |> Result.toOption;
-        let eval = Text/RegexEval/MatchEvaluator.getInt32Named("idx");
-        Result.toOption(Text/RegexEval/Regex.firstSubmatch(patt, eval, s))
-
+        region r {
+            let* patt = Text/Regex/Pattern.compile("${leaf}{3}(?<idx>\\d{2})") |> Result.toOption;
+            let eval = Text/RegexEval/MatchEvaluator.getInt32Named("idx");
+            Result.toOption(Text/RegexEval/Regex.firstSubmatch(r, eval, patt, s))
+        }
 }
