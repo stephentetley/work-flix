@@ -27,13 +27,13 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
     /// Note - parser may loop rather than fail if given wrong ztable input source for the RowEvaluator, needs investigating...
 
     /// Pass both the region and rhe evaluator...
-    pub def importRows(r: Region[r], eval: RowEvaluator[r, row], path: FilePath): Result[List[row], String] \ {Read(r), Write(r), Impure} = 
+    pub def importRows(r: Region[r], eval: RowEvaluator[r, row], path: FilePath): Result[List[row], String] \ { Read(r), Write(r), Impure } = 
         use Result.flatMap;
         let* rows = FlixParsec/Extras.parsesFile(importRowsParser(r, eval), 4, path, Text/Charset.utf_8());
         Ok(Chain.toList(rows))
 
 
-    def importRowsParser(r: Region[r], eval: RowEvaluator[r, row]): Parser[t1, Chain[row]] = 
+    def importRowsParser(r: Region[r], eval: RowEvaluator[r, row]): Parser[t1, Chain[row]] \ { Read(r), Write(r) } = 
         use FlixParsec/Prim.{flatMap, point};
         use FlixParsec/Combinators.{manyTill, manyTillWith, count};
         use FlixParsec/Text.{skipLine};
@@ -53,7 +53,7 @@ namespace AssetLib/FileIO/S4/ZTable/Parser {
         point()
 
     /// Here is the invoke site for eval 
-    def makeLineParser(r: Region[r], eval: RowEvaluator[r, row]): Parser[t1, row] = 
+    def makeLineParser(r: Region[r], eval: RowEvaluator[r, row]): Parser[t1, row] \ { Read(r), Write(r) } = 
         use FlixParsec/Prim.{flatMap, liftActionResult};
         use FlixParsec/Text.{restOfLine};
         use AssetLib/FileIO/S4/ZTable/RowEvaluator.{evaluateString};
