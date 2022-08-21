@@ -18,11 +18,27 @@
 
 namespace PDTKit/Datatypes {
 
+    pub type alias PdtFile = 
+        { leadSheet :: List[LeadSheetRow]
+        , datasheet :: 
+            { sheetName :: String
+            , rows :: List[DataSheetRow]
+            }
+        }
+
     pub type alias LeadSheetRow = 
         { rowNumber :: Int32
         , titles :: String
         , description :: String
         , code :: String
         }
+
+
+    pub type alias DataSheetRow = 
+        { rowNumber :: Int32
+        , fieldName :: String
+        , values :: List[String]
+        }
+
 
 }
