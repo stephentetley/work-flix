@@ -20,6 +20,7 @@ namespace PDTKit/Datatypes {
 
     pub type alias PdtFile = 
         { leadSheet :: List[LeadSheetRow]
+        , dataDictionary :: List[DataDictionaryRow]
         , datasheet :: 
             { sheetName :: String
             , rows :: List[DataSheetRow]
@@ -33,6 +34,12 @@ namespace PDTKit/Datatypes {
         , code :: String
         }
 
+    pub type alias DataDictionaryRow = 
+        { rowNumber :: Int32
+        , category :: String
+        , paramName :: String
+        , units :: String
+        }
 
     pub type alias DataSheetRow = 
         { rowNumber :: Int32

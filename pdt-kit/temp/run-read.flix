@@ -13,5 +13,6 @@ def main1(): Result[Unit, String] \ IO =
     let* path = Basis/System/FilePath.filePath("G:/work/assets/pdts/sample1.xlsx");
     let* ans = PDTKit/Reader.readPdtFile(path);
     ans.leadSheet |> List.foreach(x -> println("${x.rowNumber}: ${x.titles}, ${x.description}, ${x.code}"));
+    ans.dataDictionary |> List.foreach(x -> println("${x.rowNumber}: ${x.paramName} / ${x.units}"));
     ans.datasheet.rows |> List.foreach(x -> println("${x.rowNumber}: ${x.fieldName} [${x.values}]"));
     Ok()

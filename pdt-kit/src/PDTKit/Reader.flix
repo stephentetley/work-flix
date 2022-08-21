@@ -26,7 +26,7 @@ namespace PDTKit/Reader {
     use SheetIO.WorkbookReader;
     use SheetIO.RowEvaluator;
 
-    use PDTKit/Datatypes.{PdtFile, LeadSheetRow, DataSheetRow};
+    use PDTKit/Datatypes.{PdtFile, LeadSheetRow, DataDictionaryRow, DataSheetRow};
 
     
     pub def readPdtFile(path: FilePath): Result[PdtFile, String] \ IO = region r1 {
@@ -36,10 +36,12 @@ namespace PDTKit/Reader {
 
     def readPdtFile1(r1: Region[r1]): WorkbookReader[r, PdtFile] \ { Read(r), Write(r1) } = 
         use SheetIO/WorkbookReader.{flatMap, point};
-        let* lsRows = readLeadSheet();
+        let* ls = readLeadSheet();
+        let* dd = readDataDictionary();
         let* ds = readDataSheet(r1);
         point(
-            { leadSheet = lsRows
+            { leadSheet = ls
+            , dataDictionary = dd
             , datasheet = 
                 { sheetName = ds.sheet
                 , rows = ds.rows
@@ -50,12 +52,12 @@ namespace PDTKit/Reader {
     pub def readLeadSheet(): WorkbookReader[r, List[LeadSheetRow]] \ Read(r) = 
         use SheetIO/WorkbookReader.{flatMap, getSheetNamed, withSheetReader};
         let* sheet1 = getSheetNamed("Asset Data Lead Sheet");
-        withSheetReader(SheetIO/SheetReader.someRows(evalADTParamRow()), sheet1)
+        withSheetReader(SheetIO/SheetReader.someRows(evalLeadSheetRow()), sheet1)
         
 
         
-    def evalADTParamRow(): RowEvaluator[r, LeadSheetRow] \ Read(r) = 
-        use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt,  getTrimmedContentAt};
+    def evalLeadSheetRow(): RowEvaluator[r, LeadSheetRow] \ Read(r) = 
+        use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
         ((x1, x2, x3, x4) -> 
             {rowNumber = x1, titles = x2, description = x3, code = x4})
             <$> getRowNum()
@@ -63,6 +65,20 @@ namespace PDTKit/Reader {
             <*> getNonEmptyContentAt(1)
             <*> getTrimmedContentAt(2)
 
+
+    pub def readDataDictionary(): WorkbookReader[r, List[DataDictionaryRow]] \ Read(r) = 
+        use SheetIO/WorkbookReader.{flatMap, getSheetNamed, withSheetReader};
+        let* sheet1 = getSheetNamed("PDS_ADT");
+        withSheetReader(SheetIO/SheetReader.someRows(evalDataDictionaryRow()), sheet1)
+
+    def evalDataDictionaryRow(): RowEvaluator[r, DataDictionaryRow] \ { Read(r) } = 
+        use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
+        ((x1, x2, x3, x4) -> 
+            {rowNumber = x1, category = x2, paramName = x3, units = x4})
+            <$> getRowNum()
+            <*> getNonEmptyContentAt(0)
+            <*> getTrimmedContentAt(1)
+            <*> getTrimmedContentAt(3)
 
 
     pub def readDataSheet(r1: Region[r1]): WorkbookReader[r, {sheet :: String, rows :: List[DataSheetRow]}] \ { Read(r), Write(r1) } = 
