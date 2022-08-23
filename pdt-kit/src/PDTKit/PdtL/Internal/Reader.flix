@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace PDTKit/Reader {
+namespace PDTKit/Internal/Reader {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -26,7 +26,7 @@ namespace PDTKit/Reader {
     use SheetIO.WorkbookReader;
     use SheetIO.RowEvaluator;
 
-    use PDTKit/Datatypes.{PdtFile, LeadSheetRow, DataDictionaryRow, DataSheetRow};
+    use PDTKit/PdtL/Internal/Datatypes.{PdtFile, LeadSheetRow, DataDictionaryRow, DataSheetRow};
 
     
     pub def readPdtFile(path: FilePath): Result[PdtFile, String] \ IO = region r1 {
@@ -59,7 +59,7 @@ namespace PDTKit/Reader {
     def evalLeadSheetRow(): RowEvaluator[r, LeadSheetRow] \ Read(r) = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
         ((x1, x2, x3, x4) -> 
-            {rowNumber = x1, titles = x2, description = x3, code = x4})
+            {rowNum = x1, titles = x2, description = x3, code = x4})
             <$> getRowNum()
             <*> getNonEmptyContentAt(0)
             <*> getNonEmptyContentAt(1)
@@ -74,7 +74,7 @@ namespace PDTKit/Reader {
     def evalDataDictionaryRow(): RowEvaluator[r, DataDictionaryRow] \ { Read(r) } = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
         ((x1, x2, x3, x4) -> 
-            {rowNumber = x1, category = x2, paramName = x3, units = x4})
+            {rowNum = x1, category = x2, paramName = x3, units = x4})
             <$> getRowNum()
             <*> getNonEmptyContentAt(0)
             <*> getTrimmedContentAt(1)
@@ -93,16 +93,17 @@ namespace PDTKit/Reader {
             case None       => throwError("Cannot find values sheet.")
         }
         
-
+    /// `getLastCellNum` not helpful...
     def evalDataSheetRow(r1: Region[r1]): RowEvaluator[r, DataSheetRow] \ { Read(r), Write(r1) } = 
-        use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getRowContents};
-        ((x1, x2, x3) -> 
-            {rowNumber = x1, fieldName = x2, values = getValues(x3)})
+        use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getLastCellNum, getRowContents};
+        ((x1, x2, x3, x4) -> 
+            {rowNum = x1, fieldName = x2, size = x3, values = getValues(x4)})
             <$> getRowNum()
             <*> getNonEmptyContentAt(0)
+            <*> getLastCellNum()
             <*> getRowContents(r1)
 
-    /// Maybe better to trim to the maximum length rather than this...
+    /// Maybe better to trim to the greatest length rather than this...
     def getValues(arr: Array[String, r1]): List[String] \ Read(r1) =  
         let step = (x, acc) -> { 
             let (seen, xs) = acc;
