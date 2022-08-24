@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
-namespace PDTKit/Read {
+namespace PDTKit/PdtL/ReadPdt {
+    
+    use Basis/System.FilePath;
 
+    use PDTKit/PdtL/Datatypes.{PdtFile};
+
+    pub def readPdtFile(path: FilePath): Result[PdtFile, String] \ IO =
+        PDTKit/PdtL/Internal/Reader.readPdtFile(path)
+    
 }

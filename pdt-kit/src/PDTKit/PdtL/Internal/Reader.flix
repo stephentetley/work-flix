@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace PDTKit/Internal/Reader {
+namespace PDTKit/PdtL/Internal/Reader {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -60,7 +60,7 @@ namespace PDTKit/Internal/Reader {
         
     def evalLeadSheetRow(): RowEvaluator[r, LeadSheetRow] \ Read(r) = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
-        Applicative.product4(getRowNum(), getNonEmptyContentAt(0), getNonEmptyContentAt(1), getTrimmedContentAt(2))
+        Applicative.product4(getRowNum(), getNonEmptyContentAt(0), getTrimmedContentAt(1), getTrimmedContentAt(2))
 
 
     pub def readDataDictionary(): WorkbookReader[r, List[DataDictionaryRow]] \ Read(r) = 
