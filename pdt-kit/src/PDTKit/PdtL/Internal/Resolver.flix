@@ -16,12 +16,10 @@
 
 namespace PDTKit/PdtL/Internal/Resolver {
 
-    use PDTKit/PdtL/Datatypes.{SectionHeading, LeadSheetAttribute, DDMetadata, DDAttribute};
-    /// use PDTKit/PdtL/Internal/Datatypes.{LeadSheetRow};
+    use PDTKit/PdtL/Datatypes.{SectionHeading, LeadSheetAttribute, DataDictMetadata, DataDictAttribute, DataSheetMultiAttribute};
 
-    pub type alias LeadSheetRow = (Int32, String, String, String)
+    use PDTKit/PdtL/Internal/Datatypes.{PdtFile, LeadSheetRow, DataDictionaryRow, DataSheetRow};
 
-    pub type alias DataDictionaryRow = (Int32, String, String, String)
 
     pub def resolveLeadSheet(rs: List[LeadSheetRow]): {headings :: List[SectionHeading], attributes :: List[LeadSheetAttribute]} = 
         let db = inject rs into Row;
@@ -39,9 +37,8 @@ namespace PDTKit/PdtL/Internal/Resolver {
         {headings = xs, attributes = ys}
 
 
-    pub def resolveDataDictionary(rs: List[DataDictionaryRow]): {metadata :: List[DDMetadata], 
-                                                                    headings :: List[SectionHeading], 
-                                                                    attributes :: List[DDAttribute]} = 
+    pub def resolveDataDictionary(rs: List[DataDictionaryRow]): 
+            {metadata :: List[DataDictMetadata], headings :: List[SectionHeading], attributes :: List[DataDictAttribute]} = 
         let db = inject rs into Row;
         let ask1 = #{
             Metadata(rowNum, name, value) :- 
@@ -64,9 +61,23 @@ namespace PDTKit/PdtL/Internal/Resolver {
         let xs = query db, ask1 select (x, y, z) from Metadata(x, y, z) |> List.map(match (x, y, z) -> {rowNum = x, name = y, value = z});
         let ys = query db, ask2 select (x, y) from Heading(x, y) |> List.map(match (x, y) -> {rowNum = x, heading = y});
         let zs = query db, ask3 select (w, x, y, z) from Attribute(w, x, y, z) 
-                    |> List.map(match (w, x, y, z) -> {rowNum = w, name = x, value = y, units = z});
+                    |> List.map(match (w, x, y, z) -> {rowNum = w, category = x, name = y, units = z});
         {metadata = xs, headings = ys, attributes = zs}
 
 
+
+    /// Cannot identify section headers by content (would need to decipher bold, background colour...)
+    /// Datalog isn't much help...
+    pub def resolveDataSheetRows(rs: List[DataSheetRow]): List[DataSheetMultiAttribute] = 
+        let maxim = List.foldLeft((acc, row) -> let (_, _, cs) = row; Int32.max(acc, List.length(cs)), 0 , rs);
+        let padr = xs -> {let padSize = maxim - List.length(xs); List.append(xs, List.repeat(padSize, ""))};
+        let step = match (n, name, cs) -> {
+            // Drop rows with no values...
+            if (List.isEmpty(cs)) 
+                None 
+            else 
+                Some({rowNum = n, name = name, values = padr(cs)})
+        };
+        List.filterMap(step, rs)
 
 }

@@ -26,9 +26,11 @@ namespace PDTKit/Internal/Reader {
     use SheetIO.WorkbookReader;
     use SheetIO.RowEvaluator;
 
-    use PDTKit/PdtL/Internal/Datatypes.{PdtFile, LeadSheetRow, DataDictionaryRow, DataSheetRow};
+    use PDTKit/PdtL/Datatypes.{PdtFile};
+    use PDTKit/PdtL/Internal/Datatypes.{LeadSheetRow, DataDictionaryRow, DataSheetRow};
 
     
+
     pub def readPdtFile(path: FilePath): Result[PdtFile, String] \ IO = region r1 {
         use SheetIO/WorkbookReader.{runXlsx};
         runXlsx(readPdtFile1(r1), path)
@@ -40,11 +42,11 @@ namespace PDTKit/Internal/Reader {
         let* dd = readDataDictionary();
         let* ds = readDataSheet(r1);
         point(
-            { leadSheet = ls
-            , dataDictionary = dd
-            , datasheet = 
+            { leadSheet = PDTKit/PdtL/Internal/Resolver.resolveLeadSheet(ls)
+            , dataDictionary = PDTKit/PdtL/Internal/Resolver.resolveDataDictionary(dd)
+            , dataSheet = 
                 { sheetName = ds.sheet
-                , rows = ds.rows
+                , multiAttributes = PDTKit/PdtL/Internal/Resolver.resolveDataSheetRows(ds.rows)
                 }
             })
 
@@ -58,12 +60,7 @@ namespace PDTKit/Internal/Reader {
         
     def evalLeadSheetRow(): RowEvaluator[r, LeadSheetRow] \ Read(r) = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
-        ((x1, x2, x3, x4) -> 
-            {rowNum = x1, titles = x2, description = x3, code = x4})
-            <$> getRowNum()
-            <*> getNonEmptyContentAt(0)
-            <*> getNonEmptyContentAt(1)
-            <*> getTrimmedContentAt(2)
+        Applicative.product4(getRowNum(), getNonEmptyContentAt(0), getNonEmptyContentAt(1), getTrimmedContentAt(2))
 
 
     pub def readDataDictionary(): WorkbookReader[r, List[DataDictionaryRow]] \ Read(r) = 
@@ -73,12 +70,7 @@ namespace PDTKit/Internal/Reader {
 
     def evalDataDictionaryRow(): RowEvaluator[r, DataDictionaryRow] \ { Read(r) } = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
-        ((x1, x2, x3, x4) -> 
-            {rowNum = x1, category = x2, paramName = x3, units = x4})
-            <$> getRowNum()
-            <*> getNonEmptyContentAt(0)
-            <*> getTrimmedContentAt(1)
-            <*> getTrimmedContentAt(3)
+        Applicative.product4(getRowNum(), getNonEmptyContentAt(0), getTrimmedContentAt(1), getTrimmedContentAt(3))
 
 
     pub def readDataSheet(r1: Region[r1]): WorkbookReader[r, {sheet :: String, rows :: List[DataSheetRow]}] \ { Read(r), Write(r1) } = 
@@ -96,14 +88,12 @@ namespace PDTKit/Internal/Reader {
     /// `getLastCellNum` not helpful...
     def evalDataSheetRow(r1: Region[r1]): RowEvaluator[r, DataSheetRow] \ { Read(r), Write(r1) } = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getLastCellNum, getRowContents};
-        ((x1, x2, x3, x4) -> 
-            {rowNum = x1, fieldName = x2, size = x3, values = getValues(x4)})
-            <$> getRowNum()
-            <*> getNonEmptyContentAt(0)
-            <*> getLastCellNum()
-            <*> getRowContents(r1)
+        Applicative.product3(getRowNum(), 
+            getNonEmptyContentAt(0),
+            (getValues <$> getRowContents(r1))
+        )
 
-    /// Maybe better to trim to the greatest length rather than this...
+    /// Padd to greatest length later...
     def getValues(arr: Array[String, r1]): List[String] \ Read(r1) =  
         let step = (x, acc) -> { 
             let (seen, xs) = acc;

@@ -17,36 +17,13 @@
 
 namespace PDTKit/PdtL/Internal/Datatypes {
 
-    pub type alias PdtFile = 
-        { leadSheet :: List[LeadSheetRow]
-        , dataDictionary :: List[DataDictionaryRow]
-        , datasheet :: 
-            { sheetName :: String
-            , rows :: List[DataSheetRow]
-            }
-        }
 
 
-    pub type alias LeadSheetRow = 
-        { rowNum :: Int32
-        , titles :: String
-        , description :: String
-        , code :: String
-        }
+    pub type alias LeadSheetRow = (Int32, String, String, String)
 
-    pub type alias DataDictionaryRow = 
-        { rowNum :: Int32
-        , category :: String
-        , paramName :: String
-        , units :: String
-        }
+    pub type alias DataDictionaryRow = (Int32, String, String, String)
 
-    pub type alias DataSheetRow = 
-        { rowNum :: Int32
-        , fieldName :: String
-        , size :: Int32
-        , values :: List[String]
-        }
+    pub type alias DataSheetRow = (Int32, String, List[String])
 
 
 }

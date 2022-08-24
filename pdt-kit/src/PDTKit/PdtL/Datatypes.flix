@@ -17,17 +17,21 @@
 
 namespace PDTKit/PdtL/Datatypes {
 
-    // pub type alias PdtFile = 
-    //     { leadSheet :: 
-                // { headings :: List[SectionHeading]
-                // , attributes :: List[LeadSheetAttribute]
-                // }
-    //     , dataDictionary :: List[DataDictionaryRow]
-    //     , datasheet :: 
-    //         { sheetName :: String
-    //         , rows :: List[DataSheetRow]
-    //         }
-    //     }
+    pub type alias PdtFile = 
+        { leadSheet :: 
+            { headings :: List[SectionHeading]
+            , attributes :: List[LeadSheetAttribute]
+            }
+        , dataDictionary :: 
+            { metadata :: List[DataDictMetadata]
+            , headings :: List[SectionHeading]
+            , attributes :: List[DataDictAttribute]
+            }
+        , dataSheet :: 
+            { sheetName :: String
+            , multiAttributes :: List[DataSheetMultiAttribute]
+            }
+        }
 
 
     pub type alias SectionHeading = 
@@ -42,25 +46,25 @@ namespace PDTKit/PdtL/Datatypes {
         , code :: String
         }
 
-    pub type alias DDMetadata = 
+    pub type alias DataDictMetadata = 
         { rowNum :: Int32
         , name :: String
         , value :: String
         }
 
-    pub type alias DDAttribute = 
+    pub type alias DataDictAttribute = 
         { rowNum :: Int32
+        , category :: String
         , name :: String
-        , value :: String
         , units :: String
         }
 
-    // pub type alias DataSheetRow = 
-    //     { rowNum :: Int32
-    //     , fieldName :: String
-    //     , size :: Int32
-    //     , values :: List[String]
-    //     }
+    /// "Multidimensional"
+    pub type alias DataSheetMultiAttribute = 
+        { rowNum :: Int32
+        , name :: String
+        , values :: List[String]
+        }
 
 
 }
