@@ -90,7 +90,7 @@ namespace PDTKit/PdtL/Internal/Reader {
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getLastCellNum, getRowContents};
         Applicative.product3(getRowNum(), 
             getNonEmptyContentAt(0),
-            (getValues <$> getRowContents(r1))
+            ((getValues >> List.map(String.trim)) <$> getRowContents(r1))
         )
 
     /// Padd to greatest length later...

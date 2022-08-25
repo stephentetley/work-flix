@@ -22,7 +22,7 @@ def main1(): Result[Unit, String] \ IO =
 
 def printJson(pdtL: PdtFile): Unit \ IO =
     region r {
-        let proc = () -> PDTKit/PdtL/WriteJson.addLeadSheet(pdtL.leadSheet);
+        let proc = () -> PDTKit/PdtL/WriteJson.buildJson(pdtL);
         Interop/Json/JsonObjectBuilder.createObject(r, proc()) |> println;
         ()
     }
