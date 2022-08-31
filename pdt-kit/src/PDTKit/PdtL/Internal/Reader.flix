@@ -33,16 +33,18 @@ namespace PDTKit/PdtL/Internal/Reader {
 
     pub def readPdtFile(path: FilePath): Result[PdtFile, String] \ IO = region r1 {
         use SheetIO/WorkbookReader.{runXlsx};
-        runXlsx(readPdtFile1(r1), path)
+        let filename1 = Basis/System/FilePath.getFileName(path) |> Option.map(ToString.toString) |> Option.getWithDefault("...");
+        runXlsx(readPdtFile1(r1, filename1), path)
     }
 
-    def readPdtFile1(r1: Region[r1]): WorkbookReader[r, PdtFile] \ { Read(r), Write(r1) } = 
+    def readPdtFile1(r1: Region[r1], name: String): WorkbookReader[r, PdtFile] \ { Read(r), Write(r1) } = 
         use SheetIO/WorkbookReader.{flatMap, point};
         let* ls = readLeadSheet();
         let* dd = readDataDictionary();
         let* ds = readDataSheet(r1);
         point(
-            { leadSheet = PDTKit/PdtL/Internal/Resolver.resolveLeadSheet(ls)
+            { fileName = name
+            , leadSheet = PDTKit/PdtL/Internal/Resolver.resolveLeadSheet(ls)
             , dataDictionary = PDTKit/PdtL/Internal/Resolver.resolveDataDictionary(dd)
             , dataSheet = 
                 { sheetName = ds.sheet

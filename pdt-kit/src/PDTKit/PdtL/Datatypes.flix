@@ -17,8 +17,11 @@
 
 namespace PDTKit/PdtL/Datatypes {
 
+
+    /// TODO should `dataSheet` record number of records (data columns)?
     pub type alias PdtFile = 
-        { leadSheet :: 
+        { fileName :: String
+        , leadSheet :: 
             { headings :: List[SectionHeading]
             , attributes :: List[LeadSheetAttribute]
             }

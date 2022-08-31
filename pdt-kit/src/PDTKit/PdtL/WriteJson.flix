@@ -21,110 +21,111 @@ namespace PDTKit/PdtL/WriteJson {
     use Basis/System.FilePath;
 
     use Interop/Json.JsonObject;
-    use Interop/Json.JsonArrayBuilder;
-    use Interop/Json.JsonObjectBuilder;
+    use Basis/Json.JsonArrayBuilder;
+    use Basis/Json.JsonObjectBuilder;
 
     use PDTKit/PdtL/Datatypes.{PdtFile, SectionHeading, LeadSheetAttribute, 
         DataDictMetadata, DataDictAttribute, DataSheetMultiAttribute};
 
     pub def buildJson(pdtL: PdtFile): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonObjectBuilder, addString};
-        addLeadSheet(pdtL.leadSheet)            *>
-        addDataDictSheet(pdtL.dataDictionary)   *>
-        addDataSheet(pdtL.dataSheet)
+        use Basis/Json/JsonObjectBuilder.{addString!};
+        addString!("file_name", pdtL.fileName)  *>
+        addLeadSheet!(pdtL.leadSheet)           *>
+        addDataDictSheet!(pdtL.dataDictionary)  *>
+        addDataSheet!(pdtL.dataSheet)
 
     /// ## LeadSheet
 
-    pub def addLeadSheet(sheet: {headings :: List[SectionHeading], attributes :: List[LeadSheetAttribute]}): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonObjectBuilder, addString};
-        addJsonObjectBuilder("lead_sheet", 
-            addString("sheet_name", "Asset Data Lead Sheet")        *>
-            addSectionHeadings("headings", sheet.headings)          *>
-            addLeadSheetAttributes("attributes", sheet.attributes)
+    pub def addLeadSheet!(sheet: {headings :: List[SectionHeading], attributes :: List[LeadSheetAttribute]}): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonObjectBuilder.{addJsonObjectBuilder!, addString!};
+        addJsonObjectBuilder!("lead_sheet", 
+            addString!("sheet_name", "Asset Data Lead Sheet")        *>
+            addSectionHeadings!("headings", sheet.headings)          *>
+            addLeadSheetAttributes!("attributes", sheet.attributes)
         )
 
-    def addSectionHeadings(name: String, xs: List[SectionHeading]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonArrayBuilder};
-        addJsonArrayBuilder(name, Foldable.foreachM(addSectionHeading1, xs))
+    def addSectionHeadings!(name: String, xs: List[SectionHeading]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonObjectBuilder.{addJsonArrayBuilder!};
+        addJsonArrayBuilder!(name, Foldable.foreachM(addSectionHeading1!, xs))
 
-    def addSectionHeading1(sh: SectionHeading): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonArrayBuilder.{addJsonObjectBuilder};
-        use Interop/Json/JsonObjectBuilder.{addInt32, addString};
-        addJsonObjectBuilder(addInt32("row_num", sh.rowNum) *> addString("name", sh.heading))
+    def addSectionHeading1!(sh: SectionHeading): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonArrayBuilder.{addJsonObjectBuilder!};
+        use Basis/Json/JsonObjectBuilder.{addInt32!, addString!};
+        addJsonObjectBuilder!(addInt32!("row_num", sh.rowNum) *> addString!("name", sh.heading))
 
-    def addLeadSheetAttributes(name: String, xs: List[LeadSheetAttribute]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonArrayBuilder};
-        addJsonArrayBuilder(name, Foldable.foreachM(addLeadSheetAttribute1, xs))
+    def addLeadSheetAttributes!(name: String, xs: List[LeadSheetAttribute]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonObjectBuilder.{addJsonArrayBuilder!};
+        addJsonArrayBuilder!(name, Foldable.foreachM(addLeadSheetAttribute1!, xs))
 
-    def addLeadSheetAttribute1(attr: LeadSheetAttribute): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonArrayBuilder.{addJsonObjectBuilder};
-        use Interop/Json/JsonObjectBuilder.{addInt32, addString};
-        addJsonObjectBuilder(
-            addInt32("row_num", attr.rowNum) *> 
-            addString("name", attr.name)     *>
-            addString("value", attr.value)   *>
-            addString("code", attr.code)
+    def addLeadSheetAttribute1!(attr: LeadSheetAttribute): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonArrayBuilder.{addJsonObjectBuilder!};
+        use Basis/Json/JsonObjectBuilder.{addInt32!, addString!};
+        addJsonObjectBuilder!(
+            addInt32!("row_num", attr.rowNum) *> 
+            addString!("name", attr.name)     *>
+            addString!("value", attr.value)   *>
+            addString!("code", attr.code)
         )
 
     /// ## DataDictionary
-    def addDataDictSheet(sheet: {metadata :: List[DataDictMetadata], 
+    def addDataDictSheet!(sheet: {metadata :: List[DataDictMetadata], 
                                     headings :: List[SectionHeading],
                                     attributes :: List[DataDictAttribute]}): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonObjectBuilder, addString};
-        addJsonObjectBuilder("data_dictionary", 
-            addString("sheet_name", "PDS_ADT")                      *>
-            addDataDictMetadata("metadata", sheet.metadata)         *>
-            addSectionHeadings("headings", sheet.headings)          *>
-            addDataDictAttributes("attributes", sheet.attributes)
+        use Basis/Json/JsonObjectBuilder.{addJsonObjectBuilder!, addString!};
+        addJsonObjectBuilder!("data_dictionary", 
+            addString!("sheet_name", "PDS_ADT")                      *>
+            addDataDictMetadata!("metadata", sheet.metadata)         *>
+            addSectionHeadings!("headings", sheet.headings)          *>
+            addDataDictAttributes!("attributes", sheet.attributes)
         )
 
-    def addDataDictMetadata(name: String, xs: List[DataDictMetadata]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonArrayBuilder};
-        addJsonArrayBuilder(name, Foldable.foreachM(addDataDictMetadata1, xs))
+    def addDataDictMetadata!(name: String, xs: List[DataDictMetadata]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonObjectBuilder.{addJsonArrayBuilder!};
+        addJsonArrayBuilder!(name, Foldable.foreachM(addDataDictMetadata1!, xs))
 
-    def addDataDictMetadata1(ddm: DataDictMetadata): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonArrayBuilder.{addJsonObjectBuilder};
-        use Interop/Json/JsonObjectBuilder.{addInt32, addString};
-        addJsonObjectBuilder(
-            addInt32("row_num", ddm.rowNum) *> 
-            addString("name", ddm.name)     *>
-            addString("value", ddm.value)
+    def addDataDictMetadata1!(ddm: DataDictMetadata): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonArrayBuilder.{addJsonObjectBuilder!};
+        use Basis/Json/JsonObjectBuilder.{addInt32!, addString!};
+        addJsonObjectBuilder!(
+            addInt32!("row_num", ddm.rowNum) *> 
+            addString!("name", ddm.name)     *>
+            addString!("value", ddm.value)
         )
 
-    def addDataDictAttributes(name: String, xs: List[DataDictAttribute]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonArrayBuilder};
-        addJsonArrayBuilder(name, Foldable.foreachM(addDataDictAttribute1, xs))
+    def addDataDictAttributes!(name: String, xs: List[DataDictAttribute]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonObjectBuilder.{addJsonArrayBuilder!};
+        addJsonArrayBuilder!(name, Foldable.foreachM(addDataDictAttribute1!, xs))
 
-    def addDataDictAttribute1(attr: DataDictAttribute): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonArrayBuilder.{addJsonObjectBuilder};
-        use Interop/Json/JsonObjectBuilder.{addInt32, addString};
-        addJsonObjectBuilder(
-            addInt32("row_num", attr.rowNum)        *> 
-            addString("category", attr.category)    *>
-            addString("name", attr.name)            *>
-            addString("units", attr.units)
+    def addDataDictAttribute1!(attr: DataDictAttribute): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonArrayBuilder.{addJsonObjectBuilder!};
+        use Basis/Json/JsonObjectBuilder.{addInt32!, addString!};
+        addJsonObjectBuilder!(
+            addInt32!("row_num", attr.rowNum)        *> 
+            addString!("category", attr.category)    *>
+            addString!("name", attr.name)            *>
+            addString!("units", attr.units)
         )
 
     /// ## DataSheet
 
-    def addDataSheet(sheet: {sheetName :: String, multiAttributes :: List[DataSheetMultiAttribute]}): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonObjectBuilder, addString};
-        addJsonObjectBuilder("datasheet", 
-            addString("sheet_name", sheet.sheetName) *>
-            addDataSheetMultiAttributes("rows", sheet.multiAttributes)
+    def addDataSheet!(sheet: {sheetName :: String, multiAttributes :: List[DataSheetMultiAttribute]}): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonObjectBuilder.{addJsonObjectBuilder!, addString!};
+        addJsonObjectBuilder!("datasheet", 
+            addString!("sheet_name", sheet.sheetName) *>
+            addDataSheetMultiAttributes!("rows", sheet.multiAttributes)
         )
 
-    def addDataSheetMultiAttributes(name: String, xs: List[DataSheetMultiAttribute]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonObjectBuilder.{addJsonArrayBuilder};
-        addJsonArrayBuilder(name, Foldable.foreachM(addDataSheetMultiAttribute1, xs))
+    def addDataSheetMultiAttributes!(name: String, xs: List[DataSheetMultiAttribute]): JsonObjectBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonObjectBuilder.{addJsonArrayBuilder!};
+        addJsonArrayBuilder!(name, Foldable.foreachM(addDataSheetMultiAttribute1!, xs))
 
-    def addDataSheetMultiAttribute1(attr: DataSheetMultiAttribute): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
-        use Interop/Json/JsonArrayBuilder.{addJsonObjectBuilder};
-        use Interop/Json/JsonObjectBuilder.{addInt32, addString, addJsonArrayBuilder};
-        addJsonObjectBuilder(
-            addInt32("row_num", attr.rowNum) *> 
-            addString("name", attr.name)     *>
-            addJsonArrayBuilder("values", Foldable.foreachM(Interop/Json/JsonArrayBuilder.addString, attr.values))
+    def addDataSheetMultiAttribute1!(attr: DataSheetMultiAttribute): JsonArrayBuilder[r, Unit, Unit] \ Write(r) =
+        use Basis/Json/JsonArrayBuilder.{addJsonObjectBuilder!};
+        use Basis/Json/JsonObjectBuilder.{addInt32!, addString!, addJsonArrayBuilder!};
+        addJsonObjectBuilder!(
+            addInt32!("row_num", attr.rowNum) *> 
+            addString!("name", attr.name)     *>
+            addJsonArrayBuilder!("values", Foldable.foreachM(Basis/Json/JsonArrayBuilder.addString!, attr.values))
         )
 
 }
