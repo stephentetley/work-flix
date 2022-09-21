@@ -34,14 +34,14 @@ namespace PDTKit/PdtL/Internal/Reader {
     pub def readPdtFile(path: FilePath): Result[PdtFile, String] \ IO = region r1 {
         use SheetIO/WorkbookReader.{runXlsx};
         let filename1 = Basis/System/FilePath.getFileName(path) |> Option.map(ToString.toString) |> Option.getWithDefault("...");
-        runXlsx(readPdtFile1(r1, filename1), path)
+        runXlsx(r1, readPdtFile1(filename1), path)
     }
 
-    def readPdtFile1(r1: Region[r1], name: String): WorkbookReader[r, PdtFile] \ { Read(r), Write(r1) } = 
+    def readPdtFile1(name: String): WorkbookReader[r, ka, PdtFile] \ { Read(r) } = 
         use SheetIO/WorkbookReader.{flatMap, point};
         let* ls = readLeadSheet();
         let* dd = readDataDictionary();
-        let* ds = readDataSheet(r1);
+        let* ds = readDataSheet();
         point(
             { fileName = name
             , leadSheet = PDTKit/PdtL/Internal/Resolver.resolveLeadSheet(ls)
@@ -53,50 +53,50 @@ namespace PDTKit/PdtL/Internal/Reader {
             })
 
 
-    pub def readLeadSheet(): WorkbookReader[r, List[LeadSheetRow]] \ Read(r) = 
+    pub def readLeadSheet(): WorkbookReader[r, ka, List[LeadSheetRow]] \ Read(r) = 
         use SheetIO/WorkbookReader.{flatMap, getSheetNamed, withSheetReader};
         let* sheet1 = getSheetNamed("Asset Data Lead Sheet");
         withSheetReader(SheetIO/SheetReader.someRows(evalLeadSheetRow()), sheet1)
         
 
         
-    def evalLeadSheetRow(): RowEvaluator[r, LeadSheetRow] \ Read(r) = 
+    def evalLeadSheetRow(): RowEvaluator[r, ka, LeadSheetRow] \ Read(r) = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
         Applicative.product4(getRowNum(), getNonEmptyContentAt(0), getTrimmedContentAt(1), getTrimmedContentAt(2))
 
 
-    pub def readDataDictionary(): WorkbookReader[r, List[DataDictionaryRow]] \ Read(r) = 
+    pub def readDataDictionary(): WorkbookReader[r, ka, List[DataDictionaryRow]] \ Read(r) = 
         use SheetIO/WorkbookReader.{flatMap, getSheetNamed, withSheetReader};
         let* sheet1 = getSheetNamed("PDS_ADT");
         withSheetReader(SheetIO/SheetReader.someRows(evalDataDictionaryRow()), sheet1)
 
-    def evalDataDictionaryRow(): RowEvaluator[r, DataDictionaryRow] \ { Read(r) } = 
+    def evalDataDictionaryRow(): RowEvaluator[r, ka, DataDictionaryRow] \ { Read(r) } = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getTrimmedContentAt};
         Applicative.product4(getRowNum(), getNonEmptyContentAt(0), getTrimmedContentAt(1), getTrimmedContentAt(3))
 
 
-    pub def readDataSheet(r1: Region[r1]): WorkbookReader[r, {sheet :: String, rows :: List[DataSheetRow]}] \ { Read(r), Write(r1) } = 
+    pub def readDataSheet(): WorkbookReader[r, ka, {sheet :: String, rows :: List[DataSheetRow]}] \ { Read(r) } = 
         use SheetIO/WorkbookReader.{flatMap, point, throwError, getSheetNames, getSheetNamed, withSheetReader};
         let* names = getSheetNames();
         match List.find(String.startsWith(prefix = "PDT_"), names) {
             case Some(name) => {
                 let* sheet1 = getSheetNamed(name);
-                let* rows = withSheetReader(SheetIO/SheetReader.someRows(evalDataSheetRow(r1)), sheet1);
+                let* rows = withSheetReader(SheetIO/SheetReader.someRows(evalDataSheetRow()), sheet1);
                 point({sheet = name, rows = rows})
             }
             case None       => throwError("Cannot find values sheet.")
         }
         
     /// `getLastCellNum` not helpful...
-    def evalDataSheetRow(r1: Region[r1]): RowEvaluator[r, DataSheetRow] \ { Read(r), Write(r1) } = 
+    def evalDataSheetRow(): RowEvaluator[r, ka, DataSheetRow] \ { Read(r)} = 
         use SheetIO/RowEvaluator.{getRowNum, getNonEmptyContentAt, getLastCellNum, getRowContents};
         Applicative.product3(getRowNum(), 
             getNonEmptyContentAt(0),
-            ((getValues >> List.map(String.trim)) <$> getRowContents(r1))
+            ((getValues >> List.map(String.trim)) <$> getRowContents())
         )
 
-    /// Padd to greatest length later...
-    def getValues(arr: Array[String, r1]): List[String] \ Read(r1) =  
+    /// Pad to greatest length later...
+    def getValues(l: List[String]): List[String]  =  
         let step = (x, acc) -> { 
             let (seen, xs) = acc;
             match (seen, not String.isEmpty(x)) {
@@ -105,6 +105,6 @@ namespace PDTKit/PdtL/Internal/Reader {
                 case (_, _)         => (true, x :: xs)
             }
         };
-        Array.toList(arr) |> List.drop(1) |> List.foldRight(step, (false, Nil)) |> snd
+        List.drop(1, l) |> List.foldRight(step, (false, Nil)) |> snd
 
 }

@@ -156,7 +156,7 @@ namespace PDTKit/BaseReports/Summary {
         }
     
     // Change,Reference,Asset Name,OldParentName,NewParentName
-    pub def writeRow(row: SummaryRow): RowSetter[r, Unit] \ Write(r) = 
+    pub def writeRow(row: SummaryRow): RowSetter[r, ka, Unit] \ Write(r) = 
         use Applicative.{*>};
         use SheetIO/RowSetter.{putStringAt!, putInt32At!};
         putStringAt!(0, row.fileName)       *>
