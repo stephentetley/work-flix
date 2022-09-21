@@ -16,7 +16,7 @@
 
 namespace S4Loader/PDT/BuildDb {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use BasicDb.DbMonad;
     use PDTKit/Configuration/ReadFieldEvalSpecXlsx.{FieldEvalRow};
     use PDTKit/Configuration/ReadFieldValueEnumXlsx.{FieldValueEnumRow};

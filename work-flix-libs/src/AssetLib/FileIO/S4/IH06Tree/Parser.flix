@@ -20,7 +20,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/Parser {
     use Functor.{map, ignore};
     use Applicative.{point, *>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use Time.LocalDate;
 

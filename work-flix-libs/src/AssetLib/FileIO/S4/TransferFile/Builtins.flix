@@ -21,7 +21,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Builtins {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use AssetLib/FileIO/S4/TransferFile/Datatypes.EntityType.{ClassFloc, ValuaFloc, ClassEqui, ValuaEqui};
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{ClassFlocRow, ValuaFlocRow, ClassEquiRow, ValuaEquiRow};

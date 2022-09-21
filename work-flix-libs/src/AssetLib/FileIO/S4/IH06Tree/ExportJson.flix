@@ -17,7 +17,7 @@
 
 namespace AssetLib/FileIO/S4/IH06Tree/ExportJson {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use FlixSandbox.RoseTree;
     use FlixSandbox.RoseTree.{Node};
 

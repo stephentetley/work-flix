@@ -16,7 +16,7 @@
 
 namespace AssetLib/GenS4/Rules/Equipment {
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     
     use AssetLib/S4Lite/Datatypes.{SLEquipment, SLEquiCharacteristic};
     use AssetLib/S4Lite/S4LiteRelations.{Equipment, EquiCharacteristic};

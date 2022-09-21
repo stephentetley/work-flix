@@ -16,7 +16,7 @@
 
 namespace AssetLib/FileIO/S4/ClassList/Builder {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassListRow};
     use AssetLib/FileIO/S4/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow};

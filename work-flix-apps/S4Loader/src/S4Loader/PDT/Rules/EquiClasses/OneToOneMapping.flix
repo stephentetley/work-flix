@@ -17,7 +17,7 @@
 
 namespace S4Loader/PDT/Rules/EquiClasses/OneToOneMapping {
 
-    use S4Loader/Base/Schema.{EquiCharMapping};
+    use S4Loader/Base/Schema.{EquiClassMapping, EquiCharMapping};
 
     /// Tiny dsl to specify class / characteristic mappings...
 
@@ -36,9 +36,9 @@ namespace S4Loader/PDT/Rules/EquiClasses/OneToOneMapping {
     pub def directMapping(s4Class: String, pdtObjectType: String): OneToOneMapping  =  
         {s4Class = s4Class, pdtObjectType = pdtObjectType, properties = Nil}
     
-
-    pub def makeRelations(m: OneToOneMapping): #{EquiCharMapping | r} = 
-        RelLib/Relation.foldMap(r -> #{ EquiCharMapping(m.pdtObjectType, r.pdtField, m.s4Class, r.s4Characteristic). }, m.properties)
+    pub def makeRelations(m: OneToOneMapping): #{EquiClassMapping, EquiCharMapping | r} = 
+        #{ EquiClassMapping(m.pdtObjectType, m.s4Class). }
+            <+> RelLib/Relation.foldMap(r -> #{ EquiCharMapping(m.pdtObjectType, r.pdtField, m.s4Class, r.s4Characteristic). }, m.properties)
 
 
 

@@ -16,7 +16,7 @@
 
 namespace AssetLib/FileIO/Aib/AideChangeSummary/XlsxReader {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use SheetIO.SheetReader;
     use SheetIO.NamedRowEvaluator;
 

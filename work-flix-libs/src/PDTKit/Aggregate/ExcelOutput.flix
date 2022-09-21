@@ -16,7 +16,7 @@
 
 namespace PDTKit/Aggregate/ExcelOutput {
     
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use SheetIO.RowSetter;
     use SheetIO.SheetWriter;

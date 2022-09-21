@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/AibFacts/Attributes/Vessel {
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 

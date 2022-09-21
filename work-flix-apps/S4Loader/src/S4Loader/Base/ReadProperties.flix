@@ -20,7 +20,7 @@ namespace S4Loader/Base/ReadProperties {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;
 

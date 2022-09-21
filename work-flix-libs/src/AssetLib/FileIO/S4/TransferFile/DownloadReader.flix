@@ -16,7 +16,7 @@
 
 namespace AssetLib/FileIO/S4/TransferFile/DownloadReader {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use AssetLib/FileIO/S4/TransferFile/Datatypes.{TransferFile, DataRow, EntityType, Headers};
     use AssetLib/FileIO/S4/TransferFile.DownloadRowEvaluator;

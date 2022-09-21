@@ -20,7 +20,7 @@ namespace AssetLib/FileIO/S4/ZTable/Builtins {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use AssetLib/FileIO/S4/ZTable/Datatypes.{EquiObject, 
         FlocObject, FlocDescription, ObjTypeManufacturer, ManufacturerModel};

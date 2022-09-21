@@ -17,7 +17,7 @@
 
 namespace AssetLib/Base/ExportHtmlTree {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use FlixSandbox.{RoseTree, RoseForest};
     use FlixSandbox.RoseTree.{RoseTree};
     

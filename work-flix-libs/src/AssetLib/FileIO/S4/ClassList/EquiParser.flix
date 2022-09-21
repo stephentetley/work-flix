@@ -22,7 +22,7 @@ namespace AssetLib/FileIO/S4/ClassList/EquiParser {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use Text/RegexEval.MatchEvaluator;
 

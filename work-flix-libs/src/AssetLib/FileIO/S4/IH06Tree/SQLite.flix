@@ -18,7 +18,7 @@ namespace AssetLib/FileIO/S4/IH06Tree/SQLite {
 
     use Applicative.{point, *>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;

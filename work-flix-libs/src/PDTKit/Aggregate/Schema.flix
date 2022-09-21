@@ -16,8 +16,8 @@
 
 namespace PDTKit/Aggregate/Schema {
 
-    use RelLib/Lattice/StringAttributes.{StringAttributes};
-    use RelLib/Lattice/Int32StringAttributes.{Int32StringAttributes};
+    use Compatibility/Lattice/StringAttributes.{StringAttributes};
+    use Compatibility/Lattice/Int32StringAttributes.{Int32StringAttributes};
 
     pub rel Classification(sourceFile: String, classification: String)
 

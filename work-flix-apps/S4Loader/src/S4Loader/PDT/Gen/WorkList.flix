@@ -18,7 +18,7 @@ namespace S4Loader/PDT/Gen/WorkList {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use S4Loader/Base/Schema.{StringProperty, IntProperty};
 

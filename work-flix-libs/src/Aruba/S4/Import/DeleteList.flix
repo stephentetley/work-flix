@@ -19,7 +19,7 @@ namespace Aruba/S4/Import/DeleteList {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
     use Aruba/S4/Base.{S4Floc, S4Equi};

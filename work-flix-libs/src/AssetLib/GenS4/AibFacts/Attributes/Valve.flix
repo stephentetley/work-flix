@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/AibFacts/Attributes/Valve {
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
 

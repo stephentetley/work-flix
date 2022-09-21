@@ -22,14 +22,14 @@ namespace S4Loader/Base/StoreProperties {
 
     use Monad.{>>=};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use Time.LocalDate;
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
     use BasicDb/Writer.RowSetter;
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
 
     use S4Loader/Base/Schema.{StringProperty, IntProperty, FloatProperty, DateProperty, S4Properties};

@@ -35,33 +35,6 @@ namespace S4Loader/PDT/Rules/EquiCharacteristics {
     pub def equiCharacteristics(): EquiCharacteristicSchema[r1] =  
         #{            
 
-            /// /// One-to-one Mappings
-            /// /// Check table `meta_pdt_oto_mappings` if suspected characteristic is 
-            /// /// missing in output...
-            /// EquiCharacteristic(uid, equiClass, charName, S4String(value)) :-
-            ///     EquiWorkItem(uid, _),
-            ///     EquiObjectClass(uid, _, _, equiClass),
-            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-            ///     StringProperty(uid, pdtFieldName, value).
-
-            /// EquiCharacteristic(uid, equiClass, charName, S4Int(value)) :-
-            ///     EquiWorkItem(uid, _),
-            ///     EquiObjectClass(uid, _, _, equiClass),
-            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-            ///     IntProperty(uid, pdtFieldName, value).
-
-            /// EquiCharacteristic(uid, equiClass, charName, S4Float(value)) :-
-            ///     EquiWorkItem(uid, _),
-            ///     EquiObjectClass(uid, _, _, equiClass),
-            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-            ///     FloatProperty(uid, pdtFieldName, value).
-
-            /// EquiCharacteristic(uid, equiClass, charName, S4Date(value)) :-
-            ///     EquiWorkItem(uid, _),
-            ///     EquiObjectClass(uid, _, _, equiClass),
-            ///     PdtOneToOneMapping(equiClass, charName, pdtFieldName),
-            ///     DateProperty(uid, pdtFieldName, value).
-
             
             EquiCharacteristic(uid, s4ClassName, s4CharName, S4String(value)) :-
                 EquiWorkItem(uid, _),

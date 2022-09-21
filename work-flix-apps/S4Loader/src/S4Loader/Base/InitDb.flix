@@ -16,7 +16,7 @@
 
 namespace S4Loader/Base/InitDb {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use BasicDb.DbMonad;
 
     // # Properties Tables

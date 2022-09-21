@@ -18,7 +18,7 @@
 namespace AssetLib/GenS4/Rules/MultilingualText {
 
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{SLEquiLongText};
     use AssetLib/S4Lite/S4LiteRelations.{EquiLongText};

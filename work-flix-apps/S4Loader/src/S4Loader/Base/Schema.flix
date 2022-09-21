@@ -34,7 +34,11 @@ namespace S4Loader/Base/Schema {
     pub rel PropertyAlias(aiPropName: String, s4Class: String, s4Chararacteristic: String)
 
     /// This is PDT specific...
+    /// DEPRECATED
     pub rel PdtOneToOneMapping(s4Class: String, s4Chararacteristic: String, pdtFieldName: String)
+
+    /// This is PDT specific...
+    pub rel EquiClassMapping(pdtObjectType: String, s4ClassName: String)
 
     /// This is PDT specific...
     pub rel EquiCharMapping(pdtObjectType: String, pdtStringProperty: String, s4ClassName: String, s4CharName: String)

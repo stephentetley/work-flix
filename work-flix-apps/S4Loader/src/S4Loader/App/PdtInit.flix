@@ -20,9 +20,9 @@ namespace S4Loader/App/PdtInit {
 
     use Applicative.{*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use BasicDb.DbMonad;
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     use S4Loader/Base/Schema.{S4Properties, StringProperty, IntProperty, FloatProperty};
 
 

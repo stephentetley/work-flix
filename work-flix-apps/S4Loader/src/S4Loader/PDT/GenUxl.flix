@@ -16,9 +16,9 @@
 
 namespace S4Loader/PDT/GenUxl {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/Base/AttributesLattice.{AttributeValue};
     use AssetLib/Base/AttributesLattice.AttributeValue.{AttrString, AttrInt, AttrFloat, AttrDate};

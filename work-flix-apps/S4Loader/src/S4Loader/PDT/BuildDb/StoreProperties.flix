@@ -24,7 +24,7 @@ namespace S4Loader/PDT/BuildDb/StoreProperties {
     use BasicDb.PreparedStatementSetter;
     use BasicDb/Writer.RowSetter;
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use RelLib/Lattice/Constant.Constant;
 

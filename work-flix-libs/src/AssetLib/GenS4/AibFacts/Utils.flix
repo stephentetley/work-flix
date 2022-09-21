@@ -21,7 +21,7 @@ namespace AssetLib/GenS4/AibFacts/Utils {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/Base/Osgb36.{EastingNorthing};
 

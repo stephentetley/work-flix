@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/AibReference {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{AibPliNum, AibParentRef};

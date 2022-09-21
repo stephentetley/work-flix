@@ -19,7 +19,7 @@ namespace PDTKit/Lint/Base/Loader {
     use Functor.{<$>};
     use Applicative.{<*>, *>, point};
     
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use BasicDb.DbMonad;
     use BasicDb.RowEvaluator;

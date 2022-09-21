@@ -22,7 +22,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/Equipment {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/GenS4.{GenMonad};
 

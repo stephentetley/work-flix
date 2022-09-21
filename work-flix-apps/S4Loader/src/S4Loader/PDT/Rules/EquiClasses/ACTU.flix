@@ -20,7 +20,11 @@ namespace S4Loader/PDT/Rules/EquiClasses/ACTU {
     use S4Loader/Base/Schema.{EquiCharMapping};
     use S4Loader/PDT/Rules/EquiClasses/OneToOneMapping.{directMapping, property, makeRelations};
     
-    pub def all(): #{EquiCharMapping | r} = actuem()
+    pub def all(): #{EquiCharMapping | r} = actueh() <+> actuem()
+
+    pub def actueh(): #{EquiCharMapping | r} = 
+        directMapping("ACTUEH",                         "Hydraulic Actuator")
+            |> makeRelations
 
     pub def actuem(): #{EquiCharMapping | r} = 
         directMapping("ACTUEM",                         "Electric Motor Actuator")

@@ -16,7 +16,7 @@
 
 namespace Aruba/S4/Import/IH06StructureList {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.{IH06File};
     use AssetLib/FileIO/S4/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};

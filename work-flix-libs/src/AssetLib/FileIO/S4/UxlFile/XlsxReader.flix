@@ -20,7 +20,7 @@ namespace AssetLib/FileIO/S4/UxlFile/XlsxReader {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;

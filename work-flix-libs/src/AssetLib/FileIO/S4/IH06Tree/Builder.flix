@@ -17,7 +17,7 @@
 
 namespace AssetLib/FileIO/S4/IH06Tree/Builder {
         
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use FlixSandbox.{RoseTree, RoseForest};
     use FlixSandbox.RoseTree.{Node};
 

@@ -16,9 +16,9 @@
 
 namespace S4Loader/Uxl/GenUxl {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/S4Lite/Datatypes.{UxlOutput};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};

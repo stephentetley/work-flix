@@ -19,7 +19,7 @@ namespace AssetLib/GenS4/AibFacts/Attributes/LocationData {
 
     use SheetIO.NamedRowEvaluator;
     use SheetIO.SheetReader;
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/GenS4.{GenMonad};
     use AssetLib/GenS4/Base/CommonRelations.{LocationOnSite, NationalGridRef};

@@ -16,7 +16,7 @@
 
 namespace S4Loader/App/GenPdtUxl {
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};
     use AssetLib/S4Lite/S4LiteRelations.{EquiCharacteristic, EquiLongText};

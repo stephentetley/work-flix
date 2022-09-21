@@ -23,7 +23,7 @@ namespace Aruba/Aib/Import/ExportFile {
 
     use Text/Regex.MatchEvaluator;
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
     use Aruba/Aib/Base.{AibFloc, AibEqui, AibSubFloc, AibEquiLocation, AibSubEqui, AibFlocLevel, AibEquiType};

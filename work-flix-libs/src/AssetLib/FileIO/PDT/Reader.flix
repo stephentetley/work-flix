@@ -19,7 +19,7 @@ namespace AssetLib/FileIO/PDT/Reader {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use SheetIO.Sheet;
     use SheetIO.SheetReader;

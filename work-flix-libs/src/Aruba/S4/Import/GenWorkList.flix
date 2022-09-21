@@ -20,7 +20,7 @@ namespace Aruba/S4/Import/GenWorkList {
     use Applicative.{<*>};
 
     use SheetIO.NamedRowEvaluator;
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use Aruba/S4/Base.{S4Floc, S4Equi, S4SubFloc, S4EquiLocation, S4SubEqui, S4FlocLevel};
     use Aruba/S4/Hierarchy.{Site, Function, ProcessGroup, Process, System, Subsystem, 

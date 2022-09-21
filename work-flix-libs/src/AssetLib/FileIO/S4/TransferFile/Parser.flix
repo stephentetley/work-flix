@@ -21,7 +21,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Parser {
     use Functor.{map, ignore};
     use Applicative.{*>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use Time.LocalDateTime;
 
     use FlixParsec.Parser;

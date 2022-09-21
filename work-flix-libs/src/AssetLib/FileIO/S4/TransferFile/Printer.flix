@@ -21,7 +21,7 @@ namespace AssetLib/FileIO/S4/TransferFile/Printer {
     use FlixSandbox/Deprecated/SimpleFormat.{Doc};
     use FlixSandbox/Deprecated/SimpleFormat.{toString, besideSpace, beside, below, hcat, vcat, text, char, colon, punctuate, tab, line};
     use FlixSandbox/Deprecated/SimpleFormat.{<>, <<>>, <!>};
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     use Time.LocalDateTime;
 

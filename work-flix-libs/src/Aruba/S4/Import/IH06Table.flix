@@ -19,7 +19,7 @@ namespace Aruba/S4/Import/IH06Table {
     use Functor.{<$>};
     use Applicative.{<*>};
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     use SheetIO.NamedRowEvaluator;
 
     use Aruba/S4/Hierarchy.{S4FlocType};

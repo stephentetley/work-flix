@@ -17,7 +17,7 @@
 
 namespace AssetLib/GenS4/GenUxl {
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
     
     use AssetLib/S4Lite/Datatypes.{UxlOutput, SLFunctionalLocation, SLFlocCharacteristic};
     use AssetLib/S4Lite/EmitUxl.{UxlOutputArgs};

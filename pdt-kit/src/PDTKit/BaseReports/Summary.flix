@@ -42,6 +42,7 @@ namespace PDTKit/BaseReports/Summary {
         , system :: String
         , floc :: String
         , index :: Int32
+        , tag :: String
         , assetName :: String
         , assetType :: String
         , assetStatus :: String
@@ -58,6 +59,7 @@ namespace PDTKit/BaseReports/Summary {
             row.system ::
             row.floc :: 
             ToString.toString(row.index) ::
+            row.tag ::
             row.assetName :: 
             row.assetType :: 
             row.assetStatus :: 
@@ -65,7 +67,11 @@ namespace PDTKit/BaseReports/Summary {
 
 
     def processFile(path: FilePath): Result[List[SummaryRow], String] \ IO =
-        PDTKit/PdtL/ReadPdt.readPdtFile(path) |> Result.flatMap(summarizeFile)
+        use Result.flatMap;
+        let* src = PDTKit/PdtL/ReadPdt.readPdtFile(path);
+        let* ans = summarizeFile(src);
+        if (List.isEmpty(ans)) println("No results from: ${path}") else ();
+        Ok(ans)
 
     def allXlsxFiles(path: FilePath): Result[List[FilePath], String] \ IO =
         use Result.flatMap;
@@ -98,16 +104,31 @@ namespace PDTKit/BaseReports/Summary {
             case _         => Err("Invalid - multiple floc codes")
         }
 
-    def getItems(multiAttributes: List[DataSheetMultiAttribute]): List[(Int32, String, String, String)] = 
+    def getItems(multiAttributes: List[DataSheetMultiAttribute]): List[(Int32, String, String, String, String)] = 
         let db = multiAttributes |> List.flatMap(transposeDataSheetMultiAttribute) |> xs -> inject xs into Attrib3;
         let pr = #{
-            Item(column, name, atyp, status) :- 
+
+            /// "Tag reference" not always present...
+            HasTag(column) :- Attrib3(column, "Tag reference", _).
+
+            Item(column, name, atyp, status, tag) :- 
+                HasTag(column),
                 Attrib3(column, "Asset Name", name),
                 Attrib3(column, "Asset Type", atyp),
                 Attrib3(column, "Asset Status", status),
-                if not String.isEmpty(name) and not String.isEmpty(atyp).
+                Attrib3(column, "Tag reference", tag),
+                if not String.isEmpty(name) or not String.isEmpty(atyp).
+
+
+            Item(column, name, atyp, status, "") :-                 
+                Attrib3(column, "Asset Name", name),
+                Attrib3(column, "Asset Type", atyp),
+                Attrib3(column, "Asset Status", status),
+                not HasTag(column),
+                if not String.isEmpty(name) or not String.isEmpty(atyp).
+
         };
-        query db, pr select (w, x, y, z) from Item(w, x, y, z)
+        query db, pr select (v, w, x, y, z) from Item(v, w, x, y, z)
 
     def transposeDataSheetMultiAttribute(x: DataSheetMultiAttribute): List[(Int32, String, String)] = 
         List.mapWithIndex((s, ix) -> (ix+1, x.name, s), x.values)
@@ -116,9 +137,9 @@ namespace PDTKit/BaseReports/Summary {
     def summarize1(fileName: {fileName :: String}, 
                     sheetName: {sheetName :: String}, 
                     codes: (String, String, String, String, String),
-                    item: (Int32, String, String, String)): SummaryRow = 
+                    item: (Int32, String, String, String, String)): SummaryRow = 
         let (site, function, processGroup, process, system) = codes;
-        let (index, assetName, assetType, assetStatus) = item;
+        let (index, assetName, assetType, assetStatus, tag) = item;
         { fileName = fileName.fileName
         , dataSheetName = sheetName.sheetName
         , site = site
@@ -128,6 +149,7 @@ namespace PDTKit/BaseReports/Summary {
         , system = system
         , floc = String.intercalate("-", site :: function :: processGroup :: process :: system :: Nil)
         , index = index
+        , tag = tag
         , assetName = assetName
         , assetType = assetType
         , assetStatus = assetStatus

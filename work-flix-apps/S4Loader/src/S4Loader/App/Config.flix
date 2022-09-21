@@ -18,7 +18,7 @@
 
 namespace S4Loader/App/Config {
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
 
     /// TODO - should System/FilePath.new unquote strings?
     /// On Windows, paths retreived from env-vars might be quoted...

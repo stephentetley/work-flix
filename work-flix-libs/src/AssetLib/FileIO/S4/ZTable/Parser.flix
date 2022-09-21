@@ -19,7 +19,7 @@
 namespace AssetLib/FileIO/S4/ZTable/Parser {
 
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use FlixParsec.Parser;
 
     use AssetLib/FileIO/S4/ZTable.RowEvaluator;

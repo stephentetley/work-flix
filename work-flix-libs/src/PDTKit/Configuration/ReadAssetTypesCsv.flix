@@ -19,7 +19,7 @@ namespace PDTKit/Configuration/ReadAssetTypesCsv {
     use Functor.{<$>};
     use Applicative.{<*>, *>};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 

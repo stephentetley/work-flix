@@ -18,13 +18,13 @@ namespace S4Loader/Aib/BuildDb {
 
     use Monad.{>>=};
 
-    use FlixSandbox/System.FilePath;
+    use Basis/System.FilePath;
     use Time.LocalDate;
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
 
-    use SheetIO/Reader.{XlsxSource};
+    use Compatibility.{XlsxSource};
 
     use AssetLib/FileIO/S4/ClassList/Datatypes.{ClassList, Characteristic};
 
