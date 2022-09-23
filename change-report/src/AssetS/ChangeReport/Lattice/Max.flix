@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/Lattice {
+namespace AssetS/ChangeReport/Lattice/Max {
 
 
     pub enum Max[a] with Eq, Order, ToString, Hash { 
-        case Max(a) 
         case MaxBottom
+        case Max(a) 
     }
 
 
