@@ -21,14 +21,14 @@ namespace AssetS/ChangeReport/Reader {
  
     use MonadLib/MonadOr.{optional};
 
-    use Basis/System.FilePath;
+    use Basis/System.Path;
 
     use SheetIO.WorkbookReader;
     use SheetIO.RowEvaluator;
 
     
 
-    pub def readChangeReport(path: FilePath): Result[List[Map[String, String]], String] \ IO = region r1 {
+    pub def readChangeReport(path: Path): Result[List[Map[String, String]], String] \ IO = region r1 {
         use SheetIO/WorkbookReader.{runXlsx};
         runXlsx(r1, readChangeReport1(), path)
     }

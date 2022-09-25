@@ -11,7 +11,7 @@ def main(): Unit \ IO =
 
 def main1(): Result[Unit, String] \ IO = 
     use Result.flatMap;
-    let* dir = Basis/System/FilePath.filePath("G:/work/assets/capital_schemes/hollym-ml-stw/pdts");
+    let* dir = Basis/System/Path.newPath("G:/work/assets/capital_schemes/hollym-ml-stw/pdts");
     let* _   = PDTKit/BaseReports/Summary.processDirectory(dir);
     Ok()
 

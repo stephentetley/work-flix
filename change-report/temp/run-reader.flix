@@ -12,7 +12,7 @@ def main(): Unit \ IO =
 def main1(): Result[Unit, String] \ IO = 
     use Result.flatMap;
     use AssetS/ChangeReport/Relations.{Change};
-    let* path   = Basis/System/FilePath.filePath("G:/work/assets/change-requests/sample1.xlsx");
+    let* path   = Basis/System/Path.newPath("G:/work/assets/change-requests/sample1.xlsx");
     let* rows   = AssetS/ChangeReport/Reader.readChangeReport(path);
     List.foreach(println, List.take(5, rows));
     let relns   = AssetS/ChangeReport/MakeRelations.makeRowRelations(rows) <+> AssetS/ChangeReport/DecodeChanges.decodeChanges();

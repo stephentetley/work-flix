@@ -16,7 +16,7 @@
 
 namespace PDTKit/BaseReports/Summary {
 
-    use Basis/System.FilePath;
+    use Basis/System.Path;
     use SheetIO.RowSetter;
 
     use PDTKit/PdtL/Datatypes.{PdtFile, DataSheetMultiAttribute};
@@ -24,7 +24,7 @@ namespace PDTKit/BaseReports/Summary {
     /// FileName / DataSheetName / Site / Function / ProcessGroup / Process / System / Floc / AssetName / AssetType / AssetStatus
 
 
-    pub def processDirectory(path: FilePath): Result[Unit, String] \ IO = 
+    pub def processDirectory(path: Path): Result[Unit, String] \ IO = 
         use Result.flatMap;
         let* paths = allXlsxFiles(path);
         let* rows = Result.traverse(processFile, paths) |> Result.map(List.flatten);
@@ -66,18 +66,18 @@ namespace PDTKit/BaseReports/Summary {
             Nil)
 
 
-    def processFile(path: FilePath): Result[List[SummaryRow], String] \ IO =
+    def processFile(path: Path): Result[List[SummaryRow], String] \ IO =
         use Result.flatMap;
         let* src = PDTKit/PdtL/ReadPdt.readPdtFile(path);
         let* ans = summarizeFile(src);
         if (List.isEmpty(ans)) println("No results from: ${path}") else ();
         Ok(ans)
 
-    def allXlsxFiles(path: FilePath): Result[List[FilePath], String] \ IO =
+    def allXlsxFiles(path: Path): Result[List[Path], String] \ IO =
         use Result.flatMap;
         let* files = ToString.toString(path) |> File.list;
-        let* paths = Result.traverse(Basis/System/FilePath.filePath, files);
-        Ok(List.filter(Basis/System/FilePath.testExtension( s -> s == "xlsx"), paths))
+        let* paths = Result.traverse(Basis/System/Path.newPath, files);
+        Ok(List.filter(Basis/System/Path.testExtension( s -> s == "xlsx"), paths))
 
 
 

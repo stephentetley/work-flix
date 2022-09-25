@@ -16,11 +16,11 @@
 
 namespace PDTKit/PdtL/ReadPdt {
     
-    use Basis/System.FilePath;
+    use Basis/System.Path;
 
     use PDTKit/PdtL/Datatypes.{PdtFile};
 
-    pub def readPdtFile(path: FilePath): Result[PdtFile, String] \ IO =
+    pub def readPdtFile(path: Path): Result[PdtFile, String] \ IO =
         PDTKit/PdtL/Internal/Reader.readPdtFile(path)
     
 }
