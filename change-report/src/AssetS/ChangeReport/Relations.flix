@@ -19,22 +19,7 @@ namespace AssetS/ChangeReport/Relations {
     use AssetS/ChangeReport/Lattice/Max.{Max};
     use AssetS/ChangeReport/Lattice/Min.{Min};
 
-    pub type alias RowRelations[rln: SchemaRow] = #{ FlocAttrRow, EquiAttrRow, ClassFlocRow, ClassEquiRow, 
-                                ValuaFlocRow, ValuaEquiRow, FlocAddrRow, EquiAddrRow,
-                                FlocLongTextRow, EquiLongTextRow | rln}
-
-    pub rel FlocAttrRow(rowIx: Int32, itemId: String, change: String, attrib: String, oldValue: String, newValue: String)
-    pub rel EquiAttrRow(rowIx: Int32, itemId: String, change: String, attrib: String, oldValue: String, newValue: String)
-    pub rel ClassFlocRow(rowIx: Int32, itemId: String, className: String, change: String, oldValue: String, newValue: String)
-    pub rel ClassEquiRow(rowIx: Int32, itemId: String, className: String, change: String, oldValue: String, newValue: String)
-    pub rel ValuaFlocRow(rowIx: Int32, itemId: String, characterID: String, intCounter: String, change: String, oldValue: String, newValue: String)
-    pub rel ValuaEquiRow(rowIx: Int32, itemId: String, characterID: String, intCounter: String, change: String, oldValue: String, newValue: String)
-    pub rel FlocAddrRow(rowIx: Int32, itemId: String, addressNumber: String, change: String, attrib: String, oldValue: String, newValue: String)
-    pub rel EquiAddrRow(rowIx: Int32, itemId: String, addressNumber: String, change: String, attrib: String, oldValue: String, newValue: String)
-    pub rel FlocLongTextRow(rowIx: Int32, itemId: String, language: String, change: String, attrib: String, oldValue: String, newValue: String)
-    
-    pub rel EquiLongTextRow(rowIx: Int32, itemId: String, language: String, change: String, attrib: String, oldValue: String, newValue: String)
-
+    // SourceRow => SimpleRow => Change
 
     pub rel SourceRow(
         rowIx: Int32,
@@ -54,9 +39,6 @@ namespace AssetS/ChangeReport/Relations {
 
     pub rel SimpleRow(rowIx: Int32, compoundKey: String, change: String, oldValue: String, newValue: String)
 
-
-
-    // attrib does not uniquely identify the attribute - added to help debugging...
     pub rel Change(compoundKey: String, change: String, oldValue: String, newValue: String)
 
 }
