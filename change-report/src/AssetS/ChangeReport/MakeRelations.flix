@@ -18,110 +18,111 @@ namespace AssetS/ChangeReport/MakeRelations {
 
 
     use AssetS/ChangeReport/Relations.{
+        SourceRow,
         SimpleRow
     };
 
-    pub rel CrRow(rowIx: Int32,
-                    entityType: String, 
-                    table: String,
-                    attrib: String, 
-                    uid: String, 
-                    charId: String, 
-                    className: String, 
-                    addressNumber: String, 
-                    language: String, 
-                    intCounter: String, 
-                    change: String, 
-                    oldValue: String, 
-                    newValue: String)
+    // pub rel SourceRow(
+    //     rowIx: Int32,
+    //     entityType: String, 
+    //     itemId: String,             // floc | internal floc id | equiId
+    //     charId: String, 
+    //     className: String, 
+    //     language: String, 
+    //     intCounter: String, 
+    //     addressNumber: String, 
+    //     change: String, 
+    //     attrib: String, 
+    //     oldValue: String, 
+    //     newValue: String,
+    //     table: String
+    // )
 
+    pub def makeRowRelations[rln: SchemaRow](rows: List[Map[String, String]]): #{SourceRow, SimpleRow | rln} = 
+        let db = List.foldLeft((ac, r1) -> ac <+> makeSourceRow(r1), #{}, rows);
+        db <+> simpleRows()
 
-    pub def makeRowRelations[rln: SchemaRow](rows: List[Map[String, String]]): #{SimpleRow | rln} = 
-        let db = List.foldLeft((ac, r1) -> ac <+> makeCrRow(r1), #{}, rows);
-        solve (db <+> simpleRows()) project SimpleRow
-
-    pub def makeCrRow(m: Map[String, String]): #{CrRow | rln} = 
-        #{ CrRow( rowIx(m)
-                , getField("Entity Type", m)
-                , getField("Value", m)
-                , getField("Character ID", m)
-                , getField("Class", m)
-                , best("Language", "Language.1", m)
-                , getField("Int counter", m)
-                , best("Address Number", "Address Number.1", m)
-                , getField("Change", m)
-                , getField("Attribute", m)
-                , getField("Old Value", m)
-                , getField("New Value", m)
-                , getField("Table", m)
-            ).
+    pub def makeSourceRow(m: Map[String, String]): #{SourceRow | rln} = 
+        #{ SourceRow( rowIx(m)
+                    , getField("Entity Type", m)
+                    , getField("Value", m)
+                    , getField("Character ID", m)
+                    , getField("Class", m)
+                    , best("Language", "Language.1", m)
+                    , getField("Int counter", m)
+                    , best("Address Number", "Address Number.1", m)
+                    , getField("Change", m)
+                    , getField("Attribute", m)
+                    , getField("Old Value", m)
+                    , getField("New Value", m)
+                    , getField("Table", m)
+                    ).
         }
 
 
-    def simpleRows(): #{ CrRow, SimpleRow | rln} = #{
+    def simpleRows(): #{ SourceRow, SimpleRow | rln} = #{
 
         // Floc General Data
         SimpleRow(ix, makeKey3("F:GD", itemId, attrib), change, oldValue, newValue) :-
-            CrRow(ix, "Functional Location", itemId, _charId, _clsname, _lang, _ic, _addr, 
-                    change, attrib, oldValue, newValue, "Check Table").
+            SourceRow(ix, "Functional Location", itemId, _charId, _clsname, _lang, _ic, _addr, 
+                        change, attrib, oldValue, newValue, "Check Table").
     
         // Equi General Data
         SimpleRow(ix, makeKey3("E:GD", itemId, attrib), change, oldValue, newValue) :-
-            CrRow(ix, "Equipment", itemId, _charId, _clsname, _lang, _ic, _addr, 
-                    change, attrib, oldValue, newValue, "Check Table").
+            SourceRow(ix, "Equipment", itemId, _charId, _clsname, _lang, _ic, _addr, 
+                        change, attrib, oldValue, newValue, "Check Table").
 
         // ClassFloc
         SimpleRow(ix, makeKey3("F:CE", itemId, className), change, oldValue, newValue) :- 
-            CrRow(ix, "Functional Location", itemId, _charId, className, _lang, _ic, _addr, 
-                    change, "Status", oldValue, newValue, "Table for Relationship CLASSFLOC").
+            SourceRow(ix, "Functional Location", itemId, _charId, className, _lang, _ic, _addr, 
+                        change, "Status", oldValue, newValue, "Table for Relationship CLASSFLOC").
 
         // ClassEqui
         SimpleRow(ix, makeKey3("E:CE", itemId, className), change, oldValue, newValue) :- 
-            CrRow(ix, "Equipment", itemId, _charId, className, _lang, _ic, _addr,
-                    change, "Status", oldValue, newValue, "Table for Relationship CLASSEQUI").
+            SourceRow(ix, "Equipment", itemId, _charId, className, _lang, _ic, _addr,
+                        change, "Status", oldValue, newValue, "Table for Relationship CLASSEQUI").
 
         // ValuaFlocRow - Numeric
         SimpleRow(ix, makeKey4("F:VN", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            CrRow(ix, "Functional Location", itemId, characterID, _clsname, _lang, intCounter, _addr,
-                    change, "Value from", oldValue, newValue, "Table for Relationship VALUAFLOC").
+            SourceRow(ix, "Functional Location", itemId, characterID, _clsname, _lang, intCounter, _addr,
+                        change, "Value from", oldValue, newValue, "Table for Relationship VALUAFLOC").
     
         // ValuaFlocRow - String
         SimpleRow(ix, makeKey4("F:VS", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            CrRow(ix, "Functional Location", itemId, characterID, _clsname, _lang, intCounter, _addr,
-                    change, "Characteristic Value", oldValue, newValue, "Table for Relationship VALUAFLOC").
+            SourceRow(ix, "Functional Location", itemId, characterID, _clsname, _lang, intCounter, _addr,
+                        change, "Characteristic Value", oldValue, newValue, "Table for Relationship VALUAFLOC").
 
 
         // ValuaEquiRow - Numeric
         SimpleRow(ix,  makeKey4("E:VN", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            CrRow(ix, "Equipment", itemId, characterID, _clsname, _lang, intCounter, _addr,
-                    change, "Value from", oldValue, newValue, "Table for Relationship VALUAEQUI").
+            SourceRow(ix, "Equipment", itemId, characterID, _clsname, _lang, intCounter, _addr,
+                        change, "Value from", oldValue, newValue, "Table for Relationship VALUAEQUI").
     
         // ValuaEquiRow - String
         SimpleRow(ix,  makeKey4("E:VS", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            CrRow(ix, "Equipment", itemId, characterID, _clsname, _lang, intCounter, _addr,
-                    change, "Characteristic Value", oldValue, newValue, "Table for Relationship VALUAEQUI").
+            SourceRow(ix, "Equipment", itemId, characterID, _clsname, _lang, intCounter, _addr,
+                        change, "Characteristic Value", oldValue, newValue, "Table for Relationship VALUAEQUI").
 
-        // TODO - friday
 
         // Floc Address
         SimpleRow(ix, makeKey4("F:AD", itemId, addressNumber, attrib), change, oldValue, newValue) :- 
-            CrRow(ix, "Functional Location", itemId, _charId, _clsname, _lang, _ic, addressNumber, 
-                    change, attrib, oldValue, newValue, "Table for Relationship FUNCLOCAD").
+            SourceRow(ix, "Functional Location", itemId, _charId, _clsname, _lang, _ic, addressNumber, 
+                        change, attrib, oldValue, newValue, "Table for Relationship FUNCLOCAD").
 
         // Equi Address
         SimpleRow(ix, makeKey4("E:AD", itemId, addressNumber, attrib), change, oldValue, newValue) :- 
-            CrRow(ix, "Equipment", itemId, _charId, _clsname, _lang, _ic, addressNumber, 
-                    change, attrib, oldValue, newValue, "Table for Relationship EQUIADDR").
+            SourceRow(ix, "Equipment", itemId, _charId, _clsname, _lang, _ic, addressNumber, 
+                        change, attrib, oldValue, newValue, "Table for Relationship EQUIADDR").
 
         // Floc Long Text 
         SimpleRow(ix, makeKey3("F:LT", itemId, lang), change, oldValue, newValue) :- 
-            CrRow(ix, "Functional Location", itemId, _charId, _clsname, lang, _ic, _addr, 
-                    change, "Description (medium text)", oldValue, newValue, "Table for Relationship IFLOTX").
+            SourceRow(ix, "Functional Location", itemId, _charId, _clsname, lang, _ic, _addr, 
+                        change, "Description (medium text)", oldValue, newValue, "Table for Relationship IFLOTX").
 
         // Equi Long Text 
         SimpleRow(ix, makeKey3("E:LT", itemId, lang), change, oldValue, newValue) :- 
-            CrRow(ix, "Equipment", itemId, _charId, _clsname, lang, _ic, _addr, 
-                    change, "Description (medium text)", oldValue, newValue, "Table for Relationship EQMLTXT").
+            SourceRow(ix, "Equipment", itemId, _charId, _clsname, lang, _ic, _addr, 
+                        change, "Description (medium text)", oldValue, newValue, "Table for Relationship EQMLTXT").
 
 
     }
