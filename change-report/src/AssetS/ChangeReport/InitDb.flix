@@ -41,10 +41,20 @@ namespace AssetS/ChangeReport/InitDb {
     def sourceRowsDdl(): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS source_rows ("
-                :: "equipment_id TEXT NOT NULL,"
-                :: "prop_name TEXT NOT NULL,"
-	            :: "prop_value TEXT NOT NULL,"
-	            :: "PRIMARY KEY(equipment_id, prop_name)"
+                :: "row_index INT NOT NULL,"
+                :: "entity_type TEXT NOT NULL,"
+	            :: "item_id TEXT NOT NULL,"
+                :: "char_name TEXT,"
+                :: "class_name TEXT,"
+                :: "language TEXT,"
+                :: "int_counter TEXT,"
+                :: "address_number TEXT,"
+                :: "change TEXT,"
+                :: "attrib TEXT,"
+                :: "old_value TEXT,"
+                :: "new_value TEXT,"
+                :: "table_source TEXT,"
+	            :: "PRIMARY KEY(row_index)"
 	            :: ");"
                 :: Nil
         )
