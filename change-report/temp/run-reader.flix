@@ -21,7 +21,7 @@ def main1(): Result[Unit, String] \ IO =
     let sources     = query db select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) from SourceRow(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13);
     let* _          = AssetS/ChangeReport/StoreChanges.storeSourceRows(sources, outpath);
     let solns       = (solve db project SimpleRow) <+> AssetS/ChangeReport/DecodeChanges.decodeChanges();
-    let changes     = query solns select (w, x, y, z) from Change(w, x, y, z);
+    let changes     = query solns select (x1, x2, x3, x4, x5) from Change(x1, x2, x3, x4, x5);
     let* _          = AssetS/ChangeReport/StoreChanges.storeChanges(changes, outpath);
     Ok()
 

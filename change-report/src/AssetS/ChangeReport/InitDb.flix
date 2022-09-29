@@ -46,7 +46,7 @@ namespace AssetS/ChangeReport/InitDb {
 	            :: "item_id TEXT NOT NULL,"
                 :: "char_name TEXT,"
                 :: "class_name TEXT,"
-                :: "language TEXT,"
+                :: "lang_id TEXT,"
                 :: "int_counter TEXT,"
                 :: "address_number TEXT,"
                 :: "change TEXT,"
@@ -62,11 +62,12 @@ namespace AssetS/ChangeReport/InitDb {
     def changesDdl(): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS changes ("
+                :: "row_index INT NOT NULL,"
                 :: "cmpkey TEXT NOT NULL,"
-                :: "change TEXT NOT NULL,"
+                :: "change_desc TEXT NOT NULL,"
 	            :: "old_value TEXT,"
 	            :: "new_value TEXT,"
-	            :: "PRIMARY KEY(cmpkey)"
+	            :: "PRIMARY KEY(row_index)"
 	            :: ");"
                 :: Nil
         )

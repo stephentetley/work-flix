@@ -24,33 +24,35 @@ namespace AssetS/ChangeReport/StoreChanges {
     use BasicDb/Writer.RowSetter;
 
 
-    pub def storeChanges(cs: List[(String, String, String, String)], dst: Path): Result[Int32, String] \ IO = region r {
+    pub def storeChanges(cs: List[(Int32, String, String, String, String)], dst: Path): Result[Int32, String] \ IO = region r {
         BasicDb/DbMonad.runSQLite(r, storeChanges1(cs), dst)
     }
 
-    def storeChanges1(rows: List[(String, String, String, String)]): DbMonad[r, ka, Int32] \ {IO, Write(r) } =
+    def storeChanges1(rows: List[(Int32, String, String, String, String)]): DbMonad[r, ka, Int32] \ {IO, Write(r) } =
         let sqlstrings = {prepStmt = insertChangeRowSql(), tableActions = "DELETE FROM changes;" :: Nil };
         BasicDb/Writer.storeList(sqlstrings, changeSetter, rows)
 
 
-    def changeSetter(x: (String, String, String, String)): PreparedStatementSetter[r, ka, Unit] \ {Write(r)} =
-        use BasicDb/PreparedStatementSetter.{flatMap, point, putStringAt!};
-        let (ckey, change, oldValue, newValue) = x;
-        let* _  = putStringAt!(0, ckey);
-        let* _  = putStringAt!(1, change);
-        let* _  = putStringAt!(2, oldValue);
-        let* _  = putStringAt!(3, newValue);
+    def changeSetter(x: (Int32, String, String, String, String)): PreparedStatementSetter[r, ka, Unit] \ {Write(r)} =
+        use BasicDb/PreparedStatementSetter.{flatMap, point, putInt32At!, putStringAt!};
+        let (rowIx, ckey, change, oldValue, newValue) = x;
+        let* _  = putInt32At!(0, rowIx);
+        let* _  = putStringAt!(1, ckey);
+        let* _  = putStringAt!(2, change);
+        let* _  = putStringAt!(3, oldValue);
+        let* _  = putStringAt!(4, newValue);
         point()
 
 
     def insertChangeRowSql(): String =
         String.unwords(
             "INSERT OR IGNORE INTO changes ("
+                :: "row_index,"
                 :: "cmpkey, "
-                :: "change, "
+                :: "change_desc, "
                 :: "old_value, "
                 :: "new_value) "
-                :: "VALUES(?,?,?, ?);"
+                :: "VALUES(?,?,?, ?,?);"
                 :: Nil
         )
 
@@ -100,7 +102,7 @@ namespace AssetS/ChangeReport/StoreChanges {
 	            :: "item_id,"
                 :: "char_name,"
                 :: "class_name,"
-                :: "language,"
+                :: "lang_id,"
                 :: "int_counter,"
                 :: "address_number,"
                 :: "change,"

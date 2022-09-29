@@ -39,6 +39,6 @@ namespace AssetS/ChangeReport/Relations {
 
     pub rel SimpleRow(rowIx: Int32, compoundKey: String, change: String, oldValue: String, newValue: String)
 
-    pub rel Change(compoundKey: String, change: String, oldValue: String, newValue: String)
+    pub rel Change(rowIx: Int32, compoundKey: String, change: String, oldValue: String, newValue: String)
 
 }

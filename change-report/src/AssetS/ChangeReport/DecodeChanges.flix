@@ -36,7 +36,7 @@ namespace AssetS/ChangeReport/DecodeChanges {
 
             
             // New, New => New
-            Change(cmpkey, "New", "", v2) :- 
+            Change(ix2, cmpkey, "New", "", v2) :- 
                 FirstChange(cmpkey; mrow1),
                 LastChange(cmpkey; mrow2),
                 SimpleRow(ix1, cmpkey, "New", _, _),
@@ -44,7 +44,7 @@ namespace AssetS/ChangeReport/DecodeChanges {
                 if mrow1 == min1(ix1) and mrow2 == max1(ix2).
 
             // New, Changed => New
-            Change(cmpkey, "New", "", v2) :- 
+            Change(ix2, cmpkey, "New", "", v2) :- 
                 FirstChange(cmpkey; mrow1),
                 LastChange(cmpkey; mrow2),
                 SimpleRow(ix1, cmpkey, "New", _, _),
@@ -53,7 +53,7 @@ namespace AssetS/ChangeReport/DecodeChanges {
 
 
             // New, Deleted => Transient
-            Change(cmpkey, "Transient", v2, "") :- 
+            Change(ix2, cmpkey, "Transient", v2, "") :- 
                 FirstChange(cmpkey; mrow1),
                 LastChange(cmpkey; mrow2),
                 SimpleRow(ix1, cmpkey, "New", _, _),
@@ -62,7 +62,7 @@ namespace AssetS/ChangeReport/DecodeChanges {
 
 
             // Changed, Changed => Changed
-            Change(cmpkey, "Changed", v1, v2) :- 
+            Change(ix2, cmpkey, "Changed", v1, v2) :- 
                 FirstChange(cmpkey; mrow1),
                 LastChange(cmpkey; mrow2),
                 SimpleRow(ix1, cmpkey, "Changed", v1, _),
@@ -70,7 +70,7 @@ namespace AssetS/ChangeReport/DecodeChanges {
                 if mrow1 == min1(ix1) and mrow2 == max1(ix2).
 
             // Changed, Deleted => Deleted
-            Change(cmpkey, "Deleted", v1, "") :- 
+            Change(ix2, cmpkey, "Deleted", v1, "") :- 
                 FirstChange(cmpkey; mrow1),
                 LastChange(cmpkey; mrow2),
                 SimpleRow(ix1, cmpkey, "Changed", v1, _),
@@ -78,7 +78,7 @@ namespace AssetS/ChangeReport/DecodeChanges {
                 if mrow1 == min1(ix1) and mrow2 == max1(ix2).
 
             // Deleted, Deleted => Deleted
-            Change(cmpkey, "Deleted", v1, "") :- 
+            Change(ix2, cmpkey, "Deleted", v1, "") :- 
                 FirstChange(cmpkey; mrow1),
                 LastChange(cmpkey; mrow2),
                 SimpleRow(ix1, cmpkey, "Deleted", v1, _),
