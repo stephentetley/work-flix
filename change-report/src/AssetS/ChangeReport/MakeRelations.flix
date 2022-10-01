@@ -22,27 +22,15 @@ namespace AssetS/ChangeReport/MakeRelations {
         SimpleRow
     };
 
-    // pub rel SourceRow(
-    //     rowIx: Int32,
-    //     entityType: String, 
-    //     itemId: String,             // floc | internal floc id | equiId
-    //     charId: String, 
-    //     className: String, 
-    //     language: String, 
-    //     intCounter: String, 
-    //     addressNumber: String, 
-    //     change: String, 
-    //     attrib: String, 
-    //     oldValue: String, 
-    //     newValue: String,
-    //     table: String
-    // )
 
     pub def makeRowRelations[rln: SchemaRow](rows: List[Map[String, String]]): #{SourceRow, SimpleRow | rln} = 
         let db = List.foldLeft((ac, r1) -> ac <+> makeSourceRow(r1), #{}, rows);
         db <+> simpleRows()
 
     pub def makeSourceRow(m: Map[String, String]): #{SourceRow | rln} = 
+        let attrib = getField("Attribute", m);
+        let oldValue = getField("Old Value", m) |> s -> if (attrib == "Value from") valueFrom(s) else s;
+        let newValue = getField("New Value", m) |> s -> if (attrib == "Value from") valueFrom(s) else s;
         #{ SourceRow( rowIx(m)
                     , getField("Entity Type", m)
                     , getField("Value", m)
@@ -52,9 +40,9 @@ namespace AssetS/ChangeReport/MakeRelations {
                     , getField("Int counter", m)
                     , best("Address Number", "Address Number.1", m)
                     , getField("Change", m)
-                    , getField("Attribute", m)
-                    , getField("Old Value", m)
-                    , getField("New Value", m)
+                    , attrib
+                    , oldValue
+                    , newValue
                     , getField("Table", m)
                     ).
         }
@@ -146,4 +134,15 @@ namespace AssetS/ChangeReport/MakeRelations {
     def getField(name: String, m: Map[String, String]): String = 
         Map.get(name, m) |> Option.getWithDefault("")
 
+    def numberFormat(): Basis/Text.DecimalFormat = 
+        Basis/Text/DecimalFormat.decimalFormatWithLocale("0.0000", Basis/I18n/Locale.us())
+
+
+
+    /// TODO - need to use NumberFormat, currently in IO ....
+    def valueFrom(s: String): String = 
+        match Float64.fromString(s) {
+            case Some(d) => Basis/Text/DecimalFormat.formatFloat64(d, numberFormat()) |> Result.getWithDefault(s)
+            case None    => s
+        }
 }

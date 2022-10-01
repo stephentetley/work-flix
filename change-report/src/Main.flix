@@ -77,17 +77,21 @@ namespace Main1 {
     pub def initDb(inpath: Path): Result[Unit, String] \ IO = 
         use Result.flatMap;
         use AssetS/ChangeReport/Relations.{Change, SimpleRow, SourceRow};
-        let outpath     = Basis/System/Path.putExtension(inpath, "sqlite");
-        let* _          = AssetS/ChangeReport/InitDb.createCRDatabase(outpath);
-        let* rows       = AssetS/ChangeReport/Reader.readChangeReport(inpath);
-        List.foreach(println, List.take(5, rows));
-        let db          = AssetS/ChangeReport/MakeRelations.makeRowRelations(rows);
-        let sources     = query db select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) from SourceRow(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13);
-        let* _          = AssetS/ChangeReport/StoreChanges.storeSourceRows(sources, outpath);
-        let solns       = (solve db project SimpleRow) <+> AssetS/ChangeReport/DecodeChanges.decodeChanges();
-        let changes     = query solns select (x1, x2, x3, x4, x5) from Change(x1, x2, x3, x4, x5);
-        let* _          = AssetS/ChangeReport/StoreChanges.storeChanges(changes, outpath);
-        Ok()
+        let* exists = Basis/System/Files.exists(inpath, Nil);
+        if (exists) {
+            let outpath     = Basis/System/Path.putExtension(inpath, "sqlite");
+            let* _          = AssetS/ChangeReport/InitDb.createCRDatabase(outpath);
+            let* rows       = AssetS/ChangeReport/Reader.readChangeReport(inpath);
+            List.foreach(println, List.take(5, rows));
+            let db          = AssetS/ChangeReport/MakeRelations.makeRowRelations(rows);
+            let sources     = query db select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) from SourceRow(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13);
+            let* _          = AssetS/ChangeReport/StoreChanges.storeSourceRows(sources, outpath);
+            let solns       = (solve db project SimpleRow) <+> AssetS/ChangeReport/DecodeChanges.decodeChanges();
+            let changes     = query solns select (x1, x2, x3, x4, x5) from Change(x1, x2, x3, x4, x5);
+            let* _          = AssetS/ChangeReport/StoreChanges.storeChanges(changes, outpath);
+            Ok()
+        } else Err("Could not find file: ${inpath}")
+
 
 
 }
