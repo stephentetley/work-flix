@@ -25,8 +25,8 @@ namespace AssetS/ChangeReport/Relations {
         rowIx: Int32,
         entityType: String, 
         itemId: String,             // floc | internal floc id | equiId
-        charId: String, 
         className: String, 
+        charId: String, 
         language: String, 
         intCounter: String, 
         addressNumber: String, 

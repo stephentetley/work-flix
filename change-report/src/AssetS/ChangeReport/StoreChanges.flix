@@ -77,13 +77,13 @@ namespace AssetS/ChangeReport/StoreChanges {
                         String, String, String, 
                         String, String, String, String)): PreparedStatementSetter[r, ka, Unit] \ {Write(r)} =
         use BasicDb/PreparedStatementSetter.{flatMap, point, putInt32At!, putStringAt!};
-        let (rowIx, entityType, itemId, charId, className, language, intCounter, addressNumber, 
+        let (rowIx, entityType, itemId, className, charId, language, intCounter, addressNumber, 
                 change, attrib, oldValue, newValue, table) = x;
         let* _  = putInt32At!(0, rowIx);
         let* _  = putStringAt!(1, entityType);
         let* _  = putStringAt!(2, itemId);
-        let* _  = putStringAt!(3, charId);
-        let* _  = putStringAt!(4, className);
+        let* _  = putStringAt!(3, className);
+        let* _  = putStringAt!(4, charId);
         let* _  = putStringAt!(5, language);
         let* _  = putStringAt!(6, intCounter);
         let* _  = putStringAt!(7, addressNumber);
@@ -100,8 +100,8 @@ namespace AssetS/ChangeReport/StoreChanges {
                 :: "row_index,"
                 :: "entity_type,"
 	            :: "item_id,"
-                :: "char_name,"
                 :: "class_name,"
+                :: "char_name,"
                 :: "lang_id,"
                 :: "int_counter,"
                 :: "address_number,"

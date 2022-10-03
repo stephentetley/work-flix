@@ -34,8 +34,8 @@ namespace AssetS/ChangeReport/MakeRelations {
         #{ SourceRow( rowIx(m)
                     , getField("Entity Type", m)
                     , getField("Value", m)
-                    , getField("Character ID", m)
                     , getField("Class", m)
+                    , getField("Character ID", m)
                     , best("Language", "Language.1", m)
                     , getField("Int counter", m)
                     , best("Address Number", "Address Number.1", m)
@@ -47,69 +47,71 @@ namespace AssetS/ChangeReport/MakeRelations {
                     ).
         }
 
-
+    /// TODO - table not reliable, non-blanks/blanks look like a better way of identifying row types
     def simpleRows(): #{ SourceRow, SimpleRow | rln} = #{
 
         // Floc General Data
         SimpleRow(ix, makeKey3("F:GD", itemId, attrib), change, oldValue, newValue) :-
-            SourceRow(ix, "Functional Location", itemId, _charId, _clsname, _lang, _ic, _addr, 
+            SourceRow(ix, "Functional Location", itemId, _clsname, _charId, _lang, _ic, _addr, 
                         change, attrib, oldValue, newValue, "Check Table").
     
         // Equi General Data
         SimpleRow(ix, makeKey3("E:GD", itemId, attrib), change, oldValue, newValue) :-
-            SourceRow(ix, "Equipment", itemId, _charId, _clsname, _lang, _ic, _addr, 
+            SourceRow(ix, "Equipment", itemId, _clsname, _charId, _lang, _ic, _addr, 
                         change, attrib, oldValue, newValue, "Check Table").
 
         // ClassFloc
-        SimpleRow(ix, makeKey3("F:CE", itemId, className), change, oldValue, newValue) :- 
-            SourceRow(ix, "Functional Location", itemId, _charId, className, _lang, _ic, _addr, 
-                        change, "Functional Location", oldValue, newValue, "Table for Relationship CLASSFLOC").
+        SimpleRow(ix, makeKey3("F:CF", itemId, className), change, oldValue, newValue) :- 
+            SourceRow(ix, "Functional Location", itemId, className, _charId, _lang, _ic, _addr, 
+                        change, attrib, oldValue, newValue, "Table for Relationship CLASSFLOC"),
+            if attrib == "Functional Location" or attrib == "Status".
 
         // ClassEqui
         SimpleRow(ix, makeKey3("E:CE", itemId, className), change, oldValue, newValue) :- 
-            SourceRow(ix, "Equipment", itemId, _charId, className, _lang, _ic, _addr,
+            SourceRow(ix, "Equipment", itemId, className, _charId, _lang, _ic, _addr,
                         change, "Status", oldValue, newValue, "Table for Relationship CLASSEQUI").
 
         // ValuaFlocRow - Numeric
         SimpleRow(ix, makeKey4("F:VN", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            SourceRow(ix, "Functional Location", itemId, characterID, _clsname, _lang, intCounter, _addr,
+            SourceRow(ix, "Functional Location", itemId, _clsname, characterID, _lang, intCounter, _addr,
                         change, "Value from", oldValue, newValue, "Table for Relationship VALUAFLOC").
     
         // ValuaFlocRow - String
         SimpleRow(ix, makeKey4("F:VS", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            SourceRow(ix, "Functional Location", itemId, characterID, _clsname, _lang, intCounter, _addr,
+            SourceRow(ix, "Functional Location", itemId, _clsname, characterID, _lang, intCounter, _addr,
                         change, "Characteristic Value", oldValue, newValue, "Table for Relationship VALUAFLOC").
 
 
         // ValuaEquiRow - Numeric
         SimpleRow(ix,  makeKey4("E:VN", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            SourceRow(ix, "Equipment", itemId, characterID, _clsname, _lang, intCounter, _addr,
+            SourceRow(ix, "Equipment", itemId, _clsname, characterID, _lang, intCounter, _addr,
                         change, "Value from", oldValue, newValue, "Table for Relationship VALUAEQUI").
     
         // ValuaEquiRow - String
         SimpleRow(ix,  makeKey4("E:VS", itemId, characterID, intCounter), change, oldValue, newValue) :-
-            SourceRow(ix, "Equipment", itemId, characterID, _clsname, _lang, intCounter, _addr,
+            SourceRow(ix, "Equipment", itemId, _clsname, characterID, _lang, intCounter, _addr,
                         change, "Characteristic Value", oldValue, newValue, "Table for Relationship VALUAEQUI").
 
 
         // Floc Address
         SimpleRow(ix, makeKey4("F:AD", itemId, addressNumber, attrib), change, oldValue, newValue) :- 
-            SourceRow(ix, "Functional Location", itemId, _charId, _clsname, _lang, _ic, addressNumber, 
-                        change, attrib, oldValue, newValue, "Table for Relationship FUNCLOCAD").
+            SourceRow(ix, "Functional Location", itemId, _clsname, _charId, _lang, _ic, addressNumber, 
+                        change, attrib, oldValue, newValue, table),
+            if table == "Table for Relationship ZFUNCLOAD" or table == "Table for Relationship FUNCLOCAD".
 
         // Equi Address
         SimpleRow(ix, makeKey4("E:AD", itemId, addressNumber, attrib), change, oldValue, newValue) :- 
-            SourceRow(ix, "Equipment", itemId, _charId, _clsname, _lang, _ic, addressNumber, 
+            SourceRow(ix, "Equipment", itemId, _clsname, _charId, _lang, _ic, addressNumber, 
                         change, attrib, oldValue, newValue, "Table for Relationship ZEQUIADDR").
 
         // Floc Long Text 
         SimpleRow(ix, makeKey3("F:LT", itemId, lang), change, oldValue, newValue) :- 
-            SourceRow(ix, "Functional Location", itemId, _charId, _clsname, lang, _ic, _addr, 
+            SourceRow(ix, "Functional Location", itemId, _clsname, _charId, lang, _ic, _addr, 
                         change, "FunctLocDescrip.", oldValue, newValue, "Table for Relationship IFLOTX").
 
         // Equi Long Text 
         SimpleRow(ix, makeKey3("E:LT", itemId, lang), change, oldValue, newValue) :- 
-            SourceRow(ix, "Equipment", itemId, _charId, _clsname, lang, _ic, _addr, 
+            SourceRow(ix, "Equipment", itemId, _clsname, _charId, lang, _ic, _addr, 
                         change, "Description (medium text)", oldValue, newValue, "Table for Relationship EQMLTXT").
 
 
