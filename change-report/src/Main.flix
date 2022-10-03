@@ -24,7 +24,7 @@ def main(): Int32 \ IO =
 
 namespace Main1 {
 
-    use Basis/System.Path;
+    use Basis/NIO/File.Path;
 
     use GetOpt.{OptionDescr};
     use GetOpt.ArgDescr.{ReqArg, NoArg};
@@ -51,7 +51,7 @@ namespace Main1 {
         }
 
     def options(): List[OptionDescr[ChangeReportOpts -> ChangeReportOpts]] =
-        let validate = s -> if (String.isEmpty(s)) None else Basis/System/Path.newPath(s) |> Result.toOption;
+        let validate = s -> if (String.isEmpty(s)) None else Basis/NIO/File/Path.newPath(s) |> Result.toOption;
            {optionNames = "help" :: Nil,        optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "help" | opts}),       explanation = "show help"}
         :: {optionNames = "initdb" :: Nil,     optionIds = Nil,    argDescriptor = NoArg(opts -> {cmd = "initdb" | opts}),    explanation = "init db"}
         :: {optionNames = "source" :: Nil,    optionIds = Nil,    argDescriptor = ReqArg(s -> Some(opts -> { sourceFile = validate(s) | opts}), "<file>"),   explanation = "source"}
@@ -77,9 +77,9 @@ namespace Main1 {
     pub def initDb(inpath: Path): Result[Unit, String] \ IO = 
         use Result.flatMap;
         use AssetS/ChangeReport/Relations.{Change, SimpleRow, SourceRow};
-        let* exists = Basis/System/Files.exists(inpath, Nil);
+        let* exists = Basis/NIO/File/Files.exists(inpath, Nil);
         if (exists) {
-            let outpath     = Basis/System/Path.putExtension(inpath, "sqlite");
+            let outpath     = Basis/NIO/File/Path.putExtension(inpath, "sqlite");
             let* _          = AssetS/ChangeReport/InitDb.createCRDatabase(outpath);
             let* rows       = AssetS/ChangeReport/Reader.readChangeReport(inpath);
             List.foreach(println, List.take(5, rows));

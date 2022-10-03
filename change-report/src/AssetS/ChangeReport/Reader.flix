@@ -21,7 +21,7 @@ namespace AssetS/ChangeReport/Reader {
  
     use MonadLib/MonadOr.{optional};
 
-    use Basis/System.Path;
+    use Basis/NIO/File.Path;
 
     use SheetIO.WorkbookReader;
     use SheetIO.RowEvaluator;

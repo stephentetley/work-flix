@@ -16,7 +16,7 @@
 
 namespace AssetS/ChangeReport/InitDb {
 
-    use Basis/System.Path;
+    use Basis/NIO/File.Path;
     use BasicDb.DbMonad;
 
 

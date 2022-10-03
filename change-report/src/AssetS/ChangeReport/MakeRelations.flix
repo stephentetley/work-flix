@@ -134,9 +134,10 @@ namespace AssetS/ChangeReport/MakeRelations {
     def getField(name: String, m: Map[String, String]): String = 
         Map.get(name, m) |> Option.getWithDefault("")
 
-    def numberFormat(): Basis/Text.DecimalFormat = 
-        Basis/Text/DecimalFormat.decimalFormatWithLocale("0.0000", Basis/I18n/Locale.us())
-
+    def numberFormat(): Basis/Text.DecimalFormat = region r {
+        Basis/Text/DecimalFormatBuilder.newWithLocale(r, "0.0000", Basis/Util/Locale.us())
+            |> Basis/Text/DecimalFormatBuilder.freeze
+    }
 
 
     /// TODO - need to use NumberFormat, currently in IO ....

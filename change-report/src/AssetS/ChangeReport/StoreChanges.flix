@@ -17,7 +17,7 @@
 
 namespace AssetS/ChangeReport/StoreChanges {
 
-    use Basis/System.Path;
+    use Basis/NIO/File.Path;
 
     use BasicDb.DbMonad;
     use BasicDb.PreparedStatementSetter;
