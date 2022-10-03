@@ -63,7 +63,7 @@ namespace AssetS/ChangeReport/MakeRelations {
         // ClassFloc
         SimpleRow(ix, makeKey3("F:CE", itemId, className), change, oldValue, newValue) :- 
             SourceRow(ix, "Functional Location", itemId, _charId, className, _lang, _ic, _addr, 
-                        change, "Status", oldValue, newValue, "Table for Relationship CLASSFLOC").
+                        change, "Functional Location", oldValue, newValue, "Table for Relationship CLASSFLOC").
 
         // ClassEqui
         SimpleRow(ix, makeKey3("E:CE", itemId, className), change, oldValue, newValue) :- 
@@ -100,12 +100,12 @@ namespace AssetS/ChangeReport/MakeRelations {
         // Equi Address
         SimpleRow(ix, makeKey4("E:AD", itemId, addressNumber, attrib), change, oldValue, newValue) :- 
             SourceRow(ix, "Equipment", itemId, _charId, _clsname, _lang, _ic, addressNumber, 
-                        change, attrib, oldValue, newValue, "Table for Relationship EQUIADDR").
+                        change, attrib, oldValue, newValue, "Table for Relationship ZEQUIADDR").
 
         // Floc Long Text 
         SimpleRow(ix, makeKey3("F:LT", itemId, lang), change, oldValue, newValue) :- 
             SourceRow(ix, "Functional Location", itemId, _charId, _clsname, lang, _ic, _addr, 
-                        change, "Description (medium text)", oldValue, newValue, "Table for Relationship IFLOTX").
+                        change, "FunctLocDescrip.", oldValue, newValue, "Table for Relationship IFLOTX").
 
         // Equi Long Text 
         SimpleRow(ix, makeKey3("E:LT", itemId, lang), change, oldValue, newValue) :- 
