@@ -141,8 +141,6 @@ namespace AssetS/ChangeReport/MakeRelations {
             |> Basis/Text/DecimalFormatBuilder.freeze
     }
 
-
-    /// TODO - need to use NumberFormat, currently in IO ....
     def valueFrom(s: String): String = 
         match Float64.fromString(s) {
             case Some(d) => Basis/Text/DecimalFormat.formatFloat64(d, numberFormat()) |> Result.getWithDefault(s)
