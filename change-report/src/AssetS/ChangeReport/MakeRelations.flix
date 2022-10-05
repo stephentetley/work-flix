@@ -69,7 +69,8 @@ namespace AssetS/ChangeReport/MakeRelations {
         // ClassEqui
         SimpleRow(ix, makeKey3("E:CE", itemId, className), change, oldValue, newValue) :- 
             SourceRow(ix, "Equipment", itemId, className, _charId, _lang, _ic, _addr,
-                        change, "Status", oldValue, newValue, "Table for Relationship CLASSEQUI").
+                        change, attrib, oldValue, newValue, "Table for Relationship CLASSEQUI"),
+            if attrib == "Equipment" or attrib == "Status".
 
         // ValuaFlocRow - Numeric
         SimpleRow(ix, makeKey4("F:VN", itemId, characterID, intCounter), change, oldValue, newValue) :-
@@ -102,7 +103,8 @@ namespace AssetS/ChangeReport/MakeRelations {
         // Equi Address
         SimpleRow(ix, makeKey4("E:AD", itemId, addressNumber, attrib), change, oldValue, newValue) :- 
             SourceRow(ix, "Equipment", itemId, _clsname, _charId, _lang, _ic, addressNumber, 
-                        change, attrib, oldValue, newValue, "Table for Relationship ZEQUIADDR").
+                        change, attrib, oldValue, newValue, table),
+            if table == "Table for Relationship ZEQUIADDR" or table == "Table for Relationship EQUIADDR".
 
         // Floc Long Text 
         SimpleRow(ix, makeKey3("F:LT", itemId, lang), change, oldValue, newValue) :- 
