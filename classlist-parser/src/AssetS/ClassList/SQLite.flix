@@ -33,22 +33,22 @@ namespace AssetS/ClassList/SQLite {
         }
 
 
-    pub def createClassListTables(names: ClassListTableNames): DbMonad[Unit] =
-        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, execute!, commit!};
+    pub def createClassListTables(names: ClassListTableNames): DbMonad[r, ka, Unit] \ {IO, Write(r)} =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, commit!};
         let* _  = setAutoCommit!(false);
-        let* _  = execute!("DROP TABLE IF EXISTS ${names.classDescriptionTable};");
-        let* _  = execute!("DROP TABLE IF EXISTS ${names.characteristicTable};");
-        let* _  = execute!("DROP TABLE IF EXISTS ${names.picklistValueTable};");
-        let* _  = execute!("DROP TABLE IF EXISTS ${names.intRangeTable};");
-        let* _  = execute!(classDescriptionTableDdl(names.classDescriptionTable));
-        let* _  = execute!(characteristicTableDdl(names.characteristicTable));
-        let* _  = execute!(picklistValueTableDdl(names.picklistValueTable));
-        let* _  = execute!(intRangeTableDdl(names.intRangeTable));
+        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.classDescriptionTable};");
+        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.characteristicTable};");
+        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.picklistValueTable};");
+        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.intRangeTable};");
+        let* _  = executeSql!(classDescriptionTableDdl(names.classDescriptionTable));
+        let* _  = executeSql!(characteristicTableDdl(names.characteristicTable));
+        let* _  = executeSql!(picklistValueTableDdl(names.picklistValueTable));
+        let* _  = executeSql!(intRangeTableDdl(names.intRangeTable));
         let* _  = commit!();
         point()
 
 
-    pub def storeClassListData(names: ClassListTableNames, src: ClassRecords): DbMonad[Int32] =
+    pub def storeClassListData(names: ClassListTableNames, src: ClassRecords): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point};
         let* n1 = storeClassDescriptions(names.classDescriptionTable, src.classDescriptions);
         let* n2 = storeCharacteristics(names.characteristicTable, src.characteristics);
@@ -60,11 +60,11 @@ namespace AssetS/ClassList/SQLite {
 
 
     // # ClassDescription
-    def storeClassDescriptions(table: String, rows: List[ClassDescription]): DbMonad[Int32] =
+    def storeClassDescriptions(table: String, rows: List[ClassDescription]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, prepStatement = insertClassDescriptionRowSql(table), setter = classDescriptionSetter}, rows)
+        store({tableName = table, prepStatement = insertClassDescriptionRowSql(table), setter = x -> classDescriptionSetter(x) as \ Write(r)}, rows)
 
-    def classDescriptionSetter(x: ClassDescription): PreparedStatementSetter[Unit] =
+    def classDescriptionSetter(x: ClassDescription): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
         putStringAt!(0, x.className) *> putStringAt!(1, x.description) 
 
@@ -89,11 +89,11 @@ namespace AssetS/ClassList/SQLite {
 
     // # Characteristic
     
-    def storeCharacteristics(table: String, rows: List[Characteristic]): DbMonad[Int32] =
+    def storeCharacteristics(table: String, rows: List[Characteristic]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}=
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, prepStatement = insertCharacteristicRowSql(table), setter = characteristicSetter}, rows)
+        store({tableName = table, prepStatement = insertCharacteristicRowSql(table), setter = x -> characteristicSetter(x) as \ Write(r)}, rows)
 
-    def characteristicSetter(x: Characteristic): PreparedStatementSetter[Unit] =
+    def characteristicSetter(x: Characteristic): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
         putStringAt!(0, x.className)
             *> putStringAt!(1, x.charName) 
@@ -131,11 +131,11 @@ namespace AssetS/ClassList/SQLite {
         )
 
     // # PicklistValue
-    def storePicklistValues(table: String, rows: List[PicklistValue]): DbMonad[Int32] =
+    def storePicklistValues(table: String, rows: List[PicklistValue]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}  =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, prepStatement = insertPicklistValueRowSql(table), setter = picklistValueSetter}, rows)
+        store({tableName = table, prepStatement = insertPicklistValueRowSql(table), setter = x -> picklistValueSetter(x) as \ Write(r)}, rows)
 
-    def picklistValueSetter(x: PicklistValue): PreparedStatementSetter[Unit] =
+    def picklistValueSetter(x: PicklistValue): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!};
         putStringAt!(0, x.className)
             *> putStringAt!(1, x.charName) 
@@ -164,11 +164,12 @@ namespace AssetS/ClassList/SQLite {
         )
 
     // # IntRange
-    def storeIntRanges(table: String, rows: List[IntRange]): DbMonad[Int32] =
-        use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, prepStatement = insertIntRangeRowSql(table), setter = intRangeSetter}, rows)
+    def storeIntRanges(table: String, rows: List[IntRange]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
+        store({tableName = table, prepStatement = insertIntRangeRowSql(table), setter = x -> intRangeSetter(x) as \ Write(r)}, rows)
 
-    def intRangeSetter(x: IntRange): PreparedStatementSetter[Unit] =
+    // def intRangeSetter1(): Setter[r, Unit, IntRange] = x -> intRangeSetter(x)
+
+    def intRangeSetter(x: IntRange): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!};
         putStringAt!(0, x.className)
             *> putStringAt!(1, x.charName) 
@@ -201,14 +202,14 @@ namespace AssetS/ClassList/SQLite {
 
     // Helpers
 
-    type alias Setter[a] = a -> PreparedStatementSetter[Unit]
+    type alias Setter[r: Region, ka: Type, a: Type] = a -> PreparedStatementSetter[r, ka, ka]
 
     def store(config: {tableName :: String, 
                         prepStatement :: String, 
-                        setter :: Setter[a]}, rows: t[a]): DbMonad[Int32] with Foldable[t] =
-        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, execute!, prepareStatement!, psExecuteUpdate!, commit!};
+                        setter :: Setter[r, ka, a]}, rows: t[a]): DbMonad[r, ka, Int32] \ {IO, Write(r)} with Foldable[t] =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, prepareStatement!, psExecuteUpdate!, commit!};
         let* _          = setAutoCommit!(false);
-        let* _          = execute!("DELETE FROM ${config.tableName};");
+        let* _          = executeSql!("DELETE FROM ${config.tableName};");
         let* stmt       = prepareStatement!(config.prepStatement);
         let psSetter    = config.setter;
         let* nrows      = Foldable.foldLeftM((ac, x) -> 

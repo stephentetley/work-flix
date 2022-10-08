@@ -35,8 +35,8 @@ namespace AssetS/ClassList/FlocParser {
     pub def parseFile(src: Path): Result[List[ClassListRow], String] \ IO = 
         use Result.flatMap;
         region r {
-            let* buf    = FlixSandbox/System/File/BOM.openBufferedReaderWithBOM(src);
-            let* all    = Basis/IO/BufferedReader.linesIterator(buf) |> Result.map(Iterator.toList);
+            let* buf    = Jvm/Apache/Commons/IO/Input/BOMInputStream.bufferedReaderWithBOM(r, src);
+            let* all    = Basis/IO/BufferedReader.linesIterator!(buf) |> Result.map(Iterator.toList);
             let body    = all |> List.dropWhile(s -> not String.startsWith(prefix = "-----", s)) |> List.drop(1);
             Result.traverse(input -> {let p = parseRow(); p(r, input)}, body)
         }
@@ -96,14 +96,14 @@ namespace AssetS/ClassList/FlocParser {
 
 
 
-    def makeLineParser(regex: String, eval: MatchEvaluator[r, a]): LineParser[r, a] = 
+    def makeLineParser(regex: String, eval: MatchEvaluator[r, a, a]): LineParser[r, a] = 
         match Text/Regex/Pattern.compile(regex) { 
             case Err(msg) => (_, _) -> Err(msg) as \ Read(r)
             case Ok(patt) => (r, input) -> Text/RegexEval/Regex.matchAll(r, eval, patt, input)
         }
 
 
-    def getTrimmed(name: String): MatchEvaluator[r, String] \ Read(r) = 
+    def getTrimmed(name: String): MatchEvaluator[r, ka, String] \ Read(r) = 
         String.trim <$> Text/RegexEval/MatchEvaluator.getCaptureNamed(name)
 
 }
