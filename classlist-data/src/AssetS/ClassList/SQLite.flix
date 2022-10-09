@@ -25,73 +25,70 @@ namespace AssetS/ClassList/SQLite {
 
     use AssetS/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
-    pub type alias ClassListTableNames = 
-        { classDescriptionTable :: String
-        , characteristicTable :: String
-        , picklistValueTable :: String
-        , intRangeTable :: String
-        }
 
 
-    pub def createClassListTables(names: ClassListTableNames): DbMonad[r, ka, Unit] \ {IO, Write(r)} =
+
+    pub def createTables(): DbMonad[r, ka, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, commit!};
         let* _  = setAutoCommit!(false);
-        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.classDescriptionTable};");
-        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.characteristicTable};");
-        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.picklistValueTable};");
-        let* _  = executeSql!("DROP TABLE IF EXISTS ${names.intRangeTable};");
-        let* _  = executeSql!(classDescriptionTableDdl(names.classDescriptionTable));
-        let* _  = executeSql!(characteristicTableDdl(names.characteristicTable));
-        let* _  = executeSql!(picklistValueTableDdl(names.picklistValueTable));
-        let* _  = executeSql!(intRangeTableDdl(names.intRangeTable));
+        let* _  = executeSql!("DROP TABLE IF EXISTS classlist_classes;");
+        let* _  = executeSql!("DROP TABLE IF EXISTS classlist_characteristics;");
+        let* _  = executeSql!("DROP TABLE IF EXISTS classlist_picklist_values;");
+        let* _  = executeSql!("DROP TABLE IF EXISTS classlist_int_ranges;");
+        let* _  = executeSql!(classDescriptionTableDdl());
+        let* _  = executeSql!(characteristicTableDdl());
+        let* _  = executeSql!(picklistValueTableDdl());
+        let* _  = executeSql!(intRangeTableDdl());
         let* _  = commit!();
         point()
 
 
-    pub def storeClassListData(names: ClassListTableNames, src: ClassRecords): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
+    pub def storeClassListData(src: ClassRecords): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point};
-        let* n1 = storeClassDescriptions(names.classDescriptionTable, src.classDescriptions);
-        let* n2 = storeCharacteristics(names.characteristicTable, src.characteristics);
-        let* n3 = storePicklistValues(names.picklistValueTable, src.picklistValues);
-        let* n4 = storeIntRanges(names.intRangeTable, src.intRanges);
+        let* n1 = storeClassDescriptions(src.classDescriptions);
+        let* n2 = storeCharacteristics(src.characteristics);
+        let* n3 = storePicklistValues(src.picklistValues);
+        let* n4 = storeIntRanges(src.intRanges);
         point(n1 + n2 + n3 + n4)
     
 
 
 
     // # ClassDescription
-    def storeClassDescriptions(table: String, rows: List[ClassDescription]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
+    def storeClassDescriptions(rows: List[ClassDescription]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, prepStatement = insertClassDescriptionRowSql(table), setter = x -> classDescriptionSetter(x) as \ Write(r)}, rows)
+        store({prepStatement = insertClassDescriptionRowSql(), setter = x -> classDescriptionSetter(x) as \ Write(r)}, rows)
 
     def classDescriptionSetter(x: ClassDescription): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
         putStringAt!(0, x.className) *> putStringAt!(1, x.description) 
 
-    def classDescriptionTableDdl(tableName: String): String =
+    def classDescriptionTableDdl(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ( "
+            "CREATE TABLE IF NOT EXISTS classlist_classes ( "
                 :: "class_name TEXT NOT NULL, "
+                :: "class_type TEXT NOT NULL, "
                 :: "description TEXT NOT NULL, "
-                :: "PRIMARY KEY(class_name) "
+                :: "PRIMARY KEY(class_name, class_type) "
                 :: ");"
                 :: Nil
         )
 
-    def insertClassDescriptionRowSql(tableName: String): String =
+    def insertClassDescriptionRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO classlist_classes "
                 :: "(class_name, "
+                :: "class_type,"
                 :: "description) "
-                :: "VALUES(?,?);"
+                :: "VALUES(?,?,?);"
                 :: Nil
         )
 
     // # Characteristic
     
-    def storeCharacteristics(table: String, rows: List[Characteristic]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}=
+    def storeCharacteristics(rows: List[Characteristic]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}=
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, prepStatement = insertCharacteristicRowSql(table), setter = x -> characteristicSetter(x) as \ Write(r)}, rows)
+        store({prepStatement = insertCharacteristicRowSql(), setter = x -> characteristicSetter(x) as \ Write(r)}, rows)
 
     def characteristicSetter(x: Characteristic): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
@@ -103,37 +100,39 @@ namespace AssetS/ClassList/SQLite {
             *> putOptionInt32At!(5, x.decimalPlaces)
 
         
-    def characteristicTableDdl(tableName: String): String =
+    def characteristicTableDdl(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ( "
+            "CREATE TABLE IF NOT EXISTS classlist_characteristics ( "
                 :: "class_name TEXT NOT NULL, "
+                :: "class_type TEXT NOT NULL, "
                 :: "char_name TEXT NOT NULL, "
                 :: "description TEXT NOT NULL, "
                 :: "char_data_type TEXT NOT NULL, "
                 :: "data_length INTEGER NOT NULL, "
                 :: "decimal_places INTEGER, "
-                :: "PRIMARY KEY(class_name, char_name) "
+                :: "PRIMARY KEY(class_name, class_type, char_name) "
                 :: ");"
                 :: Nil
         )
 
-    def insertCharacteristicRowSql(tableName: String): String =
+    def insertCharacteristicRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO classlist_characteristics "
                 :: "(class_name, "
+                :: "class_type, "
                 :: "char_name, "
                 :: "description, "
                 :: "char_data_type, "
                 :: "data_length, "
                 :: "decimal_places) "
-                :: "VALUES(?,?,?, ?,?,?);"
+                :: "VALUES(?,?,?, ?,?,?, ?);"
                 :: Nil
         )
 
     // # PicklistValue
-    def storePicklistValues(table: String, rows: List[PicklistValue]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}  =
+    def storePicklistValues(rows: List[PicklistValue]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}  =
         use BasicDb/DbMonad.{flatMap, liftAction};
-        store({tableName = table, prepStatement = insertPicklistValueRowSql(table), setter = x -> picklistValueSetter(x) as \ Write(r)}, rows)
+        store({prepStatement = insertPicklistValueRowSql(), setter = x -> picklistValueSetter(x) as \ Write(r)}, rows)
 
     def picklistValueSetter(x: PicklistValue): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!};
@@ -142,30 +141,32 @@ namespace AssetS/ClassList/SQLite {
             *> putStringAt!(2, x.value) 
 
         
-    def picklistValueTableDdl(tableName: String): String =
+    def picklistValueTableDdl(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ( "
+            "CREATE TABLE IF NOT EXISTS classlist_picklist_values ( "
                 :: "class_name TEXT NOT NULL, "
+                :: "class_type TEXT NOT NULL, "
                 :: "char_name TEXT NOT NULL, "
                 :: "value TEXT NOT NULL, "
-                :: "PRIMARY KEY(class_name, char_name, value) "
+                :: "PRIMARY KEY(class_name, class_type, char_name, value) "
                 :: ");"
                 :: Nil
         )
 
-    def insertPicklistValueRowSql(tableName: String): String =
+    def insertPicklistValueRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO classlist_picklist_values "
                 :: "(class_name, "
+                :: "class_type, "
                 :: "char_name, "
                 :: "value) "
-                :: "VALUES(?,?,?);"
+                :: "VALUES(?,?,?, ?);"
                 :: Nil
         )
 
     // # IntRange
-    def storeIntRanges(table: String, rows: List[IntRange]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
-        store({tableName = table, prepStatement = insertIntRangeRowSql(table), setter = x -> intRangeSetter(x) as \ Write(r)}, rows)
+    def storeIntRanges(rows: List[IntRange]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
+        store({prepStatement = insertIntRangeRowSql(), setter = x -> intRangeSetter(x) as \ Write(r)}, rows)
 
     // def intRangeSetter1(): Setter[r, Unit, IntRange] = x -> intRangeSetter(x)
 
@@ -177,25 +178,28 @@ namespace AssetS/ClassList/SQLite {
             *> putInt32At!(3, x.rangeTo)
 
     // No primary key
-    def intRangeTableDdl(tableName: String): String =
+    def intRangeTableDdl(): String =
         String.unwords(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ( "
+            "CREATE TABLE IF NOT EXISTS classlist_int_ranges ( "
                 :: "class_name TEXT NOT NULL, "
+                :: "class_type TEXT NOT NULL, "
                 :: "char_name TEXT NOT NULL, "
                 :: "range_from INTEGER NOT NULL, "
                 :: "range_to INTEGER NOT NULL "
+                :: "PRIMARY KEY(class_name, class_type, char_name) "
                 :: ");"
                 :: Nil
         )
 
-    def insertIntRangeRowSql(tableName: String): String =
+    def insertIntRangeRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO classlist_int_ranges "
                 :: "(class_name, "
+                :: "class_type, "
                 :: "char_name, "
                 :: "range_from, "
                 :: "range_to) "
-                :: "VALUES(?,?,?, ?);"
+                :: "VALUES(?,?,?, ?,?);"
                 :: Nil
         )
 
@@ -204,12 +208,10 @@ namespace AssetS/ClassList/SQLite {
 
     type alias Setter[r: Region, ka: Type, a: Type] = a -> PreparedStatementSetter[r, ka, ka]
 
-    def store(config: {tableName :: String, 
-                        prepStatement :: String, 
+    def store(config: {prepStatement :: String, 
                         setter :: Setter[r, ka, a]}, rows: t[a]): DbMonad[r, ka, Int32] \ {IO, Write(r)} with Foldable[t] =
-        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, prepareStatement!, psExecuteUpdate!, commit!};
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, prepareStatement!, psExecuteUpdate!, commit!};
         let* _          = setAutoCommit!(false);
-        let* _          = executeSql!("DELETE FROM ${config.tableName};");
         let* stmt       = prepareStatement!(config.prepStatement);
         let psSetter    = config.setter;
         let* nrows      = Foldable.foldLeftM((ac, x) -> 

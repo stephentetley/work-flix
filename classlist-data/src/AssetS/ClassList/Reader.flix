@@ -23,13 +23,13 @@ namespace AssetS/ClassList/Reader {
     use AssetS/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
 
-    pub def readEquiClassRecords(src: Path): Result[ClassRecords, String] & Impure = 
+    pub def readEquiClassRecords(src: Path): Result[ClassRecords, String] \ IO = 
         use Result.flatMap;
         let* xs = AssetS/ClassList/EquiParser.parseFile(src);
         let ans = buildRecords(xs);
         Ok(ans)
 
-    pub def readFlocClassRecords(src: Path): Result[ClassRecords, String] & Impure = 
+    pub def readFlocClassRecords(src: Path): Result[ClassRecords, String] \ IO = 
         use Result.flatMap;
         let* xs = AssetS/ClassList/FlocParser.parseFile(src);
         let ans = buildRecords(xs);
