@@ -139,8 +139,8 @@ namespace AssetS/ChangeReport/MakeRelations {
         Map.get(name, m) |> Option.getWithDefault("")
 
     def numberFormat(): Basis/Text.DecimalFormat = region r {
-        Basis/Text/DecimalFormatBuilder.newWithLocale(r, "0.0000", Basis/Util/Locale.us())
-            |> Basis/Text/DecimalFormatBuilder.freeze
+        Basis/Text/MutDecimalFormat.newWithLocale(r, "0.0000", Basis/Util/Locale.us())
+            |> Basis/Text/MutDecimalFormat.freeze
     }
 
     def valueFrom(s: String): String = 

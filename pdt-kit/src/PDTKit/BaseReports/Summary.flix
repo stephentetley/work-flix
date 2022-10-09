@@ -16,7 +16,7 @@
 
 namespace PDTKit/BaseReports/Summary {
 
-    use Basis/System.Path;
+    use Basis/NIO/File.Path;
     use SheetIO.RowSetter;
 
     use PDTKit/PdtL/Datatypes.{PdtFile, DataSheetMultiAttribute};
@@ -76,8 +76,8 @@ namespace PDTKit/BaseReports/Summary {
     def allXlsxFiles(path: Path): Result[List[Path], String] \ IO =
         use Result.flatMap;
         let* files = ToString.toString(path) |> File.list;
-        let* paths = Result.traverse(Basis/System/Path.newPath, files);
-        Ok(List.filter(Basis/System/Path.testExtension( s -> s == "xlsx"), paths))
+        let* paths = Result.traverse(Basis/NIO/File/Path.newPath, files);
+        Ok(List.filter(Basis/NIO/File/Path.testExtension( s -> s == "xlsx"), paths))
 
 
 

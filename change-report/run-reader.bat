@@ -1,3 +1,3 @@
 
-java -cp "change-report.jar;./lib/*;../../../flix/bin/flix-working.jar" Main %*
+java -cp "change-report.jar;./lib/*" Main %*
 

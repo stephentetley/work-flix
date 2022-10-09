@@ -98,7 +98,7 @@ namespace AssetS/ClassList/Reader {
     def intRange(src: String): (Int32, Int32) = 
         match intRangeHelper(src) {
             case Ok(rng) => rng
-            case Err(_) => (-1, -1)
+            case Err(_)  => (-1, -1)
         }
 
     def intRangeHelper(src: String): Result[(Int32, Int32), String] = 

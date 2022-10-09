@@ -16,7 +16,7 @@
 
 namespace PDTKit/PdtL/ReadPdt {
     
-    use Basis/System.Path;
+    use Basis/NIO/File.Path;
 
     use PDTKit/PdtL/Datatypes.{PdtFile};
 

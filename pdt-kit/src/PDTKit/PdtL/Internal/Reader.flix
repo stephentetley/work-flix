@@ -21,7 +21,7 @@ namespace PDTKit/PdtL/Internal/Reader {
  
     use MonadLib/MonadOr.{optional};
 
-    use Basis/System.Path;
+    use Basis/NIO/File.Path;
 
     use SheetIO.WorkbookReader;
     use SheetIO.RowEvaluator;
@@ -33,7 +33,7 @@ namespace PDTKit/PdtL/Internal/Reader {
 
     pub def readPdtFile(path: Path): Result[PdtFile, String] \ IO = region r1 {
         use SheetIO/WorkbookReader.{runXlsx};
-        let filename1 = Basis/System/Path.getFileName(path) |> Option.map(ToString.toString) |> Option.getWithDefault("...");
+        let filename1 = Basis/NIO/File/Path.getFileName(path) |> Option.map(ToString.toString) |> Option.getWithDefault("...");
         runXlsx(r1, readPdtFile1(filename1), path)
     }
 

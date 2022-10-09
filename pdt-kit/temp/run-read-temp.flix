@@ -11,7 +11,7 @@ def main(): Unit \ IO =
 
 def main1(): Result[Unit, String] \ IO = 
     use Result.flatMap;
-    let* path = Basis/System/Path.newPath("G:/work/assets/pdts/sample1.xlsx");
+    let* path = Basis/NIO/File/Path.newPath("G:/work/assets/pdts/sample1.xlsx");
     let* ans = PDTKit/PdtL/ReadPdt.readPdtFile(path);
     ans.leadSheet.attributes |> List.foreach(x -> println("ans.leadSheet.attributes: ${x.rowNum}: ${x.name}, ${x.value}, ${x.code}"));
     ans.dataDictionary.attributes |> List.foreach(x -> println("${x.rowNum}: ${x.category}::${x.name} / ${x.units}"));
