@@ -44,7 +44,7 @@ namespace AssetS/ClassList/EquiParser {
 
 
     pub def parseRow(): LineParser[r, ClassListRow] \ Read(r) = 
-        choice(classRow1() :: classRow2() :: charRow1() :: charRow2() :: valueRow() :: emptyRow() :: Nil)
+        choice(classRow1() :: classRow2() :: charRow1() :: charRow2() :: charRow3() :: valueRow() :: emptyRow() :: Nil)
 
     pub def choice(ps: List[LineParser[r, a]]): LineParser[r, a] = (r, input) -> match ps { 
         case Nil       => Err("No Parse: ${input}")
@@ -77,10 +77,18 @@ namespace AssetS/ClassList/EquiParser {
 
     pub def charRow2(): LineParser[r, ClassListRow] \ Read(r) = 
         use Text/RegexEval/MatchEvaluator.{getInt32Named};
+        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{34}) (?<chardesc>.{50}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+) (\\u0020*)(?<units>[\\p{Print}]+)";
+        let eval = ((x1, x2, x3, x4) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = None})) 
+                        <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length"); 
+        makeLineParser(regex, eval)
+
+    pub def charRow3(): LineParser[r, ClassListRow] \ Read(r) = 
+        use Text/RegexEval/MatchEvaluator.{getInt32Named};
         let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{34}) (?<chardesc>.{50}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+)";
         let eval = ((x1, x2, x3, x4) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = None})) 
                         <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length"); 
         makeLineParser(regex, eval)
+
 
     pub def valueRow(): LineParser[r, ClassListRow] \ Read(r) = 
         let regex = "[\\u0020\\u002D\\u007C]{19}(?<value>.+)";

@@ -61,7 +61,9 @@ namespace AssetS/ClassList/SQLite {
 
     def classDescriptionSetter(x: ClassDescription): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
-        putStringAt!(0, x.className) *> putStringAt!(1, x.description) 
+        putStringAt!(0, x.className) 
+            *> putStringAt!(1, x.classType) 
+            *> putStringAt!(2, x.description) 
 
     def classDescriptionTableDdl(): String =
         String.unwords(
@@ -93,11 +95,12 @@ namespace AssetS/ClassList/SQLite {
     def characteristicSetter(x: Characteristic): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!, putOptionInt32At!};
         putStringAt!(0, x.className)
-            *> putStringAt!(1, x.charName) 
-            *> putStringAt!(2, x.description) 
-            *> putStringAt!(3, x.s4Datatype) 
-            *> putInt32At!(4, x.textLength) 
-            *> putOptionInt32At!(5, x.decimalPlaces)
+            *> putStringAt!(1, x.classType) 
+            *> putStringAt!(2, x.charName) 
+            *> putStringAt!(3, x.description) 
+            *> putStringAt!(4, x.s4Datatype) 
+            *> putInt32At!(5, x.textLength) 
+            *> putOptionInt32At!(6, x.decimalPlaces)
 
         
     def characteristicTableDdl(): String =
@@ -137,8 +140,9 @@ namespace AssetS/ClassList/SQLite {
     def picklistValueSetter(x: PicklistValue): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!};
         putStringAt!(0, x.className)
-            *> putStringAt!(1, x.charName) 
-            *> putStringAt!(2, x.value) 
+            *> putStringAt!(1, x.classType) 
+            *> putStringAt!(2, x.charName) 
+            *> putStringAt!(3, x.value) 
 
         
     def picklistValueTableDdl(): String =
@@ -168,16 +172,15 @@ namespace AssetS/ClassList/SQLite {
     def storeIntRanges(rows: List[IntRange]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} =
         store({prepStatement = insertIntRangeRowSql(), setter = x -> intRangeSetter(x) as \ Write(r)}, rows)
 
-    // def intRangeSetter1(): Setter[r, Unit, IntRange] = x -> intRangeSetter(x)
-
+    
     def intRangeSetter(x: IntRange): PreparedStatementSetter[r, Unit, Unit] \ Write(r) =
         use BasicDb/PreparedStatementSetter.{putStringAt!, putInt32At!};
         putStringAt!(0, x.className)
-            *> putStringAt!(1, x.charName) 
-            *> putInt32At!(2, x.rangeFrom)
-            *> putInt32At!(3, x.rangeTo)
+            *> putStringAt!(1, x.classType)
+            *> putStringAt!(2, x.charName) 
+            *> putInt32At!(3, x.rangeFrom)
+            *> putInt32At!(4, x.rangeTo)
 
-    // No primary key
     def intRangeTableDdl(): String =
         String.unwords(
             "CREATE TABLE IF NOT EXISTS classlist_int_ranges ( "
@@ -185,7 +188,7 @@ namespace AssetS/ClassList/SQLite {
                 :: "class_type TEXT NOT NULL, "
                 :: "char_name TEXT NOT NULL, "
                 :: "range_from INTEGER NOT NULL, "
-                :: "range_to INTEGER NOT NULL "
+                :: "range_to INTEGER NOT NULL, "
                 :: "PRIMARY KEY(class_name, class_type, char_name) "
                 :: ");"
                 :: Nil

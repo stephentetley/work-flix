@@ -22,6 +22,7 @@ namespace AssetS/ClassList/Reader {
     use AssetS/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow};
     use AssetS/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
+    /// TODO - this is far too complicated, switch to Datalog+lattices?
 
     pub def readEquiClassRecords(src: Path): Result[ClassRecords, String] \ IO = 
         use Result.flatMap;
@@ -47,7 +48,7 @@ namespace AssetS/ClassList/Reader {
 
     def extractClassDescriptions(xs: List[ClassListRow]): List[ClassDescription] = 
         let step = (acc, x) -> match x {
-            case ClassRow(r1) => Chain.snoc(acc, {className = r1.name, description = r1.description})
+            case ClassRow(r1) => Chain.snoc(acc, {className = r1.name, classType = r1.classtype, description = r1.description})
             case _            => acc
         };
         Foldable.foldLeft(step, Chain.empty(), xs) |> Chain.toList
@@ -55,44 +56,44 @@ namespace AssetS/ClassList/Reader {
 
     def extractCharacteristics(xs: List[ClassListRow]): List[Characteristic] = 
         let step = (acc, x) -> match x {
-            case ClassRow(r1) => {className = r1.name | acc}
+            case ClassRow(r1) => {className = r1.name, classtype = r1.classtype | acc}
             case CharRow(r1)  => { 
-                let x1 = {className = acc.className, charName = r1.name, description = r1.description, 
+                let x1 = {className = acc.className, classType = acc.classtype, charName = r1.name, description = r1.description, 
                             s4Datatype = r1.chartype, textLength = r1.textLength, 
                             decimalPlaces = r1.decimalPlaces}; 
                 {results = Chain.snoc(acc.results, x1) | acc}
             }
             case _            => acc
         };
-        Foldable.foldLeft(step, {results = Chain.empty(), className = ""}, xs) |> x -> x.results |> Chain.toList
+        Foldable.foldLeft(step, {results = Chain.empty(), className = "", classtype = ""}, xs) |> x -> x.results |> Chain.toList
 
     def extractPicklistValues(xs: List[ClassListRow]): List[PicklistValue] = 
         let step = (acc, x) -> match x {
-            case ClassRow(r1) => {classname = r1.name | acc}
+            case ClassRow(r1) => {classname = r1.name, classtype = r1.classtype | acc}
             case CharRow(r1)  => {charname = r1.name, chartype = r1.chartype | acc}
             case ValueRow(s) if acc.chartype == "CHAR" => {
-                let x1 = { className = acc.classname, charName = acc.charname, value = s}; 
+                let x1 = { className = acc.classname, classType = acc.classtype, charName = acc.charname, value = s}; 
                 {results = Chain.snoc(acc.results, x1) | acc}
             }
             case _            => acc
         };
-        Foldable.foldLeft(step, {results = Chain.empty(), classname = "", charname = "", chartype = ""}, xs) |> x -> x.results |> Chain.toList
+        Foldable.foldLeft(step, {results = Chain.empty(), classname = "", classtype = "", charname = "", chartype = ""}, xs) |> x -> x.results |> Chain.toList
 
 
 
     def extractIntRanges(xs: List[ClassListRow]): List[IntRange] = 
         let step = (acc, x) -> match x {
-            case ClassRow(r1) => {classname = r1.name | acc}
+            case ClassRow(r1) => {classname = r1.name, classtype = r1.classtype | acc}
             case CharRow(r1)  => {charname = r1.name, chartype = r1.chartype | acc}
             case ValueRow(s) if acc.chartype == "NUM" => {
                 let (rstart, rend) = intRange(s);
-                let x1 = { className = acc.classname, charName = acc.charname, 
+                let x1 = { className = acc.classname, classType = acc.classtype, charName = acc.charname, 
                             rangeFrom = rstart, rangeTo = rend}; 
                 {results = Chain.snoc(acc.results, x1), chartype = "" | acc}
             }
             case _            => acc
         };
-        Foldable.foldLeft(step, {results = Chain.empty(), classname = "", charname = "", chartype = ""}, xs) |> x -> x.results |> Chain.toList
+        Foldable.foldLeft(step, {results = Chain.empty(), classname = "", classtype = "", charname = "", chartype = ""}, xs) |> x -> x.results |> Chain.toList
 
 
     def intRange(src: String): (Int32, Int32) = 

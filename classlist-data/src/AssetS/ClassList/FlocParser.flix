@@ -45,7 +45,7 @@ namespace AssetS/ClassList/FlocParser {
 
 
     pub def parseRow(): LineParser[r, ClassListRow] \ Read(r) = 
-        choice(classRow1() :: classRow2() :: charRow1() :: charRow2() :: valueRow() :: emptyRow() :: Nil)
+        choice(classRow1() :: classRow2() :: charRow1() :: charRow2() :: charRow3() :: valueRow() :: emptyRow() :: Nil)
 
 
     pub def choice(ps: List[LineParser[r, a]]): LineParser[r, a] = (r: Region[r], input) -> match ps { 
@@ -69,7 +69,7 @@ namespace AssetS/ClassList/FlocParser {
                         <$> getTrimmed("classname") <*> getTrimmed("classdesc"); 
         makeLineParser(regex, eval)
 
-
+    /// TODO - now using option units field at right end...
     pub def charRow1(): LineParser[r, ClassListRow] \ Read(r) = 
         use Text/RegexEval/MatchEvaluator.{getInt32Named};
         let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+)";
@@ -78,6 +78,14 @@ namespace AssetS/ClassList/FlocParser {
         makeLineParser(regex, eval)
 
     pub def charRow2(): LineParser[r, ClassListRow] \ Read(r) = 
+        use Text/RegexEval/MatchEvaluator.{getInt32Named};
+        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+) (\\u0020*)(?<units>[\\p{Print}]+)";
+        let eval = ((x1, x2, x3, x4, x5) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = Some(x5)})) 
+                        <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length") <*> getInt32Named("decimals"); 
+        makeLineParser(regex, eval)
+
+
+    pub def charRow3(): LineParser[r, ClassListRow] \ Read(r) = 
         use Text/RegexEval/MatchEvaluator.{getInt32Named};
         let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+)";
         let eval = ((x1, x2, x3, x4) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = None})) 

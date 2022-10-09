@@ -64,12 +64,14 @@ namespace AssetS/ClassList/Datatypes {
 
     pub type alias ClassDescription = 
         { className :: String
+        , classType :: String
         , description :: String
         }
 
 
     pub type alias Characteristic = 
         { className :: String
+        , classType :: String
         , charName :: String
         , description :: String
         , s4Datatype :: String
@@ -80,12 +82,14 @@ namespace AssetS/ClassList/Datatypes {
 
     pub type alias PicklistValue = 
         { className :: String
+        , classType :: String
         , charName :: String
         , value :: String
         }
 
     pub type alias IntRange = 
         { className :: String
+        , classType :: String
         , charName :: String
         , rangeFrom :: Int32
         , rangeTo :: Int32
