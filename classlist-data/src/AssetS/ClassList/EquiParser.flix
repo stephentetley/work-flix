@@ -32,7 +32,7 @@ namespace AssetS/ClassList/EquiParser {
     type alias LineParser[r: Region, a: Type] = Region[r] -> String -> Result[a, String] \ Read(r)
 
 
-    pub def parseFile(src: Path): Result[List[ClassListRow], String] & Impure = 
+    pub def parseFile(src: Path): Result[List[ClassListRow], String] \ IO = 
         use Result.flatMap;
         region r {
             let* buf    = Jvm/Apache/Commons/IO/Input/BOMInputStream.bufferedReaderWithBOM(r, src);
