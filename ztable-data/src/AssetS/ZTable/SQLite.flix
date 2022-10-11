@@ -30,17 +30,17 @@ namespace AssetLib/ZTable/SQLite {
 
     // # Objtype Manuf
 
-    pub def readAndStoreObjTypeManufacturer(table: String, path: Path): DbMonad[r, Unit, List[ObjTypeManufacturer]] \ {IO, Write(r)} =
+    pub def readAndStoreObjTypeManufacturer(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadObjTypeManufacturer(path));
-        let* _      = storeObjTypeManufacturer(table, ans);
-        point(ans)
+        let* _      = storeObjTypeManufacturer(ans);
+        point()
 
 
-    pub def storeObjTypeManufacturer(table: String, rows: t[ObjTypeManufacturer]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} with Foldable[t] =
+    pub def storeObjTypeManufacturer(rows: t[ObjTypeManufacturer]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} with Foldable[t] =
         let sqlstrings = { 
-            prepStmt = insertObjTypeManufacturerRowSql(table),
-            tableActions = "DELETE FROM ${table};" :: Nil
+            prepStmt = insertObjTypeManufacturerRowSql(),
+            tableActions = "DELETE FROM ztable_obj;" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, objTypeManufacturerSetter, rows)
 
@@ -49,9 +49,9 @@ namespace AssetLib/ZTable/SQLite {
         use BasicDb/PreparedStatementSetter.{point, putStringAt!};
         putStringAt!(0, x.objectType) *> putStringAt!(1, x.manufacturer)
 
-    def insertObjTypeManufacturerRowSql(tableName: String): String =
+    def insertObjTypeManufacturerRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO ztable_obj "
                 :: "(object_type, "
                 :: "manufacturer) "
                 :: "VALUES(?,?);"
@@ -59,17 +59,17 @@ namespace AssetLib/ZTable/SQLite {
         )
 
 
-    pub def createObjTypeManufacturerTable(tableName: String): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
+    pub def createObjTypeManufacturerTable(): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, commit!};
         let* _  = setAutoCommit!(false);
-        let* _  = executeSql!("DROP TABLE IF EXISTS ${tableName};");
-        let* _  = executeSql!(objTypeManufacturerTableDdl(tableName));
+        let* _  = executeSql!("DROP TABLE IF EXISTS ztable_obj;");
+        let* _  = executeSql!(objTypeManufacturerTableDdl());
         let* _  = commit!();
         point()
 
-    def objTypeManufacturerTableDdl(tableName: String): String =
+    def objTypeManufacturerTableDdl(): String =
         String.unlines(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
+            "CREATE TABLE IF NOT EXISTS ztable_obj ("
                 :: "object_type TEXT NOT NULL, "
                 :: "manufacturer TEXT NOT NULL, "
                 :: "PRIMARY KEY(object_type, manufacturer) "
@@ -80,16 +80,16 @@ namespace AssetLib/ZTable/SQLite {
     // # Manufacturer Model
 
 
-    pub def readAndStoreManufacturerModel(table: String, path: Path): DbMonad[r, Unit, List[ManufacturerModel]] \ {IO, Write(r)} =
+    pub def readAndStoreManufacturerModel(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
         let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadManufacturerModel(path));
-        let* _      = storeManufacturerModel(table, ans);
-        point(ans)
+        let* _      = storeManufacturerModel(ans);
+        point()
 
-    pub def storeManufacturerModel(table: String, rows: t[ManufacturerModel]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} with Foldable[t] =
+    pub def storeManufacturerModel(rows: t[ManufacturerModel]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} with Foldable[t] =
         let sqlstrings = { 
-            prepStmt = insertManufacturerModelRowSql(table),
-            tableActions = "DELETE FROM ${table};" :: Nil
+            prepStmt = insertManufacturerModelRowSql(),
+            tableActions = "DELETE FROM ztable_manuf;" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, manufacturerModelSetter, rows)
 
@@ -97,9 +97,9 @@ namespace AssetLib/ZTable/SQLite {
         use BasicDb/PreparedStatementSetter.{putStringAt!};
         putStringAt!(0, x.manufacturer) *> putStringAt!(1, x.model)
         
-    def insertManufacturerModelRowSql(tableName: String): String =
+    def insertManufacturerModelRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO ztable_manuf "
                 :: "(manufacturer, "
                 :: "model) "
                 :: "VALUES(?,?);"
@@ -108,17 +108,17 @@ namespace AssetLib/ZTable/SQLite {
 
 
 
-    pub def createManufacturerModelTable(tableName: String): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
+    pub def createManufacturerModelTable(): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, commit!};
         let* _  = setAutoCommit!(false);
-        let* _  = executeSql!("DROP TABLE IF EXISTS ${tableName};");
-        let* _  = executeSql!(manufacturerModelTableDdl(tableName));
+        let* _  = executeSql!("DROP TABLE IF EXISTS ztable_manuf;");
+        let* _  = executeSql!(manufacturerModelTableDdl());
         let* _  = commit!();
         point()
 
-    def manufacturerModelTableDdl(tableName: String): String =
+    def manufacturerModelTableDdl(): String =
         String.unlines(
-            "CREATE TABLE IF NOT EXISTS ${tableName} ("
+            "CREATE TABLE IF NOT EXISTS ztable_manuf ("
                 :: "manufacturer TEXT NOT NULL, "
                 :: "model TEXT NOT NULL, "
                 :: "PRIMARY KEY(manufacturer, model) "
@@ -129,10 +129,17 @@ namespace AssetLib/ZTable/SQLite {
     // # Floc Object Type Hierarchy
 
 
-    pub def storeFlocObject(table: String, rows: t[FlocObject]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}with Foldable[t] =
+    pub def readAndStoreFlocObject(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadFlocObject(path));
+        let* _      = storeFlocObject(ans);
+        point()
+
+
+    pub def storeFlocObject(rows: t[FlocObject]): DbMonad[r, Unit, Int32] \ {IO, Write(r)}with Foldable[t] =
         let sqlstrings = { 
-            prepStmt = insertFlocObjectRowSql(table),
-            tableActions = "DELETE FROM ${table};" :: Nil
+            prepStmt = insertFlocObjectRowSql(),
+            tableActions = "DELETE FROM ztable_floobjl;" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, flocObjectSetter, rows)
 
@@ -140,9 +147,9 @@ namespace AssetLib/ZTable/SQLite {
         use BasicDb/PreparedStatementSetter.{putStringAt!};
         putStringAt!(0, x.structure) *> putStringAt!(1, x.parent) *> putStringAt!(2, x.child)
         
-    def insertFlocObjectRowSql(tableName: String): String =
+    def insertFlocObjectRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO ztable_floobjl "
                 :: "(structure_name, "
                 :: "parent, "
                 :: "child) "
@@ -150,14 +157,38 @@ namespace AssetLib/ZTable/SQLite {
                 :: Nil
         )
 
+    pub def createFlocObjectTable(): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, commit!};
+        let* _  = setAutoCommit!(false);
+        let* _  = executeSql!("DROP TABLE IF EXISTS ztable_floobjl;");
+        let* _  = executeSql!(flocObjectDdl());
+        let* _  = commit!();
+        point()
+
+    def flocObjectDdl(): String =
+        String.unlines(
+            "CREATE TABLE IF NOT EXISTS ztable_floobjl ("
+                :: "structure_name TEXT NOT NULL, "
+                :: "parent TEXT NOT NULL, "
+                :: "child TEXT NOT NULL, "
+                :: "PRIMARY KEY(structure_name, parent, child) "
+                :: ");"
+                :: Nil
+            )
 
     // # Equi object Type Hierarchy
 
 
-    pub def storeEquiObject(table: String, rows: t[EquiObject]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} with Foldable[t] =
+    pub def readAndStoreEquiObject(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
+        use BasicDb/DbMonad.{flatMap, point, liftActionResult};
+        let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadEquiObject(path));
+        let* _      = storeEquiObject(ans);
+        point()
+
+    pub def storeEquiObject(rows: t[EquiObject]): DbMonad[r, Unit, Int32] \ {IO, Write(r)} with Foldable[t] =
         let sqlstrings = { 
-            prepStmt = insertEquiObjectRowSql(table),
-            tableActions = "DELETE FROM ${table};" :: Nil
+            prepStmt = insertEquiObjectRowSql(),
+            tableActions = "DELETE FROM ztable_eqobjl;" :: Nil
         };
         BasicDb/Writer.store(sqlstrings, equiObjectSetter, rows)
 
@@ -167,9 +198,9 @@ namespace AssetLib/ZTable/SQLite {
             *> putStringAt!(1, x.parent) 
             *> putStringAt!(2, x.child)
         
-    def insertEquiObjectRowSql(tableName: String): String =
+    def insertEquiObjectRowSql(): String =
         String.unwords(
-            "INSERT OR IGNORE INTO ${tableName} "
+            "INSERT OR IGNORE INTO ztable_eqobjl "
                 :: "(category, "
                 :: "parent, "
                 :: "child) "
@@ -178,5 +209,23 @@ namespace AssetLib/ZTable/SQLite {
         )
 
 
+    pub def createEquiObjectTable(): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
+        use BasicDb/DbMonad.{flatMap, point, setAutoCommit!, executeSql!, commit!};
+        let* _  = setAutoCommit!(false);
+        let* _  = executeSql!("DROP TABLE IF EXISTS ztable_eqobjl;");
+        let* _  = executeSql!(equiObjectDdl());
+        let* _  = commit!();
+        point()
+
+    def equiObjectDdl(): String =
+        String.unlines(
+            "CREATE TABLE IF NOT EXISTS ztable_eqobjl ("
+                :: "category TEXT NOT NULL, "
+                :: "parent TEXT NOT NULL, "
+                :: "child TEXT NOT NULL, "
+                :: "PRIMARY KEY(category, parent, child) "
+                :: ");"
+                :: Nil
+            )
 
 }

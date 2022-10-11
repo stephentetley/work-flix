@@ -25,18 +25,9 @@ namespace AssetLib/ZTable/Builtins {
     use AssetLib/ZTable/Datatypes.{EquiObject, 
         FlocObject, FlocDescription, ObjTypeManufacturer, ManufacturerModel};
     use AssetLib/ZTable/Parser.{importRows};
-    use AssetLib/ZTable/Relations.{SuperSubEquipObject, 
-        SuperSubFlocObject, FlocObjectDescription, AllowedManufacturer, 
-        AllowedManufacturerModel};
     use AssetLib/ZTable.RowEvaluator;
 
     // EquipObject
-
-    pub def loadSuperSubEquiObject(path: Path): Result[#{SuperSubEquipObject | rln}, String] \ IO = 
-        let build = List.map(x1 -> (x1.parent, x1.child, x1.category)) >> xs -> inject xs into SuperSubEquipObject;
-        loadEquiObject(path)
-            |> Result.map(build)
-
     pub def loadEquiObject(path: Path): Result[List[EquiObject], String] \ IO =        
         region r1 {
             importRows(r1, evalEquiObject(), path)
@@ -51,12 +42,6 @@ namespace AssetLib/ZTable/Builtins {
         
 
     // FlocObject
-
-    pub def loadSuperSubFlocObject(path: Path): Result[#{SuperSubFlocObject | rln}, String] \ IO = 
-        let build = List.map(x1 -> (x1.parent, x1.child, x1.structure)) >> xs -> inject xs into SuperSubFlocObject;
-        loadFlocObject(path)
-            |> Result.map(build)
-
     pub def loadFlocObject(path: Path): Result[List[FlocObject], String] \ IO =
         region r1 {
             importRows(r1, evalFlocObject(), path)
@@ -71,12 +56,6 @@ namespace AssetLib/ZTable/Builtins {
         
 
     // FlocDescription
-    
-    pub def loadFlocObjectDescription(path: Path): Result[#{FlocObjectDescription | rln}, String] \ IO = 
-        let build = List.map(x1 -> (x1.objectType, x1.description)) >> xs ->  inject xs into FlocObjectDescription;
-        loadFlocDescription(path)
-            |> Result.map(build)
-
     pub def loadFlocDescription(path: Path): Result[List[FlocDescription], String] \ IO =
         region r1 {
             importRows(r1, evalFlocDescription(), path)
@@ -89,12 +68,6 @@ namespace AssetLib/ZTable/Builtins {
         point({objectType = objtype, description = desc})
 
     // ObjTypeManufacturer
-    
-    pub def loadAllowedManufacturer(path: Path): Result[#{AllowedManufacturer | rln}, String] \ IO = 
-        let build = List.map(x1 -> (x1.objectType, x1.manufacturer)) >> xs -> inject xs into AllowedManufacturer;
-        loadObjTypeManufacturer(path)
-            |> Result.map(build)
-
     pub def loadObjTypeManufacturer(path: Path): Result[List[ObjTypeManufacturer], String] \ IO =
         region r1 {
             importRows(r1, evalObjTypeManufacturer(), path)
@@ -107,12 +80,6 @@ namespace AssetLib/ZTable/Builtins {
         point({objectType = objectty, manufacturer = manuf})
 
     // ManufacturerModel
-    
-    pub def loadAllowedManufacturerModel(path: Path): Result[#{AllowedManufacturerModel | rln}, String] \ IO = 
-        let build = List.map(x1 -> (x1.manufacturer, x1.model)) >> xs -> inject xs into AllowedManufacturerModel;
-        loadManufacturerModel(path)
-            |> Result.map(build)
-
     pub def loadManufacturerModel(path: Path): Result[List[ManufacturerModel], String] \ IO =
         region r1 {
             importRows(r1, evalManufacturerModel(), path)
