@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetS/IH06Tree/SQLite {
+namespace AssetDS/IH06Tree/SQLite {
 
     use Applicative.{point, *>};
 
@@ -25,8 +25,8 @@ namespace AssetS/IH06Tree/SQLite {
     use BasicDb.RowEvaluator;
 
 
-    use AssetS/IH06Tree/Datatypes.{IH06File, IH06Row, FlocRow, EquiRow};
-    use AssetS/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
+    use AssetDS/IH06Tree/Datatypes.{IH06File, IH06Row, FlocRow, EquiRow};
+    use AssetDS/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     pub type alias IH06TableNames = 
         { flocTable :: String

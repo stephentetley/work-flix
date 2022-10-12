@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/ZTable {
+namespace AssetDS/ZTable {
 
     /// The LHS is generally between 2 and 4 cells wide, Array not really necessary...
 
@@ -26,46 +26,46 @@ namespace AssetLib/ZTable {
 
     instance Functor[RowEvaluator[r, ka]] { 
         pub def map(f: a -> b \ ef, x: RowEvaluator[r, ka, a]): RowEvaluator[r, ka, b] \ ef = 
-            AssetLib/ZTable/RowEvaluator.map(f, x)
+            AssetDS/ZTable/RowEvaluator.map(f, x)
     }
 
     instance Applicative[RowEvaluator[r, ka]] { 
         pub def point(x: a): RowEvaluator[r, ka, a] = 
-            AssetLib/ZTable/RowEvaluator.point(x)
+            AssetDS/ZTable/RowEvaluator.point(x)
 
         pub def ap(f: RowEvaluator[r, ka, a -> b \ ef], x: RowEvaluator[r, ka, a]): RowEvaluator[r, ka, b] \ ef = 
-            AssetLib/ZTable/RowEvaluator.ap(f, x)
+            AssetDS/ZTable/RowEvaluator.ap(f, x)
     }
 
     instance Monad[RowEvaluator[r, ka]] { 
         pub def flatMap(k: a -> RowEvaluator[r, ka, b] \ ef, x: RowEvaluator[r, ka, a]): RowEvaluator[r, ka, b] \ ef = 
-            AssetLib/ZTable/RowEvaluator.flatMap(k, x)
+            AssetDS/ZTable/RowEvaluator.flatMap(k, x)
     }
 
     instance MonadZero[RowEvaluator[r, ka]] {
         pub def empty(): RowEvaluator[r, ka, a] = 
-            AssetLib/ZTable/RowEvaluator.empty()
+            AssetDS/ZTable/RowEvaluator.empty()
     }
 
     instance MonadLib.MonadOr[RowEvaluator[r, ka]] {
         pub def orelse(a: RowEvaluator[r, ka, a], b: RowEvaluator[r, ka, a]): RowEvaluator[r, ka, a] =
-            AssetLib/ZTable/RowEvaluator.orelse(a, b)
+            AssetDS/ZTable/RowEvaluator.orelse(a, b)
     }
 
     instance MonadLib.MonadError[RowEvaluator[r, ka]] { 
         pub def throwError(msg: String): RowEvaluator[r, ka, a] =
-            AssetLib/ZTable/RowEvaluator.throwError(msg)
+            AssetDS/ZTable/RowEvaluator.throwError(msg)
 
         pub def mapError(f: String -> String \ ef, ma: RowEvaluator[r, ka, a]): RowEvaluator[r, ka, a] \ ef = 
-            AssetLib/ZTable/RowEvaluator.mapError(f, ma)
+            AssetDS/ZTable/RowEvaluator.mapError(f, ma)
 
         pub def catchError(ma: RowEvaluator[r, ka, a], hdlr: String -> RowEvaluator[r, ka, a] \ ef): RowEvaluator[r, ka, a] \ ef = 
-            AssetLib/ZTable/RowEvaluator.catchError(ma, hdlr)
+            AssetDS/ZTable/RowEvaluator.catchError(ma, hdlr)
     }  
 
 }
 
-namespace AssetLib/ZTable/RowEvaluator {
+namespace AssetDS/ZTable/RowEvaluator {
 
     use FromString.fromString;
 
@@ -73,8 +73,8 @@ namespace AssetLib/ZTable/RowEvaluator {
     
     use Text/RegexEval.MatchEvaluator;
 
-    use AssetLib/ZTable.RowEvaluator;
-    use AssetLib/ZTable.RowEvaluator.{RowEvaluator};
+    use AssetDS/ZTable.RowEvaluator;
+    use AssetDS/ZTable.RowEvaluator.{RowEvaluator};
 
 
     

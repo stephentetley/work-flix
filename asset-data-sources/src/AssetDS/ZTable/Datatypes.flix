@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/ZTable/Datatypes {
+namespace AssetDS/ZTable/Datatypes {
 
     pub type alias EquiObject = 
         { category :: String

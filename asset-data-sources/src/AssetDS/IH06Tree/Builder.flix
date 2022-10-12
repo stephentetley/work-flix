@@ -15,15 +15,15 @@
  */
 
 
-namespace AssetS/IH06Tree/Builder {
+namespace AssetDS/IH06Tree/Builder {
         
     use Basis/NIO/File.Path;
     use DataLib.{RoseTree, RoseForest};
     use DataLib.RoseTree.{Node};
 
-    use AssetS/IH06Tree/Datatypes.{IH06File, IH06Row, IH06Tree, IH06Node, FlocRow, EquiRow};
-    use AssetS/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
-    use AssetS/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
+    use AssetDS/IH06Tree/Datatypes.{IH06File, IH06Row, IH06Tree, IH06Node, FlocRow, EquiRow};
+    use AssetDS/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
+    use AssetDS/IH06Tree/Datatypes.IH06Node.{FlocNode, EquiNode};
 
     
     pub def buildIH06Tree(src: IH06File): Result[IH06Tree, String] = match src.rows { 
@@ -40,7 +40,7 @@ namespace AssetS/IH06Tree/Builder {
         
     pub def readTree(src: Path): Result[IH06Tree, String] \ IO = 
         use Result.{flatMap};
-        let* ast = AssetS/IH06Tree/Parser.parseFileWithBOM(src);
+        let* ast = AssetDS/IH06Tree/Parser.parseFileWithBOM(src);
         buildIH06Tree(ast)
 
     def getParentId(row: IH06Row): Option[String] = match row {

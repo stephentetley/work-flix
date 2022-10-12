@@ -16,13 +16,13 @@
 
 
 
-namespace AssetLib/ZTable/Parser {
+namespace AssetDS/ZTable/Parser {
 
 
     use Basis/NIO/File.Path;
     use FlixParsec.Parser;
 
-    use AssetLib/ZTable.RowEvaluator;
+    use AssetDS/ZTable.RowEvaluator;
 
     /// Note - parser may loop rather than fail if given wrong ztable input source for the RowEvaluator, needs investigating...
 
@@ -59,7 +59,7 @@ namespace AssetLib/ZTable/Parser {
         let split   = s -> leadingSepBy(r, s, "|");
         let* s0     = restOfLine(true);
         let s1      = Text/Regex.replace(from = Text/Regex/Pattern.irrefutablePattern("\\R"), to = "", s0);
-        liftActionResult(_ -> AssetLib/ZTable/RowEvaluator.evaluateString(r, split, s1, eval))
+        liftActionResult(_ -> AssetDS/ZTable/RowEvaluator.evaluateString(r, split, s1, eval))
 
 
     def leadingSepBy(r: Region[r], input: String, sep: String): Array[String, r] \ Write(r) =

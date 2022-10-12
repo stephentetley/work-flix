@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetS/ClassList/Datatypes {
+namespace AssetDS/ClassList/Datatypes {
 
 
     /// Parser types (low level)

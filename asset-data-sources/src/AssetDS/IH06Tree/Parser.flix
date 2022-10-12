@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetS/IH06Tree/Parser {
+namespace AssetDS/IH06Tree/Parser {
 
     use Functor.{map, ignore};
     use Applicative.{point, *>};
@@ -32,8 +32,8 @@ namespace AssetS/IH06Tree/Parser {
     use FlixParsec/Text.{whiteSpace, skip1OneOf, content, restOfLine, peekRestOfLine};
     use FlixParsec/TokenSimple.{symbol, lexeme};
 
-    use AssetS/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
-    use AssetS/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
+    use AssetDS/IH06Tree/Datatypes.{IH06File, Header, IH06Row, FlocRow, EquiRow};
+    use AssetDS/IH06Tree/Datatypes.IH06Row.{FlocRow, EquiRow};
 
     /// Always UTF-8? No need to handle utf8+BOM...
     pub def parseFile(path: Path, cs: Charset) : Result[IH06File, String] \ IO = 
@@ -41,7 +41,7 @@ namespace AssetS/IH06Tree/Parser {
 
     pub def parseFileWithBOM(_path: Path) : Result[IH06File, String] \ IO = 
         // FlixParsec/Extras.parsesFileWithBOM(ih06FileParser(), 4, path) 
-        bug!("parseFileWithBOM to  imnplement") as \ IO
+        bug!("parseFileWithBOM to implement") as \ IO
 
 
     pub def ih06FileParser(): Parser[t1, IH06File] = 

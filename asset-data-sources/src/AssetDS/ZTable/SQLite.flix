@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetLib/ZTable/SQLite {
+namespace AssetDS/ZTable/SQLite {
 
     use Functor.{<$>};
     use Applicative.{<*>, *>};
@@ -26,13 +26,13 @@ namespace AssetLib/ZTable/SQLite {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetLib/ZTable/Datatypes.{ObjTypeManufacturer, ManufacturerModel, FlocObject, EquiObject};
+    use AssetDS/ZTable/Datatypes.{ObjTypeManufacturer, ManufacturerModel, FlocObject, EquiObject};
 
     // # Objtype Manuf
 
     pub def readAndStoreObjTypeManufacturer(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
-        let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadObjTypeManufacturer(path));
+        let* ans    = liftActionResult(_ -> AssetDS/ZTable/Builtins.loadObjTypeManufacturer(path));
         let* _      = storeObjTypeManufacturer(ans);
         point()
 
@@ -82,7 +82,7 @@ namespace AssetLib/ZTable/SQLite {
 
     pub def readAndStoreManufacturerModel(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
-        let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadManufacturerModel(path));
+        let* ans    = liftActionResult(_ -> AssetDS/ZTable/Builtins.loadManufacturerModel(path));
         let* _      = storeManufacturerModel(ans);
         point()
 
@@ -131,7 +131,7 @@ namespace AssetLib/ZTable/SQLite {
 
     pub def readAndStoreFlocObject(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
-        let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadFlocObject(path));
+        let* ans    = liftActionResult(_ -> AssetDS/ZTable/Builtins.loadFlocObject(path));
         let* _      = storeFlocObject(ans);
         point()
 
@@ -181,7 +181,7 @@ namespace AssetLib/ZTable/SQLite {
 
     pub def readAndStoreEquiObject(path: Path): DbMonad[r, Unit, Unit] \ {IO, Write(r)} =
         use BasicDb/DbMonad.{flatMap, point, liftActionResult};
-        let* ans    = liftActionResult(_ -> AssetLib/ZTable/Builtins.loadEquiObject(path));
+        let* ans    = liftActionResult(_ -> AssetDS/ZTable/Builtins.loadEquiObject(path));
         let* _      = storeEquiObject(ans);
         point()
 

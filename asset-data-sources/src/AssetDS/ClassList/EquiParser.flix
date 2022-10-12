@@ -17,7 +17,7 @@
 
 
 
-namespace AssetS/ClassList/FlocParser {
+namespace AssetDS/ClassList/EquiParser {
 
     use Functor.{<$>};
     use Applicative.{<*>};
@@ -26,8 +26,8 @@ namespace AssetS/ClassList/FlocParser {
 
     use Text/RegexEval.MatchEvaluator;
 
-    use AssetS/ClassList/Datatypes.{ClassListRow};
-    use AssetS/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow, EmptyRow};
+    use AssetDS/ClassList/Datatypes.ClassListRow;
+    use AssetDS/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow, EmptyRow};
 
     type alias LineParser[r: Region, a: Type] = Region[r] -> String -> Result[a, String] \ Read(r)
 
@@ -40,15 +40,13 @@ namespace AssetS/ClassList/FlocParser {
             let body    = all |> List.dropWhile(s -> not String.startsWith(prefix = "-----", s)) |> List.drop(1);
             Result.traverse(input -> {let p = parseRow(); p(r, input)}, body)
         }
-        
 
 
 
     pub def parseRow(): LineParser[r, ClassListRow] \ Read(r) = 
         choice(classRow1() :: classRow2() :: charRow1() :: charRow2() :: charRow3() :: valueRow() :: emptyRow() :: Nil)
 
-
-    pub def choice(ps: List[LineParser[r, a]]): LineParser[r, a] = (r: Region[r], input) -> match ps { 
+    pub def choice(ps: List[LineParser[r, a]]): LineParser[r, a] = (r, input) -> match ps { 
         case Nil       => Err("No Parse: ${input}")
         case p :: rest => match p(r, input) {
             case Err(_) => choice(rest, r, input)
@@ -58,41 +56,41 @@ namespace AssetS/ClassList/FlocParser {
 
 
     pub def classRow1(): LineParser[r, ClassListRow] \ Read(r) = 
-        let regex = "[\\u0020\\u002D\\u007C]{11}003 (?<classname>[\\p{Print}\\u0020]{32}) (?<classdesc>.{35}) X";
-        let eval = ((x1, x2) -> ClassRow({classtype = "003", name = x1, description = x2})) 
+        let regex = "[\\u0020\\u002D\\u007C]{11}002 (?<classname>[\\p{Print}\\u0020]{34}) (?<classdesc>.{39}) X";
+        let eval = ((x1, x2) -> ClassRow({classtype = "002", name = x1, description = x2})) 
                         <$> getTrimmed("classname") <*> getTrimmed("classdesc"); 
         makeLineParser(regex, eval)
 
     pub def classRow2(): LineParser[r, ClassListRow] \ Read(r) = 
-        let regex = "[\\u0020\\u002D\\u007C]{11}003 (?<classname>[\\p{Print}\\u0020]{32}) (?<classdesc>.+)";
-        let eval = ((x1, x2) -> ClassRow({classtype = "003", name = x1, description = x2})) 
+        let regex = "[\\u0020\\u002D\\u007C]{11}002 (?<classname>[\\p{Print}\\u0020]{34}) (?<classdesc>.+)";
+        let eval = ((x1, x2) -> ClassRow({classtype = "002", name = x1, description = x2})) 
                         <$> getTrimmed("classname") <*> getTrimmed("classdesc"); 
         makeLineParser(regex, eval)
 
-    /// TODO - now using option units field at right end...
+
     pub def charRow1(): LineParser[r, ClassListRow] \ Read(r) = 
         use Text/RegexEval/MatchEvaluator.{getInt32Named};
-        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+)";
+        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{34}) (?<chardesc>.{50}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+)";
         let eval = ((x1, x2, x3, x4, x5) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = Some(x5)})) 
                         <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length") <*> getInt32Named("decimals"); 
         makeLineParser(regex, eval)
 
     pub def charRow2(): LineParser[r, ClassListRow] \ Read(r) = 
         use Text/RegexEval/MatchEvaluator.{getInt32Named};
-        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+) (\\u0020*)(?<units>[\\p{Print}]+)";
-        let eval = ((x1, x2, x3, x4, x5) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = Some(x5)})) 
-                        <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length") <*> getInt32Named("decimals"); 
-        makeLineParser(regex, eval)
-
-
-    pub def charRow3(): LineParser[r, ClassListRow] \ Read(r) = 
-        use Text/RegexEval/MatchEvaluator.{getInt32Named};
-        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{32}) (?<chardesc>.{46}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+)";
+        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{34}) (?<chardesc>.{50}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+) (\\u0020*)(?<decimals>\\p{Digit}+) (\\u0020*)(?<units>[\\p{Print}]+)";
         let eval = ((x1, x2, x3, x4) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = None})) 
                         <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length"); 
         makeLineParser(regex, eval)
 
-    pub def valueRow(): LineParser[r, ClassListRow]  \ Read(r) = 
+    pub def charRow3(): LineParser[r, ClassListRow] \ Read(r) = 
+        use Text/RegexEval/MatchEvaluator.{getInt32Named};
+        let regex = "[\\u0020\\u002D\\u007C]{15}(?<charname>[\\p{Print}\\u0020]{34}) (?<chardesc>.{50}) (?<chartype>[\\p{Upper}\\u0020]{9}) (?<length>\\p{Digit}+)";
+        let eval = ((x1, x2, x3, x4) -> CharRow({name = x1, description = x2, chartype = x3, textLength = x4, decimalPlaces = None})) 
+                        <$> getTrimmed("charname") <*> getTrimmed("chardesc") <*> getTrimmed("chartype") <*> getInt32Named("length"); 
+        makeLineParser(regex, eval)
+
+
+    pub def valueRow(): LineParser[r, ClassListRow] \ Read(r) = 
         let regex = "[\\u0020\\u002D\\u007C]{19}(?<value>.+)";
         let eval = (x1 -> ValueRow(x1)) <$> getTrimmed("value"); 
         makeLineParser(regex, eval)
@@ -101,7 +99,6 @@ namespace AssetS/ClassList/FlocParser {
         let regex = "[\\u0020\\u002D\\u007C]*";
         let eval = Applicative.point(EmptyRow); 
         makeLineParser(regex, eval)
-
 
 
     def makeLineParser(regex: String, eval: MatchEvaluator[r, a, a]): LineParser[r, a] = 

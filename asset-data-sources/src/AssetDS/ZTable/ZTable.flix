@@ -15,23 +15,23 @@
  */
 
 
-namespace AssetLib/ZTable/ZTable {
+namespace AssetDS/ZTable/ZTable {
 
     use Applicative.{*>}
     use Basis/NIO/File.Path;
 
 
     pub def genZTableObj(obj: {obj :: Path}, dest: {dest :: Path}): Result[Unit, String] \ IO = region r {
-        BasicDb/DbMonad.runSQLite(r, AssetLib/ZTable/SQLite.readAndStoreObjTypeManufacturer(obj.obj), dest.dest)
+        BasicDb/DbMonad.runSQLite(r, AssetDS/ZTable/SQLite.readAndStoreObjTypeManufacturer(obj.obj), dest.dest)
     }       
 
 
     pub def genZTableManuf(manuf: {manuf :: Path}, dest: {dest :: Path}): Result[Unit, String] \ IO = region r {
-        BasicDb/DbMonad.runSQLite(r, AssetLib/ZTable/SQLite.readAndStoreManufacturerModel(manuf.manuf), dest.dest)
+        BasicDb/DbMonad.runSQLite(r, AssetDS/ZTable/SQLite.readAndStoreManufacturerModel(manuf.manuf), dest.dest)
     }      
 
 
     pub def genZTableFloobjl(floobjl: {floobjl :: Path}, dest: {dest :: Path}): Result[Unit, String] \ IO = region r {
-        BasicDb/DbMonad.runSQLite(r, AssetLib/ZTable/SQLite.readAndStoreFlocObject(floobjl.floobjl), dest.dest)
+        BasicDb/DbMonad.runSQLite(r, AssetDS/ZTable/SQLite.readAndStoreFlocObject(floobjl.floobjl), dest.dest)
     }     
 }

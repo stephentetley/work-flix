@@ -15,17 +15,17 @@
  */
 
 
-namespace AssetLib/ZTable/Builtins {
+namespace AssetDS/ZTable/Builtins {
 
     use Functor.{<$>};
     use Applicative.{<*>};
 
     use Basis/NIO/File.Path;
 
-    use AssetLib/ZTable/Datatypes.{EquiObject, 
+    use AssetDS/ZTable/Datatypes.{EquiObject, 
         FlocObject, FlocDescription, ObjTypeManufacturer, ManufacturerModel};
-    use AssetLib/ZTable/Parser.{importRows};
-    use AssetLib/ZTable.RowEvaluator;
+    use AssetDS/ZTable/Parser.{importRows};
+    use AssetDS/ZTable.RowEvaluator;
 
     // EquipObject
     pub def loadEquiObject(path: Path): Result[List[EquiObject], String] \ IO =        
@@ -34,7 +34,7 @@ namespace AssetLib/ZTable/Builtins {
         }
 
     def evalEquiObject(): RowEvaluator[r, EquiObject, EquiObject] \ Read(r) = 
-        use AssetLib/ZTable/RowEvaluator.{getStringAt};
+        use AssetDS/ZTable/RowEvaluator.{getStringAt};
         ((x1, x2, x3) -> {parent = x1, child = x2, category = x3})
             <$> getStringAt(0)
             <*> getStringAt(1)
@@ -48,7 +48,7 @@ namespace AssetLib/ZTable/Builtins {
         }
 
     def evalFlocObject(): RowEvaluator[r, FlocObject, FlocObject] \ Read(r) = 
-        use AssetLib/ZTable/RowEvaluator.{getStringAt};
+        use AssetDS/ZTable/RowEvaluator.{getStringAt};
         ((x1, x2, x3) -> {structure = x1, parent = x2, child = x3})
             <$> getStringAt(0)
             <*> getStringAt(1)
@@ -62,7 +62,7 @@ namespace AssetLib/ZTable/Builtins {
         }
 
     def evalFlocDescription(): RowEvaluator[r, FlocDescription, FlocDescription] \ Read(r) = 
-        use AssetLib/ZTable/RowEvaluator.{flatMap, point, getStringAt};
+        use AssetDS/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* objtype    = getStringAt(0);
         let* desc       = getStringAt(1);
         point({objectType = objtype, description = desc})
@@ -74,7 +74,7 @@ namespace AssetLib/ZTable/Builtins {
         }
 
     def evalObjTypeManufacturer(): RowEvaluator[r, ObjTypeManufacturer, ObjTypeManufacturer] \ Read(r) = 
-        use AssetLib/ZTable/RowEvaluator.{flatMap, point, getStringAt};
+        use AssetDS/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* objectty   = getStringAt(0);
         let* manuf      = getStringAt(1);
         point({objectType = objectty, manufacturer = manuf})
@@ -86,7 +86,7 @@ namespace AssetLib/ZTable/Builtins {
         }
 
     def evalManufacturerModel(): RowEvaluator[r, ManufacturerModel, ManufacturerModel] \ Read(r) = 
-        use AssetLib/ZTable/RowEvaluator.{flatMap, point, getStringAt};
+        use AssetDS/ZTable/RowEvaluator.{flatMap, point, getStringAt};
         let* manuf      = getStringAt(0);
         let* modl       = getStringAt(1);
         point({manufacturer = manuf, model = modl})

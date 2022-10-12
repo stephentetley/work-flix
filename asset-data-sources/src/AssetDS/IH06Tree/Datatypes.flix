@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetS/IH06Tree/Datatypes {
+namespace AssetDS/IH06Tree/Datatypes {
 
     use DataLib.RoseTree;
     use Time.LocalDate;

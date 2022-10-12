@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-namespace AssetS/ClassList/Reader {
+namespace AssetDS/ClassList/Reader {
 
     use Basis/NIO/File.Path;
 
-    use AssetS/ClassList/Datatypes.ClassListRow;
-    use AssetS/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow};
-    use AssetS/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
+    use AssetDS/ClassList/Datatypes.ClassListRow;
+    use AssetDS/ClassList/Datatypes.ClassListRow.{ClassRow, CharRow, ValueRow};
+    use AssetDS/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
     /// TODO - this is far too complicated, switch to Datalog+lattices?
 
     pub def readEquiClassRecords(src: Path): Result[ClassRecords, String] \ IO = 
         use Result.flatMap;
-        let* xs = AssetS/ClassList/EquiParser.parseFile(src);
+        let* xs = AssetDS/ClassList/EquiParser.parseFile(src);
         let ans = buildRecords(xs);
         Ok(ans)
 
     pub def readFlocClassRecords(src: Path): Result[ClassRecords, String] \ IO = 
         use Result.flatMap;
-        let* xs = AssetS/ClassList/FlocParser.parseFile(src);
+        let* xs = AssetDS/ClassList/FlocParser.parseFile(src);
         let ans = buildRecords(xs);
         Ok(ans)
 
@@ -111,6 +111,4 @@ namespace AssetS/ClassList/Reader {
             Text/RegexEval/Regex.firstSubmatch(r, eval, patt, src)
         }
 
-
-        
 }

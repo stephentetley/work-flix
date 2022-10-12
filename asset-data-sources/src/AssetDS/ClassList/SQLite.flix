@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetS/ClassList/SQLite {
+namespace AssetDS/ClassList/SQLite {
 
     use Applicative.{*>};
 
@@ -23,7 +23,7 @@ namespace AssetS/ClassList/SQLite {
     use BasicDb.PreparedStatementSetter;
     use BasicDb.RowEvaluator;
 
-    use AssetS/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
+    use AssetDS/ClassList/Datatypes.{ClassRecords, ClassDescription, Characteristic, PicklistValue, IntRange};
 
 
 
