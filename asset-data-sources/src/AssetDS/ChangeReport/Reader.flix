@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/Reader {
+namespace AssetDS/ChangeReport/Reader {
 
     use Functor.{<$>};
     use Applicative.{<*>};

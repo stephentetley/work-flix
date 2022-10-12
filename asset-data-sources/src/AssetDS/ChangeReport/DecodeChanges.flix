@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/DecodeChanges {
+namespace AssetDS/ChangeReport/DecodeChanges {
 
-    use AssetS/ChangeReport/Lattice/Max.{Max};
-    use AssetS/ChangeReport/Lattice/Min.{Min};
-    use AssetS/ChangeReport/Relations.{SimpleRow, Change};
+    use AssetDS/ChangeReport/Lattice/Max.{Max};
+    use AssetDS/ChangeReport/Lattice/Min.{Min};
+    use AssetDS/ChangeReport/Relations.{SimpleRow, Change};
 
 
 
@@ -87,9 +87,8 @@ namespace AssetS/ChangeReport/DecodeChanges {
     }
 
     /// CAUTION - seem to need a wrapper in same module to use a polymorphic lattice.
-    def max1(x: Int32): Max[Int32] = AssetS/ChangeReport/Lattice/Max.max1(x)
+    def max1(x: Int32): Max[Int32] = AssetDS/ChangeReport/Lattice/Max.max1(x)
 
-
-    def min1(x: Int32): Min[Int32] = AssetS/ChangeReport/Lattice/Min.min1(x)
+    def min1(x: Int32): Min[Int32] = AssetDS/ChangeReport/Lattice/Min.min1(x)
 
 }

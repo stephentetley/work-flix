@@ -15,7 +15,7 @@
  */
 
 
-namespace AssetS/ChangeReport/StoreChanges {
+namespace AssetDS/ChangeReport/StoreChanges {
 
     use Basis/NIO/File.Path;
 

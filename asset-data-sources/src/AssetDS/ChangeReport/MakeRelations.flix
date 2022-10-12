@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/MakeRelations {
+namespace AssetDS/ChangeReport/MakeRelations {
 
 
-    use AssetS/ChangeReport/Relations.{
-        SourceRow,
-        SimpleRow
-    };
+    use AssetDS/ChangeReport/Relations.{SourceRow, SimpleRow};
 
 
     pub def makeRowRelations[rln: SchemaRow](rows: List[Map[String, String]]): #{SourceRow, SimpleRow | rln} = 

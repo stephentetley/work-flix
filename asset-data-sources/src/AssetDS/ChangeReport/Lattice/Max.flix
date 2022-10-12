@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/Lattice/Max {
+namespace AssetDS/ChangeReport/Lattice/Max {
 
 
     pub enum Max[a] with Eq, Order, ToString, Hash { 

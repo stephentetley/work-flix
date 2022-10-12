@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/Lattice/Min {
+namespace AssetDS/ChangeReport/Lattice/Min {
 
 
     pub enum Min[a] with Eq, Order, ToString, Hash { 

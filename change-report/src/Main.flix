@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// TODO `initDB` should be in the ChangeReport library...
+
 
 def main(): Int32 \ IO = 
     let args = Environment.getArgs();
@@ -76,19 +78,19 @@ namespace Main1 {
 
     pub def initDb(inpath: Path): Result[Unit, String] \ IO = 
         use Result.flatMap;
-        use AssetS/ChangeReport/Relations.{Change, SimpleRow, SourceRow};
+        use AssetDS/ChangeReport/Relations.{Change, SimpleRow, SourceRow};
         let* exists = Basis/NIO/File/Files.exists(inpath, Nil);
         if (exists) {
             let outpath     = Basis/NIO/File/Path.putExtension(inpath, "sqlite");
-            let* _          = AssetS/ChangeReport/InitDb.createCRDatabase(outpath);
-            let* rows       = AssetS/ChangeReport/Reader.readChangeReport(inpath);
+            let* _          = AssetDS/ChangeReport/InitDb.createCRDatabase(outpath);
+            let* rows       = AssetDS/ChangeReport/Reader.readChangeReport(inpath);
             List.foreach(println, List.take(5, rows));
-            let db          = AssetS/ChangeReport/MakeRelations.makeRowRelations(rows);
+            let db          = AssetDS/ChangeReport/MakeRelations.makeRowRelations(rows);
             let sources     = query db select (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13) from SourceRow(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13);
-            let* _          = AssetS/ChangeReport/StoreChanges.storeSourceRows(sources, outpath);
+            let* _          = AssetDS/ChangeReport/StoreChanges.storeSourceRows(sources, outpath);
             let solns       = (solve db project SimpleRow) <+> AssetS/ChangeReport/DecodeChanges.decodeChanges();
             let changes     = query solns select (x1, x2, x3, x4, x5) from Change(x1, x2, x3, x4, x5);
-            let* _          = AssetS/ChangeReport/StoreChanges.storeChanges(changes, outpath);
+            let* _          = AssetDS/ChangeReport/StoreChanges.storeChanges(changes, outpath);
             Ok()
         } else Err("Could not find file: ${inpath}")
 

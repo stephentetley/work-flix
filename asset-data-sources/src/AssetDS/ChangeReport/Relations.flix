@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/Relations {
+namespace AssetDS/ChangeReport/Relations {
 
-    use AssetS/ChangeReport/Lattice/Max.{Max};
-    use AssetS/ChangeReport/Lattice/Min.{Min};
+    use AssetDS/ChangeReport/Lattice/Max.{Max};
+    use AssetDS/ChangeReport/Lattice/Min.{Min};
 
     // SourceRow => SimpleRow => Change
 

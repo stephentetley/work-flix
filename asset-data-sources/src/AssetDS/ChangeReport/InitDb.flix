@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace AssetS/ChangeReport/InitDb {
+namespace AssetDS/ChangeReport/InitDb {
 
     use Basis/NIO/File.Path;
     use BasicDb.DbMonad;
